@@ -1,0 +1,23 @@
+[package]
+name = "wpad-sys"
+version.workspace = true
+edition.workspace = true
+license = "GPL-3.0-only"
+
+[dependencies]
+ogc-bt-sync = { path = "../ogc-bt-sync" }
+wiiuse-rs = { path = "../wiiuse-rs" }
+libm = "0.2"
+ogc-sys = { path = "../../abi/ogc-sys" }
+
+[target.'cfg(target_arch = "powerpc")'.dependencies]
+ogc-conf = { path = "../../core/ogc-conf" }
+ogc-cache = { path = "../../core/ogc-cache" }
+ogc-ipc = { path = "../../core/ogc-ipc" }
+ogc-lwp-driver = { path = "../../core/ogc-lwp-driver" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

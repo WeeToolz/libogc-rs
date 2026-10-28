@@ -1,0 +1,16 @@
+[package]
+name = "ogc-wd"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-ipc = { path = "../../core/ogc-ipc" }
+ogc-sys = { path = "../../abi/ogc-sys" }
+ogc-system-sys = { path = "../../core/ogc-system-sys" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

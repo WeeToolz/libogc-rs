@@ -1,0 +1,18 @@
+[package]
+name = "ogc-video-sys"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-sys = { path = "../../abi/ogc-sys" }
+ogc-core = { path = "../../core/ogc-core" }
+ogc-conf = { path = "../../core/ogc-conf" }
+ogc-irq = { path = "../../core/ogc-irq" }
+ogc-lwp-sys = { path = "../../core/ogc-lwp-sys" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

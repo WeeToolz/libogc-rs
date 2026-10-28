@@ -1,0 +1,27 @@
+[package]
+name = "ogc-ui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+default = []
+gx-backend = ["dep:ogc-gx", "dep:ogc-video"]
+pad-input = ["dep:ogc-input"]
+wpad-input = ["dep:wpad-sys"]
+controller-input = ["dep:ogc-controller"]
+
+[dependencies]
+ogc-controller = { path = "../ogc-controller", optional = true }
+
+[target.'cfg(target_arch = "powerpc")'.dependencies]
+ogc-gx = { path = "../../hardware/ogc-gx", optional = true }
+ogc-video = { path = "../../hardware/ogc-video", optional = true }
+ogc-input = { path = "../ogc-input", optional = true }
+wpad-sys = { path = "../wpad-sys", optional = true }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

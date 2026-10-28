@@ -1,0 +1,20 @@
+[package]
+name = "ogc-lwp-driver"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+default = []
+std = []
+
+[dependencies]
+ogc-core = { path = "../ogc-core" }
+ogc-runtime = { path = "../ogc-runtime" }
+ogc-sys = { path = "../../abi/ogc-sys" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

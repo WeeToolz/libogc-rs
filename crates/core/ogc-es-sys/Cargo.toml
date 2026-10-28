@@ -1,0 +1,18 @@
+[package]
+name = "ogc-es-sys"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-ipc = { path = "../ogc-ipc" }
+ogc-sys = { path = "../../abi/ogc-sys" }
+ogc-cache = { path = "../ogc-cache" }
+ogc-lwp-sys = { path = "../ogc-lwp-sys" }
+ogc-sysbase = { path = "../ogc-sysbase" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

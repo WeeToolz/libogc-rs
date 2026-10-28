@@ -1,0 +1,21 @@
+[package]
+name = "mp3player-sys"
+version.workspace = true
+edition.workspace = true
+license = "GPL-2.0-or-later"
+
+[features]
+default = []
+sndlib = ["dep:asnd-sys"]
+
+[dependencies]
+asnd-sys = { path = "../asnd-sys", optional = true }
+ogc-audio-sys = { path = "../../hardware/ogc-audio-sys" }
+ogc-cache = { path = "../../core/ogc-cache" }
+ogc-lwp-sys = { path = "../../core/ogc-lwp-sys" }
+mad-sys = { path = "../mad-sys" }
+libm = "0.2"
+ogc-sys = { path = "../../abi/ogc-sys" }
+
+[lints]
+workspace = true

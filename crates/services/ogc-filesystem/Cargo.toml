@@ -1,0 +1,16 @@
+[package]
+name = "ogc-filesystem"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+iso9660 = { path = "../../media/iso9660" }
+ogc-filesystem-sys = { path = "../ogc-filesystem-sys" }
+ogc-ipc = { path = "../../core/ogc-ipc" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

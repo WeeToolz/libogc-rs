@@ -1,0 +1,17 @@
+[package]
+name = "modplay"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dev-dependencies]
+ogc-sys = { path = "../../abi/ogc-sys" }
+
+[dependencies]
+ogc-sys = { path = "../../abi/ogc-sys" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

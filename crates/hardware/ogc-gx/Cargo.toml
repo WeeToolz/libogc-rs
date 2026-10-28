@@ -1,0 +1,23 @@
+[package]
+name = "ogc-gx"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-gx-sys = { path = "../ogc-gx-sys" }
+ogc-cache = { path = "../../core/ogc-cache" }
+ogc-irq = { path = "../../core/ogc-irq" }
+ogc-gu = { path = "../ogc-gu" }
+ogc-core = { path = "../../core/ogc-core" }
+ogc-system = { path = "../../core/ogc-system" }
+ogc-sysbase = { path = "../../core/ogc-sysbase" }
+ogc-lwp-sys = { path = "../../core/ogc-lwp-sys" }
+ogc-video-sys = { path = "../ogc-video-sys" }
+libm = "0.2"
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

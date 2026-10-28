@@ -1,0 +1,18 @@
+[package]
+name = "wiikeyboard-sys"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-usb = { path = "../../services/ogc-usb" }
+ogc-sys = { path = "../../abi/ogc-sys" }
+ogc-conf = { path = "../../core/ogc-conf" }
+ogc-sysbase = { path = "../../core/ogc-sysbase" }
+ogc-lwp-sys = { path = "../../core/ogc-lwp-sys" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

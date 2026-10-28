@@ -1,0 +1,14 @@
+[package]
+name = "ogc-video"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-video-sys = { path = "../ogc-video-sys" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

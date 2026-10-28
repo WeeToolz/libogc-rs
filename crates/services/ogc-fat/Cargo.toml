@@ -1,0 +1,20 @@
+[package]
+name = "ogc-fat"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-filesystem-sys = { path = "../ogc-filesystem-sys" }
+ogc-gcsd = { path = "../ogc-gcsd" }
+ogc-lwp-sys = { path = "../../core/ogc-lwp-sys" }
+ogc-sysbase = { path = "../../core/ogc-sysbase" }
+ogc-system-sys = { path = "../../core/ogc-system-sys" }
+ogc-usbstorage-sys = { path = "../ogc-usbstorage-sys" }
+ogc-wiisd = { path = "../ogc-wiisd" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

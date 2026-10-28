@@ -1,0 +1,15 @@
+/target/
+**/target/
+/backups/
+/dist/
+__pycache__/
+*.py[cod]
+/Wiiload-rs/
+# Keep local soundtrack MP3s out of Git; they are packaged for gameplay.
+# Generated local voice audio and generation records. Source text and script remain tracked.
+/examples/letter-flip/mp3/
+**/*.rs.bk
+*.patch
+.DS_Store
+Cargo.lock
+/games/

@@ -1,0 +1,18 @@
+[package]
+name = "ogc-si"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+default = []
+diagnostics = ["ogc-si-sys/diagnostics"]
+
+[dependencies]
+ogc-si-sys = { path = "../ogc-si-sys" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

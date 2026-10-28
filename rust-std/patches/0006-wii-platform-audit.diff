@@ -1,0 +1,9 @@
+--- a/std/src/sys/stdio/mod.rs
++++ b/std/src/sys/stdio/mod.rs
+@@ -3,2 +3,6 @@
+ cfg_select! {
++    all(target_arch = "powerpc", target_vendor = "nintendo", target_os = "none", target_env = "eabi", not(gamecube)) => {
++        mod wii;
++        pub use wii::*;
++    }
+     any(target_family = "unix", target_os = "hermit", target_os = "wasi") => {

@@ -1,0 +1,48 @@
+[package]
+name = "ogc"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-sys = { path = "../../abi/ogc-sys" }
+ogc-lwp = { path = "../../core/ogc-lwp" }
+ogc-input-sys = { path = "../../services/ogc-input-sys" }
+ogc-filesystem = { path = "../../services/ogc-filesystem" }
+ogc-core = { path = "../../core/ogc-core" }
+ogc-di = { path = "../../services/ogc-di" }
+ogc-cache = { path = "../../core/ogc-cache" }
+ogc-card = { path = "../ogc-card" }
+ogc-irq = { path = "../../core/ogc-irq" }
+ogc-video = { path = "../../hardware/ogc-video" }
+ogc-gu = { path = "../../hardware/ogc-gu" }
+ogc-gx = { path = "../../hardware/ogc-gx" }
+ogc-si = { path = "../../hardware/ogc-si" }
+ogc-dsp = { path = "../../hardware/ogc-dsp" }
+ogc-dvd = { path = "../ogc-dvd" }
+ogc-usb = { path = "../../services/ogc-usb" }
+ogc-usbgecko = { path = "../../services/ogc-usbgecko" }
+ogc-usbstorage = { path = "../../services/ogc-usbstorage" }
+ogc-wiisd = { path = "../../services/ogc-wiisd" }
+ogc-gcsd = { path = "../../services/ogc-gcsd" }
+ogc-wd = { path = "../../services/ogc-wd" }
+ogc-exi = { path = "../../hardware/ogc-exi" }
+ogc-aram = { path = "../../hardware/ogc-aram" }
+ogc-audio = { path = "../../hardware/ogc-audio" }
+ogc-ios = { path = "../../core/ogc-ios" }
+ogc-bt-sync = { path = "../../services/ogc-bt-sync" }
+ogc-sha = { path = "../../core/ogc-sha" }
+ogc-ipc = { path = "../../core/ogc-ipc" }
+ogc-aes-sys = { path = "../../core/ogc-aes-sys" }
+ogc-conf = { path = "../../core/ogc-conf" }
+ogc-es = { path = "../../core/ogc-es" }
+ogc-network = { path = "../../services/ogc-network" }
+ogc-wiilaunch = { path = "../../core/ogc-wiilaunch" }
+ogc-system = { path = "../../core/ogc-system" }
+ogc-stm = { path = "../../core/ogc-stm" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

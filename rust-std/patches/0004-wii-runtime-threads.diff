@@ -1,0 +1,45 @@
+--- a/std/src/sys/thread/mod.rs
++++ b/std/src/sys/thread/mod.rs
+@@ -1,2 +1,6 @@
+ cfg_select! {
++    all(target_arch = "powerpc", target_vendor = "nintendo", target_os = "none", target_env = "eabi", not(gamecube)) => {
++        mod wii;
++        pub use wii::*;
++    }
+     target_os = "hermit" => {
+--- a/std/src/sys/pal/mod.rs
++++ b/std/src/sys/pal/mod.rs
+@@ -6,2 +6,6 @@
+ cfg_select! {
++    all(target_arch = "powerpc", target_vendor = "nintendo", target_os = "none", target_env = "eabi", not(gamecube)) => {
++        mod wii;
++        pub use self::wii::*;
++    }
+     unix => {
+--- a/std/src/sys/args/mod.rs
++++ b/std/src/sys/args/mod.rs
+@@ -16,2 +16,6 @@
+ cfg_select! {
++    all(target_arch = "powerpc", target_vendor = "nintendo", target_os = "none", target_env = "eabi", not(gamecube)) => {
++        mod wii;
++        pub use wii::*;
++    }
+     any(
+--- a/std/src/sys/sync/thread_parking/mod.rs
++++ b/std/src/sys/sync/thread_parking/mod.rs
+@@ -1,2 +1,6 @@
+ cfg_select! {
++    all(target_arch = "powerpc", target_vendor = "nintendo", target_os = "none", target_env = "eabi", not(gamecube)) => {
++        mod futex;
++        pub use futex::Parker;
++    }
+     any(
+--- a/std/src/sys/thread_local/mod.rs
++++ b/std/src/sys/thread_local/mod.rs
+@@ -99,2 +99,6 @@
+     cfg_select! {
++        all(target_arch = "powerpc", target_vendor = "nintendo", target_os = "none", target_env = "eabi", not(gamecube)) => {
++            mod wii;
++            pub(crate) use wii::enable;
++        }
+         all(target_thread_local, target_vendor = "apple") => {

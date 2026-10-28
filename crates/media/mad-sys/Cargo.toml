@@ -1,0 +1,11 @@
+[package]
+name = "mad-sys"
+version.workspace = true
+edition.workspace = true
+license = "GPL-2.0-or-later"
+
+[dependencies]
+libmad-rs = { path = "../../../vendor/libmad-rs" }
+
+[lints]
+workspace = true

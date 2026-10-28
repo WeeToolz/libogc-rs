@@ -1,0 +1,18 @@
+[package]
+name = "ogc-dvd-sys"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-cache = { path = "../../core/ogc-cache" }
+ogc-di = { path = "../../services/ogc-di" }
+ogc-ipc = { path = "../../core/ogc-ipc" }
+ogc-lwp-sys = { path = "../../core/ogc-lwp-sys" }
+ogc-sys = { path = "../../abi/ogc-sys" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

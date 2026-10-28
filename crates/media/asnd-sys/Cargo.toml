@@ -1,0 +1,18 @@
+[package]
+name = "asnd-sys"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-audio-sys = { path = "../../hardware/ogc-audio-sys" }
+ogc-cache = { path = "../../core/ogc-cache" }
+ogc-dsp-sys = { path = "../../hardware/ogc-dsp-sys" }
+ogc-lwp-driver = { path = "../../core/ogc-lwp-driver" }
+ogc-sys = { path = "../../abi/ogc-sys" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

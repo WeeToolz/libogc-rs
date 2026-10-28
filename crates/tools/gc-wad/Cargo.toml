@@ -1,0 +1,16 @@
+[package]
+name = "gc-wad"
+version.workspace = true
+edition.workspace = true
+license = "GPL-2.0-or-later"
+description = "Checked host-side Wii channel WAD packing and verification"
+
+[dependencies]
+gc-elf = { path = "../gc-elf" }
+gc-binary = { path = "../gc-binary" }
+aes = "0.8.4"
+sha1 = "0.10.7"
+num-bigint = "0.4.8"
+
+[lints]
+workspace = true

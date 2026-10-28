@@ -1,0 +1,11 @@
+[package]
+name = "gdb-transport"
+version.workspace = true
+edition.workspace = true
+license = "Zlib"
+
+[lib]
+name = "gdb_transport"
+
+[lints]
+workspace = true

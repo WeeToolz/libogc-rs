@@ -1,0 +1,12 @@
+[package]
+name = "libmad-rs"
+version = "0.1.0"
+edition = "2024"
+license = "GPL-2.0-or-later"
+description = "Pure Rust port of the libmad MPEG audio decoder"
+
+[lib]
+path = "src/lib.rs"
+
+# This decoder workspace does not define shared lint settings.
+[lints]

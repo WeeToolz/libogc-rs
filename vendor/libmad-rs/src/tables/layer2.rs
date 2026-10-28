@@ -1,0 +1,132 @@
+//! Layer II quantization classes from libmad's `qc_table.dat`.
+
+#[derive(Clone, Copy, Debug)]
+pub struct QuantClass {
+    pub levels: u16,
+    pub group: u8,
+    pub bits: u8,
+    pub c: i32,
+    pub d: i32,
+}
+
+pub const QUANT_CLASSES: [QuantClass; 17] = [
+    QuantClass {
+        levels: 3,
+        group: 2,
+        bits: 5,
+        c: 0x1555_5555,
+        d: 0x0800_0000,
+    },
+    QuantClass {
+        levels: 5,
+        group: 3,
+        bits: 7,
+        c: 0x1999_999a,
+        d: 0x0800_0000,
+    },
+    QuantClass {
+        levels: 7,
+        group: 0,
+        bits: 3,
+        c: 0x1249_2492,
+        d: 0x0400_0000,
+    },
+    QuantClass {
+        levels: 9,
+        group: 4,
+        bits: 10,
+        c: 0x1c71_c71c,
+        d: 0x0800_0000,
+    },
+    QuantClass {
+        levels: 15,
+        group: 0,
+        bits: 4,
+        c: 0x1111_1111,
+        d: 0x0200_0000,
+    },
+    QuantClass {
+        levels: 31,
+        group: 0,
+        bits: 5,
+        c: 0x1084_2108,
+        d: 0x0100_0000,
+    },
+    QuantClass {
+        levels: 63,
+        group: 0,
+        bits: 6,
+        c: 0x1041_0410,
+        d: 0x0080_0000,
+    },
+    QuantClass {
+        levels: 127,
+        group: 0,
+        bits: 7,
+        c: 0x1020_4081,
+        d: 0x0040_0000,
+    },
+    QuantClass {
+        levels: 255,
+        group: 0,
+        bits: 8,
+        c: 0x1010_1010,
+        d: 0x0020_0000,
+    },
+    QuantClass {
+        levels: 511,
+        group: 0,
+        bits: 9,
+        c: 0x1008_0402,
+        d: 0x0010_0000,
+    },
+    QuantClass {
+        levels: 1023,
+        group: 0,
+        bits: 10,
+        c: 0x1004_0100,
+        d: 0x0008_0000,
+    },
+    QuantClass {
+        levels: 2047,
+        group: 0,
+        bits: 11,
+        c: 0x1002_0040,
+        d: 0x0004_0000,
+    },
+    QuantClass {
+        levels: 4095,
+        group: 0,
+        bits: 12,
+        c: 0x1001_0010,
+        d: 0x0002_0000,
+    },
+    QuantClass {
+        levels: 8191,
+        group: 0,
+        bits: 13,
+        c: 0x1000_8004,
+        d: 0x0001_0000,
+    },
+    QuantClass {
+        levels: 16383,
+        group: 0,
+        bits: 14,
+        c: 0x1000_4001,
+        d: 0x0000_8000,
+    },
+    QuantClass {
+        levels: 32767,
+        group: 0,
+        bits: 15,
+        c: 0x1000_2000,
+        d: 0x0000_4000,
+    },
+    QuantClass {
+        levels: 65535,
+        group: 0,
+        bits: 16,
+        c: 0x1000_1000,
+        d: 0x0000_2000,
+    },
+];

@@ -1,0 +1,14 @@
+[package]
+name = "ogc-es"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-es-sys = { path = "../ogc-es-sys" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

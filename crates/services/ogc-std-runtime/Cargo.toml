@@ -1,0 +1,22 @@
+[package]
+name = "ogc-std-runtime"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+default = []
+std = ["ogc-lwp-driver/std"]
+
+[dependencies]
+ogc-video = { path = "../../hardware/ogc-video" }
+ogc-fat = { path = "../ogc-fat" }
+ogc-alloc = { path = "../../core/ogc-alloc" }
+ogc-lwp-driver = { path = "../../core/ogc-lwp-driver" }
+ogc-sysbase = { path = "../../core/ogc-sysbase" }
+ogc-system = { path = "../../core/ogc-system" }
+ogc-network-sys = { path = "../ogc-network-sys" }
+ogc-sys = { path = "../../abi/ogc-sys", features = ["wii-std"] }
+
+[lints]
+workspace = true

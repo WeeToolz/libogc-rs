@@ -1,0 +1,15 @@
+[package]
+name = "ogc-usbgecko"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-exi = { path = "../../hardware/ogc-exi" }
+ogc-lwp-driver = { path = "../../core/ogc-lwp-driver" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

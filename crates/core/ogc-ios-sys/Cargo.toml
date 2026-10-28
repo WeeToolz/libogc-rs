@@ -1,0 +1,19 @@
+[package]
+name = "ogc-ios-sys"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-es-sys = { path = "../ogc-es-sys" }
+ogc-ipc = { path = "../ogc-ipc" }
+ogc-irq = { path = "../ogc-irq" }
+ogc-lwp-driver = { path = "../ogc-lwp-driver" }
+ogc-sys = { path = "../../abi/ogc-sys" }
+ogc-stm = { path = "../ogc-stm" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

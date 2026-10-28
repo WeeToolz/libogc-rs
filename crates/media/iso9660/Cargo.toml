@@ -1,0 +1,15 @@
+[package]
+name = "iso9660"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-filesystem-sys = { path = "../../services/ogc-filesystem-sys" }
+ogc-sysbase = { path = "../../core/ogc-sysbase" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

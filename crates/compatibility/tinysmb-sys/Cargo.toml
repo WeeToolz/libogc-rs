@@ -1,0 +1,20 @@
+[package]
+name = "tinysmb-sys"
+version.workspace = true
+edition.workspace = true
+license = "LGPL-2.1-or-later"
+
+[dependencies]
+ogc-sys = { path = "../../abi/ogc-sys" }
+
+[target.'cfg(target_arch = "powerpc")'.dependencies]
+lwip-sys = { path = "../../services/lwip-sys" }
+ogc-network-sys = { path = "../../services/ogc-network-sys" }
+ogc-system-sys = { path = "../../core/ogc-system-sys" }
+ogc-sysbase = { path = "../../core/ogc-sysbase" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

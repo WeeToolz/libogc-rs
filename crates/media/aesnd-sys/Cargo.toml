@@ -1,0 +1,23 @@
+[package]
+name = "aesnd-sys"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-audio = { path = "../../hardware/ogc-audio" }
+ogc-sys = { path = "../../abi/ogc-sys" }
+ogc-lwp-sys = { path = "../../core/ogc-lwp-sys" }
+ogc-cache = { path = "../../core/ogc-cache" }
+
+ogc-dsp-sys = { path = "../../hardware/ogc-dsp-sys" }
+ogc-system = { path = "../../core/ogc-system" }
+
+[target.'cfg(gamecube)'.dependencies]
+ogc-aram = { path = "../../hardware/ogc-aram" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

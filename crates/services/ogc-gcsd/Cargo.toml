@@ -1,0 +1,18 @@
+[package]
+name = "ogc-gcsd"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-exi = { path = "../../hardware/ogc-exi" }
+ogc-filesystem-sys = { path = "../ogc-filesystem-sys" }
+ogc-lwp-sys = { path = "../../core/ogc-lwp-sys" }
+ogc-system = { path = "../../core/ogc-system" }
+ogc-sys = { path = "../../abi/ogc-sys" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true
