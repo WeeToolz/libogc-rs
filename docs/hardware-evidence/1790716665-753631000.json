@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "run_id": "1790716665-753631000",
+  "status": "passed",
+  "error": null,
+  "tool_version": "0.1.0",
+  "wii_ip": "10.0.0.242",
+  "host_ip": "10.0.0.238",
+  "report_port": 4298,
+  "destination": "tcp:10.0.0.242",
+  "dol_path": "target/xtask/probes-agent/video_probe.dol",
+  "dol_sha256": "12278b24a15b72789c1dda00b4624db7ff4fafeb20d37896377d106d094d63ca",
+  "app_arguments": [],
+  "transmitted_app_arguments": [
+    "--report=10.0.0.238:4298",
+    "--run-id=1790716665-753631000",
+    "--build-id=12278b24a15b72789c1dda00b4624db7ff4fafeb20d37896377d106d094d63ca",
+    "--warmup-frames=30",
+    "--sample-frames=120",
+    "--recovery-reset-ms=120000",
+    "--restart-after-probe"
+  ],
+  "started_unix_ms": 1790716665753,
+  "ended_unix_ms": 1790716706122,
+  "elapsed_ms": 40368,
+  "timeout_seconds": 60,
+  "readiness_checks": [
+    {
+      "name": "report_listener",
+      "passed": true,
+      "detail": "listening on 10.0.0.238:4298"
+    },
+    {
+      "name": "wii_upload_endpoint",
+      "passed": true,
+      "detail": "TCP endpoint 10.0.0.242:4299 accepted a connection"
+    }
+  ],
+  "transfer": {
+    "original_bytes": 206408,
+    "transmitted_bytes": 77632,
+    "elapsed_ms": 7,
+    "compressed": true
+  },
+  "upload_endpoint_went_offline": true,
+  "upload_endpoint_returned": true,
+  "upload_endpoint_offline_ms": 1056,
+  "upload_endpoint_return_ms": 10202,
+  "restart_after_probe": true,
+  "report_log_bytes": 2194,
+  "screen_text": "\n\nBOOT 1/3: system and video initialized\nINFO Wiiload arguments source=system count=7\nPASS SYS_Init completed\nINFO startup stage=0 completed_mask=0x7ff failed_stage=0\nBOOT watchdog arm starting\nINFO recovery reset watchdog armed\nBOOT watchdog arm complete\nBOOT Wiiload report argument check\nPASS Wiiload report arguments parsed\nBOOT before first vsync\nBOOT 2/3: entering IOS pre-main\nPRE 0/7: closing inherited IOS descriptors\nIPC: sync state ready\nIPC: request prepared\nIPC: request sent\nIPC: polling, no completion bits\nIPC: ctrl=0x00000031 arm=0x0065f7a0\nIPC: IOS acknowledged request\nIPC: IOS reply ready\nPRE 1/7: IOS startup\nPRE 2/7: IOS subsystems\nPRE 3/7: STM handler\nPRE 4/7: STM devices\nPRE 5/7: configuration\nPRE 6/7: Wii launch state\nPRE 7/7: complete\nBOOT 3/3: IOS pre-main completed\n-- page 2 --\nPASS display initialized\nINFO boot stage: system/video initialized\nINFO boot stage: IOS pre-main completed\nINFO log backend disabled\nPASS power button callback installed\nINFO stm init deferred until shutdown\nINFO fat mount sd\nINFO feature-disabled\nINFO fat mount usb\nINFO feature-disabled\nINFO previous stm handler chained=0\nINFO previous power callback replaced\n\n== VIDEO PROBE ==\nPASS video init display\nPASS video control register readback\nPASS video framebuffer register readback\nPASS VI retrace IRQ advances counter\nPASS pre retrace callback fired\nPASS post retrace callback fired\nPASS retrace callback order\nPASS video next framebuffer observable\nPASS component cable state sane\n-- page 3 --\nPASS framebuffer draw memory readback\nPASS framebuffer swap register readback\nogc-system-probe video\nPASS console write video banner\nvideo probe validated retrace and swap behavior\nPASS console write video footer\nINFO recovery_reset_watchdog=armed\nINFO performance elapsed_us=8084356 frame_count=120 heap_used_bytes=3847 warmup_frames=30 sample_frames=120 frame_time_average_us=16683 frame_time_min_us=16682 frame_time_max_us=16683\nINFO timebase elapsed_ticks=491124642 frame_average_ticks=1013504 frame_min_ticks=1013483 frame_max_ticks=1013506\nPASS frame waits take at least one millisecond\nPASS summary passes=16 fails=0\nINFO exit_path=hbc_reload_stub status=present return=requested\n",
+  "screen_text_truncated": false,
+  "boot_progress": [
+    {
+      "sequence": 0,
+      "stage": 3,
+      "stage_name": "pre_main_start_visible",
+      "text": "\n\nBOOT 1/3: system and video initialized\nINFO Wiiload arguments source=system count=7\nPASS SYS_Init completed\nINFO startup stage=0 completed_mask=0x7ff failed_stage=0\nBOOT watchdog arm starting\nINFO recovery reset watchdog armed\nBOOT watchdog arm complete\nBOOT Wiiload report argument check\nPASS Wiiload report arguments parsed\nBOOT before first vsync\nBOOT 2/3: entering IOS pre-main\nPRE 0/7: closing inherited IOS descriptors\nIPC: sync state ready\nIPC: request prepared\nIPC: request sent\nIPC: polling, no completion bits\nIPC: ctrl=0x00000031 arm=0x0065f7a0\nIPC: IOS acknowledged request\nIPC: IOS reply ready\nPRE 1/7: IOS startup\nPRE 2/7: IOS subsystems\nPRE 3/7: STM handler\nPRE 4/7: STM devices\nPRE 5/7: configuration\nPRE 6/7: Wii launch state\nPRE 7/7: complete\nBOOT 3/3: IOS pre-main completed\n-- page 2 --\n",
+      "truncated": false,
+      "identity_verified": true
+    }
+  ],
+  "probe_checks": [
+    {
+      "status": "passed",
+      "label": "SYS_Init completed"
+    },
+    {
+      "status": "passed",
+      "label": "Wiiload report arguments parsed"
+    },
+    {
+      "status": "passed",
+      "label": "display initialized"
+    },
+    {
+      "status": "passed",
+      "label": "power button callback installed"
+    },
+    {
+      "status": "passed",
+      "label": "video init display"
+    },
+    {
+      "status": "passed",
+      "label": "video control register readback"
+    },
+    {
+      "status": "passed",
+      "label": "video framebuffer register readback"
+    },
+    {
+      "status": "passed",
+      "label": "VI retrace IRQ advances counter"
+    },
+    {
+      "status": "passed",
+      "label": "pre retrace callback fired"
+    },
+    {
+      "status": "passed",
+      "label": "post retrace callback fired"
+    },
+    {
+      "status": "passed",
+      "label": "retrace callback order"
+    },
+    {
+      "status": "passed",
+      "label": "video next framebuffer observable"
+    },
+    {
+      "status": "passed",
+      "label": "component cable state sane"
+    },
+    {
+      "status": "passed",
+      "label": "framebuffer draw memory readback"
+    },
+    {
+      "status": "passed",
+      "label": "framebuffer swap register readback"
+    },
+    {
+      "status": "passed",
+      "label": "console write video banner"
+    },
+    {
+      "status": "passed",
+      "label": "console write video footer"
+    },
+    {
+      "status": "passed",
+      "label": "frame waits take at least one millisecond"
+    }
+  ],
+  "framebuffer_bytes": 614400,
+  "framebuffer_width": 640,
+  "framebuffer_height": 480,
+  "probe_summary": "PASS summary passes=16 fails=0",
+  "probe_passes": 16,
+  "probe_failures": 0,
+  "probe_passed": true,
+  "probe_run_id": "1790716665-753631000",
+  "probe_build_id": "12278b24a15b72789c1dda00b4624db7ff4fafeb20d37896377d106d094d63ca",
+  "performance": {
+    "elapsed_us": 8084356,
+    "frame_count": 120,
+    "heap_used_bytes": 3847,
+    "warmup_frames": 30,
+    "sample_frames": 120,
+    "frame_time_average_us": 16683,
+    "frame_time_min_us": 16682,
+    "frame_time_max_us": 16683
+  },
+  "recovery_reset_ms": 120000,
+  "recovery_watchdog_status": "armed",
+  "recovery_boot_status": "returned_to_hbc",
+  "warmup_frames": 30,
+  "sample_frames": 120,
+  "hardware_id": null,
+  "artifacts": {
+    "directory": "target/wii-runs/1790716665-753631000-10.0.0.242",
+    "result_json": "target/wii-runs/1790716665-753631000-10.0.0.242/result.json",
+    "probe_log": "target/wii-runs/1790716665-753631000-10.0.0.242/probe.log",
+    "raw_report": "target/wii-runs/1790716665-753631000-10.0.0.242/report.wir",
+    "partial_report": null,
+    "progress_log": "target/wii-runs/1790716665-753631000-10.0.0.242/progress.jsonl",
+    "framebuffer_xfb": "target/wii-runs/1790716665-753631000-10.0.0.242/framebuffer.xfb",
+    "framebuffer_png": "target/wii-runs/1790716665-753631000-10.0.0.242/framebuffer.png",
+    "missing": []
+  }
+}

@@ -1,0 +1,693 @@
+{
+  "checkpoints": [],
+  "schema_version": 1,
+  "run_id": "1792074739-165610000",
+  "status": "passed",
+  "error": null,
+  "tool_version": "0.1.0",
+  "wii_ip": "10.0.0.242",
+  "host_ip": "10.0.0.238",
+  "report_port": 4298,
+  "destination": "tcp:10.0.0.242",
+  "dol_path": "/Volumes/SSD/projects/Wii/wiidev/RustWii/RustPorts/libogc-rs/target/xtask/apps/wii-std-readiness-probe/boot.dol",
+  "dol_sha256": "3c7392d3d14a6dc446d1ff1fa2c8da71010cc7150c1055f0d97b01c9b797af55",
+  "app_arguments": [
+    "--mode=normal",
+    "--utc-offset-seconds=-14400",
+    "--network-endpoint=example.com:80",
+    "--media=both",
+    "--focus=network",
+    "--console-model=RVL-001 (USA)",
+    "--motherboard=unknown",
+    "--network-peer=10.0.0.238:62372:61361"
+  ],
+  "transmitted_app_arguments": [
+    "--mode=normal",
+    "--utc-offset-seconds=-14400",
+    "--network-endpoint=example.com:80",
+    "--media=both",
+    "--focus=network",
+    "--console-model=RVL-001 (USA)",
+    "--motherboard=unknown",
+    "--network-peer=10.0.0.238:62372:61361",
+    "--report=10.0.0.238:4298",
+    "--run-id=1792074739-165610000",
+    "--build-id=3c7392d3d14a6dc446d1ff1fa2c8da71010cc7150c1055f0d97b01c9b797af55",
+    "--warmup-frames=30",
+    "--sample-frames=120"
+  ],
+  "started_unix_ms": 1792074739165,
+  "ended_unix_ms": 1792074762088,
+  "elapsed_ms": 22922,
+  "timeout_seconds": 180,
+  "readiness_checks": [
+    {
+      "name": "report_listener",
+      "passed": true,
+      "detail": "listening on 10.0.0.238:4298"
+    },
+    {
+      "name": "wii_upload_endpoint",
+      "passed": true,
+      "detail": "TCP upload connection to 10.0.0.242:4299 established and retained"
+    }
+  ],
+  "transfer": {
+    "original_bytes": 1030428,
+    "transmitted_bytes": 403326,
+    "elapsed_ms": 630,
+    "compressed": true
+  },
+  "upload_endpoint_went_offline": true,
+  "upload_endpoint_returned": false,
+  "upload_endpoint_offline_ms": 1293,
+  "upload_endpoint_return_ms": null,
+  "restart_after_probe": false,
+  "report_log_bytes": 10288,
+  "screen_text": "\n\nBOOT 1/3: system and video initialized\nINFO Wiiload arguments source=system count=14\nPASS SYS_Init completed\nINFO startup stage=0 completed_mask=0x7ff failed_stage=0\nBOOT watchdog arm starting\nINFO recovery reset watchdog not armed\nBOOT watchdog arm complete\nBOOT Wiiload report argument check\nPASS Wiiload report arguments parsed\nBOOT before first vsync\nBOOT 2/3: entering IOS pre-main\nPRE 0/7: closing inherited IOS descriptors\nIPC: sync state ready\nIPC: request prepared\nIPC: request sent\nIPC: polling, no completion bits\nIPC: ctrl=0x00000031 arm=0x133e0f40\nPRE 1/7: IOS startup\nPRE 2/7: IOS subsystems\nPRE 3/7: STM handler\nPRE 4/7: STM devices\nPRE 5/7: configuration\nPRE 6/7: Wii launch state\nPRE 7/7: complete\nBOOT 3/3: IOS pre-main completed\n-- page 2 --\nPASS display initialized\nINFO boot stage: system/video initialized\nINFO boot stage: IOS pre-main completed\nINFO log backend disabled\nPASS power button callback installed\nINFO stm init deferred until shutdown\nINFO fat mount sd\nINFO feature-disabled\nINFO fat mount usb\nINFO feature-disabled\nINFO previous stm handler chained=0\nINFO previous power callback replaced\nPASS activity indicator has a valid framebuffer\nINFO Corner: spinner means VI active; STEP seconds measure time since logged progress.\nINFO IOS version=58 revision=6176\nPASS console MODEL has bounded printable bytes\nINFO MODEL from console settings: RVL-001(USA)\nINFO Hollywood revision read from hardware: 0x00000011\nINFO Run scope: network; unselected suites are UNTESTED, never counted as passes.\nINFO UNTESTED this focused run: DIAGNOSTICS\nINFO UNTESTED this focused run: ALLOCATOR AND MEMORY OWNERSHIP\n-- page 3 --\n\n== NORMAL ENTRY, THREADS AND TLS ==\n\n== NORMAL RUST MAIN ENTRY ==\nPASS early system and heap startup completed\nPASS compiler-generated entry selected Wii PAL\nPASS Rust main is the initial LWP thread\nPASS Rust main has its standard name\nPASS main name is stored in production scheduler\nPASS std argument provider uses the sheltered vector\nPASS args_os preserves actual loader argument bytes\nPASS argument iterators own independent double-ended snapshots\nPASS malformed argument output is rejected\nPASS repeated compiler entry is rejected\nPASS rejected entry did not change runtime state\n\n== STD THREAD ABI VALIDATION AND CLEANUP ORDER ==\nPASS invalid callback rejects without publishing a handle\nPASS null handle output rejects before creation\nPASS driver validates a missing entry\nPASS invalid native join is an error\nPASS invalid detach is an error\nPASS null cleanup callback is rejected\n-- page 4 --\nPASS invalid duration is rejected\nPASS masked thread operation fails before scheduling\nPASS parallelism reads a supported initialized Wii\nPASS raw std worker published only after real creation\nPASS compatibility handles cannot consume std ownership\nPASS raw std join includes real callback completion\nPASS cleanup-order TLS key released\nPASS cleanup failure worker created\nPASS destructor limit returns a real join error\nPASS failed cleanup still releases the joined native slot\nPASS cleanup failure key released\n\n== ACTUAL STD THREAD SPAWN AND JOIN ==\nPASS spawned Rust identity differs from main\nPASS join publishes real value, identity, name, and checked stack\nPASS join includes completed TLS destruction\nPASS scoped workers complete borrowed writes before scope returns\nPASS hardware parallelism is one on supported Wii\n\n== STD THREAD FAILURE AND DETACH CLEANUP ==\nPASS spawn returned the real stack/allocator failure\nPASS failed spawn drops its captured value exactly once\nPASS spawn returned the real stack/allocator failure\n-- page 5 --\nPASS failed spawn drops its captured value exactly once\nPASS minimum stack adjustment works after allocation failure\nPASS 64 detached std workers released their dynamic stacks\nPASS detached results were dropped after actual worker completion\nPASS detached cleanup did not hide a TLS failure\n\n== ACTUAL STD PARK AND UNPARK ==\nPASS unpark-before-park retains exactly one coalesced token\nPASS park worker reached wait protocol\nPASS cross-thread unpark publishes data to the waking worker\nPASS timeout/unpark races retain progress in all rounds\nPASS all raw TLS and callback operations returned their real result\nINFO NORMAL ENTRY, THREADS AND TLS: 46 passed, 0 failed\nINFO UNTESTED this focused run: PRODUCTION FUTEX TRANSPORT\nINFO UNTESTED this focused run: STD SYNCHRONIZATION\n\n== CLOCKS AND DEADLINES ==\nPASS UTC offset argument is valid and is not repeated\n\n== STD CLOCK ARITHMETIC ==\nPASS Instant checked arithmetic keeps nanoseconds\nPASS Instant rejects addition overflow\nPASS SystemTime supports before-epoch arithmetic\n-- page 6 --\nPASS SystemTime rejects addition overflow\n\n== STABLE MONOTONIC CLOCK ==\nPASS system initialization established a valid origin\nPASS pre-main did not reset Instant or the hardware timebase\nPASS repeated real Instant samples are ordered\nPASS fallible monotonic facade returns a real sample\nPASS fallible system ABI returns a real sample\nPASS std clock ABI returns normalized monotonic time\nPASS invalid clock output is rejected without changing the other output\nPASS overlapping clock outputs are rejected without a write\nPASS sleep meets its lower bound on the independent raw counter\nPASS Instant elapsed agrees with raw-counter elapsed\n\n== STD ABSOLUTE DEADLINES AND SPURIOUS NOTIFICATIONS ==\nPASS notifications do not restart the original condition deadline\nPASS notification worker completed and joined\nPASS zero park timeout does not become an infinite wait\n\n== REAL RTC AND EXPLICIT UTC CALENDAR ==\nPASS invalid UTC offset leaves the clock state unchanged\nPASS unconfigured UTC clock returns an error and preserves outputs\nINFO configured seconds east of UTC=-14400\n-- page 7 --\nPASS explicit UTC offset accepted\nPASS actual RTC and console bias refreshed\nPASS refreshed wall clock has a valid UTC state\nPASS actual SystemTime uses the RTC epoch, bias, and supplied UTC offset\nPASS fallible wall facade returns real UTC time\nPASS fallible wall ABI returns real UTC time\nPASS direct clock snapshot agrees with the facade\nPASS direct offset ABI accepts the same explicit setting\nPASS RTC seconds and monotonic elapsed agree across a real wait\nPASS UTC wall time advances after the real RTC refresh\nPASS RTC refresh rejects masked context before EXI access\nINFO CLOCKS AND DEADLINES: 31 passed, 0 failed\n\n== TCP, UDP AND DNS ==\n\n== STD NETWORK INITIALIZATION ==\nPASS IOS network stack initializes\nINFO host TCP and UDP peer: 10.0.0.238:62372/61361\n\n== STD TCP LISTENER AND OPTIONS ==\nINFO Wii TCP listener endpoint: 10.0.0.242:49152\nPASS listener clone shares its bound address\nPASS empty listener returns WouldBlock\n-- page 8 --\nPASS accepted socket reports its actual peer\nPASS nodelay getter reads enabled state\nPASS nodelay getter reads disabled state\nPASS TCP server receives fixed peer bytes\nPASS TCP client receives fixed peer reply\nPASS TCP listener exchanges bytes with its peer\nPASS TCP listener tests close all socket owners\n\n== STD UDP DATAGRAMS AND CLONE SETTINGS ==\nPASS UDP clone sees shared timeout\nPASS zero timeout fails without changing settings\nPASS broadcast send is rejected while permission is disabled\nPASS broadcast getter reads enabled state\nPASS broadcast getter reads disabled state\nPASS UDP broadcast option acceptance completes\nPASS oversized TTL rejected before transport\nPASS UDP sends complete fixed datagram to real peer\nPASS UDP peek preserves bytes and peer source\nPASS UDP truncates one datagram and preserves source\nPASS UDP truncation consumes the entire datagram\nPASS UDP sends a real empty datagram\nPASS UDP receives empty datagram from real peer\nPASS connected UDP reports actual peer\n-- page 9 --\nPASS connected UDP sends full datagram\nPASS connected UDP receives peer reply\nPASS UDP edge acceptance completes\nPASS UDP edge tests close all shared sockets\n\n== STD UDP ABSOLUTE READ DEADLINE ==\nPASS idle UDP receive returns the timeout error\nINFO UDP timeout elapsed: 76 ms, 4618021 raw ticks\nPASS UDP receive uses one bounded absolute deadline\nINFO DNS and HTTP endpoint: example.com:80\n\n== STD DNS OWNERSHIP AND CONCURRENCY ==\nPASS DNS returns at least one IPv4 address\nPASS main DNS lookup overlaps the worker lookup\nPASS concurrent DNS lookup completes with an IPv4 answer\n\n== STD TCP AND SHARED SOCKET OWNERSHIP ==\nPASS connect_timeout reports the unsupported completion query\nPASS TCP clone shares one live socket\nPASS TCP stores and returns read/write timeouts\nPASS TCP exchanges real HTTP bytes\nPASS TCP clone reads bytes retained after a short read\nPASS dropping one clone keeps its socket open\n-- page 10 --\nPASS dropping the final clone closes its socket\nPASS socket cleanup reports no close failure\nINFO TCP, UDP AND DNS: 41 passed, 0 failed\nINFO UNTESTED this focused run: SD FILES AND ENVIRONMENT\nINFO UNTESTED this focused run: USB FAT FILES AND ENVIRONMENT\nINFO UNTESTED this focused run: USB IOS AND DEFERRED CALLBACKS\nINFO UNTESTED this focused run: NATIVE PLATFORM LIMITS\nINFO UNTESTED this focused run: ERROR TRANSLATION AND CONTROLLED CLEANUP\n\n== REMAINING READINESS GATES ==\nINFO Entropy remains unverified. Use mode=entropy for its terminal rejection test.\nINFO Use mode=panic for the default panic-abort diagnostic test.\nINFO Media-removal and power-loss tests require separate controlled runs.\n\n== AFTER COMPILER-GENERATED MAIN RETURN ==\nPASS main return status reached the real exit callback\nPASS runtime cleanup finished before the exit callback\nPASS initial-thread and late TLS destructors completed\nPASS cleanup after return is rejected\nPASS second return does not overwrite committed status\nPASS no TLS cleanup failure was hidden\n-- page 11 --\nINFO Returning to System Menu after the summary delay.\nPASS probe VI retraces complete within 100 ms\nINFO recovery_reset_watchdog=not_requested\nINFO performance elapsed_us=7772626 frame_count=120 heap_used_bytes=0 warmup_frames=30 sample_frames=120 frame_time_average_us=16683 frame_time_min_us=16682 frame_time_max_us=16683\nINFO timebase elapsed_ticks=472187031 frame_average_ticks=1013504 frame_min_ticks=1013465 frame_max_ticks=1013516\nPASS frame waits take at least one millisecond\nINFO summary_candidate passes=130 fails=0\nModel: RVL-001 (USA) (label)\nMB (label): unknown\nHollywood revision: 0x00000011\nPASS summary passes=130 fails=0\n",
+  "screen_text_truncated": false,
+  "boot_progress": [
+    {
+      "sequence": 0,
+      "stage": 3,
+      "stage_name": "pre_main_start_visible",
+      "text": "\n\nBOOT 1/3: system and video initialized\nINFO Wiiload arguments source=system count=14\nPASS SYS_Init completed\nINFO startup stage=0 completed_mask=0x7ff failed_stage=0\nBOOT watchdog arm starting\nINFO recovery reset watchdog not armed\nBOOT watchdog arm complete\nBOOT Wiiload report argument check\nPASS Wiiload report arguments parsed\nBOOT before first vsync\nBOOT 2/3: entering IOS pre-main\nPRE 0/7: closing inherited IOS descriptors\nIPC: sync state ready\nIPC: request prepared\nIPC: request sent\nIPC: polling, no completion bits\nIPC: ctrl=0x00000031 arm=0x133e0f40\nPRE 1/7: IOS startup\nPRE 2/7: IOS subsystems\nPRE 3/7: STM handler\nPRE 4/7: STM devices\nPRE 5/7: configuration\nPRE 6/7: Wii launch state\nPRE 7/7: complete\nBOOT 3/3: IOS pre-main completed\n-- page 2 --\n",
+      "truncated": false,
+      "identity_verified": true
+    },
+    {
+      "sequence": 1,
+      "stage": 4,
+      "stage_name": "pre_main_start",
+      "text": "PASS display initialized\nINFO boot stage: system/video initialized\nINFO boot stage: IOS pre-main completed\nINFO log backend disabled\nPASS power button callback installed\nINFO stm init deferred until shutdown\nINFO fat mount sd\nINFO feature-disabled\nINFO fat mount usb\nINFO feature-disabled\nINFO previous stm handler chained=0\nINFO previous power callback replaced\nPASS activity indicator has a valid framebuffer\nINFO Corner: spinner means VI active; STEP seconds measure time since logged progress.\nINFO IOS version=58 revision=6176\nPASS console MODEL has bounded printable bytes\nINFO MODEL from console settings: RVL-001(USA)\nINFO Hollywood revision read from hardware: 0x00000011\nINFO Run scope: network; unselected suites are UNTESTED, never counted as passes.\nINFO UNTESTED this focused run: DIAGNOSTICS\nINFO UNTESTED this focused run: ALLOCATOR AND MEMORY OWNERSHIP\n-- page 3 --\n\n== NORMAL ENTRY, THREADS AND TLS ==\n",
+      "truncated": false,
+      "identity_verified": true
+    },
+    {
+      "sequence": 2,
+      "stage": 5,
+      "stage_name": "pre_main_complete",
+      "text": "\n== NORMAL RUST MAIN ENTRY ==\nPASS early system and heap startup completed\nPASS compiler-generated entry selected Wii PAL\nPASS Rust main is the initial LWP thread\nPASS Rust main has its standard name\nPASS main name is stored in production scheduler\nPASS std argument provider uses the sheltered vector\nPASS args_os preserves actual loader argument bytes\nPASS argument iterators own independent double-ended snapshots\nPASS malformed argument output is rejected\nPASS repeated compiler entry is rejected\nPASS rejected entry did not change runtime state\n\n== STD THREAD ABI VALIDATION AND CLEANUP ORDER ==\nPASS invalid callback rejects without publishing a handle\nPASS null handle output rejects before creation\nPASS driver validates a missing entry\nPASS invalid native join is an error\nPASS invalid detach is an error\nPASS null cleanup callback is rejected\n-- page 4 --\nPASS invalid duration is rejected\nPASS masked thread operation fails before scheduling\nPASS parallelism reads a supported initialized Wii\nPASS raw std worker published only after real creation\nPASS compatibility handles cannot consume std ownership\nPASS raw std join includes real callback completion\nPASS cleanup-order TLS key released\nPASS cleanup failure worker created\nPASS destructor limit returns a real join error\nPASS failed cleanup still releases the joined native slot\nPASS cleanup failure key released\n\n== ACTUAL STD THREAD SPAWN AND JOIN ==\nPASS spawned Rust identity differs from main\nPASS join publishes real value, identity, name, and checked stack\nPASS join includes completed TLS destruction\nPASS scoped workers complete borrowed writes before scope returns\nPASS hardware parallelism is one on supported Wii\n\n== STD THREAD FAILURE AND DETACH CLEANUP ==\nPASS spawn returned the real stack/allocator failure\nPASS failed spawn drops its captured value exactly once\nPASS spawn returned the real stack/allocator failure\n-- page 5 --\nPASS failed spawn drops its captured value exactly once\nPASS minimum stack adjustment works after allocation failure\nPASS 64 detached std workers released their dynamic stacks\nPASS detached results were dropped after actual worker completion\nPASS detached cleanup did not hide a TLS failure\n\n== ACTUAL STD PARK AND UNPARK ==\nPASS unpark-before-park retains exactly one coalesced token\nPASS park worker reached wait protocol\nPASS cross-thread unpark publishes data to the waking worker\nPASS timeout/unpark races retain progress in all rounds\nPASS all raw TLS and callback operations returned their real result\nINFO NORMAL ENTRY, THREADS AND TLS: 46 passed, 0 failed\n",
+      "truncated": false,
+      "identity_verified": true
+    },
+    {
+      "sequence": 3,
+      "stage": 4,
+      "stage_name": "pre_main_start",
+      "text": "INFO UNTESTED this focused run: PRODUCTION FUTEX TRANSPORT\nINFO UNTESTED this focused run: STD SYNCHRONIZATION\n\n== CLOCKS AND DEADLINES ==\n",
+      "truncated": false,
+      "identity_verified": true
+    },
+    {
+      "sequence": 4,
+      "stage": 5,
+      "stage_name": "pre_main_complete",
+      "text": "PASS UTC offset argument is valid and is not repeated\n\n== STD CLOCK ARITHMETIC ==\nPASS Instant checked arithmetic keeps nanoseconds\nPASS Instant rejects addition overflow\nPASS SystemTime supports before-epoch arithmetic\n-- page 6 --\nPASS SystemTime rejects addition overflow\n\n== STABLE MONOTONIC CLOCK ==\nPASS system initialization established a valid origin\nPASS pre-main did not reset Instant or the hardware timebase\nPASS repeated real Instant samples are ordered\nPASS fallible monotonic facade returns a real sample\nPASS fallible system ABI returns a real sample\nPASS std clock ABI returns normalized monotonic time\nPASS invalid clock output is rejected without changing the other output\nPASS overlapping clock outputs are rejected without a write\nPASS sleep meets its lower bound on the independent raw counter\nPASS Instant elapsed agrees with raw-counter elapsed\n\n== STD ABSOLUTE DEADLINES AND SPURIOUS NOTIFICATIONS ==\nPASS notifications do not restart the original condition deadline\nPASS notification worker completed and joined\nPASS zero park timeout does not become an infinite wait\n\n== REAL RTC AND EXPLICIT UTC CALENDAR ==\nPASS invalid UTC offset leaves the clock state unchanged\nPASS unconfigured UTC clock returns an error and preserves outputs\nINFO configured seconds east of UTC=-14400\n-- page 7 --\nPASS explicit UTC offset accepted\nPASS actual RTC and console bias refreshed\nPASS refreshed wall clock has a valid UTC state\nPASS actual SystemTime uses the RTC epoch, bias, and supplied UTC offset\nPASS fallible wall facade returns real UTC time\nPASS fallible wall ABI returns real UTC time\nPASS direct clock snapshot agrees with the facade\nPASS direct offset ABI accepts the same explicit setting\nPASS RTC seconds and monotonic elapsed agree across a real wait\nPASS UTC wall time advances after the real RTC refresh\nPASS RTC refresh rejects masked context before EXI access\nINFO CLOCKS AND DEADLINES: 31 passed, 0 failed\n",
+      "truncated": false,
+      "identity_verified": true
+    },
+    {
+      "sequence": 5,
+      "stage": 4,
+      "stage_name": "pre_main_start",
+      "text": "\n== TCP, UDP AND DNS ==\n",
+      "truncated": false,
+      "identity_verified": true
+    },
+    {
+      "sequence": 6,
+      "stage": 5,
+      "stage_name": "pre_main_complete",
+      "text": "\n== STD NETWORK INITIALIZATION ==\nPASS IOS network stack initializes\nINFO host TCP and UDP peer: 10.0.0.238:62372/61361\n\n== STD TCP LISTENER AND OPTIONS ==\nINFO Wii TCP listener endpoint: 10.0.0.242:49152\nPASS listener clone shares its bound address\nPASS empty listener returns WouldBlock\n-- page 8 --\nPASS accepted socket reports its actual peer\nPASS nodelay getter reads enabled state\nPASS nodelay getter reads disabled state\nPASS TCP server receives fixed peer bytes\nPASS TCP client receives fixed peer reply\nPASS TCP listener exchanges bytes with its peer\nPASS TCP listener tests close all socket owners\n\n== STD UDP DATAGRAMS AND CLONE SETTINGS ==\nPASS UDP clone sees shared timeout\nPASS zero timeout fails without changing settings\nPASS broadcast send is rejected while permission is disabled\nPASS broadcast getter reads enabled state\nPASS broadcast getter reads disabled state\nPASS UDP broadcast option acceptance completes\nPASS oversized TTL rejected before transport\nPASS UDP sends complete fixed datagram to real peer\nPASS UDP peek preserves bytes and peer source\nPASS UDP truncates one datagram and preserves source\nPASS UDP truncation consumes the entire datagram\nPASS UDP sends a real empty datagram\nPASS UDP receives empty datagram from real peer\nPASS connected UDP reports actual peer\n-- page 9 --\nPASS connected UDP sends full datagram\nPASS connected UDP receives peer reply\nPASS UDP edge acceptance completes\nPASS UDP edge tests close all shared sockets\n\n== STD UDP ABSOLUTE READ DEADLINE ==\nPASS idle UDP receive returns the timeout error\nINFO UDP timeout elapsed: 76 ms, 4618021 raw ticks\nPASS UDP receive uses one bounded absolute deadline\nINFO DNS and HTTP endpoint: example.com:80\n\n== STD DNS OWNERSHIP AND CONCURRENCY ==\nPASS DNS returns at least one IPv4 address\nPASS main DNS lookup overlaps the worker lookup\nPASS concurrent DNS lookup completes with an IPv4 answer\n\n== STD TCP AND SHARED SOCKET OWNERSHIP ==\nPASS connect_timeout reports the unsupported completion query\nPASS TCP clone shares one live socket\nPASS TCP stores and returns read/write timeouts\nPASS TCP exchanges real HTTP bytes\nPASS TCP clone reads bytes retained after a short read\nPASS dropping one clone keeps its socket open\n-- page 10 --\nPASS dropping the final clone closes its socket\nPASS socket cleanup reports no close failure\nINFO TCP, UDP AND DNS: 41 passed, 0 failed\n",
+      "truncated": false,
+      "identity_verified": true
+    }
+  ],
+  "probe_checks": [
+    {
+      "status": "passed",
+      "label": "SYS_Init completed"
+    },
+    {
+      "status": "passed",
+      "label": "Wiiload report arguments parsed"
+    },
+    {
+      "status": "passed",
+      "label": "display initialized"
+    },
+    {
+      "status": "passed",
+      "label": "power button callback installed"
+    },
+    {
+      "status": "passed",
+      "label": "activity indicator has a valid framebuffer"
+    },
+    {
+      "status": "passed",
+      "label": "console MODEL has bounded printable bytes"
+    },
+    {
+      "status": "passed",
+      "label": "early system and heap startup completed"
+    },
+    {
+      "status": "passed",
+      "label": "compiler-generated entry selected Wii PAL"
+    },
+    {
+      "status": "passed",
+      "label": "Rust main is the initial LWP thread"
+    },
+    {
+      "status": "passed",
+      "label": "Rust main has its standard name"
+    },
+    {
+      "status": "passed",
+      "label": "main name is stored in production scheduler"
+    },
+    {
+      "status": "passed",
+      "label": "std argument provider uses the sheltered vector"
+    },
+    {
+      "status": "passed",
+      "label": "args_os preserves actual loader argument bytes"
+    },
+    {
+      "status": "passed",
+      "label": "argument iterators own independent double-ended snapshots"
+    },
+    {
+      "status": "passed",
+      "label": "malformed argument output is rejected"
+    },
+    {
+      "status": "passed",
+      "label": "repeated compiler entry is rejected"
+    },
+    {
+      "status": "passed",
+      "label": "rejected entry did not change runtime state"
+    },
+    {
+      "status": "passed",
+      "label": "invalid callback rejects without publishing a handle"
+    },
+    {
+      "status": "passed",
+      "label": "null handle output rejects before creation"
+    },
+    {
+      "status": "passed",
+      "label": "driver validates a missing entry"
+    },
+    {
+      "status": "passed",
+      "label": "invalid native join is an error"
+    },
+    {
+      "status": "passed",
+      "label": "invalid detach is an error"
+    },
+    {
+      "status": "passed",
+      "label": "null cleanup callback is rejected"
+    },
+    {
+      "status": "passed",
+      "label": "invalid duration is rejected"
+    },
+    {
+      "status": "passed",
+      "label": "masked thread operation fails before scheduling"
+    },
+    {
+      "status": "passed",
+      "label": "parallelism reads a supported initialized Wii"
+    },
+    {
+      "status": "passed",
+      "label": "raw std worker published only after real creation"
+    },
+    {
+      "status": "passed",
+      "label": "compatibility handles cannot consume std ownership"
+    },
+    {
+      "status": "passed",
+      "label": "raw std join includes real callback completion"
+    },
+    {
+      "status": "passed",
+      "label": "cleanup-order TLS key released"
+    },
+    {
+      "status": "passed",
+      "label": "cleanup failure worker created"
+    },
+    {
+      "status": "passed",
+      "label": "destructor limit returns a real join error"
+    },
+    {
+      "status": "passed",
+      "label": "failed cleanup still releases the joined native slot"
+    },
+    {
+      "status": "passed",
+      "label": "cleanup failure key released"
+    },
+    {
+      "status": "passed",
+      "label": "spawned Rust identity differs from main"
+    },
+    {
+      "status": "passed",
+      "label": "join publishes real value, identity, name, and checked stack"
+    },
+    {
+      "status": "passed",
+      "label": "join includes completed TLS destruction"
+    },
+    {
+      "status": "passed",
+      "label": "scoped workers complete borrowed writes before scope returns"
+    },
+    {
+      "status": "passed",
+      "label": "hardware parallelism is one on supported Wii"
+    },
+    {
+      "status": "passed",
+      "label": "spawn returned the real stack/allocator failure"
+    },
+    {
+      "status": "passed",
+      "label": "failed spawn drops its captured value exactly once"
+    },
+    {
+      "status": "passed",
+      "label": "spawn returned the real stack/allocator failure"
+    },
+    {
+      "status": "passed",
+      "label": "failed spawn drops its captured value exactly once"
+    },
+    {
+      "status": "passed",
+      "label": "minimum stack adjustment works after allocation failure"
+    },
+    {
+      "status": "passed",
+      "label": "64 detached std workers released their dynamic stacks"
+    },
+    {
+      "status": "passed",
+      "label": "detached results were dropped after actual worker completion"
+    },
+    {
+      "status": "passed",
+      "label": "detached cleanup did not hide a TLS failure"
+    },
+    {
+      "status": "passed",
+      "label": "unpark-before-park retains exactly one coalesced token"
+    },
+    {
+      "status": "passed",
+      "label": "park worker reached wait protocol"
+    },
+    {
+      "status": "passed",
+      "label": "cross-thread unpark publishes data to the waking worker"
+    },
+    {
+      "status": "passed",
+      "label": "timeout/unpark races retain progress in all rounds"
+    },
+    {
+      "status": "passed",
+      "label": "all raw TLS and callback operations returned their real result"
+    },
+    {
+      "status": "passed",
+      "label": "UTC offset argument is valid and is not repeated"
+    },
+    {
+      "status": "passed",
+      "label": "Instant checked arithmetic keeps nanoseconds"
+    },
+    {
+      "status": "passed",
+      "label": "Instant rejects addition overflow"
+    },
+    {
+      "status": "passed",
+      "label": "SystemTime supports before-epoch arithmetic"
+    },
+    {
+      "status": "passed",
+      "label": "SystemTime rejects addition overflow"
+    },
+    {
+      "status": "passed",
+      "label": "system initialization established a valid origin"
+    },
+    {
+      "status": "passed",
+      "label": "pre-main did not reset Instant or the hardware timebase"
+    },
+    {
+      "status": "passed",
+      "label": "repeated real Instant samples are ordered"
+    },
+    {
+      "status": "passed",
+      "label": "fallible monotonic facade returns a real sample"
+    },
+    {
+      "status": "passed",
+      "label": "fallible system ABI returns a real sample"
+    },
+    {
+      "status": "passed",
+      "label": "std clock ABI returns normalized monotonic time"
+    },
+    {
+      "status": "passed",
+      "label": "invalid clock output is rejected without changing the other output"
+    },
+    {
+      "status": "passed",
+      "label": "overlapping clock outputs are rejected without a write"
+    },
+    {
+      "status": "passed",
+      "label": "sleep meets its lower bound on the independent raw counter"
+    },
+    {
+      "status": "passed",
+      "label": "Instant elapsed agrees with raw-counter elapsed"
+    },
+    {
+      "status": "passed",
+      "label": "notifications do not restart the original condition deadline"
+    },
+    {
+      "status": "passed",
+      "label": "notification worker completed and joined"
+    },
+    {
+      "status": "passed",
+      "label": "zero park timeout does not become an infinite wait"
+    },
+    {
+      "status": "passed",
+      "label": "invalid UTC offset leaves the clock state unchanged"
+    },
+    {
+      "status": "passed",
+      "label": "unconfigured UTC clock returns an error and preserves outputs"
+    },
+    {
+      "status": "passed",
+      "label": "explicit UTC offset accepted"
+    },
+    {
+      "status": "passed",
+      "label": "actual RTC and console bias refreshed"
+    },
+    {
+      "status": "passed",
+      "label": "refreshed wall clock has a valid UTC state"
+    },
+    {
+      "status": "passed",
+      "label": "actual SystemTime uses the RTC epoch, bias, and supplied UTC offset"
+    },
+    {
+      "status": "passed",
+      "label": "fallible wall facade returns real UTC time"
+    },
+    {
+      "status": "passed",
+      "label": "fallible wall ABI returns real UTC time"
+    },
+    {
+      "status": "passed",
+      "label": "direct clock snapshot agrees with the facade"
+    },
+    {
+      "status": "passed",
+      "label": "direct offset ABI accepts the same explicit setting"
+    },
+    {
+      "status": "passed",
+      "label": "RTC seconds and monotonic elapsed agree across a real wait"
+    },
+    {
+      "status": "passed",
+      "label": "UTC wall time advances after the real RTC refresh"
+    },
+    {
+      "status": "passed",
+      "label": "RTC refresh rejects masked context before EXI access"
+    },
+    {
+      "status": "passed",
+      "label": "IOS network stack initializes"
+    },
+    {
+      "status": "passed",
+      "label": "listener clone shares its bound address"
+    },
+    {
+      "status": "passed",
+      "label": "empty listener returns WouldBlock"
+    },
+    {
+      "status": "passed",
+      "label": "accepted socket reports its actual peer"
+    },
+    {
+      "status": "passed",
+      "label": "nodelay getter reads enabled state"
+    },
+    {
+      "status": "passed",
+      "label": "nodelay getter reads disabled state"
+    },
+    {
+      "status": "passed",
+      "label": "TCP server receives fixed peer bytes"
+    },
+    {
+      "status": "passed",
+      "label": "TCP client receives fixed peer reply"
+    },
+    {
+      "status": "passed",
+      "label": "TCP listener exchanges bytes with its peer"
+    },
+    {
+      "status": "passed",
+      "label": "TCP listener tests close all socket owners"
+    },
+    {
+      "status": "passed",
+      "label": "UDP clone sees shared timeout"
+    },
+    {
+      "status": "passed",
+      "label": "zero timeout fails without changing settings"
+    },
+    {
+      "status": "passed",
+      "label": "broadcast send is rejected while permission is disabled"
+    },
+    {
+      "status": "passed",
+      "label": "broadcast getter reads enabled state"
+    },
+    {
+      "status": "passed",
+      "label": "broadcast getter reads disabled state"
+    },
+    {
+      "status": "passed",
+      "label": "UDP broadcast option acceptance completes"
+    },
+    {
+      "status": "passed",
+      "label": "oversized TTL rejected before transport"
+    },
+    {
+      "status": "passed",
+      "label": "UDP sends complete fixed datagram to real peer"
+    },
+    {
+      "status": "passed",
+      "label": "UDP peek preserves bytes and peer source"
+    },
+    {
+      "status": "passed",
+      "label": "UDP truncates one datagram and preserves source"
+    },
+    {
+      "status": "passed",
+      "label": "UDP truncation consumes the entire datagram"
+    },
+    {
+      "status": "passed",
+      "label": "UDP sends a real empty datagram"
+    },
+    {
+      "status": "passed",
+      "label": "UDP receives empty datagram from real peer"
+    },
+    {
+      "status": "passed",
+      "label": "connected UDP reports actual peer"
+    },
+    {
+      "status": "passed",
+      "label": "connected UDP sends full datagram"
+    },
+    {
+      "status": "passed",
+      "label": "connected UDP receives peer reply"
+    },
+    {
+      "status": "passed",
+      "label": "UDP edge acceptance completes"
+    },
+    {
+      "status": "passed",
+      "label": "UDP edge tests close all shared sockets"
+    },
+    {
+      "status": "passed",
+      "label": "idle UDP receive returns the timeout error"
+    },
+    {
+      "status": "passed",
+      "label": "UDP receive uses one bounded absolute deadline"
+    },
+    {
+      "status": "passed",
+      "label": "DNS returns at least one IPv4 address"
+    },
+    {
+      "status": "passed",
+      "label": "main DNS lookup overlaps the worker lookup"
+    },
+    {
+      "status": "passed",
+      "label": "concurrent DNS lookup completes with an IPv4 answer"
+    },
+    {
+      "status": "passed",
+      "label": "connect_timeout reports the unsupported completion query"
+    },
+    {
+      "status": "passed",
+      "label": "TCP clone shares one live socket"
+    },
+    {
+      "status": "passed",
+      "label": "TCP stores and returns read/write timeouts"
+    },
+    {
+      "status": "passed",
+      "label": "TCP exchanges real HTTP bytes"
+    },
+    {
+      "status": "passed",
+      "label": "TCP clone reads bytes retained after a short read"
+    },
+    {
+      "status": "passed",
+      "label": "dropping one clone keeps its socket open"
+    },
+    {
+      "status": "passed",
+      "label": "dropping the final clone closes its socket"
+    },
+    {
+      "status": "passed",
+      "label": "socket cleanup reports no close failure"
+    },
+    {
+      "status": "passed",
+      "label": "main return status reached the real exit callback"
+    },
+    {
+      "status": "passed",
+      "label": "runtime cleanup finished before the exit callback"
+    },
+    {
+      "status": "passed",
+      "label": "initial-thread and late TLS destructors completed"
+    },
+    {
+      "status": "passed",
+      "label": "cleanup after return is rejected"
+    },
+    {
+      "status": "passed",
+      "label": "second return does not overwrite committed status"
+    },
+    {
+      "status": "passed",
+      "label": "no TLS cleanup failure was hidden"
+    },
+    {
+      "status": "passed",
+      "label": "probe VI retraces complete within 100 ms"
+    },
+    {
+      "status": "passed",
+      "label": "frame waits take at least one millisecond"
+    }
+  ],
+  "framebuffer_bytes": 614400,
+  "framebuffer_width": 640,
+  "framebuffer_height": 480,
+  "probe_summary": "PASS summary passes=130 fails=0",
+  "probe_passes": 130,
+  "probe_failures": 0,
+  "probe_passed": true,
+  "probe_run_id": "1792074739-165610000",
+  "probe_build_id": "3c7392d3d14a6dc446d1ff1fa2c8da71010cc7150c1055f0d97b01c9b797af55",
+  "performance": {
+    "elapsed_us": 7772626,
+    "frame_count": 120,
+    "heap_used_bytes": 0,
+    "warmup_frames": 30,
+    "sample_frames": 120,
+    "frame_time_average_us": 16683,
+    "frame_time_min_us": 16682,
+    "frame_time_max_us": 16683
+  },
+  "recovery_reset_ms": null,
+  "recovery_watchdog_status": "not_requested",
+  "recovery_boot_status": null,
+  "warmup_frames": 30,
+  "sample_frames": 120,
+  "hardware_id": null,
+  "artifacts": {
+    "directory": "target/wii-runs/1792074739-165610000-10.0.0.242",
+    "result_json": "target/wii-runs/1792074739-165610000-10.0.0.242/result.json",
+    "probe_log": "target/wii-runs/1792074739-165610000-10.0.0.242/probe.log",
+    "raw_report": "target/wii-runs/1792074739-165610000-10.0.0.242/report.wir",
+    "partial_report": null,
+    "progress_log": "target/wii-runs/1792074739-165610000-10.0.0.242/progress.jsonl",
+    "framebuffer_xfb": "target/wii-runs/1792074739-165610000-10.0.0.242/framebuffer.xfb",
+    "framebuffer_png": "target/wii-runs/1792074739-165610000-10.0.0.242/framebuffer.png",
+    "missing": []
+  }
+}

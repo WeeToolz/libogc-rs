@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "run_id": "1790715489-642815000",
+  "status": "failed",
+  "error": {
+    "category": "probe_failure",
+    "message": "probe reported failures or sent no passing summary",
+    "suggested_action": "Inspect probe.log and report.wir, then fix the reported probe failure.",
+    "exit_code": 7
+  },
+  "tool_version": "0.1.0",
+  "wii_ip": "10.0.0.242",
+  "host_ip": "10.0.0.238",
+  "report_port": 4298,
+  "destination": "tcp:10.0.0.242",
+  "dol_path": "target/xtask/probes-agent/report_smoke_probe.dol",
+  "dol_sha256": "f65afcb2e590a505e4c2b6e9b4e9b60c7ede5efc171923541fc036ab585316dc",
+  "app_arguments": [
+    "--inject-probe-failure"
+  ],
+  "transmitted_app_arguments": [
+    "--inject-probe-failure",
+    "--report=10.0.0.238:4298",
+    "--run-id=1790715489-642815000",
+    "--build-id=f65afcb2e590a505e4c2b6e9b4e9b60c7ede5efc171923541fc036ab585316dc",
+    "--warmup-frames=30",
+    "--sample-frames=120",
+    "--recovery-reset-ms=120000",
+    "--restart-after-probe"
+  ],
+  "started_unix_ms": 1790715489642,
+  "ended_unix_ms": 1790715529996,
+  "elapsed_ms": 40353,
+  "timeout_seconds": 45,
+  "readiness_checks": [
+    {
+      "name": "report_listener",
+      "passed": true,
+      "detail": "listening on 10.0.0.238:4298"
+    },
+    {
+      "name": "wii_upload_endpoint",
+      "passed": true,
+      "detail": "TCP endpoint 10.0.0.242:4299 accepted a connection"
+    }
+  ],
+  "transfer": {
+    "original_bytes": 202152,
+    "transmitted_bytes": 75129,
+    "elapsed_ms": 22,
+    "compressed": true
+  },
+  "upload_endpoint_went_offline": true,
+  "upload_endpoint_returned": true,
+  "upload_endpoint_offline_ms": 1079,
+  "upload_endpoint_return_ms": 10248,
+  "restart_after_probe": true,
+  "report_log_bytes": 1825,
+  "screen_text": "\n\nBOOT 1/3: system and video initialized\nINFO Wiiload arguments source=system count=8\nPASS SYS_Init completed\nINFO startup stage=0 completed_mask=0x7ff failed_stage=0\nBOOT watchdog arm starting\nINFO recovery reset watchdog armed\nBOOT watchdog arm complete\nBOOT Wiiload report argument check\nPASS Wiiload report arguments parsed\nBOOT before first vsync\nBOOT 2/3: entering IOS pre-main\nPRE 0/7: closing inherited IOS descriptors\nIPC: sync state ready\nIPC: request prepared\nIPC: request sent\nIPC: IOS reply ready\nIPC: polling, no completion bits\nIPC: ctrl=0x00000039 arm=0x0065e700\nIPC: IOS acknowledged request\nPRE 1/7: IOS startup\nPRE 2/7: IOS subsystems\nPRE 3/7: STM handler\nPRE 4/7: STM devices\nPRE 5/7: configuration\nPRE 6/7: Wii launch state\nPRE 7/7: complete\nBOOT 3/3: IOS pre-main completed\n-- page 2 --\nPASS display initialized\nINFO boot stage: system/video initialized\nINFO boot stage: IOS pre-main completed\nINFO log backend disabled\nPASS power button callback installed\nINFO stm init deferred until shutdown\nINFO fat mount sd\nINFO feature-disabled\nINFO fat mount usb\nINFO feature-disabled\nINFO previous stm handler chained=0\nINFO previous power callback replaced\nPASS Wiiload report identity available\nPASS report smoke probe started\nINFO report transport smoke test; no SD card is required\nFAIL requested probe failure injection\nINFO recovery_reset_watchdog=armed\nINFO performance elapsed_us=2766704 frame_count=120 heap_used_bytes=2311 warmup_frames=30 sample_frames=120 frame_time_average_us=16666 frame_time_min_us=16666 frame_time_max_us=16666\nINFO timebase elapsed_ticks=168077321 frame_average_ticks=1012493 frame_min_ticks=1012473 frame_max_ticks=1012494\nPASS frame waits take at least one millisecond\n-- page 3 --\nFAIL summary passes=5 fails=1\nINFO exit_path=hbc_reload_stub status=present return=requested\n",
+  "screen_text_truncated": false,
+  "boot_progress": [
+    {
+      "sequence": 0,
+      "stage": 3,
+      "stage_name": "pre_main_start_visible",
+      "text": "\n\nBOOT 1/3: system and video initialized\nINFO Wiiload arguments source=system count=8\nPASS SYS_Init completed\nINFO startup stage=0 completed_mask=0x7ff failed_stage=0\nBOOT watchdog arm starting\nINFO recovery reset watchdog armed\nBOOT watchdog arm complete\nBOOT Wiiload report argument check\nPASS Wiiload report arguments parsed\nBOOT before first vsync\nBOOT 2/3: entering IOS pre-main\nPRE 0/7: closing inherited IOS descriptors\nIPC: sync state ready\nIPC: request prepared\nIPC: request sent\nIPC: IOS reply ready\nIPC: polling, no completion bits\nIPC: ctrl=0x00000039 arm=0x0065e700\nIPC: IOS acknowledged request\nPRE 1/7: IOS startup\nPRE 2/7: IOS subsystems\nPRE 3/7: STM handler\nPRE 4/7: STM devices\nPRE 5/7: configuration\nPRE 6/7: Wii launch state\nPRE 7/7: complete\nBOOT 3/3: IOS pre-main completed\n-- page 2 --\n",
+      "truncated": false,
+      "identity_verified": true
+    }
+  ],
+  "probe_checks": [
+    {
+      "status": "passed",
+      "label": "SYS_Init completed"
+    },
+    {
+      "status": "passed",
+      "label": "Wiiload report arguments parsed"
+    },
+    {
+      "status": "passed",
+      "label": "display initialized"
+    },
+    {
+      "status": "passed",
+      "label": "power button callback installed"
+    },
+    {
+      "status": "passed",
+      "label": "Wiiload report identity available"
+    },
+    {
+      "status": "passed",
+      "label": "report smoke probe started"
+    },
+    {
+      "status": "failed",
+      "label": "requested probe failure injection"
+    },
+    {
+      "status": "passed",
+      "label": "frame waits take at least one millisecond"
+    }
+  ],
+  "framebuffer_bytes": 614400,
+  "framebuffer_width": 640,
+  "framebuffer_height": 480,
+  "probe_summary": "FAIL summary passes=5 fails=1",
+  "probe_passes": 5,
+  "probe_failures": 1,
+  "probe_passed": false,
+  "probe_run_id": "1790715489-642815000",
+  "probe_build_id": "f65afcb2e590a505e4c2b6e9b4e9b60c7ede5efc171923541fc036ab585316dc",
+  "performance": {
+    "elapsed_us": 2766704,
+    "frame_count": 120,
+    "heap_used_bytes": 2311,
+    "warmup_frames": 30,
+    "sample_frames": 120,
+    "frame_time_average_us": 16666,
+    "frame_time_min_us": 16666,
+    "frame_time_max_us": 16666
+  },
+  "recovery_reset_ms": 120000,
+  "recovery_watchdog_status": "armed",
+  "recovery_boot_status": "returned_to_hbc",
+  "warmup_frames": 30,
+  "sample_frames": 120,
+  "hardware_id": null,
+  "artifacts": {
+    "directory": "target/wii-runs/1790715489-642815000-10.0.0.242",
+    "result_json": "target/wii-runs/1790715489-642815000-10.0.0.242/result.json",
+    "probe_log": "target/wii-runs/1790715489-642815000-10.0.0.242/probe.log",
+    "raw_report": "target/wii-runs/1790715489-642815000-10.0.0.242/report.wir",
+    "partial_report": null,
+    "progress_log": "target/wii-runs/1790715489-642815000-10.0.0.242/progress.jsonl",
+    "framebuffer_xfb": "target/wii-runs/1790715489-642815000-10.0.0.242/framebuffer.xfb",
+    "framebuffer_png": "target/wii-runs/1790715489-642815000-10.0.0.242/framebuffer.png",
+    "missing": []
+  }
+}

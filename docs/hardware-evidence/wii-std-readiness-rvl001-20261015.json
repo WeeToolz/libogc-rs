@@ -1,0 +1,1719 @@
+{
+  "schema_version": 1,
+  "run_id": "1792070611-686276000",
+  "dol_sha256": "9638fbde1d3e9efb7a18786fd5b0f61c4ea1bbb731024f681e621b9c336d67db",
+  "wii_ip": "10.0.0.242",
+  "status": "failed",
+  "error": {
+    "category": "probe_failure",
+    "message": "probe reported failures or sent no passing summary",
+    "suggested_action": "Inspect probe.log and report.wir, then fix the reported probe failure.",
+    "exit_code": 7
+  },
+  "probe_passes": 405,
+  "probe_failures": 8,
+  "probe_checks": [
+    {
+      "status": "passed",
+      "label": "SYS_Init completed"
+    },
+    {
+      "status": "passed",
+      "label": "Wiiload report arguments parsed"
+    },
+    {
+      "status": "passed",
+      "label": "display initialized"
+    },
+    {
+      "status": "passed",
+      "label": "power button callback installed"
+    },
+    {
+      "status": "passed",
+      "label": "activity indicator has a valid framebuffer"
+    },
+    {
+      "status": "passed",
+      "label": "console MODEL has bounded printable bytes"
+    },
+    {
+      "status": "passed",
+      "label": "missing console returns ENODEV"
+    },
+    {
+      "status": "passed",
+      "label": "diagnostic failure remains visible"
+    },
+    {
+      "status": "passed",
+      "label": "std stdout updates the real console cursor"
+    },
+    {
+      "status": "passed",
+      "label": "std stderr updates the real console cursor"
+    },
+    {
+      "status": "passed",
+      "label": "std diagnostic flush completes"
+    },
+    {
+      "status": "passed",
+      "label": "invalid byte pointer rejected"
+    },
+    {
+      "status": "passed",
+      "label": "std heap and LWP workspace do not overlap"
+    },
+    {
+      "status": "passed",
+      "label": "both full framebuffers are outside both reserved heaps"
+    },
+    {
+      "status": "passed",
+      "label": "main panic TLS is initialized"
+    },
+    {
+      "status": "passed",
+      "label": "std worker TLS warm-up completes"
+    },
+    {
+      "status": "passed",
+      "label": "Vec uses the std global MEM2 allocator"
+    },
+    {
+      "status": "passed",
+      "label": "Vec drop releases its std heap payload"
+    },
+    {
+      "status": "passed",
+      "label": "aligned zeroed System allocation succeeds"
+    },
+    {
+      "status": "passed",
+      "label": "System allocation is inside reserved MEM2"
+    },
+    {
+      "status": "passed",
+      "label": "System allocation clears every byte"
+    },
+    {
+      "status": "passed",
+      "label": "System resize failure preserves the original bytes"
+    },
+    {
+      "status": "passed",
+      "label": "System resize preserves payload"
+    },
+    {
+      "status": "passed",
+      "label": "aligned zeroed System allocation succeeds"
+    },
+    {
+      "status": "passed",
+      "label": "System allocation is inside reserved MEM2"
+    },
+    {
+      "status": "passed",
+      "label": "System allocation clears every byte"
+    },
+    {
+      "status": "passed",
+      "label": "System resize failure preserves the original bytes"
+    },
+    {
+      "status": "passed",
+      "label": "System resize preserves payload"
+    },
+    {
+      "status": "passed",
+      "label": "aligned zeroed System allocation succeeds"
+    },
+    {
+      "status": "passed",
+      "label": "System allocation is inside reserved MEM2"
+    },
+    {
+      "status": "passed",
+      "label": "System allocation clears every byte"
+    },
+    {
+      "status": "passed",
+      "label": "System resize failure preserves the original bytes"
+    },
+    {
+      "status": "passed",
+      "label": "System resize preserves payload"
+    },
+    {
+      "status": "passed",
+      "label": "aligned zeroed System allocation succeeds"
+    },
+    {
+      "status": "passed",
+      "label": "System allocation is inside reserved MEM2"
+    },
+    {
+      "status": "passed",
+      "label": "System allocation clears every byte"
+    },
+    {
+      "status": "passed",
+      "label": "System resize failure preserves the original bytes"
+    },
+    {
+      "status": "passed",
+      "label": "System resize preserves payload"
+    },
+    {
+      "status": "passed",
+      "label": "concurrent System allocations preserve both worker payloads"
+    },
+    {
+      "status": "passed",
+      "label": "System allocation failure returns null"
+    },
+    {
+      "status": "passed",
+      "label": "System release restores live byte count"
+    },
+    {
+      "status": "passed",
+      "label": "early system and heap startup completed"
+    },
+    {
+      "status": "passed",
+      "label": "compiler-generated entry selected Wii PAL"
+    },
+    {
+      "status": "passed",
+      "label": "Rust main is the initial LWP thread"
+    },
+    {
+      "status": "passed",
+      "label": "Rust main has its standard name"
+    },
+    {
+      "status": "passed",
+      "label": "main name is stored in production scheduler"
+    },
+    {
+      "status": "passed",
+      "label": "std argument provider uses the sheltered vector"
+    },
+    {
+      "status": "passed",
+      "label": "args_os preserves actual loader argument bytes"
+    },
+    {
+      "status": "passed",
+      "label": "argument iterators own independent double-ended snapshots"
+    },
+    {
+      "status": "passed",
+      "label": "malformed argument output is rejected"
+    },
+    {
+      "status": "passed",
+      "label": "repeated compiler entry is rejected"
+    },
+    {
+      "status": "passed",
+      "label": "rejected entry did not change runtime state"
+    },
+    {
+      "status": "passed",
+      "label": "invalid callback rejects without publishing a handle"
+    },
+    {
+      "status": "passed",
+      "label": "null handle output rejects before creation"
+    },
+    {
+      "status": "passed",
+      "label": "driver validates a missing entry"
+    },
+    {
+      "status": "passed",
+      "label": "invalid native join is an error"
+    },
+    {
+      "status": "passed",
+      "label": "invalid detach is an error"
+    },
+    {
+      "status": "passed",
+      "label": "null cleanup callback is rejected"
+    },
+    {
+      "status": "passed",
+      "label": "invalid duration is rejected"
+    },
+    {
+      "status": "passed",
+      "label": "masked thread operation fails before scheduling"
+    },
+    {
+      "status": "passed",
+      "label": "parallelism reads a supported initialized Wii"
+    },
+    {
+      "status": "passed",
+      "label": "raw std worker published only after real creation"
+    },
+    {
+      "status": "passed",
+      "label": "compatibility handles cannot consume std ownership"
+    },
+    {
+      "status": "passed",
+      "label": "raw std join includes real callback completion"
+    },
+    {
+      "status": "passed",
+      "label": "cleanup-order TLS key released"
+    },
+    {
+      "status": "passed",
+      "label": "cleanup failure worker created"
+    },
+    {
+      "status": "passed",
+      "label": "destructor limit returns a real join error"
+    },
+    {
+      "status": "passed",
+      "label": "failed cleanup still releases the joined native slot"
+    },
+    {
+      "status": "passed",
+      "label": "cleanup failure key released"
+    },
+    {
+      "status": "passed",
+      "label": "spawned Rust identity differs from main"
+    },
+    {
+      "status": "passed",
+      "label": "join publishes real value, identity, name, and checked stack"
+    },
+    {
+      "status": "passed",
+      "label": "join includes completed TLS destruction"
+    },
+    {
+      "status": "passed",
+      "label": "scoped workers complete borrowed writes before scope returns"
+    },
+    {
+      "status": "passed",
+      "label": "hardware parallelism is one on supported Wii"
+    },
+    {
+      "status": "passed",
+      "label": "spawn returned the real stack/allocator failure"
+    },
+    {
+      "status": "passed",
+      "label": "failed spawn drops its captured value exactly once"
+    },
+    {
+      "status": "passed",
+      "label": "spawn returned the real stack/allocator failure"
+    },
+    {
+      "status": "passed",
+      "label": "failed spawn drops its captured value exactly once"
+    },
+    {
+      "status": "passed",
+      "label": "minimum stack adjustment works after allocation failure"
+    },
+    {
+      "status": "passed",
+      "label": "64 detached std workers released their dynamic stacks"
+    },
+    {
+      "status": "passed",
+      "label": "detached results were dropped after actual worker completion"
+    },
+    {
+      "status": "passed",
+      "label": "detached cleanup did not hide a TLS failure"
+    },
+    {
+      "status": "passed",
+      "label": "unpark-before-park retains exactly one coalesced token"
+    },
+    {
+      "status": "passed",
+      "label": "park worker reached wait protocol"
+    },
+    {
+      "status": "passed",
+      "label": "cross-thread unpark publishes data to the waking worker"
+    },
+    {
+      "status": "passed",
+      "label": "timeout/unpark races retain progress in all rounds"
+    },
+    {
+      "status": "passed",
+      "label": "all raw TLS and callback operations returned their real result"
+    },
+    {
+      "status": "passed",
+      "label": "null futex wait rejected"
+    },
+    {
+      "status": "passed",
+      "label": "null futex wake rejected"
+    },
+    {
+      "status": "passed",
+      "label": "misaligned word rejected"
+    },
+    {
+      "status": "passed",
+      "label": "invalid nanoseconds rejected"
+    },
+    {
+      "status": "passed",
+      "label": "wait with interrupts disabled rejected"
+    },
+    {
+      "status": "passed",
+      "label": "LWP mismatch returns without a wake"
+    },
+    {
+      "status": "passed",
+      "label": "wake before registration reports no waiter"
+    },
+    {
+      "status": "passed",
+      "label": "changed value prevents lost-wake sleep"
+    },
+    {
+      "status": "passed",
+      "label": "mismatch did not enter scheduler wait"
+    },
+    {
+      "status": "passed",
+      "label": "LWP duration timeout is explicit"
+    },
+    {
+      "status": "passed",
+      "label": "LWP wake without a waiter returns zero"
+    },
+    {
+      "status": "passed",
+      "label": "zero timeout reports timeout"
+    },
+    {
+      "status": "passed",
+      "label": "finite wait reports real timeout"
+    },
+    {
+      "status": "passed",
+      "label": "timed-out waiter was removed"
+    },
+    {
+      "status": "passed",
+      "label": "invalid tick span rejected"
+    },
+    {
+      "status": "passed",
+      "label": "synchronization worker created"
+    },
+    {
+      "status": "passed",
+      "label": "synchronization worker created"
+    },
+    {
+      "status": "passed",
+      "label": "synchronization worker created"
+    },
+    {
+      "status": "passed",
+      "label": "workers blocked before wake"
+    },
+    {
+      "status": "passed",
+      "label": "wake one returned the actual count"
+    },
+    {
+      "status": "passed",
+      "label": "highest priority waiter woke alone"
+    },
+    {
+      "status": "passed",
+      "label": "broadcast found the remaining address waiter"
+    },
+    {
+      "status": "passed",
+      "label": "other address stayed asleep"
+    },
+    {
+      "status": "passed",
+      "label": "other address wakes separately"
+    },
+    {
+      "status": "passed",
+      "label": "woken worker joined and released stack"
+    },
+    {
+      "status": "passed",
+      "label": "woken worker joined and released stack"
+    },
+    {
+      "status": "passed",
+      "label": "woken worker joined and released stack"
+    },
+    {
+      "status": "passed",
+      "label": "no stale waiter after joins"
+    },
+    {
+      "status": "passed",
+      "label": "synchronization worker created"
+    },
+    {
+      "status": "passed",
+      "label": "real IRQ wake timer started"
+    },
+    {
+      "status": "passed",
+      "label": "IRQ-woken worker joined"
+    },
+    {
+      "status": "passed",
+      "label": "wait in IRQ context rejected"
+    },
+    {
+      "status": "passed",
+      "label": "IRQ wake returned the real waiter count"
+    },
+    {
+      "status": "passed",
+      "label": "synchronization worker created"
+    },
+    {
+      "status": "passed",
+      "label": "synchronization worker created"
+    },
+    {
+      "status": "passed",
+      "label": "std mutex worker joined"
+    },
+    {
+      "status": "passed",
+      "label": "std mutex worker joined"
+    },
+    {
+      "status": "passed",
+      "label": "std mutex preserved both protected counters"
+    },
+    {
+      "status": "passed",
+      "label": "synchronization worker created"
+    },
+    {
+      "status": "passed",
+      "label": "std condition releases, notifies, and reacquires"
+    },
+    {
+      "status": "passed",
+      "label": "condition worker joined"
+    },
+    {
+      "status": "passed",
+      "label": "std condition timeout reacquires mutex"
+    },
+    {
+      "status": "passed",
+      "label": "condition can use a different mutex"
+    },
+    {
+      "status": "passed",
+      "label": "96 std mutexes held without a 64-slot handle pool"
+    },
+    {
+      "status": "passed",
+      "label": "synchronization worker created"
+    },
+    {
+      "status": "passed",
+      "label": "two std readers coexist and exclude a writer"
+    },
+    {
+      "status": "passed",
+      "label": "synchronization worker created"
+    },
+    {
+      "status": "passed",
+      "label": "queued writer prevents new readers"
+    },
+    {
+      "status": "passed",
+      "label": "remaining reader still excludes queued writer"
+    },
+    {
+      "status": "passed",
+      "label": "reader gate wakes actual held reader"
+    },
+    {
+      "status": "passed",
+      "label": "std reader joined"
+    },
+    {
+      "status": "passed",
+      "label": "std writer joined"
+    },
+    {
+      "status": "passed",
+      "label": "writer update is published"
+    },
+    {
+      "status": "passed",
+      "label": "synchronization worker created"
+    },
+    {
+      "status": "passed",
+      "label": "exclusive std writer blocks reader"
+    },
+    {
+      "status": "passed",
+      "label": "reader proceeds after write unlock"
+    },
+    {
+      "status": "passed",
+      "label": "synchronization worker created"
+    },
+    {
+      "status": "passed",
+      "label": "synchronization worker created"
+    },
+    {
+      "status": "passed",
+      "label": "synchronization worker created"
+    },
+    {
+      "status": "passed",
+      "label": "once has one initializer and blocked callers"
+    },
+    {
+      "status": "passed",
+      "label": "once initializer gate woke one worker"
+    },
+    {
+      "status": "passed",
+      "label": "once caller observed published value and joined"
+    },
+    {
+      "status": "passed",
+      "label": "once caller observed published value and joined"
+    },
+    {
+      "status": "passed",
+      "label": "once caller observed published value and joined"
+    },
+    {
+      "status": "passed",
+      "label": "once wakes all callers without repeat initialization"
+    },
+    {
+      "status": "passed",
+      "label": "synchronization worker created"
+    },
+    {
+      "status": "passed",
+      "label": "synchronization worker created"
+    },
+    {
+      "status": "passed",
+      "label": "synchronization worker created"
+    },
+    {
+      "status": "passed",
+      "label": "once has one initializer and blocked callers"
+    },
+    {
+      "status": "passed",
+      "label": "once initializer gate woke one worker"
+    },
+    {
+      "status": "passed",
+      "label": "once caller observed published value and joined"
+    },
+    {
+      "status": "passed",
+      "label": "once caller observed published value and joined"
+    },
+    {
+      "status": "passed",
+      "label": "once caller observed published value and joined"
+    },
+    {
+      "status": "passed",
+      "label": "once wakes all callers without repeat initialization"
+    },
+    {
+      "status": "passed",
+      "label": "std Once completion remains visible"
+    },
+    {
+      "status": "passed",
+      "label": "std OnceLock stores the initialized value"
+    },
+    {
+      "status": "passed",
+      "label": "UTC offset argument is valid and is not repeated"
+    },
+    {
+      "status": "passed",
+      "label": "Instant checked arithmetic keeps nanoseconds"
+    },
+    {
+      "status": "passed",
+      "label": "Instant rejects addition overflow"
+    },
+    {
+      "status": "passed",
+      "label": "SystemTime supports before-epoch arithmetic"
+    },
+    {
+      "status": "passed",
+      "label": "SystemTime rejects addition overflow"
+    },
+    {
+      "status": "passed",
+      "label": "system initialization established a valid origin"
+    },
+    {
+      "status": "passed",
+      "label": "pre-main did not reset Instant or the hardware timebase"
+    },
+    {
+      "status": "passed",
+      "label": "repeated real Instant samples are ordered"
+    },
+    {
+      "status": "passed",
+      "label": "fallible monotonic facade returns a real sample"
+    },
+    {
+      "status": "passed",
+      "label": "fallible system ABI returns a real sample"
+    },
+    {
+      "status": "passed",
+      "label": "std clock ABI returns normalized monotonic time"
+    },
+    {
+      "status": "passed",
+      "label": "invalid clock output is rejected without changing the other output"
+    },
+    {
+      "status": "passed",
+      "label": "overlapping clock outputs are rejected without a write"
+    },
+    {
+      "status": "passed",
+      "label": "sleep meets its lower bound on the independent raw counter"
+    },
+    {
+      "status": "passed",
+      "label": "Instant elapsed agrees with raw-counter elapsed"
+    },
+    {
+      "status": "passed",
+      "label": "notifications do not restart the original condition deadline"
+    },
+    {
+      "status": "passed",
+      "label": "notification worker completed and joined"
+    },
+    {
+      "status": "passed",
+      "label": "zero park timeout does not become an infinite wait"
+    },
+    {
+      "status": "passed",
+      "label": "invalid UTC offset leaves the clock state unchanged"
+    },
+    {
+      "status": "passed",
+      "label": "unconfigured UTC clock returns an error and preserves outputs"
+    },
+    {
+      "status": "passed",
+      "label": "explicit UTC offset accepted"
+    },
+    {
+      "status": "passed",
+      "label": "actual RTC and console bias refreshed"
+    },
+    {
+      "status": "passed",
+      "label": "refreshed wall clock has a valid UTC state"
+    },
+    {
+      "status": "passed",
+      "label": "actual SystemTime uses the RTC epoch, bias, and supplied UTC offset"
+    },
+    {
+      "status": "passed",
+      "label": "fallible wall facade returns real UTC time"
+    },
+    {
+      "status": "passed",
+      "label": "fallible wall ABI returns real UTC time"
+    },
+    {
+      "status": "passed",
+      "label": "direct clock snapshot agrees with the facade"
+    },
+    {
+      "status": "passed",
+      "label": "direct offset ABI accepts the same explicit setting"
+    },
+    {
+      "status": "passed",
+      "label": "RTC seconds and monotonic elapsed agree across a real wait"
+    },
+    {
+      "status": "passed",
+      "label": "UTC wall time advances after the real RTC refresh"
+    },
+    {
+      "status": "passed",
+      "label": "RTC refresh rejects masked context before EXI access"
+    },
+    {
+      "status": "passed",
+      "label": "IOS network stack initializes"
+    },
+    {
+      "status": "failed",
+      "label": "local TCP acceptance completes"
+    },
+    {
+      "status": "passed",
+      "label": "local TCP closes all socket owners"
+    },
+    {
+      "status": "failed",
+      "label": "UDP edge acceptance completes"
+    },
+    {
+      "status": "passed",
+      "label": "UDP edge tests close all shared sockets"
+    },
+    {
+      "status": "failed",
+      "label": "UDP bind reaches the real IOS socket service"
+    },
+    {
+      "status": "passed",
+      "label": "DNS returns at least one IPv4 address"
+    },
+    {
+      "status": "passed",
+      "label": "main DNS lookup overlaps the worker lookup"
+    },
+    {
+      "status": "passed",
+      "label": "concurrent DNS lookup completes with an IPv4 answer"
+    },
+    {
+      "status": "passed",
+      "label": "connect_timeout reports the unsupported completion query"
+    },
+    {
+      "status": "passed",
+      "label": "TCP clone shares one live socket"
+    },
+    {
+      "status": "passed",
+      "label": "TCP stores and returns read/write timeouts"
+    },
+    {
+      "status": "failed",
+      "label": "TCP exchanges real HTTP bytes"
+    },
+    {
+      "status": "passed",
+      "label": "dropping one clone keeps its socket open"
+    },
+    {
+      "status": "passed",
+      "label": "dropping the final clone closes its socket"
+    },
+    {
+      "status": "passed",
+      "label": "socket cleanup reports no close failure"
+    },
+    {
+      "status": "passed",
+      "label": "filesystem ABI rejects a null request"
+    },
+    {
+      "status": "passed",
+      "label": "filesystem ABI rejects an unknown operation"
+    },
+    {
+      "status": "passed",
+      "label": "FAT errors translate into the Newlib code space"
+    },
+    {
+      "status": "passed",
+      "label": "std runtime is running"
+    },
+    {
+      "status": "passed",
+      "label": "mounted root and joined path are absolute"
+    },
+    {
+      "status": "passed",
+      "label": "mounted paths have a prefix and a root component"
+    },
+    {
+      "status": "passed",
+      "label": "rooted join keeps the mount prefix"
+    },
+    {
+      "status": "passed",
+      "label": "environment update retains one key and snapshots own values"
+    },
+    {
+      "status": "passed",
+      "label": "environment removal is visible"
+    },
+    {
+      "status": "passed",
+      "label": "path lists preserve mount prefixes and empty entries"
+    },
+    {
+      "status": "passed",
+      "label": "path lists reject embedded separators"
+    },
+    {
+      "status": "passed",
+      "label": "NUL path is rejected"
+    },
+    {
+      "status": "passed",
+      "label": "directory creation produces a real directory"
+    },
+    {
+      "status": "passed",
+      "label": "empty directory traversal excludes dot entries"
+    },
+    {
+      "status": "passed",
+      "label": "directory iterator keeps the mount busy"
+    },
+    {
+      "status": "passed",
+      "label": "typed directory entry has stored size and type"
+    },
+    {
+      "status": "passed",
+      "label": "typed traversal returns the same stored filename"
+    },
+    {
+      "status": "passed",
+      "label": "read_dir on a file returns ENOTDIR"
+    },
+    {
+      "status": "passed",
+      "label": "directory traversal returns the stored name and path"
+    },
+    {
+      "status": "passed",
+      "label": "directory entry type and metadata use the real file"
+    },
+    {
+      "status": "passed",
+      "label": "directory traversal reaches a stable end"
+    },
+    {
+      "status": "passed",
+      "label": "entry metadata remains available after the iterator closes"
+    },
+    {
+      "status": "passed",
+      "label": "copy returns the byte count and persisted source bytes"
+    },
+    {
+      "status": "passed",
+      "label": "copy to the same FAT entry fails before truncation"
+    },
+    {
+      "status": "passed",
+      "label": "copy of a directory preserves the destination"
+    },
+    {
+      "status": "passed",
+      "label": "copy of a missing source preserves the destination"
+    },
+    {
+      "status": "passed",
+      "label": "missing directory returns ENOENT"
+    },
+    {
+      "status": "passed",
+      "label": "empty directory removal removes its path"
+    },
+    {
+      "status": "passed",
+      "label": "current directory uses the real mounted path"
+    },
+    {
+      "status": "passed",
+      "label": "handle permission changes persist in path metadata"
+    },
+    {
+      "status": "passed",
+      "label": "typed rename rejects cross-volume paths before a write"
+    },
+    {
+      "status": "passed",
+      "label": "rename replaces target with source bytes and removes old name"
+    },
+    {
+      "status": "passed",
+      "label": "same-file rename preserves bytes"
+    },
+    {
+      "status": "passed",
+      "label": "missing rename preserves destination"
+    },
+    {
+      "status": "passed",
+      "label": "canonicalize reads stored case and resolves dot components"
+    },
+    {
+      "status": "passed",
+      "label": "canonicalize requires each component to exist"
+    },
+    {
+      "status": "passed",
+      "label": "failed chdir preserves current directory"
+    },
+    {
+      "status": "passed",
+      "label": "relative paths follow a directory change"
+    },
+    {
+      "status": "passed",
+      "label": "typed canonicalize resolves short aliases to stored names"
+    },
+    {
+      "status": "passed",
+      "label": "canonicalize resolves generated short aliases to stored long names"
+    },
+    {
+      "status": "passed",
+      "label": "directory rename replaces an empty target and preserves children"
+    },
+    {
+      "status": "passed",
+      "label": "directory rename rejects nonempty target without removal"
+    },
+    {
+      "status": "passed",
+      "label": "path permission changes reject a writable open"
+    },
+    {
+      "status": "passed",
+      "label": "recursive removal removes files and nested directories"
+    },
+    {
+      "status": "passed",
+      "label": "new file has zero length"
+    },
+    {
+      "status": "passed",
+      "label": "disabling the last access option rejects the open"
+    },
+    {
+      "status": "passed",
+      "label": "append and truncate require create_new"
+    },
+    {
+      "status": "passed",
+      "label": "create_new rejects existing path without truncation"
+    },
+    {
+      "status": "passed",
+      "label": "path metadata sees writes before an explicit flush"
+    },
+    {
+      "status": "passed",
+      "label": "clones use one shared cursor"
+    },
+    {
+      "status": "passed",
+      "label": "worker reads the remaining bytes from the shared cursor"
+    },
+    {
+      "status": "passed",
+      "label": "open handle keeps the mount busy"
+    },
+    {
+      "status": "passed",
+      "label": "file content equals independent expected bytes"
+    },
+    {
+      "status": "passed",
+      "label": "metadata reports real size"
+    },
+    {
+      "status": "passed",
+      "label": "unsupported timestamps return an error"
+    },
+    {
+      "status": "passed",
+      "label": "file timestamp writes use FAT day and two-second resolution"
+    },
+    {
+      "status": "passed",
+      "label": "invalid timestamp leaves both timestamp fields unchanged"
+    },
+    {
+      "status": "passed",
+      "label": "out-of-range seek preserves the cursor"
+    },
+    {
+      "status": "passed",
+      "label": "out-of-range resize preserves size and cursor"
+    },
+    {
+      "status": "passed",
+      "label": "resize preserves the shared cursor"
+    },
+    {
+      "status": "passed",
+      "label": "file extension is zero-filled"
+    },
+    {
+      "status": "passed",
+      "label": "append writes at EOF after a seek, and bytes survive reopen"
+    },
+    {
+      "status": "passed",
+      "label": "read-only open preserves its access mode and errno"
+    },
+    {
+      "status": "passed",
+      "label": "typed open starts at offset zero"
+    },
+    {
+      "status": "passed",
+      "label": "typed seek reads the persisted offset"
+    },
+    {
+      "status": "passed",
+      "label": "typed metadata reads the same stored file"
+    },
+    {
+      "status": "passed",
+      "label": "typed timestamp setter writes selected stored fields"
+    },
+    {
+      "status": "passed",
+      "label": "read-only flush preserves size and attributes"
+    },
+    {
+      "status": "passed",
+      "label": "read-only close preserves persisted metadata"
+    },
+    {
+      "status": "passed",
+      "label": "typed and path permissions preserve other DOS attributes"
+    },
+    {
+      "status": "passed",
+      "label": "FAT read-only attribute is reported"
+    },
+    {
+      "status": "passed",
+      "label": "read-only sync and close preserve all DOS attributes"
+    },
+    {
+      "status": "passed",
+      "label": "read-only attribute rejects a writable open"
+    },
+    {
+      "status": "passed",
+      "label": "file bytes survive a medium unmount and remount"
+    },
+    {
+      "status": "passed",
+      "label": "timestamps survive medium unmount and remount"
+    },
+    {
+      "status": "passed",
+      "label": "owned probe file removal succeeds"
+    },
+    {
+      "status": "passed",
+      "label": "file cleanup has no new failures"
+    },
+    {
+      "status": "passed",
+      "label": "owned medium unmount succeeds"
+    },
+    {
+      "status": "passed",
+      "label": "filesystem ABI rejects a null request"
+    },
+    {
+      "status": "passed",
+      "label": "filesystem ABI rejects an unknown operation"
+    },
+    {
+      "status": "passed",
+      "label": "FAT errors translate into the Newlib code space"
+    },
+    {
+      "status": "passed",
+      "label": "std runtime is running"
+    },
+    {
+      "status": "passed",
+      "label": "mounted root and joined path are absolute"
+    },
+    {
+      "status": "passed",
+      "label": "mounted paths have a prefix and a root component"
+    },
+    {
+      "status": "passed",
+      "label": "rooted join keeps the mount prefix"
+    },
+    {
+      "status": "passed",
+      "label": "environment update retains one key and snapshots own values"
+    },
+    {
+      "status": "passed",
+      "label": "environment removal is visible"
+    },
+    {
+      "status": "passed",
+      "label": "path lists preserve mount prefixes and empty entries"
+    },
+    {
+      "status": "passed",
+      "label": "path lists reject embedded separators"
+    },
+    {
+      "status": "passed",
+      "label": "NUL path is rejected"
+    },
+    {
+      "status": "failed",
+      "label": "directory checks complete"
+    },
+    {
+      "status": "failed",
+      "label": "path service checks complete"
+    },
+    {
+      "status": "failed",
+      "label": "probe obtains a new file"
+    },
+    {
+      "status": "passed",
+      "label": "file cleanup has no new failures"
+    },
+    {
+      "status": "failed",
+      "label": "owned medium unmount succeeds"
+    },
+    {
+      "status": "passed",
+      "label": "USB host released before raw IOS opens"
+    },
+    {
+      "status": "passed",
+      "label": "USB open request accepted"
+    },
+    {
+      "status": "passed",
+      "label": "one final IOS callback completed"
+    },
+    {
+      "status": "passed",
+      "label": "callback ran on the deferred worker"
+    },
+    {
+      "status": "passed",
+      "label": "final open result matches real device path"
+    },
+    {
+      "status": "passed",
+      "label": "USB close request accepted"
+    },
+    {
+      "status": "passed",
+      "label": "one final IOS callback completed"
+    },
+    {
+      "status": "passed",
+      "label": "callback ran on the deferred worker"
+    },
+    {
+      "status": "passed",
+      "label": "final USB close succeeded"
+    },
+    {
+      "status": "passed",
+      "label": "USB open request accepted"
+    },
+    {
+      "status": "passed",
+      "label": "one final IOS callback completed"
+    },
+    {
+      "status": "passed",
+      "label": "callback ran on the deferred worker"
+    },
+    {
+      "status": "passed",
+      "label": "final open result matches real device path"
+    },
+    {
+      "status": "passed",
+      "label": "USB close request accepted"
+    },
+    {
+      "status": "passed",
+      "label": "one final IOS callback completed"
+    },
+    {
+      "status": "passed",
+      "label": "callback ran on the deferred worker"
+    },
+    {
+      "status": "passed",
+      "label": "final USB close succeeded"
+    },
+    {
+      "status": "passed",
+      "label": "USB open request accepted"
+    },
+    {
+      "status": "passed",
+      "label": "one final IOS callback completed"
+    },
+    {
+      "status": "passed",
+      "label": "callback ran on the deferred worker"
+    },
+    {
+      "status": "passed",
+      "label": "final open result matches real device path"
+    },
+    {
+      "status": "passed",
+      "label": "USB close request accepted"
+    },
+    {
+      "status": "passed",
+      "label": "one final IOS callback completed"
+    },
+    {
+      "status": "passed",
+      "label": "callback ran on the deferred worker"
+    },
+    {
+      "status": "passed",
+      "label": "final USB close succeeded"
+    },
+    {
+      "status": "passed",
+      "label": "USB open request accepted"
+    },
+    {
+      "status": "passed",
+      "label": "one final IOS callback completed"
+    },
+    {
+      "status": "passed",
+      "label": "callback ran on the deferred worker"
+    },
+    {
+      "status": "passed",
+      "label": "final open result matches real device path"
+    },
+    {
+      "status": "passed",
+      "label": "USB close request accepted"
+    },
+    {
+      "status": "passed",
+      "label": "one final IOS callback completed"
+    },
+    {
+      "status": "passed",
+      "label": "callback ran on the deferred worker"
+    },
+    {
+      "status": "passed",
+      "label": "final USB close succeeded"
+    },
+    {
+      "status": "passed",
+      "label": "USB open request accepted"
+    },
+    {
+      "status": "passed",
+      "label": "one final IOS callback completed"
+    },
+    {
+      "status": "passed",
+      "label": "callback ran on the deferred worker"
+    },
+    {
+      "status": "passed",
+      "label": "final open result matches real device path"
+    },
+    {
+      "status": "passed",
+      "label": "USB close request accepted"
+    },
+    {
+      "status": "passed",
+      "label": "one final IOS callback completed"
+    },
+    {
+      "status": "passed",
+      "label": "callback ran on the deferred worker"
+    },
+    {
+      "status": "passed",
+      "label": "final USB close succeeded"
+    },
+    {
+      "status": "passed",
+      "label": "USB open request accepted"
+    },
+    {
+      "status": "passed",
+      "label": "one final IOS callback completed"
+    },
+    {
+      "status": "passed",
+      "label": "callback ran on the deferred worker"
+    },
+    {
+      "status": "passed",
+      "label": "final open result matches real device path"
+    },
+    {
+      "status": "passed",
+      "label": "USB close request accepted"
+    },
+    {
+      "status": "passed",
+      "label": "one final IOS callback completed"
+    },
+    {
+      "status": "passed",
+      "label": "callback ran on the deferred worker"
+    },
+    {
+      "status": "passed",
+      "label": "final USB close succeeded"
+    },
+    {
+      "status": "passed",
+      "label": "USB open request accepted"
+    },
+    {
+      "status": "passed",
+      "label": "one final IOS callback completed"
+    },
+    {
+      "status": "passed",
+      "label": "callback ran on the deferred worker"
+    },
+    {
+      "status": "passed",
+      "label": "final open result matches real device path"
+    },
+    {
+      "status": "passed",
+      "label": "USB close request accepted"
+    },
+    {
+      "status": "passed",
+      "label": "one final IOS callback completed"
+    },
+    {
+      "status": "passed",
+      "label": "callback ran on the deferred worker"
+    },
+    {
+      "status": "passed",
+      "label": "final USB close succeeded"
+    },
+    {
+      "status": "passed",
+      "label": "USB open request accepted"
+    },
+    {
+      "status": "passed",
+      "label": "one final IOS callback completed"
+    },
+    {
+      "status": "passed",
+      "label": "callback ran on the deferred worker"
+    },
+    {
+      "status": "passed",
+      "label": "final open result matches real device path"
+    },
+    {
+      "status": "passed",
+      "label": "USB close request accepted"
+    },
+    {
+      "status": "passed",
+      "label": "one final IOS callback completed"
+    },
+    {
+      "status": "passed",
+      "label": "callback ran on the deferred worker"
+    },
+    {
+      "status": "passed",
+      "label": "final USB close succeeded"
+    },
+    {
+      "status": "passed",
+      "label": "USB open request accepted"
+    },
+    {
+      "status": "passed",
+      "label": "one final IOS callback completed"
+    },
+    {
+      "status": "passed",
+      "label": "callback ran on the deferred worker"
+    },
+    {
+      "status": "passed",
+      "label": "final open result matches real device path"
+    },
+    {
+      "status": "passed",
+      "label": "missing USB path reports final IOS error"
+    },
+    {
+      "status": "passed",
+      "label": "all 17 requests completed on production worker"
+    },
+    {
+      "status": "passed",
+      "label": "no deferred completion was dropped"
+    },
+    {
+      "status": "passed",
+      "label": "production USB host initialization succeeds"
+    },
+    {
+      "status": "passed",
+      "label": "real HID list is bounded"
+    },
+    {
+      "status": "passed",
+      "label": "production USB cleanup succeeds"
+    },
+    {
+      "status": "passed",
+      "label": "stdin reports unsupported input"
+    },
+    {
+      "status": "passed",
+      "label": "child process creation reports Unsupported"
+    },
+    {
+      "status": "passed",
+      "label": "captured child output reports Unsupported"
+    },
+    {
+      "status": "passed",
+      "label": "backtrace capture reports Unsupported"
+    },
+    {
+      "status": "passed",
+      "label": "platform constants describe the PowerPC bare-metal target"
+    },
+    {
+      "status": "passed",
+      "label": "std classifies errno and retains raw code"
+    },
+    {
+      "status": "passed",
+      "label": "std classifies errno and retains raw code"
+    },
+    {
+      "status": "passed",
+      "label": "std classifies errno and retains raw code"
+    },
+    {
+      "status": "passed",
+      "label": "std classifies errno and retains raw code"
+    },
+    {
+      "status": "passed",
+      "label": "std classifies errno and retains raw code"
+    },
+    {
+      "status": "passed",
+      "label": "std classifies errno and retains raw code"
+    },
+    {
+      "status": "passed",
+      "label": "std classifies errno and retains raw code"
+    },
+    {
+      "status": "passed",
+      "label": "std classifies errno and retains raw code"
+    },
+    {
+      "status": "passed",
+      "label": "std classifies errno and retains raw code"
+    },
+    {
+      "status": "passed",
+      "label": "controlled fault endpoint registered"
+    },
+    {
+      "status": "passed",
+      "label": "open returns actual errno and releases failed state"
+    },
+    {
+      "status": "passed",
+      "label": "open passes exact append flags"
+    },
+    {
+      "status": "passed",
+      "label": "partial write returns final storage error"
+    },
+    {
+      "status": "passed",
+      "label": "read preserves device errno"
+    },
+    {
+      "status": "passed",
+      "label": "seek preserves not-seekable errno"
+    },
+    {
+      "status": "passed",
+      "label": "sync preserves read-only failure"
+    },
+    {
+      "status": "passed",
+      "label": "oversized transport count rejected"
+    },
+    {
+      "status": "passed",
+      "label": "zero-progress write rejected"
+    },
+    {
+      "status": "passed",
+      "label": "explicit close returns failure"
+    },
+    {
+      "status": "passed",
+      "label": "failed explicit close recorded once without retry"
+    },
+    {
+      "status": "passed",
+      "label": "Drop close failure stays visible"
+    },
+    {
+      "status": "passed",
+      "label": "controlled endpoint removed"
+    },
+    {
+      "status": "passed",
+      "label": "main return status reached the real exit callback"
+    },
+    {
+      "status": "passed",
+      "label": "runtime cleanup finished before the exit callback"
+    },
+    {
+      "status": "passed",
+      "label": "initial-thread and late TLS destructors completed"
+    },
+    {
+      "status": "passed",
+      "label": "cleanup after return is rejected"
+    },
+    {
+      "status": "passed",
+      "label": "second return does not overwrite committed status"
+    },
+    {
+      "status": "passed",
+      "label": "no TLS cleanup failure was hidden"
+    },
+    {
+      "status": "passed",
+      "label": "probe VI retraces complete within 100 ms"
+    },
+    {
+      "status": "passed",
+      "label": "frame waits take at least one millisecond"
+    },
+    {
+      "status": "failed",
+      "label": "local TCP acceptance completes"
+    },
+    {
+      "status": "failed",
+      "label": "UDP edge acceptance completes"
+    },
+    {
+      "status": "failed",
+      "label": "UDP bind reaches the real IOS socket service"
+    },
+    {
+      "status": "failed",
+      "label": "TCP exchanges real HTTP bytes"
+    },
+    {
+      "status": "failed",
+      "label": "directory checks complete"
+    },
+    {
+      "status": "failed",
+      "label": "path service checks complete"
+    },
+    {
+      "status": "failed",
+      "label": "probe obtains a new file"
+    },
+    {
+      "status": "failed",
+      "label": "owned medium unmount succeeds"
+    }
+  ],
+  "performance": {
+    "elapsed_us": 217222009,
+    "frame_count": 120,
+    "heap_used_bytes": 0,
+    "warmup_frames": 30,
+    "sample_frames": 120,
+    "frame_time_average_us": 16683,
+    "frame_time_min_us": 16682,
+    "frame_time_max_us": 16683
+  }
+}

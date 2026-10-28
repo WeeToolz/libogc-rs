@@ -1,0 +1,84 @@
+Wii std clock and deadline verification
+Recorded: 2026-10-14
+Base commit: 884f106 (master)
+Scope: source integration and build checks; no hardware execution.
+Compiler pin: ea137335b78829b4514bf1b4c16302f74fab8581
+Prepared compiler: /Volumes/SSD/projects/Wii/wiidev/RustWii/RustPorts/libogc-rs/target/wii-std/526a3778859e3aa1-71971f8f/rustc
+
+PASS: python3 scripts/check-wii-std.py --offline
+The pinned Wii std source compiles with the new time selector. The installed
+rust-src and compiler pin remain unchanged.
+
+PASS: cargo xtask build-lwp-probe
+PASS: cargo xtask build-wii-std-probe
+The std command builds synchronization, normal-main/thread, and clock probes.
+All three std ELFs are ELF32, big endian, PowerPC, entry 0x80004000, with no
+undefined symbols and no dynamic section. They call application-linked Rust
+providers and production LWP, EXI, and configuration services.
+
+PASS: cargo test --offline -p ogc-alloc -p ogc-sys -p xtask
+Allocator 10, ABI 9, xtask 31 tests. No failures or ignored tests.
+PASS: rustup run nightly rustc --edition=2024 --test on shared source engines:
+Thread 3, lifecycle 5, futex 4, runtime entry 4; new clock state 6, RTC 4,
+and std clock arithmetic 3. No failures or ignored tests.
+Total Rust host tests executed: 79. The target-only hardware crates were not
+replaced with a host backend. Two ignored-target wrapper files include clock.rs,
+rtc.rs, and wii_value.rs directly for their existing shared-engine tests.
+PASS: source preparation Python tests (2 tests).
+
+New tests cover independent fixed tick conversions, full-counter bounds,
+invalid frequency, repeated initialization, unchanged monotonic origin during
+wall refresh, sticky backward-counter failure, explicit UTC offset conversion,
+32-bit bias representation, rejected offsets, failed read validity, and retry.
+RTC failure injection exercises the production transaction engine at every EXI
+operation and at deselect/unlock. Cleanup failures preserve the primary failure.
+Std arithmetic tests cover nanosecond carry, checked overflow, before-epoch time,
+and bounded extreme differences. Hardware execution order remains unverified.
+
+PASS: staged whitespace review and local documentation link checks
+PASS: cargo xtask check-roles (99 packages)
+PASS: cargo xtask check-dependencies
+PASS: cargo xtask inventory; cargo xtask check-inventory (3,195 API entries)
+PASS: cargo xtask audit-source (three existing keyboard FIFO debts)
+FAIL: cargo xtask audit-stubs (2,398 unverified APIs, unchanged from the base)
+All 11 new public clock APIs have exact source probe evidence. Existing moved
+function lines were corrected. No class, expected result, audit threshold, or
+evidence requirement was weakened. Source probe evidence is not a hardware pass.
+
+Build warnings: existing duplicate application targets and libmad-rs workspace lint
+inheritance warning. No source warning from the new clock implementation.
+
+Production changes checked by review:
+- Wii pre-main no longer writes the hardware timebase or loader boot-time field.
+- Monotonic conversion and timed waits use LWP's one production clock frequency.
+- Wall refresh checks real RTC completion and real counter-bias results.
+- No zero bias substitutes for a configuration error.
+- Wall time requires an explicit UTC offset; missing data returns a clear error.
+- The provider validates aligned non-overlapping outputs; failure preserves them.
+- No C implementation is linked, and no firmware, SRAM, or SYSCONF write is added.
+
+Clock probe built, NOT RUN ON WII:
+- Instant across real pre-main startup, repeated ordered samples, checked math,
+  raw-counter timing, and sleep lower bounds.
+- Condvar wait_timeout_while retains its original deadline during notifications.
+- Zero park timeout does not become infinite.
+- Actual RTC/bias refresh, explicit UTC conversion, wall advancement, RTC seconds
+  compared with a longer monotonic wait, and rejected masked refresh.
+- Invalid offset and invalid/overlapping provider outputs do not change state.
+- Missing --utc-offset-seconds=... reports wall acceptance as not run and fails
+  overall acceptance. No assumed offset or invented date makes the probe pass.
+- The normal-main callback holds the console; result 0 requires all checks pass.
+
+DOL SHA-256 (build artifacts only):
+b1a56838bc83efa2ecac05786e53e4b081eee539e3fb02cf50e208dd86cb48a9  target/xtask/probes/lwp_probe.dol
+7f73ba90ec547c3b306323d5957e506f83e7d2ef39a69944b6d295b36ec1354c  target/xtask/probes/wii_std_probe.dol
+f892e37f60f0b341e904de24e42864280014150081e1b946b395da5f654cb634  target/xtask/probes/wii_std_thread_probe.dol
+6fe5b99d1513cf453910227a623ad43e616a059a8806507eb26244671a8636a2  target/xtask/probes/wii_std_clock_probe.dol
+
+Limits and remaining work:
+No probe ran on Wii or in an emulator. Real clock accuracy, RTC transport failure,
+UTC offset source, console date, independent UTC reference, and timeout jitter
+remain hardware acceptance work. RTC resolution is one second; interpolation
+does not establish subsecond calendar phase. Std socket deadline conversion
+remains open under C04/N05 with the socket adapters. Network time, automatic time
+zones, entropy, files, streams, paths, exit, and remaining selector audits are open.

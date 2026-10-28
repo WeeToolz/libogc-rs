@@ -1,0 +1,280 @@
+Wii std mounted file verification
+Recorded: 2026-10-14
+Adapter commit: 5f57efd (master). This evidence also covers the shared flush/close refactor.
+Scope: source integration and build checks; no Wii hardware execution.
+Compiler pin: ea137335b78829b4514bf1b4c16302f74fab8581
+Prepared compiler: /Volumes/SSD/projects/Wii/wiidev/RustWii/RustPorts/libogc-rs/target/wii-std/8104114901402092-71971f8f/rustc
+
+PASS: python3 scripts/check-wii-std.py --offline
+PASS: cargo xtask build-lwp-probe
+PASS: cargo xtask build-storage-probe
+PASS: cargo xtask build-wii-std-probe
+The std command builds five DOLs, including wii_std_fs_probe.dol. The installed
+rust-src, compiler pin, and target settings were not changed. The provider uses
+production typed FAT, LWP, SD, and USB services. No C filesystem implementation
+is linked. The isolated std source copies the same flags/path/seek ABI engine.
+
+PASS: rustc --edition=2024 --test crates/services/ogc-std-runtime/src/fs_abi.rs
+3 tests; all 64 OpenOptions combinations use a fixed independent expectation
+table. Mounted bytes, invalid prefixes/NUL, relative rejection, signed seek,
+u32 limits, and overflow are checked. No ignored tests.
+PASS: rustc --edition=2024 --test crates/services/ogc-fat/src/file_transfer.rs
+16 tests; controlled medium read/write failures, real completed byte counts,
+zero/excess counts, flush errors for clean files, dirty state on metadata or
+transport failure, retry, retained allocation metadata, read-only metadata,
+offline checks, USB disconnection, and close release after failures. No ignored tests.
+These engines are called directly by production. The controlled medium is not
+FAT layout, SD, or USB acceptance evidence.
+PASS: cargo test --offline -p xtask (33 tests; no failures or ignored tests)
+PASS: python3 -m unittest discover -s scripts/tests -p test_prepare_wii_std.py
+2 tests; isolated source/compiler wrapper behavior.
+
+PASS: cargo xtask check-roles (99 packages)
+PASS: cargo xtask check-dependencies
+PASS: cargo xtask inventory; cargo xtask check-inventory (3,241 API entries)
+PASS: cargo xtask audit-source (three existing keyboard FIFO debt entries)
+FAIL: cargo xtask audit-stubs (2,424 disallowed entries; all unverified)
+The prior inventory had 2,426 unverified entries. All 18 new API entries have
+exact shared-engine test or production probe source references. The existing
+FAT flush and path metadata APIs now also have exact focused probe references. No audit threshold
+or expected behavior was weakened. The probe mapping points at the actual
+file probe source. Pure classifications apply to the shared calculation/state
+engines, with tests; they do not establish hardware acceptance.
+
+A new independent FAT source review is required and is recorded in the static
+review ledger. The file/probe source evidence does not close that review or a
+Wii hardware gate. Lower transport error detail, independent writer opens,
+interrupted write recovery, and USB flush acceptance remain open.
+
+Resolved development check failures:
+- A target test command using a bare custom target name could not load the
+  target specification. The repository xtask uses the actual JSON target.
+- The extended FatError enum required two storage-probe diagnostic match arms.
+- The file probe initially did not retain the runtime provider library. It now
+  checks the real runtime phase and links the application provider.
+- The shared dirty flag was corrected to the production u32 field width.
+- The new focused probe was added to config/probe-coverage.csv; its missing
+  mapping was fixed rather than suppressed.
+Final source/build checks above pass. Completeness and hardware remain open.
+
+Existing build warnings: duplicate application targets and the external libmad-rs
+workspace lint inheritance warning. No new file adapter warning was reported.
+
+ELF inspection with /opt/devkitpro/devkitPPC/bin/powerpc-eabi-readelf:
+PASS lwp_probe: ELF32 big endian PowerPC; entry 0x80004000; zero named undefined symbols; no dynamic section.
+PASS wii_std_probe: ELF32 big endian PowerPC; entry 0x80004000; zero named undefined symbols; no dynamic section.
+PASS wii_std_thread_probe: ELF32 big endian PowerPC; entry 0x80004000; zero named undefined symbols; no dynamic section.
+PASS wii_std_clock_probe: ELF32 big endian PowerPC; entry 0x80004000; zero named undefined symbols; no dynamic section.
+PASS wii_std_network_probe: ELF32 big endian PowerPC; entry 0x80004000; zero named undefined symbols; no dynamic section.
+PASS wii_std_fs_probe: ELF32 big endian PowerPC; entry 0x80004000; zero named undefined symbols; no dynamic section.
+PASS storage_probe: ELF32 big endian PowerPC; entry 0x80004000; zero named undefined symbols; no dynamic section.
+SHA256 wii_std_probe.dol: 86a93b5f556abb57c58428bd626d242ab231234ae134d4959a64b9084fb3f970
+SHA256 wii_std_thread_probe.dol: db89784bd5baf90bf131bf26060f19d18c6806b370db31143747a819ccd729a4
+SHA256 wii_std_clock_probe.dol: 1cdc6d4c38aba693d9e0f096876c71a3a47cb44ae19c850bd08fe8d5b45466b6
+SHA256 wii_std_network_probe.dol: b80aebf9e13ed501a5fc463466875d4599681fc9804f5de31ac3cc9006ef40f4
+SHA256 wii_std_fs_probe.dol: b728c5e3e15ab31669555c7198924898d8b205cd6d0ba8eec578768b25aa7b45
+SHA256 storage_probe.dol: a620c8a6aee2ace7e2ba34297fdb7bba7c7b65c314aefe302501c3cae09a6e89
+
+The separate no_std LWP DOL also builds. DOL hashes identify the built artifacts;
+they are not records of hardware execution.
+
+Wii file and storage probes: BUILT. The real-Wii SD suite passed; the USB FAT
+suite failed on directory, path, exclusive-create, and unmount checks. See the
+real-Wii run record below.
+Typed close, typed Drop, and devoptab close share the production close helper.
+Descriptor/online checks precede metadata writes. Clean read-only files do not
+rewrite their directory entry. Dirty state clears only after successful metadata
+and transport completion. Close releases ownership after flush failure and
+invalidates magic/mount fields so the handle cannot release twice.
+The typed file probe checks read-only metadata across sync, close, and reopen.
+On its owned file it sets read-only and clears archive, then checks that sync
+and close preserve all attributes and writable open returns ReadOnly. Original
+attributes are restored even after a failed operation; restore failure is logged.
+The USB persistence probe reopens read-only and checks sync/close. Existing
+hotplug handling now validates failed fsync and close after SD/USB removal.
+Controlled host failures verify shared engine ordering and results. USB/Wii
+acceptance is still open; no disconnection test has run on real hardware.
+The actual std probe uses create_new for sd:/wii-std-fs-probe.tmp. Existing data
+is preserved. It checks bytes, clone cursors, a std worker, exact errors, resize,
+zero fill, append after seek, sync, live path metadata before flush, directory
+creation/removal, reopen, and SD remount when it owns
+the mount. Cleanup results are checked. If SD already existed as a mount before
+the probe, remount acceptance is reported as not run and the overall check fails.
+
+Remaining implementation: directory traversal, rename/copy, recursive removal,
+canonicalization, relative/current-directory service, executable/home/temp paths,
+and path lists. File times, permission changes, links, and locks explicitly
+return Unsupported. Standard streams, entropy, and other platform contracts
+also remain open. Do not enable std in applications from these build results.
+
+Directory adapter increment — 2026-10-14
+Scope: F08 directory traversal. Real Wii execution remains open.
+
+Production changes:
+- OPEN_DIR/READ_DIR/CLOSE_DIR own the production FatDirectory handle.
+- Buffer validation precedes cursor advancement. Shared entry rules exclude dot
+  names, preserve non-UTF-8 bytes, validate names, and return read failures.
+- std ReadDir serializes the handle and reports a read error before ending.
+  Entries own names and paths; metadata reads the current production path.
+- FatDirectory::open returns NotDirectory for a file path (Newlib ENOTDIR).
+- The SD probe checks empty traversal, mount lifetime, fixed entry name/type/size,
+  entry access after iterator close, missing paths, and cleanup. It also reads
+  the same directory through the typed FAT API. Owned paths use exclusive
+  creation. Existing probe paths are preserved.
+
+PASS: shared fs_abi tests — 5 passed, 0 ignored. These include an explicit
+read-boundary failure (errno 19), malformed returned names, dot filtering,
+non-UTF-8 names, and independent 255/256-byte bounds.
+PASS: python3 scripts/check-wii-std.py --offline (final source).
+PASS: cargo xtask build-wii-std-probe (five DOLs, final source).
+PASS: all five linked std ELFs have zero named undefined symbols and no dynamic
+section. The synchronization ELF is named lwp_probe; its DOL is wii_std_probe.dol.
+SHA256 wii_std_fs_probe.dol:
+cf685659aad3491b3626eb0f0c41ba7291c875a720deb01cf94ef35223b6e887
+PASS: cargo test --offline -p xtask — 33 passed, 0 ignored.
+PASS: preparation tests — 2 passed.
+PASS: check-roles — 99 packages; check-dependencies.
+
+The directory iterator and SD transport have NOT RUN ON WII. Host read-boundary
+failure tests exercise the shared production entry engine; they do not prove
+media removal or transport behavior on hardware. The changed FAT error result
+is included in the existing open independent source review. Streams, entropy,
+rename/copy, recursive removal, canonicalization, cwd and other path services
+remain open. Application crates must not adopt std from build results alone.
+
+PASS: inventory and check-inventory — 3,243 API entries.
+PASS: source audit — three existing keyboard FIFO debt entries, no new findings.
+FAIL: completeness audit — 2,423 disallowed entries, all unverified. The prior
+count was 2,424. FatDirectory::next_entry now has an exact production probe
+source reference. This is source evidence, not a real-Wii pass. No audit rule,
+allowlist, threshold, or expected result was weakened.
+PASS: final diff whitespace check; no file-mode changes.
+
+Copy and application build increment — 2026-10-14
+Scope: F08 copy on explicit mounted paths and an application std build command.
+
+PASS: fs_abi host tests — 8 passed, 0 ignored. Three new tests cover fixed
+copied bytes, short reads/writes, EOF, invalid counts, zero writes, read failure
+after a completed prefix, write failure, both close calls, and error priority.
+Production calls these shared engines directly through typed FatFile methods.
+Close failures also remain visible in FAT's production cleanup diagnostics.
+
+PASS: python3 scripts/check-wii-std.py --offline.
+PASS: cargo xtask build-wii-std-probe, including a final run after the shared
+compiler preparation helper changed. All five DOLs link.
+The application remains no_std. The first command validates the prepared std
+build selection, not application std use. The second checks the existing
+core/alloc builder after the shared change.
+PASS: powerpc-eabi-nm -u and powerpc-eabi-readelf -d on all five std probe ELFs
+sections. Repeat the application API and symbol audit after actual conversion.
+SHA256 wii_std_fs_probe.dol:
+3c511dbd34928fce5f039879575e97d95316ba221490d356830c21f66ddf08df
+SHA256 examples-application.dol (prepared std build selection, no_std source):
+d169d3eba144fb0a058c8cad64b6f2bef502385146e7e9d8bd2f73b8402abc3a
+PASS: xtask tests — 33 passed, 0 ignored. Preparation tests — 2 passed.
+PASS: roles — 99 packages; dependency direction check.
+PASS: inventory and check-inventory — 3,245 entries.
+PASS: source audit — three existing keyboard FIFO debt entries, no new findings.
+FAIL: completeness audit — 2,423 disallowed unverified entries, unchanged.
+No audit rules, allowances, or thresholds changed.
+
+NOT RUN: real-Wii probes. The user stated that the Homebrew Channel is not
+running. No upload or hardware execution was attempted. Copy persistence,
+read-only propagation, transport failures, and cleanup require hardware evidence.
+The SD source probe now checks fixed copied bytes and size, overwrite truncation,
+same-entry EBUSY without truncation, and destination preservation for directory
+and missing sources. It reserves all destructive copy destinations with create_new.
+
+The first candidate is application with default features. Its service requirements
+and remaining dependency review are recorded in wii-std-application.md.
+Application adoption depends on its required services and Wii tests, not closure
+of all repository APIs. Rename, recursive removal, canonicalization, cwd, streams,
+entropy, and the other unused contracts remain separate open work.
+PASS: diff whitespace and file-mode review.
+
+
+2026-10-15 — filesystem, paths, and environment implementation
+
+Connected real FAT rename with replacement, short-alias canonicalization,
+recursive removal, path and handle read-only attributes, and stored FAT times.
+Connected relative paths, current-directory state, loader executable paths,
+HOME/TMPDIR behavior, semicolon path lists, and application environment variables.
+See wii-std-paths-environment.md for the exact contracts and native FAT limits.
+
+PASS: actual environment/path-list adapters plus shared ABI — 13 host tests.
+PASS: production rename commit/recovery engine — 3 host tests, including partial
+write failure and recovery failure with retained data references.
+PASS: production FAT calendar conversion — 2 host tests with fixed epoch/date
+values, leap dates, granularity, malformed fields, and range rejection.
+No tests ignored. Test commands:
+  rustc --edition=2024 --test tests/wii-std-paths/adapter.rs -o /tmp/wii-std-path-tests
+  /tmp/wii-std-path-tests
+  rustc --edition=2024 --test crates/services/ogc-fat/src/rename_transaction.rs -o /tmp/wii-fat-rename-tests
+  /tmp/wii-fat-rename-tests
+  rustc --edition=2024 --test crates/services/ogc-fat/src/timestamps.rs -o /tmp/wii-fat-time-tests
+  /tmp/wii-fat-time-tests
+
+PASS: cargo xtask build-wii-std-app lwp-probe --bin wii_std_fs_probe
+  --features wii-std-sync --output target/xtask/probes/wii_std_fs_probe.dol
+PASS: the normal DOL in Dolphin 2603-415 — 80 checks passed, 0 failed.
+GDB read WII_STD_FS_PROBE_RESULT = 0 after main returned. The final XFB contains
+PASS summary passes=80 fails=0. Evidence image:
+  hardware-evidence/wii-std-files-dolphin-20261015.png
+The run used a fresh isolated profile and a controlled 128 MiB FAT16 SD image
+in profile/Load/WiiSD.raw. The independent macOS fsck_msdos accepted the initial
+image. This exercised the production Wii SD/FAT path in an emulator. It is not
+a real-Wii result. Tests include fixed bytes, path resolution, replacement and
+failed rename preservation, short aliases, permission writes, date granularity,
+invalid-date preservation, persisted bytes and timestamps after remount, and
+recursive cleanup. An earlier agent-report build passed 76/0, but emitted
+missing report-argument diagnostics. The normal final DOL has no report-harness
+arguments requirement and passed the expanded 80-check probe.
+PASS: ELF has no undefined symbols and no dynamic section.
+SHA256 wii_std_fs_probe.dol:
+6766b5a2a6672cd150a3ac95ccfcbd599eaa381af580407ceb67b8ddacc9a43d
+
+PASS: source audit, crate roles, dependency direction, and inventory freshness.
+No audit rules or thresholds were relaxed. The full repository completeness
+check still fails with 2,416 unverified entries. New production APIs have exact
+probe source coverage; this does not imply real-Wii acceptance.
+PASS: independent fsck_msdos after the Dolphin run — zero files remain, all
+32,731 data clusters are free, and no directory or orphan-cluster error.
+At that implementation stage, real-Wii acceptance remained open. The later SD
+pass and USB FAT failures are recorded below. Real media removal, interrupted
+writes, recovery failure, USB persistence, and power-loss tests remain open.
+
+PASS: final cargo xtask build-wii-std-probe builds all current std probe DOLs.
+The filesystem DOL hash is unchanged after that aggregate build.
+PASS: final xtask suite — 33 tests; prepared-source suite — 2 tests.
+PASS: related staged changes — error/cleanup 16 tests, stdio 4 tests, allocator
+11 tests, socket rules 8 tests, application rules 3 tests, Letter Flip 38 tests.
+The standalone IPC helper file contains no tests; its production cleanup paths
+are exercised by the 16-test error/cleanup suite. No zero-test run is acceptance.
+PASS: final source audit and inventory freshness — 3,268 API entries.
+
+2026-10-15 — real-Wii combined filesystem run
+
+The combined readiness DOL `9638fbde1d3e9efb7a18786fd5b0f61c4ea1bbb731024f681e621b9c336d67db`
+ran on the Wii in Wiiload run `1792070611-686276000` with SD and USB suites
+enabled. The complete result was 405 passed and 8 failed; this is not an overall
+pass. The probe reported model RVL-001(USA) from settings, IOS58 revision 6176,
+Hollywood revision 0x11, and motherboard unknown.
+
+PASS: SD files and environment — 78 checks, 0 failures. This includes directory
+iteration, relative and canonical paths, rename and recursive removal, copy,
+permissions, timestamps, fixed file bytes, and persisted bytes and timestamps
+after an owned unmount/remount. Cleanup and final close checks passed.
+
+FAIL: USB FAT files and environment — 13 checks passed, 4 failed. Directory
+checks and path checks returned EIO (Newlib errno 5). Exclusive file creation
+also returned EIO while preserving the existing path. Owned medium unmount
+failed. USB IOS and deferred callbacks separately passed 75 checks, but that
+does not establish USB storage persistence.
+
+FAIL: networking in this combined run — 12 checks passed, 4 failed. A later
+network-only run on the same reported RVL-001 passed 130 checks with no failures;
+see the network evidence in `wii-std-checklist.md`. The full combined run's
+failure screen and structured result are preserved in
+`hardware-evidence/wii-std-readiness-rvl001-20261015.png`,
+`hardware-evidence/wii-std-readiness-rvl001-20261015.json`, and
+`target/wii-runs/1792070611-686276000-10.0.0.242/`.
