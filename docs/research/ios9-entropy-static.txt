@@ -1,0 +1,428 @@
+IOS9 entropy static inspection, 2026-10-15
+Input: extracted ios9-00000006.elf
+SHA-256: 12cb0290972c3fbe0d03e27ba0f76fa868eee971fafc1e818bf896d7fa8ded91
+Decoder: Capstone 5.0.7, ARM Thumb, big endian
+No firmware execution or device access. No keys or device data were read.
+These are selected instruction ranges, not proof of complete function/caller coverage.
+Code addresses map through ELF PT_LOAD virtual addresses; offsets are file offsets.
+Data literals are shown separately, never decoded as instructions.
+REA reference evidence: ev_7bc97e131d084843e10bd951cf734beacf4c7f2fd473309d1eb6bd9d560daaf0
+See ios9-seed-xrefs.json for the complete REA result.
+
+RANGE 0x136421dc..0x13642200 (end excluded), file 0x9c4c
+136421dc  b500      push     {lr}
+136421de  f7ffffc7  bl       #0x13642170
+136421e2  4b07      ldr      r3, [pc, #0x1c]
+136421e4  6018      str      r0, [r3]
+136421e6  4b07      ldr      r3, [pc, #0x1c]
+136421e8  4798      blx      r3
+136421ea  4b07      ldr      r3, [pc, #0x1c]
+136421ec  4798      blx      r3
+136421ee  4b07      ldr      r3, [pc, #0x1c]
+136421f0  6018      str      r0, [r3]
+136421f2  4b07      ldr      r3, [pc, #0x1c]
+136421f4  2200      movs     r2, #0
+136421f6  601a      str      r2, [r3]
+136421f8  4b06      ldr      r3, [pc, #0x18]
+136421fa  601a      str      r2, [r3]
+136421fc  bc01      pop      {r0}
+136421fe  4700      bx       r0
+
+RANGE 0xffff1440..0xffff149a (end excluded), file 0x175458
+ffff1440  b5f0      push     {r4, r5, r6, r7, lr}
+ffff1442  4657      mov      r7, sl
+ffff1444  4646      mov      r6, r8
+ffff1446  b4c0      push     {r6, r7}
+ffff1448  b081      sub      sp, #4
+ffff144a  1c05      adds     r5, r0, #0
+ffff144c  1c0c      adds     r4, r1, #0
+ffff144e  1c08      adds     r0, r1, #0
+ffff1450  1c17      adds     r7, r2, #0
+ffff1452  2100      movs     r1, #0
+ffff1454  f005fe22  bl       #0xffff709c
+ffff1458  2600      movs     r6, #0
+ffff145a  2f00      cmp      r7, #0
+ffff145c  d916      bls      #0xffff148c
+ffff145e  4b0f      ldr      r3, [pc, #0x3c]
+ffff1460  46ea      mov      sl, sp
+ffff1462  4698      mov      r8, r3
+ffff1464  221f      movs     r2, #0x1f
+ffff1466  2380      movs     r3, #0x80
+ffff1468  402a      ands     r2, r5
+ffff146a  061b      lsls     r3, r3, #0x18
+ffff146c  431a      orrs     r2, r3
+ffff146e  4643      mov      r3, r8
+ffff1470  601a      str      r2, [r3]
+ffff1472  4b0b      ldr      r3, [pc, #0x2c]
+ffff1474  681b      ldr      r3, [r3]
+ffff1476  1c20      adds     r0, r4, #0
+ffff1478  4651      mov      r1, sl
+ffff147a  2204      movs     r2, #4
+ffff147c  3604      adds     r6, #4
+ffff147e  9300      str      r3, [sp]
+ffff1480  3404      adds     r4, #4
+ffff1482  f005fdc5  bl       #0xffff7010
+ffff1486  3501      adds     r5, #1
+ffff1488  42be      cmp      r6, r7
+ffff148a  d3eb      blo      #0xffff1464
+ffff148c  b001      add      sp, #4
+ffff148e  bc18      pop      {r3, r4}
+ffff1490  4698      mov      r8, r3
+ffff1492  46a2      mov      sl, r4
+ffff1494  bcf0      pop      {r4, r5, r6, r7}
+ffff1496  bc01      pop      {r0}
+ffff1498  4700      bx       r0
+
+RANGE 0xffff14a4..0xffff14ea (end excluded), file 0x1754bc
+ffff14a4  b510      push     {r4, lr}
+ffff14a6  4c11      ldr      r4, [pc, #0x44]
+ffff14a8  6823      ldr      r3, [r4]
+ffff14aa  b084      sub      sp, #0x10
+ffff14ac  2b00      cmp      r3, #0
+ffff14ae  d005      beq      #0xffff14bc
+ffff14b0  480f      ldr      r0, [pc, #0x3c]
+ffff14b2  6800      ldr      r0, [r0]
+ffff14b4  b004      add      sp, #0x10
+ffff14b6  bc10      pop      {r4}
+ffff14b8  bc02      pop      {r1}
+ffff14ba  4708      bx       r1
+ffff14bc  2210      movs     r2, #0x10
+ffff14be  2005      movs     r0, #5
+ffff14c0  4669      mov      r1, sp
+ffff14c2  f7ffffbd  bl       #0xffff1440
+ffff14c6  9a01      ldr      r2, [sp, #4]
+ffff14c8  9b00      ldr      r3, [sp]
+ffff14ca  4313      orrs     r3, r2
+ffff14cc  9a02      ldr      r2, [sp, #8]
+ffff14ce  4313      orrs     r3, r2
+ffff14d0  9a03      ldr      r2, [sp, #0xc]
+ffff14d2  4313      orrs     r3, r2
+ffff14d4  d005      beq      #0xffff14e2
+ffff14d6  4806      ldr      r0, [pc, #0x18]
+ffff14d8  2301      movs     r3, #1
+ffff14da  6003      str      r3, [r0]
+ffff14dc  2301      movs     r3, #1
+ffff14de  6023      str      r3, [r4]
+ffff14e0  e7e7      b        #0xffff14b2
+ffff14e2  4803      ldr      r0, [pc, #0xc]
+ffff14e4  2301      movs     r3, #1
+ffff14e6  6023      str      r3, [r4]
+ffff14e8  e7e3      b        #0xffff14b2
+
+RANGE 0xffff1650..0xffff1680 (end excluded), file 0x175668
+ffff1650  b530      push     {r4, r5, lr}
+ffff1652  f006fb2b  bl       #0xffff7cac
+ffff1656  2500      movs     r5, #0
+ffff1658  1c04      adds     r4, r0, #0
+ffff165a  f7ffff23  bl       #0xffff14a4
+ffff165e  2800      cmp      r0, #0
+ffff1660  d10a      bne      #0xffff1678
+ffff1662  4a07      ldr      r2, [pc, #0x1c]
+ffff1664  6813      ldr      r3, [r2]
+ffff1666  3301      adds     r3, #1
+ffff1668  6013      str      r3, [r2]
+ffff166a  1c20      adds     r0, r4, #0
+ffff166c  f006fb22  bl       #0xffff7cb4
+ffff1670  1c28      adds     r0, r5, #0
+ffff1672  bc30      pop      {r4, r5}
+ffff1674  bc02      pop      {r1}
+ffff1676  4708      bx       r1
+ffff1678  f006f982  bl       #0xffff7980
+ffff167c  1c05      adds     r5, r0, #0
+ffff167e  e7f4      b        #0xffff166a
+
+RANGE 0xffff1684..0xffff16ae (end excluded), file 0x17569c
+ffff1684  b530      push     {r4, r5, lr}
+ffff1686  f006fb11  bl       #0xffff7cac
+ffff168a  1c05      adds     r5, r0, #0
+ffff168c  f7ffff0a  bl       #0xffff14a4
+ffff1690  2800      cmp      r0, #0
+ffff1692  d108      bne      #0xffff16a6
+ffff1694  4b06      ldr      r3, [pc, #0x18]
+ffff1696  681c      ldr      r4, [r3]
+ffff1698  1c28      adds     r0, r5, #0
+ffff169a  f006fb0b  bl       #0xffff7cb4
+ffff169e  1c20      adds     r0, r4, #0
+ffff16a0  bc30      pop      {r4, r5}
+ffff16a2  bc02      pop      {r1}
+ffff16a4  4708      bx       r1
+ffff16a6  f006f955  bl       #0xffff7954
+ffff16aa  1c04      adds     r4, r0, #0
+ffff16ac  e7f4      b        #0xffff1698
+
+RANGE 0xffff7954..0xffff797e (end excluded), file 0x17b96c
+ffff7954  b500      push     {lr}
+ffff7956  b082      sub      sp, #8
+ffff7958  207c      movs     r0, #0x7c
+ffff795a  a901      add      r1, sp, #4
+ffff795c  f7fffd72  bl       #0xffff7444
+ffff7960  2800      cmp      r0, #0
+ffff7962  d109      bne      #0xffff7978
+ffff7964  207d      movs     r0, #0x7d
+ffff7966  4669      mov      r1, sp
+ffff7968  f7fffd6c  bl       #0xffff7444
+ffff796c  2800      cmp      r0, #0
+ffff796e  d103      bne      #0xffff7978
+ffff7970  9b00      ldr      r3, [sp]
+ffff7972  9801      ldr      r0, [sp, #4]
+ffff7974  041b      lsls     r3, r3, #0x10
+ffff7976  4318      orrs     r0, r3
+ffff7978  b002      add      sp, #8
+ffff797a  bc02      pop      {r1}
+ffff797c  4708      bx       r1
+
+RANGE 0xffff7980..0xffff79dc (end excluded), file 0x17b998
+ffff7980  b510      push     {r4, lr}
+ffff7982  b082      sub      sp, #8
+ffff7984  207c      movs     r0, #0x7c
+ffff7986  a901      add      r1, sp, #4
+ffff7988  f7fffd5c  bl       #0xffff7444
+ffff798c  1e04      subs     r4, r0, #0
+ffff798e  d120      bne      #0xffff79d2
+ffff7990  207d      movs     r0, #0x7d
+ffff7992  4669      mov      r1, sp
+ffff7994  f7fffd56  bl       #0xffff7444
+ffff7998  1e04      subs     r4, r0, #0
+ffff799a  d11a      bne      #0xffff79d2
+ffff799c  9a00      ldr      r2, [sp]
+ffff799e  9b01      ldr      r3, [sp, #4]
+ffff79a0  0412      lsls     r2, r2, #0x10
+ffff79a2  4313      orrs     r3, r2
+ffff79a4  3301      adds     r3, #1
+ffff79a6  0c1a      lsrs     r2, r3, #0x10
+ffff79a8  9200      str      r2, [sp]
+ffff79aa  4a0c      ldr      r2, [pc, #0x30]
+ffff79ac  4013      ands     r3, r2
+ffff79ae  9301      str      r3, [sp, #4]
+ffff79b0  f7fffdb2  bl       #0xffff7518
+ffff79b4  1e04      subs     r4, r0, #0
+ffff79b6  d10c      bne      #0xffff79d2
+ffff79b8  207c      movs     r0, #0x7c
+ffff79ba  9901      ldr      r1, [sp, #4]
+ffff79bc  f7fffd5c  bl       #0xffff7478
+ffff79c0  1e04      subs     r4, r0, #0
+ffff79c2  d104      bne      #0xffff79ce
+ffff79c4  207d      movs     r0, #0x7d
+ffff79c6  9900      ldr      r1, [sp]
+ffff79c8  f7fffd56  bl       #0xffff7478
+ffff79cc  1c04      adds     r4, r0, #0
+ffff79ce  f7fffdb3  bl       #0xffff7538
+ffff79d2  1c20      adds     r0, r4, #0
+ffff79d4  b002      add      sp, #8
+ffff79d6  bc10      pop      {r4}
+ffff79d8  bc02      pop      {r1}
+ffff79da  4708      bx       r1
+
+RANGE 0xffff7444..0xffff7476 (end excluded), file 0x17b45c
+ffff7444  b530      push     {r4, r5, lr}
+ffff7446  1c0d      adds     r5, r1, #0
+ffff7448  23c0      movs     r3, #0xc0
+ffff744a  21ff      movs     r1, #0xff
+ffff744c  4001      ands     r1, r0
+ffff744e  00db      lsls     r3, r3, #3
+ffff7450  200b      movs     r0, #0xb
+ffff7452  4319      orrs     r1, r3
+ffff7454  f7ffff82  bl       #0xffff735c
+ffff7458  1e04      subs     r4, r0, #0
+ffff745a  d108      bne      #0xffff746e
+ffff745c  2010      movs     r0, #0x10
+ffff745e  1c29      adds     r1, r5, #0
+ffff7460  f7ffffa8  bl       #0xffff73b4
+ffff7464  1e04      subs     r4, r0, #0
+ffff7466  d102      bne      #0xffff746e
+ffff7468  2002      movs     r0, #2
+ffff746a  f7ffff55  bl       #0xffff7318
+ffff746e  1c20      adds     r0, r4, #0
+ffff7470  bc30      pop      {r4, r5}
+ffff7472  bc02      pop      {r1}
+ffff7474  4708      bx       r1
+
+RANGE 0xffff7478..0xffff74a6 (end excluded), file 0x17b490
+ffff7478  b500      push     {lr}
+ffff747a  23ff      movs     r3, #0xff
+ffff747c  22a0      movs     r2, #0xa0
+ffff747e  4003      ands     r3, r0
+ffff7480  00d2      lsls     r2, r2, #3
+ffff7482  4313      orrs     r3, r2
+ffff7484  4a08      ldr      r2, [pc, #0x20]
+ffff7486  041b      lsls     r3, r3, #0x10
+ffff7488  400a      ands     r2, r1
+ffff748a  1c19      adds     r1, r3, #0
+ffff748c  201b      movs     r0, #0x1b
+ffff748e  4311      orrs     r1, r2
+ffff7490  f7ffff64  bl       #0xffff735c
+ffff7494  2800      cmp      r0, #0
+ffff7496  d104      bne      #0xffff74a2
+ffff7498  2002      movs     r0, #2
+ffff749a  f7ffff3d  bl       #0xffff7318
+ffff749e  f7ffffb1  bl       #0xffff7404
+ffff74a2  bc02      pop      {r1}
+ffff74a4  4708      bx       r1
+
+RANGE 0xffff7318..0xffff7354 (end excluded), file 0x17b330
+ffff7318  b570      push     {r4, r5, r6, lr}
+ffff731a  2800      cmp      r0, #0
+ffff731c  d015      beq      #0xffff734a
+ffff731e  4d0d      ldr      r5, [pc, #0x34]
+ffff7320  4e0d      ldr      r6, [pc, #0x34]
+ffff7322  1c04      adds     r4, r0, #0
+ffff7324  f7ffffd6  bl       #0xffff72d4
+ffff7328  682b      ldr      r3, [r5]
+ffff732a  4033      ands     r3, r6
+ffff732c  602b      str      r3, [r5]
+ffff732e  2000      movs     r0, #0
+ffff7330  f7ffffe4  bl       #0xffff72fc
+ffff7334  207d      movs     r0, #0x7d
+ffff7336  f7ffff29  bl       #0xffff718c
+ffff733a  3c01      subs     r4, #1
+ffff733c  f7ffffc0  bl       #0xffff72c0
+ffff7340  207d      movs     r0, #0x7d
+ffff7342  f7ffff23  bl       #0xffff718c
+ffff7346  2c00      cmp      r4, #0
+ffff7348  d1ec      bne      #0xffff7324
+ffff734a  f7ffffc3  bl       #0xffff72d4
+ffff734e  bc70      pop      {r4, r5, r6}
+ffff7350  bc01      pop      {r0}
+ffff7352  4700      bx       r0
+
+RANGE 0xffff735c..0xffff73b2 (end excluded), file 0x17b374
+ffff735c  b5f0      push     {r4, r5, r6, r7, lr}
+ffff735e  4647      mov      r7, r8
+ffff7360  b480      push     {r7}
+ffff7362  2300      movs     r3, #0
+ffff7364  3801      subs     r0, #1
+ffff7366  1c0e      adds     r6, r1, #0
+ffff7368  4698      mov      r8, r3
+ffff736a  281f      cmp      r0, #0x1f
+ffff736c  d81d      bhi      #0xffff73aa
+ffff736e  1c05      adds     r5, r0, #0
+ffff7370  1c43      adds     r3, r0, #1
+ffff7372  d014      beq      #0xffff739e
+ffff7374  2701      movs     r7, #1
+ffff7376  1c34      adds     r4, r6, #0
+ffff7378  40ec      lsrs     r4, r5
+ffff737a  403c      ands     r4, r7
+ffff737c  f7ffffaa  bl       #0xffff72d4
+ffff7380  f7ffffb2  bl       #0xffff72e8
+ffff7384  1c20      adds     r0, r4, #0
+ffff7386  f7ffffb9  bl       #0xffff72fc
+ffff738a  207d      movs     r0, #0x7d
+ffff738c  f7fffefe  bl       #0xffff718c
+ffff7390  f7ffff96  bl       #0xffff72c0
+ffff7394  207d      movs     r0, #0x7d
+ffff7396  f7fffef9  bl       #0xffff718c
+ffff739a  3d01      subs     r5, #1
+ffff739c  d2eb      bhs      #0xffff7376
+ffff739e  4640      mov      r0, r8
+ffff73a0  bc08      pop      {r3}
+ffff73a2  4698      mov      r8, r3
+ffff73a4  bcf0      pop      {r4, r5, r6, r7}
+ffff73a6  bc02      pop      {r1}
+ffff73a8  4708      bx       r1
+ffff73aa  2304      movs     r3, #4
+ffff73ac  425b      rsbs     r3, r3, #0
+ffff73ae  4698      mov      r8, r3
+ffff73b0  e7f5      b        #0xffff739e
+
+RANGE 0xffff73b4..0xffff7400 (end excluded), file 0x17b3cc
+ffff73b4  b5f0      push     {r4, r5, r6, r7, lr}
+ffff73b6  3801      subs     r0, #1
+ffff73b8  1c0f      adds     r7, r1, #0
+ffff73ba  2600      movs     r6, #0
+ffff73bc  281f      cmp      r0, #0x1f
+ffff73be  d81c      bhi      #0xffff73fa
+ffff73c0  2500      movs     r5, #0
+ffff73c2  1c04      adds     r4, r0, #0
+ffff73c4  1c43      adds     r3, r0, #1
+ffff73c6  d013      beq      #0xffff73f0
+ffff73c8  f7ffff84  bl       #0xffff72d4
+ffff73cc  f7ffff8c  bl       #0xffff72e8
+ffff73d0  207d      movs     r0, #0x7d
+ffff73d2  f7fffedb  bl       #0xffff718c
+ffff73d6  f7ffff73  bl       #0xffff72c0
+ffff73da  207d      movs     r0, #0x7d
+ffff73dc  f7fffed6  bl       #0xffff718c
+ffff73e0  4b07      ldr      r3, [pc, #0x1c]
+ffff73e2  681b      ldr      r3, [r3]
+ffff73e4  049b      lsls     r3, r3, #0x12
+ffff73e6  0fdb      lsrs     r3, r3, #0x1f
+ffff73e8  40a3      lsls     r3, r4
+ffff73ea  431d      orrs     r5, r3
+ffff73ec  3c01      subs     r4, #1
+ffff73ee  d2eb      bhs      #0xffff73c8
+ffff73f0  603d      str      r5, [r7]
+ffff73f2  1c30      adds     r0, r6, #0
+ffff73f4  bcf0      pop      {r4, r5, r6, r7}
+ffff73f6  bc02      pop      {r1}
+ffff73f8  4708      bx       r1
+ffff73fa  2604      movs     r6, #4
+ffff73fc  4276      rsbs     r6, r6, #0
+ffff73fe  e7f8      b        #0xffff73f2
+
+RANGE 0xffff72c0..0xffff72ce (end excluded), file 0x17b2d8
+ffff72c0  4903      ldr      r1, [pc, #0xc]
+ffff72c2  2380      movs     r3, #0x80
+ffff72c4  680a      ldr      r2, [r1]
+ffff72c6  011b      lsls     r3, r3, #4
+ffff72c8  431a      orrs     r2, r3
+ffff72ca  600a      str      r2, [r1]
+ffff72cc  4770      bx       lr
+
+RANGE 0x13643564..0x136435c4 (end excluded), file 0xafd4
+13643564  b570      push     {r4, r5, r6, lr}
+13643566  4646      mov      r6, r8
+13643568  b440      push     {r6}
+1364356a  4e16      ldr      r6, [pc, #0x58]
+1364356c  b083      sub      sp, #0xc
+1364356e  4d16      ldr      r5, [pc, #0x58]
+13643570  1c30      adds     r0, r6, #0
+13643572  2100      movs     r1, #0
+13643574  2210      movs     r2, #0x10
+13643576  47a8      blx      r5
+13643578  4b14      ldr      r3, [pc, #0x50]
+1364357a  2100      movs     r1, #0
+1364357c  1c18      adds     r0, r3, #0
+1364357e  2210      movs     r2, #0x10
+13643580  4698      mov      r8, r3
+13643582  47a8      blx      r5
+13643584  1c30      adds     r0, r6, #0
+13643586  4b12      ldr      r3, [pc, #0x48]
+13643588  4912      ldr      r1, [pc, #0x48]
+1364358a  2204      movs     r2, #4
+1364358c  300c      adds     r0, #0xc
+1364358e  4798      blx      r3
+13643590  4c11      ldr      r4, [pc, #0x44]
+13643592  2100      movs     r1, #0
+13643594  1c20      adds     r0, r4, #0
+13643596  2210      movs     r2, #0x10
+13643598  47a8      blx      r5
+1364359a  2301      movs     r3, #1
+1364359c  7023      strb     r3, [r4]
+1364359e  4643      mov      r3, r8
+136435a0  9300      str      r3, [sp]
+136435a2  2301      movs     r3, #1
+136435a4  425b      rsbs     r3, r3, #0
+136435a6  9301      str      r3, [sp, #4]
+136435a8  2300      movs     r3, #0
+136435aa  9302      str      r3, [sp, #8]
+136435ac  1c32      adds     r2, r6, #0
+136435ae  1c21      adds     r1, r4, #0
+136435b0  2310      movs     r3, #0x10
+136435b2  2005      movs     r0, #5
+136435b4  f7fffc9a  bl       #0x13642eec
+136435b8  b003      add      sp, #0xc
+136435ba  bc08      pop      {r3}
+136435bc  4698      mov      r8, r3
+136435be  bc70      pop      {r4, r5, r6}
+136435c0  bc02      pop      {r1}
+136435c2  4708      bx       r1
+
+LITERALS VA 0x13642200, file 0x9c70: 13644898ffff1651ffff1685136448a01364489c13644890
+LITERALS VA 0x136435c4, file 0xb034: 13644800ffff709d13644840ffff7011136448a013644880
+LITERALS VA 0xffff149c, file 0x1754b4: 0d8001ec0d8001f0
+LITERALS VA 0xffff14ec, file 0x175504: ffff9554ffff9558
+LITERALS VA 0xffff1680, file 0x175698: ffff9540
+LITERALS VA 0xffff16b0, file 0x1756c8: ffff9540
+LITERALS VA 0xffff72d0, file 0x17b2e8: 0d8000e0
+LITERALS VA 0xffff72e0, file 0x17b2f8: 0d8000e0fffff7ff
+LITERALS VA 0xffff7400, file 0x17b418: 0d8000e8
