@@ -1,0 +1,15 @@
+[package]
+name = "ogc-gu"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-gu-sys = { path = "../ogc-gu-sys" }
+libm = "0.2"
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

@@ -1,0 +1,15 @@
+[package]
+name = "ogc-exi"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-exi-sys = { path = "../ogc-exi-sys" }
+ogc-sys = { path = "../../abi/ogc-sys" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

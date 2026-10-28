@@ -1,0 +1,7 @@
+Source: HBC Reborn, pywii/Common/pywii/wii.py
+Reference revision: 90025e8fe503795f5246392e044e010527879cc6
+This package is a Rust adaptation of the pywii WAD path.
+
+Copyright 2008  Hector Martin  <marcan@marcansoft.com>
+Licensed under the terms of the GNU GPL, version 2
+http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt

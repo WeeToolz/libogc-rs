@@ -1,0 +1,22 @@
+[package]
+name = "ogc-si-sys"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+default = []
+diagnostics = []
+
+[dependencies]
+ogc-core = { path = "../../core/ogc-core" }
+ogc-video = { path = "../ogc-video" }
+ogc-sys = { path = "../../abi/ogc-sys" }
+ogc-irq = { path = "../../core/ogc-irq" }
+ogc-lwp-sys = { path = "../../core/ogc-lwp-sys" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

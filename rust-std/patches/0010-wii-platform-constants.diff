@@ -1,0 +1,16 @@
+--- a/std/src/sys/env_consts.rs
++++ b/std/src/sys/env_consts.rs
+@@ -18,2 +18,13 @@
++#[cfg(all(target_arch = "powerpc", target_vendor = "nintendo", target_os = "none", target_env = "eabi", not(gamecube)))]
++pub mod os {
++    pub const FAMILY: &str = "";
++    pub const OS: &str = "none";
++    pub const DLL_PREFIX: &str = "";
++    pub const DLL_SUFFIX: &str = "";
++    pub const DLL_EXTENSION: &str = "";
++    pub const EXE_SUFFIX: &str = ".dol";
++    pub const EXE_EXTENSION: &str = "dol";
++}
++
+ #[cfg(target_os = "aix")]
+ pub mod os {

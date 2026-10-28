@@ -1,0 +1,62 @@
+--- a/std/src/sys/fs/mod.rs
++++ b/std/src/sys/fs/mod.rs
+@@ -6,6 +6,10 @@
+ pub mod common;
+
+ cfg_select! {
++    all(target_arch = "powerpc", target_vendor = "nintendo", target_os = "none", target_env = "eabi", not(gamecube)) => {
++        mod wii;
++        use wii as imp;
++    }
+     any(target_family = "unix", target_os = "wasi") => {
+         mod unix;
+         use unix as imp;
+--- a/std/src/sys/path/mod.rs
++++ b/std/src/sys/path/mod.rs
+@@ -18,6 +18,10 @@
+ }
+
+ cfg_select! {
++    all(target_arch = "powerpc", target_vendor = "nintendo", target_os = "none", target_env = "eabi", not(gamecube)) => {
++        mod wii;
++        pub use wii::*;
++    }
+     target_os = "windows" => {
+         mod windows;
+         mod windows_prefix;
+--- a/std/src/path.rs
++++ b/std/src/path.rs
+@@ -150,6 +150,10 @@
+ #[derive(Copy, Clone, Debug, Hash, PartialOrd, Ord, PartialEq, Eq)]
+ #[stable(feature = "rust1", since = "1.0.0")]
+ pub enum Prefix<'a> {
++    /// Wii mounted-device prefix, for example `sd:`.
++    #[cfg(all(target_arch = "powerpc", target_vendor = "nintendo", target_os = "none", target_env = "eabi", not(gamecube)))]
++    #[unstable(feature = "wii_mount_prefix", issue = "none")]
++    WiiMount(&'a OsStr),
+     /// Verbatim prefix, e.g., `\\?\cat_pics`.
+     ///
+     /// Verbatim prefixes consist of `\\?\` immediately followed by the given
+@@ -205,6 +209,8 @@
+             s.as_encoded_bytes().len()
+         }
+         match *self {
++            #[cfg(all(target_arch = "powerpc", target_vendor = "nintendo", target_os = "none", target_env = "eabi", not(gamecube)))]
++            WiiMount(name) => os_str_len(name) + 1,
+             Verbatim(x) => 4 + os_str_len(x),
+             VerbatimUNC(x, y) => {
+                 8 + os_str_len(x) + if os_str_len(y) > 0 { 1 + os_str_len(y) } else { 0 }
+@@ -241,7 +247,12 @@
+
+     #[inline]
+     fn is_drive(&self) -> bool {
+-        matches!(*self, Prefix::Disk(_))
++        match *self {
++            Prefix::Disk(_) => true,
++            #[cfg(all(target_arch = "powerpc", target_vendor = "nintendo", target_os = "none", target_env = "eabi", not(gamecube)))]
++            Prefix::WiiMount(_) => true,
++            _ => false,
++        }
+     }
+
+     #[inline]

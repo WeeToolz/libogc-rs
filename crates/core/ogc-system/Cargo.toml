@@ -1,0 +1,15 @@
+[package]
+name = "ogc-system"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-video = { path = "../../hardware/ogc-video" }
+ogc-system-sys = { path = "../ogc-system-sys" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

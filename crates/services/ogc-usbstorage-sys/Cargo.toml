@@ -1,0 +1,19 @@
+[package]
+name = "ogc-usbstorage-sys"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-usbstorage-lifecycle = { path = "../ogc-usbstorage-lifecycle" }
+ogc-filesystem-sys = { path = "../ogc-filesystem-sys" }
+ogc-lwp-sys = { path = "../../core/ogc-lwp-sys" }
+ogc-sys = { path = "../../abi/ogc-sys" }
+ogc-system-sys = { path = "../../core/ogc-system-sys" }
+ogc-usb-sys = { path = "../ogc-usb-sys" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

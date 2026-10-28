@@ -1,0 +1,22 @@
+[package]
+name = "libdb-sys"
+version.workspace = true
+edition.workspace = true
+license = "Zlib"
+
+[features]
+default = []
+wii-network = ["dep:gdb-transport", "dep:ogc-network"]
+
+[dependencies]
+ogc-exi = { path = "../../hardware/ogc-exi" }
+ogc-lwp-driver = { path = "../../core/ogc-lwp-driver" }
+ogc-sys = { path = "../../abi/ogc-sys" }
+ogc-usbgecko = { path = "../../services/ogc-usbgecko" }
+ogc-cache = { path = "../../core/ogc-cache" }
+tuxedo-sys = { path = "../tuxedo-sys" }
+ogc-network = { path = "../../services/ogc-network", optional = true }
+gdb-transport = { path = "../gdb-transport", optional = true }
+
+[lints]
+workspace = true

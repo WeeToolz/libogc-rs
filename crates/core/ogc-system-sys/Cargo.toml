@@ -1,0 +1,33 @@
+[package]
+name = "ogc-system-sys"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-alloc = { path = "../ogc-alloc" }
+ogc-dsp = { path = "../../hardware/ogc-dsp" }
+ogc-conf = { path = "../ogc-conf" }
+ogc-cache = { path = "../ogc-cache" }
+ogc-ipc = { path = "../ogc-ipc" }
+ogc-irq = { path = "../ogc-irq" }
+ogc-ios-sys = { path = "../ogc-ios-sys" }
+ogc-lwp-sys = { path = "../ogc-lwp-sys" }
+ogc-lwp-driver = { path = "../ogc-lwp-driver" }
+ogc-exi = { path = "../../hardware/ogc-exi" }
+ogc-si = { path = "../../hardware/ogc-si" }
+ogc-sys = { path = "../../abi/ogc-sys" }
+wpad-sys = { path = "../../services/wpad-sys" }
+ogc-wiilaunch = { path = "../ogc-wiilaunch" }
+ogc-video-sys = { path = "../../hardware/ogc-video-sys" }
+
+[target.'cfg(ogc_dev)'.dependencies]
+ogc-report-protocol = { path = "../ogc-report-protocol" }
+ogc-sha = { path = "../ogc-sha" }
+ogc-network = { path = "../../services/ogc-network" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

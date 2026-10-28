@@ -1,0 +1,20 @@
+[package]
+name = "ogc-input-sys"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+default = []
+diagnostics = ["ogc-si/diagnostics"]
+
+[dependencies]
+ogc-si = { path = "../../hardware/ogc-si" }
+ogc-system = { path = "../../core/ogc-system" }
+ogc-sys = { path = "../../abi/ogc-sys" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

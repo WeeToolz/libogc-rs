@@ -1,0 +1,137 @@
+[workspace]
+members = [
+    "crates/core/ogc-report-protocol",
+    "crates/tools/gc-binary",
+    "crates/tools/gc-elf",
+    "crates/tools/gc-wad",
+    "crates/tools/gc-wad",
+    "crates/abi/ogc-sys",
+    "crates/compatibility/ogc",
+    "crates/services/ogc-input-sys",
+    "crates/services/ogc-input",
+    "crates/services/ogc-controller",
+    "crates/services/ogc-filesystem-sys",
+    "crates/services/ogc-filesystem",
+    "crates/services/ogc-fat",
+    "crates/core/ogc-runtime",
+    "crates/services/ogc-std-runtime",
+    "crates/core/ogc-alloc",
+    "crates/core/ogc-core",
+    "crates/services/ogc-di",
+    "crates/core/ogc-ios-sys",
+    "crates/core/ogc-ios",
+    "crates/core/ogc-sha",
+    "crates/core/ogc-ipc",
+    "crates/core/ogc-conf-sys",
+    "crates/core/ogc-conf",
+    "crates/core/ogc-es-sys",
+    "crates/core/ogc-aes-sys",
+    "crates/core/ogc-es",
+    "crates/services/ogc-network-sys",
+    "crates/services/ogc-network",
+    "crates/services/ogc-ui",
+    "crates/core/ogc-wiilaunch-state",
+    "crates/core/ogc-wiilaunch",
+    "crates/core/ogc-system-sys",
+    "crates/core/ogc-system",
+    "crates/core/ogc-sysbase",
+    "crates/core/ogc-cache",
+    "crates/hardware/ogc-video-sys",
+    "crates/hardware/ogc-video",
+    "crates/hardware/ogc-gu-sys",
+    "crates/hardware/ogc-gu",
+    "crates/hardware/ogc-gx-sys",
+    "crates/hardware/ogc-gx",
+    "crates/hardware/ogc-si-sys",
+    "crates/hardware/ogc-si",
+    "crates/hardware/ogc-dsp-sys",
+    "crates/hardware/ogc-dsp",
+    "crates/compatibility/ogc-dvd-sys",
+    "crates/compatibility/ogc-dvd",
+    "crates/services/ogc-usb-sys",
+    "crates/services/ogc-usb-events",
+    "crates/services/ogc-usb",
+    "crates/services/ogc-bt-sync",
+    "crates/services/wiiuse-rs",
+    "crates/services/ogc-usbgecko",
+    "crates/services/ogc-usbstorage-sys",
+    "crates/services/ogc-usbstorage-lifecycle",
+    "crates/services/ogc-usbstorage",
+    "crates/services/ogc-wiisd",
+    "crates/services/ogc-gcsd",
+    "crates/services/ogc-wd",
+    "crates/hardware/ogc-exi-sys",
+    "crates/hardware/ogc-exi",
+    "crates/services/ogc-card-sys",
+    "crates/services/ogc-card-metadata",
+    "crates/compatibility/ogc-card",
+    "crates/core/ogc-stm",
+    "crates/hardware/ogc-aram",
+    "crates/hardware/ogc-audio-sys",
+    "crates/hardware/ogc-audio",
+    "crates/core/ogc-irq-sys",
+    "crates/core/ogc-irq",
+    "crates/core/ogc-lwp-driver",
+    "crates/core/ogc-lwp-sys",
+    "crates/core/ogc-lwp",
+    "crates/services/wpad-sys",
+    "crates/compatibility/tinysmb-sys",
+    "crates/compatibility/lwbt-sys",
+    "crates/services/lwip-sys",
+    "crates/compatibility/libdb-sys",
+    "crates/compatibility/gdb-transport",
+    "crates/media/mad-sys",
+    "crates/media/mp3player-sys",
+    "crates/compatibility/tuxedo-sys",
+    "crates/compatibility/wiikeyboard-sys",
+    "crates/media/asnd-sys",
+    "crates/media/aesnd-sys",
+    "crates/media/aesnd",
+    "crates/media/iso9660",
+    "crates/media/modplay",
+    "crates/abi/modplay-capi",
+    "crates/abi/abi-probe",
+    "probes/lwp-probe",
+    "probes/ogc-system-probe",
+    "examples",
+    "xtask",
+]
+# Keep default builds limited to target-safe library packages.
+# Host-only tooling such as `xtask` must be selected explicitly with `-p xtask`;
+# otherwise a custom Wii target would try to compile its `std` dependencies.
+# Wii runtime and probe packages are checked explicitly through xtask.
+default-members = [
+    "crates/abi/ogc-sys",
+    "crates/media/modplay",
+    "crates/abi/modplay-capi",
+]
+exclude = ["vendor/libmad-rs"]
+resolver = "2"
+
+[workspace.package]
+edition = "2024"
+license = "Zlib"
+version = "0.1.0"
+
+[workspace.metadata.libogc]
+target = "targets/powerpc-nintendo-none.json"
+role_manifest = "config/crate-roles.csv"
+dependency_exceptions = "config/dependency-exceptions.csv"
+implementation_overrides = "config/implementation-overrides.csv"
+implementation_inventory = "docs/generated/implementation-inventory.csv"
+
+[workspace.metadata.libogc.groups]
+core = ["ogc", "ogc-aes-sys", "ogc-cache", "ogc-conf", "ogc-conf-sys", "ogc-core", "ogc-es", "ogc-es-sys", "ogc-ios", "ogc-ios-sys", "ogc-ipc", "ogc-irq", "ogc-irq-sys", "ogc-lwp", "ogc-lwp-driver", "ogc-lwp-sys", "ogc-runtime", "ogc-std-runtime", "ogc-sha", "ogc-stm", "ogc-sysbase", "ogc-wiilaunch", "ogc-wiilaunch-state", "tuxedo-sys"]
+storage = ["iso9660", "ogc-card", "ogc-card-metadata", "ogc-card-sys", "ogc-di", "ogc-dvd", "ogc-dvd-sys", "ogc-fat", "ogc-filesystem", "ogc-filesystem-sys", "ogc-gcsd", "ogc-usbstorage", "ogc-usbstorage-lifecycle", "ogc-usbstorage-sys", "ogc-wiisd"]
+input = ["ogc-controller", "lwbt-sys", "ogc-bt-sync", "ogc-input", "ogc-input-sys", "ogc-si", "ogc-si-sys", "ogc-usb", "ogc-usb-events", "ogc-usb-sys", "wiiuse-rs", "wiikeyboard-sys", "wpad-sys"]
+network = ["lwip-sys", "ogc-network", "ogc-network-sys", "ogc-wd", "tinysmb-sys"]
+ui = ["ogc-ui"]
+audio = ["aesnd", "aesnd-sys", "asnd-sys", "mad-sys", "modplay", "modplay-capi", "mp3player-sys", "ogc-aram", "ogc-audio", "ogc-audio-sys", "ogc-dsp", "ogc-dsp-sys"]
+debug = ["libdb-sys", "ogc-system", "ogc-system-sys", "ogc-usbgecko", "ogc-video", "ogc-video-sys"]
+hardware = ["ogc-exi", "ogc-exi-sys", "ogc-gu", "ogc-gu-sys", "ogc-gx", "ogc-gx-sys"]
+abi = ["ogc-sys"]
+probes = ["abi-probe", "examples", "lwp-probe", "ogc-system-probe"]
+
+[workspace.lints.rust]
+unsafe_op_in_unsafe_fn = "deny"
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(ogc_dev)', 'cfg(gamecube)'] }

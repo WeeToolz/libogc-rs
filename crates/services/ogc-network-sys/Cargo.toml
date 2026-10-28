@@ -1,0 +1,20 @@
+[package]
+name = "ogc-network-sys"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-sys = { path = "../../abi/ogc-sys" }
+
+[target.'cfg(target_arch = "powerpc")'.dependencies]
+ogc-core = { path = "../../core/ogc-core" }
+ogc-ipc = { path = "../../core/ogc-ipc" }
+ogc-lwp-driver = { path = "../../core/ogc-lwp-driver" }
+lwip-sys = { path = "../lwip-sys" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

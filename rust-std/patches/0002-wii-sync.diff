@@ -1,0 +1,45 @@
+--- a/std/src/sys/sync/mutex/mod.rs
++++ b/std/src/sys/sync/mutex/mod.rs
+@@ -1,2 +1,6 @@
+ cfg_select! {
++    all(target_arch = "powerpc", target_vendor = "nintendo", target_os = "none", target_env = "eabi", not(gamecube)) => {
++        mod futex;
++        pub use futex::Mutex;
++    }
+     any(
+--- a/std/src/sys/sync/condvar/mod.rs
++++ b/std/src/sys/sync/condvar/mod.rs
+@@ -1,2 +1,6 @@
+ cfg_select! {
++    all(target_arch = "powerpc", target_vendor = "nintendo", target_os = "none", target_env = "eabi", not(gamecube)) => {
++        mod futex;
++        pub use futex::Condvar;
++    }
+     any(
+--- a/std/src/sys/sync/rwlock/mod.rs
++++ b/std/src/sys/sync/rwlock/mod.rs
+@@ -1,2 +1,6 @@
+ cfg_select! {
++    all(target_arch = "powerpc", target_vendor = "nintendo", target_os = "none", target_env = "eabi", not(gamecube)) => {
++        mod futex;
++        pub use futex::RwLock;
++    }
+     any(
+--- a/std/src/sys/sync/once/mod.rs
++++ b/std/src/sys/sync/once/mod.rs
+@@ -10,2 +10,6 @@
+ cfg_select! {
++    all(target_arch = "powerpc", target_vendor = "nintendo", target_os = "none", target_env = "eabi", not(gamecube)) => {
++        mod futex;
++        pub use futex::{Once, OnceState};
++    }
+     any(
+--- a/std/src/sys/sync/futex/mod.rs
++++ b/std/src/sys/sync/futex/mod.rs
+@@ -1,2 +1,6 @@
+ cfg_select! {
++    all(target_arch = "powerpc", target_vendor = "nintendo", target_os = "none", target_env = "eabi", not(gamecube)) => {
++        mod wii;
++        pub use wii::*;
++    }
+     any(

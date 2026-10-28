@@ -1,0 +1,14 @@
+[package]
+name = "ogc-dsp"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-dsp-sys = { path = "../ogc-dsp-sys" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

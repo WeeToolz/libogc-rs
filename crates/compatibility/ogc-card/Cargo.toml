@@ -1,0 +1,15 @@
+[package]
+name = "ogc-card"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-cache = { path = "../../core/ogc-cache" }
+ogc-card-sys = { path = "../../services/ogc-card-sys" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

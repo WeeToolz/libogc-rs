@@ -1,0 +1,15 @@
+[package]
+name = "ogc-usbstorage"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-sys = { path = "../../abi/ogc-sys" }
+ogc-usbstorage-sys = { path = "../ogc-usbstorage-sys" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

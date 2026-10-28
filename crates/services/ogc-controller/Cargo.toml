@@ -1,0 +1,19 @@
+[package]
+name = "ogc-controller"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-bt-sync = { path = "../ogc-bt-sync" }
+
+[target.'cfg(target_arch = "powerpc")'.dependencies]
+ogc-input = { path = "../ogc-input" }
+ogc-system = { path = "../../core/ogc-system" }
+ogc-video = { path = "../../hardware/ogc-video" }
+ogc-usb = { path = "../ogc-usb" }
+ogc-ipc = { path = "../../core/ogc-ipc" }
+wpad-sys = { path = "../wpad-sys" }
+
+[lints]
+workspace = true

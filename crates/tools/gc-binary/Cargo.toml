@@ -1,0 +1,8 @@
+[package]
+name = "gc-binary"
+version.workspace = true
+edition.workspace = true
+license = "GPL-2.0-or-later"
+
+[lints]
+workspace = true

@@ -1,0 +1,18 @@
+[package]
+name = "ogc-di"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-cache = { path = "../../core/ogc-cache" }
+ogc-filesystem = { path = "../ogc-filesystem" }
+ogc-ipc = { path = "../../core/ogc-ipc" }
+ogc-lwp-sys = { path = "../../core/ogc-lwp-sys" }
+ogc-sys = { path = "../../abi/ogc-sys" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

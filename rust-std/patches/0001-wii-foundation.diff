@@ -1,0 +1,47 @@
+--- a/std/src/sys/alloc/mod.rs
++++ b/std/src/sys/alloc/mod.rs
+@@ -66,4 +66,8 @@
+ cfg_select! {
++    all(target_arch = "powerpc", target_vendor = "nintendo", target_os = "none", target_env = "eabi", not(gamecube)) => {
++        mod wii;
++        use wii as imp;
++    }
+     any(target_family = "unix", target_os = "wasi", target_os = "teeos", target_os = "trusty") => {
+         mod unix;
+         use unix as imp;
+--- a/std/src/sys/io/error/mod.rs
++++ b/std/src/sys/io/error/mod.rs
+@@ -1,4 +1,8 @@
+ cfg_select! {
++    all(target_arch = "powerpc", target_vendor = "nintendo", target_os = "none", target_env = "eabi", not(gamecube)) => {
++        mod wii;
++        pub use wii::*;
++    }
+     target_os = "hermit" => {
+         mod hermit;
+         pub use hermit::*;
+--- a/std/src/sys/thread_local/mod.rs
++++ b/std/src/sys/thread_local/mod.rs
+@@ -150,6 +150,13 @@
+ /// with a pointer which we can get and set to store our data.
+ pub(crate) mod key {
+     cfg_select! {
++        all(target_arch = "powerpc", target_vendor = "nintendo", target_os = "none", target_env = "eabi", not(gamecube)) => {
++            mod racy;
++            mod wii;
++            pub(super) use racy::LazyKey;
++            pub(super) use wii::{Key, get, set};
++            use wii::{create, destroy};
++        }
+         any(
+             all(not(target_vendor = "apple"), not(target_family = "wasm"), target_family = "unix"),
+             all(not(target_thread_local), target_vendor = "apple"),
+--- a/std/src/sys/mod.rs
++++ b/std/src/sys/mod.rs
+@@ -3,4 +3,6 @@
+ mod configure_builtins;
++#[cfg(all(target_arch = "powerpc", target_vendor = "nintendo", target_os = "none", target_env = "eabi", not(gamecube)))]
++mod wii;
+ mod helpers;
+ mod pal;
+ mod personality;

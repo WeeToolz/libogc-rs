@@ -1,0 +1,35 @@
+[alias]
+xtask = "run -p xtask --"
+wii-check = "run -p xtask -- check-all-runtime"
+wii-build = "run -p xtask -- build-dols"
+wii-test = "run -p xtask -- build-probes"
+
+[env]
+RUST_TEST_THREADS = "1"
+
+[build]
+rustflags = [
+    "--check-cfg=cfg(gamecube)",
+]
+
+[target.powerpc-eabi]
+rustflags = [
+    "-C", "panic=abort",
+    "--check-cfg=cfg(gamecube)",
+]
+
+[target.powerpc-nintendo-none]
+linker = "rust-lld"
+rustflags = [
+    "-C", "panic=abort",
+    "-C", "link-arg=-Ttargets/powerpc-nintendo-none.ld",
+    "--check-cfg=cfg(gamecube)",
+]
+[target.powerpc-nintendo-gamecube]
+linker = "rust-lld"
+rustflags = [
+    "-C", "panic=abort",
+    "-C", "link-arg=-Ttargets/powerpc-nintendo-none.ld",
+    "--cfg=gamecube",
+    "--check-cfg=cfg(gamecube)",
+]

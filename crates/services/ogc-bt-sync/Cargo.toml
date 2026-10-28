@@ -1,0 +1,18 @@
+[package]
+name = "ogc-bt-sync"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+wiiuse-rs = { path = "../wiiuse-rs" }
+
+[target.'cfg(target_arch = "powerpc")'.dependencies]
+ogc-cache = { path = "../../core/ogc-cache" }
+ogc-ipc = { path = "../../core/ogc-ipc" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

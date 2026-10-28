@@ -1,0 +1,20 @@
+[package]
+name = "ogc-wiilaunch"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-es = { path = "../ogc-es" }
+ogc-ipc = { path = "../ogc-ipc" }
+ogc-lwp-sys = { path = "../ogc-lwp-sys" }
+ogc-network-sys = { path = "../../services/ogc-network-sys" }
+ogc-sys = { path = "../../abi/ogc-sys" }
+ogc-video = { path = "../../hardware/ogc-video" }
+ogc-wiilaunch-state = { path = "../ogc-wiilaunch-state" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true
