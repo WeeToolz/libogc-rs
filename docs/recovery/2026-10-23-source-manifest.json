@@ -1,0 +1,86 @@
+{
+  "purpose": "Preserve recovered source snapshots after Dolphin SD sync overwrite.",
+  "baseline_commit": "b781e43",
+  "files": [
+    {
+      "path": "crates/services/ogc-bt-sync/src/hid_host.rs",
+      "sha256": "1c4019455d58a2557fb417a3167739518a3ad6bea15ecab7a3633475b9d2f5b8",
+      "evidence": "session-edit reconstruction"
+    },
+    {
+      "path": "crates/services/ogc-bt-sync/src/wii_host.rs",
+      "sha256": "d11fa372c52c1212e824aec3d141395bfa955d3ea778203e36ca0243ef67ec7f",
+      "evidence": "session-edit reconstruction"
+    },
+    {
+      "path": "crates/services/wiiuse-rs/src/read_assembly.rs",
+      "sha256": "9f259814ddb63be73fa6650f53d2d538fae3e7efa1ba220e8467941b0bda02a9",
+      "evidence": "session-edit reconstruction"
+    },
+    {
+      "path": "crates/services/wpad-sys/src/powerpc_backend.rs",
+      "sha256": "988806c2a5171d924841adb0d402882d91b1300a71e08c9ffbb5c29682553342",
+      "evidence": "session-edit reconstruction"
+    },
+    {
+      "path": "crates/services/wpad-sys/src/lib.rs",
+      "sha256": "1ade16c20dd41184d8a28c2b76a2059925721ab9b2f1883ffffbd0bf9098267a",
+      "evidence": "session-edit reconstruction"
+    },
+    {
+      "path": "config/implementation-evidence.csv",
+      "sha256": "c8b1cb84cb1cb2d35bf57a32c72d6de4ad4b60b3792cbc6b3cfc23c026afc2db",
+      "evidence": "session-edit reconstruction"
+    },
+    {
+      "path": "config/implementation-overrides.csv",
+      "sha256": "873797165cfb29370df84eb0ac01b8c8f845ff9cfb7a37fa450b7e147fe8221e",
+      "evidence": "session-edit reconstruction"
+    },
+    {
+      "path": "crates/services/ogc-usbstorage-lifecycle/src/drives.rs",
+      "sha256": "b348e76dd773c3918b233ed6b71d4cba00e69351d5573738f1b5f900b8b013af",
+      "evidence": "Spotlight source cache"
+    },
+    {
+      "path": "crates/services/ogc-usbstorage-lifecycle/src/lib.rs",
+      "sha256": "ba64cbf002a14e3ffd8f0d05e91c86663c72c11d509e258e03cee26d8c4a5ad5",
+      "evidence": "Spotlight source cache"
+    },
+    {
+      "path": "probes/ogc-system-probe/src/usb_volumes_probe/main.rs",
+      "sha256": "2c8305a48d830e5f92ed19d050c770eb665e8ccddde2cc1431c517e5bdcbfac5",
+      "evidence": "Spotlight source cache"
+    },
+    {
+      "path": "crates/core/ogc-report-protocol/src/lib.rs",
+      "sha256": "10713df1138cf4c735e09021154811747d48d4492c6405ba54120135d7668c6f",
+      "evidence": "raw scan and source cache"
+    },
+    {
+      "path": "crates/services/ogc-usb-sys/src/v5_layout.rs",
+      "sha256": "5e30d2fb6af0ff4fbcb79137373655ba7787eb736ae20554884d4bd1ef49ffe5",
+      "evidence": "raw scan and source cache"
+    }
+  ],
+  "limits": [
+    "This is a recovery snapshot. It does not establish a complete final pre-overwrite tree.",
+    "Session reconstruction can omit unrecorded edits.",
+    "The recovered USB volumes entry point calls run_usb_volumes_probe_bin, which is absent from this snapshot. The entry point is preserved as recovered source; this probe is incomplete.",
+    "Hardware behavior has not been validated during recovery."
+  ],
+  "verification": {
+    "portable_host_tests": {
+      "wiiuse-rs": 45,
+      "ogc-report-protocol": 9,
+      "ogc-usbstorage-lifecycle": 14,
+      "ogc-usb-sys-v5-layout": 12,
+      "ogc-bt-sync": 97
+    },
+    "total_passed": 177,
+    "failures": 0,
+    "method": "Compile real crate sources directly with rustc --edition=2024 --test; compile wiiuse-rs as the dependency for ogc-bt-sync.",
+    "workspace_test_limit": "cargo test --offline cannot load the workspace because the sibling libmad-rs repository is absent.",
+    "hardware_test_limit": "PowerPC, Dolphin, and physical Wii tests were not run for this recovery snapshot."
+  }
+}

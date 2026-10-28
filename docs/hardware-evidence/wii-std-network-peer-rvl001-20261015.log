@@ -1,0 +1,6 @@
+TCP request targets 10.0.0.242:49152
+TCP callback connected
+TCP callback exchanged payload
+UDP received 9 bytes from ('10.0.0.242', 49153)
+UDP received 0 bytes from ('10.0.0.242', 49153)
+UDP received 4 bytes from ('10.0.0.242', 49153)

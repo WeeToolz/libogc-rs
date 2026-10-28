@@ -1,0 +1,3677 @@
+IOS9 v1034 focused Ghidra 12.1.2 export, 2026-10-15
+ELF SHA-256: 12cb0290972c3fbe0d03e27ba0f76fa868eee971fafc1e818bf896d7fa8ded91
+Direct Ghidra CLI output; these records do not have REA Evidence IDs.
+Pseudocode is recovered analysis, not original source. ARM UDF syscall stubs are not decoded by Ghidra.
+Only the two entries listed below were repaired in the analysis database.
+Repairs: Thumb function 0x13643e1c..0x13644099 and 0x20105354..0x20105471, inclusive.
+No original ELF or installed firmware bytes were changed. Decompiler warnings are retained.
+
+===== QUERY 136435dc =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x136435dc
+INCOMING From: 136413b8 To: 136435dc Type: COMPUTED_CALL Op: 0 ANALYSIS
+INCOMING From: 13643752 To: 136435dc Type: UNCONDITIONAL_CALL Op: 0 DEFAULT
+INCOMING From: 13641972 To: 136435dc Type: COMPUTED_CALL Op: 0 ANALYSIS
+INCOMING From: 13640d8c To: 136435dc Type: COMPUTED_CALL Op: 0 ANALYSIS
+BODY [[136435dc, 136436df]]
+
+undefined8 FUN_136435dc(int param_1,uint param_2)
+
+{
+  int *piVar1;
+  undefined1 *puVar2;
+  code *pcVar3;
+  int iVar4;
+  uint uVar5;
+  uint uVar6;
+  uint uVar7;
+  undefined4 unaff_lr;
+  undefined4 local_78 [14];
+  undefined1 auStack_40 [12];
+  undefined1 auStack_34 [16];
+
+  piVar1 = DAT_136436e0;
+  if (*DAT_136436e0 == 0) {
+    FUN_13643564();
+    *piVar1 = 1;
+  }
+  iVar4 = (*DAT_136436e4)(local_78,0,0);
+  if (iVar4 == 0) {
+    iVar4 = (*DAT_136436ec)(local_78[0],0,0,0,0,0,DAT_136436e8);
+    puVar2 = DAT_136436f0;
+    if (iVar4 == 0) {
+      (*DAT_136436f4)(DAT_136436f0,0,0x10);
+      *puVar2 = 1;
+      pcVar3 = DAT_136436fc;
+      piVar1 = DAT_136436f8;
+      uVar6 = 0;
+      if (param_2 != 0) {
+        uVar7 = 0;
+        do {
+          while( true ) {
+            *piVar1 = *piVar1 + 1;
+            (*DAT_136436f4)(auStack_40,0,0x10);
+            (*pcVar3)(auStack_34,piVar1,4);
+            iVar4 = FUN_13642eec(local_78[0],DAT_136436f0,auStack_40,0x10,auStack_40,0xffffffff,0);
+            if (iVar4 != 0) goto LAB_136436bc;
+            uVar5 = uVar7 + 0x10;
+            if (param_2 < uVar5) break;
+            (*pcVar3)(param_1 + uVar6,auStack_40,0x10);
+            uVar6 = uVar6 + 0x10;
+            uVar7 = uVar5;
+            if (param_2 <= uVar6) goto LAB_136436bc;
+          }
+          (*pcVar3)(param_1 + uVar6,auStack_40,param_2 - uVar7);
+          uVar6 = uVar6 + 0x10;
+          uVar7 = uVar5;
+        } while (uVar6 < param_2);
+      }
+    }
+LAB_136436bc:
+    (*DAT_13643700)(local_78[0]);
+  }
+  return CONCAT44(unaff_lr,iVar4);
+}
+
+
+136435dc push {r4,r5,r6,r7,lr}
+136435de mov r7,r11
+136435e0 mov r6,r10
+136435e2 mov r5,r9
+136435e4 mov r4,r8
+136435e6 push {r4,r5,r6,r7}
+136435e8 sub sp,#0x6c
+136435ea mov r6,sp
+136435ec ldr r4,[0x136436e0]
+136435ee movs r3,#0x3f
+136435f0 adds r6,#0x5b
+136435f2 bics r6,r3
+136435f4 ldr r3,[r4,#0x0]
+136435f6 movs r2,#0x0
+136435f8 str r0,[sp,#0x14]
+136435fa mov r8,r1
+136435fc mov r11,r2
+136435fe cmp r3,#0x0
+13643600 bne 0x13643604
+13643602 b 0x136436d6
+13643604 add r0,sp,#0x18
+13643606 movs r1,#0x0
+13643608 movs r2,#0x0
+1364360a ldr r3,[0x136436e4]
+1364360c blx r3
+1364360e subs r5,r0,#0x0
+13643610 bne 0x136436c2
+13643612 ldr r3,[0x136436e8]
+13643614 str r5,[sp,#0x0]
+13643616 str r5,[sp,#0x4]
+13643618 str r3,[sp,#0x8]
+1364361a ldr r0,[sp,#0x18]
+1364361c movs r1,#0x0
+1364361e movs r2,#0x0
+13643620 movs r3,#0x0
+13643622 ldr r4,[0x136436ec]
+13643624 blx r4
+13643626 subs r5,r0,#0x0
+13643628 bne 0x136436bc
+1364362a ldr r4,[0x136436f0]
+1364362c ldr r3,[0x136436f4]
+1364362e adds r0,r4,#0x0
+13643630 movs r1,#0x0
+13643632 movs r2,#0x10
+13643634 blx r3
+13643636 movs r3,#0x1
+13643638 strb r3,[r4,#0x0]
+1364363a movs r7,#0x0
+1364363c cmp r5,r8
+1364363e bcs 0x136436bc
+13643640 ldr r4,[0x136436f8]
+13643642 ldr r2,[0x136436fc]
+13643644 adds r3,r6,#0x0
+13643646 adds r3,#0xc
+13643648 mov r10,r4
+1364364a mov r9,r2
+1364364c str r3,[sp,#0x10]
+1364364e b 0x13643668
+13643650 ldr r3,[sp,#0x14]
+13643652 mov r4,r8
+13643654 adds r0,r3,r7
+13643656 mov r3,r11
+13643658 subs r2,r4,r3
+1364365a adds r1,r6,#0x0
+1364365c blx r9
+1364365e ldr r2,[sp,#0xc]
+13643660 adds r7,#0x10
+13643662 mov r11,r2
+13643664 cmp r7,r8
+13643666 bcs 0x136436bc
+13643668 mov r4,r10
+1364366a ldr r3,[r4,#0x0]
+1364366c adds r3,#0x1
+1364366e str r3,[r4,#0x0]
+13643670 movs r1,#0x0
+13643672 ldr r3,[0x136436f4]
+13643674 movs r2,#0x10
+13643676 adds r0,r6,#0x0
+13643678 blx r3
+1364367a mov r1,r10
+1364367c movs r2,#0x4
+1364367e ldr r0,[sp,#0x10]
+13643680 blx r9
+13643682 movs r3,#0x1
+13643684 rsbs r3,r3
+13643686 str r3,[sp,#0x4]
+13643688 movs r3,#0x0
+1364368a str r3,[sp,#0x8]
+1364368c ldr r0,[sp,#0x18]
+1364368e ldr r1,[0x136436f0]
+13643690 adds r2,r6,#0x0
+13643692 movs r3,#0x10
+13643694 str r6,[sp,#0x0]
+13643696 bl 0x13642eec
+1364369a subs r5,r0,#0x0
+1364369c bne 0x136436bc
+1364369e mov r2,r11
+136436a0 adds r2,#0x10
+136436a2 str r2,[sp,#0xc]
+136436a4 cmp r2,r8
+136436a6 bhi 0x13643650
+136436a8 ldr r4,[sp,#0x14]
+136436aa movs r2,#0x10
+136436ac adds r0,r4,r7
+136436ae adds r1,r6,#0x0
+136436b0 blx r9
+136436b2 ldr r2,[sp,#0xc]
+136436b4 adds r7,#0x10
+136436b6 mov r11,r2
+136436b8 cmp r7,r8
+136436ba bcc 0x13643668
+136436bc ldr r0,[sp,#0x18]
+136436be ldr r3,[0x13643700]
+136436c0 blx r3
+136436c2 adds r0,r5,#0x0
+136436c4 add sp,#0x6c
+136436c6 pop {r3,r4,r5,r6}
+136436c8 mov r8,r3
+136436ca mov r9,r4
+136436cc mov r10,r5
+136436ce mov r11,r6
+136436d0 pop {r4,r5,r6,r7}
+136436d2 pop {r1}
+136436d4 bx r1
+136436d6 bl 0x13643564
+136436da movs r3,#0x1
+136436dc str r3,[r4,#0x0]
+136436de b 0x13643604
+
+===== QUERY 13643564 =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x13643564
+INCOMING From: 136436d6 To: 13643564 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT
+BODY [[13643564, 136435c3]]
+
+void FUN_13643564(void)
+
+{
+  int iVar1;
+  code *pcVar2;
+  undefined4 uVar3;
+  undefined1 *puVar4;
+
+  pcVar2 = DAT_136435c8;
+  iVar1 = DAT_136435c4;
+  (*DAT_136435c8)(DAT_136435c4,0,0x10);
+  uVar3 = DAT_136435cc;
+  (*pcVar2)(DAT_136435cc,0,0x10);
+  (*DAT_136435d0)(iVar1 + 0xc,DAT_136435d4,4);
+  puVar4 = DAT_136435d8;
+  (*pcVar2)(DAT_136435d8,0,0x10);
+  *puVar4 = 1;
+  FUN_13642eec(5,puVar4,iVar1,0x10,uVar3,0xffffffff,0);
+  return;
+}
+
+
+13643564 push {r4,r5,r6,lr}
+13643566 mov r6,r8
+13643568 push {r6}
+1364356a ldr r6,[0x136435c4]
+1364356c sub sp,#0xc
+1364356e ldr r5,[0x136435c8]
+13643570 adds r0,r6,#0x0
+13643572 movs r1,#0x0
+13643574 movs r2,#0x10
+13643576 blx r5
+13643578 ldr r3,[0x136435cc]
+1364357a movs r1,#0x0
+1364357c adds r0,r3,#0x0
+1364357e movs r2,#0x10
+13643580 mov r8,r3
+13643582 blx r5
+13643584 adds r0,r6,#0x0
+13643586 ldr r3,[0x136435d0]
+13643588 ldr r1,[0x136435d4]
+1364358a movs r2,#0x4
+1364358c adds r0,#0xc
+1364358e blx r3
+13643590 ldr r4,[0x136435d8]
+13643592 movs r1,#0x0
+13643594 adds r0,r4,#0x0
+13643596 movs r2,#0x10
+13643598 blx r5
+1364359a movs r3,#0x1
+1364359c strb r3,[r4,#0x0]
+1364359e mov r3,r8
+136435a0 str r3,[sp,#0x0]
+136435a2 movs r3,#0x1
+136435a4 rsbs r3,r3
+136435a6 str r3,[sp,#0x4]
+136435a8 movs r3,#0x0
+136435aa str r3,[sp,#0x8]
+136435ac adds r2,r6,#0x0
+136435ae adds r1,r4,#0x0
+136435b0 movs r3,#0x10
+136435b2 movs r0,#0x5
+136435b4 bl 0x13642eec
+136435b8 add sp,#0xc
+136435ba pop {r3}
+136435bc mov r8,r3
+136435be pop {r4,r5,r6}
+136435c0 pop {r1}
+136435c2 bx r1
+
+===== QUERY 136421dc =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x136421dc
+INCOMING From: ffff0a8a To: 136421dc Type: COMPUTED_CALL Op: 0 ANALYSIS
+BODY [[136421dc, 136421ff]]
+
+undefined4 FUN_136421dc(void)
+
+{
+  undefined4 uVar1;
+  undefined4 unaff_lr;
+
+  uVar1 = FUN_13642170();
+  *DAT_13642200 = uVar1;
+  (*DAT_13642204)();
+  uVar1 = (*DAT_13642208)();
+  *DAT_1364220c = uVar1;
+  *DAT_13642210 = 0;
+  *DAT_13642214 = 0;
+  return unaff_lr;
+}
+
+
+136421dc push {lr}
+136421de bl 0x13642170
+136421e2 ldr r3,[0x13642200]
+136421e4 str r0,[r3,#0x0]
+136421e6 ldr r3,[0x13642204]
+136421e8 blx r3
+136421ea ldr r3,[0x13642208]
+136421ec blx r3
+136421ee ldr r3,[0x1364220c]
+136421f0 str r0,[r3,#0x0]
+136421f2 ldr r3,[0x13642210]
+136421f4 movs r2,#0x0
+136421f6 str r2,[r3,#0x0]
+136421f8 ldr r3,[0x13642214]
+136421fa str r2,[r3,#0x0]
+136421fc pop {r0}
+136421fe bx r0
+
+===== QUERY 13643704 =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x13643704
+BODY [[13643704, 13643759]]
+
+undefined8 FUN_13643704(undefined4 param_1,undefined4 param_2)
+
+{
+  int iVar1;
+  int iVar2;
+  undefined4 unaff_lr;
+
+  iVar1 = FUN_136421b0(*DAT_1364375c);
+  iVar2 = DAT_13643760;
+  if ((iVar1 == 0) &&
+     (iVar2 = (*DAT_13643768)(param_1,param_2,4,*(undefined4 *)(*DAT_13643764 + 0x54),0), iVar2 == 0
+     )) {
+    iVar2 = FUN_136435dc(param_1,param_2);
+  }
+  iVar1 = FUN_136421c8(*DAT_1364375c);
+  if ((iVar1 != 0) && (iVar2 == 0)) {
+    iVar2 = DAT_13643760;
+  }
+  return CONCAT44(unaff_lr,iVar2);
+}
+
+
+13643704 push {r4,r5,r6,lr}
+13643706 ldr r3,[0x1364375c]
+13643708 adds r5,r0,#0x0
+1364370a sub sp,#0x4
+1364370c ldr r0,[r3,#0x0]
+1364370e adds r6,r1,#0x0
+13643710 movs r4,#0x0
+13643712 bl 0x136421b0
+13643716 cmp r0,#0x0
+13643718 beq 0x13643738
+1364371a ldr r4,[0x13643760]
+1364371c ldr r3,[0x1364375c]
+1364371e ldr r0,[r3,#0x0]
+13643720 bl 0x136421c8
+13643724 cmp r0,#0x0
+13643726 beq 0x1364372e
+13643728 cmp r4,#0x0
+1364372a bne 0x1364372e
+1364372c ldr r4,[0x13643760]
+1364372e adds r0,r4,#0x0
+13643730 add sp,#0x4
+13643732 pop {r4,r5,r6}
+13643734 pop {r1}
+13643736 bx r1
+13643738 ldr r3,[0x13643764]
+1364373a ldr r3,[r3,#0x0]
+1364373c adds r0,r5,#0x0
+1364373e ldr r3,[r3,#0x54]
+13643740 adds r1,r6,#0x0
+13643742 str r4,[sp,#0x0]
+13643744 movs r2,#0x4
+13643746 ldr r4,[0x13643768]
+13643748 blx r4
+1364374a subs r4,r0,#0x0
+1364374c bne 0x1364371c
+1364374e adds r0,r5,#0x0
+13643750 adds r1,r6,#0x0
+13643752 bl 0x136435dc
+13643756 adds r4,r0,#0x0
+13643758 b 0x1364371c
+
+===== QUERY 13642eec =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x13642eec
+INCOMING From: 13643696 To: 13642eec Type: UNCONDITIONAL_CALL Op: 0 DEFAULT
+INCOMING From: 136435b4 To: 13642eec Type: UNCONDITIONAL_CALL Op: 0 DEFAULT
+INCOMING From: 13643122 To: 13642eec Type: UNCONDITIONAL_CALL Op: 0 DEFAULT
+INCOMING From: 13640aac To: 13642eec Type: COMPUTED_CALL Op: 0 ANALYSIS
+INCOMING From: 13643206 To: 13642eec Type: UNCONDITIONAL_CALL Op: 0 DEFAULT
+BODY [[13642eec, 13643037]]
+
+undefined8
+FUN_13642eec(undefined4 param_1,uint param_2,uint param_3,uint param_4,uint param_5,int param_6,
+            undefined4 param_7)
+
+{
+  undefined4 *puVar1;
+  undefined4 *puVar2;
+  code *pcVar3;
+  int iVar4;
+  int iVar5;
+  uint *puVar6;
+  uint uVar7;
+  undefined4 unaff_lr;
+  undefined4 local_28;
+
+  puVar1 = DAT_13643038;
+  local_28 = 0;
+  uVar7 = 0;
+  puVar6 = (uint *)0x0;
+  iVar4 = FUN_136421c8(*DAT_13643038);
+  pcVar3 = DAT_1364304c;
+  puVar2 = DAT_13643044;
+  iVar5 = 0;
+  if (iVar4 != 0) {
+    iVar5 = DAT_1364303c;
+  }
+  iVar4 = DAT_13643040;
+  if ((((param_3 & 0x1f) == 0) && (iVar4 = iVar5, iVar5 == 0)) &&
+     (iVar4 = DAT_13643040, (param_5 & 0x1f) == 0)) {
+    uVar7 = (*DAT_1364304c)(*DAT_13643044,0x10);
+    if ((uVar7 == 0) || (puVar6 = (uint *)(*pcVar3)(*puVar2,0x20), puVar6 == (uint *)0x0)) {
+      iVar4 = -0x16;
+    }
+    else {
+      iVar5 = FUN_136421b0(*puVar1);
+      if (iVar5 != 0) goto LAB_13642f3e;
+      iVar4 = (*DAT_13643050)(&local_28,param_1);
+      if (iVar4 == 0) {
+        iVar5 = (*DAT_13643054)(param_1,uVar7,local_28);
+        iVar4 = 0;
+        if (iVar5 != 0) {
+          iVar4 = -0x15;
+        }
+      }
+      iVar5 = FUN_136421c8(*DAT_13643038);
+      if (iVar5 == 0) {
+        if (iVar4 == 0) {
+          *puVar6 = param_3;
+          puVar6[2] = uVar7;
+          puVar6[1] = param_4;
+          puVar6[4] = param_5;
+          puVar6[5] = param_4;
+          puVar6[3] = 0x10;
+          puVar6[7] = 0x10;
+          puVar6[6] = param_2;
+          if (param_6 == -1) {
+            iVar4 = (*DAT_1364305c)(0x10000,2,2,2,puVar6);
+          }
+          else {
+            iVar4 = (*DAT_13643058)(0x10000,2,2,2,puVar6,param_6,param_7);
+          }
+        }
+      }
+      else if (iVar4 == 0) goto LAB_13642f3e;
+    }
+  }
+  iVar5 = FUN_136421b0(*DAT_13643038);
+  while (iVar5 != 0) {
+    if (iVar4 != 0) goto LAB_13642f4e;
+LAB_13642f3e:
+    iVar4 = DAT_1364303c;
+    iVar5 = FUN_136421b0(*DAT_13643038);
+  }
+  if (iVar4 != 0) {
+LAB_13642f4e:
+    if (uVar7 != 0) {
+      (*DAT_13643048)(*DAT_13643044,uVar7);
+    }
+    if (puVar6 != (uint *)0x0) {
+      (*DAT_13643048)(*DAT_13643044,puVar6);
+    }
+  }
+  return CONCAT44(unaff_lr,iVar4);
+}
+
+
+13642eec push {r4,r5,r6,r7,lr}
+13642eee mov r7,r11
+13642ef0 mov r6,r10
+13642ef2 mov r5,r9
+13642ef4 mov r4,r8
+13642ef6 push {r4,r5,r6,r7}
+13642ef8 sub sp,#0x14
+13642efa mov r11,r3
+13642efc movs r3,#0x0
+13642efe str r3,[sp,#0x10]
+13642f00 ldr r5,[0x13643038]
+13642f02 mov r8,r0
+13642f04 movs r4,#0x0
+13642f06 ldr r0,[r5,#0x0]
+13642f08 str r1,[sp,#0xc]
+13642f0a adds r6,r2,#0x0
+13642f0c mov r10,r4
+13642f0e movs r7,#0x0
+13642f10 bl 0x136421c8
+13642f14 cmp r0,#0x0
+13642f16 beq 0x13642f1a
+13642f18 ldr r4,[0x1364303c]
+13642f1a movs r3,#0x1f
+13642f1c tst r6,r3
+13642f1e bne 0x13642f2a
+13642f20 cmp r4,#0x0
+13642f22 bne 0x13642f2c
+13642f24 ldr r2,[sp,#0x38]
+13642f26 tst r2,r3
+13642f28 beq 0x13642f80
+13642f2a ldr r4,[0x13643040]
+13642f2c ldr r3,[0x13643038]
+13642f2e ldr r0,[r3,#0x0]
+13642f30 bl 0x136421b0
+13642f34 cmp r0,#0x0
+13642f36 beq 0x13642f4a
+13642f38 cmp r4,#0x0
+13642f3a bne 0x13642f4e
+13642f3c ldr r4,[0x1364303c]
+13642f3e ldr r3,[0x13643038]
+13642f40 ldr r0,[r3,#0x0]
+13642f42 bl 0x136421b0
+13642f46 cmp r0,#0x0
+13642f48 bne 0x13642f38
+13642f4a cmp r4,#0x0
+13642f4c beq 0x13642f6c
+13642f4e mov r3,r10
+13642f50 cmp r3,#0x0
+13642f52 beq 0x13642f5e
+13642f54 ldr r3,[0x13643044]
+13642f56 mov r1,r10
+13642f58 ldr r0,[r3,#0x0]
+13642f5a ldr r3,[0x13643048]
+13642f5c blx r3
+13642f5e cmp r7,#0x0
+13642f60 beq 0x13642f6c
+13642f62 ldr r3,[0x13643044]
+13642f64 adds r1,r7,#0x0
+13642f66 ldr r0,[r3,#0x0]
+13642f68 ldr r3,[0x13643048]
+13642f6a blx r3
+13642f6c adds r0,r4,#0x0
+13642f6e add sp,#0x14
+13642f70 pop {r3,r4,r5,r6}
+13642f72 mov r8,r3
+13642f74 mov r9,r4
+13642f76 mov r10,r5
+13642f78 mov r11,r6
+13642f7a pop {r4,r5,r6,r7}
+13642f7c pop {r1}
+13642f7e bx r1
+13642f80 ldr r3,[0x13643044]
+13642f82 movs r1,#0x10
+13642f84 ldr r0,[r3,#0x0]
+13642f86 ldr r4,[0x1364304c]
+13642f88 mov r9,r3
+13642f8a blx r4
+13642f8c cmp r0,#0x0
+13642f8e mov r10,r0
+13642f90 beq 0x13642fd6
+13642f92 mov r2,r9
+13642f94 ldr r0,[r2,#0x0]
+13642f96 movs r1,#0x20
+13642f98 blx r4
+13642f9a subs r7,r0,#0x0
+13642f9c beq 0x13642fd6
+13642f9e ldr r0,[r5,#0x0]
+13642fa0 bl 0x136421b0
+13642fa4 cmp r0,#0x0
+13642fa6 bne 0x13642f3c
+13642fa8 add r0,sp,#0x10
+13642faa mov r1,r8
+13642fac ldr r3,[0x13643050]
+13642fae blx r3
+13642fb0 subs r4,r0,#0x0
+13642fb2 bne 0x13642fc2
+13642fb4 mov r0,r8
+13642fb6 mov r1,r10
+13642fb8 ldr r2,[sp,#0x10]
+13642fba ldr r3,[0x13643054]
+13642fbc blx r3
+13642fbe subs r4,r0,#0x0
+13642fc0 bne 0x1364301e
+13642fc2 ldr r3,[0x13643038]
+13642fc4 ldr r0,[r3,#0x0]
+13642fc6 bl 0x136421c8
+13642fca cmp r0,#0x0
+13642fcc beq 0x13642fdc
+13642fce cmp r4,#0x0
+13642fd0 bne 0x13642f2c
+13642fd2 ldr r4,[0x1364303c]
+13642fd4 b 0x13642f3e
+13642fd6 movs r4,#0x16
+13642fd8 rsbs r4,r4
+13642fda b 0x13642f2c
+13642fdc cmp r4,#0x0
+13642fde bne 0x13642f2c
+13642fe0 mov r2,r10
+13642fe2 str r6,[r7,#0x0]
+13642fe4 str r2,[r7,#0x8]
+13642fe6 ldr r2,[sp,#0x38]
+13642fe8 mov r3,r11
+13642fea str r3,[r7,#0x4]
+13642fec str r2,[r7,#0x10]
+13642fee movs r3,#0x10
+13642ff0 mov r2,r11
+13642ff2 str r2,[r7,#0x14]
+13642ff4 str r3,[r7,#0xc]
+13642ff6 str r3,[r7,#0x1c]
+13642ff8 ldr r2,[sp,#0xc]
+13642ffa ldr r3,[sp,#0x3c]
+13642ffc str r2,[r7,#0x18]
+13642ffe adds r3,#0x1
+13643000 beq 0x13643024
+13643002 ldr r2,[sp,#0x3c]
+13643004 ldr r3,[sp,#0x40]
+13643006 movs r0,#0x80
+13643008 str r2,[sp,#0x4]
+1364300a str r3,[sp,#0x8]
+1364300c ldr r4,[0x13643058]
+1364300e str r7,[sp,#0x0]
+13643010 lsls r0,r0,#0x9
+13643012 movs r1,#0x2
+13643014 movs r2,#0x2
+13643016 movs r3,#0x2
+13643018 blx r4
+1364301a adds r4,r0,#0x0
+1364301c b 0x13642f2c
+1364301e movs r4,#0x15
+13643020 rsbs r4,r4
+13643022 b 0x13642fc2
+13643024 movs r0,#0x80
+13643026 ldr r4,[0x1364305c]
+13643028 str r7,[sp,#0x0]
+1364302a lsls r0,r0,#0x9
+1364302c movs r1,#0x2
+1364302e movs r2,#0x2
+13643030 movs r3,#0x2
+13643032 blx r4
+13643034 adds r4,r0,#0x0
+13643036 b 0x13642f2c
+
+===== QUERY 13649818 =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x13649818
+INCOMING From: 13641398 To: 13649818 Type: COMPUTED_CALL Op: 0 ANALYSIS
+INCOMING From: 136413a6 To: 13649818 Type: COMPUTED_CALL Op: 0 ANALYSIS
+INCOMING From: 13642fbc To: 13649818 Type: COMPUTED_CALL Op: 0 ANALYSIS
+INCOMING From: 136432f8 To: 13649818 Type: COMPUTED_CALL Op: 0 ANALYSIS
+INCOMING From: 136445d2 To: 13649818 Type: COMPUTED_CALL Op: 0 ANALYSIS
+INCOMING From: 13640a3a To: 13649818 Type: COMPUTED_CALL Op: 0 ANALYSIS
+INCOMING From: 136418d0 To: 13649818 Type: COMPUTED_CALL Op: 0 ANALYSIS
+INCOMING From: 13641994 To: 13649818 Type: COMPUTED_CALL Op: 0 ANALYSIS
+INCOMING From: 13641aa2 To: 13649818 Type: COMPUTED_CALL Op: 0 ANALYSIS
+INCOMING From: 13640ca6 To: 13649818 Type: COMPUTED_CALL Op: 0 ANALYSIS
+INCOMING From: 13640cd8 To: 13649818 Type: COMPUTED_CALL Op: 0 ANALYSIS
+INCOMING From: 13640f6a To: 13649818 Type: COMPUTED_CALL Op: 0 ANALYSIS
+INCOMING From: 13640fa2 To: 13649818 Type: COMPUTED_CALL Op: 0 ANALYSIS
+INCOMING From: 13641560 To: 13649818 Type: COMPUTED_CALL Op: 0 ANALYSIS
+INCOMING From: 13641478 To: 13649818 Type: COMPUTED_CALL Op: 0 ANALYSIS
+INCOMING From: 136414a2 To: 13649818 Type: COMPUTED_CALL Op: 0 ANALYSIS
+INCOMING From: 13640fbe To: 13649818 Type: COMPUTED_CALL Op: 0 ANALYSIS
+INCOMING From: 1364150e To: 13649818 Type: COMPUTED_CALL Op: 0 ANALYSIS
+BODY [[13649818, 136498c1]]
+
+undefined8 FUN_13649818(uint param_1,int param_2,int param_3)
+
+{
+  int iVar1;
+  undefined4 uVar2;
+  uint uVar3;
+  int iVar4;
+  int iVar5;
+  int iVar6;
+  undefined4 unaff_lr;
+
+  iVar1 = DAT_136498cc;
+  iVar6 = 0;
+  iVar5 = 0;
+  uVar2 = DAT_136498c8;
+  if ((((param_1 < 0x20) && (*(char *)(param_1 * 0x14 + DAT_136498c4) != '\0')) &&
+      (uVar3 = (uint)*(short *)(param_1 * 0x14 + DAT_136498c4 + 0x10), uVar3 < 0x40)) &&
+     (*(char *)(uVar3 * 0x24 + DAT_136498cc) != '\0')) {
+    do {
+      if ((uint)(param_3 - iVar5) < 0x21) {
+        iVar4 = param_3 - iVar5;
+      }
+      else {
+        iVar4 = 0x20;
+      }
+      (*DAT_136498d4)(iVar6 * 0x20 + param_2,uVar3 * 0x24 + DAT_136498d0,iVar4);
+      uVar3 = (uint)*(ushort *)(uVar3 * 0x24 + iVar1 + 0x22);
+      uVar2 = DAT_136498c8;
+      if ((0x3f < uVar3) || (*(char *)(uVar3 * 0x24 + iVar1) == '\0')) goto LAB_136498b2;
+      iVar5 = iVar5 + iVar4;
+      iVar6 = iVar6 + 1;
+    } while (uVar3 != 0);
+    uVar2 = 0;
+  }
+LAB_136498b2:
+  return CONCAT44(unaff_lr,uVar2);
+}
+
+
+13649818 push {r4,r5,r6,r7,lr}
+1364981a mov r7,r11
+1364981c mov r6,r10
+1364981e mov r5,r9
+13649820 mov r4,r8
+13649822 push {r4,r5,r6,r7}
+13649824 mov r9,r1
+13649826 mov r10,r2
+13649828 movs r2,#0x0
+1364982a mov r8,r2
+1364982c movs r7,#0x0
+1364982e cmp r0,#0x1f
+13649830 bhi 0x13649840
+13649832 movs r3,#0x14
+13649834 adds r2,r0,#0x0
+13649836 muls r2,r3
+13649838 ldr r3,[0x136498c4]
+1364983a ldrb r3,[r2,r3]
+1364983c cmp r3,#0x0
+1364983e bne 0x13649844
+13649840 ldr r0,[0x136498c8]
+13649842 b 0x136498b2
+13649844 movs r3,#0x14
+13649846 muls r3,r0
+13649848 ldr r2,[0x136498c4]
+1364984a adds r3,r3,r2
+1364984c movs r2,#0x10
+1364984e ldrsh r4,[r3,r2]
+13649850 cmp r4,#0x3f
+13649852 bhi 0x13649862
+13649854 movs r3,#0x24
+13649856 adds r2,r4,#0x0
+13649858 muls r2,r3
+1364985a ldr r3,[0x136498cc]
+1364985c ldrb r3,[r2,r3]
+1364985e cmp r3,#0x0
+13649860 bne 0x13649866
+13649862 ldr r0,[0x136498c8]
+13649864 b 0x136498b2
+13649866 ldr r3,[0x136498cc]
+13649868 mov r11,r3
+1364986a mov r2,r10
+1364986c subs r3,r2,r7
+1364986e cmp r3,#0x20
+13649870 bls 0x13649876
+13649872 movs r5,#0x20
+13649874 b 0x1364987a
+13649876 mov r3,r10
+13649878 subs r5,r3,r7
+1364987a mov r2,r8
+1364987c lsls r0,r2,#0x5
+1364987e movs r6,#0x24
+13649880 muls r4,r6
+13649882 add r0,r9
+13649884 ldr r3,[0x136498d0]
+13649886 adds r1,r4,r3
+13649888 adds r2,r5,#0x0
+1364988a ldr r3,[0x136498d4]
+1364988c blx r3
+1364988e mov r2,r11
+13649890 adds r4,r4,r2
+13649892 ldrh r4,[r4,#0x22]
+13649894 cmp r4,#0x3f
+13649896 bhi 0x136498a2
+13649898 adds r3,r4,#0x0
+1364989a muls r3,r6
+1364989c ldrb r3,[r3,r2]
+1364989e cmp r3,#0x0
+136498a0 bne 0x136498a6
+136498a2 ldr r0,[0x136498c8]
+136498a4 b 0x136498b2
+136498a6 adds r7,r7,r5
+136498a8 movs r2,#0x1
+136498aa add r8,r2
+136498ac cmp r4,#0x0
+136498ae bne 0x1364986a
+136498b0 movs r0,#0x0
+136498b2 pop {r3,r4,r5,r6}
+136498b4 mov r8,r3
+136498b6 mov r9,r4
+136498b8 mov r10,r5
+136498ba mov r11,r6
+136498bc pop {r4,r5,r6,r7}
+136498be pop {r1}
+136498c0 bx r1
+
+===== QUERY ffff1440 =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0xffff1440
+INCOMING From: ffff1740 To: ffff1440 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT
+INCOMING From: ffff14c2 To: ffff1440 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT
+INCOMING From: ffff1808 To: ffff1440 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT
+INCOMING From: ffff1784 To: ffff1440 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT
+INCOMING From: ffff178e To: ffff1440 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT
+INCOMING From: ffff1798 To: ffff1440 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT
+INCOMING From: ffff17a2 To: ffff1440 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT
+BODY [[ffff1440, ffff1499]]
+
+undefined4 FUN_ffff1440(uint param_1,int param_2,uint param_3)
+
+{
+  uint *puVar1;
+  uint uVar2;
+  undefined4 unaff_lr;
+  undefined4 local_20;
+
+  FUN_ffff709c(param_2,0);
+  puVar1 = DAT_ffff149c;
+  uVar2 = 0;
+  if (param_3 != 0) {
+    do {
+      *puVar1 = param_1 & 0x1f | 0x80000000;
+      local_20 = *DAT_ffff14a0;
+      uVar2 = uVar2 + 4;
+      FUN_ffff7010(param_2,&local_20,4);
+      param_1 = param_1 + 1;
+      param_2 = param_2 + 4;
+    } while (uVar2 < param_3);
+  }
+  return unaff_lr;
+}
+
+
+ffff1440 push {r4,r5,r6,r7,lr}
+ffff1442 mov r7,r10
+ffff1444 mov r6,r8
+ffff1446 push {r6,r7}
+ffff1448 sub sp,#0x4
+ffff144a adds r5,r0,#0x0
+ffff144c adds r4,r1,#0x0
+ffff144e adds r0,r1,#0x0
+ffff1450 adds r7,r2,#0x0
+ffff1452 movs r1,#0x0
+ffff1454 bl 0xffff709c
+ffff1458 movs r6,#0x0
+ffff145a cmp r7,#0x0
+ffff145c bls 0xffff148c
+ffff145e ldr r3,[0xffff149c]
+ffff1460 mov r10,sp
+ffff1462 mov r8,r3
+ffff1464 movs r2,#0x1f
+ffff1466 movs r3,#0x80
+ffff1468 ands r2,r5
+ffff146a lsls r3,r3,#0x18
+ffff146c orrs r2,r3
+ffff146e mov r3,r8
+ffff1470 str r2,[r3,#0x0]
+ffff1472 ldr r3,[0xffff14a0]
+ffff1474 ldr r3,[r3,#0x0]
+ffff1476 adds r0,r4,#0x0
+ffff1478 mov r1,r10
+ffff147a movs r2,#0x4
+ffff147c adds r6,#0x4
+ffff147e str r3,[sp,#0x0]
+ffff1480 adds r4,#0x4
+ffff1482 bl 0xffff7010
+ffff1486 adds r5,#0x1
+ffff1488 cmp r6,r7
+ffff148a bcc 0xffff1464
+ffff148c add sp,#0x4
+ffff148e pop {r3,r4}
+ffff1490 mov r8,r3
+ffff1492 mov r10,r4
+ffff1494 pop {r4,r5,r6,r7}
+ffff1496 pop {r0}
+ffff1498 bx r0
+
+===== QUERY 13649360 =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x13649360
+INCOMING From: 136406d8 To: 13649360 Type: COMPUTED_CALL Op: 0 ANALYSIS OWNER 136406d4
+BODY [[13649360, 13649517]]
+
+undefined4 FUN_13649360(void)
+
+{
+  int iVar1;
+  code *pcVar2;
+  undefined2 uVar3;
+  int iVar4;
+  undefined1 *puVar5;
+  undefined4 unaff_lr;
+  undefined4 local_a0;
+  undefined1 auStack_9c [4];
+  undefined1 auStack_98 [16];
+  undefined1 auStack_88 [16];
+  undefined1 auStack_78 [20];
+  undefined1 auStack_64 [32];
+  undefined1 auStack_44 [16];
+  undefined1 auStack_34 [16];
+
+  (*DAT_1364951c)(auStack_98,DAT_13649518,0x10);
+  puVar5 = DAT_13649520;
+  iVar4 = 0;
+  do {
+    puVar5[iVar4 * 0x14] = 0;
+    (puVar5 + iVar4 * 0x14)[1] = 0xff;
+    iVar1 = DAT_13649524;
+    iVar4 = iVar4 + 1;
+  } while (iVar4 < 0x20);
+  iVar4 = 0;
+  do {
+    puVar5 = (undefined1 *)(iVar4 * 0x24 + iVar1);
+    *puVar5 = 0;
+    *(undefined2 *)(puVar5 + 0x22) = 0;
+    iVar4 = iVar4 + 1;
+  } while (iVar4 < 0x40);
+  (*DAT_13649528)(auStack_9c);
+  puVar5 = DAT_13649520;
+  DAT_13649520[0x14] = 1;
+  puVar5[0x15] = 0x35;
+  *(undefined2 *)(puVar5 + 0x24) = 0;
+  (*DAT_1364952c)(1,auStack_9c);
+  (*DAT_13649530)(auStack_88);
+  (*DAT_13649534)(auStack_64,auStack_34,auStack_78,auStack_44);
+  *puVar5 = 1;
+  puVar5[1] = 4;
+  uVar3 = FUN_136492c0(0x1e);
+  *(undefined2 *)(puVar5 + 0x10) = uVar3;
+  pcVar2 = DAT_13649538;
+  (*DAT_13649538)(0,auStack_64,0x1e);
+  puVar5[0x28] = 1;
+  puVar5[0x29] = 0;
+  uVar3 = FUN_136492c0(0x10);
+  *(undefined2 *)(puVar5 + 0x38) = uVar3;
+  (*pcVar2)(2,auStack_44,0x10);
+  puVar5[0x3c] = 1;
+  puVar5[0x3d] = 1;
+  uVar3 = FUN_136492c0(0x14);
+  *(undefined2 *)(puVar5 + 0x4c) = uVar3;
+  (*pcVar2)(3,auStack_78,0x14);
+  puVar5[0x50] = 1;
+  puVar5[0x51] = 0;
+  uVar3 = FUN_136492c0(0x10);
+  *(undefined2 *)(puVar5 + 0x60) = uVar3;
+  (*pcVar2)(4,auStack_34,0x10);
+  local_a0 = (*DAT_1364953c)();
+  puVar5[0x8c] = 1;
+  puVar5[0x8d] = 0x36;
+  *(undefined2 *)(puVar5 + 0x9c) = 0;
+  (*DAT_1364952c)(7,&local_a0);
+  puVar5[0xa0] = 1;
+  puVar5[0xa1] = 0x36;
+  *(undefined2 *)(puVar5 + 0xb0) = 0;
+  local_a0 = (*DAT_13649540)();
+  (*DAT_1364952c)(8,&local_a0);
+  puVar5[0xb4] = 1;
+  puVar5[0xb5] = 0x36;
+  *(undefined2 *)(puVar5 + 0xc4) = 0;
+  local_a0 = (*DAT_13649544)();
+  (*DAT_1364952c)(9,&local_a0);
+  puVar5[200] = 1;
+  puVar5[0xc9] = 0x36;
+  *(undefined2 *)(puVar5 + 0xd8) = 0;
+  local_a0 = (*DAT_13649548)();
+  (*DAT_1364952c)(10,&local_a0);
+  puVar5[100] = 1;
+  puVar5[0x65] = 0;
+  uVar3 = FUN_136492c0(0x10);
+  *(undefined2 *)(puVar5 + 0x74) = uVar3;
+  (*pcVar2)(5,auStack_88,0x10);
+  puVar5[0x78] = 1;
+  puVar5[0x79] = 0;
+  uVar3 = FUN_136492c0(0x10);
+  *(undefined2 *)(puVar5 + 0x88) = uVar3;
+  (*pcVar2)(6,auStack_98,0x10);
+  return unaff_lr;
+}
+
+
+13649360 push {r4,r5,r6,r7,lr}
+13649362 mov r7,r11
+13649364 mov r6,r10
+13649366 mov r5,r9
+13649368 mov r4,r8
+1364936a push {r4,r5,r6,r7}
+1364936c sub sp,#0x7c
+1364936e add r0,sp,#0x8
+13649370 ldr r1,[0x13649518]
+13649372 movs r2,#0x10
+13649374 ldr r3,[0x1364951c]
+13649376 blx r3
+13649378 movs r2,#0x0
+1364937a ldr r5,[0x13649520]
+1364937c movs r4,#0x14
+1364937e movs r0,#0x0
+13649380 movs r1,#0x1
+13649382 rsbs r1,r1
+13649384 adds r3,r2,#0x0
+13649386 muls r3,r4
+13649388 adds r3,r3,r5
+1364938a strb r0,[r3,#0x0]
+1364938c strb r1,[r3,#0x1]
+1364938e adds r2,#0x1
+13649390 cmp r2,#0x1f
+13649392 ble 0x13649384
+13649394 movs r2,#0x0
+13649396 ldr r5,[0x13649524]
+13649398 movs r4,#0x24
+1364939a movs r0,#0x0
+1364939c movs r1,#0x0
+1364939e adds r3,r2,#0x0
+136493a0 muls r3,r4
+136493a2 adds r3,r3,r5
+136493a4 strb r0,[r3,#0x0]
+136493a6 adds r3,#0x20
+136493a8 strh r1,[r3,#0x2]
+136493aa adds r2,#0x1
+136493ac cmp r2,#0x3f
+136493ae ble 0x1364939e
+136493b0 add r4,sp,#0x4
+136493b2 adds r0,r4,#0x0
+136493b4 ldr r3,[0x13649528]
+136493b6 blx r3
+136493b8 ldr r5,[0x13649520]
+136493ba movs r6,#0x1
+136493bc movs r3,#0x1
+136493be strb r3,[r5,#0x14]
+136493c0 movs r3,#0x35
+136493c2 strb r3,[r5,#0x15]
+136493c4 movs r2,#0x0
+136493c6 strh r2,[r5,#0x24]
+136493c8 movs r0,#0x1
+136493ca adds r1,r4,#0x0
+136493cc ldr r3,[0x1364952c]
+136493ce blx r3
+136493d0 add r0,sp,#0x18
+136493d2 ldr r3,[0x13649530]
+136493d4 blx r3
+136493d6 movs r2,#0x3c
+136493d8 add r2,sp
+136493da mov r8,r2
+136493dc movs r3,#0x28
+136493de add r3,sp
+136493e0 mov r9,r3
+136493e2 movs r2,#0x5c
+136493e4 add r2,sp
+136493e6 mov r11,r2
+136493e8 mov r0,r8
+136493ea add r1,sp,#0x6c
+136493ec adds r2,r3,#0x0
+136493ee mov r3,r11
+136493f0 ldr r4,[0x13649534]
+136493f2 blx r4
+136493f4 movs r7,#0x0
+136493f6 strb r6,[r5,#0x0]
+136493f8 movs r3,#0x4
+136493fa strb r3,[r5,#0x1]
+136493fc movs r0,#0x1e
+136493fe bl 0x136492c0
+13649402 strh r0,[r5,#0x10]
+13649404 movs r0,#0x0
+13649406 mov r1,r8
+13649408 movs r2,#0x1e
+1364940a ldr r3,[0x13649538]
+1364940c mov r10,r3
+1364940e blx r3
+13649410 adds r3,r5,#0x0
+13649412 adds r3,#0x28
+13649414 strb r6,[r3,#0x0]
+13649416 movs r2,#0x0
+13649418 strb r2,[r3,#0x1]
+1364941a movs r0,#0x10
+1364941c bl 0x136492c0
+13649420 strh r0,[r5,#0x38]
+13649422 movs r0,#0x2
+13649424 mov r1,r11
+13649426 movs r2,#0x10
+13649428 blx r10
+1364942a adds r3,r5,#0x0
+1364942c adds r3,#0x3c
+1364942e strb r6,[r3,#0x0]
+13649430 strb r6,[r3,#0x1]
+13649432 adds r4,r5,#0x0
+13649434 adds r4,#0x4c
+13649436 movs r0,#0x14
+13649438 bl 0x136492c0
+1364943c strh r0,[r4,#0x0]
+1364943e movs r0,#0x3
+13649440 mov r1,r9
+13649442 movs r2,#0x14
+13649444 blx r10
+13649446 adds r2,r5,#0x0
+13649448 adds r2,#0x50
+1364944a strb r6,[r2,#0x0]
+1364944c movs r3,#0x0
+1364944e strb r3,[r2,#0x1]
+13649450 adds r4,#0x14
+13649452 movs r0,#0x10
+13649454 bl 0x136492c0
+13649458 strh r0,[r4,#0x0]
+1364945a movs r0,#0x4
+1364945c add r1,sp,#0x6c
+1364945e movs r2,#0x10
+13649460 blx r10
+13649462 ldr r3,[0x1364953c]
+13649464 blx r3
+13649466 str r0,[sp,#0x0]
+13649468 adds r3,r5,#0x0
+1364946a adds r3,#0x8c
+1364946c strb r6,[r3,#0x0]
+1364946e movs r4,#0x36
+13649470 strb r4,[r3,#0x1]
+13649472 adds r3,#0x10
+13649474 strh r7,[r3,#0x0]
+13649476 movs r0,#0x7
+13649478 mov r1,sp
+1364947a ldr r3,[0x1364952c]
+1364947c blx r3
+1364947e adds r3,r5,#0x0
+13649480 adds r3,#0xa0
+13649482 strb r6,[r3,#0x0]
+13649484 strb r4,[r3,#0x1]
+13649486 adds r3,#0x10
+13649488 strh r7,[r3,#0x0]
+1364948a ldr r3,[0x13649540]
+1364948c blx r3
+1364948e str r0,[sp,#0x0]
+13649490 movs r0,#0x8
+13649492 mov r1,sp
+13649494 ldr r2,[0x1364952c]
+13649496 blx r2
+13649498 adds r3,r5,#0x0
+1364949a adds r3,#0xb4
+1364949c strb r6,[r3,#0x0]
+1364949e strb r4,[r3,#0x1]
+136494a0 adds r3,#0x10
+136494a2 strh r7,[r3,#0x0]
+136494a4 ldr r3,[0x13649544]
+136494a6 blx r3
+136494a8 str r0,[sp,#0x0]
+136494aa movs r0,#0x9
+136494ac mov r1,sp
+136494ae ldr r3,[0x1364952c]
+136494b0 blx r3
+136494b2 adds r3,r5,#0x0
+136494b4 adds r3,#0xc8
+136494b6 strb r6,[r3,#0x0]
+136494b8 strb r4,[r3,#0x1]
+136494ba adds r3,#0x10
+136494bc strh r7,[r3,#0x0]
+136494be ldr r3,[0x13649548]
+136494c0 blx r3
+136494c2 str r0,[sp,#0x0]
+136494c4 movs r0,#0xa
+136494c6 mov r1,sp
+136494c8 ldr r2,[0x1364952c]
+136494ca blx r2
+136494cc adds r3,r5,#0x0
+136494ce adds r3,#0x64
+136494d0 strb r6,[r3,#0x0]
+136494d2 movs r2,#0x0
+136494d4 strb r2,[r3,#0x1]
+136494d6 adds r4,r5,#0x0
+136494d8 adds r4,#0x74
+136494da movs r0,#0x10
+136494dc bl 0x136492c0
+136494e0 strh r0,[r4,#0x0]
+136494e2 movs r0,#0x5
+136494e4 add r1,sp,#0x18
+136494e6 movs r2,#0x10
+136494e8 blx r10
+136494ea adds r3,r5,#0x0
+136494ec adds r3,#0x78
+136494ee strb r6,[r3,#0x0]
+136494f0 movs r2,#0x0
+136494f2 strb r2,[r3,#0x1]
+136494f4 adds r5,#0x88
+136494f6 movs r0,#0x10
+136494f8 bl 0x136492c0
+136494fc strh r0,[r5,#0x0]
+136494fe movs r0,#0x6
+13649500 add r1,sp,#0x8
+13649502 movs r2,#0x10
+13649504 blx r10
+13649506 add sp,#0x7c
+13649508 pop {r3,r4,r5,r6}
+1364950a mov r8,r3
+1364950c mov r9,r4
+1364950e mov r10,r5
+13649510 mov r11,r6
+13649512 pop {r4,r5,r6,r7}
+13649514 pop {r0}
+13649516 bx r0
+
+===== QUERY ffff17f0 =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0xffff17f0
+INCOMING From: 136493d4 To: ffff17f0 Type: COMPUTED_CALL Op: 0 ANALYSIS OWNER 13649360
+BODY [[ffff17f0, ffff1823]]
+
+undefined4 FUN_ffff17f0(undefined4 param_1)
+
+{
+  undefined4 uVar1;
+  int iVar2;
+  undefined4 unaff_lr;
+
+  uVar1 = thunk_FUN_ffff1d04();
+  iVar2 = FUN_ffff14a4();
+  if (iVar2 == 0) {
+    FUN_ffff7010(param_1,DAT_ffff1824,0x10);
+  }
+  else {
+    FUN_ffff1440(0x1a,param_1,0x10);
+  }
+  thunk_FUN_ffff1d18(uVar1);
+  return unaff_lr;
+}
+
+
+ffff17f0 push {r4,r5,lr}
+ffff17f2 adds r4,r0,#0x0
+ffff17f4 bl 0xffff7cac
+ffff17f8 adds r5,r0,#0x0
+ffff17fa bl 0xffff14a4
+ffff17fe cmp r0,#0x0
+ffff1800 beq 0xffff1818
+ffff1802 movs r0,#0x1a
+ffff1804 adds r1,r4,#0x0
+ffff1806 movs r2,#0x10
+ffff1808 bl 0xffff1440
+ffff180c adds r0,r5,#0x0
+ffff180e bl 0xffff7cb4
+ffff1812 pop {r4,r5}
+ffff1814 pop {r0}
+ffff1816 bx r0
+ffff1818 adds r0,r4,#0x0
+ffff181a ldr r1,[0xffff1824]
+ffff181c movs r2,#0x10
+ffff181e bl 0xffff7010
+ffff1822 b 0xffff180c
+
+===== QUERY ffff14a4 =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0xffff14a4
+INCOMING From: ffff1732 To: ffff14a4 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER ffff1728
+INCOMING From: ffff17fa To: ffff14a4 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER ffff17f0
+INCOMING From: ffff1776 To: ffff14a4 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER ffff1760
+INCOMING From: ffff14fc To: ffff14a4 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER ffff14f4
+INCOMING From: ffff1570 To: ffff14a4 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER ffff1568
+INCOMING From: ffff15e4 To: ffff14a4 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER ffff15dc
+INCOMING From: ffff16bc To: ffff14a4 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER ffff16b4
+INCOMING From: ffff165a To: ffff14a4 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER ffff1650
+INCOMING From: ffff168c To: ffff14a4 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER ffff1684
+INCOMING From: ffff152e To: ffff14a4 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER ffff1524
+INCOMING From: ffff15a2 To: ffff14a4 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER ffff1598
+INCOMING From: ffff1616 To: ffff14a4 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER ffff160c
+INCOMING From: ffff16ee To: ffff14a4 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER ffff16e4
+INCOMING From: ffff1880 To: ffff14a4 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER ffff1868
+BODY [[ffff14a4, ffff14e9]]
+
+undefined8 FUN_ffff14a4(void)
+
+{
+  int *piVar1;
+  undefined4 *puVar2;
+  undefined4 unaff_lr;
+  int local_18;
+  int local_14;
+  int local_10;
+  int local_c;
+
+  piVar1 = DAT_ffff14ec;
+  puVar2 = DAT_ffff14f0;
+  if (*DAT_ffff14ec == 0) {
+    FUN_ffff1440(5,&local_18,0x10);
+    puVar2 = DAT_ffff14f0;
+    if (((local_18 == 0 && local_14 == 0) && local_10 == 0) && local_c == 0) {
+      *piVar1 = 1;
+    }
+    else {
+      *DAT_ffff14f0 = 1;
+      *piVar1 = 1;
+    }
+  }
+  return CONCAT44(unaff_lr,*puVar2);
+}
+
+
+ffff14a4 push {r4,lr}
+ffff14a6 ldr r4,[0xffff14ec]
+ffff14a8 ldr r3,[r4,#0x0]
+ffff14aa sub sp,#0x10
+ffff14ac cmp r3,#0x0
+ffff14ae beq 0xffff14bc
+ffff14b0 ldr r0,[0xffff14f0]
+ffff14b2 ldr r0,[r0,#0x0]
+ffff14b4 add sp,#0x10
+ffff14b6 pop {r4}
+ffff14b8 pop {r1}
+ffff14ba bx r1
+ffff14bc movs r2,#0x10
+ffff14be movs r0,#0x5
+ffff14c0 mov r1,sp
+ffff14c2 bl 0xffff1440
+ffff14c6 ldr r2,[sp,#0x4]
+ffff14c8 ldr r3,[sp,#0x0]
+ffff14ca orrs r3,r2
+ffff14cc ldr r2,[sp,#0x8]
+ffff14ce orrs r3,r2
+ffff14d0 ldr r2,[sp,#0xc]
+ffff14d2 orrs r3,r2
+ffff14d4 beq 0xffff14e2
+ffff14d6 ldr r0,[0xffff14f0]
+ffff14d8 movs r3,#0x1
+ffff14da str r3,[r0,#0x0]
+ffff14dc movs r3,#0x1
+ffff14de str r3,[r4,#0x0]
+ffff14e0 b 0xffff14b2
+ffff14e2 ldr r0,[0xffff14f0]
+ffff14e4 movs r3,#0x1
+ffff14e6 str r3,[r4,#0x0]
+ffff14e8 b 0xffff14b2
+
+===== QUERY ffff1650 =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0xffff1650
+INCOMING From: 136421e8 To: ffff1650 Type: COMPUTED_CALL Op: 0 ANALYSIS OWNER 136421dc
+BODY [[ffff1650, ffff167f]]
+
+undefined8 FUN_ffff1650(void)
+
+{
+  undefined4 uVar1;
+  int iVar2;
+  undefined4 uVar3;
+  undefined4 unaff_lr;
+
+  uVar1 = thunk_FUN_ffff1d04();
+  uVar3 = 0;
+  iVar2 = FUN_ffff14a4();
+  if (iVar2 == 0) {
+    *DAT_ffff1680 = *DAT_ffff1680 + 1;
+  }
+  else {
+    uVar3 = FUN_ffff7980();
+  }
+  thunk_FUN_ffff1d18(uVar1);
+  return CONCAT44(unaff_lr,uVar3);
+}
+
+
+ffff1650 push {r4,r5,lr}
+ffff1652 bl 0xffff7cac
+ffff1656 movs r5,#0x0
+ffff1658 adds r4,r0,#0x0
+ffff165a bl 0xffff14a4
+ffff165e cmp r0,#0x0
+ffff1660 bne 0xffff1678
+ffff1662 ldr r2,[0xffff1680]
+ffff1664 ldr r3,[r2,#0x0]
+ffff1666 adds r3,#0x1
+ffff1668 str r3,[r2,#0x0]
+ffff166a adds r0,r4,#0x0
+ffff166c bl 0xffff7cb4
+ffff1670 adds r0,r5,#0x0
+ffff1672 pop {r4,r5}
+ffff1674 pop {r1}
+ffff1676 bx r1
+ffff1678 bl 0xffff7980
+ffff167c adds r5,r0,#0x0
+ffff167e b 0xffff166a
+
+===== QUERY ffff1684 =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0xffff1684
+INCOMING From: 136421ec To: ffff1684 Type: COMPUTED_CALL Op: 0 ANALYSIS OWNER 136421dc
+BODY [[ffff1684, ffff16ad]]
+
+undefined8 FUN_ffff1684(void)
+
+{
+  undefined4 uVar1;
+  int iVar2;
+  undefined4 uVar3;
+  undefined4 unaff_lr;
+
+  uVar1 = thunk_FUN_ffff1d04();
+  iVar2 = FUN_ffff14a4();
+  if (iVar2 == 0) {
+    uVar3 = *DAT_ffff16b0;
+  }
+  else {
+    uVar3 = FUN_ffff7954();
+  }
+  thunk_FUN_ffff1d18(uVar1);
+  return CONCAT44(unaff_lr,uVar3);
+}
+
+
+ffff1684 push {r4,r5,lr}
+ffff1686 bl 0xffff7cac
+ffff168a adds r5,r0,#0x0
+ffff168c bl 0xffff14a4
+ffff1690 cmp r0,#0x0
+ffff1692 bne 0xffff16a6
+ffff1694 ldr r3,[0xffff16b0]
+ffff1696 ldr r4,[r3,#0x0]
+ffff1698 adds r0,r5,#0x0
+ffff169a bl 0xffff7cb4
+ffff169e adds r0,r4,#0x0
+ffff16a0 pop {r4,r5}
+ffff16a2 pop {r1}
+ffff16a4 bx r1
+ffff16a6 bl 0xffff7954
+ffff16aa adds r4,r0,#0x0
+ffff16ac b 0xffff1698
+
+===== QUERY ffff7954 =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0xffff7954
+INCOMING From: ffff16a6 To: ffff7954 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER ffff1684
+BODY [[ffff7954, ffff797d]]
+
+undefined8 FUN_ffff7954(void)
+
+{
+  uint uVar1;
+  undefined4 unaff_lr;
+  int local_c;
+  uint local_8;
+
+  uVar1 = FUN_ffff7444(0x7c,&local_8);
+  if ((uVar1 == 0) && (uVar1 = FUN_ffff7444(0x7d,&local_c), uVar1 == 0)) {
+    uVar1 = local_8 | local_c << 0x10;
+  }
+  return CONCAT44(unaff_lr,uVar1);
+}
+
+
+ffff7954 push {lr}
+ffff7956 sub sp,#0x8
+ffff7958 movs r0,#0x7c
+ffff795a add r1,sp,#0x4
+ffff795c bl 0xffff7444
+ffff7960 cmp r0,#0x0
+ffff7962 bne 0xffff7978
+ffff7964 movs r0,#0x7d
+ffff7966 mov r1,sp
+ffff7968 bl 0xffff7444
+ffff796c cmp r0,#0x0
+ffff796e bne 0xffff7978
+ffff7970 ldr r3,[sp,#0x0]
+ffff7972 ldr r0,[sp,#0x4]
+ffff7974 lsls r3,r3,#0x10
+ffff7976 orrs r0,r3
+ffff7978 add sp,#0x8
+ffff797a pop {r1}
+ffff797c bx r1
+
+===== QUERY ffff7980 =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0xffff7980
+INCOMING From: ffff1678 To: ffff7980 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER ffff1650
+BODY [[ffff7980, ffff79db]]
+
+undefined8 FUN_ffff7980(void)
+
+{
+  int iVar1;
+  undefined4 unaff_lr;
+  uint local_10;
+  uint local_c;
+
+  iVar1 = FUN_ffff7444(0x7c,&local_c);
+  if ((iVar1 == 0) && (iVar1 = FUN_ffff7444(0x7d,&local_10), iVar1 == 0)) {
+    local_c = (local_c | local_10 << 0x10) + 1;
+    local_10 = local_c >> 0x10;
+    local_c = local_c & DAT_ffff79dc;
+    iVar1 = FUN_ffff7518();
+    if (iVar1 == 0) {
+      iVar1 = FUN_ffff7478(0x7c,local_c);
+      if (iVar1 == 0) {
+        iVar1 = FUN_ffff7478(0x7d,local_10);
+      }
+      FUN_ffff7538();
+    }
+  }
+  return CONCAT44(unaff_lr,iVar1);
+}
+
+
+ffff7980 push {r4,lr}
+ffff7982 sub sp,#0x8
+ffff7984 movs r0,#0x7c
+ffff7986 add r1,sp,#0x4
+ffff7988 bl 0xffff7444
+ffff798c subs r4,r0,#0x0
+ffff798e bne 0xffff79d2
+ffff7990 movs r0,#0x7d
+ffff7992 mov r1,sp
+ffff7994 bl 0xffff7444
+ffff7998 subs r4,r0,#0x0
+ffff799a bne 0xffff79d2
+ffff799c ldr r2,[sp,#0x0]
+ffff799e ldr r3,[sp,#0x4]
+ffff79a0 lsls r2,r2,#0x10
+ffff79a2 orrs r3,r2
+ffff79a4 adds r3,#0x1
+ffff79a6 lsrs r2,r3,#0x10
+ffff79a8 str r2,[sp,#0x0]
+ffff79aa ldr r2,[0xffff79dc]
+ffff79ac ands r3,r2
+ffff79ae str r3,[sp,#0x4]
+ffff79b0 bl 0xffff7518
+ffff79b4 subs r4,r0,#0x0
+ffff79b6 bne 0xffff79d2
+ffff79b8 movs r0,#0x7c
+ffff79ba ldr r1,[sp,#0x4]
+ffff79bc bl 0xffff7478
+ffff79c0 subs r4,r0,#0x0
+ffff79c2 bne 0xffff79ce
+ffff79c4 movs r0,#0x7d
+ffff79c6 ldr r1,[sp,#0x0]
+ffff79c8 bl 0xffff7478
+ffff79cc adds r4,r0,#0x0
+ffff79ce bl 0xffff7538
+ffff79d2 adds r0,r4,#0x0
+ffff79d4 add sp,#0x8
+ffff79d6 pop {r4}
+ffff79d8 pop {r1}
+ffff79da bx r1
+
+===== QUERY 136496dc =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x136496dc
+INCOMING From: 13640936 To: 136496dc Type: COMPUTED_CALL Op: 0 ANALYSIS OWNER 136407c0
+INCOMING From: 13640948 To: 136496dc Type: COMPUTED_CALL Op: 0 ANALYSIS OWNER 136407c0
+INCOMING From: 1364940e To: 136496dc Type: COMPUTED_CALL Op: 0 ANALYSIS OWNER 13649360
+INCOMING From: 13649428 To: 136496dc Type: COMPUTED_CALL Op: 0 ANALYSIS OWNER 13649360
+INCOMING From: 13649444 To: 136496dc Type: COMPUTED_CALL Op: 0 ANALYSIS OWNER 13649360
+INCOMING From: 13649460 To: 136496dc Type: COMPUTED_CALL Op: 0 ANALYSIS OWNER 13649360
+INCOMING From: 136494e8 To: 136496dc Type: COMPUTED_CALL Op: 0 ANALYSIS OWNER 13649360
+INCOMING From: 13649504 To: 136496dc Type: COMPUTED_CALL Op: 0 ANALYSIS OWNER 13649360
+INCOMING From: 13640e38 To: 136496dc Type: COMPUTED_CALL Op: 0 ANALYSIS OWNER 13640d28
+INCOMING From: 13640dc8 To: 136496dc Type: COMPUTED_CALL Op: 0 ANALYSIS OWNER 13640d28
+INCOMING From: 13640dee To: 136496dc Type: COMPUTED_CALL Op: 0 ANALYSIS OWNER 13640d28
+INCOMING From: 13640de2 To: 136496dc Type: COMPUTED_CALL Op: 0 ANALYSIS OWNER 13640d28
+INCOMING From: 13641016 To: 136496dc Type: COMPUTED_CALL Op: 0 ANALYSIS OWNER 13640e88
+INCOMING From: 13640bde To: 136496dc Type: COMPUTED_CALL Op: 0 ANALYSIS OWNER 13640b84
+BODY [[136496dc, 13649759]]
+
+undefined8 FUN_136496dc(uint param_1,int param_2,int param_3)
+
+{
+  int iVar1;
+  int iVar2;
+  uint uVar3;
+  undefined4 uVar4;
+  int iVar5;
+  int iVar6;
+  int iVar7;
+  undefined4 unaff_lr;
+
+  iVar2 = DAT_13649768;
+  iVar1 = DAT_13649764;
+  iVar7 = 0;
+  iVar6 = 0;
+  uVar4 = DAT_13649760;
+  if ((param_1 < 0x20) && (*(char *)(param_1 * 0x14 + DAT_1364975c) != '\0')) {
+    uVar3 = (uint)*(short *)(param_1 * 0x14 + DAT_1364975c + 0x10);
+    do {
+      if ((uint)(param_3 - iVar6) < 0x21) {
+        iVar5 = param_3 - iVar6;
+      }
+      else {
+        iVar5 = 0x20;
+      }
+      (*DAT_1364976c)(uVar3 * 0x24 + iVar1,iVar7 * 0x20 + param_2,iVar5);
+      uVar3 = (uint)*(ushort *)(uVar3 * 0x24 + iVar2 + 0x22);
+      iVar6 = iVar6 + iVar5;
+      iVar7 = iVar7 + 1;
+      uVar4 = 0;
+    } while (uVar3 != 0);
+  }
+  return CONCAT44(unaff_lr,uVar4);
+}
+
+
+136496dc push {r4,r5,r6,r7,lr}
+136496de mov r7,r11
+136496e0 mov r6,r10
+136496e2 mov r5,r9
+136496e4 mov r4,r8
+136496e6 push {r4,r5,r6,r7}
+136496e8 mov r10,r1
+136496ea mov r8,r2
+136496ec movs r7,#0x0
+136496ee movs r6,#0x0
+136496f0 cmp r0,#0x1f
+136496f2 bhi 0x13649702
+136496f4 movs r3,#0x14
+136496f6 adds r2,r0,#0x0
+136496f8 muls r2,r3
+136496fa ldr r3,[0x1364975c]
+136496fc ldrb r3,[r2,r3]
+136496fe cmp r3,#0x0
+13649700 bne 0x13649706
+13649702 ldr r0,[0x13649760]
+13649704 b 0x1364974a
+13649706 movs r3,#0x14
+13649708 muls r3,r0
+1364970a ldr r2,[0x1364975c]
+1364970c adds r3,r3,r2
+1364970e movs r2,#0x10
+13649710 ldrsh r0,[r3,r2]
+13649712 ldr r3,[0x13649764]
+13649714 mov r11,r3
+13649716 ldr r2,[0x13649768]
+13649718 mov r9,r2
+1364971a mov r2,r8
+1364971c subs r3,r2,r6
+1364971e cmp r3,#0x20
+13649720 bls 0x13649726
+13649722 movs r5,#0x20
+13649724 b 0x1364972a
+13649726 mov r3,r8
+13649728 subs r5,r3,r6
+1364972a movs r3,#0x24
+1364972c adds r4,r0,#0x0
+1364972e muls r4,r3
+13649730 lsls r1,r7,#0x5
+13649732 mov r2,r11
+13649734 adds r0,r4,r2
+13649736 add r1,r10
+13649738 adds r2,r5,#0x0
+1364973a ldr r3,[0x1364976c]
+1364973c blx r3
+1364973e add r4,r9
+13649740 ldrh r0,[r4,#0x22]
+13649742 adds r6,r6,r5
+13649744 adds r7,#0x1
+13649746 cmp r0,#0x0
+13649748 bne 0x1364971a
+1364974a pop {r3,r4,r5,r6}
+1364974c mov r8,r3
+1364974e mov r9,r4
+13649750 mov r10,r5
+13649752 mov r11,r6
+13649754 pop {r4,r5,r6,r7}
+13649756 pop {r1}
+13649758 bx r1
+
+===== QUERY 1364376c =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x1364376c
+BODY [[1364376c, 13643833]]
+
+undefined8 FUN_1364376c(undefined4 param_1,undefined4 param_2,int param_3,undefined4 param_4)
+
+{
+  int *piVar1;
+  code *pcVar2;
+  int iVar3;
+  int iVar4;
+  undefined4 unaff_lr;
+  undefined4 local_64;
+  uint local_60;
+  undefined1 auStack_5c [60];
+
+  local_64 = 0;
+  iVar3 = FUN_136421b0(*DAT_13643834);
+  iVar4 = DAT_13643844;
+  if (((iVar3 == 0) &&
+      (((param_3 == DAT_13643838 ||
+        ((iVar3 = (*DAT_1364383c)(param_3,&local_60), iVar4 = DAT_13643844, iVar3 == 0 &&
+         ((1 << (*(uint *)(*DAT_13643840 + 0x54) & 0xff) & local_60) != 0)))) &&
+       (pcVar2 = DAT_13643848, piVar1 = DAT_13643840,
+       iVar4 = (*DAT_13643848)(param_1,param_2,3,*(undefined4 *)(*DAT_13643840 + 0x54),0),
+       iVar4 == 0)))) &&
+     ((iVar4 = (*DAT_1364384c)(&local_64,param_3), iVar4 == 0 &&
+      (iVar4 = (*pcVar2)(param_4,local_64,4,*(undefined4 *)(*piVar1 + 0x54),0), iVar4 == 0)))) {
+    iVar4 = (*DAT_13643850)(param_1,param_2,param_3);
+    (*DAT_13643854)(param_4,auStack_5c,0x3c);
+  }
+  iVar3 = FUN_136421c8(*DAT_13643834);
+  if ((iVar3 != 0) && (iVar4 == 0)) {
+    iVar4 = DAT_13643844;
+  }
+  return CONCAT44(unaff_lr,iVar4);
+}
+
+
+1364376c push {r4,r5,r6,r7,lr}
+1364376e mov r7,r10
+13643770 mov r6,r9
+13643772 mov r5,r8
+13643774 push {r5,r6,r7}
+13643776 sub sp,#0x48
+13643778 movs r5,#0x0
+1364377a mov r9,r3
+1364377c str r5,[sp,#0x4]
+1364377e ldr r3,[0x13643834]
+13643780 adds r7,r0,#0x0
+13643782 ldr r0,[r3,#0x0]
+13643784 adds r4,r1,#0x0
+13643786 adds r6,r2,#0x0
+13643788 bl 0x136421b0
+1364378c cmp r0,#0x0
+1364378e bne 0x136437b4
+13643790 ldr r3,[0x13643838]
+13643792 cmp r6,r3
+13643794 beq 0x136437da
+13643796 adds r0,r6,#0x0
+13643798 add r1,sp,#0x8
+1364379a ldr r3,[0x1364383c]
+1364379c blx r3
+1364379e cmp r0,#0x0
+136437a0 bne 0x136437b4
+136437a2 ldr r2,[0x13643840]
+136437a4 ldr r3,[r2,#0x0]
+136437a6 mov r10,r2
+136437a8 ldr r2,[r3,#0x54]
+136437aa movs r3,#0x1
+136437ac lsls r3,r2
+136437ae ldr r2,[sp,#0x8]
+136437b0 tst r3,r2
+136437b2 bne 0x136437de
+136437b4 ldr r5,[0x13643844]
+136437b6 ldr r3,[0x13643834]
+136437b8 ldr r0,[r3,#0x0]
+136437ba bl 0x136421c8
+136437be cmp r0,#0x0
+136437c0 beq 0x136437c8
+136437c2 cmp r5,#0x0
+136437c4 bne 0x136437c8
+136437c6 ldr r5,[0x13643844]
+136437c8 adds r0,r5,#0x0
+136437ca add sp,#0x48
+136437cc pop {r3,r4,r5}
+136437ce mov r8,r3
+136437d0 mov r9,r4
+136437d2 mov r10,r5
+136437d4 pop {r4,r5,r6,r7}
+136437d6 pop {r1}
+136437d8 bx r1
+136437da ldr r3,[0x13643840]
+136437dc mov r10,r3
+136437de mov r5,r10
+136437e0 ldr r3,[r5,#0x0]
+136437e2 movs r2,#0x0
+136437e4 ldr r5,[0x13643848]
+136437e6 ldr r3,[r3,#0x54]
+136437e8 adds r0,r7,#0x0
+136437ea str r2,[sp,#0x0]
+136437ec adds r1,r4,#0x0
+136437ee movs r2,#0x3
+136437f0 mov r8,r5
+136437f2 blx r5
+136437f4 subs r5,r0,#0x0
+136437f6 bne 0x136437b6
+136437f8 add r0,sp,#0x4
+136437fa adds r1,r6,#0x0
+136437fc ldr r3,[0x1364384c]
+136437fe blx r3
+13643800 subs r5,r0,#0x0
+13643802 bne 0x136437b6
+13643804 mov r2,r10
+13643806 ldr r3,[r2,#0x0]
+13643808 mov r0,r9
+1364380a ldr r3,[r3,#0x54]
+1364380c ldr r1,[sp,#0x4]
+1364380e str r5,[sp,#0x0]
+13643810 movs r2,#0x4
+13643812 blx r8
+13643814 subs r5,r0,#0x0
+13643816 bne 0x136437b6
+13643818 add r3,sp,#0xc
+1364381a adds r1,r4,#0x0
+1364381c adds r2,r6,#0x0
+1364381e adds r0,r7,#0x0
+13643820 ldr r5,[0x13643850]
+13643822 mov r8,r3
+13643824 blx r5
+13643826 mov r1,r8
+13643828 adds r5,r0,#0x0
+1364382a movs r2,#0x3c
+1364382c mov r0,r9
+1364382e ldr r3,[0x13643854]
+13643830 blx r3
+13643832 b 0x136437b6
+
+===== QUERY 13641400 =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x13641400
+INCOMING From: 13643824 To: 13641400 Type: COMPUTED_CALL Op: 0 ANALYSIS OWNER 1364376c
+BODY [[13641400, 13641409]]
+
+void FUN_13641400(void)
+
+{
+  FUN_1364132c();
+  return;
+}
+
+
+13641400 push {lr}
+13641402 bl 0x1364132c
+13641406 pop {r1}
+13641408 bx r1
+
+===== QUERY 1364132c =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x1364132c
+INCOMING From: 13641402 To: 1364132c Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER 13641400
+BODY [[1364132c, 136413dd]]
+
+undefined8 FUN_1364132c(undefined4 param_1,int param_2,undefined4 param_3,undefined4 param_4)
+
+{
+  int iVar1;
+  undefined4 uVar2;
+  undefined4 unaff_lr;
+  undefined4 local_120;
+  undefined1 auStack_11c [92];
+  undefined1 auStack_c0 [130];
+  char local_3e;
+  char local_3d;
+  undefined1 auStack_3c [32];
+
+  local_120 = 0;
+  (*DAT_136413e0)(param_3,&local_3d,&local_3e);
+  uVar2 = DAT_136413e4;
+  if ((((local_3d == '\0') || (local_3d == '\x02')) && (local_3e == '\x04')) &&
+     ((uVar2 = DAT_136413e8, param_2 == 0x14 &&
+      (iVar1 = FUN_13641218(&local_120,param_3), uVar2 = DAT_136413e4, iVar1 == 0)))) {
+    if (local_3d == '\0') {
+      (*DAT_136413ec)(param_3,auStack_3c,local_120);
+    }
+    else {
+      (*DAT_136413ec)(param_3,auStack_11c,local_120);
+      (*DAT_136413f0)(auStack_3c,auStack_11c,0x1e);
+    }
+    iVar1 = (*DAT_136413f4)(auStack_c0,0x1e);
+    uVar2 = DAT_136413f8;
+    if (iVar1 == 0) {
+      (*DAT_136413fc)(param_1,auStack_3c,param_4,auStack_c0);
+      uVar2 = 0;
+    }
+  }
+  return CONCAT44(unaff_lr,uVar2);
+}
+
+
+1364132c push {r4,r5,r6,r7,lr}
+1364132e mov r7,r10
+13641330 mov r6,r8
+13641332 push {r6,r7}
+13641334 sub sp,#0x104
+13641336 mov r10,r0
+13641338 adds r7,r1,#0x0
+1364133a adds r6,r2,#0x0
+1364133c mov r8,r3
+1364133e movs r5,#0x0
+13641340 str r5,[sp,#0x0]
+13641342 mov r4,sp
+13641344 adds r4,#0xe3
+13641346 adds r0,r2,#0x0
+13641348 adds r1,r4,#0x0
+1364134a mov r2,sp
+1364134c adds r2,#0xe2
+1364134e ldr r3,[0x136413e0]
+13641350 blx r3
+13641352 ldrb r3,[r4,#0x0]
+13641354 cmp r3,#0x0
+13641356 beq 0x13641360
+13641358 cmp r3,#0x2
+1364135a beq 0x13641360
+1364135c ldr r0,[0x136413e4]
+1364135e b 0x136413d0
+13641360 mov r3,sp
+13641362 adds r3,#0xe2
+13641364 ldrb r3,[r3,#0x0]
+13641366 cmp r3,#0x4
+13641368 beq 0x1364136e
+1364136a ldr r0,[0x136413e4]
+1364136c b 0x136413d0
+1364136e cmp r7,#0x14
+13641370 beq 0x13641376
+13641372 ldr r0,[0x136413e8]
+13641374 b 0x136413d0
+13641376 mov r0,sp
+13641378 adds r1,r6,#0x0
+1364137a bl 0x13641218
+1364137e cmp r0,#0x0
+13641380 beq 0x13641386
+13641382 ldr r0,[0x136413e4]
+13641384 b 0x136413d0
+13641386 mov r3,sp
+13641388 adds r3,#0xe3
+1364138a ldrb r3,[r3,#0x0]
+1364138c cmp r3,#0x0
+1364138e bne 0x1364139c
+13641390 adds r0,r6,#0x0
+13641392 add r1,sp,#0xe4
+13641394 ldr r2,[sp,#0x0]
+13641396 ldr r3,[0x136413ec]
+13641398 blx r3
+1364139a b 0x136413b2
+1364139c add r4,sp,#0x4
+1364139e adds r0,r6,#0x0
+136413a0 adds r1,r4,#0x0
+136413a2 ldr r2,[sp,#0x0]
+136413a4 ldr r3,[0x136413ec]
+136413a6 blx r3
+136413a8 add r0,sp,#0xe4
+136413aa adds r1,r4,#0x0
+136413ac movs r2,#0x1e
+136413ae ldr r3,[0x136413f0]
+136413b0 blx r3
+136413b2 add r0,sp,#0x60
+136413b4 movs r1,#0x1e
+136413b6 ldr r3,[0x136413f4]
+136413b8 blx r3
+136413ba subs r5,r0,#0x0
+136413bc beq 0x136413c2
+136413be ldr r0,[0x136413f8]
+136413c0 b 0x136413d0
+136413c2 mov r0,r10
+136413c4 add r1,sp,#0xe4
+136413c6 mov r2,r8
+136413c8 add r3,sp,#0x60
+136413ca ldr r4,[0x136413fc]
+136413cc blx r4
+136413ce adds r0,r5,#0x0
+136413d0 add sp,#0x104
+136413d2 pop {r3,r4}
+136413d4 mov r8,r3
+136413d6 mov r10,r4
+136413d8 pop {r4,r5,r6,r7}
+136413da pop {r1}
+136413dc bx r1
+
+===== QUERY 13641972 =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x13641972
+BODY [[13641860, 136419f5]]
+
+undefined8 FUN_13641860(undefined4 param_1,undefined4 param_2,int param_3)
+
+{
+  char cVar1;
+  int iVar2;
+  code *pcVar3;
+  int iVar4;
+  int iVar5;
+  undefined1 *puVar6;
+  int *piVar7;
+  int *piVar8;
+  int *piVar9;
+  int *piVar10;
+
+  iVar2 = DAT_136419f8;
+  piVar7 = (int *)(&stack0xffffffdc + DAT_136419f8);
+  piVar8 = (int *)(&stack0xffffffdc + DAT_136419f8);
+  piVar9 = (int *)(&stack0xffffffdc + DAT_136419f8);
+  piVar10 = (int *)(&stack0xffffffdc + DAT_136419f8);
+  (&stack0xffffffdc)[DAT_136419fc + DAT_136419f8] = 0;
+  (&stack0x0000016e)[DAT_136419f8] = 0;
+  *(undefined1 **)(&stack0xffffffdc + DAT_136419f8) = &stack0xfffffff8 + DAT_136419f8;
+  *(undefined4 *)(&stack0xffffffe0 + DAT_136419f8) = 0xffffffff;
+  *(undefined4 *)(&stack0xffffffe4 + DAT_136419f8) = 0;
+  iVar4 = (*DAT_13641a00)(&stack0x0000000c + DAT_136419f8,0,0,0);
+  if (iVar4 == 0) {
+    iVar4 = DAT_136419fc + iVar2;
+    (*DAT_13641a04)(param_1,&stack0xffffffdc + iVar4,&stack0x0000016e + iVar2);
+    cVar1 = (&stack0xffffffdc)[iVar4];
+    if (((cVar1 == '\0') || (iVar4 = DAT_13641a08, cVar1 == '\x02')) &&
+       (iVar5 = (*DAT_13641a0c)(param_1,&stack0x000002cc + iVar2,0x1e), pcVar3 = DAT_13641a14,
+       iVar4 = DAT_13641a10, iVar5 == 0)) {
+      (*DAT_13641a14)(&stack0x000001f0 + iVar2,0,0x40);
+      (*pcVar3)(&stack0x00000170 + iVar2,0,0x40);
+      (*pcVar3)(&stack0x00000230 + iVar2,0,4);
+      (*pcVar3)(&stack0x00000234 + iVar2,0,0x3c);
+      puVar6 = &stack0x00000270 + iVar2;
+      (*pcVar3)(puVar6,0,0x3c);
+      (*DAT_13641a18)(&stack0x000001f0 + iVar2,param_2,0x40);
+      *piVar7 = (int)(&stack0x00000234 + iVar2);
+      (*DAT_13641a1c)(&stack0x000000ac + iVar2,&stack0x0000006c + iVar2,&stack0xfffffff4 + iVar2,
+                      &stack0x000001b0 + iVar2);
+      *piVar8 = (int)(&stack0x000000ac + iVar2);
+      *(undefined1 **)(&stack0xffffffe0 + iVar2) = &stack0x000001b0 + iVar2;
+      (*DAT_13641a24)(&stack0x00000170 + iVar2,0x40,DAT_13641a20,&stack0x0000006c + iVar2);
+      (*DAT_13641a28)(&stack0x000002cc + iVar2,puVar6);
+      *piVar9 = (int)puVar6;
+      *(undefined4 *)(&stack0xffffffe0 + iVar2) = 0;
+      *(undefined4 *)(&stack0xffffffe4 + iVar2) = 0;
+      *(undefined4 *)(&stack0xffffffe8 + iVar2) = 0;
+      *(int *)(&stack0xffffffec + iVar2) = param_3;
+      (*DAT_13641a30)(&stack0x000001f0 + iVar2,&stack0x00000170 + iVar2,DAT_13641a2c,2);
+      iVar5 = (*DAT_13641a34)(&stack0x000000ec + iVar2,0x1e);
+      iVar4 = DAT_13641a10;
+      if (((iVar5 == 0) &&
+          (iVar5 = FUN_13641218(&stack0xfffffff0 + iVar2,0), iVar4 = DAT_13641a10, iVar5 == 0)) &&
+         (iVar4 = (*DAT_13641a0c)(0,&stack0x000002ac + iVar2,
+                                  *(undefined4 *)(&stack0xfffffff0 + iVar2)), iVar4 == 0)) {
+        *piVar10 = (int)(&stack0xfffffff8 + iVar2);
+        *(undefined4 *)(&stack0xffffffe0 + iVar2) = 0xffffffff;
+        *(undefined4 *)(&stack0xffffffe4 + iVar2) = 0;
+        iVar4 = (*DAT_13641a00)(&stack0x0000000c + iVar2,param_3 + 0x80,0x100,2);
+        if (iVar4 == 0) {
+          (*DAT_13641a38)(&stack0xfffffff8 + iVar2,&stack0x000002ac + iVar2,&stack0x00000234 + iVar2
+                          ,&stack0x000000ec + iVar2);
+          (*DAT_13641a18)(param_3 + 4,&stack0x00000234 + iVar2,0x3c);
+        }
+      }
+    }
+  }
+  return CONCAT44(*(undefined4 *)(&stack0x0000030c + iVar2),iVar4);
+}
+
+
+13641860 push {r4,r5,r6,r7,lr}
+13641862 mov r7,r11
+13641864 mov r6,r10
+13641866 mov r5,r9
+13641868 mov r4,r8
+1364186a push {r4,r5,r6,r7}
+1364186c ldr r4,[0x136419f8]
+1364186e add sp,r4
+13641870 adds r5,r0,#0x0
+13641872 adds r7,r1,#0x0
+13641874 mov r11,r2
+13641876 movs r6,#0x0
+13641878 ldr r3,[0x136419fc]
+1364187a add r3,sp
+1364187c strb r6,[r3,#0x0]
+1364187e movs r2,#0x0
+13641880 movs r3,#0xc9
+13641882 lsls r3,r3,#0x1
+13641884 add r3,sp
+13641886 strb r2,[r3,#0x0]
+13641888 add r3,sp,#0x1c
+1364188a str r3,[sp,#0x0]
+1364188c movs r3,#0x1
+1364188e rsbs r3,r3
+13641890 str r3,[sp,#0x4]
+13641892 str r6,[sp,#0x8]
+13641894 add r0,sp,#0x30
+13641896 movs r1,#0x0
+13641898 movs r2,#0x0
+1364189a movs r3,#0x0
+1364189c ldr r4,[0x13641a00]
+1364189e blx r4
+136418a0 subs r6,r0,#0x0
+136418a2 beq 0x136418a8
+136418a4 adds r0,r6,#0x0
+136418a6 b 0x136419e0
+136418a8 ldr r4,[0x136419fc]
+136418aa add r4,sp
+136418ac adds r0,r5,#0x0
+136418ae adds r1,r4,#0x0
+136418b0 movs r2,#0xc9
+136418b2 lsls r2,r2,#0x1
+136418b4 add r2,sp
+136418b6 ldr r3,[0x13641a04]
+136418b8 blx r3
+136418ba ldrb r3,[r4,#0x0]
+136418bc cmp r3,#0x0
+136418be beq 0x136418c8
+136418c0 cmp r3,#0x2
+136418c2 beq 0x136418c8
+136418c4 ldr r0,[0x13641a08]
+136418c6 b 0x136419e0
+136418c8 adds r0,r5,#0x0
+136418ca add r1,sp,#0x2f0
+136418cc movs r2,#0x1e
+136418ce ldr r3,[0x13641a0c]
+136418d0 blx r3
+136418d2 cmp r0,#0x0
+136418d4 beq 0x136418da
+136418d6 ldr r0,[0x13641a10]
+136418d8 b 0x136419e0
+136418da add r0,sp,#0x214
+136418dc movs r1,#0x0
+136418de movs r2,#0x40
+136418e0 ldr r4,[0x13641a14]
+136418e2 blx r4
+136418e4 add r0,sp,#0x194
+136418e6 movs r1,#0x0
+136418e8 movs r2,#0x40
+136418ea blx r4
+136418ec add r0,sp,#0x254
+136418ee movs r1,#0x0
+136418f0 movs r2,#0x4
+136418f2 blx r4
+136418f4 movs r3,#0x96
+136418f6 lsls r3,r3,#0x2
+136418f8 add r3,sp
+136418fa mov r9,r3
+136418fc adds r0,r3,#0x0
+136418fe movs r1,#0x0
+13641900 movs r2,#0x3c
+13641902 blx r4
+13641904 movs r3,#0xa5
+13641906 lsls r3,r3,#0x2
+13641908 add r3,sp
+1364190a mov r8,r3
+1364190c adds r0,r3,#0x0
+1364190e movs r1,#0x0
+13641910 movs r2,#0x3c
+13641912 blx r4
+13641914 add r0,sp,#0x214
+13641916 adds r1,r7,#0x0
+13641918 movs r2,#0x40
+1364191a ldr r3,[0x13641a18]
+1364191c blx r3
+1364191e add r6,sp,#0xd0
+13641920 movs r3,#0x90
+13641922 add r3,sp
+13641924 mov r10,r3
+13641926 add r5,sp,#0x1d4
+13641928 mov r3,r9
+1364192a str r3,[sp,#0x0]
+1364192c adds r0,r6,#0x0
+1364192e mov r1,r10
+13641930 add r2,sp,#0x18
+13641932 adds r3,r5,#0x0
+13641934 ldr r4,[0x13641a1c]
+13641936 blx r4
+13641938 str r6,[sp,#0x0]
+1364193a str r5,[sp,#0x4]
+1364193c add r0,sp,#0x194
+1364193e movs r1,#0x40
+13641940 ldr r2,[0x13641a20]
+13641942 mov r3,r10
+13641944 ldr r4,[0x13641a24]
+13641946 blx r4
+13641948 add r0,sp,#0x2f0
+1364194a mov r1,r8
+1364194c ldr r3,[0x13641a28]
+1364194e blx r3
+13641950 mov r3,r8
+13641952 str r3,[sp,#0x0]
+13641954 movs r3,#0x0
+13641956 str r3,[sp,#0x4]
+13641958 str r3,[sp,#0x8]
+1364195a str r3,[sp,#0xc]
+1364195c mov r3,r11
+1364195e str r3,[sp,#0x10]
+13641960 add r0,sp,#0x214
+13641962 add r1,sp,#0x194
+13641964 ldr r2,[0x13641a2c]
+13641966 movs r3,#0x2
+13641968 ldr r4,[0x13641a30]
+1364196a blx r4
+1364196c add r0,sp,#0x110
+1364196e movs r1,#0x1e
+13641970 ldr r3,[0x13641a34]
+13641972 blx r3
+13641974 cmp r0,#0x0
+13641976 beq 0x1364197c
+13641978 ldr r0,[0x13641a10]
+1364197a b 0x136419e0
+1364197c add r0,sp,#0x14
+1364197e movs r1,#0x0
+13641980 bl 0x13641218
+13641984 cmp r0,#0x0
+13641986 beq 0x1364198c
+13641988 ldr r0,[0x13641a10]
+1364198a b 0x136419e0
+1364198c movs r0,#0x0
+1364198e add r1,sp,#0x2d0
+13641990 ldr r2,[sp,#0x14]
+13641992 ldr r3,[0x13641a0c]
+13641994 blx r3
+13641996 subs r6,r0,#0x0
+13641998 beq 0x1364199e
+1364199a adds r0,r6,#0x0
+1364199c b 0x136419e0
+1364199e add r3,sp,#0x1c
+136419a0 str r3,[sp,#0x0]
+136419a2 movs r3,#0x1
+136419a4 rsbs r3,r3
+136419a6 str r3,[sp,#0x4]
+136419a8 movs r3,#0x0
+136419aa str r3,[sp,#0x8]
+136419ac add r0,sp,#0x30
+136419ae mov r1,r11
+136419b0 adds r1,#0x80
+136419b2 movs r2,#0x80
+136419b4 lsls r2,r2,#0x1
+136419b6 movs r3,#0x2
+136419b8 ldr r4,[0x13641a00]
+136419ba blx r4
+136419bc subs r6,r0,#0x0
+136419be beq 0x136419c4
+136419c0 adds r0,r6,#0x0
+136419c2 b 0x136419e0
+136419c4 add r4,sp,#0x258
+136419c6 add r0,sp,#0x1c
+136419c8 add r1,sp,#0x2d0
+136419ca adds r2,r4,#0x0
+136419cc add r3,sp,#0x110
+136419ce ldr r5,[0x13641a38]
+136419d0 blx r5
+136419d2 mov r0,r11
+136419d4 adds r0,#0x4
+136419d6 adds r1,r4,#0x0
+136419d8 movs r2,#0x3c
+136419da ldr r3,[0x13641a18]
+136419dc blx r3
+136419de adds r0,r6,#0x0
+136419e0 movs r3,#0xc4
+136419e2 lsls r3,r3,#0x2
+136419e4 add sp,r3
+136419e6 pop {r3,r4,r5,r6}
+136419e8 mov r8,r3
+136419ea mov r9,r4
+136419ec mov r10,r5
+136419ee mov r11,r6
+136419f0 pop {r4,r5,r6,r7}
+136419f2 pop {r1}
+136419f4 bx r1
+
+===== QUERY 13640d8c =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x13640d8c
+BODY [[13640d28, 13640e4b]]
+
+undefined8 FUN_13640d28(uint param_1)
+
+{
+  code *pcVar1;
+  int iVar2;
+  int iVar3;
+  uint uVar4;
+  undefined4 unaff_lr;
+  undefined4 local_f4;
+  byte local_ee;
+  char local_ed;
+  undefined1 auStack_ec [32];
+  undefined1 auStack_cc [60];
+  undefined1 auStack_90 [30];
+  undefined1 auStack_72 [62];
+  undefined1 auStack_34 [20];
+  undefined1 auStack_20 [12];
+
+  local_ed = '\0';
+  local_ee = 0;
+  iVar2 = DAT_13640e50;
+  if (((((10 < param_1) && (iVar2 = DAT_13640e50, param_1 != DAT_13640e4c)) &&
+       (iVar2 = (*DAT_13640e54)(param_1,2), iVar2 == 0)) &&
+      (((*DAT_13640e58)(param_1,&local_ed,&local_ee), local_ed == '\0' ||
+       (iVar2 = DAT_13640e5c, local_ed == '\x02')))) &&
+     ((iVar3 = (*DAT_13640e60)(&local_f4,param_1), iVar2 = DAT_13640e5c, iVar3 == 0 &&
+      (iVar3 = (*DAT_13640e64)(auStack_34,0x1e), iVar2 = DAT_13640e68, iVar3 == 0)))) {
+    iVar2 = DAT_13640e70;
+    if (local_ed == '\0') {
+      if (local_ee == 1) {
+        uVar4 = 0x14;
+        do {
+          auStack_34[uVar4] = 0;
+          uVar4 = uVar4 + 1;
+        } while (uVar4 < 0x1e);
+        iVar3 = (*DAT_13640e6c)(param_1,auStack_34,local_f4);
+      }
+      else if (local_ee < 2) {
+        if (local_ee != 0) goto LAB_13640e44;
+        iVar3 = (*DAT_13640e6c)(param_1,auStack_34,local_f4);
+      }
+      else {
+        if (local_ee != 4) goto LAB_13640e44;
+        iVar3 = (*DAT_13640e6c)(param_1,auStack_34,local_f4);
+      }
+      iVar2 = 0;
+      if (iVar3 != 0) {
+        iVar2 = DAT_13640e68;
+      }
+    }
+    else if ((local_ed == '\x02') && (local_ee == 4)) {
+      (*DAT_13640e74)(auStack_34,auStack_ec,auStack_cc);
+      pcVar1 = DAT_13640e78;
+      (*DAT_13640e78)(auStack_90,auStack_ec,0x1e);
+      (*pcVar1)(auStack_72,auStack_cc,0x3c);
+      iVar3 = (*DAT_13640e6c)(param_1,auStack_90,local_f4);
+      iVar2 = 0;
+      if (iVar3 != 0) {
+        iVar2 = DAT_13640e68;
+      }
+    }
+  }
+LAB_13640e44:
+  return CONCAT44(unaff_lr,iVar2);
+}
+
+
+13640d28 push {r4,r5,r6,r7,lr}
+13640d2a sub sp,#0xe0
+13640d2c adds r7,r0,#0x0
+13640d2e movs r0,#0x0
+13640d30 mov r3,sp
+13640d32 adds r3,#0x7
+13640d34 strb r0,[r3,#0x0]
+13640d36 movs r2,#0x0
+13640d38 subs r3,#0x1
+13640d3a strb r2,[r3,#0x0]
+13640d3c cmp r7,#0xa
+13640d3e bls 0x13640d46
+13640d40 ldr r3,[0x13640e4c]
+13640d42 cmp r7,r3
+13640d44 bne 0x13640d4a
+13640d46 ldr r0,[0x13640e50]
+13640d48 b 0x13640e44
+13640d4a adds r0,r7,#0x0
+13640d4c movs r1,#0x2
+13640d4e ldr r3,[0x13640e54]
+13640d50 blx r3
+13640d52 cmp r0,#0x0
+13640d54 beq 0x13640d58
+13640d56 b 0x13640e44
+13640d58 mov r4,sp
+13640d5a adds r4,#0x7
+13640d5c adds r0,r7,#0x0
+13640d5e adds r1,r4,#0x0
+13640d60 mov r2,sp
+13640d62 adds r2,#0x6
+13640d64 ldr r3,[0x13640e58]
+13640d66 blx r3
+13640d68 ldrb r3,[r4,#0x0]
+13640d6a cmp r3,#0x0
+13640d6c beq 0x13640d76
+13640d6e cmp r3,#0x2
+13640d70 beq 0x13640d76
+13640d72 ldr r0,[0x13640e5c]
+13640d74 b 0x13640e44
+13640d76 mov r0,sp
+13640d78 adds r1,r7,#0x0
+13640d7a ldr r3,[0x13640e60]
+13640d7c blx r3
+13640d7e cmp r0,#0x0
+13640d80 beq 0x13640d86
+13640d82 ldr r0,[0x13640e5c]
+13640d84 b 0x13640e44
+13640d86 add r0,sp,#0xc0
+13640d88 movs r1,#0x1e
+13640d8a ldr r3,[0x13640e64]
+13640d8c blx r3
+13640d8e cmp r0,#0x0
+13640d90 beq 0x13640d96
+13640d92 ldr r0,[0x13640e68]
+13640d94 b 0x13640e44
+13640d96 mov r3,sp
+13640d98 adds r3,#0x7
+13640d9a ldrb r3,[r3,#0x0]
+13640d9c cmp r3,#0x0
+13640d9e beq 0x13640da6
+13640da0 cmp r3,#0x2
+13640da2 beq 0x13640dfe
+13640da4 b 0x13640e42
+13640da6 mov r3,sp
+13640da8 adds r3,#0x6
+13640daa ldrb r3,[r3,#0x0]
+13640dac cmp r3,#0x1
+13640dae beq 0x13640dcc
+13640db0 cmp r3,#0x1
+13640db2 bgt 0x13640dba
+13640db4 cmp r3,#0x0
+13640db6 beq 0x13640dc0
+13640db8 b 0x13640df2
+13640dba cmp r3,#0x4
+13640dbc beq 0x13640de6
+13640dbe b 0x13640df2
+13640dc0 adds r0,r7,#0x0
+13640dc2 add r1,sp,#0xc0
+13640dc4 ldr r2,[sp,#0x0]
+13640dc6 ldr r3,[0x13640e6c]
+13640dc8 blx r3
+13640dca b 0x13640df6
+13640dcc movs r3,#0x14
+13640dce add r1,sp,#0xc0
+13640dd0 movs r2,#0x0
+13640dd2 strb r2,[r1,r3]
+13640dd4 adds r3,#0x1
+13640dd6 cmp r3,#0x1d
+13640dd8 bls 0x13640dd2
+13640dda adds r0,r7,#0x0
+13640ddc add r1,sp,#0xc0
+13640dde ldr r2,[sp,#0x0]
+13640de0 ldr r3,[0x13640e6c]
+13640de2 blx r3
+13640de4 b 0x13640df6
+13640de6 adds r0,r7,#0x0
+13640de8 add r1,sp,#0xc0
+13640dea ldr r2,[sp,#0x0]
+13640dec ldr r3,[0x13640e6c]
+13640dee blx r3
+13640df0 b 0x13640df6
+13640df2 ldr r0,[0x13640e70]
+13640df4 b 0x13640e44
+13640df6 cmp r0,#0x0
+13640df8 beq 0x13640e44
+13640dfa ldr r0,[0x13640e68]
+13640dfc b 0x13640e44
+13640dfe mov r3,sp
+13640e00 adds r3,#0x6
+13640e02 ldrb r3,[r3,#0x0]
+13640e04 cmp r3,#0x4
+13640e06 beq 0x13640e0c
+13640e08 ldr r0,[0x13640e70]
+13640e0a b 0x13640e44
+13640e0c add r4,sp,#0x8
+13640e0e add r6,sp,#0x28
+13640e10 add r0,sp,#0xc0
+13640e12 adds r1,r4,#0x0
+13640e14 adds r2,r6,#0x0
+13640e16 ldr r3,[0x13640e74]
+13640e18 blx r3
+13640e1a add r5,sp,#0x64
+13640e1c adds r0,r5,#0x0
+13640e1e adds r1,r4,#0x0
+13640e20 movs r2,#0x1e
+13640e22 ldr r4,[0x13640e78]
+13640e24 blx r4
+13640e26 mov r0,sp
+13640e28 adds r0,#0x82
+13640e2a adds r1,r6,#0x0
+13640e2c movs r2,#0x3c
+13640e2e blx r4
+13640e30 adds r0,r7,#0x0
+13640e32 adds r1,r5,#0x0
+13640e34 ldr r2,[sp,#0x0]
+13640e36 ldr r3,[0x13640e6c]
+13640e38 blx r3
+13640e3a cmp r0,#0x0
+13640e3c beq 0x13640e44
+13640e3e ldr r0,[0x13640e68]
+13640e40 b 0x13640e44
+13640e42 ldr r0,[0x13640e70]
+13640e44 add sp,#0xe0
+13640e46 pop {r4,r5,r6,r7}
+13640e48 pop {r1}
+13640e4a bx r1
+
+===== QUERY 13644840 =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x13644840
+INCOMING From: 1364357c To: 13644840 Type: PARAM Op: 0 ANALYSIS OWNER 13643564
+INCOMING From: 13643578 To: 13644840 Type: PARAM Op: 0 ANALYSIS OWNER 13643564
+INCOMING From: 136435a0 To: 13644840 Type: DATA Op: 0 ANALYSIS OWNER 13643564
+INCOMING From: 13643618 To: 13644840 Type: DATA Op: 0 ANALYSIS OWNER 136435dc
+FUNCTION UNRESOLVED
+
+===== QUERY 1364489c =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x1364489c
+INCOMING From: 1364366a To: 1364489c Type: READ Op: 1 ANALYSIS OWNER 136435dc
+INCOMING From: 1364366e To: 1364489c Type: WRITE Op: 1 ANALYSIS OWNER 136435dc
+INCOMING From: 1364367a To: 1364489c Type: PARAM Op: 0 ANALYSIS OWNER 136435dc
+INCOMING From: 136421f6 To: 1364489c Type: WRITE Op: 1 ANALYSIS OWNER 136421dc
+FUNCTION UNRESOLVED
+
+===== QUERY 136448a0 =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x136448a0
+INCOMING From: 13643588 To: 136448a0 Type: PARAM Op: 0 ANALYSIS OWNER 13643564
+INCOMING From: 136421f0 To: 136448a0 Type: WRITE Op: 1 ANALYSIS OWNER 136421dc
+FUNCTION UNRESOLVED
+
+===== QUERY 201000cc =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x201000cc
+INCOMING From: 201010a2 To: 201000cc Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER unresolved
+BODY [[201000cc, 201000f9]]
+
+void FUN_201000cc(int param_1)
+
+{
+  uint *puVar1;
+  uint *extraout_r1;
+  uint uVar2;
+  uint extraout_r3;
+
+  puVar1 = (uint *)(param_1 + 0xc);
+  if (*(int *)(*(int *)(param_1 + 8) + 0x180) == 0) {
+    FUN_20100c56(DAT_201003bc);
+    puVar1 = extraout_r1;
+  }
+  uVar2 = *puVar1;
+  if (0x31 < uVar2) {
+    FUN_20100c54();
+    uVar2 = extraout_r3;
+  }
+                    /* WARNING: Could not recover jumptable at 0x201000f8. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+  (**(code **)(uVar2 * 4 + DAT_201003c0))();
+  return;
+}
+
+
+201000cc push {r4,r5,r6,lr}
+201000ce sub sp,#0x20
+201000d0 ldr r5,[r0,#0x8]
+201000d2 adds r1,r0,#0x0
+201000d4 adds r1,#0xc
+201000d6 movs r2,#0xc0
+201000d8 lsls r2,r2,#0x1
+201000da adds r3,r5,r2
+201000dc ldr r3,[r3,#0x0]
+201000de cmp r3,#0x0
+201000e0 bne 0x201000e8
+201000e2 ldr r0,[0x201003bc]
+201000e4 bl 0x20100c56
+201000e8 ldr r3,[r1,#0x0]
+201000ea cmp r3,#0x31
+201000ec bls 0x201000f2
+201000ee bl 0x20100c54
+201000f2 lsls r3,r3,#0x2
+201000f4 ldr r2,[0x201003c0]
+201000f6 ldr r3,[r3,r2]
+201000f8 mov pc,r3
+
+===== QUERY 13710264 =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x13710264
+INCOMING From: 13716c24 To: 13710264 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER 13716b38
+INCOMING From: 13710bf4 To: 13710264 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER 13710af8
+INCOMING From: 1372d7fc To: 13710264 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER 1372d6ec
+INCOMING From: 1371d14c To: 13710264 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER 1371d08c
+BODY [[13710264, 137102f5]]
+
+undefined8 FUN_13710264(int *param_1,ushort *param_2)
+
+{
+  int iVar1;
+  uint uVar2;
+  undefined4 *puVar3;
+  uint uVar4;
+  int iVar5;
+  undefined4 unaff_lr;
+  bool bVar6;
+  ushort local_1a;
+
+  iVar5 = 0;
+  uVar2 = (uint)*param_2;
+  if (uVar2 < 0xc001) {
+    local_1a = 1;
+    thunk_FUN_13734c20(&local_1a,2);
+    uVar2 = DAT_137102fc | local_1a;
+    *param_2 = (ushort)uVar2;
+  }
+  while( true ) {
+    uVar4 = uVar2 & 0xffff;
+    if (DAT_137102f8 < (uVar2 + 1 & 0xffff)) {
+      *param_2 = (ushort)(uVar2 + 1);
+    }
+    else {
+      *param_2 = (ushort)DAT_137102fc;
+    }
+    if ((undefined4 *)*param_1 == (undefined4 *)0x0) goto LAB_137102b8;
+    puVar3 = *(undefined4 **)*param_1;
+    while (iVar1 = FUN_137100b8(), *(ushort *)(iVar1 + 2) != uVar4) {
+      if ((puVar3 == (undefined4 *)0x0) ||
+         (bVar6 = puVar3 == (undefined4 *)0x0, puVar3 = (undefined4 *)*puVar3, bVar6))
+      goto LAB_137102b8;
+    }
+    iVar5 = iVar5 + 1;
+    if (DAT_13710300 < iVar5) break;
+    uVar2 = (uint)*param_2;
+  }
+  uVar4 = 0;
+LAB_137102b8:
+  return CONCAT44(unaff_lr,uVar4);
+}
+
+
+13710264 push {r4,r5,r6,r7,lr}
+13710266 mov r7,r8
+13710268 push {r7}
+1371026a movs r3,#0x0
+1371026c adds r6,r1,#0x0
+1371026e mov r8,r3
+13710270 ldrh r1,[r1,#0x0]
+13710272 movs r3,#0xc0
+13710274 lsls r3,r3,#0x8
+13710276 sub sp,#0x4
+13710278 adds r7,r0,#0x0
+1371027a cmp r1,r3
+1371027c bls 0x137102d6
+1371027e lsls r3,r1,#0x10
+13710280 adds r0,r1,#0x1
+13710282 lsrs r5,r3,#0x10
+13710284 ldr r2,[0x137102f8]
+13710286 lsls r3,r0,#0x10
+13710288 lsrs r3,r3,#0x10
+1371028a cmp r3,r2
+1371028c bhi 0x137102c4
+1371028e ldr r3,[0x137102fc]
+13710290 strh r3,[r6,#0x0]
+13710292 ldr r0,[r7,#0x0]
+13710294 cmp r0,#0x0
+13710296 beq 0x137102b6
+13710298 ldr r4,[r0,#0x0]
+1371029a b 0x137102a2
+1371029c ldr r4,[r0,#0x0]
+1371029e cmp r0,#0x0
+137102a0 beq 0x137102b6
+137102a2 bl 0x137100b8
+137102a6 ldrh r3,[r0,#0x2]
+137102a8 cmp r3,r5
+137102aa beq 0x137102c8
+137102ac subs r0,r4,#0x0
+137102ae bne 0x1371029c
+137102b0 movs r4,#0x0
+137102b2 cmp r0,#0x0
+137102b4 bne 0x137102a2
+137102b6 adds r0,r5,#0x0
+137102b8 add sp,#0x4
+137102ba pop {r3}
+137102bc mov r8,r3
+137102be pop {r4,r5,r6,r7}
+137102c0 pop {r1}
+137102c2 bx r1
+137102c4 strh r0,[r6,#0x0]
+137102c6 b 0x13710292
+137102c8 movs r3,#0x1
+137102ca add r8,r3
+137102cc ldr r3,[0x13710300]
+137102ce cmp r8,r3
+137102d0 bgt 0x137102f2
+137102d2 ldrh r1,[r6,#0x0]
+137102d4 b 0x1371027e
+137102d6 mov r4,sp
+137102d8 adds r4,#0x2
+137102da movs r3,#0x1
+137102dc strh r3,[r4,#0x0]
+137102de movs r1,#0x2
+137102e0 adds r0,r4,#0x0
+137102e2 bl 0x13734c1c
+137102e6 ldrh r2,[r4,#0x0]
+137102e8 ldr r3,[0x137102fc]
+137102ea orrs r3,r2
+137102ec adds r1,r3,#0x0
+137102ee strh r3,[r6,#0x0]
+137102f0 b 0x1371027e
+137102f2 movs r0,#0x0
+137102f4 b 0x137102b8
+
+===== QUERY 13cd73ec =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x13cd73ec
+FUNCTION UNRESOLVED
+
+===== QUERY 13cef84c =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x13cef84c
+INCOMING From: 13cefa02 To: 13cef84c Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER 13cef9b8
+INCOMING From: 13cefa26 To: 13cef84c Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER 13cef9b8
+BODY [[13cef84c, 13cef8a1]]
+
+/* WARNING: Type propagation algorithm not settling */
+
+undefined8 FUN_13cef84c(int param_1)
+
+{
+  int iVar1;
+  int iVar2;
+  undefined4 unaff_lr;
+  int local_58 [2];
+  undefined1 auStack_50 [64];
+
+  local_58[0] = 0;
+  iVar1 = FUN_13d04598(param_1,auStack_50,0x40,*(undefined4 *)(param_1 + 4));
+  local_58[0] = local_58[0] + iVar1;
+  if (iVar1 != 0) {
+    local_58[1] = 0;
+    thunk_FUN_13d06528(local_58 + 1,4);
+    iVar2 = FUN_13d04598(param_1,local_58 + 1,4,*(undefined4 *)(param_1 + 4));
+    local_58[0] = local_58[0] + iVar2;
+    FUN_13d04598(param_1,4,local_58,*(undefined4 *)(param_1 + 8));
+  }
+  return CONCAT44(unaff_lr,(uint)(iVar1 == 0));
+}
+
+
+13cef84c push {r4,r5,r6,lr}
+13cef84e sub sp,#0x48
+13cef850 movs r6,#0x0
+13cef852 ldr r3,[r0,#0x4]
+13cef854 str r6,[sp,#0x0]
+13cef856 add r1,sp,#0x8
+13cef858 movs r2,#0x40
+13cef85a adds r5,r0,#0x0
+13cef85c bl 0x13d04598
+13cef860 ldr r3,[sp,#0x0]
+13cef862 adds r3,r3,r0
+13cef864 str r3,[sp,#0x0]
+13cef866 cmp r0,#0x0
+13cef868 bne 0x13cef86e
+13cef86a movs r6,#0x1
+13cef86c b 0x13cef898
+13cef86e add r4,sp,#0x4
+13cef870 movs r1,#0x4
+13cef872 adds r0,r4,#0x0
+13cef874 str r6,[sp,#0x4]
+13cef876 bl 0x13d06524
+13cef87a ldr r3,[r5,#0x4]
+13cef87c adds r1,r4,#0x0
+13cef87e movs r2,#0x4
+13cef880 adds r0,r5,#0x0
+13cef882 bl 0x13d04598
+13cef886 ldr r3,[sp,#0x0]
+13cef888 adds r3,r3,r0
+13cef88a str r3,[sp,#0x0]
+13cef88c adds r0,r5,#0x0
+13cef88e ldr r3,[r5,#0x8]
+13cef890 movs r1,#0x4
+13cef892 mov r2,sp
+13cef894 bl 0x13d04598
+13cef898 adds r0,r6,#0x0
+13cef89a add sp,#0x48
+13cef89c pop {r4,r5,r6}
+13cef89e pop {r1}
+13cef8a0 bx r1
+
+===== QUERY 13d65ba4 =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x13d65ba4
+INCOMING From: 13d636a4 To: 13d65ba4 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER 13d63244
+BODY [[13d65ba4, 13d65bf3]]
+
+undefined4 FUN_13d65ba4(void)
+
+{
+  int iVar1;
+  undefined4 local_14;
+
+  local_14 = 0;
+  iVar1 = FUN_13d6704c(&local_14,4);
+  if (iVar1 < 0) {
+    local_14 = FUN_13d678a0();
+  }
+  return local_14;
+}
+
+
+13d65ba4 cpy r12,sp
+13d65ba8 stmdb sp!,{r11,r12,lr,pc}
+13d65bac sub r11,r12,#0x4
+13d65bb0 mov r3,#0x0
+13d65bb4 sub sp,sp,#0x4
+13d65bb8 sub r0,r11,#0xc
+13d65bbc mov r1,#0x4
+13d65bc0 str r3,[r0,#-0x4]!
+13d65bc4 bl 0x13d6704c
+13d65bc8 cmp r0,#0x0
+13d65bcc ldrge r3,[r11,#-0x10]
+13d65bd0 blt 0x13d65be4
+13d65bd4 cpy r0,r3
+13d65bd8 sub sp,r11,#0xc
+13d65bdc ldmia sp,{r11,sp,lr}
+13d65be0 bx lr
+13d65be4 bl 0x13d678a0
+13d65be8 cpy r3,r0
+13d65bec str r0,[r11,#-0x10]
+13d65bf0 b 0x13d65bd4
+
+===== QUERY 13da5be4 =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x13da5be4
+INCOMING From: 13da5e08 To: 13da5be4 Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER 13da5d88
+BODY [[13da5be4, 13da5d6f]]
+
+void FUN_13da5be4(int param_1)
+
+{
+  undefined4 uVar1;
+  int iVar2;
+  char cVar3;
+  char *pcVar4;
+  byte bVar5;
+  int local_28;
+  undefined4 local_24;
+  undefined4 uStack_20;
+
+  FUN_13daa0d4(param_1,0,0x1190);
+  *(undefined4 *)(param_1 + 0x118c) = 0;
+  *(undefined4 *)(param_1 + 0x1188) = 0;
+  *(undefined4 *)(param_1 + 0x1184) = 0xffffffff;
+  FUN_13dab340(&local_24);
+  uVar1 = FUN_13dab7e8();
+  FUN_13daa0f4(param_1,uVar1,0x20);
+  uVar1 = FUN_13da4934(local_24,uStack_20);
+  thunk_FUN_13dcede0(param_1 + 0x42,0x29,DAT_13da5d70,uVar1);
+  FUN_13dce8b0(param_1 + 0x21,0x20);
+  pcVar4 = (char *)(param_1 + 0x20);
+  iVar2 = 0x1f;
+  do {
+    bVar5 = pcVar4[1] & 0xf;
+    cVar3 = bVar5 + 0x30;
+    if (9 < bVar5) {
+      cVar3 = bVar5 + 0x57;
+    }
+    iVar2 = iVar2 + -1;
+    pcVar4 = pcVar4 + 1;
+    *pcVar4 = cVar3;
+  } while (-1 < iVar2);
+  *(undefined1 *)(param_1 + 0x41) = 0;
+  local_28 = 0;
+  uVar1 = FUN_13dab89c();
+  uVar1 = FUN_13da3ea8(uVar1,1,param_1 + 0x6b,0xfff,&local_28);
+  thunk_FUN_13dcc724(uVar1,DAT_13da5d74,DAT_13da5d78);
+  thunk_FUN_13dcc73c(uVar1,DAT_13da5d7c,param_1);
+  thunk_FUN_13dcc73c(uVar1,DAT_13da5d80,param_1 + 0x21);
+  iVar2 = FUN_13da3edc(uVar1);
+  if (iVar2 == 0) {
+    iVar2 = FUN_13da3940(local_28,DAT_13da5d84,param_1);
+    if (iVar2 != 0) {
+      *(undefined4 *)(param_1 + 0x1184) = 0;
+    }
+  }
+  else {
+    uVar1 = FUN_13da4150();
+    *(undefined4 *)(param_1 + 0x1184) = uVar1;
+  }
+  if (local_28 != 0) {
+    thunk_FUN_13dcc7c4();
+  }
+  return;
+}
+
+
+13da5be4 cpy r12,sp
+13da5be8 stmdb sp!,{r4,r5,r6,r11,r12,lr,pc}
+13da5bec mov r2,#0x1180
+13da5bf0 sub r11,r12,#0x4
+13da5bf4 sub sp,sp,#0x10
+13da5bf8 add r2,r2,#0x10
+13da5bfc mov r1,#0x0
+13da5c00 cpy r5,r0
+13da5c04 bl 0x13daa0d4
+13da5c08 mov r1,#0x1180
+13da5c0c cpy r0,r1
+13da5c10 cpy r2,r1
+13da5c14 mov r12,#0x0
+13da5c18 mvn r3,#0x0
+13da5c1c add r1,r1,#0x4
+13da5c20 add r2,r2,#0xc
+13da5c24 add r0,r0,#0x8
+13da5c28 str r12,[r5,r2]
+13da5c2c str r12,[r5,r0]
+13da5c30 str r3,[r5,r1]
+13da5c34 sub r0,r11,#0x20
+13da5c38 bl 0x13dab340
+13da5c3c bl 0x13dab7e8
+13da5c40 mov r2,#0x20
+13da5c44 cpy r1,r0
+13da5c48 cpy r0,r5
+13da5c4c bl 0x13daa0f4
+13da5c50 sub r3,r11,#0x20
+13da5c54 ldmia r3,{r0,r1}
+13da5c58 bl 0x13da4934
+13da5c5c add r6,r5,#0x21
+13da5c60 cpy r3,r0
+13da5c64 ldr r2,[0x13da5d70]
+13da5c68 mov r1,#0x29
+13da5c6c add r0,r5,#0x42
+13da5c70 bl 0x13dd16c8
+13da5c74 cpy r0,r6
+13da5c78 mov r1,#0x20
+13da5c7c bl 0x13dce8b0
+13da5c80 add r2,r5,#0x20
+13da5c84 mov r0,#0x1f
+13da5c88 ldrb r3,[r2,#0x1]
+13da5c8c and r3,r3,#0xf
+13da5c90 cmp r3,#0x9
+13da5c94 add r1,r3,#0x30
+13da5c98 addgt r1,r3,#0x57
+13da5c9c subs r0,r0,#0x1
+13da5ca0 strb r1,[r2,#0x1]!
+13da5ca4 bpl 0x13da5c88
+13da5ca8 mov r3,#0x0
+13da5cac strb r3,[r5,#0x41]
+13da5cb0 str r3,[r11,#-0x24]
+13da5cb4 bl 0x13dab89c
+13da5cb8 mov r3,#0xff0
+13da5cbc sub r12,r11,#0x24
+13da5cc0 add r3,r3,#0xf
+13da5cc4 mov r1,#0x1
+13da5cc8 add r2,r5,#0x6b
+13da5ccc str r12,[sp,#0x0]
+13da5cd0 bl 0x13da3ea8
+13da5cd4 ldr r1,[0x13da5d74]
+13da5cd8 cpy r4,r0
+13da5cdc ldr r2,[0x13da5d78]
+13da5ce0 bl 0x13dd1878
+13da5ce4 cpy r0,r4
+13da5ce8 ldr r1,[0x13da5d7c]
+13da5cec cpy r2,r5
+13da5cf0 bl 0x13dd1868
+13da5cf4 cpy r0,r4
+13da5cf8 cpy r2,r6
+13da5cfc ldr r1,[0x13da5d80]
+13da5d00 bl 0x13dd1868
+13da5d04 cpy r0,r4
+13da5d08 bl 0x13da3edc
+13da5d0c subs r4,r0,#0x0
+13da5d10 beq 0x13da5d3c
+13da5d14 bl 0x13da4150
+13da5d18 mov r3,#0x1180
+13da5d1c add r3,r3,#0x4
+13da5d20 str r0,[r5,r3]
+13da5d24 ldr r0,[r11,#-0x24]
+13da5d28 cmp r0,#0x0
+13da5d2c bne 0x13da5d68
+13da5d30 sub sp,r11,#0x18
+13da5d34 ldmia sp,{r4,r5,r6,r11,sp,lr}
+13da5d38 bx lr
+13da5d3c ldr r0,[r11,#-0x24]
+13da5d40 ldr r1,[0x13da5d84]
+13da5d44 cpy r2,r5
+13da5d48 bl 0x13da3940
+13da5d4c cmp r0,#0x0
+13da5d50 movne r3,#0x1180
+13da5d54 addne r3,r3,#0x4
+13da5d58 strne r4,[r5,r3]
+13da5d5c ldr r0,[r11,#-0x24]
+13da5d60 cmp r0,#0x0
+13da5d64 beq 0x13da5d30
+13da5d68 bl 0x13dd1888
+13da5d6c b 0x13da5d30
+
+===== QUERY 13e2a48c =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x13e2a48c
+INCOMING From: 13e2643c To: 13e2a48c Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER 13e25db4
+INCOMING From: 13e259a0 To: 13e2a48c Type: UNCONDITIONAL_CALL Op: 0 DEFAULT OWNER 13e25548
+BODY [[13e2a48c, 13e2a4db]]
+
+undefined4 FUN_13e2a48c(void)
+
+{
+  int iVar1;
+  undefined4 local_14;
+
+  local_14 = 0;
+  iVar1 = FUN_13e2b834(&local_14,4);
+  if (iVar1 < 0) {
+    local_14 = FUN_13e2c088();
+  }
+  return local_14;
+}
+
+
+13e2a48c cpy r12,sp
+13e2a490 stmdb sp!,{r11,r12,lr,pc}
+13e2a494 sub r11,r12,#0x4
+13e2a498 mov r3,#0x0
+13e2a49c sub sp,sp,#0x4
+13e2a4a0 sub r0,r11,#0xc
+13e2a4a4 mov r1,#0x4
+13e2a4a8 str r3,[r0,#-0x4]!
+13e2a4ac bl 0x13e2b834
+13e2a4b0 cmp r0,#0x0
+13e2a4b4 ldrge r3,[r11,#-0x10]
+13e2a4b8 blt 0x13e2a4cc
+13e2a4bc cpy r0,r3
+13e2a4c0 sub sp,r11,#0xc
+13e2a4c4 ldmia sp,{r11,sp,lr}
+13e2a4c8 bx lr
+13e2a4cc bl 0x13e2c088
+13e2a4d0 cpy r3,r0
+13e2a4d4 str r0,[r11,#-0x10]
+13e2a4d8 b 0x13e2a4bc
+
+===== QUERY 13643e1c =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x13643e1c
+BODY [[13643e1c, 13644099]]
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void FUN_13643e1c(void)
+
+{
+  int iVar1;
+  code *pcVar2;
+  int *piVar3;
+  undefined *puVar4;
+  undefined4 *puVar5;
+  int iVar6;
+  int iVar7;
+  uint uVar8;
+  uint *puVar9;
+  undefined4 *puVar10;
+  undefined4 *puVar11;
+  uint uVar12;
+  uint *puVar13;
+  undefined4 uVar14;
+  int iVar15;
+  uint *puVar16;
+  uint *puVar17;
+  uint *puVar18;
+  uint *puVar19;
+  undefined1 auStack_60 [4];
+  uint *puStack_5c;
+  undefined1 auStack_58 [4];
+  undefined1 auStack_54 [16];
+  undefined1 auStack_44 [32];
+
+  pcVar2 = _DAT_1364409c;
+  iVar6 = (*_DAT_1364409c)(auStack_58,1);
+  piVar3 = _DAT_136440a0;
+  *_DAT_136440a0 = iVar6;
+  if (iVar6 < 0) {
+    (*(code *)PTR_FUN_136440b8)(_DAT_13644108,iVar6);
+    iVar6 = *piVar3;
+  }
+  iVar6 = (*_DAT_136440a4)(2,iVar6,0);
+  if (iVar6 != 0) {
+    (*(code *)PTR_FUN_136440b8)(_DAT_13644104);
+  }
+  iVar6 = (*pcVar2)(auStack_44,8);
+  if (iVar6 < 0) {
+    (*(code *)PTR_FUN_136440b8)(_DAT_13644100,iVar6);
+  }
+  iVar7 = (*(code *)PTR_FUN_ffff26f0_1_136440ac)(_DAT_136440a8,iVar6);
+  if (iVar7 != 0) {
+    (*(code *)PTR_FUN_136440b8)(_DAT_136440fc);
+  }
+  iVar7 = (*(code *)PTR_FUN_ffff23b8_1_136440b0)(iVar6,&puStack_5c,0);
+  if (iVar7 != 0) goto LAB_13643ea0;
+LAB_13643e78:
+  uVar12 = *puStack_5c;
+  puVar16 = puStack_5c;
+  if (uVar12 == 2) goto LAB_13643eae;
+  do {
+    puVar16 = puStack_5c;
+    if (uVar12 < 3) {
+      if (uVar12 == 1) {
+        iVar7 = (*(code *)PTR_FUN_ffff6f28_1_136440cc)(puStack_5c[3],_DAT_136440a8,9);
+        if (iVar7 == 0) goto LAB_13643eae;
+        iVar7 = 6;
+      }
+      else {
+LAB_13643e88:
+        iVar7 = 4;
+      }
+      iVar7 = -iVar7;
+    }
+    else {
+      if (uVar12 != 7) goto LAB_13643e88;
+      *_DAT_136440c0 = 0;
+      puVar11 = _DAT_136440f0;
+      iVar1 = -4;
+      iVar15 = -4;
+      puVar17 = puStack_5c + 3;
+      puVar18 = (uint *)0x0;
+      puVar19 = (uint *)0x0;
+      iVar7 = iVar15;
+      if (puStack_5c[3] == 0) {
+        if ((puStack_5c[4] == 1) && (puStack_5c[5] == 1)) {
+          puVar9 = (uint *)puStack_5c[6];
+          uVar12 = 1;
+LAB_13643f12:
+          puVar13 = puVar9 + uVar12 * 2;
+          uVar12 = puVar9[1];
+          iVar7 = iVar15;
+          if ((((uVar12 == puVar13[1]) && (uVar8 = *puVar9, (uVar8 & 0xf) == 0)) &&
+              ((*puVar13 & 0xf) == 0)) && ((uVar12 - 0x10 & (uint)PTR_DAT_136440d0) == 0)) {
+            if (*puVar17 == 3) {
+              (*_DAT_136440f8)(auStack_54,uVar8 + uVar12 + -0x10,0x10);
+              uVar8 = *puVar9;
+            }
+            puVar4 = PTR_FUN_ffff4a98_1_136440d4;
+            uVar14 = (*(code *)PTR_FUN_ffff4a98_1_136440d4)(uVar8);
+            *_DAT_136440d8 = uVar14;
+            uVar14 = (*(code *)puVar4)(*puVar13);
+            *_DAT_136440dc = uVar14;
+            (*(code *)PTR_FUN_ffff53e0_1_136440e0)(*puVar9,puVar9[1]);
+            (*(code *)PTR_FUN_ffff537c_1_136440e4)(*puVar13,puVar13[1]);
+            (*(code *)PTR_FUN_ffff5448_1_136440e8)(4);
+            *_DAT_136440c0 = *puVar17 << 0x1b | puVar9[1] - 0x10 >> 4 | 0xc0000000;
+            iVar7 = (*(code *)PTR_FUN_ffff23b8_1_136440b0)(*_DAT_136440a0,auStack_60,0);
+            if (iVar7 != 0) {
+              (*(code *)PTR_FUN_136440b8)(_DAT_136440bc,iVar7);
+            }
+            (*(code *)PTR_FUN_ffff542c_1_136440ec)(4);
+            (*(code *)PTR_FUN_ffff5448_1_136440e8)(0);
+            if ((int)(*_DAT_136440c0 << 2) < 0) {
+              iVar7 = -1;
+            }
+            else {
+              if (puVar19 != (uint *)0x0) {
+                uVar12 = *puVar17;
+                if (uVar12 == 2) {
+                  (*_DAT_136440f8)(auStack_54,*puVar13 + puVar13[1] + -0x10,0x10);
+                  uVar12 = *puVar17;
+                }
+                if (uVar12 - 2 < 2) {
+                  (*_DAT_136440f8)(*puVar19,auStack_54,0x10);
+                  iVar7 = 0;
+                  goto LAB_13643fbe;
+                }
+              }
+              iVar7 = 0;
+            }
+          }
+LAB_13643fbe:
+          if (puVar18 != (uint *)0x0) {
+            (*(code *)PTR_FUN_ffff40dc_1_136440c8)(*(undefined4 *)PTR_DAT_136440c4,*puVar18);
+          }
+        }
+      }
+      else {
+        iVar7 = iVar1;
+        if (((puStack_5c[3] - 2 < 2) && (puStack_5c[4] == 2)) &&
+           (iVar7 = iVar15, puStack_5c[5] == 2)) {
+          puVar9 = (uint *)puStack_5c[6];
+          puVar18 = puVar9 + 2;
+          iVar7 = iVar1;
+          if ((puVar9[3] == 0x10) && (puVar10 = (undefined4 *)puVar9[2], ((uint)puVar10 & 3) == 0))
+          {
+            *_DAT_136440f0 = *puVar10;
+            iVar7 = 3;
+            do {
+              uVar14 = *puVar10;
+              puVar10 = puVar10 + 1;
+              *puVar11 = uVar14;
+              puVar5 = _DAT_136440f4;
+              iVar7 = iVar7 + -1;
+            } while (-1 < iVar7);
+            puVar19 = puVar9 + 6;
+            iVar7 = iVar15;
+            if ((puVar9[7] == 0x10) && (puVar11 = (undefined4 *)puVar9[6], ((uint)puVar11 & 3) == 0)
+               ) {
+              *_DAT_136440f4 = *puVar11;
+              iVar7 = 3;
+              do {
+                uVar14 = *puVar11;
+                puVar11 = puVar11 + 1;
+                *puVar5 = uVar14;
+                iVar7 = iVar7 + -1;
+              } while (-1 < iVar7);
+              uVar12 = puStack_5c[4];
+              goto LAB_13643f12;
+            }
+          }
+          goto LAB_13643fbe;
+        }
+      }
+      (*(code *)PTR_FUN_ffff40dc_1_136440c8)(*(undefined4 *)PTR_DAT_136440c4,puVar16[6]);
+    }
+    while( true ) {
+      (*(code *)PTR_FUN_ffff3924_1_136440b4)(puVar16,iVar7);
+      iVar7 = (*(code *)PTR_FUN_ffff23b8_1_136440b0)(iVar6,&puStack_5c,0);
+      if (iVar7 == 0) goto LAB_13643e78;
+LAB_13643ea0:
+      (*(code *)PTR_FUN_136440b8)(_DAT_136440bc);
+      uVar12 = *puStack_5c;
+      puVar16 = puStack_5c;
+      if (uVar12 != 2) break;
+LAB_13643eae:
+      iVar7 = 0;
+    }
+  } while( true );
+}
+
+
+13643e1c push {r4,r5,r6,r7,lr}
+13643e1e mov r7,r11
+13643e20 mov r6,r10
+13643e22 mov r5,r9
+13643e24 mov r4,r8
+13643e26 push {r4,r5,r6,r7}
+13643e28 sub sp,#0x40
+13643e2a movs r1,#0x1
+13643e2c add r0,sp,#0xc
+13643e2e ldr r5,[0x1364409c]
+13643e30 blx r5
+13643e32 ldr r4,[0x136440a0]
+13643e34 adds r1,r0,#0x0
+13643e36 str r0,[r4,#0x0]
+13643e38 cmp r0,#0x0
+13643e3a bge 0x13643e3e
+13643e3c b 0x13644068
+13643e3e movs r0,#0x2
+13643e40 movs r2,#0x0
+13643e42 ldr r3,[0x136440a4]
+13643e44 blx r3
+13643e46 subs r1,r0,#0x0
+13643e48 beq 0x13643e4c
+13643e4a b 0x13644060
+13643e4c add r0,sp,#0x20
+13643e4e movs r1,#0x8
+13643e50 blx r5
+13643e52 subs r6,r0,#0x0
+13643e54 bge 0x13643e58
+13643e56 b 0x13644056
+13643e58 adds r1,r6,#0x0
+13643e5a ldr r0,[0x136440a8]
+13643e5c ldr r3,[0x136440ac]
+13643e5e blx r3
+13643e60 subs r1,r0,#0x0
+13643e62 beq 0x13643e66
+13643e64 b 0x1364404e
+13643e66 add r1,sp,#0x8
+13643e68 mov r8,r1
+13643e6a adds r0,r6,#0x0
+13643e6c mov r1,r8
+13643e6e movs r2,#0x0
+13643e70 ldr r3,[0x136440b0]
+13643e72 blx r3
+13643e74 subs r1,r0,#0x0
+13643e76 bne 0x13643ea0
+13643e78 ldr r5,[sp,#0x8]
+13643e7a ldr r3,[r5,#0x0]
+13643e7c cmp r3,#0x2
+13643e7e beq 0x13643eae
+13643e80 cmp r3,#0x2
+13643e82 bhi 0x13643eb2
+13643e84 cmp r3,#0x1
+13643e86 beq 0x13643ef0
+13643e88 movs r1,#0x4
+13643e8a rsbs r1,r1
+13643e8c adds r0,r5,#0x0
+13643e8e ldr r3,[0x136440b4]
+13643e90 blx r3
+13643e92 adds r0,r6,#0x0
+13643e94 mov r1,r8
+13643e96 movs r2,#0x0
+13643e98 ldr r3,[0x136440b0]
+13643e9a blx r3
+13643e9c subs r1,r0,#0x0
+13643e9e beq 0x13643e78
+13643ea0 ldr r3,[0x136440b8]
+13643ea2 ldr r0,[0x136440bc]
+13643ea4 blx r3
+13643ea6 ldr r5,[sp,#0x8]
+13643ea8 ldr r3,[r5,#0x0]
+13643eaa cmp r3,#0x2
+13643eac bne 0x13643e80
+13643eae movs r1,#0x0
+13643eb0 b 0x13643e8c
+13643eb2 cmp r3,#0x7
+13643eb4 bne 0x13643e88
+13643eb6 ldr r3,[0x136440c0]
+13643eb8 movs r2,#0x0
+13643eba str r2,[r3,#0x0]
+13643ebc ldr r3,[r5,#0xc]
+13643ebe movs r4,#0x4
+13643ec0 adds r7,r5,#0x0
+13643ec2 rsbs r4,r4
+13643ec4 adds r7,#0xc
+13643ec6 mov r10,r2
+13643ec8 mov r11,r2
+13643eca cmp r3,#0x0
+13643ecc beq 0x13643f02
+13643ece subs r3,#0x2
+13643ed0 cmp r3,#0x1
+13643ed2 bhi 0x13643ee2
+13643ed4 ldr r3,[r7,#0x4]
+13643ed6 cmp r3,#0x2
+13643ed8 bne 0x13643ee2
+13643eda ldr r3,[r7,#0x8]
+13643edc cmp r3,#0x2
+13643ede bne 0x13643ee2
+13643ee0 b 0x13643fd2
+13643ee2 ldr r3,[0x136440c4]
+13643ee4 ldr r1,[r7,#0xc]
+13643ee6 ldr r0,[r3,#0x0]
+13643ee8 ldr r3,[0x136440c8]
+13643eea blx r3
+13643eec adds r1,r4,#0x0
+13643eee b 0x13643e8c
+13643ef0 ldr r0,[r5,#0xc]
+13643ef2 ldr r1,[0x136440a8]
+13643ef4 movs r2,#0x9
+13643ef6 ldr r3,[0x136440cc]
+13643ef8 blx r3
+13643efa cmp r0,#0x0
+13643efc beq 0x13643eae
+13643efe movs r1,#0x6
+13643f00 b 0x13643e8a
+13643f02 ldr r2,[r7,#0x4]
+13643f04 cmp r2,#0x1
+13643f06 bne 0x13643ee2
+13643f08 ldr r3,[r7,#0x8]
+13643f0a cmp r3,#0x1
+13643f0c bne 0x13643ee2
+13643f0e ldr r3,[r7,#0xc]
+13643f10 mov r9,r3
+13643f12 lsls r3,r2,#0x3
+13643f14 add r3,r9
+13643f16 str r3,[sp,#0x0]
+13643f18 ldr r1,[sp,#0x0]
+13643f1a mov r3,r9
+13643f1c ldr r0,[r3,#0x4]
+13643f1e ldr r3,[r1,#0x4]
+13643f20 cmp r0,r3
+13643f22 bne 0x13643fbe
+13643f24 mov r2,r9
+13643f26 ldr r1,[r2,#0x0]
+13643f28 movs r2,#0xf
+13643f2a tst r1,r2
+13643f2c bne 0x13643fbe
+13643f2e ldr r3,[sp,#0x0]
+13643f30 ldr r3,[r3,#0x0]
+13643f32 tst r3,r2
+13643f34 bne 0x13643fbe
+13643f36 adds r2,r0,#0x0
+13643f38 ldr r3,[0x136440d0]
+13643f3a subs r2,#0x10
+13643f3c tst r2,r3
+13643f3e bne 0x13643fbe
+13643f40 ldr r3,[r7,#0x0]
+13643f42 cmp r3,#0x3
+13643f44 bne 0x13643f48
+13643f46 b 0x13644072
+13643f48 adds r0,r1,#0x0
+13643f4a ldr r4,[0x136440d4]
+13643f4c blx r4
+13643f4e ldr r3,[0x136440d8]
+13643f50 str r0,[r3,#0x0]
+13643f52 ldr r3,[sp,#0x0]
+13643f54 ldr r0,[r3,#0x0]
+13643f56 blx r4
+13643f58 ldr r3,[0x136440dc]
+13643f5a str r0,[r3,#0x0]
+13643f5c mov r1,r9
+13643f5e ldr r0,[r1,#0x0]
+13643f60 ldr r3,[0x136440e0]
+13643f62 ldr r1,[r1,#0x4]
+13643f64 blx r3
+13643f66 ldr r2,[sp,#0x0]
+13643f68 ldr r3,[0x136440e4]
+13643f6a ldr r0,[r2,#0x0]
+13643f6c ldr r1,[r2,#0x4]
+13643f6e blx r3
+13643f70 movs r0,#0x4
+13643f72 ldr r3,[0x136440e8]
+13643f74 blx r3
+13643f76 mov r1,r9
+13643f78 ldr r3,[r1,#0x4]
+13643f7a ldr r2,[r7,#0x0]
+13643f7c subs r3,#0x10
+13643f7e lsrs r3,r3,#0x4
+13643f80 lsls r2,r2,#0x1b
+13643f82 orrs r2,r3
+13643f84 movs r3,#0xc0
+13643f86 lsls r3,r3,#0x18
+13643f88 orrs r2,r3
+13643f8a ldr r3,[0x136440c0]
+13643f8c str r2,[r3,#0x0]
+13643f8e ldr r3,[0x136440a0]
+13643f90 add r1,sp,#0x4
+13643f92 ldr r0,[r3,#0x0]
+13643f94 movs r2,#0x0
+13643f96 ldr r3,[0x136440b0]
+13643f98 blx r3
+13643f9a subs r4,r0,#0x0
+13643f9c beq 0x13643fa6
+13643f9e ldr r0,[0x136440bc]
+13643fa0 adds r1,r4,#0x0
+13643fa2 ldr r3,[0x136440b8]
+13643fa4 blx r3
+13643fa6 ldr r3,[0x136440ec]
+13643fa8 movs r0,#0x4
+13643faa blx r3
+13643fac movs r0,#0x0
+13643fae ldr r1,[0x136440e8]
+13643fb0 blx r1
+13643fb2 ldr r2,[0x136440c0]
+13643fb4 ldr r3,[r2,#0x0]
+13643fb6 lsls r1,r3,#0x2
+13643fb8 bpl 0x13644028
+13643fba movs r4,#0x1
+13643fbc rsbs r4,r4
+13643fbe mov r2,r10
+13643fc0 cmp r2,#0x0
+13643fc2 bne 0x13643fc6
+13643fc4 b 0x13643ee2
+13643fc6 ldr r3,[0x136440c4]
+13643fc8 ldr r1,[r2,#0x0]
+13643fca ldr r0,[r3,#0x0]
+13643fcc ldr r3,[0x136440c8]
+13643fce blx r3
+13643fd0 b 0x13643ee2
+13643fd2 ldr r1,[r7,#0xc]
+13643fd4 movs r2,#0x8
+13643fd6 mov r9,r1
+13643fd8 add r2,r9
+13643fda ldr r3,[r2,#0x4]
+13643fdc mov r10,r2
+13643fde cmp r3,#0x10
+13643fe0 bne 0x13643fbe
+13643fe2 ldr r1,[r1,#0x8]
+13643fe4 movs r3,#0x3
+13643fe6 tst r1,r3
+13643fe8 bne 0x13643fbe
+13643fea ldr r3,[r1,#0x0]
+13643fec ldr r2,[0x136440f0]
+13643fee str r3,[r2,#0x0]
+13643ff0 adds r0,r1,#0x0
+13643ff2 movs r1,#0x3
+13643ff4 ldmia r0!,{r3}
+13643ff6 str r3,[r2,#0x0]
+13643ff8 subs r1,#0x1
+13643ffa bpl 0x13643ff4
+13643ffc movs r3,#0x18
+13643ffe add r3,r9
+13644000 mov r11,r3
+13644002 ldr r3,[r3,#0x4]
+13644004 cmp r3,#0x10
+13644006 bne 0x13643fbe
+13644008 mov r2,r9
+1364400a ldr r1,[r2,#0x18]
+1364400c movs r3,#0x3
+1364400e tst r1,r3
+13644010 bne 0x13643fbe
+13644012 ldr r3,[r1,#0x0]
+13644014 ldr r2,[0x136440f4]
+13644016 str r3,[r2,#0x0]
+13644018 adds r0,r1,#0x0
+1364401a movs r1,#0x3
+1364401c ldmia r0!,{r3}
+1364401e str r3,[r2,#0x0]
+13644020 subs r1,#0x1
+13644022 bpl 0x1364401c
+13644024 ldr r2,[r7,#0x4]
+13644026 b 0x13643f12
+13644028 mov r2,r11
+1364402a cmp r2,#0x0
+1364402c beq 0x1364403a
+1364402e ldr r3,[r7,#0x0]
+13644030 cmp r3,#0x2
+13644032 beq 0x13644084
+13644034 subs r3,#0x2
+13644036 cmp r3,#0x1
+13644038 bls 0x1364403e
+1364403a movs r4,#0x0
+1364403c b 0x13643fbe
+1364403e mov r1,r11
+13644040 ldr r0,[r1,#0x0]
+13644042 movs r2,#0x10
+13644044 add r1,sp,#0x10
+13644046 ldr r3,[0x136440f8]
+13644048 blx r3
+1364404a movs r4,#0x0
+1364404c b 0x13643fbe
+1364404e ldr r0,[0x136440fc]
+13644050 ldr r3,[0x136440b8]
+13644052 blx r3
+13644054 b 0x13643e66
+13644056 ldr r0,[0x13644100]
+13644058 adds r1,r6,#0x0
+1364405a ldr r3,[0x136440b8]
+1364405c blx r3
+1364405e b 0x13643e58
+13644060 ldr r0,[0x13644104]
+13644062 ldr r3,[0x136440b8]
+13644064 blx r3
+13644066 b 0x13643e4c
+13644068 ldr r0,[0x13644108]
+1364406a ldr r3,[0x136440b8]
+1364406c blx r3
+1364406e ldr r1,[r4,#0x0]
+13644070 b 0x13643e3e
+13644072 adds r1,r1,r0
+13644074 subs r1,#0x10
+13644076 movs r2,#0x10
+13644078 add r0,sp,#0x10
+1364407a ldr r3,[0x136440f8]
+1364407c blx r3
+1364407e mov r2,r9
+13644080 ldr r1,[r2,#0x0]
+13644082 b 0x13643f48
+13644084 ldr r3,[sp,#0x0]
+13644086 ldr r1,[r3,#0x0]
+13644088 ldr r3,[r3,#0x4]
+1364408a adds r1,r1,r3
+1364408c add r0,sp,#0x10
+1364408e ldr r3,[0x136440f8]
+13644090 subs r1,#0x10
+13644092 movs r2,#0x10
+13644094 blx r3
+13644096 ldr r3,[r7,#0x0]
+13644098 b 0x13644034
+
+===== QUERY 20105354 =====
+PROGRAM ios9-00000006.elf LANGUAGE ARM:BE:32:v8
+ADDRESS 0x20105354
+BODY [[20105354, 20105471]]
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void FUN_20105354(uint param_1,undefined4 param_2,int param_3,int param_4)
+
+{
+  int iVar1;
+  undefined4 uVar2;
+  undefined4 uVar3;
+  int iVar4;
+  int iVar5;
+  code *UNRECOVERED_JUMPTABLE;
+  int iStack_64;
+  undefined1 auStack_60 [64];
+
+  iVar4 = 0;
+  iVar5 = 0;
+  iStack_64 = 0;
+  iVar1 = _DAT_20105478;
+  if (((((((param_1 & 0x3f) == 0) && (iVar1 = _DAT_20105478, param_3 != 0)) &&
+        (iVar1 = _DAT_20105478, param_4 != 0)) &&
+       ((iVar1 = _DAT_20105478, *(int *)(_DAT_20105474 + 8) != 0 &&
+        (iVar5 = thunk_FUN_2010866c(0,0x60,0x40), iVar1 = _DAT_2010547c, iVar5 != 0)))) &&
+      ((iVar4 = thunk_FUN_2010866c(0,0x14,0x40), iVar1 = _DAT_2010547c, iVar4 != 0 &&
+       ((iVar1 = thunk_FUN_20108694(iVar5,0,0,0,0), iVar1 == 0 &&
+        (iVar1 = thunk_FUN_20108694(iVar5,param_1,param_2,2,iVar4), iVar1 == 0)))))) &&
+     ((iVar1 = thunk_FUN_20108654(&iStack_64,0,4), iVar1 == 0 &&
+      (iVar1 = func_0x201086d0(iStack_64), iVar1 == 0)))) {
+    uVar2 = *(undefined4 *)(*(int *)(_DAT_20105474 + 4) + 0x18c);
+    uVar3 = *(undefined4 *)(*(int *)(_DAT_20105474 + 4) + 400);
+    FUN_20107e6c(auStack_60,0,0x40);
+    FUN_20107c44(auStack_60,0x13,_DAT_20105480,_DAT_20105484,uVar2,uVar3);
+    iVar1 = func_0x201086d8(iStack_64,auStack_60,param_4);
+    if (iVar1 == 0) {
+      iVar1 = func_0x201086e0(iVar4,0x14,iStack_64,param_3);
+    }
+  }
+  if (iStack_64 != 0) {
+    thunk_FUN_2010867c();
+  }
+  if (iVar5 != 0) {
+    thunk_FUN_201085ec(0,iVar5);
+  }
+  if (iVar4 != 0) {
+    thunk_FUN_201085ec(0,iVar4);
+  }
+                    /* WARNING: Could not recover jumptable at 0x20105470. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+  (*UNRECOVERED_JUMPTABLE)(iVar1);
+  return;
+}
+
+
+20105354 push {r4,r5,r6,r7,lr}
+20105356 mov r7,r10
+20105358 mov r6,r9
+2010535a mov r5,r8
+2010535c push {r5,r6,r7}
+2010535e sub sp,#0x54
+20105360 adds r4,r0,#0x0
+20105362 mov r8,r1
+20105364 mov r9,r2
+20105366 mov r10,r3
+20105368 movs r5,#0x0
+2010536a movs r6,#0x0
+2010536c movs r7,#0x0
+2010536e str r5,[sp,#0x10]
+20105370 movs r3,#0x3f
+20105372 tst r0,r3
+20105374 bne 0x20105388
+20105376 cmp r2,#0x0
+20105378 beq 0x20105388
+2010537a mov r1,r10
+2010537c cmp r1,#0x0
+2010537e beq 0x20105388
+20105380 ldr r3,[0x20105474]
+20105382 ldr r3,[r3,#0x8]
+20105384 cmp r3,#0x0
+20105386 bne 0x2010538c
+20105388 ldr r5,[0x20105478]
+2010538a b 0x2010543e
+2010538c movs r0,#0x0
+2010538e movs r1,#0x60
+20105390 movs r2,#0x40
+20105392 bl 0x20108668
+20105396 subs r7,r0,#0x0
+20105398 bne 0x2010539e
+2010539a ldr r5,[0x2010547c]
+2010539c b 0x2010543e
+2010539e movs r0,#0x0
+201053a0 movs r1,#0x14
+201053a2 movs r2,#0x40
+201053a4 bl 0x20108668
+201053a8 subs r6,r0,#0x0
+201053aa bne 0x201053b0
+201053ac ldr r5,[0x2010547c]
+201053ae b 0x2010543e
+201053b0 movs r3,#0x0
+201053b2 str r3,[sp,#0x0]
+201053b4 adds r0,r7,#0x0
+201053b6 movs r1,#0x0
+201053b8 movs r2,#0x0
+201053ba bl 0x20108690
+201053be subs r5,r0,#0x0
+201053c0 bne 0x2010543e
+201053c2 str r6,[sp,#0x0]
+201053c4 adds r0,r7,#0x0
+201053c6 adds r1,r4,#0x0
+201053c8 mov r2,r8
+201053ca movs r3,#0x2
+201053cc bl 0x20108690
+201053d0 subs r5,r0,#0x0
+201053d2 bne 0x2010543e
+201053d4 add r0,sp,#0x10
+201053d6 movs r1,#0x0
+201053d8 movs r2,#0x4
+201053da bl 0x20108650
+201053de subs r5,r0,#0x0
+201053e0 bne 0x2010543e
+201053e2 ldr r0,[sp,#0x10]
+201053e4 bl 0x201086d0
+201053e8 subs r5,r0,#0x0
+201053ea bne 0x2010543e
+201053ec ldr r3,[0x20105474]
+201053ee ldr r3,[r3,#0x4]
+201053f0 movs r2,#0xc6
+201053f2 lsls r2,r2,#0x1
+201053f4 adds r3,r3,r2
+201053f6 ldr r1,[r3,#0x0]
+201053f8 ldr r2,[r3,#0x4]
+201053fa str r1,[sp,#0x8]
+201053fc str r2,[sp,#0xc]
+201053fe movs r2,#0x14
+20105400 add r2,sp
+20105402 mov r8,r2
+20105404 adds r0,r2,#0x0
+20105406 movs r1,#0x0
+20105408 movs r2,#0x40
+2010540a bl 0x20107e6c
+2010540e ldr r4,[sp,#0x8]
+20105410 str r4,[sp,#0x0]
+20105412 ldr r3,[sp,#0xc]
+20105414 str r3,[sp,#0x4]
+20105416 mov r0,r8
+20105418 movs r1,#0x13
+2010541a ldr r2,[0x20105480]
+2010541c ldr r3,[0x20105484]
+2010541e bl 0x20107c44
+20105422 ldr r0,[sp,#0x10]
+20105424 mov r1,r8
+20105426 mov r2,r10
+20105428 bl 0x201086d8
+2010542c subs r5,r0,#0x0
+2010542e bne 0x2010543e
+20105430 adds r0,r6,#0x0
+20105432 movs r1,#0x14
+20105434 ldr r2,[sp,#0x10]
+20105436 mov r3,r9
+20105438 bl 0x201086e0
+2010543c adds r5,r0,#0x0
+2010543e ldr r0,[sp,#0x10]
+20105440 cmp r0,#0x0
+20105442 beq 0x20105448
+20105444 bl 0x20108678
+20105448 cmp r7,#0x0
+2010544a beq 0x20105454
+2010544c movs r0,#0x0
+2010544e adds r1,r7,#0x0
+20105450 bl 0x201085e8
+20105454 cmp r6,#0x0
+20105456 beq 0x20105460
+20105458 movs r0,#0x0
+2010545a adds r1,r6,#0x0
+2010545c bl 0x201085e8
+20105460 adds r0,r5,#0x0
+20105462 add sp,#0x54
+20105464 pop {r3,r4,r5}
+20105466 mov r8,r3
+20105468 mov r9,r4
+2010546a mov r10,r5
+2010546c pop {r4,r5,r6,r7}
+2010546e pop {r1}
+20105470 bx r1

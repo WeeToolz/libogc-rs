@@ -1,0 +1,75 @@
+Wii std synchronization verification — 2026-10-14
+
+Scope: pinned Rust threaded mutex, condition variable, reader/writer lock,
+Once/OnceLock selection; production LWP futex transport; explicit unsupported
+random policy; isolated compiler support libraries; actual std probe linking.
+
+Compiler: 1.101.0-nightly, ea137335b78829b4514bf1b4c16302f74fab8581
+Library source pin: rust-std/source-lock.json (unchanged)
+Target: targets/powerpc-nintendo-none.json (unchanged)
+Branch: master, after merge a332541
+
+PASS: python3 scripts/check-wii-std.py --offline
+  Exit 0. All six earlier compiler errors are resolved. Four synchronization
+  selectors now use threaded algorithms. Random data is explicitly unsupported;
+  nonempty fill_bytes requests and default HashMap seeding panic. No entropy
+  source was accepted, and no fallback bytes or keys were introduced.
+PASS: cargo xtask build-lwp-probe
+  Production provider probe linked and converted to lwp_probe.dol.
+PASS: cargo xtask build-wii-std-probe
+  Built std with std,panic_abort and compiler-builtins-mem. The actual std
+  Mutex, Condvar, RwLock, Once, and OnceLock probe linked and converted to DOL.
+  Workers use production LWP creation; std::thread::spawn is still open.
+PASS: llvm-nm --undefined-only on the actual std probe ELF
+  No undefined symbols. The ELF defines __wii_std_futex_wait/wake and contains
+  the pinned std mutex, reader/writer lock, and once futex implementations.
+PASS: powerpc-eabi-readelf -h -d on the actual std probe ELF
+  ELF32, big endian, PowerPC EXEC, entry 0x80004000. No dynamic section.
+PASS: cargo test --offline -p ogc-alloc -p xtask
+  Allocator: 10 tests. xtask: 31 tests. No failed or ignored tests.
+PASS: rustup run nightly rustc --edition=2024 --test on production shared rules
+  crates/core/ogc-lwp-driver/src/futex.rs: 3 tests.
+  Covers deadline wrap/sentinel/bounds, priority/FIFO selection, and duration
+  rounding through Duration::MAX. Queue and futex selection share the same rule.
+PASS: standalone tests of rust-std/overlay/std/src/sys/random/wii.rs
+  2 tests: nonempty request rejects; empty request needs no entropy.
+PASS: python3 -m unittest discover -s scripts/tests -p test_prepare_wii_std.py
+  2 tests: compiler library/tool links preserve installed source isolation;
+  wrapper preserves arguments and sets its compiler library search path.
+PASS: cargo xtask check-roles
+  Manifest covers 99 packages.
+PASS: cargo xtask check-dependencies
+PASS: cargo xtask inventory; cargo xtask check-inventory
+  3,160 API entries. Exact function/probe locations are current.
+  The earlier merge moved libdb functions. Their stale source locations were
+  corrected. No existing evidence was deleted or reclassified.
+PASS: cargo xtask audit-source
+  The same three keyboard FIFO audit debt entries remain recorded.
+FAIL: cargo xtask audit-stubs
+  2,398 unverified APIs remain. The generated inventory preserves the findings.
+  New source probe entries are not hardware execution evidence.
+
+Fixed build-tool failure:
+  rust-lld could not load libLLVM.dylib from the isolated sysroot. A shell can
+  strip Cargo's DYLD loader variables on macOS. Preparation now links native
+  compiler libraries and sets the compiler library path inside the wrapper.
+  The preparation script participates in the input hash. The real std link
+  succeeds after the fix. Installed rust-src and compiler files are unchanged.
+
+Fixed probe expectation:
+  The old LWP timed-wait test expected the driver's -116 from the public
+  compatibility API, which returns positive Newlib 116. The probe now checks
+  the documented boundary and reports setup, unlock, and cleanup failures.
+
+NOT RUN: Wii hardware execution of either probe.
+  No hardware pass is claimed. IRQ behavior, contention, publication, timeout
+  bounds, pool avoidance, and cleanup still require the actual Wii probe log.
+OPEN: accepted entropy source and complete std platform contracts.
+  See wii-std-checklist.md and wii-std-sync.md. A compile or link pass does not
+  make this backend ready for application adoption.
+
+DOL SHA-256:
+  lwp_probe.dol
+    657035642a6b25a8c282a8ace9ed5e7338863cefa7e1ce1b10a76183b4486b3e
+  wii_std_probe.dol
+    63ad58ecbf589f283bca8e56aab895e76e82733ae29886bd3f64bca456bce017

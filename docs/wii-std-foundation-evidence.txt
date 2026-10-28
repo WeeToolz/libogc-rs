@@ -1,0 +1,50 @@
+Wii std foundation verification — 2026-10-14
+
+Scope: allocator, errno, TLS keys/destructors, thread join/detach cleanup,
+checked runtime startup, and pinned Rust std source adapters.
+
+Toolchain: nightly 1.101.0, compiler commit
+ ea137335b78829b4514bf1b4c16302f74fab8581
+Target: targets/powerpc-nintendo-none.json
+
+PASS: cargo test --offline -p ogc-alloc -p xtask
+  ogc-alloc: 10 tests; xtask: 31 tests.
+PASS: rustc --edition=2024 --test on the shared production engines
+  ogc-lwp-driver/src/tls.rs: 4 tests
+  ogc-lwp-driver/src/lifecycle.rs: 2 tests
+  ogc-sysbase/src/error.rs: 2 tests
+  ogc-system/src/startup.rs: 1 test
+PASS: cargo xtask build-lwp-probe
+  Production release binary linked and converted to DOL.
+  No hardware execution. No hardware acceptance claim.
+PASS: cargo xtask check-roles (99 packages)
+PASS: cargo xtask check-dependencies
+PASS: cargo xtask check-inventory (3155 API entries)
+PASS: cargo xtask audit-source
+  Three existing keyboard FIFO audit debt entries remain recorded.
+FAIL: cargo xtask audit-stubs
+  Runtime completeness audit: 2398 APIs lack accepted implementation evidence.
+  The generated inventory preserves each finding. Probe source evidence does
+  not mean that a probe has passed on hardware.
+FAIL: python3 scripts/check-wii-std.py --offline (exit 101)
+  Six errors remain: four no_threads selector errors, missing sys::fill_bytes,
+  and missing fill_bytes in the random module. The allocator, error, and TLS
+  selection errors from the original baseline are resolved.
+  This result does not prove the other std platform contracts are complete.
+
+Rust 2024 migration:
+  Cargo metadata: all 152 packages in 11 active workspaces use edition 2024.
+  Active independent test manifests also use edition 2024.
+  Archive and C reference trees are outside the migration scope.
+  Supported host test suites passed across the active projects.
+  Nintendont shared and filesystem tests pass (9 and 6). Its full workspace
+  remains blocked by existing deliberate compile guards.
+  Wii target checks passed for the libogc runtime, HBC (with diagnostics),
+  Wii-Wifi-update, Priiloader load tool, and Priiloader memory-map crate.
+  BootMii ARM libraries and loader probe pass with nightly-2026-07-01.
+  BootMii stub binary requires BOOTMII_STUB_EMBEDDED_ELF.
+  Priiloader app and installer require generated payloads. Its vWii forwarder
+  requires the WUT library, which is absent from this environment.
+  These missing inputs are blockers, not successful target checks.
+
+DOL SHA-256: 8702be08a40ea228ac9dd1bdb7ca9612b12b6956c1fae43def2e4f738309b5a4

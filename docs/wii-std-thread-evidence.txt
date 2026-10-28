@@ -1,0 +1,124 @@
+Wii std runtime, thread, and parking evidence
+Recorded: 2026-10-14
+Base commit: aa0146c (master)
+Scope: source integration, build checks, and one completed Dolphin std thread
+probe. One Wii probe attempt stopped during scoped worker creation and is open.
+Compiler pin: ea137335b78829b4514bf1b4c16302f74fab8581
+Prepared std wrapper: target/wii-std/75403309638c06df-71971f8f/rustc
+
+PASS: python3 scripts/check-wii-std.py --offline
+The selected Wii std source compiles with the pinned compiler. The installed
+rust-src is unchanged. This does not close unsupported platform contracts.
+
+PASS: cargo xtask build-lwp-probe
+PASS: cargo xtask build-wii-std-probe
+The second command builds both the std synchronization probe and the new
+normal-Rust-main thread probe. Both std ELFs are ELF32, big endian, PowerPC,
+entry 0x80004000, with no undefined symbols and no dynamic section.
+
+PASS: cargo test --offline -p ogc-sys -p ogc-alloc -p xtask
+ABI tests: 9; allocator tests: 10; xtask tests: 31. No failures or ignored tests.
+The new ABI tests preserve non-UTF-8 argument bytes and reject malformed or
+undersized shelter buffers without changing the destination.
+
+PASS: shared production engines compiled with rustup run nightly rustc
+--edition=2024 --test, then executed on the host:
+- crates/core/ogc-lwp-driver/src/thread.rs: 3 tests
+- crates/core/ogc-lwp-driver/src/lifecycle.rs: 5 tests
+- crates/core/ogc-lwp-driver/src/futex.rs: 4 tests
+- crates/services/ogc-std-runtime/src/entry.rs: 4 tests
+No failures or ignored tests. These cover stack bounds, names, ownership,
+release/acquire completion publication before host join, duration budgets,
+entry validation, and sticky cleanup failure. They do not execute PowerPC
+context switching, the hardware timer, or the target-only provider.
+
+PASS: python3 -m unittest discover -s scripts/tests -p test_prepare_wii_std.py
+2 tests; no failures.
+PASS: cargo xtask check-roles (99 packages)
+PASS: cargo xtask check-dependencies
+PASS: cargo xtask inventory; cargo xtask check-inventory (3,184 entries)
+PASS: cargo xtask audit-source
+Three existing keyboard FIFO audit debt entries remain. No new source finding.
+FAIL: cargo xtask audit-stubs
+2,398 unverified APIs remain across the repository, the same count as the base.
+All 24 new public runtime/thread APIs have exact source probe evidence. Existing
+moved evidence lines were corrected. No classification, threshold, expected
+result, or audit policy was weakened. Probe source evidence is not execution.
+PASS: git diff --check
+
+Build warning: existing duplicate application example targets remain.
+
+Probe coverage and execution status:
+- Normal Rust main entry, initial LWP identity, heap readiness, actual loader
+  bytes, owned args_os iterators, and rejected entry without state mutation.
+- Named std workers, real return values, stable Rust identity, usable stack
+  bounds, scoped borrowed writes, and one supported Wii CPU.
+- Invalid and exhausted stack requests, exactly-once failed closure disposal,
+  a successful worker after failure, and 64 detached dynamic stack releases.
+- TLS AccessError during destruction, destructor completion before join,
+  late TLS initialization during cleanup, and initial-thread destruction.
+- Raw TLS repeated passes and one final callback; explicit final cleanup followed
+  by automatic exit must not repeat callbacks. Compatibility join/detach cannot
+  consume std native ownership.
+- Deliberate real destructor-limit failure: four passes, EIO from join, one
+  recorded TLS failure, and released native slot. No allocated value is leaked
+  by the injected static-value case. Unexpected errors remain visible.
+- One retained park token, repeated unpark coalescing, cross-thread publication,
+  timeout/unpark progress races, and unpark on a retained handle after exit.
+- Main returns 42. The real exit callback checks Returned state, final cleanup,
+  main/late TLS counts, sticky return status, and expected failure counts. Only
+  complete success writes WII_STD_THREAD_PROBE_RESULT = 0. It holds the console
+  without a reset. Dolphin and Wii execution both passed with 54 checks.
+
+DOL SHA-256 (local build artifacts, not hardware results):
+3405362758b24cc0194d8b462fedc6c19f869f0d98f73b0f07f647edb5cde022  target/xtask/probes/lwp_probe.dol
+ec1b692008aa32eac089aa5a813a752197e993b0cb10456d8afdc5c3d52232e0  target/xtask/probes/wii_std_probe.dol
+beae7b1ed37d3291bdd760c77165cf0e81429293b7298717e14650b90b26cec4  target/xtask/probes/wii_std_thread_probe.dol
+
+Open work:
+Remaining real Wii validation; clocks and deadlines (C01-C04);
+verified entropy; network, files, paths, streams, process exit arbitration,
+panic diagnostics, remaining platform selectors, and application acceptance.
+The std thread probe passed on the Wii and in Dolphin. Other hardware gates
+remain open. No firmware write was run.
+
+## 2026-10-14 Dolphin thread probe result
+
+PASS: `wii_std_thread_probe.dol` completed in Dolphin with 54 passes and 0
+failures. The final page ran the real std main return callback and checked the
+committed status, final runtime cleanup, initial and late TLS destructors,
+rejected second cleanup/return, and TLS failure counters. The probe intentionally
+holds this final result on screen, so the stopped display is the expected end
+state.
+
+The first hardware attempt stopped after the joined-worker checks because the
+64 KiB LWP workspace could not hold the next pair of std default stacks. The
+workspace is now 512 KiB. The rebuilt DOL passed the full Dolphin run; real Wii
+acceptance remained open at that time. The later Wii run is recorded below. Screenshot: `hardware-evidence/wii-std-thread-dolphin-20261014.png`.
+
+DOL SHA-256: `beae7b1ed37d3291bdd760c77165cf0e81429293b7298717e14650b90b26cec4`.
+Screenshot SHA-256: `a1ab8032cb280299e0277a5228d5a17f1bed5f58f1320afcadd619e7839e6303`.
+
+## 2026-10-14 Wii thread probe result
+
+PASS: The user-provided Wii display photo shows the final std thread probe
+summary: 54 passes and 0 failures. This follows the updated USB DOL run. The
+screen confirms the compiler-generated main return callback, successful runtime
+cleanup and TLS destruction, stable return status, and no hidden TLS cleanup
+failure. The probe holds the final result on screen by design.
+
+Hardware: black Wii Family Edition, model RVL-101 (USA), motherboard
+RVK-CPU-01, as identified by the user. The user-provided photo shows the
+passing summary: `hardware-evidence/wii-std-thread-wii-family-edition-20261014.jpg`.
+DOL SHA-256: `beae7b1ed37d3291bdd760c77165cf0e81429293b7298717e14650b90b26cec4`.
+Photo SHA-256: `d1023b2271dea48f5d06f695ec55e7fceb3010abf33d52be6fa82c5099d324e4`.
+Family Edition photo SHA-256: `1dd55acc12232f1dc37dbeaa6b3764a1149aa42ef4370977eb7729ac9d6cab37`.
+
+## Additional user-reported Wii thread result — 2026-10-14
+
+The user reports that the old thread probe DOL also passed on a board marked
+RVL-CPU-20, revision 20, with a 6-layer board design. The console model is likely
+RVL-001 (Original Wii); the model identification remains uncertain. This is a
+user-reported result for the old thread DOL. It is not a run of the new allocator,
+diagnostic, synchronization, or USB service probes. No separate new DOL hash or
+photo was supplied for this additional report.
