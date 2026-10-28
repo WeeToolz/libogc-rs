@@ -1,0 +1,11 @@
+[package]
+name = "sudoku-action-tests"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[[test]]
+name = "sudoku_action"
+path = "../shared/sudoku_action.rs"
+
+[workspace]

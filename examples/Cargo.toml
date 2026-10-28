@@ -1,0 +1,91 @@
+[package]
+name = "examples"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-controller = { path = "../crates/services/ogc-controller" }
+# core
+ogc-core = { path = "../crates/core/ogc-core" }
+ogc-system = { path = "../crates/core/ogc-system" }
+
+# sys
+asnd-sys = { path = "../crates/media/asnd-sys" }
+libdb-sys = { path = "../crates/compatibility/libdb-sys" }
+lwbt-sys = { path = "../crates/compatibility/lwbt-sys" }
+lwip-sys = { path = "../crates/services/lwip-sys" }
+mad-sys = { path = "../crates/media/mad-sys" }
+mp3player-sys = { path = "../crates/media/mp3player-sys", features = ["sndlib"] }
+ogc-input-sys = { path = "../crates/services/ogc-input-sys" }
+tinysmb-sys = { path = "../crates/compatibility/tinysmb-sys" }
+tuxedo-sys = { path = "../crates/compatibility/tuxedo-sys" }
+wiikeyboard-sys = { path = "../crates/compatibility/wiikeyboard-sys" }
+wpad-sys = { path = "../crates/services/wpad-sys" }
+
+# ogc
+ogc-audio = { path = "../crates/hardware/ogc-audio" }
+ogc-aram = { path = "../crates/hardware/ogc-aram" }
+ogc-bt-sync = { path = "../crates/services/ogc-bt-sync" }
+ogc-cache = { path = "../crates/core/ogc-cache" }
+ogc-card = { path = "../crates/compatibility/ogc-card" }
+ogc-conf = { path = "../crates/core/ogc-conf" }
+ogc-di = { path = "../crates/services/ogc-di" }
+ogc-dsp = { path = "../crates/hardware/ogc-dsp" }
+ogc-dvd = { path = "../crates/compatibility/ogc-dvd" }
+ogc-es = { path = "../crates/core/ogc-es" }
+ogc-exi = { path = "../crates/hardware/ogc-exi" }
+ogc-fat = { path = "../crates/services/ogc-fat" }
+ogc-filesystem = { path = "../crates/services/ogc-filesystem" }
+ogc-gcsd = { path = "../crates/services/ogc-gcsd" }
+ogc-input = { path = "../crates/services/ogc-input" }
+ogc-ios = { path = "../crates/core/ogc-ios" }
+ogc-ipc = { path = "../crates/core/ogc-ipc" }
+ogc-irq = { path = "../crates/core/ogc-irq" }
+ogc-lwp = { path = "../crates/core/ogc-lwp" }
+ogc-network = { path = "../crates/services/ogc-network" }
+ogc-sha = { path = "../crates/core/ogc-sha" }
+ogc-si = { path = "../crates/hardware/ogc-si" }
+ogc-sysbase = { path = "../crates/core/ogc-sysbase" }
+ogc-usb = { path = "../crates/services/ogc-usb" }
+ogc-usbgecko = { path = "../crates/services/ogc-usbgecko" }
+ogc-usbstorage = { path = "../crates/services/ogc-usbstorage" }
+ogc-ui = { path = "../crates/services/ogc-ui" }
+ogc-video = { path = "../crates/hardware/ogc-video" }
+ogc-wiisd = { path = "../crates/services/ogc-wiisd" }
+ogc-system-probe = { path = "../probes/ogc-system-probe" }
+
+[features]
+default = ["wii-controllers"]
+letter-flip-hardware-probe = []
+agent-report = ["ogc-system-probe/agent-report"]
+action-trace = ["agent-report"]
+wii-controllers = []
+
+[[example]]
+name = "autoplay_2048"
+path = "autoplay_2048/autoplay_2048.rs"
+
+[[example]]
+name = "sudoku"
+path = "sudoku/sudoku.rs"
+
+[[example]]
+name = "letter-flip"
+path = "letter-flip/letter-flip.rs"
+
+[[example]]
+name = "snake-gc"
+path = "snake-gc/snake-gc.rs"
+
+[lints]
+workspace = true
+
+[[example]]
+name = "letter-flip-hardware-probe"
+path = "letter-flip/hardware_probe.rs"
+required-features = ["letter-flip-hardware-probe"]
+
+[lib]
+name = "letter_flip"
+path = "letter-flip/lib.rs"

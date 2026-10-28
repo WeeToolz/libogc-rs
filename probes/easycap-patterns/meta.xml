@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<app version="1">
+  <name>EasyCap Patterns</name>
+  <coder>Local RustWii diagnostics</coder>
+  <version>0.2</version>
+  <short_description>NTSC capture diagnostic patterns</short_description>
+  <long_description>Eight NTSC 480i pages, including binary presentation IDs and VI retrace snapshots in separate source-row parity bands. Auto cycle starts enabled. GameCube controls: A/Right next, B/Left back, Start auto cycle, X hold motion. No stored settings are changed.</long_description>
+</app>

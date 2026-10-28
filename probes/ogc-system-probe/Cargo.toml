@@ -1,0 +1,271 @@
+[package]
+name = "ogc-system-probe"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+default = []
+std-system-allocator = []
+mounted-log = []
+dolphin-automation = ["mounted-log", "pad-diagnostics", "lwbt-sys/dolphin-automation"]
+agent-report = []
+pad-diagnostics = [
+    "ogc-input-sys/diagnostics",
+    "ogc-input/diagnostics",
+    "ogc-si/diagnostics",
+]
+ui-input-probe = ["agent-report", "dep:ogc-ui", "ogc-ui/controller-input", "ogc-ui/gx-backend"]
+
+[dependencies]
+ogc-controller = { path = "../../crates/services/ogc-controller" }
+# core
+libmad-rs = { path = "../../vendor/libmad-rs" }
+ogc-core = { path = "../../crates/core/ogc-core" }
+ogc-alloc = { path = "../../crates/core/ogc-alloc" }
+
+# sys
+ogc-aes-sys = { path = "../../crates/core/ogc-aes-sys" }
+aesnd-sys = { path = "../../crates/media/aesnd-sys" }
+asnd-sys = { path = "../../crates/media/asnd-sys" }
+libdb-sys = { path = "../../crates/compatibility/libdb-sys" }
+lwbt-sys = { path = "../../crates/compatibility/lwbt-sys" }
+lwip-sys = { path = "../../crates/services/lwip-sys" }
+mad-sys = { path = "../../crates/media/mad-sys" }
+mp3player-sys = { path = "../../crates/media/mp3player-sys", features = ["sndlib"] }
+ogc-input-sys = { path = "../../crates/services/ogc-input-sys" }
+tinysmb-sys = { path = "../../crates/compatibility/tinysmb-sys" }
+tuxedo-sys = { path = "../../crates/compatibility/tuxedo-sys" }
+wiikeyboard-sys = { path = "../../crates/compatibility/wiikeyboard-sys" }
+wpad-sys = { path = "../../crates/services/wpad-sys" }
+
+# ogc
+ogc-audio = { path = "../../crates/hardware/ogc-audio" }
+ogc-aram = { path = "../../crates/hardware/ogc-aram" }
+ogc-bt-sync = { path = "../../crates/services/ogc-bt-sync" }
+ogc-cache = { path = "../../crates/core/ogc-cache" }
+ogc-card = { path = "../../crates/compatibility/ogc-card" }
+ogc-conf = { path = "../../crates/core/ogc-conf" }
+ogc-di = { path = "../../crates/services/ogc-di" }
+ogc-dsp = { path = "../../crates/hardware/ogc-dsp" }
+ogc-dvd = { path = "../../crates/compatibility/ogc-dvd" }
+ogc-es = { path = "../../crates/core/ogc-es" }
+ogc-fat = { path = "../../crates/services/ogc-fat" }
+ogc-exi = { path = "../../crates/hardware/ogc-exi" }
+ogc-filesystem = { path = "../../crates/services/ogc-filesystem" }
+ogc-gcsd = { path = "../../crates/services/ogc-gcsd" }
+ogc-gx = { path = "../../crates/hardware/ogc-gx" }
+ogc-input = { path = "../../crates/services/ogc-input" }
+ogc-ios = { path = "../../crates/core/ogc-ios" }
+ogc-ipc = { path = "../../crates/core/ogc-ipc" }
+ogc-irq = { path = "../../crates/core/ogc-irq" }
+ogc-lwp = { path = "../../crates/core/ogc-lwp" }
+modplay-capi = { path = "../../crates/abi/modplay-capi" }
+ogc-network = { path = "../../crates/services/ogc-network" }
+ogc-sha = { path = "../../crates/core/ogc-sha" }
+ogc-si = { path = "../../crates/hardware/ogc-si" }
+ogc-stm = { path = "../../crates/core/ogc-stm" }
+ogc-system = { path = "../../crates/core/ogc-system" }
+ogc-sysbase = { path = "../../crates/core/ogc-sysbase" }
+ogc-usb = { path = "../../crates/services/ogc-usb" }
+ogc-usbgecko = { path = "../../crates/services/ogc-usbgecko" }
+ogc-usbstorage-sys = { path = "../../crates/services/ogc-usbstorage-sys" }
+ogc-usbstorage = { path = "../../crates/services/ogc-usbstorage" }
+ogc-ui = { path = "../../crates/services/ogc-ui", optional = true }
+ogc-video = { path = "../../crates/hardware/ogc-video" }
+ogc-wiisd = { path = "../../crates/services/ogc-wiisd" }
+
+[[bin]]
+name = "bus_probe"
+path = "src/bus_probe/main.rs"
+
+[[bin]]
+name = "arena_probe"
+path = "src/arena_probe/main.rs"
+
+[[bin]]
+name = "callback_probe"
+path = "src/callback_probe/main.rs"
+
+[[bin]]
+name = "general_probe"
+path = "src/general_probe/main.rs"
+
+[[bin]]
+name = "input_probe"
+path = "src/input_probe/main.rs"
+
+[[bin]]
+name = "ui_input_probe"
+path = "src/ui_input_probe/main.rs"
+required-features = ["ui-input-probe"]
+
+[[bin]]
+name = "bt-sync-menu"
+path = "src/bt-sync-menu/main.rs"
+
+[[bin]]
+name = "keyboard_probe"
+path = "src/keyboard_probe/main.rs"
+
+[[bin]]
+name = "font_probe"
+path = "src/font_probe/main.rs"
+
+[[bin]]
+name = "network_probe"
+path = "src/network_probe/main.rs"
+
+[[bin]]
+name = "debugger_probe"
+path = "src/debugger_probe/main.rs"
+
+[[bin]]
+name = "runtime_probe"
+path = "src/runtime_probe/main.rs"
+
+[[bin]]
+name = "sram_probe"
+path = "src/sram_probe/main.rs"
+
+[[bin]]
+name = "sound_probe"
+path = "src/sound_probe/main.rs"
+
+[[bin]]
+name = "startup_probe"
+path = "src/startup_probe/main.rs"
+
+[[bin]]
+name = "storage_probe"
+path = "src/storage_probe/main.rs"
+
+[[bin]]
+name = "video_probe"
+path = "src/video_probe/main.rs"
+
+[[bin]]
+name = "wpad_probe"
+path = "src/wpad_probe/main.rs"
+
+[[bin]]
+name = "wii_remote_stability_probe"
+path = "src/wii_remote_stability_probe/main.rs"
+
+[[bin]]
+name = "report_smoke_probe"
+path = "src/report_smoke_probe/main.rs"
+
+[[bin]]
+name = "hid_probe"
+path = "src/hid_probe/main.rs"
+
+[[bin]]
+name = "ipc_async_probe"
+path = "src/ipc_async_probe/main.rs"
+
+[[bin]]
+name = "pad_state_probe"
+path = "src/pad_state_probe/main.rs"
+required-features = ["pad-diagnostics", "mounted-log"]
+
+[[bin]]
+name = "pad_command_spec0"
+path = "src/pad_command_spec0/main.rs"
+required-features = ["pad-diagnostics", "mounted-log"]
+
+[[bin]]
+name = "pad_command_spec1"
+path = "src/pad_command_spec1/main.rs"
+required-features = ["pad-diagnostics", "mounted-log"]
+
+[[bin]]
+name = "pad_command_spec2"
+path = "src/pad_command_spec2/main.rs"
+required-features = ["pad-diagnostics", "mounted-log"]
+
+[[bin]]
+name = "pad_command_spec4"
+path = "src/pad_command_spec4/main.rs"
+required-features = ["pad-diagnostics", "mounted-log"]
+
+[[bin]]
+name = "pad_command_spec5"
+path = "src/pad_command_spec5/main.rs"
+required-features = ["pad-diagnostics", "mounted-log"]
+
+[[bin]]
+name = "pad_wired_probe"
+path = "src/pad_wired_probe/main.rs"
+required-features = ["pad-diagnostics", "mounted-log"]
+
+[[bin]]
+name = "pad_wavebird_probe"
+path = "src/pad_wavebird_probe/main.rs"
+required-features = ["pad-diagnostics", "mounted-log"]
+
+[[bin]]
+name = "pad_stress_probe"
+path = "src/pad_stress_probe/main.rs"
+required-features = ["pad-diagnostics", "mounted-log"]
+
+[[bin]]
+name = "pad_reset_probe"
+path = "src/pad_reset_probe/main.rs"
+required-features = ["pad-diagnostics", "mounted-log"]
+
+[[bin]]
+name = "bluetooth_probe"
+path = "src/bluetooth_probe/main.rs"
+
+[[bin]]
+name = "libmad_probe"
+path = "src/libmad_probe/main.rs"
+
+[[bin]]
+name = "libmad_rs_decode_probe"
+path = "src/libmad_rs_decode_probe/main.rs"
+
+[[bin]]
+name = "mad_decode_probe"
+path = "src/mad_decode_probe/main.rs"
+
+[[bin]]
+name = "modplay_probe"
+path = "src/modplay_probe/main.rs"
+
+[[bin]]
+name = "usbstorage_capacity_probe"
+path = "src/usbstorage_capacity_probe/main.rs"
+
+[[bin]]
+name = "hid_descriptor_probe"
+path = "src/hid_descriptor_probe/main.rs"
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "aesnd_native_probe"
+path = "src/aesnd_native_probe/main.rs"
+
+[[bin]]
+name = "usbstorage_transport_probe"
+path = "src/usbstorage_transport_probe/main.rs"
+
+[[bin]]
+name = "reset_to_menu_probe"
+path = "src/reset_to_menu_probe/main.rs"
+required-features = ["agent-report"]
+
+[[bin]]
+name = "hbc_return_probe"
+path = "src/hbc_return_probe/main.rs"
+
+[[bin]]
+name = "dev_wrapper_probe"
+path = "src/dev_wrapper_probe/main.rs"
+
+[[bin]]
+name = "usb_volumes_probe"
+path = "src/usb_volumes_probe/main.rs"
