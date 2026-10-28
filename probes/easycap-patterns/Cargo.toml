@@ -1,0 +1,20 @@
+[package]
+name = "easycap-patterns"
+version = "0.2.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dependencies]
+ogc-ui = { path = "../../crates/services/ogc-ui" }
+
+[target.'cfg(target_arch = "powerpc")'.dependencies]
+ogc-core = { path = "../../crates/core/ogc-core" }
+ogc-system = { path = "../../crates/core/ogc-system" }
+ogc-video = { path = "../../crates/hardware/ogc-video" }
+ogc-input = { path = "../../crates/services/ogc-input" }
+ogc-system-probe = { path = "../ogc-system-probe" }
+
+[profile.release]
+panic = "abort"

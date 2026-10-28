@@ -1,0 +1,4 @@
+source,target,reason,owner,remove_by
+ogc-gx,ogc-system,The GX compatibility API reads arena bounds and Hollywood revision through the system wrapper.,gx-compatibility,review-gx-layer-boundary
+ogc-ios-sys,ogc-stm,IOS lifecycle owns the ordered STM initialization and shutdown required by the C-compatible IOS API.,ios-lifecycle,review-ios-stm-ownership
+ogc-video-sys,ogc-conf,Video mode selection reads persisted console video and cable settings during initialization.,video-mode-selection,review-video-config-boundary

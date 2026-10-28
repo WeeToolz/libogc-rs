@@ -1,0 +1,13 @@
+[package]
+name = "input-event-line-tests"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[lib]
+path = "../ogc-system-probe/src/event_line.rs"
+
+[dependencies]
+ogc-controller = { path = "../../crates/services/ogc-controller" }
+
+[workspace]

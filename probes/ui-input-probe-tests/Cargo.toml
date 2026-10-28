@@ -1,0 +1,17 @@
+[package]
+name = "ui-input-probe-tests"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+ogc-controller = { path = "../../crates/services/ogc-controller" }
+ogc-ui = { path = "../../crates/services/ogc-ui", features = ["controller-input"] }
+
+[dev-dependencies]
+serde_json = "1"
+
+[workspace]

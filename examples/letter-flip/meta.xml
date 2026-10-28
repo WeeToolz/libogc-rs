@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<app version="1">
+  <name>Letter Flip</name>
+  <coder>RustWii</coder>
+  <version>0.2.0</version>
+  <release_date>20261013000000</release_date>
+  <short_description>Recognize normal and mirrored symbols</short_description>
+  <long_description>Letter Flip helps children learn normal and mirrored letters and digits. Practice uses a set card count without losing chances. Challenge uses a chance limit set in Settings. Choose all letters, uppercase, lowercase, or numbers. Jamie's voice reads symbols, menus, settings, help, and gentle feedback. Use a GameCube controller in port 1, or a Wii Remote upright with A/B or sideways with 2/1. Pause, repeat voice, sound, screen flashes, and memory-card save options are available.</long_description>
+</app>
