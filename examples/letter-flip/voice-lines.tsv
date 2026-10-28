@@ -1,0 +1,140 @@
+# Jamie (Premium). Shared MP3 names and spoken text. Letter names use British English.
+# Edit text, then run generate_voice.py. Do not add tabs or line breaks inside text.
+name	text
+a	Ay.
+b	Bee.
+c	See.
+d	Dee.
+e	Ee.
+f	Eff.
+g	Gee.
+h	Aitch.
+i	Eye.
+j	Jay.
+k	Kay.
+l	El.
+m	Em.
+n	En.
+o	Oh.
+p	Pee.
+q	Cue.
+r	Ar.
+s	Ess.
+t	Tee.
+u	You.
+v	Vee.
+w	Double you.
+x	Ex.
+y	Why.
+z	Zed.
+zero	Zero.
+one	One.
+two	Two.
+three	Three.
+four	Four.
+five	Five.
+six	Six.
+seven	Seven.
+eight	Eight.
+nine	Nine.
+welcome	Letter Flip. Look, listen, and learn. Choose Play, How to Play, or Settings.
+play	Play.
+how_to_play	How to play.
+settings	Settings.
+help	Choose normal or backwards. Practice has no chance limit. Challenge uses your chance limit. After a mistake, see the answer. O, zero, and eight look the same in a mirror. These shapes are always normal. Set games, sound, and controls together in Settings.
+controls_gc	Press A for normal. Press B for backwards. Press Start to pause. Press Z to hear the voice again.
+controls_upright	Hold the Wii Remote upright. Press A for normal. Press B for backwards. Press Plus to pause. Press Minus to hear the voice again.
+controls_sideways	Hold the Wii Remote sideways, with the direction pad on the left. Press Two for normal. Press One for backwards. Press Plus to pause. Press Minus to hear the voice again.
+good_job	Good job!
+well_done	Well done!
+continue	Keep going. You are learning!
+great_try	Great try!
+normal_answer	Let us look together. This card is normal. You can learn with each try.
+backwards_answer	Let us look together. This card is backwards. You can learn with each try.
+round_complete	Round complete. Thank you for trying! Choose Play Again to try another round, or Menu to return.
+pause	Take a break. Your round is waiting.
+resume	Resume.
+restart	Restart the round.
+change_controller	Change controller. Select with the controller you want to use.
+menu	Return to the menu.
+symbols	Symbols.
+all_letters	All letters.
+uppercase	Uppercase letters.
+lowercase	Lowercase letters.
+numbers	Numbers.
+mode	Game mode.
+practice	Practice. You can learn without losing chances.
+challenge	Challenge.
+chance_limit	Chance limit. This is for Challenge. Practice does not lose chances.
+practice_cards	Practice cards. Practice ends after this many cards.
+symbol_pool	Symbol pool.
+all_shapes	All shapes.
+mirror_shapes	Mirror shapes. Only shapes with a visible mirror.
+review_time	Review time. Time to look at the answer before the next card.
+voice	Voice.
+voice_volume	Voice volume.
+effects	Sound effects.
+effects_volume	Sound effect volume.
+flashes	Screen flash.
+on	On.
+off	Off.
+percent	percent.
+remote	Wii Remote controls.
+upright	Upright. A for normal, B for backwards.
+sideways	Sideways. Two for normal, One for backwards.
+preview	Preview sound. Good job! You can learn with each try.
+retry_save	Retry save. Insert a memory card, then select to try again.
+back	Back.
+saving	Saving. Keep the memory card inserted.
+saved	Settings and scores saved.
+save_failed	The save failed. Your settings and scores are still here for this session. Use Retry Save in Settings.
+no_card	No memory card. Your settings and scores are for this session.
+save_recovered	A saved record was recovered. A damaged file was preserved. Saving is blocked.
+connect_controller	Connect a controller. Your round will wait.
+value_0	Zero.
+value_1	One.
+value_2	Two.
+value_3	Three.
+value_4	Four.
+value_5	Five.
+value_6	Six.
+value_7	Seven.
+value_8	Eight.
+value_9	Nine.
+value_10	Ten.
+value_11	Eleven.
+value_12	Twelve.
+value_13	Thirteen.
+value_14	Fourteen.
+value_15	Fifteen.
+value_16	Sixteen.
+value_17	Seventeen.
+value_18	Eighteen.
+value_19	Nineteen.
+value_20	Twenty.
+value_25	Twenty five.
+value_30	Thirty.
+value_35	Thirty five.
+value_40	Forty.
+value_45	Forty five.
+value_50	Fifty.
+value_55	Fifty five.
+value_60	Sixty.
+value_65	Sixty five.
+value_70	Seventy.
+value_75	Seventy five.
+value_80	Eighty.
+value_85	Eighty five.
+value_90	Ninety.
+value_95	Ninety five.
+value_100	One hundred.
+review_500	Half a second.
+review_1000	One second.
+review_1500	One and a half seconds.
+review_2000	Two seconds.
+review_2500	Two and a half seconds.
+review_3000	Three seconds.
+review_3500	Three and a half seconds.
+review_4000	Four seconds.
+review_4500	Four and a half seconds.
+review_5000	Five seconds.

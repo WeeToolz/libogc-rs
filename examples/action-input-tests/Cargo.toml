@@ -1,0 +1,16 @@
+[package]
+name = "action-input-tests"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[features]
+wii-controllers = []
+
+[lib]
+path = "lib.rs"
+
+[dependencies]
+ogc-controller = { path = "../../crates/services/ogc-controller" }
+
+[workspace]

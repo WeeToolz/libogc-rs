@@ -1,0 +1,114 @@
+crate,path,symbol,classification,probe,limitations
+ogc-lwp-driver,*,*,scheduler,lwp-probe,Authoritative cooperative priority scheduler; hardware validation is required before declaring Milestone 1 accepted
+ogc-lwp-sys,*,*,compatibility-forwarder,lwp-probe,Thin ABI facade over ogc-lwp-driver
+ogc-lwp,*,*,compatibility-forwarder,lwp-probe,Safe handles delegate to ogc-lwp-sys and ogc-lwp-driver
+ogc-ipc,src/ioctl_buffers.rs,*,pure,lwp-probe,Borrowed buffer constructors and accessors encode caller pointers and lengths without IOS side effects
+ogc-ipc,src/dma_buffer.rs,*,pure,lwp-probe,Cache-line staging decisions and rounded lengths are pure checked calculations
+lwip-sys,src/ios_socket_flags.rs,option_to_ios,pure,network-probe,Maps the public TCP option number to the IOS ABI value without performing I/O
+tuxedo-sys,*,*,compatibility-forwarder,lwp-probe,Tuxedo ABI delegates thread synchronization queue and timer behavior to LWP
+ogc-dvd-sys,*,*,compatibility-forwarder,dvd-probe,Queued Wii /dev/di implementation; streaming stop maps to the verified transport operation and requires hardware validation
+ogc-dvd,*,*,compatibility-forwarder,dvd-probe,Safe facade delegates to the queued /dev/di compatibility implementation
+ogc-gx,src/lib.rs,end,pure,system-probe,Compiler-ordering marker for the GX primitive boundary; vertex writes emit the hardware commands
+ogc-card-sys,*,*,hardware,card-probe,EXI-backed CARD implementation with queued asynchronous operations detach invalidation and shutdown; real-Wii validation pending
+ogc-usbstorage-sys,*,*,hardware,storage-probe,USB BOT/SCSI implementation includes cache flush device identity removal detection and teardown
+ogc-usbstorage-sys,src/lib.rs,flush_drive,hardware,storage-probe,Calls the production slot-specific cache flush backend; usb_volumes_probe checks the result. Physical two-drive acceptance remains pending.
+ogc-usbstorage,*,*,compatibility-forwarder,storage-probe,Safe facade delegates to the USB BOT/SCSI implementation including flush and teardown
+ogc-fat,*,*,protocol,fat-probe,FAT32/devoptab mount service for Wii SD and USB with removal generations stale-handle rejection flush and shutdown
+lwbt-sys,*,*,unimplemented,bluetooth-probe,Legacy Bluetooth facade still requires forwarding through the shared Bluetooth service
+lwbt-sys,src/lib.rs,dolphin_disconnect_response_order_probe,pure,bluetooth-probe,Deterministic diagnostic for the production-shared disconnect-response state transition; not hardware acceptance evidence
+lwbt-sys,src/lib.rs,init,ios,bluetooth-probe,Opens and resets the shared /dev/usb/oh0 Bluetooth transport; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,try_init,ios,bluetooth-probe,Opens and resets the shared /dev/usb/oh0 Bluetooth transport and returns the backend status
+lwbt-sys,src/lib.rs,init_core,ios,bluetooth-probe,Initializes the shared Bluetooth transport and reports the IOS result through the legacy callback
+lwbt-sys,src/lib.rs,init_sub,ios,bluetooth-probe,Initializes the shared Bluetooth transport and reports the IOS result through the legacy callback
+lwbt-sys,src/lib.rs,apply_patch,hardware,bluetooth-probe,Uploads the Wii Bluetooth controller patch through the vendor HCI command sequence and reports command failures
+lwbt-sys,src/lib.rs,shutdown,ios,bluetooth-probe,Closes the shared Bluetooth transport idempotently; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,try_shutdown,ios,bluetooth-probe,Closes the shared Bluetooth transport and returns the backend status
+lwbt-sys,src/lib.rs,last_status,pure,bluetooth-probe,Reports the result of the most recent Bluetooth initialization or shutdown operation
+lwbt-sys,src/lib.rs,close,compatibility-forwarder,bluetooth-probe,Forwards close to the shared Bluetooth shutdown path; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,read_stored_link_key,ios,bluetooth-probe,Reads persisted link keys from the SYSCONF guest-device database; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,read_bd_addr,ios,bluetooth-probe,Reads the controller address through HCI; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,read_remote_name,ios,bluetooth-probe,Requests and parses the remote name through HCI; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,inquiry,ios,bluetooth-probe,Runs HCI inquiry and propagates transport/event errors; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,periodic_inquiry,ios,bluetooth-probe,Starts HCI inquiry and tracks temporary pairing mode; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,exit_periodic_inquiry,ios,bluetooth-probe,Cancels HCI inquiry and restores normal pairing mode; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,link_key_request_reply,ios,bluetooth-probe,Persists and replies with the requested link key; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,link_key_request_negative_reply,ios,bluetooth-probe,Forwards a negative HCI link-key response; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,get_pair_mode,pure,bluetooth-probe,Reports the shared pairing-mode state
+lwbt-sys,src/lib.rs,write_stored_link_key,ios,bluetooth-probe,Atomically updates the SYSCONF guest-device link-key database; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,clear_stored_link_keys,ios,bluetooth-probe,Clears the SYSCONF guest-device link-key database; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,delete_stored_link_key,ios,bluetooth-probe,Deletes one SYSCONF guest-device link key; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,new,hardware,bluetooth-probe,Allocates a bounded HID PCB compatible with the shared Bluetooth transport
+lwbt-sys,src/lib.rs,free,hardware,bluetooth-probe,Releases a HID PCB and clears its transport state
+lwbt-sys,src/lib.rs,arg,hardware,bluetooth-probe,Stores the caller context on a live HID PCB
+lwbt-sys,src/lib.rs,received,hardware,bluetooth-probe,Registers the HID input callback on a live PCB
+lwbt-sys,src/lib.rs,disconnected,hardware,bluetooth-probe,Registers the HID disconnect callback on a live PCB
+lwbt-sys,src/lib.rs,connectasync,hardware,bluetooth-probe,Starts a real HCI connection and L2CAP HID channel setup; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,connectasync_step2,hardware,bluetooth-probe,Completes HCI event handling and L2CAP HID configuration; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,disconnect,hardware,bluetooth-probe,Sends HCI disconnect for the live PCB and clears its state; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,senddata,hardware,bluetooth-probe,Sends HIDP output data over the configured L2CAP interrupt channel; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,sendmessage,compatibility-forwarder,bluetooth-probe,Forwards message transmission to senddata; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,sendmessageasync,hardware,bluetooth-probe,Sends HIDP output data and invokes the completion callback; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,listenasync,hardware,bluetooth-probe,Enables controller page scan through HCI and records a listening HID PCB; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,listenasync_step2,hardware,bluetooth-probe,Accepts an HCI connection request and completes incoming HID L2CAP setup; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,set_connection_request_callback,hardware,bluetooth-probe,Invokes the registered callback for parsed HCI connection requests; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,set_disconnect_callback,hardware,bluetooth-probe,Invokes the registered callback for HCI disconnection events; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,set_link_key_request_callback,hardware,bluetooth-probe,Invokes the registered callback for HCI link-key requests; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,set_link_key_notification_callback,hardware,bluetooth-probe,Invokes the registered callback after persisting HCI link-key notifications; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,set_evt_filter,hardware,bluetooth-probe,Programs the HCI event filter with the libogc condition lengths; hardware acceptance remains pending
+lwbt-sys,src/lib.rs,set_host_sync_button_callback,hardware,bluetooth-probe,Delivers vendor begin/clear-pairing events to the registered host-sync callback; hardware acceptance remains pending
+libdb-sys,*,*,compatibility-forwarder,debugger-probe,USB delegates to ogc-usbgecko and TCP delegates to ogc-network; hardware acceptance remains pending
+ogc-usbgecko,*,*,hardware,debugger-probe,EXI-backed Gecko transfers and flash operations report lock/timeout/verification failures; hardware acceptance remains pending
+asnd-sys,*,*,hardware,audio-probe,PCM voices are mixed into aligned DMA buffers with pitch/volume/looping/callbacks/timing metrics; hardware acceptance remains pending
+wpad-sys,src/lib.rs,control_speaker,hardware,wpad-probe,Transmits the complete speaker command/configuration sequence; hardware acceptance remains pending
+wpad-sys,src/lib.rs,set_motion_plus,hardware,wpad-probe,Activates or disables MotionPlus and refreshes extension reporting; hardware acceptance remains pending
+wpad-sys,src/lib.rs,wipe_saved_controllers,ios,wpad-probe,Atomically clears the SYSCONF controller and guest-device records; hardware acceptance remains pending
+wpad-sys,src/lib.rs,encode_data,pure,wpad-probe,Target ADPCM stream encoding with persistent continuation state; hardware acceptance remains pending
+wpad-sys,src/lib.rs,set_idle_timeout,scheduler,wpad-probe,Uses the LWP timer service to enforce controller idle disconnects; hardware acceptance remains pending
+wpad-sys,src/lib.rs,set_idle_thresholds,scheduler,wpad-probe,Filters button/IR/acceleration/joystick/board/MotionPlus activity before restarting the idle timer; hardware acceptance remains pending
+ogc-system-sys,src/lib.rs,sys_init_font,hardware,font-probe,Loads and validates the platform font source and decodes aligned glyph storage; hardware acceptance remains pending
+ogc-system-sys,src/lib.rs,sys_get_font_texture,hardware,font-probe,Returns decoded glyph-sheet coordinates and width metrics; hardware acceptance remains pending
+ogc-system-sys,src/lib.rs,sys_get_font_texel,hardware,font-probe,Decodes bounded glyph texels into caller storage; hardware acceptance remains pending
+ogc-network-sys,src/lib.rs,net_wc24cleanup,ios,network-probe,Idempotently clears the WC24 cleanup descriptor and buffer through IOS; hardware acceptance remains pending
+wiikeyboard-sys,src/lib.rs,init,hardware,keyboard-probe,Registers the keypress callback and initializes report translation; hardware acceptance remains pending
+wiikeyboard-sys,src/lib.rs,get_event,hardware,keyboard-probe,Returns translated HID events from the bounded runtime event ring; hardware acceptance remains pending
+wiikeyboard-sys,src/lib.rs,scan,hardware,keyboard-probe,Reads USB interrupt reports and emits translated press/release events; hardware acceptance remains pending
+tinysmb-sys,*,*,protocol,smb-probe,Real SMB1 and NTLMv1 implementation only; SMB2 signing and NTLMv2 are absent
+ogc-usbstorage-sys,src/startup.rs,probe_status,pure,storage-probe,Diagnostic state snapshot only; shared host tests verify backend-result publication. It does not verify USB hardware presence or I/O.
+ogc-video-sys,src/retrace_wait.rs,sleep_if_unchanged,protocol,system-probe,"Backend-independent critical-section and queue-entry ordering engine; host tests verify sequencing and errors. The production VI interrupt and scheduler backends still require Wii validation."
+ogc-bt-sync,src/switch.rs,*,protocol,bluetooth-probe,Shared packet and calibration parsers plus transport-independent setup state machine; host fixtures verify protocol bytes and transitions only. USB and Bluetooth transport acceptance still requires real Wii evidence.
+ogc-fat,src/file_transfer.rs,*,pure,wii-std-fs-probe,Shared sector transfer accounting and flush state engine used by production FAT; host tests inject operation failures and hardware acceptance remains open
+ogc-std-runtime,src/fs_abi.rs,*,pure,wii-std-fs-probe,Shared Newlib flag conversion and mounted path and seek validation; no hardware fallback
+ogc-std-runtime,src/fs.rs,__wii_std_fs,compatibility-forwarder,wii-std-fs-probe,Typed FAT provider for absolute mounted paths; real std file probe builds but hardware acceptance remains open
+ogc-fat,src/lib.rs,open_with_flags,protocol,wii-std-fs-probe,Exact Newlib open flags on the production FAT service; Wii acceptance remains open
+ogc-fat,src/lib.rs,position,protocol,wii-std-fs-probe,Production open-file cursor shared by std clones; Wii acceptance remains open
+ogc-fat,src/lib.rs,seek_checked,protocol,wii-std-fs-probe,Check the live production mount before changing the file cursor; Wii acceptance remains open
+ogc-fat,src/lib.rs,metadata,protocol,wii-std-fs-probe,Read current FAT attributes and open-file size; a separate method reads stored timestamps
+ogc-fat,src/lib.rs,flush,protocol,wii-std-fs-probe,Checked production file metadata and transport flush even for clean metadata; Wii acceptance remains open
+ogc-fat,src/lib.rs,close,protocol,wii-std-fs-probe,Consume the production file and report flush failure before releasing the mount reference
+ogc-fat,src/lib.rs,file_close_failures,protocol,wii-std-fs-probe,Count actual failed file cleanup operations; failure injection and hardware cleanup acceptance remain open
+ogc-fat,src/lib.rs,last_file_close_errno,protocol,wii-std-fs-probe,Expose the real Newlib code recorded for a failed file cleanup operation
+ogc-fat,src/fat_error.rs,fat_errno,protocol,wii-std-fs-probe,Translate typed FAT failures into the separate Newlib errno code space
+ogc-fat,src/lib.rs,stat,protocol,wii-std-fs-probe,Return live open-file length before flush and persisted length after close; Wii acceptance remains open
+ogc-std-runtime,src/stdio.rs,__wii_std_output,hardware,wii-std-services-probe,Checked allocation-free output to the production video console; missing sink and invalid inputs return errors; Wii panic acceptance remains open
+ogc-sysbase,src/device_io.rs,device_close_failures,pure,wii-std-error-cleanup-probe,Allocation-free error translation or diagnostic state; hardware transport acceptance remains separate
+ogc-sysbase,src/device_io.rs,last_device_close_errno,pure,wii-std-error-cleanup-probe,Allocation-free error translation or diagnostic state; hardware transport acceptance remains separate
+ogc-network-sys,src/ipc_cleanup.rs,initialization_close_failures,pure,wii-std-error-cleanup-probe,Allocation-free error translation or diagnostic state; hardware transport acceptance remains separate
+ogc-network-sys,src/ipc_cleanup.rs,last_initialization_close_error,pure,wii-std-error-cleanup-probe,Allocation-free error translation or diagnostic state; hardware transport acceptance remains separate
+ogc-network-sys,src/socket_error.rs,reply,protocol,wii-std-error-cleanup-probe,Allocation-free error translation or diagnostic state; hardware transport acceptance remains separate
+ogc-network-sys,src/socket_error.rs,encoded,protocol,wii-std-error-cleanup-probe,Allocation-free error translation or diagnostic state; hardware transport acceptance remains separate
+ogc-network-sys,src/socket_error.rs,decode,protocol,wii-std-error-cleanup-probe,Allocation-free error translation or diagnostic state; hardware transport acceptance remains separate
+ogc-network-sys,src/socket_error.rs,errno,protocol,wii-std-error-cleanup-probe,Allocation-free error translation or diagnostic state; hardware transport acceptance remains separate
+ogc-fat,src/rename_transaction.rs,*,pure,wii-std-fs-probe,Shared production FAT engine with independent host expected values and operation-boundary failure tests; real media acceptance remains open
+ogc-fat,src/timestamps.rs,*,pure,wii-std-fs-probe,Shared production FAT engine with independent host expected values and operation-boundary failure tests; real media acceptance remains open
+ogc-bt-sync,src/hid_host.rs,has_event_capacity,pure,bluetooth-probe,Checks whether the transport should accept another input frame before backpressure
+ogc-bt-sync,src/hid_host.rs,has_link,protocol,bluetooth-probe,Tests observe a live link through accepted disconnect and adapter completion; Wii runtime behavior remains open
+ogc-bt-sync,src/wii_host.rs,has_link,protocol,bluetooth-probe,Exposes the production adapter link state to WPAD disconnect completion; Wii runtime behavior remains open
+ogc-usbstorage-sys,src/lib.rs,last_deinitialize_status,pure,storage-probe,Returns the last C deinitialization result through the tested shared atomic status handoff; does not perform USB I/O
+ogc-bt-sync,src/hid_host.rs,search_wii_guest,protocol,bluetooth-probe,Queues Wii Remote disconnects before guest inquiry in the production HCI state machine; device responses remain hardware behavior
+ogc-bt-sync,src/hid_host.rs,wii_remote_link_mask,protocol,bluetooth-probe,Reports live Wii Remote link slots from shared HCI state without performing IOS operations
+ogc-bt-sync,src/wii_host.rs,search_wii_guest,protocol,bluetooth-probe,Forwards guest-search commands to the tested shared HCI state machine; adapter I/O remains unverified
+ogc-bt-sync,src/wii_host.rs,wii_remote_link_mask,protocol,bluetooth-probe,Forwards active Wii Remote slot state from the shared HCI engine
+ogc-bt-sync,src/hid_host.rs,load_guest_link_key,protocol,bluetooth-probe,Stores a guest key in the shared in-memory HCI cache; WPAD SYSCONF lifecycle is separate
+ogc-bt-sync,src/hid_host.rs,clear_guest_link_keys,protocol,bluetooth-probe,Removes guest-origin keys from the shared in-memory cache while retaining registered keys
+ogc-bt-sync,src/wii_host.rs,load_guest_link_key,protocol,bluetooth-probe,Forwards guest-key loading to the shared in-memory HCI cache; adapter behavior remains separate
+ogc-bt-sync,src/wii_host.rs,clear_guest_link_keys,protocol,bluetooth-probe,Forwards volatile guest-key clearing to the shared HCI cache

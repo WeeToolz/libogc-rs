@@ -1,0 +1,19 @@
+[package]
+name = "xtask"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+gc-elf = { path = "../crates/tools/gc-elf" }
+libc = "0.2"
+modplay-capi = { path = "../crates/abi/modplay-capi" }
+proc-macro2 = { version = "1.0", features = ["span-locations"] }
+png = "0.17"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+syn = { version = "2.0", features = ["full", "visit"] }
+
+[lints]
+workspace = true

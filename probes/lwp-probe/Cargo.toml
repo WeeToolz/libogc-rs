@@ -1,0 +1,84 @@
+[package]
+name = "lwp-probe"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+agent-report = ["ogc-system-probe/agent-report"]
+wii-std-sync = [
+    "ogc-std-runtime/std",
+    "ogc-system-probe/std-system-allocator",
+]
+
+[dependencies]
+ogc-network = { path = "../../crates/services/ogc-network" }
+ogc-ios = { path = "../../crates/core/ogc-ios" }
+ogc-usbstorage-sys = { path = "../../crates/services/ogc-usbstorage-sys" }
+ogc-conf = { path = "../../crates/core/ogc-conf" }
+ogc-system-sys = { path = "../../crates/core/ogc-system-sys" }
+ogc-usb = { path = "../../crates/services/ogc-usb" }
+ogc-fat = { path = "../../crates/services/ogc-fat" }
+ogc-sys = { path = "../../crates/abi/ogc-sys" }
+ogc-alloc = { path = "../../crates/core/ogc-alloc" }
+ogc-sysbase = { path = "../../crates/core/ogc-sysbase" }
+ogc-std-runtime = { path = "../../crates/services/ogc-std-runtime" }
+ogc-video = { path = "../../crates/hardware/ogc-video" }
+ogc-ipc = { path = "../../crates/core/ogc-ipc" }
+ogc-lwp = { path = "../../crates/core/ogc-lwp" }
+ogc-lwp-driver = { path = "../../crates/core/ogc-lwp-driver" }
+ogc-system = { path = "../../crates/core/ogc-system" }
+ogc-system-probe = { path = "../ogc-system-probe" }
+tuxedo-sys = { path = "../../crates/compatibility/tuxedo-sys" }
+
+[[bin]]
+name = "lwp_probe"
+path = "src/main.rs"
+
+[[bin]]
+name = "wii_std_thread_probe"
+path = "src/std_thread_entry.rs"
+required-features = ["wii-std-sync"]
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "wii_std_clock_probe"
+path = "src/std_clock_entry.rs"
+required-features = ["wii-std-sync"]
+
+[[bin]]
+name = "wii_std_network_probe"
+path = "src/std_network_entry.rs"
+required-features = ["wii-std-sync"]
+
+[[bin]]
+name = "wii_std_fs_probe"
+path = "src/std_fs_entry.rs"
+required-features = ["wii-std-sync"]
+
+[[bin]]
+name = "wii_std_services_probe"
+path = "src/std_services_entry.rs"
+required-features = ["wii-std-sync"]
+
+[[bin]]
+name = "wii_std_panic_probe"
+path = "src/std_panic_entry.rs"
+required-features = ["wii-std-sync"]
+
+[[bin]]
+name = "wii_std_usb_probe"
+path = "src/std_usb_entry.rs"
+required-features = ["wii-std-sync"]
+
+[[bin]]
+name = "wii_std_error_cleanup_probe"
+path = "src/std_error_entry.rs"
+required-features = ["wii-std-sync"]
+
+[[bin]]
+name = "wii_std_readiness_probe"
+path = "src/std_readiness_entry.rs"
+required-features = ["wii-std-sync"]
