@@ -1086,3 +1086,7 @@ ogc-ui,src/canvas.rs,contains,49,pure,host-test,crates/services/ogc-ui/src/canva
 ogc-ui,src/canvas.rs,new,40,pure,host-test,crates/services/ogc-ui/src/canvas.rs,rectangle_contains_uses_exclusive_edges_without_overflow
 ogc-ui,src/canvas.rs,rgb,12,pure,host-test,crates/services/ogc-ui/src/canvas.rs,color_constructors_preserve_channels_and_alpha
 ogc-ui,src/canvas.rs,rgba,21,pure,host-test,crates/services/ogc-ui/src/canvas.rs,color_constructors_preserve_channels_and_alpha
+ogc-ui,src/wpad.rs,new,17,pure,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ui_adapters
+ogc-ui,src/pad.rs,reset,46,pure,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ui_adapters
+ogc-ui,src/pad.rs,update,17,pure,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ui_adapters
+ogc-ui,src/wpad.rs,update,29,pure,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ui_adapters

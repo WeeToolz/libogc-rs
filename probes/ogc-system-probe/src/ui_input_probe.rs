@@ -165,6 +165,18 @@ pub fn monitor(logger: &mut ProbeLogger) -> i32 {
         }
     };
 
+    // GX is initialized above. Invalid sizes must be rejected before any FIFO work.
+    let invalid_sizes = unsafe {
+        GxCanvas::new(0, height).is_err()
+            && GxCanvas::new(width, 0).is_err()
+            && GxCanvas::new(1025, height).is_err()
+            && GxCanvas::new(width, 1025).is_err()
+    };
+    logger.record(
+        "GX canvas dimensions and validation",
+        invalid_sizes && canvas.size() == (width, height),
+    );
+
     let Some(input_config) = ControllerInputConfig::new(frame_rate_hz as u16) else {
         report_display_incomplete(
             logger,

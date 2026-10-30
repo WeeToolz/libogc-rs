@@ -5,7 +5,7 @@ edition.workspace = true
 license.workspace = true
 
 [features]
-default = []
+default = ["dep:ogc-ui", "ogc-ui/pad-input", "ogc-ui/wpad-input", "ogc-ui/gx-backend"]
 std-system-allocator = []
 mounted-log = []
 dolphin-automation = ["mounted-log", "pad-diagnostics", "lwbt-sys/dolphin-automation"]
