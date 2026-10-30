@@ -14,12 +14,62 @@ struct Align16([u8; 16]);
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("RUNTIME PROBE");
 
+    probe_ui_adapters(logger);
     probe_system(logger);
     probe_ios_stm(logger);
     probe_conf(logger);
     probe_es(logger);
     probe_crypto(logger);
     probe_iso9660(logger);
+}
+
+fn probe_ui_adapters(logger: &mut ProbeLogger) {
+    use ogc_ui::{Direction, PadInputAdapter, UiInput, WpadInputAdapter};
+    logger.section("UI INPUT ADAPTERS");
+    let mut adapter = PadInputAdapter::default();
+    let mut pad = ogc_input::PadStatus {
+        button: ogc_input::PAD_BUTTON_A | ogc_input::PAD_BUTTON_UP,
+        ..Default::default()
+    };
+    let first = adapter.update(&pad);
+    let held = adapter.update(&pad);
+    adapter.reset();
+    let reset = adapter.update(&pad);
+    pad.err = -1;
+    let disconnected = adapter.update(&pad);
+    pad.err = ogc_input::PAD_ERR_NONE as i8;
+    let reconnected = adapter.update(&pad);
+    logger.record(
+        "UI PAD edges reset and reconnect",
+        first.activate
+            && first.direction == Some(Direction::Up)
+            && held == UiInput::default()
+            && reset == first
+            && disconnected == UiInput::default()
+            && reconnected == first,
+    );
+
+    let invalid = WpadInputAdapter::new(0, 480).is_err() && WpadInputAdapter::new(640, 0).is_err();
+    let adapter = WpadInputAdapter::new(640, 480).expect("valid UI viewport");
+    let mut sample = wpad_sys::WpadData::default();
+    sample.btns_d = wpad_sys::WPAD_BUTTON_A | wpad_sys::WPAD_BUTTON_LEFT;
+    sample.data_present = wpad_sys::WPAD_DATA_IR;
+    sample.ir.valid = 1;
+    sample.ir.x = 320.0;
+    sample.ir.y = 240.0;
+    sample.ir.vres = [640, 480];
+    let mapped = adapter.update(&sample);
+    sample.err = -1;
+    let disconnected = adapter.update(&sample);
+    logger.record(
+        "UI WPAD edges pointer and errors",
+        invalid
+            && mapped.activate
+            && mapped.direction == Some(Direction::Left)
+            && mapped.pointer == Some((320, 240))
+            && mapped.pointer_activate
+            && disconnected == UiInput::default(),
+    );
 }
 
 fn probe_system(logger: &mut ProbeLogger) {

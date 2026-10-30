@@ -103,3 +103,18 @@ and invalid widget IDs. Five deliberate faults caused the relevant tests to
 fail before the production source was restored. The host suite, UI clippy,
 and formatting checks passed. The completeness audit reports 2,298 unverified
 API entries; physical hardware tests and the remaining API checks are open.
+
+## 2026-10-30: UI target adapter checks
+
+The runtime probe ran in Dolphin 2609a with a private profile and copied NAND.
+The probe passed 21 checks, including PAD edge, reset, and reconnect checks
+and WPAD button, pointer, invalid viewport, and error checks using controlled
+samples. The DOL SHA-256 was
+`15df0c5195aa8760868801cf5c1b0da7c9ae9d767bd8f783a78c69ed92b795ac`.
+See [the probe log](docs/review/evidence/ui-adapters-20261030/probe.log) and
+[run report](docs/review/evidence/ui-adapters-20261030/suite.json). This run
+does not validate physical controller input. The GX canvas check was added
+to the UI input probe and its DOL built, but it has not run in Dolphin or on
+hardware. The UI input probe is not registered with the Dolphin runner.
+The UI host suite passed 35 tests. Formatting and UI clippy passed. The source
+audit passed; the completeness audit reports 2,294 unverified entries.
