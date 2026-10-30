@@ -7,7 +7,6 @@ mean hardware acceptance unless the item states a Wii run. The 54-check std
 thread/runtime-entry probe passed on the RVL-101. The user also reports an old
 thread DOL pass on RVL-CPU-20 (likely RVL-001). The combined RVL-001 hardware run now supplies the service evidence listed below. Unverified service gates remain open.
 Use the contract IDs in [the gap map](wii-std-contract-gaps.md) for details.
-Read [the thread handoff](wii-std-handoff.md) before continuing this work.
 See the [Wii hardware test ledger](wii-std-hardware-test-ledger.md) for every
 archived combined/network probe attempt, including incomplete Wiiload runs.
 
