@@ -51,7 +51,7 @@ crates/
   media/        audio, decoder, player, and media crates
   compatibility/ historical libogc ABI facades
 examples/      Wii example programs
-probes/        target-only diagnostic packages
+probes/        target diagnostics and shared host test harnesses
 targets/       checked-in Wii target and linker definitions
 config/        roles, inventory overrides, dependency policy, and audit debt
 xtask/         host-side repository commands
@@ -289,11 +289,14 @@ and [the source review ledger](config/static-review-scope.csv) for current work.
 
 ## Verification levels
 
-Structural verification:
+Structural, host, and target compile checks:
 
 ```sh
 cargo xtask milestone0-verify
 ```
+
+This runs the structural and inventory checks, the selected host suites, and
+the full runtime target compile check.
 
 Milestone 1 compile-and-probe-build verification:
 
@@ -301,7 +304,9 @@ Milestone 1 compile-and-probe-build verification:
 cargo xtask milestone1-verify
 ```
 
-This checks repository structure, inventory freshness, all host-testable packages, the complete core target group, and builds the focused `lwp_probe.dol`. It does not replace running that probe on real hardware.
+This checks repository structure and inventory freshness, runs the selected host
+suites, checks the core target group, and builds `lwp_probe.dol`. It does not
+run that probe on real hardware.
 
 Milestone 2 compile-and-probe-build verification:
 
@@ -309,7 +314,10 @@ Milestone 2 compile-and-probe-build verification:
 cargo xtask milestone2-verify
 ```
 
-This additionally checks the storage target group and builds `storage_probe.dol`. It does not replace running that probe on real hardware.
+This checks repository structure and inventory freshness, runs the selected host
+suites, checks the storage target group, and builds `storage_probe.dol`. It does
+not run the core target group or build the LWP probe; use `milestone1-verify`
+for those checks. It does not run the storage probe on real hardware.
 
 Full project verification:
 
@@ -325,7 +333,25 @@ Compile acceptance gate:
 cargo xtask verify-complete
 ```
 
-This runs the structural, inventory, audit, target-build, and probe-build checks, including the workspace `examples` package.
+This runs structural, host, inventory, audit, target-build, and probe-build
+checks, including the workspace `examples` package. It stops at the first
+failed check. The completeness audit currently fails on unverified APIs, so
+this command cannot reach its later build checks until that audit passes.
+
+## HBC application evidence
+
+The [hbc-rs project](https://github.com/WeeToolz/hbc-rs) uses libogc-rs as a
+Wii application. Its [development results](https://github.com/WeeToolz/hbc-rs/blob/ce3ebb1656903ee79b9f956c83b766cf2d7b985c/DEVELOPMENT_RESULTS.md)
+record a Dolphin 2609a run that exercised pointer input, app sorting, network
+settings, and receiver return to listening. A separate Dolphin run transferred
+a DOL through Wiiload and observed the new session start. These results apply
+to the recorded builds and checks; they do not verify every libogc API, a
+physical controller, Wii hardware, or automatic recovery.
+
+HBC also has [network controller input](https://github.com/WeeToolz/hbc-rs/blob/ce3ebb1656903ee79b9f956c83b766cf2d7b985c/docs/network-controller-input.md)
+for button, pointer, and other input commands while HBC owns the listener. Its
+Dolphin tests and current hardware limits are recorded in that document. An
+input acknowledgment does not establish that the requested UI action completed.
 
 ## Remaining release work
 
