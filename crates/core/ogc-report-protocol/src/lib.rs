@@ -323,6 +323,47 @@ mod tests {
         );
     }
     #[test]
+    fn identity_rejects_invalid_and_duplicate_fields() {
+        let endpoint = "--report=192.168.2.1:4298";
+        let run = "--run-id=dev-1";
+        let build = "--build-id=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+        let deadline = "--recovery-reset-ms=30000";
+        for (args, error) in [
+            (
+                std::vec![endpoint, "--run-id=", build, deadline],
+                "invalid run identity",
+            ),
+            (
+                std::vec![endpoint, "--run-id=bad/id", build, deadline],
+                "invalid run identity",
+            ),
+            (
+                std::vec![endpoint, run, "--build-id=abcd", deadline],
+                "invalid build identity",
+            ),
+            (
+                std::vec!["--report=224.1.2.3:4298", run, build, deadline],
+                "invalid report address",
+            ),
+            (
+                std::vec![endpoint, run, run, build, deadline],
+                "duplicate run identity",
+            ),
+            (
+                std::vec![endpoint, run, build, build, deadline],
+                "duplicate build identity",
+            ),
+            (
+                std::vec![endpoint, run, build, deadline, deadline],
+                "duplicate recovery deadline",
+            ),
+            (std::vec![endpoint, run, build], "missing recovery deadline"),
+        ] {
+            assert_eq!(parse(&args), Err(error));
+        }
+    }
+
+    #[test]
     fn wire_headers_match_independent_protocol_bytes() {
         let id = identity();
         let p = progress_header(&id, 7, 13);
