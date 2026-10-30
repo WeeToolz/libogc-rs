@@ -1022,3 +1022,4 @@ ogc-usb-events,src/lib.rs,stop_silent,250,protocol,host-test,crates/services/ogc
 ogc-bt-sync,src/switch.rs,write_switch_hidp_output_payload,513,protocol,host-test,crates/services/ogc-bt-sync/src/switch.rs,hidp_output_writes_fixed_packet_and_preserves_short_buffer
 ogc-bt-sync,src/switch.rs,switch_report_from_hidp_input,528,protocol,host-test,crates/services/ogc-bt-sync/src/switch.rs,hidp_input_and_standard_report_check_headers_lengths_and_values
 ogc-bt-sync,src/switch.rs,parse_switch_standard_report,535,protocol,host-test,crates/services/ogc-bt-sync/src/switch.rs,hidp_input_and_standard_report_check_headers_lengths_and_values
+wiiuse-rs,src/classic.rs,wpad_buttons,200,protocol,host-test,crates/services/wiiuse-rs/src/classic.rs,wpad_buttons_pack_classic_and_pro_bits_with_fixed_values
