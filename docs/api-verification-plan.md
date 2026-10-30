@@ -99,7 +99,8 @@ do not infer API coverage from a package or probe name.
 ## First batch
 
 The first controller model batch added host evidence for 18 inventory entries.
-The current inventory reports 2,382 unverified entries. See the
+A second batch recorded 14 controller model, transition, and HID APIs.
+The current inventory reports 2,368 unverified entries. See the
 [development results](../DEVELOPMENT_RESULTS.md) for the test scope and limits.
 
 

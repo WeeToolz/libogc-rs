@@ -533,6 +533,21 @@ mod tests {
     use super::*;
     use crate::ResetReason;
     #[test]
+    fn empty_controller_and_metadata_have_no_input_or_capabilities() {
+        let state = ControllerState::empty();
+        assert_eq!(state.source, ControllerSource::Unknown);
+        assert_eq!(state.kind, ControllerKind::Unknown);
+        assert!(!state.connected);
+        assert_eq!(state.buttons.bits(), 0);
+        assert_eq!(state.buttons_down.bits(), 0);
+        assert_eq!(state.buttons_up.bits(), 0);
+        assert_eq!(state.axes, Axes::default());
+        let metadata = ControllerMetadata::empty();
+        assert_eq!(metadata.capabilities, ControllerCapabilities::default());
+        assert_eq!(metadata.pointer, None);
+    }
+
+    #[test]
     fn button_bits_preserve_unknown_flags_and_remove_only_requested_bits() {
         let mut buttons = Buttons::empty();
         assert!(buttons.is_empty());
