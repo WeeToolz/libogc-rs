@@ -353,6 +353,29 @@ mod tests {
     use super::*;
 
     #[test]
+    fn bluetooth_stage_text_identifies_each_lifecycle_stage() {
+        for (stage, expected) in [
+            (bt::HostStage::Disabled, "BLUETOOTH DISABLED"),
+            (bt::HostStage::AdapterOpen, "BLUETOOTH ADAPTER OPEN"),
+            (bt::HostStage::Reset, "BLUETOOTH HCI RESET"),
+            (bt::HostStage::BufferSize, "BLUETOOTH BUFFER SIZE"),
+            (bt::HostStage::Configure, "BLUETOOTH ADAPTER CONFIGURATION"),
+            (bt::HostStage::Features, "BLUETOOTH ADAPTER FEATURES"),
+            (bt::HostStage::Pairing, "BLUETOOTH PAIRING SETUP"),
+            (bt::HostStage::StoredKeys, "BLUETOOTH STORED KEYS"),
+            (bt::HostStage::AdapterPatch, "BLUETOOTH ADAPTER PATCH"),
+            (bt::HostStage::Address, "BLUETOOTH ADAPTER ADDRESS"),
+            (bt::HostStage::ScanEnable, "BLUETOOTH SCAN ENABLE"),
+            (bt::HostStage::EventFilter, "BLUETOOTH EVENT FILTER"),
+            (bt::HostStage::Ready, "BLUETOOTH READY"),
+            (bt::HostStage::Failed, "BLUETOOTH FAILED"),
+            (bt::HostStage::Closing, "BLUETOOTH CLOSING"),
+        ] {
+            assert_eq!(bluetooth_stage_text(stage), expected);
+        }
+    }
+
+    #[test]
     fn calibrated_axes_use_symmetric_endpoints_from_fixed_samples() {
         assert_eq!(normalize_calibrated_axis(30, 30, 131, 222), -32767);
         assert_eq!(normalize_calibrated_axis(131, 30, 131, 222), 0);
