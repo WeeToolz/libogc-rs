@@ -544,6 +544,51 @@ mod tests {
     }
 
     #[test]
+    fn stale_events_preserve_callbacks_for_current_generation() {
+        let mut state = ready_state();
+        state
+            .register_removal(10, Some(record), 10usize as *mut c_void)
+            .unwrap();
+        state
+            .register_change(Some(record), 20usize as *mut c_void)
+            .unwrap();
+        let mut removals = CallbackBatch::new();
+        let mut changes = CallbackBatch::new();
+
+        assert_eq!(
+            state.apply_snapshot(6, &[20], &mut removals),
+            Err(EventError::StaleGeneration)
+        );
+        assert_eq!(
+            state.apply_snapshot(7, &[99; MAX_DEVICES + 1], &mut removals),
+            Err(EventError::TooManyDevices)
+        );
+        assert_eq!(
+            state.finish_change(6, &mut changes),
+            Err(EventError::StaleGeneration)
+        );
+        assert_eq!(
+            state.fail(6, -55, &mut removals, &mut changes),
+            Err(EventError::StaleGeneration)
+        );
+        assert_eq!(state.snapshot(), &[10, 20]);
+        assert!(state.is_ready());
+        assert!(removals.is_empty());
+        assert!(changes.is_empty());
+
+        state.apply_snapshot(7, &[20], &mut removals).unwrap();
+        assert_eq!(removals.len(), 1);
+        assert_eq!(removals.iter().next().unwrap().userdata as usize, 10);
+        state.finish_change(7, &mut changes).unwrap();
+        assert_eq!(changes.len(), 1);
+        assert_eq!(changes.iter().next().unwrap().userdata as usize, 20);
+        state.apply_snapshot(7, &[], &mut removals).unwrap();
+        state.finish_change(7, &mut changes).unwrap();
+        assert!(removals.is_empty());
+        assert!(changes.is_empty());
+    }
+
+    #[test]
     fn state_accessors_report_current_lifecycle_and_devices() {
         let mut state = EventState::new();
         assert_eq!(state.generation(), 0);

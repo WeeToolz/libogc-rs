@@ -321,6 +321,17 @@ mod tests {
     }
 
     #[test]
+    fn wpad_buttons_pack_classic_and_pro_bits_with_fixed_values() {
+        let classic = ClassicReport::decode(&[0; 6], false, 0).unwrap();
+        assert_eq!(classic.wpad_buttons(false), 0xfeff_0000);
+        let pro = ClassicReport::decode(&[0; 11], true, 0).unwrap();
+        assert_eq!(pro.wpad_buttons(true), 0xfeff_0003);
+        assert_eq!(pro.wpad_buttons(false), 0xfeff_0000);
+        let released = ClassicReport::decode(&[0xff; 11], true, 0).unwrap();
+        assert_eq!(released.wpad_buttons(true), 0);
+    }
+
+    #[test]
     fn tracks_wii_u_pro_extra_button_edges() {
         let mut data = [0xff; 11];
         data[8..10].copy_from_slice(&u16::MAX.to_be_bytes());

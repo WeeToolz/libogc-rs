@@ -45,3 +45,12 @@ and 103 Bluetooth tests. New fixed-byte checks cover Switch HIDP output, input
 headers, and standard reports. The silent stop test checks that pending
 callbacks do not survive a restart. Four API entries have host test evidence.
 These results do not validate a physical controller or USB/Bluetooth transport.
+
+## 2026-10-29: USB event failure and WPAD button packing
+
+`cargo test -p wiiuse-rs -p ogc-usb-events` passed 53 Wiiuse tests and
+10 USB event tests. The USB test checks that stale and oversized events
+leave registrations intact until the current generation completes them.
+The WPAD test checks fixed Classic and Wii U Pro button masks. The shared
+production logic ran on the host; no physical controller or USB transport
+was tested. The evidence registry records `wpad_buttons` for this host test.
