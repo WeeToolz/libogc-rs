@@ -4,6 +4,7 @@ use core::sync::atomic::{AtomicU32, AtomicUsize, Ordering};
 
 use ogc_core::mem_k0_to_k1;
 use ogc_system::{self as system};
+use ogc_ui::GxCanvas;
 use ogc_video as video;
 
 use crate::probe_support::ProbeLogger;
@@ -39,6 +40,8 @@ pub fn run(logger: &mut ProbeLogger) {
     if rmode.is_null() {
         return;
     }
+
+    probe_gx_canvas_dimensions(logger, rmode);
 
     let initial_proof = unsafe { video::hardware_proof(rmode, DISPLAY_FRAMEBUFFER) };
     logger.record(
@@ -128,6 +131,37 @@ pub fn run(logger: &mut ProbeLogger) {
     let _ = video::set_post_retrace_callback(previous_post);
     PREVIOUS_PRE_CALLBACK.store(0, Ordering::Release);
     PREVIOUS_POST_CALLBACK.store(0, Ordering::Release);
+}
+
+fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrModeObj) {
+    use ogc_gx::GxFifo;
+
+    // SAFETY: This video probe owns GX for this run and keeps the FIFO alive
+    // while GxCanvas configures the production GX backend.
+    let _fifo = match unsafe { GxFifo::initialize_default_mem2() } {
+        Ok(fifo) => fifo,
+        Err(error) => {
+            logger.report_step("GX canvas FIFO initialization");
+            logger.record("GX canvas FIFO initialization", false);
+            logger.note_u32("GX canvas FIFO error code", error as u32);
+            return;
+        }
+    };
+
+    // SAFETY: `rmode` is the live preferred mode initialized above, and this
+    // probe owns the GX FIFO for the duration of the canvas check.
+    let (width, height) = unsafe { ((*rmode).fb_width, (*rmode).efb_height) };
+    let canvas = unsafe { GxCanvas::from_video_mode(&*rmode) };
+    logger.record(
+        "GX canvas dimensions and validation",
+        canvas.is_ok_and(|canvas| {
+            canvas.size() == (width, height)
+                && unsafe { GxCanvas::new(0, height).is_err() }
+                && unsafe { GxCanvas::new(width, 0).is_err() }
+                && unsafe { GxCanvas::new(1025, height).is_err() }
+                && unsafe { GxCanvas::new(width, 1025).is_err() }
+        }),
+    );
 }
 
 fn probe_fifo_pointers(logger: &mut ProbeLogger) {
