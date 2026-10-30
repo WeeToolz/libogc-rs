@@ -72,3 +72,11 @@ tests. New checks cover stream synchronization and synthesis initialization
 and mute state. Existing tests cover a fixed Layer I frame, synchronous
 decoder callbacks, and synthesis. The inventory records 12 additional APIs.
 This result does not verify the PowerPC ABI or physical audio output.
+
+## 2026-10-30: libmad header and lifecycle host checks
+
+The libmad ABI host package passed 35 tests. New checks cover a fixed MPEG
+header and truncated input, frame and stream allocation cleanup, timer text,
+and the sync-only decoder message error. Seven API evidence entries were
+added. Decoder message exchange remains unsupported and is not marked as
+implemented. These tests do not establish PowerPC ABI or audio hardware behavior.
