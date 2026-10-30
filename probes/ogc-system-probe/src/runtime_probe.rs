@@ -15,6 +15,7 @@ pub fn run(logger: &mut ProbeLogger) {
     logger.section("RUNTIME PROBE");
 
     probe_owned_audio_buffer(logger);
+    probe_l2cap_packets(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     probe_ios_stm(logger);
@@ -55,6 +56,48 @@ fn probe_owned_audio_buffer(logger: &mut ProbeLogger) {
     let handle = aesnd::VoiceHandle::new(pointer);
     let nonnull = !handle.is_null() && handle.as_ptr() == pointer && handle.into_raw() == pointer;
     logger.record("audio voice handle pointer roundtrip", null && nonnull);
+}
+
+fn probe_l2cap_packets(logger: &mut ProbeLogger) {
+    use ogc_bt_sync as bt;
+    let mut bytes = [0xa5; 32];
+    let n = bt::build_l2cap_connection_request(&mut bytes, 0x123, 7, 0x11, 0x40);
+    logger.record(
+        "L2CAP connection request bytes",
+        n == Ok(16)
+            && bytes[..16] == [0x23, 0x21, 12, 0, 8, 0, 1, 0, 2, 7, 4, 0, 0x11, 0, 0x40, 0]
+            && bytes[16] == 0xa5,
+    );
+    bytes.fill(0xa5);
+    let n = bt::build_l2cap_configuration_request(&mut bytes, 0x123, 8, 0x41);
+    logger.record(
+        "L2CAP configuration request bytes",
+        n == Ok(16)
+            && bytes[..16] == [0x23, 0x21, 12, 0, 8, 0, 1, 0, 4, 8, 4, 0, 0x41, 0, 0, 0]
+            && bytes[16] == 0xa5,
+    );
+    bytes.fill(0xa5);
+    let n = bt::build_l2cap_configuration_request_with_mtu(&mut bytes, 0x123, 9, 0x41, 0x2a0);
+    logger.record(
+        "L2CAP configuration MTU bytes",
+        n == Ok(20)
+            && bytes[..20]
+                == [
+                    0x23, 0x21, 16, 0, 12, 0, 1, 0, 4, 9, 8, 0, 0x41, 0, 0, 0, 1, 2, 0xa0, 2,
+                ]
+            && bytes[20] == 0xa5,
+    );
+    bytes.fill(0xa5);
+    let n = bt::build_l2cap_data(&mut bytes, 0x123, 0x42, &[0xaa, 0xbb]);
+    logger.record(
+        "L2CAP data bytes and errors",
+        n == Ok(10)
+            && bytes[..10] == [0x23, 0x21, 6, 0, 2, 0, 0x42, 0, 0xaa, 0xbb]
+            && bytes[10] == 0xa5
+            && bt::build_l2cap_data(&mut bytes[..9], 0x123, 0x42, &[0xaa, 0xbb])
+                == Err(bt::Error::BufferTooSmall)
+            && bt::build_l2cap_data(&mut bytes, 0x1000, 0x42, &[]) == Err(bt::Error::MalformedAcl),
+    );
 }
 
 fn probe_ui_adapters(logger: &mut ProbeLogger) {

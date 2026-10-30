@@ -132,3 +132,15 @@ and [run report](docs/review/evidence/audio-buffer-20261030/suite.json).
 These checks do not establish DSP cache visibility, audio playback, or physical
 Wii behavior. HBC was not under test. The completeness inventory reports 2,287
 unverified entries.
+
+## 2026-10-30: L2CAP packet construction in Dolphin
+
+The runtime probe passed 27 checks in Dolphin 2609a, including fixed-byte
+checks for connection and configuration requests, MTU options, data framing,
+invalid handles, and a short buffer. The DOL SHA-256 was
+`65987c7045a554df3b0e6e9c5ab129072f220910f502834a75cc145c19595b01`.
+See the [probe log](docs/review/evidence/l2cap-runtime-20261030/probe.log) and
+[run report](docs/review/evidence/l2cap-runtime-20261030/suite.json). These
+checks do not establish Bluetooth transport or physical controller behavior.
+The Bluetooth host suite passed 103 tests; clippy and formatting passed.
+The completeness audit remains open with 2,283 unverified entries.
