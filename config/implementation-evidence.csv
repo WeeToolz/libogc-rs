@@ -1018,3 +1018,7 @@ ogc-controller,src/model.rs,errors,453,protocol,host-test,crates/services/ogc-co
 ogc-controller,src/model.rs,empty,309,protocol,host-test,crates/services/ogc-controller/src/model.rs,empty_controller_and_metadata_have_no_input_or_capabilities
 ogc-controller,src/xbox_report.rs,decode,14,protocol,host-test,crates/services/ogc-controller/src/xbox_report.rs,report_bounds_and_numeric_endpoints_are_checked
 ogc-controller,src/reports.rs,bluetooth_stage_text,24,protocol,host-test,crates/services/ogc-controller/src/reports.rs,bluetooth_stage_text_identifies_each_lifecycle_stage
+ogc-usb-events,src/lib.rs,stop_silent,250,protocol,host-test,crates/services/ogc-usb-events/src/lib.rs,silent_stop_discards_registered_callbacks
+ogc-bt-sync,src/switch.rs,write_switch_hidp_output_payload,513,protocol,host-test,crates/services/ogc-bt-sync/src/switch.rs,hidp_output_writes_fixed_packet_and_preserves_short_buffer
+ogc-bt-sync,src/switch.rs,switch_report_from_hidp_input,528,protocol,host-test,crates/services/ogc-bt-sync/src/switch.rs,hidp_input_and_standard_report_check_headers_lengths_and_values
+ogc-bt-sync,src/switch.rs,parse_switch_standard_report,535,protocol,host-test,crates/services/ogc-bt-sync/src/switch.rs,hidp_input_and_standard_report_check_headers_lengths_and_values
