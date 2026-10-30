@@ -19,6 +19,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_conf(logger);
     probe_es(logger);
     probe_crypto(logger);
+    probe_iso9660(logger);
 }
 
 fn probe_system(logger: &mut ProbeLogger) {
@@ -236,4 +237,85 @@ fn probe_crypto(logger: &mut ProbeLogger) {
         );
         logger.note_i32("aes close rc", aes::aes_close());
     }
+}
+
+// A controlled read-only medium exercises the production mount path.
+static ISO_CASE: core::sync::atomic::AtomicU8 = core::sync::atomic::AtomicU8::new(0);
+
+unsafe extern "C" fn iso_ready() -> bool {
+    true
+}
+
+unsafe extern "C" fn iso_read(sector: u32, count: u32, buffer: *mut core::ffi::c_void) -> bool {
+    use core::sync::atomic::Ordering;
+    let case = ISO_CASE.load(Ordering::Relaxed);
+    if count != 1 || buffer.is_null() || (case == 1 && sector == 16) || (case == 2 && sector == 20)
+    {
+        return false;
+    }
+    // SAFETY: the disc interface requests one writable 2048-byte sector.
+    let bytes = unsafe { core::slice::from_raw_parts_mut(buffer.cast::<u8>(), 2048) };
+    bytes.fill(0);
+    match sector {
+        16 => {
+            bytes[0] = 1;
+            bytes[1..6].copy_from_slice(b"CD001");
+            bytes[6] = 1;
+            bytes[40..47].copy_from_slice(b"TESTVOL");
+            if case == 2 || case == 3 {
+                bytes[136..140]
+                    .copy_from_slice(&(if case == 3 { 7u32 } else { 8u32 }).to_be_bytes());
+                bytes[148..152].copy_from_slice(&20u32.to_be_bytes());
+            }
+        }
+        17 => {
+            bytes[0] = 0xff;
+            bytes[1..6].copy_from_slice(b"CD001");
+            bytes[6] = 1;
+        }
+        20 => {}
+        _ => return false,
+    }
+    true
+}
+
+fn probe_iso9660(logger: &mut ProbeLogger) {
+    use core::sync::atomic::Ordering;
+    logger.section("ISO9660 PROBE");
+    let disc = iso9660::DiscInterface {
+        io_type: 0,
+        features: 0,
+        startup: Some(iso_ready),
+        is_inserted: Some(iso_ready),
+        read_sectors: Some(iso_read),
+        write_sectors: None,
+        clear_status: None,
+        shutdown: None,
+    };
+    let name = c"iso_test";
+    for (case, label) in [
+        (1, "iso descriptor read failure"),
+        (2, "iso path table read failure"),
+        (3, "iso truncated path table"),
+    ] {
+        ISO_CASE.store(case, Ordering::Relaxed);
+        let rejected = !iso9660::mount(name, &disc);
+        let absent = iso9660::volume_label(name).is_null();
+        let cleanup = if rejected {
+            true
+        } else {
+            iso9660::unmount(name)
+        };
+        logger.record(label, rejected && absent && cleanup);
+    }
+    ISO_CASE.store(0, Ordering::Relaxed);
+    let mounted = iso9660::mount(name, &disc);
+    let label = iso9660::volume_label(name);
+    let label_ok =
+        !label.is_null() && unsafe { core::ffi::CStr::from_ptr(label).to_bytes() } == b"TESTVOL";
+    let removed = mounted && iso9660::unmount(name);
+    logger.record(
+        "iso mount after failures",
+        mounted && label_ok && removed && iso9660::volume_label(name).is_null(),
+    );
 }

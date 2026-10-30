@@ -40,6 +40,7 @@ wiikeyboard-sys = { path = "../../crates/compatibility/wiikeyboard-sys" }
 wpad-sys = { path = "../../crates/services/wpad-sys" }
 
 # ogc
+iso9660 = { path = "../../crates/media/iso9660" }
 ogc-audio = { path = "../../crates/hardware/ogc-audio" }
 ogc-aram = { path = "../../crates/hardware/ogc-aram" }
 ogc-bt-sync = { path = "../../crates/services/ogc-bt-sync" }
