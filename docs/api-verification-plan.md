@@ -39,6 +39,10 @@ existing test or probe before selecting cases.
    system/IOS services, input, storage, network, audio, and GX in bounded batches.
    Use Dolphin for target execution where it supports the operation; record
    unsupported or failed cases as open. Use the real Wii for hardware behavior.
+   Include Wiiload-driven button presses in the input test plan. Confirm the
+   current command and input path before each run, and check press, hold, and
+   release results through the production API. Record which part of the input
+   path each run exercises and whether it covers a physical controller.
 5. **Persistence and risk.** Test memory-card, FAT, NAND, and other persistent
    paths with controlled media and failure injection first. Check bytes after a
    new mount or restart and ensure cleanup errors are visible. Plan hardware
