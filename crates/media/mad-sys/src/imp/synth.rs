@@ -121,6 +121,27 @@ mod tests {
     use crate::imp::abi::{MAD_LAYER_III, MAD_MODE_STEREO, MAD_OPTION_HALFSAMPLERATE};
 
     #[test]
+    fn synth_init_and_mute_reset_filter_and_preserve_pcm_on_mute() {
+        let mut synth = MadSynth {
+            phase: 9,
+            ..MadSynth::default()
+        };
+        synth.filter[0][0][0][0][0] = 12;
+        unsafe { synth_init(&mut synth) };
+        assert_eq!(synth.phase, 0);
+        assert_eq!(synth.filter[0][0][0][0][0], 0);
+        synth.phase = 3;
+        synth.pcm.samplerate = 44100;
+        synth.pcm.samples[0][0] = 123;
+        synth.filter[0][0][0][0][0] = 42;
+        unsafe { synth_mute(&mut synth) };
+        assert_eq!(synth.phase, 3);
+        assert_eq!(synth.pcm.samplerate, 44100);
+        assert_eq!(synth.pcm.samples[0][0], 123);
+        assert_eq!(synth.filter, [[[[[0; 8]; 16]; 2]; 2]; 2]);
+    }
+
+    #[test]
     fn synth_uses_abi_subband_samples_and_persists_core_filter_state() {
         let mut frame = MadFrame::default();
         frame.header.layer = MAD_LAYER_III;

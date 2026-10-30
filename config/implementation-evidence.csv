@@ -1049,3 +1049,15 @@ mad-sys,src/imp/timer.rs,timer_fraction,128,pure,host-test,crates/media/mad-sys/
 mad-sys,src/imp/timer.rs,timer_multiply,113,pure,host-test,crates/media/mad-sys/src/imp/timer.rs,timer_arithmetic_preserves_fixed_duration_and_order
 mad-sys,src/imp/timer.rs,timer_negate,76,pure,host-test,crates/media/mad-sys/src/imp/timer.rs,timer_arithmetic_preserves_fixed_duration_and_order
 mad-sys,src/imp/timer.rs,timer_set,91,pure,host-test,crates/media/mad-sys/src/imp/timer.rs,timer_arithmetic_preserves_fixed_duration_and_order
+mad-sys,src/imp/decoder.rs,decoder_finish,54,pure,host-test,crates/media/mad-sys/src/imp/decoder.rs,terminal_buffer_pointer_error_fails_and_releases_sync_state
+mad-sys,src/imp/decoder.rs,decoder_init,20,pure,host-test,crates/media/mad-sys/src/imp/decoder.rs,terminal_buffer_pointer_error_fails_and_releases_sync_state
+mad-sys,src/imp/decoder.rs,decoder_run,68,pure,host-test,crates/media/mad-sys/src/imp/decoder.rs,terminal_buffer_pointer_error_fails_and_releases_sync_state
+mad-sys,src/imp/frame.rs,frame_decode,177,pure,host-test,crates/media/mad-sys/src/imp/frame.rs,layer1_decode_sets_ancillary_range_after_audio_bits
+mad-sys,src/imp/stream.rs,stream_buffer,214,pure,host-test,crates/media/mad-sys/src/imp/stream.rs,stream_buffer_skip_and_sync_preserve_real_cursor_state
+mad-sys,src/imp/stream.rs,stream_errorstr,282,pure,host-test,crates/media/mad-sys/src/imp/stream.rs,stream_error_strings_preserve_bad_mode_exception_and_unknown_values
+mad-sys,src/imp/stream.rs,stream_init,181,pure,host-test,crates/media/mad-sys/src/imp/stream.rs,stream_buffer_skip_and_sync_preserve_real_cursor_state
+mad-sys,src/imp/stream.rs,stream_skip,243,pure,host-test,crates/media/mad-sys/src/imp/stream.rs,stream_buffer_skip_and_sync_preserve_real_cursor_state
+mad-sys,src/imp/stream.rs,stream_sync,259,pure,host-test,crates/media/mad-sys/src/imp/stream.rs,stream_buffer_skip_and_sync_preserve_real_cursor_state
+mad-sys,src/imp/synth.rs,synth_frame,106,pure,host-test,crates/media/mad-sys/src/imp/synth.rs,synth_uses_abi_subband_samples_and_persists_core_filter_state
+mad-sys,src/imp/synth.rs,synth_init,76,pure,host-test,crates/media/mad-sys/src/imp/synth.rs,synth_init_and_mute_reset_filter_and_preserve_pcm_on_mute
+mad-sys,src/imp/synth.rs,synth_mute,90,pure,host-test,crates/media/mad-sys/src/imp/synth.rs,synth_init_and_mute_reset_filter_and_preserve_pcm_on_mute
