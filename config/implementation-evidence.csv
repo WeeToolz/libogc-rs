@@ -1097,3 +1097,7 @@ aesnd,src/lib.rs,is_empty,80,compatibility-forwarder,hardware-probe,probes/ogc-s
 aesnd,src/lib.rs,is_null,128,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_audio_buffer
 aesnd,src/lib.rs,len,76,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_audio_buffer
 aesnd,src/lib.rs,new,120,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_audio_buffer
+ogc-bt-sync,src/protocol.rs,build_l2cap_configuration_request,660,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_packets
+ogc-bt-sync,src/protocol.rs,build_l2cap_configuration_request_with_mtu,671,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_packets
+ogc-bt-sync,src/protocol.rs,build_l2cap_connection_request,647,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_packets
+ogc-bt-sync,src/protocol.rs,build_l2cap_data,717,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_packets
