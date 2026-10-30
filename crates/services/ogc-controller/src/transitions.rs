@@ -274,6 +274,22 @@ mod tests {
         }
     }
     #[test]
+    fn identity_tracks_disconnect_reconnect_and_invalid_slots() {
+        let mut input = InputTransitions::<1>::new();
+        assert_eq!(input.id(0), None);
+        assert_eq!(input.id(1), None);
+        let first = input.sample(0, state(Buttons::empty())).unwrap();
+        assert_eq!(first.generation, 1);
+        assert_eq!(input.id(0), Some(first));
+        input.reset(0, ResetReason::Disconnected).unwrap();
+        assert_eq!(input.id(0), None);
+        assert_eq!(input.take_reset(0).unwrap().id, first);
+        let second = input.sample(0, state(Buttons::empty())).unwrap();
+        assert_eq!(second.generation, 2);
+        assert_eq!(input.id(0), Some(second));
+    }
+
+    #[test]
     fn held_at_connect_does_not_activate_and_rearms_after_release() {
         let mut input = InputTransitions::<1>::new();
         input.sample(0, state(Buttons::A)).unwrap();

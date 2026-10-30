@@ -20,3 +20,12 @@ and held, pressed, and released button aggregation. The inventory records
 18 directly exercised APIs as protocol evidence. These tests exercise the
 production model on the host; they do not validate a physical controller or
 Wii transport.
+
+## 2026-10-29: Controller transitions and HID host tests
+
+`cargo test -p ogc-controller` passed 80 unit tests and 12 integration tests.
+New checks validate empty model values and transition identities across a
+disconnect and reconnect. Existing tests exercise raw button transitions and
+the production HID parser, decoding, report sizes, and application types.
+The evidence registry records 14 directly exercised APIs. These host results
+do not establish real controller, USB, Bluetooth, or Wii behavior.
