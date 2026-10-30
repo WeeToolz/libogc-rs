@@ -440,6 +440,41 @@ mod tests {
     }
 
     #[test]
+    fn fat_preparation_produces_known_checksum_and_rejects_corruption() {
+        let mut fat = vec![0; BLOCK_SIZE];
+        fat[6..8].copy_from_slice(&[0, 59]);
+        assert_eq!(prepare_fat(&mut fat, 64), Ok(1));
+        assert_eq!(
+            &fat[..10],
+            &[0x00, 0x3c, 0xef, 0xc6, 0x00, 0x01, 0x00, 0x3b, 0x00, 0x00]
+        );
+        assert_eq!(validate_fat(&fat, 64), Ok(1));
+        fat[10] ^= 1;
+        assert_eq!(validate_fat(&fat, 64), Err(MetadataError::InvalidChecksum));
+    }
+
+    #[test]
+    fn verified_commit_rejects_invalid_buffers_before_media_changes() {
+        for (expected_len, readback_len) in [
+            (BLOCK_SIZE - 1, BLOCK_SIZE),
+            (BLOCK_SIZE, BLOCK_SIZE - 1),
+            (BLOCK_SIZE + 1, BLOCK_SIZE),
+        ] {
+            let mut media = Media::new();
+            let original = media.bytes.clone();
+            let expected = vec![0x5a; expected_len];
+            let mut readback = vec![0xa5; readback_len];
+            assert_eq!(
+                commit_verified(&mut media, 2, &expected, &mut readback),
+                Err(CommitError::InvalidLength)
+            );
+            assert_eq!(media.step, 0);
+            assert_eq!(media.bytes, original);
+            assert!(readback.iter().all(|byte| *byte == 0xa5));
+        }
+    }
+
+    #[test]
     fn verified_commit_persists_exact_bytes() {
         let mut media = Media::new();
         let expected = vec![0x5a; BLOCK_SIZE];
