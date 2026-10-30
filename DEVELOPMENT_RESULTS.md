@@ -80,3 +80,26 @@ header and truncated input, frame and stream allocation cleanup, timer text,
 and the sync-only decoder message error. Seven API evidence entries were
 added. Decoder message exchange remains unsupported and is not marked as
 implemented. These tests do not establish PowerPC ABI or audio hardware behavior.
+
+## 2026-10-30: Runtime probe and UI API checks
+
+Dolphin 2609a ran the runtime probe in a private profile with a copied NAND.
+The command was `cargo xtask dolphin-validate --probe runtime_probe --artifact-dir
+/Volumes/SSD/WiiDev/tmp/libogc-runtime-final-20261030`, with both libmad fixture
+variables set to the fixture recorded above. The DOL SHA-256 was
+`8b5e5e4f7f7655ab6a1e60ec6b7a0d3bf41a096423c6a0271ebf519634f3cdc0`.
+The source revision was `72a34b2d965cf43b8bcca25f5760162bcc9d51da`, with
+uncommitted probe and UI changes. The probe passed 19 checks and failed zero.
+The adjacent timebase reads were equal; bounded polling measured two ticks.
+STM LED mode returned zero. The old probe repeated pre-main, which closes IOS
+descriptors and can invalidate STM state. The revised probe uses initialized
+services and requires a successful LED result. These results do not prove Wii
+hardware behavior. HBC was not under test. See the [run evidence](docs/review/evidence/runtime-20261030/suite.json)
+and [probe log](docs/review/evidence/runtime-20261030/probe.log).
+
+The UI host suite passed 35 tests with controller input enabled. New tests
+check layout bounds, rectangle edges, colors, text, visibility, enabled state,
+and invalid widget IDs. Five deliberate faults caused the relevant tests to
+fail before the production source was restored. The host suite, UI clippy,
+and formatting checks passed. The completeness audit reports 2,298 unverified
+API entries; physical hardware tests and the remaining API checks are open.

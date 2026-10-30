@@ -23,8 +23,8 @@ pub fn run(logger: &mut ProbeLogger) {
 }
 
 fn probe_system(logger: &mut ProbeLogger) {
-    system::init();
-    system::pre_main();
+    // The runtime has already initialized IOS. Repeating pre_main closes
+    // live descriptors and invalidates the services this probe must test.
     logger.note_hex32("hollywood revision", system::get_hollywood_revision());
     let revision = ogc_core::powerpc::hollywood_revision();
     logger.record(
@@ -32,9 +32,24 @@ fn probe_system(logger: &mut ProbeLogger) {
         revision == system::get_hollywood_revision(),
     );
     let timebase_before = ogc_core::powerpc::read_timebase();
-    let timebase_after = ogc_core::powerpc::read_timebase();
+    let immediate = ogc_core::powerpc::read_timebase();
+    // A timebase tick need not occur between adjacent reads. Bound polling by
+    // iterations so a stopped timebase cannot hang its own test.
+    let mut timebase_after = immediate;
+    for _ in 0..100_000 {
+        if timebase_after != timebase_before {
+            break;
+        }
+        core::hint::spin_loop();
+        timebase_after = ogc_core::powerpc::read_timebase();
+    }
     let timebase_delta = timebase_after.wrapping_sub(timebase_before);
+    logger.note_u64(
+        "PowerPC immediate delta",
+        immediate.wrapping_sub(timebase_before),
+    );
     logger.note_u64("PowerPC timebase", timebase_after);
+    logger.note_u64("PowerPC timebase delta", timebase_delta);
     logger.record(
         "PowerPC timebase advances",
         timebase_delta > 0 && timebase_delta < (1u64 << 63),
@@ -50,7 +65,6 @@ fn probe_system(logger: &mut ProbeLogger) {
     logger.note_u32("pmc miss cycles", pmc.pmc2);
     logger.note_u32("pmc cycles", pmc.pmc3);
     logger.note_u32("pmc instructions", pmc.pmc4);
-    logger.note("runtime init/pre-main requested");
 }
 
 fn probe_ios_stm(logger: &mut ProbeLogger) {
@@ -63,7 +77,7 @@ fn probe_ios_stm(logger: &mut ProbeLogger) {
 
     let led = stm::set_led_mode(0);
     logger.note_i32("stm led rc", led);
-    logger.record("stm reachable", led >= 0 || led == stm::STM_ENOTINIT);
+    logger.record("stm reachable", led == 0);
 }
 
 fn probe_conf(logger: &mut ProbeLogger) {
