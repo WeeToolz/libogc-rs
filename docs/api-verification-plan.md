@@ -2,7 +2,7 @@
 
 ## Scope and baseline
 
-The 2026-10-29 inventory has 2,400 `unverified` entries in 67 packages. The
+The initial 2026-10-29 inventory had 2,400 `unverified` entries in 67 packages. The
 [generated inventory](generated/implementation-inventory.csv) is the item-level
 work list: use crate, source path, symbol, and line together to identify an
 entry. An entry is an evidence gap, not a confirmed defect. Counts are a
@@ -97,6 +97,11 @@ do not infer API coverage from a package or probe name.
 | ui | 27 | `ogc-ui` 27 |
 
 ## First batch
+
+The first controller model batch added host evidence for 18 inventory entries.
+The current inventory reports 2,382 unverified entries. See the
+[development results](../DEVELOPMENT_RESULTS.md) for the test scope and limits.
+
 
 Start with the `ogc-controller` button and snapshot APIs in `model.rs`. Review
 the existing tests, then cover bit insertion and removal, player assignment,

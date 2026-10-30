@@ -24,6 +24,16 @@ Archive the transcript, JSON events, transport logs, and device identification
 with the run. Preserve failed runs. An absent log, truncated capture, source
 error, or failed cleanup prevents a complete pass.
 
+## HBC network input
+
+HBC accepts `HBCI` controller commands on its Wiiload listener. The
+[HBC sender and protocol](../../hbc-rs/docs/network-controller-input.md) can
+exercise HBC menu actions with press, hold, and release input. Confirm the
+observed action after the input reply: the reply reports frame consumption,
+not action completion. HBC network input does not reach a launched DOL and
+does not establish physical controller acceptance. Follow the workspace
+hardware procedure before any Wii run.
+
 ## Run preparation
 
 Build the input probe with the project's `cargo xtask build-dol` command. Use

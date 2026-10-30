@@ -11,3 +11,12 @@
 - The retained [probe log](docs/review/evidence/runtime-iso-20261029/probe.log) and [suite report](docs/review/evidence/runtime-iso-20261029/suite.json) identify the checks and configuration. The full temporary run directory contains screenshots and Dolphin logs.
 
 The `cargo xtask audit-stubs` completeness audit failed with 2,400 API entries marked unverified. The inventory itself was current. These existing repository-wide findings remain open; this run did not suppress them.
+
+## 2026-10-29: Controller model host tests
+
+`cargo test -p ogc-controller` passed 78 unit tests and 12 integration tests.
+The new checks exercise button masks, snapshot capacity, player assignment,
+and held, pressed, and released button aggregation. The inventory records
+18 directly exercised APIs as protocol evidence. These tests exercise the
+production model on the host; they do not validate a physical controller or
+Wii transport.
