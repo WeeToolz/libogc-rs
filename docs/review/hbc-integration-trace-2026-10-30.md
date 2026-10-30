@@ -29,3 +29,23 @@ standalone runtime-probe pass does not execute this canvas check. Add a focused
 Dolphin-compatible check or capture the monitor result with a suitable existing
 harness, and retain the transcript and run identity before recording a pass.
 Physical Wii results remain separate.
+
+## GX canvas Dolphin check
+
+The existing `video_probe` now checks the production `ogc_ui::GxCanvas` after
+it initializes the selected VI mode and a live GX FIFO. It verifies the canvas
+size matches the video mode and rejects zero width, zero height, width 1025,
+and height 1025. This is a focused API check in the existing registered Dolphin
+probe.
+
+The run used `cargo xtask build-dolphin-probes` followed by
+`cargo xtask dolphin-validate --no-build --probe video_probe --artifact-dir
+docs/review/evidence/gx-canvas-dolphin-2026-10-30`. The fixture build used the
+external MP3 path at `[libogc-rs fixtures]/libmad-stereo-mpeg1.mp3`;
+its SHA-256 matches the documented reference fixture. The probe DOL SHA-256 is
+`f0222974a215f2cc455dc0f9beccf76e40fac3c85305c756797acd3e23dc50ef`.
+Dolphin reported `PASS summary passes=29 fails=0`, including
+`PASS GX canvas dimensions and validation`. Four page images passed validation.
+The transcript, raw transport, Dolphin log, result JSON, and page images are
+saved in `docs/review/evidence/gx-canvas-dolphin-2026-10-30/video_probe/`.
+This is Dolphin evidence only; hardware validation remains open.
