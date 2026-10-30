@@ -16,8 +16,8 @@ existing test or probe before selecting cases.
 
 ## Work order
 
-1. **Establish the test environment.** Fix or diagnose the runtime probe's
-   timebase and STM failures recorded in [development results](../DEVELOPMENT_RESULTS.md).
+1. **Establish the test environment.** Review the runtime probe's
+   timebase and STM results recorded in [development results](../DEVELOPMENT_RESULTS.md).
    Do not weaken these checks. Preserve the failed run and compare any new run
    with its recorded DOL and configuration. Review the open libmad Dolphin
    failure in [evidence summary](evidence-summary.md) before relying on it.
@@ -101,7 +101,7 @@ do not infer API coverage from a package or probe name.
 The first controller model batch added host evidence for 18 inventory entries.
 A second batch recorded 14 controller model, transition, and HID APIs.
 A third batch added Xbox report boundary and Bluetooth stage text checks.
-The current inventory reports 2,316 unverified entries. See the
+The current inventory reports 2,298 unverified entries. See the
 [development results](../DEVELOPMENT_RESULTS.md) for the test scope and limits.
 
 
