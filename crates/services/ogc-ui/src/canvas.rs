@@ -158,3 +158,59 @@ impl Canvas for ClippedCanvas<'_> {
         }
     }
 }
+
+#[cfg(test)]
+mod public_api_tests {
+    use super::*;
+
+    #[test]
+    fn rectangle_contains_uses_exclusive_edges_without_overflow() {
+        let rect = Rect::new(10, 20, 3, 4);
+        assert_eq!(
+            rect,
+            Rect {
+                x: 10,
+                y: 20,
+                width: 3,
+                height: 4
+            }
+        );
+        for (x, y, expected) in [
+            (10, 20, true),
+            (12, 23, true),
+            (9, 20, false),
+            (10, 19, false),
+            (13, 20, false),
+            (10, 24, false),
+        ] {
+            assert_eq!(rect.contains(x, y), expected);
+        }
+        assert!(!Rect::new(10, 20, 0, 4).contains(10, 20));
+        assert!(!Rect::new(10, 20, 3, 0).contains(10, 20));
+        assert!(Rect::new(65534, 65534, 4, 4).contains(65535, 65535));
+        assert!(!Rect::new(65534, 65534, 4, 4).contains(0, 0));
+    }
+
+    #[test]
+    fn color_constructors_preserve_channels_and_alpha() {
+        assert_eq!(
+            Color::rgb(1, 127, 254),
+            Color {
+                red: 1,
+                green: 127,
+                blue: 254,
+                alpha: 255
+            }
+        );
+        assert_eq!(
+            Color::rgba(254, 127, 1, 0),
+            Color {
+                red: 254,
+                green: 127,
+                blue: 1,
+                alpha: 0
+            }
+        );
+        assert_eq!(Color::rgba(3, 4, 5, 128).alpha, 128);
+    }
+}

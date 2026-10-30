@@ -1421,6 +1421,8 @@ mod tests {
     struct CaptureCanvas {
         rectangles: Vec<Rect>,
         text: Vec<String>,
+        fill_colors: Vec<Color>,
+        text_colors: Vec<Color>,
     }
 
     struct PassiveCustom;
@@ -1448,8 +1450,9 @@ mod tests {
     }
 
     impl Canvas for CaptureCanvas {
-        fn fill_rect(&mut self, rect: Rect, _color: Color, _clip: Rect) -> Result<(), CanvasError> {
+        fn fill_rect(&mut self, rect: Rect, color: Color, _clip: Rect) -> Result<(), CanvasError> {
             self.rectangles.push(rect);
+            self.fill_colors.push(color);
             Ok(())
         }
 
@@ -1457,10 +1460,11 @@ mod tests {
             &mut self,
             text: &str,
             _rect: Rect,
-            _style: TextStyle,
+            style: TextStyle,
             _clip: Rect,
         ) -> Result<(), CanvasError> {
             self.text.push(copy_text(text).expect("test allocation"));
+            self.text_colors.push(style.color);
             Ok(())
         }
     }
@@ -1891,5 +1895,122 @@ mod tests {
             }),
             Some(UiEvent::CustomUpdated(custom))
         );
+    }
+    #[test]
+    fn public_layout_helpers_produce_exact_child_bounds() {
+        let mut ui = Ui::new(100, 80).unwrap();
+        assert_eq!(
+            ui.viewport(),
+            Rect {
+                x: 0,
+                y: 0,
+                width: 100,
+                height: 80
+            }
+        );
+        let column = ui
+            .add_container(ui.root(), Layout::column(4, 2), Size::fill())
+            .unwrap();
+        let label = ui.add_label(column, "TITLE", Size::fill_width(10)).unwrap();
+        let row = ui
+            .add_container(column, Layout::row(3, 1), Size::fill())
+            .unwrap();
+        let left = ui.add_button(row, "LEFT", Size::fill_height(20)).unwrap();
+        let right = ui.add_button(row, "RIGHT", Size::fill()).unwrap();
+        assert_eq!(label.index(), 2);
+        assert_eq!(ui.bounds(label), Ok(Rect::new(2, 2, 96, 10)));
+        assert_eq!(ui.bounds(row), Ok(Rect::new(2, 16, 96, 62)));
+        assert_eq!(ui.bounds(left), Ok(Rect::new(3, 17, 20, 60)));
+        assert_eq!(ui.bounds(right), Ok(Rect::new(26, 17, 71, 60)));
+        assert_eq!(ui.bounds(WidgetId(u32::MAX)), Err(UiError::UnknownWidget));
+        let fixed = Size::fixed(7, 9);
+        assert_eq!(fixed.width, Dimension::Pixels(7));
+        assert_eq!(fixed.height, Dimension::Pixels(9));
+    }
+
+    #[test]
+    fn text_and_color_updates_reach_the_drawing_boundary() {
+        let mut ui = Ui::new(100, 40).unwrap();
+        let label = ui
+            .add_label(ui.root(), "BEFORE", Size::fixed(100, 20))
+            .unwrap();
+        let button = ui
+            .add_button(ui.root(), "BUTTON", Size::fixed(100, 20))
+            .unwrap();
+        let mut before = CaptureCanvas::default();
+        ui.draw(&mut before).unwrap();
+        assert_eq!(before.text, ["BEFORE", "BUTTON"]);
+        ui.set_text(label, "AFTER").unwrap();
+        let background = Color::rgb(1, 2, 3);
+        let focused = Color::rgb(4, 5, 6);
+        let foreground = Color::rgba(7, 8, 9, 10);
+        ui.set_colors(button, background, focused, foreground)
+            .unwrap();
+        let mut normal = CaptureCanvas::default();
+        ui.draw(&mut normal).unwrap();
+        assert_eq!(normal.text, ["AFTER", "BUTTON"]);
+        assert!(normal.fill_colors.contains(&background));
+        assert_eq!(normal.text_colors[1], foreground);
+        assert_eq!(ui.update(UiInput::default()), None);
+        assert_eq!(ui.focused(), Some(button));
+        let mut selected = CaptureCanvas::default();
+        ui.draw(&mut selected).unwrap();
+        assert!(selected.fill_colors.contains(&focused));
+        assert!(!selected.fill_colors.contains(&background));
+        assert_eq!(
+            ui.set_text(ui.root(), "INVALID"),
+            Err(UiError::NotTextWidget)
+        );
+        assert_eq!(
+            ui.set_text(WidgetId(u32::MAX), "INVALID"),
+            Err(UiError::UnknownWidget)
+        );
+        assert_eq!(
+            ui.set_colors(WidgetId(u32::MAX), background, focused, foreground),
+            Err(UiError::UnknownWidget)
+        );
+        let mut after_errors = CaptureCanvas::default();
+        ui.draw(&mut after_errors).unwrap();
+        assert_eq!(after_errors.text, selected.text);
+        assert_eq!(after_errors.fill_colors, selected.fill_colors);
+    }
+
+    #[test]
+    fn visibility_and_enable_changes_remove_and_restore_activation() {
+        let mut ui = Ui::new(100, 40).unwrap();
+        let first = ui
+            .add_button(ui.root(), "FIRST", Size::fixed(100, 20))
+            .unwrap();
+        let second = ui
+            .add_button(ui.root(), "SECOND", Size::fixed(100, 20))
+            .unwrap();
+        let activate = UiInput {
+            activate: true,
+            ..UiInput::default()
+        };
+        assert_eq!(ui.update(activate), Some(UiEvent::Activated(first)));
+        ui.set_enabled(first, false).unwrap();
+        assert_eq!(ui.pointer_target(10, 10), None);
+        assert_eq!(ui.update(activate), Some(UiEvent::Activated(second)));
+        ui.set_visible(second, false).unwrap();
+        assert_eq!(ui.update(activate), None);
+        let mut hidden = CaptureCanvas::default();
+        ui.draw(&mut hidden).unwrap();
+        assert_eq!(hidden.text, ["FIRST"]);
+        ui.set_enabled(first, true).unwrap();
+        assert_eq!(ui.update(activate), Some(UiEvent::Activated(first)));
+        ui.set_visible(second, true).unwrap();
+        let mut visible = CaptureCanvas::default();
+        ui.draw(&mut visible).unwrap();
+        assert_eq!(visible.text, ["FIRST", "SECOND"]);
+        assert_eq!(
+            ui.set_enabled(WidgetId(u32::MAX), false),
+            Err(UiError::UnknownWidget)
+        );
+        assert_eq!(
+            ui.set_visible(WidgetId(u32::MAX), false),
+            Err(UiError::UnknownWidget)
+        );
+        assert_eq!(ui.update(activate), Some(UiEvent::Activated(first)));
     }
 }
