@@ -298,6 +298,31 @@ mod tests {
     use core::ffi::CStr;
 
     #[test]
+    fn stream_buffer_skip_and_sync_preserve_real_cursor_state() {
+        let bytes = [0x00, 0xff, 0xfb, 1, 2, 3, 4, 5, 6, 7];
+        let mut stream = MadStream {
+            skiplen: 99,
+            ..MadStream::default()
+        };
+        unsafe { stream_init(&mut stream) };
+        assert_eq!(stream.skiplen, 0);
+        assert_eq!(stream.ptr.left, 8);
+        unsafe { stream_buffer(&mut stream, bytes.as_ptr(), 8) };
+        assert_eq!(stream.buffer, bytes.as_ptr());
+        assert_eq!(stream.bufend, unsafe { bytes.as_ptr().add(8) });
+        assert_eq!(unsafe { stream_sync(&mut stream) }, -1);
+        assert_eq!(stream.ptr.byte, bytes.as_ptr());
+        unsafe { stream_buffer(&mut stream, bytes.as_ptr(), bytes.len() as u32) };
+        assert_eq!(unsafe { stream_sync(&mut stream) }, 0);
+        assert_eq!(stream.ptr.byte, unsafe { bytes.as_ptr().add(1) });
+        unsafe { stream_skip(&mut stream, 3) };
+        unsafe { stream_skip(&mut stream, 4) };
+        assert_eq!(stream.skiplen, 7);
+        unsafe { stream_finish(&mut stream) };
+        assert!(stream.main_data.is_null());
+    }
+
+    #[test]
     fn stream_error_strings_preserve_bad_mode_exception_and_unknown_values() {
         let mut stream = MadStream::default();
         for error in [MAD_ERROR_BADMODE, 0x7fff, -1, 0x10001] {
