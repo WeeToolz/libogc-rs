@@ -63,3 +63,12 @@ and error source files directly. It checks fixed bit and checksum values,
 fixed-point arithmetic, timer arithmetic, and error codes. The inventory
 records host evidence for 26 directly called helpers. This does not validate
 the PowerPC ABI layout, MP3 decoding, audio output, or physical hardware.
+
+## 2026-10-29: Expanded libmad host checks
+
+The host package now includes all production libmad ABI modules.
+`cargo test --manifest-path tests/mad-sys-host-tests/Cargo.toml` passed 30
+tests. New checks cover stream synchronization and synthesis initialization
+and mute state. Existing tests cover a fixed Layer I frame, synchronous
+decoder callbacks, and synthesis. The inventory records 12 additional APIs.
+This result does not verify the PowerPC ABI or physical audio output.
