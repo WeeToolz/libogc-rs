@@ -118,3 +118,17 @@ to the UI input probe and its DOL built, but it has not run in Dolphin or on
 hardware. The UI input probe is not registered with the Dolphin runner.
 The UI host suite passed 35 tests. Formatting and UI clippy passed. The source
 audit passed; the completeness audit reports 2,294 unverified entries.
+
+## 2026-10-30: AESND owned buffer and handle checks
+
+The runtime probe ran in Dolphin 2609a with a private profile and copied NAND.
+It passed 23 checks and failed none. The new checks use production AESND APIs
+to check independent byte values, copies after source mutation, lengths and
+32-byte alignment at cache-line boundaries. They also check null and non-null
+voice handle pointer round trips without dereferencing the pointer. The DOL
+SHA-256 was `37bca7057551179581b58f9c0a3912c417808e9a92c525232f4c93084d0805f4`.
+See the [probe log](docs/review/evidence/audio-buffer-20261030/probe.log)
+and [run report](docs/review/evidence/audio-buffer-20261030/suite.json).
+These checks do not establish DSP cache visibility, audio playback, or physical
+Wii behavior. HBC was not under test. The completeness inventory reports 2,287
+unverified entries.

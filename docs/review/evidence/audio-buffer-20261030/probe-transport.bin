@@ -1,0 +1,167 @@
+
+
+BOOT 1/3: system and video initialized
+INFO Wiiload arguments source=entry count=0
+PASS SYS_Init completed
+INFO startup stage=0 completed_mask=0x7ff failed_stage=0
+BOOT watchdog arm starting
+INFO recovery reset watchdog not armed
+BOOT watchdog arm complete
+BOOT Wiiload report argument check
+INFO Wiiload report check disabled for this probe build
+BOOT before first vsync
+BOOT 2/3: entering IOS pre-main
+PRE 0/7: closing inherited IOS descriptors
+IPC: sync state ready
+IPC: command=0x00000002 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000002 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 1/7: IOS startup
+PRE 2/7: IOS subsystems
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 3/7: STM handler
+PRE 4/7: STM devices
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+PRE 5/7: configuration
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 6/7: Wii launch state
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 7/7: complete
+OGC_DOLPHIN_PAGE_CAPTURE page=1 capture=1 addr=0x8082af40 width=640 height=480 stride=640
+-- page 2 --
+BOOT 3/3: IOS pre-main completed
+PASS display initialized
+INFO boot stage: system/video initialized
+INFO boot stage: IOS pre-main completed
+INFO log backend disabled
+INFO argv0 unavailable
+INFO argv raw magic=0x00000000 len=0 argc=0 cmd=0x00000000 argv=0x00000000 end=0x00000000
+PASS power button callback installed
+INFO stm init deferred until shutdown
+INFO fat mount sd=not-selected usb=not-selected
+INFO previous stm handler chained=0
+INFO previous power callback replaced
+
+== RUNTIME PROBE ==
+
+== OWNED AUDIO BUFFER ==
+PASS owned audio buffers preserve aligned copied bytes
+PASS audio voice handle pointer roundtrip
+
+== UI INPUT ADAPTERS ==
+PASS UI PAD edges reset and reconnect
+PASS UI WPAD edges pointer and errors
+OGC_DOLPHIN_PAGE_CAPTURE page=2 capture=2 addr=0x8082af40 width=640 height=480 stride=640
+-- page 3 --
+INFO hollywood revision=0x00000011
+PASS core hollywood revision matches system
+INFO PowerPC immediate delta=0
+INFO PowerPC timebase=51433321837600520
+INFO PowerPC timebase delta=2
+PASS PowerPC timebase advances
+INFO font encoding=0
+INFO arena1 size=15372480
+INFO arena2 size=67108864
+INFO system time=51433317549727806
+PASS performance counters read
+INFO pmc load/stores=0
+INFO pmc miss cycles=0
+INFO pmc cycles=0
+INFO pmc instructions=0
+
+== IOS STM PROBE ==
+INFO ios preferred=58
+INFO ios version=58
+INFO ios revision=6176
+INFO ios revision major=24
+INFO ios revision minor=32
+INFO stm led rc=0
+OGC_DOLPHIN_PAGE_CAPTURE page=3 capture=3 addr=0x8082af40 width=640 height=480 stride=640
+-- page 4 --
+PASS stm reachable
+
+== CONF PROBE ==
+INFO conf init rc=0
+INFO conf video=0
+INFO conf region=1
+INFO conf area=1
+INFO conf language=1
+INFO conf sound=1
+INFO conf aspect=1
+INFO conf progressive=0
+INFO conf sensorbar=1
+INFO conf counter bias rc=0
+INFO conf counter bias=0
+INFO conf display offset rc=0
+INFO conf display offset=0
+INFO conf pad devices rc=0
+INFO conf registered pads=5
+
+== ES PROBE ==
+INFO es init rc=0
+INFO es title id rc=-1017
+INFO es title hi=0x00000000
+OGC_DOLPHIN_PAGE_CAPTURE page=4 capture=4 addr=0x8082af40 width=640 height=480 stride=640
+-- page 5 --
+INFO es title lo=0x00000000
+INFO es device id rc=0
+INFO es device id=0x06eeed45
+INFO es boot2 rc=0
+INFO es boot2=4
+INFO es korean key rc=-1017
+INFO es close rc=0
+
+== CRYPTO PROBE ==
+PASS sha init
+PASS sha context helpers
+PASS sha calculate
+PASS sha abc vector
+PASS sha close
+INFO aes bad key rc=-4
+PASS aes rejects bad key size
+INFO aes init rc=0
+PASS aes encrypt/decrypt roundtrip
+INFO aes close rc=0
+
+== ISO9660 PROBE ==
+PASS iso descriptor read failure
+PASS iso path table read failure
+OGC_DOLPHIN_PAGE_CAPTURE page=5 capture=5 addr=0x8082af40 width=640 height=480 stride=640
+-- page 6 --
+PASS iso truncated path table
+PASS iso mount after failures
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+INFO summary_candidate passes=23 fails=0
+PASS summary passes=23 fails=0
+OGC_DOLPHIN_PAGE_CAPTURE page=6 capture=6 addr=0x8082af40 width=640 height=480 stride=640
+OGC_DOLPHIN_CAPTURE_COMPLETE
