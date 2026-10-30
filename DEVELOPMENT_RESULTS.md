@@ -37,3 +37,11 @@ New tests check invalid Xbox report lengths, fixed axis and trigger endpoints,
 and the text for each Bluetooth lifecycle stage. The inventory records the
 two directly exercised APIs. These host tests do not verify a physical Xbox
 controller or Bluetooth transport.
+
+## 2026-10-29: Switch HID and USB event host tests
+
+`cargo test -p ogc-usb-events -p ogc-bt-sync` passed 9 USB event tests
+and 103 Bluetooth tests. New fixed-byte checks cover Switch HIDP output, input
+headers, and standard reports. The silent stop test checks that pending
+callbacks do not survive a restart. Four API entries have host test evidence.
+These results do not validate a physical controller or USB/Bluetooth transport.

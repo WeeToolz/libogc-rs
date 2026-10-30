@@ -512,6 +512,18 @@ mod tests {
             Err(EventError::StaleGeneration)
         );
         assert!(callbacks.is_empty());
+        assert_eq!(state.unavailable_status(), Some(-6));
+        assert!(state.snapshot().is_empty());
+        state.start(generation.wrapping_add(1));
+        state
+            .apply_snapshot(generation.wrapping_add(1), &[], &mut callbacks)
+            .unwrap();
+        assert!(callbacks.is_empty());
+        let mut changes = CallbackBatch::new();
+        state
+            .finish_change(generation.wrapping_add(1), &mut changes)
+            .unwrap();
+        assert!(changes.is_empty());
     }
 
     #[test]
