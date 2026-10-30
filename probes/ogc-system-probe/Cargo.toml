@@ -26,6 +26,7 @@ ogc-alloc = { path = "../../crates/core/ogc-alloc" }
 
 # sys
 ogc-aes-sys = { path = "../../crates/core/ogc-aes-sys" }
+aesnd = { path = "../../crates/media/aesnd" }
 aesnd-sys = { path = "../../crates/media/aesnd-sys" }
 asnd-sys = { path = "../../crates/media/asnd-sys" }
 libdb-sys = { path = "../../crates/compatibility/libdb-sys" }

@@ -14,6 +14,7 @@ struct Align16([u8; 16]);
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("RUNTIME PROBE");
 
+    probe_owned_audio_buffer(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     probe_ios_stm(logger);
@@ -21,6 +22,39 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_es(logger);
     probe_crypto(logger);
     probe_iso9660(logger);
+}
+
+fn probe_owned_audio_buffer(logger: &mut ProbeLogger) {
+    logger.section("OWNED AUDIO BUFFER");
+    let mut source = [0u8; 65];
+    for (index, byte) in source.iter_mut().enumerate() {
+        *byte = index as u8 ^ 0x5a;
+    }
+    let mut valid = true;
+    for len in [0, 1, 31, 32, 33, 64, 65] {
+        let expected = source;
+        let buffer = match aesnd::OwnedAudioBuffer::copy_from_slice(&source[..len]) {
+            Ok(buffer) => buffer,
+            Err(_) => {
+                valid = false;
+                continue;
+            }
+        };
+        source.fill(0);
+        valid &= buffer.len() == len as u32
+            && buffer.is_empty() == (len == 0)
+            && buffer.as_bytes() == &expected[..len]
+            && (buffer.as_bytes().as_ptr() as usize & 31) == 0;
+        source = expected;
+    }
+    logger.record("owned audio buffers preserve aligned copied bytes", valid);
+    let handle = aesnd::VoiceHandle::new(core::ptr::null_mut());
+    let null = handle.is_null() && handle.as_ptr().is_null() && handle.into_raw().is_null();
+    let mut storage = 0u32;
+    let pointer = (&mut storage as *mut u32).cast::<aesnd::sys::Aesndpb>();
+    let handle = aesnd::VoiceHandle::new(pointer);
+    let nonnull = !handle.is_null() && handle.as_ptr() == pointer && handle.into_raw() == pointer;
+    logger.record("audio voice handle pointer roundtrip", null && nonnull);
 }
 
 fn probe_ui_adapters(logger: &mut ProbeLogger) {

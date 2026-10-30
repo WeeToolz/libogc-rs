@@ -1090,3 +1090,10 @@ ogc-ui,src/wpad.rs,new,17,pure,hardware-probe,probes/ogc-system-probe/src/runtim
 ogc-ui,src/pad.rs,reset,46,pure,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ui_adapters
 ogc-ui,src/pad.rs,update,17,pure,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ui_adapters
 ogc-ui,src/wpad.rs,update,29,pure,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ui_adapters
+aesnd,src/lib.rs,as_bytes,85,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_audio_buffer
+aesnd,src/lib.rs,as_ptr,124,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_audio_buffer
+aesnd,src/lib.rs,into_raw,132,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_audio_buffer
+aesnd,src/lib.rs,is_empty,80,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_audio_buffer
+aesnd,src/lib.rs,is_null,128,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_audio_buffer
+aesnd,src/lib.rs,len,76,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_audio_buffer
+aesnd,src/lib.rs,new,120,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_audio_buffer
