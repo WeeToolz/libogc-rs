@@ -82,6 +82,8 @@ mod tests {
         assert_eq!(mad_f_intpart(-MAD_F_ONE - 1), -2);
         assert_eq!(mad_f_fracpart(MAD_F_ONE + 3), 3);
         assert_eq!(mad_f_add(i32::MAX, 1), i32::MIN);
+        assert_eq!(mad_f_sub(i32::MIN, 1), i32::MAX);
+        assert_eq!(mad_f_sub(0x1800_0000, 0x0800_0000), 0x1000_0000);
         assert_eq!(mad_f_mul(MAD_F_ONE / 2, MAD_F_ONE), MAD_F_ONE / 2);
         assert_eq!(mad_f_abs(-MAD_F_ONE / 2), MAD_F_ONE / 2);
         assert_eq!(mad_f_div(MAD_F_ONE, MAD_F_ONE / 2), MAD_F_ONE * 2);

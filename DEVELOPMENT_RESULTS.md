@@ -54,3 +54,12 @@ leave registrations intact until the current generation completes them.
 The WPAD test checks fixed Classic and Wii U Pro button masks. The shared
 production logic ran on the host; no physical controller or USB transport
 was tested. The evidence registry records `wpad_buttons` for this host test.
+
+## 2026-10-29: libmad ABI helper host tests
+
+`cargo test --manifest-path tests/mad-sys-host-tests/Cargo.toml` passed nine
+tests. The host package includes the production ABI, bit, fixed-point, timer,
+and error source files directly. It checks fixed bit and checksum values,
+fixed-point arithmetic, timer arithmetic, and error codes. The inventory
+records host evidence for 26 directly called helpers. This does not validate
+the PowerPC ABI layout, MP3 decoding, audio output, or physical hardware.
