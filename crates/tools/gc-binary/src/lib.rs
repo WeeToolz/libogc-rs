@@ -90,6 +90,27 @@ mod tests {
     }
 
     #[test]
+    fn binary_access_checks_bytes_and_bounds() {
+        let mut bytes = [0xaa; 8];
+        write_u16_be(&mut bytes, 1, 0x1234).unwrap();
+        write_u32_be(&mut bytes, 3, 0x89ab_cdef).unwrap();
+        assert_eq!(bytes, [0xaa, 0x12, 0x34, 0x89, 0xab, 0xcd, 0xef, 0xaa]);
+        assert_eq!(read_u16_be(&bytes, 1), Ok(0x1234));
+        assert_eq!(read_u32_be(&bytes, 3), Ok(0x89ab_cdef));
+        let error = BoundsError {
+            offset: usize::MAX,
+            size: 4,
+            length: 8,
+        };
+        assert_eq!(read_u32_be(&bytes, usize::MAX), Err(error.clone()));
+        assert_eq!(write_u32_be(&mut bytes, usize::MAX, 0), Err(error));
+        assert_eq!(bytes, [0xaa, 0x12, 0x34, 0x89, 0xab, 0xcd, 0xef, 0xaa]);
+        assert_eq!(checked_range(8, 8, 0), Ok(8..8));
+        assert!(write_u16_be(&mut bytes, 7, 0).is_err());
+        assert_eq!(bytes[7], 0xaa);
+    }
+
+    #[test]
     fn aligns_without_overflow() {
         assert_eq!(align_up(0x121, 32), Some(0x140));
         assert_eq!(align_up(usize::MAX, 32), None);
