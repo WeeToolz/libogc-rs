@@ -1061,3 +1061,10 @@ mad-sys,src/imp/stream.rs,stream_sync,259,pure,host-test,crates/media/mad-sys/sr
 mad-sys,src/imp/synth.rs,synth_frame,106,pure,host-test,crates/media/mad-sys/src/imp/synth.rs,synth_uses_abi_subband_samples_and_persists_core_filter_state
 mad-sys,src/imp/synth.rs,synth_init,76,pure,host-test,crates/media/mad-sys/src/imp/synth.rs,synth_init_and_mute_reset_filter_and_preserve_pcm_on_mute
 mad-sys,src/imp/synth.rs,synth_mute,90,pure,host-test,crates/media/mad-sys/src/imp/synth.rs,synth_init_and_mute_reset_filter_and_preserve_pcm_on_mute
+mad-sys,src/imp/frame.rs,frame_finish,154,pure,host-test,crates/media/mad-sys/src/imp/frame.rs,frame_init_mute_and_finish_clear_owned_state
+mad-sys,src/imp/frame.rs,frame_init,143,pure,host-test,crates/media/mad-sys/src/imp/frame.rs,frame_init_mute_and_finish_clear_owned_state
+mad-sys,src/imp/frame.rs,frame_mute,270,pure,host-test,crates/media/mad-sys/src/imp/frame.rs,frame_init_mute_and_finish_clear_owned_state
+mad-sys,src/imp/frame.rs,header_decode,126,pure,host-test,crates/media/mad-sys/src/imp/frame.rs,header_decode_reads_fixed_mpeg_header_and_reports_truncation
+mad-sys,src/imp/frame.rs,header_init,115,pure,host-test,crates/media/mad-sys/src/imp/frame.rs,header_decode_reads_fixed_mpeg_header_and_reports_truncation
+mad-sys,src/imp/stream.rs,stream_finish,195,pure,host-test,crates/media/mad-sys/src/imp/stream.rs,stream_finish_releases_allocated_owner
+mad-sys,src/imp/timer.rs,timer_string,138,pure,host-test,crates/media/mad-sys/src/imp/timer.rs,timer_string_writes_expected_text_and_rejects_invalid_units

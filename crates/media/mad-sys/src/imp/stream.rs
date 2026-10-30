@@ -298,6 +298,18 @@ mod tests {
     use core::ffi::CStr;
 
     #[test]
+    fn stream_finish_releases_allocated_owner() {
+        let mut stream = MadStream::default();
+        unsafe { stream_init(&mut stream) };
+        assert!(!unsafe { stream_owner(&mut stream) }.is_null());
+        assert!(!stream.main_data.is_null());
+        unsafe { stream_finish(&mut stream) };
+        assert!(stream.main_data.is_null());
+        unsafe { stream_finish(&mut stream) };
+        assert!(stream.main_data.is_null());
+    }
+
+    #[test]
     fn stream_buffer_skip_and_sync_preserve_real_cursor_state() {
         let bytes = [0x00, 0xff, 0xfb, 1, 2, 3, 4, 5, 6, 7];
         let mut stream = MadStream {
