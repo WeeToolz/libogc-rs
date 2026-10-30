@@ -105,6 +105,29 @@ mod tests {
         ));
     }
     #[test]
+    fn report_bounds_and_numeric_endpoints_are_checked() {
+        for report in [&[][..], &[2][..], &[2, 1, 0][..], &[3, 1][..], &[0; 16][..]] {
+            assert_eq!(decode(report), None);
+        }
+        let mut report = neutral(17);
+        report[1..3].copy_from_slice(&[0, 0]);
+        report[3..5].copy_from_slice(&[0xff, 0xff]);
+        report[5..7].copy_from_slice(&[0xff, 0xff]);
+        report[7..9].copy_from_slice(&[0, 0]);
+        report[9..11].copy_from_slice(&[0xff, 0xff]);
+        report[11..13].copy_from_slice(&[0, 2]);
+        assert_eq!(
+            decode(&report),
+            Some(XboxInput::State {
+                buttons: 0,
+                hat: 0,
+                sticks: [-32768, -32767, 32767, 32767],
+                triggers: [255, 127],
+            })
+        );
+    }
+
+    #[test]
     fn guide_and_unknown_reports_do_not_replace_other_input() {
         assert_eq!(decode(&[2, 1]), Some(XboxInput::Guide(true)));
         assert_eq!(decode(&[2, 0]), Some(XboxInput::Guide(false)));

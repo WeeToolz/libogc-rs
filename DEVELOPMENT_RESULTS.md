@@ -29,3 +29,11 @@ disconnect and reconnect. Existing tests exercise raw button transitions and
 the production HID parser, decoding, report sizes, and application types.
 The evidence registry records 14 directly exercised APIs. These host results
 do not establish real controller, USB, Bluetooth, or Wii behavior.
+
+## 2026-10-29: Xbox report and Bluetooth stage host tests
+
+`cargo test -p ogc-controller` passed 82 unit tests and 12 integration tests.
+New tests check invalid Xbox report lengths, fixed axis and trigger endpoints,
+and the text for each Bluetooth lifecycle stage. The inventory records the
+two directly exercised APIs. These host tests do not verify a physical Xbox
+controller or Bluetooth transport.
