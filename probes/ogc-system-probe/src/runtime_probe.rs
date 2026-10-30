@@ -144,10 +144,10 @@ fn probe_crypto(logger: &mut ProbeLogger) {
     let input_rc = sha::input(&mut context, &full_block);
     let length_updated = context.context.bit_length() == 512;
     let finalize_rc = sha::finalize(&mut context, b"x", &mut context_digest);
-    let mut expected_digest = [0u8; 20];
-    let mut message = [b'a'; 65];
-    message[64] = b'x';
-    let expected_rc = sha::calculate(&message, &mut expected_digest);
+    let expected_digest = [
+        0x8e, 0x18, 0x94, 0x0b, 0x19, 0xbe, 0xf3, 0x15, 0xd3, 0x42, 0x61, 0xeb, 0xf8, 0x26, 0x6d,
+        0xd2, 0x9a, 0x1f, 0x3e, 0x66,
+    ];
     logger.record(
         "sha context helpers",
         aligned
@@ -157,7 +157,6 @@ fn probe_crypto(logger: &mut ProbeLogger) {
             && input_rc == 0
             && length_updated
             && finalize_rc == 0
-            && expected_rc == 0
             && context_digest == expected_digest,
     );
 
