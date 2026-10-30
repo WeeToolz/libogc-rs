@@ -559,6 +559,39 @@ mod tests {
     }
 
     #[test]
+    fn rejects_invalid_load_segments_in_both_profiles() {
+        for profile in [DolProfile::LegacyElf2Dol, DolProfile::Libogc] {
+            for (offset, value, expected) in [
+                (
+                    52 + 4,
+                    0x17fu32,
+                    "load segment 0 extends past the end of the ELF file",
+                ),
+                (
+                    52 + 16,
+                    5u32,
+                    "load segment 0 file size exceeds memory size",
+                ),
+            ] {
+                let mut bytes = fixture();
+                bytes[offset..offset + 4].copy_from_slice(&value.to_be_bytes());
+                assert_eq!(convert_elf_to_dol(&bytes, profile).unwrap_err().0, expected);
+            }
+            let mut bytes = fixture();
+            let address_offset = if profile == DolProfile::LegacyElf2Dol {
+                52 + 12
+            } else {
+                52 + 8
+            };
+            bytes[address_offset..address_offset + 4].copy_from_slice(&u32::MAX.to_be_bytes());
+            assert_eq!(
+                convert_elf_to_dol(&bytes, profile).unwrap_err().0,
+                "load segment 0 overflows the address space"
+            );
+        }
+    }
+
+    #[test]
     fn rejects_truncated_and_incompatible_images() {
         assert!(convert_elf_to_dol(b"no", DolProfile::LegacyElf2Dol).is_err());
         let mut bytes = fixture();
