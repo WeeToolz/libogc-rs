@@ -171,6 +171,24 @@ mod tests {
     use super::*;
 
     #[test]
+    fn timer_arithmetic_preserves_fixed_duration_and_order() {
+        let mut value = MAD_TIMER_ZERO;
+        unsafe { timer_set(&mut value, 1, 1, 2) };
+        assert_eq!(timer_compare(value, MAD_TIMER_ZERO), 1);
+        assert_eq!(timer_compare(value, value), 0);
+        unsafe { timer_multiply(&mut value, 2) };
+        assert_eq!(timer_count(value, MAD_UNITS_MILLISECONDS), 3000);
+        unsafe { timer_negate(&mut value) };
+        assert_eq!(timer_count(value, MAD_UNITS_MILLISECONDS), -3000);
+        assert_eq!(timer_compare(value, MAD_TIMER_ZERO), -1);
+        let mut increment = MAD_TIMER_ZERO;
+        unsafe { timer_set(&mut increment, 4, 1, 2) };
+        unsafe { timer_add(&mut value, increment) };
+        assert_eq!(timer_count(value, MAD_UNITS_MILLISECONDS), 1500);
+        assert_eq!(timer_fraction(value, 1000), 500);
+    }
+
+    #[test]
     fn timer_operations_match_common_c_cases() {
         let mut timer = MAD_TIMER_ZERO;
         unsafe { timer_set(&mut timer, 1, 1, 2) };
