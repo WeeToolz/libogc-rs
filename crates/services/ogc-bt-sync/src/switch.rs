@@ -613,6 +613,51 @@ mod tests {
     }
 
     #[test]
+    fn hidp_output_writes_fixed_packet_and_preserves_short_buffer() {
+        let packet = build_switch_player_led_packet(16, 5);
+        let mut output = [0xa5; 13];
+        assert_eq!(
+            write_switch_hidp_output_payload(&packet, &mut output[..12]),
+            None
+        );
+        assert_eq!(output, [0xa5; 13]);
+        assert_eq!(
+            write_switch_hidp_output_payload(&packet, &mut output),
+            Some(13)
+        );
+        assert_eq!(output, [0xa2, 1, 0, 0, 1, 64, 64, 0, 1, 64, 64, 48, 5]);
+    }
+
+    #[test]
+    fn hidp_input_and_standard_report_check_headers_lengths_and_values() {
+        let payload = [
+            0xa1, 0x30, 7, 0x91, 0x12, 0x34, 0x56, 0x23, 0x61, 0x45, 0x89, 0xc7, 0xab,
+        ];
+        let report = switch_report_from_hidp_input(&payload).unwrap();
+        let parsed = parse_switch_standard_report(report).unwrap();
+        assert_eq!(
+            (parsed.report_id, parsed.timer, parsed.battery_connection),
+            (0x30, 7, 0x91)
+        );
+        assert_eq!(
+            (
+                parsed.right_buttons,
+                parsed.shared_buttons,
+                parsed.left_buttons
+            ),
+            (0x12, 0x34, 0x56)
+        );
+        assert_eq!((parsed.left_stick_x, parsed.left_stick_y), (0x123, 0x456));
+        assert_eq!((parsed.right_stick_x, parsed.right_stick_y), (0x789, 0xabc));
+        assert!(switch_report_from_hidp_input(&[]).is_none());
+        assert!(switch_report_from_hidp_input(&[0xa2, 0x30]).is_none());
+        assert!(parse_switch_standard_report(&report[..11]).is_none());
+        let mut wrong_id = [0u8; 12];
+        wrong_id[0] = 0x34;
+        assert!(parse_switch_standard_report(&wrong_id).is_none());
+    }
+
+    #[test]
     fn initialization_and_rumble_have_independent_expected_bytes() {
         let init = build_switch_init_packets(14);
         assert_eq!(init[0].bytes(), &[1, 14, 0, 1, 64, 64, 0, 1, 64, 64, 8, 0]);
