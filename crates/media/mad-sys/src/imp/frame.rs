@@ -306,6 +306,57 @@ mod tests {
     }
 
     #[test]
+    fn header_decode_reads_fixed_mpeg_header_and_reports_truncation() {
+        let mut bytes = [0u8; 425];
+        bytes[..4].copy_from_slice(&[0xff, 0xfb, 0x90, 0x64]);
+        let mut stream = MadStream::default();
+        let mut header = MadHeader {
+            bitrate: 77,
+            ..MadHeader::default()
+        };
+        unsafe { header_init(&mut header) };
+        assert_eq!(header.bitrate, 0);
+        unsafe {
+            stream_init(&mut stream);
+            stream_buffer(&mut stream, bytes.as_ptr(), 4);
+        }
+        assert_eq!(unsafe { header_decode(&mut header, &mut stream) }, -1);
+        assert_eq!(stream.error, MAD_ERROR_BUFLEN);
+        unsafe { stream_buffer(&mut stream, bytes.as_ptr(), bytes.len() as u32) };
+        assert_eq!(unsafe { header_decode(&mut header, &mut stream) }, 0);
+        assert_eq!(
+            (header.layer, header.mode, header.bitrate, header.samplerate),
+            (MAD_LAYER_III, MAD_MODE_JOINT_STEREO, 128000, 44100)
+        );
+        assert_eq!(stream.next_frame, unsafe { bytes.as_ptr().add(417) });
+        unsafe { stream_finish(&mut stream) };
+    }
+
+    #[test]
+    fn frame_init_mute_and_finish_clear_owned_state() {
+        let mut frame = MadFrame {
+            options: 7,
+            ..MadFrame::default()
+        };
+        frame.sbsample[0][0][0] = 42;
+        unsafe { frame_init(&mut frame) };
+        assert_eq!(frame.options, 0);
+        assert_eq!(frame.sbsample[0][0][0], 0);
+        let mut stream = MadStream::default();
+        let overlap = unsafe { ensure_overlap(&mut frame, &mut stream) };
+        assert!(!overlap.is_null());
+        unsafe {
+            (*overlap)[0][0][0] = 123;
+        }
+        frame.sbsample[0][0][0] = 456;
+        unsafe { frame_mute(&mut frame) };
+        assert_eq!(frame.sbsample[0][0][0], 0);
+        assert_eq!(unsafe { (*overlap)[0][0][0] }, 0);
+        unsafe { frame_finish(&mut frame) };
+        assert!(frame.overlap.is_null());
+    }
+
+    #[test]
     fn layer1_decode_sets_ancillary_range_after_audio_bits() {
         let mut bytes = [0_u8; 30];
         let mut stream = stream_for_layer1(&mut bytes, 22);

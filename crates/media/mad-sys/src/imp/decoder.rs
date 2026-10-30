@@ -349,6 +349,29 @@ mod tests {
     }
 
     #[test]
+    fn decoder_message_reports_unsupported_without_modifying_data() {
+        let mut decoder = MadDecoder::default();
+        let mut message = [0x12u8, 0x34];
+        let mut length = 2u32;
+        assert_eq!(
+            unsafe { decoder_message(&mut decoder, message.as_mut_ptr().cast(), &mut length) },
+            -1
+        );
+        assert_eq!(message, [0x12, 0x34]);
+        assert_eq!(length, 2);
+        assert_eq!(
+            unsafe {
+                decoder_message(
+                    core::ptr::null_mut(),
+                    message.as_mut_ptr().cast(),
+                    &mut length,
+                )
+            },
+            -1
+        );
+    }
+
+    #[test]
     fn terminal_buffer_pointer_error_fails_and_releases_sync_state() {
         // Exercise both header parsing paths in the ABI adapter.
         for header in [

@@ -171,6 +171,38 @@ mod tests {
     use super::*;
 
     #[test]
+    fn timer_string_writes_expected_text_and_rejects_invalid_units() {
+        let mut output = [0x55u8; 32];
+        let timer = MadTimerT {
+            seconds: 65,
+            fraction: MAD_TIMER_RESOLUTION / 2,
+        };
+        unsafe {
+            timer_string(
+                timer,
+                output.as_mut_ptr().cast(),
+                c"%lu:%02u.%03u".as_ptr(),
+                MAD_UNITS_MINUTES,
+                MAD_UNITS_MILLISECONDS,
+                0,
+            )
+        };
+        assert_eq!(&output[..9], b"1:05.500\0");
+        assert_eq!(output[9], 0x55);
+        unsafe {
+            timer_string(
+                timer,
+                output.as_mut_ptr().cast(),
+                c"%u".as_ptr(),
+                i32::MAX,
+                MAD_UNITS_SECONDS,
+                0,
+            )
+        };
+        assert_eq!(output[0], 0);
+    }
+
+    #[test]
     fn timer_arithmetic_preserves_fixed_duration_and_order() {
         let mut value = MAD_TIMER_ZERO;
         unsafe { timer_set(&mut value, 1, 1, 2) };
