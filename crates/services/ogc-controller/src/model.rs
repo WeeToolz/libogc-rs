@@ -533,6 +533,66 @@ mod tests {
     use super::*;
     use crate::ResetReason;
     #[test]
+    fn button_bits_preserve_unknown_flags_and_remove_only_requested_bits() {
+        let mut buttons = Buttons::empty();
+        assert!(buttons.is_empty());
+        buttons.insert(Buttons::A);
+        buttons.insert(Buttons::from_bits(0x8000_0002));
+        assert_eq!(buttons.bits(), 0x8000_0003);
+        assert!(buttons.contains(Buttons::A));
+        assert!(buttons.contains(Buttons::B));
+        buttons.remove(Buttons::A);
+        assert_eq!(buttons.bits(), 0x8000_0002);
+        assert!(!buttons.contains(Buttons::A));
+        buttons.remove(Buttons::from_bits(0x8000_0002));
+        assert!(buttons.is_empty());
+    }
+
+    #[test]
+    fn snapshot_tracks_capacity_players_and_distinct_button_edges() {
+        let mut snapshot = ControllerSnapshot::empty();
+        assert!(snapshot.is_empty());
+        let first = ControllerState {
+            source: ControllerSource::GameCube(0),
+            connected: true,
+            buttons: Buttons::from_bits(0x11),
+            buttons_down: Buttons::from_bits(0x01),
+            buttons_up: Buttons::from_bits(0x02),
+            ..ControllerState::empty()
+        };
+        let second = ControllerState {
+            source: ControllerSource::GameCube(1),
+            connected: true,
+            buttons: Buttons::from_bits(0x22),
+            buttons_down: Buttons::from_bits(0x20),
+            buttons_up: Buttons::from_bits(0x04),
+            ..ControllerState::empty()
+        };
+        snapshot.push(first);
+        snapshot.push(second);
+        snapshot.assign_player(3, second);
+        snapshot.assign_player(MAX_CONTROLLERS, first);
+        assert_eq!(snapshot.len(), 2);
+        assert!(!snapshot.is_empty());
+        assert_eq!(snapshot.controllers(), &[first, second]);
+        assert_eq!(snapshot.player(3), Some(&second));
+        assert_eq!(snapshot.player(MAX_CONTROLLERS), None);
+        assert_eq!(snapshot.player_buttons(3).bits(), 0x22);
+        assert_eq!(snapshot.player_buttons_down(3).bits(), 0x20);
+        assert_eq!(snapshot.player_buttons(2).bits(), 0);
+        assert_eq!(snapshot.player_buttons_down(MAX_CONTROLLERS).bits(), 0);
+        assert_eq!(snapshot.merged_buttons().bits(), 0x33);
+        assert_eq!(snapshot.merged_buttons_down().bits(), 0x21);
+        assert_eq!(snapshot.merged_buttons_up().bits(), 0x06);
+        for _ in 2..MAX_CONTROLLERS {
+            snapshot.push(first);
+        }
+        snapshot.push(second);
+        assert_eq!(snapshot.len(), MAX_CONTROLLERS);
+        assert_eq!(snapshot.controllers()[MAX_CONTROLLERS - 1], first);
+    }
+
+    #[test]
     fn resets_keep_release_and_error_evidence_without_a_connected_controller() {
         let mut transitions = InputTransitions::<MAX_CONTROLLERS>::new();
         let state = ControllerState {

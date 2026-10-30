@@ -6,6 +6,7 @@ check before making a claim about a later change.
 
 | Evidence | What it establishes | Current limit |
 | --- | --- | --- |
+| [API verification plan](api-verification-plan.md) | Work order and package scope for open API evidence | Counts are a dated baseline; check the inventory for current status. |
 | [API inventory](generated/implementation-status.md) | Tracked public APIs and their evidence classifications | An evidence reference does not prove the API behaves correctly. The completeness audit has open entries. |
 | [Source review ledger](../config/static-review-scope.csv) | Review status and outstanding parity work by component | A reviewed scope does not establish hardware behavior. Run `cargo xtask review-status` for current counts. |
 | [Hardware register](hardware-api-validation.csv) | Probe scope, run identity, and recorded Wii results | Many rows are not tested. Use `cargo xtask audit-hardware-register` to validate records, not hardware behavior. |
@@ -30,7 +31,7 @@ The run used the code at revision `ca7e496`; only documentation changed after
 that run. Earlier runs reported the same checks. The failure causes remain
 open, and this result does not establish real-Wii behavior.
 
-The completeness gate currently reports 2,400 APIs without accepted exact
+The completeness gate currently reports 2,382 APIs without accepted exact
 test or probe evidence. The hardware register has 14 passed and 36 not-tested
 rows. These counts describe evidence gaps; they do not mean that every API is
 broken or tested. No real-Wii run was made for this repository preparation.
