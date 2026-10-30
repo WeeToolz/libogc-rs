@@ -31,7 +31,7 @@ The run used the code at revision `ca7e496`; only documentation changed after
 that run. Earlier runs reported the same checks. The failure causes remain
 open, and this result does not establish real-Wii behavior.
 
-The completeness gate currently reports 2,382 APIs without accepted exact
+The completeness gate currently reports 2,368 APIs without accepted exact
 test or probe evidence. The hardware register has 14 passed and 36 not-tested
 rows. These counts describe evidence gaps; they do not mean that every API is
 broken or tested. No real-Wii run was made for this repository preparation.

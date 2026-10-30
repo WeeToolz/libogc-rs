@@ -1002,3 +1002,17 @@ ogc-controller,src/model.rs,player_buttons,490,protocol,host-test,crates/service
 ogc-controller,src/model.rs,player_buttons_down,497,protocol,host-test,crates/services/ogc-controller/src/model.rs,snapshot_tracks_capacity_players_and_distinct_button_edges
 ogc-controller,src/model.rs,push,380,protocol,host-test,crates/services/ogc-controller/src/model.rs,snapshot_tracks_capacity_players_and_distinct_button_edges
 ogc-controller,src/model.rs,remove,74,protocol,host-test,crates/services/ogc-controller/src/model.rs,button_bits_preserve_unknown_flags_and_remove_only_requested_bits
+ogc-controller,src/hid.rs,parse,207,protocol,host-test,crates/services/ogc-controller/tests/hid_descriptor.rs,decodes_unsigned_buttons_and_signed_axes
+ogc-controller,src/hid.rs,decode,390,protocol,host-test,crates/services/ogc-controller/tests/hid_descriptor.rs,decodes_unsigned_buttons_and_signed_axes
+ogc-controller,src/hid.rs,required_input_bytes,457,protocol,host-test,crates/services/ogc-controller/tests/hid_descriptor.rs,keeps_report_ids_separate_and_requires_the_id_prefix
+ogc-controller,src/hid.rs,maximum_input_bytes,468,protocol,host-test,crates/services/ogc-controller/tests/hid_descriptor.rs,keeps_report_ids_separate_and_requires_the_id_prefix
+ogc-controller,src/hid.rs,application_capabilities,532,protocol,host-test,crates/services/ogc-controller/tests/hid_descriptor.rs,keeps_report_ids_separate_and_requires_the_id_prefix
+ogc-controller,src/transitions.rs,new,66,protocol,host-test,crates/services/ogc-controller/src/transitions.rs,raw_masks_use_the_same_connect_gate_and_disconnect_release
+ogc-controller,src/transitions.rs,sample,72,protocol,host-test,crates/services/ogc-controller/src/transitions.rs,raw_masks_use_the_same_connect_gate_and_disconnect_release
+ogc-controller,src/transitions.rs,id,219,protocol,host-test,crates/services/ogc-controller/src/transitions.rs,identity_tracks_disconnect_reconnect_and_invalid_slots
+ogc-controller,src/transitions.rs,reset,227,protocol,host-test,crates/services/ogc-controller/src/transitions.rs,disconnect_releases_and_reconnect_has_a_new_identity
+ogc-controller,src/model.rs,empty,176,protocol,host-test,crates/services/ogc-controller/src/model.rs,empty_controller_and_metadata_have_no_input_or_capabilities
+ogc-controller,src/model.rs,controller_id,416,protocol,host-test,crates/services/ogc-controller/src/model.rs,resets_keep_release_and_error_evidence_without_a_connected_controller
+ogc-controller,src/model.rs,resets,442,protocol,host-test,crates/services/ogc-controller/src/model.rs,resets_keep_release_and_error_evidence_without_a_connected_controller
+ogc-controller,src/model.rs,errors,453,protocol,host-test,crates/services/ogc-controller/src/model.rs,resets_keep_release_and_error_evidence_without_a_connected_controller
+ogc-controller,src/model.rs,empty,309,protocol,host-test,crates/services/ogc-controller/src/model.rs,empty_controller_and_metadata_have_no_input_or_capabilities
