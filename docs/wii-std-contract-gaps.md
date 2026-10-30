@@ -4,8 +4,7 @@ Updated: 2026-10-15. The tables below preserve the initial contract inventory
 and are not a current implementation status report. Since that baseline, the
 repository added and connected allocator, thread/TLS, synchronization, clock,
 network, filesystem, path, environment, output, and runtime providers. Use the
-[current checklist](wii-std-checklist.md), [handoff](wii-std-handoff.md), and
-the topic evidence linked below for current results. Unsupported operations
+[current checklist](wii-std-checklist.md) and the topic evidence linked below for current results. Unsupported operations
 must still fail explicitly. DOL builds and Wii runs are recorded separately;
 they do not prove every Rust standard-library contract.
 
@@ -24,14 +23,13 @@ The provider DOL set built on 2026-10-15 with `cargo xtask
 build-wii-std-probe`; the command produced ten probe DOLs. These are build/link
 results only. `cargo test -p ogc-std-runtime` cannot run on the host because
 its PowerPC-only dependencies reject host targets. The real-Wii evidence and
-the remaining API support limits are in the current checklist and handoff.
+the remaining API support limits are in the current checklist.
 This closes the static provider-boundary comparison only; it does not claim
 that every `std` API is supported or hardware-accepted.
 
 Date: 2026-10-14. Status: contract assessment with foundation and synchronization adapters.
 
-Use the [implementation checklist](wii-std-checklist.md) for current progress
-and the [thread handoff](wii-std-handoff.md) for repository and toolchain details.
+Use the [implementation checklist](wii-std-checklist.md) for current progress.
 The contract rows preserve the original assessment. The first mounted FAT file
 adapter is described in [file design](wii-std-files.md); directory/path services
 and hardware acceptance remain open. Source implementations now

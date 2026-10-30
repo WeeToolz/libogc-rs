@@ -76,8 +76,8 @@ alignment fix passed independent source review; real-Wii IOS validation remains
 open. The LWP null-priority fix passed independent source review for that
 bounded contract; target runtime and Wii scheduling validation remain open.
 Other LWP findings and broader runtime parity work remain open. See
-[SD status](review/libwiisd.md), [LWP findings](review/liblwp.md), and
-[the handoff](wii-std-handoff.md) for remaining comparisons.
+[SD status](review/libwiisd.md) and [LWP findings](review/liblwp.md) for
+remaining comparisons.
 The ledger also now includes `ogc-std-runtime`, which the previous ledger
 omitted; its full parity review remains incomplete. Older review totals do
 not describe the current source reference.

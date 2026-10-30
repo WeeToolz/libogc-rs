@@ -27,8 +27,7 @@ The Wii standard library backend has build and probe support for allocation,
 errors, TLS, threads, synchronization, and selected services. Complete service
 and hardware acceptance remains open. Use the
 [std implementation checklist](docs/wii-std-checklist.md) for current work and
-acceptance gates, and the [thread handoff](docs/wii-std-handoff.md) to continue
-in a new thread. The [contract gap map](docs/wii-std-contract-gaps.md) records
+acceptance gates. The [contract gap map](docs/wii-std-contract-gaps.md) records
 the Rust-to-Wii API trace, unsupported operations, and required hardware evidence.
 
 Runtime packages use the checked-in PowerPC targets. `targets/powerpc-nintendo-none.json` remains the Wii/current target. `targets/powerpc-nintendo-gamecube.json` uses the same CPU/linker model and `.cargo/config.toml` enables one registered `cfg(gamecube)` switch for that target. APIs that C hides under `__wii__`/`HW_RVL` use that shared switch, while both console targets keep the valid PowerPC EABI target environment. Ordinary host builds are limited to:
