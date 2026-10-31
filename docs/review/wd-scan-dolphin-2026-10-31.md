@@ -19,3 +19,15 @@ before close or unlock errors. Thus this API cannot report all cleanup failures
 when failures occur together. A focused failure-injection check and a decision
 on error representation are still required. The HBC result cannot prove that
 unlock succeeded.
+
+## Repeated scan check
+
+A follow-up Dolphin probe called the production API twice. The first call
+returned `NetworkDriverUnlock`, code `-1`. The second returned
+`NetworkDriverLock`, code `-4`, so the repeat check failed. The result is
+consistent with a lock left held, but does not by itself prove the lock state
+or identify the cause of Dolphin's unlock failure. The check and both runs are
+retained under `evidence/wd-scan-repeat-detail-dolphin-2026-10-31/` and
+`evidence/wd-scan-repeat-dolphin-2026-10-31/`. The final run reported 33 passes
+and one failure. The failing diagnostic patch was not added to the standard
+probe. Cleanup failure injection and physical Wii behavior remain open.
