@@ -88,6 +88,75 @@ fn probe_l2cap_packets(logger: &mut ProbeLogger) {
             && bytes[20] == 0xa5,
     );
     bytes.fill(0xa5);
+    let n = bt::build_l2cap_connection_response(&mut bytes, 0x123, 10, 0x40, 0x50, 0);
+    logger.record(
+        "L2CAP connection response bytes and errors",
+        n == Ok(20)
+            && bytes[..20]
+                == [
+                    0x23, 0x21, 16, 0, 12, 0, 1, 0, 3, 10, 8, 0, 0x40, 0, 0x50, 0, 0, 0, 0, 0,
+                ]
+            && bytes[20] == 0xa5
+            && bt::build_l2cap_connection_response(&mut bytes[..19], 0x123, 10, 0x40, 0x50, 0)
+                == Err(bt::Error::BufferTooSmall)
+            && bt::build_l2cap_connection_response(&mut bytes, 0x1000, 10, 0x40, 0x50, 0)
+                == Err(bt::Error::MalformedAcl),
+    );
+    bytes.fill(0xa5);
+    let n = bt::build_l2cap_configuration_response(&mut bytes, 0x123, 11, 0x40, 0);
+    logger.record(
+        "L2CAP configuration response bytes and errors",
+        n == Ok(18)
+            && bytes[..18]
+                == [
+                    0x23, 0x21, 14, 0, 10, 0, 1, 0, 5, 11, 6, 0, 0x40, 0, 0, 0, 0, 0,
+                ]
+            && bytes[18] == 0xa5
+            && bt::build_l2cap_configuration_response(&mut bytes[..17], 0x123, 11, 0x40, 0)
+                == Err(bt::Error::BufferTooSmall)
+            && bt::build_l2cap_configuration_response(&mut bytes, 0x1000, 11, 0x40, 0)
+                == Err(bt::Error::MalformedAcl),
+    );
+    bytes.fill(0xa5);
+    let n = bt::build_l2cap_disconnection_response(&mut bytes, 0x123, 12, 0x40, 0x50);
+    logger.record(
+        "L2CAP disconnection response bytes and errors",
+        n == Ok(16)
+            && bytes[..16] == [0x23, 0x21, 12, 0, 8, 0, 1, 0, 7, 12, 4, 0, 0x40, 0, 0x50, 0]
+            && bytes[16] == 0xa5
+            && bt::build_l2cap_disconnection_response(&mut bytes[..15], 0x123, 12, 0x40, 0x50)
+                == Err(bt::Error::BufferTooSmall)
+            && bt::build_l2cap_disconnection_response(&mut bytes, 0x1000, 12, 0x40, 0x50)
+                == Err(bt::Error::MalformedAcl),
+    );
+    bytes.fill(0xa5);
+    let n = bt::build_l2cap_command_reject(&mut bytes, 0x123, 13, 2);
+    logger.record(
+        "L2CAP command reject bytes and errors",
+        n == Ok(14)
+            && bytes[..14] == [0x23, 0x21, 10, 0, 6, 0, 1, 0, 1, 13, 2, 0, 2, 0]
+            && bytes[14] == 0xa5
+            && bt::build_l2cap_command_reject(&mut bytes[..13], 0x123, 13, 2)
+                == Err(bt::Error::BufferTooSmall)
+            && bt::build_l2cap_command_reject(&mut bytes, 0x1000, 13, 2)
+                == Err(bt::Error::MalformedAcl),
+    );
+    bytes.fill(0xa5);
+    let n = bt::build_l2cap_invalid_cid_reject(&mut bytes, 0x123, 14, 0x40);
+    logger.record(
+        "L2CAP invalid CID reject bytes and errors",
+        n == Ok(18)
+            && bytes[..18]
+                == [
+                    0x23, 0x21, 14, 0, 10, 0, 1, 0, 1, 14, 6, 0, 2, 0, 0x40, 0, 0, 0,
+                ]
+            && bytes[18] == 0xa5
+            && bt::build_l2cap_invalid_cid_reject(&mut bytes[..17], 0x123, 14, 0x40)
+                == Err(bt::Error::BufferTooSmall)
+            && bt::build_l2cap_invalid_cid_reject(&mut bytes, 0x1000, 14, 0x40)
+                == Err(bt::Error::MalformedAcl),
+    );
+    bytes.fill(0xa5);
     let n = bt::build_l2cap_data(&mut bytes, 0x123, 0x42, &[0xaa, 0xbb]);
     logger.record(
         "L2CAP data bytes and errors",
