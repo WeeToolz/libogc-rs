@@ -1,0 +1,12 @@
+{
+  "boot_stage_address": 2148102980,
+  "boot_stage": 3,
+  "program_counter": 0,
+  "program_counter_symbol": "compiler_builtins.f266b4b7ea4a36b-cgu.7+0x0",
+  "program_counter_reply": "00000000",
+  "debugger_stop": "T0540:00000000;01:817fc4a0;",
+  "stack_trace": [
+    "sp=817fc4a0 lr=80071280 anon.4fc43025a2a2941eaa74476c9e6c85b2.188.llvm.2343280189204923350+0x20"
+  ],
+  "error": null
+}

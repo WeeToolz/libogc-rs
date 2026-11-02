@@ -1,5 +1,52 @@
 # Development results
 
+## 2026-11-02: Dolphin API probe baseline and arena checks
+
+The registered Dolphin suite ran 30 probes from revision
+`8de76a4cc4a340cf436feeb6a56a6db47ef5f4c7`, using Dolphin 2609a. It
+reported 23 passes, five probe failures, one timeout, and one crash. The
+[suite report](docs/dolphin-runs/2026-11-02-baseline/suite.json) records each
+DOL SHA-256, command arguments, result, and evidence path. The runner used
+private profiles, copies of the configured Wii NAND, USB Gecko logging, and
+emulated SD media. HBC was not under test. The baseline DOLs were built before
+the arena probe change in this batch.
+
+The failed probes were `libmad_probe` (PCM checksums and probe logging/timing),
+`callback_probe` (power callback dispatch), `network_probe` (socket opens),
+`font_probe` (second initialization), and `storage_probe` (argument handoff,
+USB media, and SD file operations). `sound_probe` timed out after audio
+register and timing failures; `debugger_probe` crashed. See the individual
+results, transcripts, transport data, Dolphin logs, and page captures under
+the suite directory. These failures remain open; they do not identify a cause
+on their own. The private profiles and writable SD images remain local and are
+not tracked. The final storage and Wii std filesystem SD image SHA-256 values
+were `e519dc22ae640559de7109bccedb9b5755c28304a4c8f6d756096741e8ebfc56`
+and `b433d515edae3b200ffe51729a91a0faaa6e496e7e5cc63e3a753adc2f664ebb`,
+respectively.
+
+The arena probe now checks both reported arena sizes against the captured
+bounds and calculates allocation expectations independently of the production
+allocation helper. The updated DOL ran with nine passes and no failures; its
+SHA-256 was `e93fe21ee54889af8a7f891f430011339337fb4bd23565627a7f877d3c5648c3`.
+See its [suite report](docs/dolphin-runs/2026-11-02-arena/suite.json) and
+[transcript](docs/dolphin-runs/2026-11-02-arena/arena_probe/probe.log).
+
+Builds used the reference MP3 fixture at
+`[libmad-rs source]/test-data/layer3/libmad-stereo-mpeg1.mp3`,
+SHA-256 `c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73`,
+for both fixture variables. The baseline command was `cargo xtask
+dolphin-validate --no-build --artifact-dir docs/dolphin-runs/2026-11-02-baseline`
+after `cargo xtask dolphin-validate` built the automation DOLs. The focused
+command was `cargo xtask dolphin-validate --no-build --probe arena_probe
+--artifact-dir docs/dolphin-runs/2026-11-02-arena` after a focused automation
+build. The reports retain the absolute paths used in the runs.
+
+`cargo xtask verify-complete` passed its host tests, inventory and source
+checks, then failed the completeness gate with 2,283 unverified API entries.
+The source audit also reports three existing tracked audit-debt entries. A
+Dolphin result does not establish physical Wii behavior, and the suite does
+not exercise every public API.
+
 ## 2026-10-29: ISO 9660 and SHA runtime probe in Dolphin
 
 - Command: `LIBOGC_MAD_PROBE_MP3=<fixture> LIBOGC_MAD_REFERENCE_MP3=<fixture> cargo xtask dolphin-validate --probe runtime_probe --artifact-dir [workspace temp]/libogc-runtime-iso-20261029`.
