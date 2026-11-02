@@ -1,0 +1,192 @@
+
+
+BOOT 1/3: system and video initialized
+INFO Wiiload arguments source=entry count=0
+PASS SYS_Init completed
+INFO startup stage=0 completed_mask=0x7ff failed_stage=0
+BOOT watchdog arm starting
+INFO recovery reset watchdog not armed
+BOOT watchdog arm complete
+BOOT Wiiload report argument check
+INFO Wiiload report check disabled for this probe build
+BOOT before first vsync
+BOOT 2/3: entering IOS pre-main
+PRE 0/7: closing inherited IOS descriptors
+IPC: sync state ready
+IPC: command=0x00000002 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000002 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 1/7: IOS startup
+PRE 2/7: IOS subsystems
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 3/7: STM handler
+PRE 4/7: STM devices
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+PRE 5/7: configuration
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 6/7: Wii launch state
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 7/7: complete
+-- page 2 --
+BOOT 3/3: IOS pre-main completed
+PASS display initialized
+INFO boot stage: system/video initialized
+INFO boot stage: IOS pre-main completed
+INFO log backend disabled
+INFO argv0 unavailable
+INFO argv raw magic=0x00000000 len=0 argc=0 cmd=0x00000000 argv=0x00000000 end=0x00000000
+PASS power button callback installed
+INFO stm init deferred until shutdown
+INFO fat mount sd=not-selected usb=not-selected
+INFO previous stm handler chained=0
+INFO previous power callback replaced
+INFO Exclusive filesystem run tag: 00b6cacbd6a45198
+
+== STD FAT FILES AND PATHS: sd ==
+PASS filesystem ABI rejects a null request
+PASS filesystem ABI rejects an unknown operation
+PASS FAT errors translate into the Newlib code space
+PASS std runtime is running
+PASS mounted root and joined path are absolute
+PASS mounted paths have a prefix and a root component
+PASS rooted join keeps the mount prefix
+-- page 3 --
+PASS environment update retains one key and snapshots own values
+PASS environment removal is visible
+PASS path lists preserve mount prefixes and empty entries
+PASS path lists reject embedded separators
+INFO loader executable path unavailable: file or directory not found (newlib errno 2) (os error 2)
+PASS NUL path is rejected
+INFO filesystem operation: mount medium
+INFO filesystem operation: directory acceptance
+INFO filesystem operation: create owned directory
+PASS directory creation produces a real directory
+PASS empty directory traversal excludes dot entries
+PASS directory iterator keeps the mount busy
+INFO filesystem operation: close empty directory iterator
+INFO filesystem operation: create directory child
+INFO filesystem operation: write directory child
+INFO filesystem operation: sync directory child
+INFO filesystem operation: open typed directory
+PASS typed directory entry has stored size and type
+PASS typed traversal returns the same stored filename
+PASS read_dir on a file returns ENOTDIR
+PASS directory traversal returns the stored name and path
+PASS directory entry type and metadata use the real file
+-- page 4 --
+PASS directory traversal reaches a stable end
+PASS entry metadata remains available after the iterator closes
+PASS copy returns the byte count and persisted source bytes
+PASS copy to the same FAT entry fails before truncation
+PASS copy of a directory preserves the destination
+PASS copy of a missing source preserves the destination
+PASS missing directory returns ENOENT
+PASS empty directory removal removes its path
+INFO filesystem operation: path service acceptance
+PASS current directory uses the real mounted path
+PASS handle permission changes persist in path metadata
+PASS typed rename rejects cross-volume paths before a write
+PASS rename replaces target with source bytes and removes old name
+PASS same-file rename preserves bytes
+PASS missing rename preserves destination
+PASS canonicalize reads stored case and resolves dot components
+PASS canonicalize requires each component to exist
+PASS failed chdir preserves current directory
+PASS relative paths follow a directory change
+PASS typed canonicalize resolves short aliases to stored names
+PASS canonicalize resolves generated short aliases to stored long names
+PASS directory rename replaces an empty target and preserves children
+PASS directory rename rejects nonempty target without removal
+-- page 5 --
+PASS path permission changes reject a writable open
+PASS recursive removal removes files and nested directories
+PASS new file has zero length
+PASS disabling the last access option rejects the open
+PASS append and truncate require create_new
+PASS create_new rejects existing path without truncation
+PASS path metadata sees writes before an explicit flush
+PASS clones use one shared cursor
+PASS worker reads the remaining bytes from the shared cursor
+PASS open handle keeps the mount busy
+PASS file content equals independent expected bytes
+PASS metadata reports real size
+PASS unsupported timestamps return an error
+PASS file timestamp writes use FAT day and two-second resolution
+PASS invalid timestamp leaves both timestamp fields unchanged
+PASS out-of-range seek preserves the cursor
+PASS out-of-range resize preserves size and cursor
+PASS resize preserves the shared cursor
+PASS file extension is zero-filled
+PASS append writes at EOF after a seek, and bytes survive reopen
+PASS read-only open preserves its access mode and errno
+PASS typed open starts at offset zero
+PASS typed seek reads the persisted offset
+-- page 6 --
+PASS typed metadata reads the same stored file
+PASS typed timestamp setter writes selected stored fields
+PASS read-only flush preserves size and attributes
+PASS read-only close preserves persisted metadata
+PASS typed create_new starts empty
+PASS typed create_new writes the full payload
+PASS typed create_new bytes survive close and reopen
+PASS typed create_new rejects an existing file without truncation
+PASS typed create_new failure preserves stored bytes
+PASS typed create_truncate clears the previous size
+PASS typed create_truncate writes the replacement
+PASS typed create_truncate bytes survive close and reopen
+PASS typed create probe cleanup succeeds
+PASS typed create_directory creates a directory
+PASS typed path operation writes the full payload
+PASS typed rename preserves stored file bytes
+PASS typed rename failure preserves destination bytes
+PASS typed remove_directory rejects non-empty directory
+PASS typed remove_file removes the file
+PASS typed remove_directory removes an empty directory
+PASS typed path operation cleanup succeeds
+PASS typed and path permissions preserve other DOS attributes
+PASS FAT read-only attribute is reported
+-- page 7 --
+PASS read-only sync and close preserve all DOS attributes
+PASS read-only attribute rejects a writable open
+INFO medium remount check: unmount starting
+INFO medium remount check: mount starting
+INFO medium remount check: persisted read starting
+PASS file bytes survive a medium unmount and remount
+PASS timestamps survive medium unmount and remount
+PASS owned probe file removal succeeds
+PASS file cleanup has no new failures
+INFO last file close errno=0
+PASS owned medium unmount succeeds
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+INFO summary_candidate passes=99 fails=0
+PASS summary passes=99 fails=0

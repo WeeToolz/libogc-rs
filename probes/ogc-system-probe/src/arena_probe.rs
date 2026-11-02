@@ -13,6 +13,16 @@ pub fn run(logger: &mut ProbeLogger) {
     logger.note_hex32("arena2 lo", original.arena2_lo as usize as u32);
     logger.note_hex32("arena2 hi", original.arena2_hi as usize as u32);
 
+    logger.record(
+        "arena1 size matches bounds",
+        system::get_arena1_size()
+            == (original.arena1_hi as u32).wrapping_sub(original.arena1_lo as u32),
+    );
+    logger.record(
+        "arena2 size matches bounds",
+        system::get_arena2_size()
+            == (original.arena2_hi as u32).wrapping_sub(original.arena2_lo as u32),
+    );
     logger.record("arena1 low alloc math", test_arena1(original.arena1_lo));
     logger.record("arena2 low alloc math", test_arena2(original.arena2_lo));
 
@@ -30,16 +40,16 @@ pub fn run(logger: &mut ProbeLogger) {
 }
 
 fn test_arena1(original_lo: *mut c_void) -> bool {
-    let (expected_ptr, expected_lo) =
-        system::arena_low_alloc_from(original_lo as usize, 0x120, 0x20);
+    let expected_ptr = (original_lo as usize).div_ceil(0x20) * 0x20;
+    let expected_lo = expected_ptr + 0x120;
     let ptr = system::alloc_arena1_mem_lo(0x120, 0x20) as usize;
     let new_lo = system::get_arena1_lo() as usize;
     ptr == expected_ptr && new_lo == expected_lo
 }
 
 fn test_arena2(original_lo: *mut c_void) -> bool {
-    let (expected_ptr, expected_lo) =
-        system::arena_low_alloc_from(original_lo as usize, 0x180, 0x40);
+    let expected_ptr = (original_lo as usize).div_ceil(0x40) * 0x40;
+    let expected_lo = expected_ptr + 0x180;
     let ptr = system::alloc_arena2_mem_lo(0x180, 0x40) as usize;
     let new_lo = system::get_arena2_lo() as usize;
     ptr == expected_ptr && new_lo == expected_lo

@@ -13,3 +13,5 @@ __pycache__/
 .DS_Store
 Cargo.lock
 /games/
+# Dolphin profiles can contain copied console data and large writable media.
+/docs/dolphin-runs/*/*/user/
