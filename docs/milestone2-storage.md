@@ -24,19 +24,17 @@ export, and Rust call paths. Fifty-nine `ogc-di` rows record exact wrapper
 paths from the no-disc probe. Twenty-seven `ogc-dvd` rows record exact facade
 calls from the no-disc probe. Thirty-two `ogc-dvd-sys` rows record exact calls
 through the sys module. Thirty `ogc-gcsd` rows record public wrapper calls and
-SD interface callbacks from the GameCube SD probe. Twenty-four
+SD interface callbacks from the GameCube SD probe. Fifty-six
 `ogc-card-metadata` rows record exact calls from host tests. The CARD probes now
 record 113 exact public call paths: 63 `ogc-card` and 50 `ogc-card-sys`. In total,
-518 of 604 storage entries record exact API paths. These checks confirm source
+550 of 604 storage entries record exact API paths. These checks confirm source
 identity only. A path match does not prove that an API assertion passed or
 that a device-dependent branch ran. Review each mapping and runtime report
 before using it as a result.
-The other 86 rows have no exact path: 32 `ogc-card-metadata`, 40 `ogc-card-sys`,
-and 14 `ogc-gcsd`. The 40 `ogc-card-sys` rows and all 14 `ogc-gcsd` rows name
-private backend functions, so they need separate implementation evidence.
-All public `ogc-card-sys` wrappers now have direct probe paths. The metadata
-rows need exact host-test call paths. These source tasks do not close
-the runtime test gaps.
+The other 54 rows have no exact path: 40 `ogc-card-sys` and 14 `ogc-gcsd`.
+These rows name private backend functions. Keep them as implementation evidence,
+not as direct public API calls. The remaining runtime gaps still need their own
+probe or host-test results.
 
 | Package | API entries | Probe group |
 | --- | ---: | --- |
