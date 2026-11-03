@@ -188,7 +188,7 @@ The current inventory has 604 API entries in 14 storage packages. Its 0
 `unverified` entries mean that every API has an implementation-source mapping;
 they do not mean that every API has passed a test or a Dolphin run. These
 counts come from `docs/generated/implementation-inventory.csv`. Exact call
-paths are now recorded for 292 entries: 9 `iso9660`, 59 `ogc-di`, 5 `ogc-wiisd`, 20
+paths are now recorded for 319 entries: 9 `iso9660`, 27 `ogc-dvd`, 59 `ogc-di`, 5 `ogc-wiisd`, 20
 `ogc-usbstorage-lifecycle`, 30
 `ogc-usbstorage`, 65 `ogc-usbstorage-sys`, 64 `ogc-fat`, and 40
 `ogc-filesystem`. Exact source mapping does not prove runtime behavior. Keep
