@@ -1,5 +1,23 @@
 # Development results
 
+## 2026-11-02: GX fog adjustment table in Dolphin
+
+The video probe checks ten fixed orthographic fog adjustment values and
+verifies that zero width leaves the table unchanged. The DOL ran in Dolphin
+2609a with 49 passes and no failures. Its SHA-256 was
+`fbe17609fccbf7b711f56ceff9803f3e929168c0e3a964022b417e73f27c61be`.
+The build used revision `ce2ef2c` and the probe change in this batch. The
+runner used a private profile and copied Wii NAND. HBC was not under test.
+The [report](docs/dolphin-runs/2026-11-02-gx-fog/suite.json) records the run.
+The check examines the table. Fog rendering and physical Wii behavior remain
+untested.
+
+Build with `cargo xtask build-dol ogc-system-probe --bin video_probe
+--probe-features dolphin-automation --no-dev --output
+target/xtask/probes-dolphin/video_probe.dol`. Run with `cargo xtask
+dolphin-validate --no-build --probe video_probe --artifact-dir
+docs/dolphin-runs/2026-11-02-gx-fog`.
+
 ## 2026-11-02: Wii-target probe Clippy cleanup
 
 The Wii-target `ogc-system-probe` library and its dependencies passed Clippy
