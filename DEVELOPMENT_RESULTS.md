@@ -1,5 +1,23 @@
 # Development results
 
+## 2026-11-02: GX specular light in Dolphin
+
+The video probe checks explicit and computed specular directions and the
+zero half-angle case. The DOL ran in Dolphin 2609a with 46 passes and no
+failures. Its SHA-256 was
+`62e88fbcda7bbb4319ae1a1f442e47ae99b7aa72276b7c1623d80c522fc993c5`.
+The build used revision `1702da0` and the probe change in this batch. The
+runner used a private profile and copied Wii NAND. HBC was not under test.
+The [report](docs/dolphin-runs/2026-11-02-gx-specular/suite.json) records the
+run. The checks inspect an in-memory object. Rendered lighting and physical
+Wii behavior remain untested.
+
+Build with `cargo xtask build-dol ogc-system-probe --bin video_probe
+--probe-features dolphin-automation --no-dev --output
+target/xtask/probes-dolphin/video_probe.dol`. Run with `cargo xtask
+dolphin-validate --no-build --probe video_probe --artifact-dir
+docs/dolphin-runs/2026-11-02-gx-specular`.
+
 ## 2026-11-02: GX light attenuation in Dolphin
 
 The video probe checks gentle, medium, and steep distance attenuation,
