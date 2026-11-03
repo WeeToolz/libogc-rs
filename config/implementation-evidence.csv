@@ -1,4 +1,10 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function
+ogc-gx,src/lib.rs,init_tex_obj_ci_from_init,5415,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_indexed_lod
+ogc-gx,src/lib.rs,init_tex_obj_ci,5436,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_indexed_lod
+ogc-gx,src/lib.rs,init_tex_obj_lod_from_params,5448,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_indexed_lod
+ogc-gx,src/lib.rs,init_tex_obj_tlut,5492,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_indexed_lod
+ogc-gx,src/lib.rs,init_tex_obj_lod_bias,5540,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_indexed_lod
+ogc-gx,src/lib.rs,init_tex_obj_edge_lod,5558,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_indexed_lod
 ogc-gx,src/lib.rs,init_tex_obj_from_init,5342,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_queries
 ogc-gx,src/lib.rs,init_tex_obj_data,5477,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_queries
 ogc-gx,src/lib.rs,init_tex_obj_filter_mode,5509,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_queries
