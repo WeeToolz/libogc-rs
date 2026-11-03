@@ -27,6 +27,28 @@ recorded in `docs/dependencies.md`. The fixture was
 `[libmad-rs source]/test-data/layer3/libmad-stereo-mpeg1.mp3`
 (SHA-256 `c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73`).
 
+## 2026-11-03: USB storage facade no-device checks
+
+The focused USB storage DOL passed 28 checks in Dolphin 2609a. Seventeen
+`ogc-usbstorage` APIs now have direct evidence: no-device initialization and
+cleanup, raw-to-safe error mapping, null-handle rejection, default flush, and
+the DVD query. Failed open returned `-6` and left the handle closed with no
+buffers. The probe made no sector writes. The DOL SHA-256 was
+`fbe8aabb289e0de13037dced3d3f702644bbefde651beea3a8fc86eafdc601dd`. The run
+used source revision `4ecca92` plus the probe changes in this batch, a private
+Dolphin profile, and a copy of the Wii NAND. See the
+[report](docs/dolphin-runs/2026-11-03-usbstorage-facade-final/suite.json) and
+[probe log](docs/dolphin-runs/2026-11-03-usbstorage-facade-final/usbstorage_capacity_probe/probe.log).
+This run did not have a physical USB storage device. It does not test a live
+USB transport. `flush` and `try_flush` remain open because their contract needs
+a valid mounted handle. Build with `cargo xtask build-dol ogc-system-probe
+--bin usbstorage_capacity_probe --probe-features dolphin-automation --no-dev
+--output target/xtask/probes-dolphin/usbstorage_capacity_probe.dol` and the
+fixture variables recorded in `docs/dependencies.md`. Run with `cargo xtask
+dolphin-validate --no-build --probe usbstorage_capacity_probe --artifact-dir
+docs/dolphin-runs/2026-11-03-usbstorage-facade-final --dolphin
+docs/dolphin-runs/2026-11-03-iso9660-c-abi/dolphin-intel-wrapper.sh`.
+
 ## 2026-11-02: AESND voice controls and cycle checks
 
 The focused AESND DOL ran in Dolphin 2609a with a private profile and copied
