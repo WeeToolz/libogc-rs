@@ -22,14 +22,19 @@ external MP3 fixtures and `cargo xtask check-all-runtime` for 83 Wii runtime
 packages on 2026-10-28. The host suite includes 109 vendored decoder tests.
 These results cover host tests and target compilation only.
 
-The PowerPC `libmad_probe` DOL ran in Dolphin but failed. It reported 6 passes
-and 4 failures: full-rate and half-rate PCM checksums, VI retrace timing, and
-probe logging. The run used DOL SHA-256
+An earlier PowerPC `libmad_probe` run in Dolphin reported 6 passes and 4
+failures: full-rate and half-rate PCM checksums, VI retrace timing, and probe
+logging. The run used DOL SHA-256
 `c349deb295e254acf181b38df185712e661aed33c43fbe1211b66c33269f8187`; its
 local, untracked report is `target/dolphin-validation/1793219409-ca7e49690f3c/suite.json`.
-The run used the code at revision `ca7e496`; only documentation changed after
-that run. Earlier runs reported the same checks. The failure causes remain
-open, and this result does not establish real-Wii behavior.
+The checksum mismatch used host-profile values in the PowerPC probe. The
+VI-timing and logging failures came from the earlier direct logger setup. A
+later run with the shared probe initializer and PowerPC-profile hashes passed
+11 checks in Dolphin 2609a. Its report is
+[`2026-11-02-mad-ppc-profile-final`](dolphin-runs/2026-11-02-mad-ppc-profile-final/suite.json),
+and its DOL SHA-256 is
+`6353a1b9cb993e1d1547cbea98b8037358a4d6bd4fb4015e51a8fed294201c41`.
+These runs do not establish real-Wii behavior.
 
 The 2026-11-02 completeness gate reports 2,166 APIs without accepted exact
 test or probe evidence. The hardware register has 14 passed and 36 not-tested

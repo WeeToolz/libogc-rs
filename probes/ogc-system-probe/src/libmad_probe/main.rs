@@ -15,10 +15,10 @@ pub extern "C" fn main(_argc: i32, _argv: *mut *mut u8) -> i32 {
         frame::{Frame, Header, Layer, Mode, OPTION_HALFSAMPLERATE},
         synth::Synth,
     };
-    // Golden values for the current C-like DCT/SSO synthesis path. Update
-    // these only when the reference comparison confirms a synthesis change.
-    const FULL_RATE_HASH: u32 = 897_898_644;
-    const HALF_RATE_HASH: u32 = 1_929_954_053;
+    // These values use the PowerPC FPM_PPC multiplication profile. Host
+    // FPM_DEFAULT produces different hashes for the same synthetic subbands.
+    const FULL_RATE_HASH: u32 = 0x5a84_8a33;
+    const HALF_RATE_HASH: u32 = 0xc89b_5e9a;
 
     let mut logger = ogc_system_probe::init_named_probe_logger("libmad-probe");
     logger.section("LIBMAD-RS SYNTHESIS");
@@ -37,11 +37,11 @@ pub extern "C" fn main(_argc: i32, _argv: *mut *mut u8) -> i32 {
         },
         ..Frame::default()
     };
-    for channel in 0..2 {
-        for slot in 0..36 {
-            for band in 0..32 {
+    for (channel, slots) in frame.sbsample.iter_mut().enumerate() {
+        for (slot, bands) in slots.iter_mut().enumerate() {
+            for (band, sample) in bands.iter_mut().enumerate() {
                 let value = ((channel * 997 + slot * 101 + band * 37) % 2001) as i32 - 1000;
-                frame.sbsample[channel][slot][band] = value << 12;
+                *sample = value << 12;
             }
         }
     }
