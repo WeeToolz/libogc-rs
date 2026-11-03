@@ -4,23 +4,45 @@ Milestone 2 replaces the remaining disabled or inline-completion storage facades
 
 ## API verification groups
 
-The generated inventory currently has 87 storage APIs marked `unverified`.
-These entries are in three packages:
+The generated inventory has 604 storage API entries in 14 packages. The
+inventory currently marks none of them `unverified` for implementation
+evidence. This is a source-mapping result. It does not prove that a probe ran
+or that an API passed on Dolphin or Wii hardware. The inventory audit checks
+that each entry maps to evidence source; it does not check runtime results.
 
-| Package | Open entries | Probe group |
+| Package | API entries | Probe group |
 | --- | ---: | --- |
-| `ogc-di` | 10 | DI settings and callbacks (6); partition open and close (4) |
-| `ogc-card` | 21 | CARD compatibility wrapper |
-| `ogc-card-sys` | 56 | CARD driver ABI |
+| `iso9660` | 9 | DVD |
+| `ogc-card` | 63 | CARD |
+| `ogc-card-metadata` | 56 | CARD |
+| `ogc-card-sys` | 90 | CARD |
+| `ogc-di` | 59 | DVD |
+| `ogc-dvd` | 27 | DVD |
+| `ogc-dvd-sys` | 32 | DVD |
+| `ogc-fat` | 64 | FAT |
+| `ogc-filesystem` | 40 | FAT |
+| `ogc-gcsd` | 44 | Storage |
+| `ogc-usbstorage` | 30 | Storage |
+| `ogc-usbstorage-lifecycle` | 20 | Storage |
+| `ogc-usbstorage-sys` | 65 | Storage |
+| `ogc-wiisd` | 5 | Storage |
 
-The workspace also checks all 15 storage packages as one build group with
-`cargo xtask check-group storage`. The inventory groups open entries by
-package, but it does not yet define smaller operation groups. Useful groups
-include mount and status, file I/O, directory operations, metadata,
-asynchronous completion, and cleanup. A probe must call each API
-directly or use an exact host test for shared logic before its inventory entry
-can leave `unverified`. A broad probe run does not prove every API in its
-coverage group.
+The workspace checks 15 runtime crates as one build group with
+`cargo xtask check-group storage`. The probe group names map to source files in
+`config/probe-coverage.csv`. They collect related packages, but they do not
+define a result for every API. Use smaller operation batches inside each probe
+group: initialization and teardown, status, file or block I/O, directory and
+metadata operations, asynchronous completion, error handling, and cleanup.
+Each API needs a direct observable check or an exact host test of production
+logic. A broad probe run does not prove every API in its group.
+
+Current runtime evidence is incomplete. The storage probe DOL built, but the
+available Dolphin 2609a process aborted on `--version` before it launched the
+DOL. See [the recorded launch attempt](dolphin-runs/2026-11-03-storage-card-inventory-zero/README.md)
+and [the storage API audit](dolphin-runs/2026-11-03-storage-api-audit/README.md).
+These runs provide no Dolphin API results. The hardware register also records
+CARD and DI runtime checks as not tested. Do not treat the zero `unverified`
+source count as a completed storage verification result.
 
 CARD game and company identifiers now use tested types in `ogc-card-metadata`.
 The host test checks valid bytes, round trips, and the exact index and byte for

@@ -1,5 +1,38 @@
 # Development results
 
+## 2026-11-03: storage inventory and host-test audit
+
+`cargo xtask check-inventory` passed and confirmed 3,387 API entries. The
+current crate-role data places 15 runtime crates in the storage build group.
+The generated API inventory has 604 entries in 14 of those packages, with no
+entry classified `unverified` for implementation evidence. This count proves
+source-evidence mapping only. It does not prove runtime behavior. The CARD and
+DI runtime checks remain open; see the storage verification groups in
+`docs/milestone2-storage.md`.
+
+`cargo test -p ogc-card-metadata` passed 17 tests. `cargo test
+-p ogc-usbstorage-lifecycle` passed 21 tests. These host tests check shared
+CARD metadata and USB lifecycle logic. They do not exercise the target-only
+storage backends or physical devices.
+
+`cargo xtask check-group storage` passed for all 15 Wii runtime crates.
+Clippy passed with warnings denied for the two host-testable packages:
+`cargo clippy -p ogc-card-metadata -p ogc-usbstorage-lifecycle --all-targets
+-- -D warnings`.
+
+The combined command `cargo test -p ogc-card-metadata -p ogc-fat -p
+ogc-filesystem -p iso9660 -p ogc-usbstorage-lifecycle` failed before tests ran.
+Cargo attempted to build target-only Wii dependencies for the host, which
+stopped at their PowerPC target guards. This result does not invalidate the
+two separately passing host-test suites.
+
+The latest storage probe DOL build did not run in Dolphin. Dolphin 2609a
+aborted on `--version` before launch; the crash report records `SIGABRT` in
+Qt's `qDetectCpuFeatures` initializer. The two CARD launch attempts and their
+DOL identities are recorded in `docs/dolphin-runs/2026-11-03-storage-api-audit/`
+and `docs/dolphin-runs/2026-11-03-storage-card-inventory-zero/`. No new
+Dolphin or hardware result was collected in this audit.
+
 ## 2026-11-03: FAT SD API probe and devoptab fix
 
 The focused `fat_sd_probe` passed all 21 checks in Dolphin 2609a. It mounted
