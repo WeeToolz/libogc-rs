@@ -36,6 +36,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_texture_queries(logger);
     probe_texture_indexed_lod(logger);
     probe_texture_regions(logger);
+    probe_texture_sizes(logger);
     probe_light_object(logger);
     probe_light_falloff(logger);
     probe_specular_light(logger);
@@ -154,6 +155,26 @@ pub fn run(logger: &mut ProbeLogger) {
     let _ = video::set_post_retrace_callback(previous_post);
     PREVIOUS_PRE_CALLBACK.store(0, Ordering::Release);
     PREVIOUS_POST_CALLBACK.store(0, Ordering::Release);
+}
+
+fn probe_texture_sizes(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    let cases = [
+        (8, 8, gx::GX_TF_I4, 0, 0, 32),
+        (9, 8, gx::GX_TF_I4, 0, 0, 64),
+        (8, 5, gx::GX_TF_I8, 0, 0, 64),
+        (5, 5, gx::GX_TF_RGB565, 0, 0, 128),
+        (5, 5, gx::GX_TF_RGBA8, 0, 0, 256),
+        (8, 8, gx::GX_TF_I4, 1, 0, 0),
+        (8, 8, gx::GX_TF_I4, 1, 4, 128),
+        (8, 8, gx::GX_TF_I4, 1, 10, 128),
+    ];
+    let mut matches = true;
+    for (width, height, format, mipmap, levels, expected) in cases {
+        matches &=
+            gx::get_tex_buffer_size(width, height, u32::from(format), mipmap, levels) == expected;
+    }
+    logger.record("GX texture buffer tile and mip sizes", matches);
 }
 
 fn probe_fog_table(logger: &mut ProbeLogger) {
