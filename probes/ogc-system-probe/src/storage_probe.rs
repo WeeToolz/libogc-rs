@@ -890,7 +890,7 @@ fn probe_usb_storage(logger: &mut ProbeLogger) {
         return;
     }
     if owned_mount {
-        let persistence_written = write_usb_close_probe();
+        let persistence_written = write_usb_close_probe(logger);
         logger.record("usb close probe write fsync close", persistence_written);
         let unmount_result = fat::unmount(USB_MOUNT_NAME);
         log_fat_result(logger, "fat unmount usb", &unmount_result);
@@ -915,17 +915,24 @@ fn probe_usb_storage(logger: &mut ProbeLogger) {
     }
 }
 
-fn write_usb_close_probe() -> bool {
-    let _ = unlink_device_file(USB_CLOSE_PROBE_PATH);
-    let Some(file) =
-        ProbeDeviceFile::open(USB_CLOSE_PROBE_PATH, sysbase::O_WRONLY | sysbase::O_CREAT)
-    else {
+fn write_usb_close_probe(logger: &mut ProbeLogger) -> bool {
+    let Some(file) = ProbeDeviceFile::open(
+        USB_CLOSE_PROBE_PATH,
+        sysbase::O_WRONLY | sysbase::O_CREAT | sysbase::O_EXCL,
+    ) else {
         return false;
     };
     let written = file.write(USB_CLOSE_PROBE_MSG);
     let sync_result = file.fsync();
     let close_result = file.close();
-    written.0 == USB_CLOSE_PROBE_MSG.len() as isize && sync_result.0 == 0 && close_result.0 == 0
+    let completed = written.0 == USB_CLOSE_PROBE_MSG.len() as isize
+        && sync_result.0 == 0
+        && close_result.0 == 0;
+    if !completed {
+        let cleanup = unlink_device_file(USB_CLOSE_PROBE_PATH);
+        logger.record("usb close probe setup cleanup", cleanup == 0);
+    }
+    completed
 }
 
 fn probe_usb_close_persistence(logger: &mut ProbeLogger) {
@@ -1196,8 +1203,6 @@ fn probe_sd_file_io() -> UsbFileIoResult {
 }
 
 fn probe_file_io(path: &CStr, message: &[u8]) -> UsbFileIoResult {
-    let _ = unlink_device_file(path);
-
     let mut result = UsbFileIoResult {
         write_open: false,
         write_rc: -1,
@@ -1215,20 +1220,24 @@ fn probe_file_io(path: &CStr, message: &[u8]) -> UsbFileIoResult {
         read_back: [0; 64],
     };
 
-    if let Some(file) = ProbeDeviceFile::open(path, sysbase::O_WRONLY | sysbase::O_CREAT) {
+    if let Some(file) =
+        ProbeDeviceFile::open(path, sysbase::O_WRONLY | sysbase::O_CREAT | sysbase::O_EXCL)
+    {
         result.write_open = true;
         (result.write_rc, result.write_errno) = file.write(message);
         (result.write_sync_rc, result.write_sync_errno) = file.fsync();
         (result.write_close_rc, result.write_close_errno) = file.close();
     }
 
-    if let Some(file) = ProbeDeviceFile::open(path, sysbase::O_RDWR) {
-        result.read_open = true;
-        (result.read_rc, result.read_errno) = file.read(&mut result.read_back);
-        (result.read_close_rc, result.read_close_errno) = file.close();
+    if result.write_open {
+        if let Some(file) = ProbeDeviceFile::open(path, sysbase::O_RDWR) {
+            result.read_open = true;
+            (result.read_rc, result.read_errno) = file.read(&mut result.read_back);
+            (result.read_close_rc, result.read_close_errno) = file.close();
+        }
+        result.remove_rc = unlink_device_file(path);
     }
 
-    result.remove_rc = unlink_device_file(path);
     result
 }
 
@@ -1459,6 +1468,16 @@ fn probe_card_invalid_channel_apis(logger: &mut ProbeLogger) {
     logger.record(
         "CARD wrapper get_error_code forwards the invalid-channel result",
         card::get_error_code(invalid_channel) == card::CARD_ERROR_NOCARD,
+    );
+    // SAFETY: the static filename is a valid NUL-terminated string. The
+    // invalid channel must reject both calls before they can affect a file.
+    let sys_delete = unsafe { card::sys::delete(invalid_channel, c"INVALID".as_ptr()) };
+    // SAFETY: same valid filename and invalid-channel precondition.
+    let wrapper_delete = unsafe { card::delete(invalid_channel, c"INVALID".as_ptr().cast()) };
+    logger.record(
+        "CARD sys and wrapper delete reject an invalid channel",
+        sys_delete == card::CARD_ERROR_FATAL_ERROR
+            && wrapper_delete == card::CARD_ERROR_FATAL_ERROR,
     );
 
     let mut block_count = 0x1234_5678;
@@ -1810,12 +1829,36 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     };
     logger.note_i32("card sector size rc", sector_rc);
     logger.note_u32("card sector size", sector_size);
-    // SAFETY: the filename is a static NUL-terminated string.
-    let cleanup = unsafe { card::delete(card::CARD_SLOTA, c"SAVE".as_ptr().cast()) };
-    logger.record(
-        "card pre-create cleanup",
-        cleanup == card::CARD_ERROR_READY || cleanup == card::CARD_ERROR_NOFILE,
-    );
+    let mut existing_save = card::CardFile::default();
+    // SAFETY: the filename is static and `existing_save` is a unique output.
+    let existing_save_status =
+        unsafe { card::open(slot.channel(), c"SAVE".as_ptr().cast(), &mut existing_save) };
+    if existing_save_status == card::CARD_ERROR_READY {
+        // SAFETY: `existing_save` is live and not used by another operation.
+        let close = unsafe { card::close(&mut existing_save) };
+        logger.record(
+            "card existing SAVE handle cleanup",
+            close == card::CARD_ERROR_READY,
+        );
+        logger.note("card save checks skipped: SAVE already exists; existing data was preserved");
+        let unmount = mounted.unmount();
+        logger.record(
+            "card unmount after existing SAVE",
+            unmount == card::CARD_ERROR_READY,
+        );
+        return;
+    }
+    if existing_save_status != card::CARD_ERROR_NOFILE {
+        logger.note_i32("card SAVE preflight status", existing_save_status);
+        logger.note("card save checks skipped: SAVE preflight did not prove the name is free");
+        let unmount = mounted.unmount();
+        logger.record(
+            "card unmount after SAVE preflight",
+            unmount == card::CARD_ERROR_READY,
+        );
+        return;
+    }
+    logger.record("card SAVE preflight found no existing file", true);
     let (freeblocks_ok, freeblocks) = match card::free_blocks(slot) {
         Ok(value) => (true, value),
         Err(_) => (false, 0),
@@ -1872,8 +1915,6 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
                 .is_some_and(|completion| completion.status() == card::CARD_ERROR_READY),
     );
 
-    // SAFETY: this best-effort cleanup uses a static NUL-terminated filename.
-    let _ = unsafe { card::delete(slot.channel(), c"ENTRY".as_ptr().cast()) };
     let mut entry = card::CardDir {
         chn: slot.channel(),
         filelen: sector_size.max(0x2000),
@@ -2140,17 +2181,42 @@ fn inserted(io: &ogc_wiisd::DiscInterface) -> bool {
     unsafe { io.is_inserted.is_some_and(|callback| callback()) }
 }
 
-fn create_hotplug_handle(path: &CStr, message: &[u8]) -> Option<ProbeDeviceFile> {
-    let _ = unlink_device_file(path);
-    let file = ProbeDeviceFile::open(path, sysbase::O_WRONLY | sysbase::O_CREAT)?;
-    if file.write(message).0 != message.len() as isize || file.fsync().0 != 0 || file.close().0 != 0
-    {
+fn create_hotplug_handle(
+    logger: &mut ProbeLogger,
+    path: &CStr,
+    message: &[u8],
+    label: &str,
+) -> Option<ProbeDeviceFile> {
+    let file = ProbeDeviceFile::open(path, sysbase::O_WRONLY | sysbase::O_CREAT | sysbase::O_EXCL)?;
+    let write_result = file.write(message);
+    let sync_result = file.fsync();
+    let close_result = file.close();
+    if write_result.0 != message.len() as isize || sync_result.0 != 0 || close_result.0 != 0 {
+        let cleanup = unlink_device_file(path);
+        logger.record(
+            &alloc::format!("{label} hotplug setup cleanup"),
+            cleanup == 0,
+        );
         return None;
     }
+    match ProbeDeviceFile::open(path, sysbase::O_RDWR) {
+        Some(file) => Some(file),
+        None => {
+            let cleanup = unlink_device_file(path);
+            logger.record(
+                &alloc::format!("{label} hotplug setup cleanup"),
+                cleanup == 0,
+            );
+            None
+        }
+    }
+}
+
+fn open_hotplug_handle(path: &CStr) -> Option<ProbeDeviceFile> {
     ProbeDeviceFile::open(path, sysbase::O_RDWR)
 }
 
-fn open_or_create_hotplug_card(file: &mut card::CardFile) -> bool {
+fn open_or_create_hotplug_card(file: &mut card::CardFile, created: &mut bool) -> bool {
     // SAFETY: the filename is static and `file` is uniquely borrowed throughout.
     let open = unsafe { card::open(card::CARD_SLOTA, c"HOTPLUG".as_ptr().cast(), file) };
     if open == card::CARD_ERROR_READY {
@@ -2168,14 +2234,20 @@ fn open_or_create_hotplug_card(file: &mut card::CardFile) -> bool {
         return false;
     }
     // SAFETY: the static filename and unique file output remain valid for the call.
-    (unsafe {
+    let status = unsafe {
         card::create(
             card::CARD_SLOTA,
             c"HOTPLUG".as_ptr().cast(),
             sector_size.max(0x2000),
             file,
         )
-    }) == card::CARD_ERROR_READY
+    };
+    if status == card::CARD_ERROR_READY {
+        *created = true;
+        true
+    } else {
+        false
+    }
 }
 
 fn usb_device_has_interface_class(fd: i32, interface_class: u8) -> bool {
@@ -2366,24 +2438,28 @@ fn probe_media_hotplug(logger: &mut ProbeLogger) {
     logger
         .note("Each old FAT handle must fail after removal; remounts are attempted automatically.");
 
-    let _ = fat::mount_sd();
-    let _ = fat::mount_usb();
+    let sd_mount = fat::mount_sd();
+    log_fat_result(logger, "hotplug initial sd mount", &sd_mount);
+    let usb_mount = fat::mount_usb();
+    log_fat_result(logger, "hotplug initial usb mount", &usb_mount);
     let mut sd_handle = if fat::is_mounted(SD_MOUNT_NAME) {
-        create_hotplug_handle(SD_PROBE_PATH, SD_PROBE_MSG)
+        create_hotplug_handle(logger, SD_PROBE_PATH, SD_PROBE_MSG, "sd")
     } else {
         None
     };
+    let sd_probe_file_created = sd_handle.is_some();
     let mut usb_handle = if fat::is_mounted(USB_MOUNT_NAME) {
-        create_hotplug_handle(USB_PROBE_PATH, USB_PROBE_MSG)
+        create_hotplug_handle(logger, USB_PROBE_PATH, USB_PROBE_MSG, "usb")
     } else {
         None
     };
+    let usb_probe_file_created = usb_handle.is_some();
     let mut usb_v5_probe = UsbV5RemovalProbe::start(logger);
 
     let mut card_workarea = Workarea([0; card::CARD_WORKAREA_SIZE as usize]);
     CARD_DETACHED.store(false, Ordering::Release);
     // SAFETY: the aligned work area remains live through the complete hotplug probe.
-    let mut card_mounted = unsafe {
+    let mut card_slot_mounted = unsafe {
         card::mount(
             card::CARD_SLOTA,
             card_workarea.0.as_mut_ptr().cast(),
@@ -2391,8 +2467,16 @@ fn probe_media_hotplug(logger: &mut ProbeLogger) {
         )
     } == card::CARD_ERROR_READY;
     let mut card_file = card::CardFile::default();
-    if card_mounted {
-        card_mounted = open_or_create_hotplug_card(&mut card_file);
+    let mut card_file_created = false;
+    let mut card_file_open =
+        card_slot_mounted && open_or_create_hotplug_card(&mut card_file, &mut card_file_created);
+    if card_slot_mounted && !card_file_open {
+        let unmount = card::unmount(card::CARD_SLOTA);
+        logger.record(
+            "card hotplug setup unmount",
+            unmount == card::CARD_ERROR_READY,
+        );
+        card_slot_mounted = false;
     }
 
     let mut sd_removals = 0u32;
@@ -2406,7 +2490,8 @@ fn probe_media_hotplug(logger: &mut ProbeLogger) {
     let sleep = (lwp::TICKS_PER_SECOND / 4).max(1);
 
     for _ in 0..HOTPLUG_SECONDS.saturating_mul(4) {
-        let _ = fat::poll_media();
+        let poll_events = fat::poll_media();
+        logger.note_u32("hotplug media poll events", poll_events as u32);
         usb_v5_probe.poll(logger);
         let sd_now_mounted = fat::is_mounted(SD_MOUNT_NAME);
         let usb_now_mounted = fat::is_mounted(USB_MOUNT_NAME);
@@ -2432,19 +2517,24 @@ fn probe_media_hotplug(logger: &mut ProbeLogger) {
 
         if !sd_now_mounted && inserted(&wiisd::WII_SD_INTERFACE) && fat::mount_sd().is_ok() {
             sd_remounts += 1;
-            sd_handle = create_hotplug_handle(SD_PROBE_PATH, SD_PROBE_MSG);
+            if sd_probe_file_created {
+                sd_handle = open_hotplug_handle(SD_PROBE_PATH);
+            }
         }
         if !usb_now_mounted
             && inserted(&usb_storage_sys::USB_STORAGE_INTERFACE)
             && fat::mount_usb().is_ok()
         {
             usb_remounts += 1;
-            usb_handle = create_hotplug_handle(USB_PROBE_PATH, USB_PROBE_MSG);
+            if usb_probe_file_created {
+                usb_handle = open_hotplug_handle(USB_PROBE_PATH);
+            }
         }
 
         if CARD_DETACHED.swap(false, Ordering::AcqRel) {
             card_removals += 1;
-            card_mounted = false;
+            card_slot_mounted = false;
+            card_file_open = false;
             let mut byte = [0u8; card::CARD_READSIZE as usize];
             let stale = card::read_slice(&mut card_file, &mut byte, 0);
             logger.record(
@@ -2452,20 +2542,29 @@ fn probe_media_hotplug(logger: &mut ProbeLogger) {
                 stale == card::CARD_ERROR_NOCARD,
             );
         }
-        if !card_mounted && card::probe(card::CARD_SLOTA) == card::CARD_ERROR_READY {
+        if !card_slot_mounted && card::probe(card::CARD_SLOTA) == card::CARD_ERROR_READY {
             // SAFETY: the aligned work area remains live through this remount.
-            card_mounted = unsafe {
+            card_slot_mounted = unsafe {
                 card::mount(
                     card::CARD_SLOTA,
                     card_workarea.0.as_mut_ptr().cast(),
                     Some(card_detach_callback),
                 )
             } == card::CARD_ERROR_READY;
-            if card_mounted {
+            if card_slot_mounted {
                 card_file = card::CardFile::default();
-                card_mounted = open_or_create_hotplug_card(&mut card_file);
-                if card_mounted {
+                card_file_open =
+                    open_or_create_hotplug_card(&mut card_file, &mut card_file_created);
+                if card_file_open {
                     card_remounts += 1;
+                } else {
+                    logger.record("card hotplug remount file open", false);
+                    let unmount = card::unmount(card::CARD_SLOTA);
+                    logger.record(
+                        "card hotplug remount cleanup",
+                        unmount == card::CARD_ERROR_READY,
+                    );
+                    card_slot_mounted = false;
                 }
             }
         }
@@ -2484,26 +2583,53 @@ fn probe_media_hotplug(logger: &mut ProbeLogger) {
     usb_v5_probe.finish(logger);
 
     if let Some(handle) = sd_handle {
-        let _ = handle.close();
+        logger.record("sd hotplug final handle close", handle.close().0 == 0);
     }
     if let Some(handle) = usb_handle {
-        let _ = handle.close();
+        logger.record("usb hotplug final handle close", handle.close().0 == 0);
     }
-    let _ = unlink_device_file(SD_PROBE_PATH);
-    let _ = unlink_device_file(USB_PROBE_PATH);
+    if sd_probe_file_created {
+        logger.record(
+            "sd hotplug probe file cleanup",
+            unlink_device_file(SD_PROBE_PATH) == 0,
+        );
+    }
+    if usb_probe_file_created {
+        logger.record(
+            "usb hotplug probe file cleanup",
+            unlink_device_file(USB_PROBE_PATH) == 0,
+        );
+    }
     if fat::is_mounted(SD_MOUNT_NAME) {
-        let _ = fat::unmount(SD_MOUNT_NAME);
+        let unmount = fat::unmount(SD_MOUNT_NAME);
+        log_fat_result(logger, "hotplug final sd unmount", &unmount);
     }
     if fat::is_mounted(USB_MOUNT_NAME) {
-        let _ = fat::unmount(USB_MOUNT_NAME);
+        let unmount = fat::unmount(USB_MOUNT_NAME);
+        log_fat_result(logger, "hotplug final usb unmount", &unmount);
     }
-    if card_mounted {
+    if card_file_open {
         // SAFETY: `card_file` is live, uniquely borrowed, and has no pending
         // asynchronous operation at this cleanup point.
-        let _ = unsafe { card::close(&mut card_file) };
-        // SAFETY: the filename is a static NUL-terminated string.
-        let _ = unsafe { card::delete(card::CARD_SLOTA, c"HOTPLUG".as_ptr().cast()) };
-        let _ = card::unmount(card::CARD_SLOTA);
+        let close = unsafe { card::close(&mut card_file) };
+        logger.record("card hotplug file close", close == card::CARD_ERROR_READY);
+    }
+    if card_slot_mounted {
+        if card_file_created {
+            // SAFETY: this path is deleted only when this probe created it.
+            let delete = unsafe { card::delete(card::CARD_SLOTA, c"HOTPLUG".as_ptr().cast()) };
+            logger.record(
+                "card hotplug probe file cleanup",
+                delete == card::CARD_ERROR_READY,
+            );
+        }
+        let unmount = card::unmount(card::CARD_SLOTA);
+        logger.record(
+            "card hotplug unmount cleanup",
+            unmount == card::CARD_ERROR_READY,
+        );
+    } else if card_file_created {
+        logger.note("card hotplug cleanup skipped: card is not mounted; probe file may remain");
     }
 }
 

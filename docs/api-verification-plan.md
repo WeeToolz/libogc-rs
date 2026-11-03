@@ -196,7 +196,7 @@ successful target build as runtime evidence.
 | `ogc-usbstorage` | 0 |
 | `ogc-usbstorage-sys` | 0 |
 | `ogc-wiisd` | 0 |
-| **Total** | **94** |
+| **Total** | **87** |
 
 Use the package counts above to split storage work into these feature batches.
 Each batch still needs evidence for every API entry. A batch count does not
@@ -205,11 +205,11 @@ mean that each API has a test or probe.
 | Batch | Packages | Unverified entries |
 | --- | --- | ---: |
 | Optical disc | `iso9660`, `ogc-di`, `ogc-dvd`, `ogc-dvd-sys` | 10 |
-| GameCube memory card | `ogc-card`, `ogc-card-sys` | 84 |
+| GameCube memory card | `ogc-card`, `ogc-card-sys` | 77 |
 | FAT and file-system services | `ogc-fat`, `ogc-filesystem` | 0 |
 | SD card transports | `ogc-gcsd`, `ogc-wiisd` | 0 |
 | USB mass storage | `ogc-usbstorage`, `ogc-usbstorage-sys` | 0 |
-| **Total** | **12 packages** | **94** |
+| **Total** | **12 packages** | **87** |
 
 The remaining `ogc-di` APIs are split into these smaller probes:
 
@@ -224,6 +224,12 @@ It also checks `probe_info` against the direct slot-probe result and checks the
 serial-number error for an unmounted slot. These checks compile into
 `storage_probe`, but they do not have runtime evidence yet. Keep the affected
 inventory entries `unverified` until a Dolphin or Wii run passes them.
+
+The storage probe uses exclusive creation for fixed FAT probe names and skips
+the CARD save checks when `SAVE` already exists. It removes a probe file only
+after this run created it. This protects existing files. The updated source
+passes target clippy and builds into a DOL, but the current Dolphin build
+aborts before launch. These changes do not add runtime evidence.
 
 The protected DI read group has direct Rust and C calls. It returned `-5` for
 DVD key, physical data, and report-key requests, and `0` for BCA in Dolphin.
