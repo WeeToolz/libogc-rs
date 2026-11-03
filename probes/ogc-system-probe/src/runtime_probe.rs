@@ -853,6 +853,185 @@ fn probe_isfs_uninitialized(logger: &mut ProbeLogger) {
     // /dev/fs service descriptor. Close that descriptor to exercise safe
     // pre-initialization results without issuing an IOS write operation.
     let init_before_deinit = filesystem::initialize();
+    let mut owner = 31;
+    let mut group = 32;
+    let mut attributes = 33;
+    let mut owner_perm = 34;
+    let mut group_perm = 35;
+    let mut other_perm = 36;
+    let mut long_path_bytes = [b'P'; 65];
+    long_path_bytes[64] = 0;
+    let long_path = core::ffi::CStr::from_bytes_with_nul(&long_path_bytes)
+        .expect("fixed overlong ISFS path is NUL terminated");
+    let mut long_path_count = 41;
+    let long_read_dir = filesystem::read_dir(long_path, None, &mut long_path_count);
+    let long_create_dir = filesystem::create_dir(long_path, 0, 0, 0, 0);
+    let long_create_file = filesystem::create_file(long_path, 0, 0, 0, 0);
+    let long_get_attr = filesystem::get_attr(
+        long_path,
+        &mut owner,
+        &mut group,
+        &mut attributes,
+        &mut owner_perm,
+        &mut group_perm,
+        &mut other_perm,
+    );
+    let long_set_attr = filesystem::set_attr(long_path, 0, 0, 0, 0, 0, 0);
+    let mut long_usage_a = 42;
+    let mut long_usage_b = 43;
+    let long_get_usage = filesystem::get_usage(long_path, &mut long_usage_a, &mut long_usage_b);
+    let long_delete = filesystem::delete(long_path);
+    let long_rename_old = filesystem::rename(long_path, c"/tmp/short");
+    let long_rename_new = filesystem::rename(c"/tmp/short", long_path);
+    let long_open = filesystem::open(long_path, filesystem::ISFS_OPEN_READ);
+
+    reset_isfs_callback();
+    // SAFETY: every call must reject the overlong path before IOS submission.
+    let long_read_dir_async = unsafe {
+        filesystem::read_dir_async(
+            long_path,
+            None,
+            &mut long_path_count,
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    };
+    let long_create_dir_async = unsafe {
+        filesystem::create_dir_async(
+            long_path,
+            0,
+            0,
+            0,
+            0,
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    };
+    let long_create_file_async = unsafe {
+        filesystem::create_file_async(
+            long_path,
+            0,
+            0,
+            0,
+            0,
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    };
+    let long_get_attr_async = unsafe {
+        filesystem::get_attr_async(
+            long_path,
+            filesystem::FsAttributeOutputs {
+                owner_id: &mut owner,
+                group_id: &mut group,
+                attributes: &mut attributes,
+                owner_perm: &mut owner_perm,
+                group_perm: &mut group_perm,
+                other_perm: &mut other_perm,
+            },
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    };
+    let long_set_attr_async = unsafe {
+        filesystem::set_attr_async(
+            long_path,
+            filesystem::FsAttributes::default(),
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    };
+    let long_get_usage_async = unsafe {
+        filesystem::get_usage_async(
+            long_path,
+            &mut long_usage_a,
+            &mut long_usage_b,
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    };
+    let long_delete_async = unsafe {
+        filesystem::delete_async(long_path, Some(isfs_probe_callback), core::ptr::null_mut())
+    };
+    let long_rename_old_async = unsafe {
+        filesystem::rename_async(
+            long_path,
+            c"/tmp/short",
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    };
+    let long_rename_new_async = unsafe {
+        filesystem::rename_async(
+            c"/tmp/short",
+            long_path,
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    };
+    let long_open_async = unsafe {
+        filesystem::open_async(
+            long_path,
+            filesystem::ISFS_OPEN_READ,
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    };
+    let long_path_async_callback_not_called = !ISFS_CALLBACK_DONE.load(Ordering::Acquire)
+        && ISFS_CALLBACK_RESULT.load(Ordering::Acquire) == i32::MIN;
+    logger.record(
+        "ISFS sync path APIs reject overlong paths and preserve outputs",
+        [
+            long_read_dir,
+            long_create_dir,
+            long_create_file,
+            long_get_attr,
+            long_set_attr,
+            long_get_usage,
+            long_delete,
+            long_rename_old,
+            long_rename_new,
+        ]
+        .iter()
+        .all(|result| *result == filesystem::ISFS_EINVAL)
+            && matches!(long_open, Err(filesystem::ISFS_EINVAL))
+            && long_path_count == 41
+            && long_usage_a == 42
+            && long_usage_b == 43
+            && owner == 31
+            && group == 32
+            && attributes == 33
+            && owner_perm == 34
+            && group_perm == 35
+            && other_perm == 36,
+    );
+    logger.record(
+        "ISFS async path APIs reject overlong paths before callback",
+        [
+            long_read_dir_async,
+            long_create_dir_async,
+            long_create_file_async,
+            long_get_attr_async,
+            long_set_attr_async,
+            long_get_usage_async,
+            long_delete_async,
+            long_rename_old_async,
+            long_rename_new_async,
+            long_open_async,
+        ]
+        .iter()
+        .all(|result| *result == filesystem::ISFS_EINVAL)
+            && long_path_async_callback_not_called
+            && long_path_count == 41
+            && long_usage_a == 42
+            && long_usage_b == 43
+            && owner == 31
+            && group == 32
+            && attributes == 33
+            && owner_perm == 34
+            && group_perm == 35
+            && other_perm == 36,
+    );
     let deinit = filesystem::deinitialize();
     let repeated_deinit = filesystem::deinitialize();
 
@@ -927,12 +1106,6 @@ fn probe_isfs_uninitialized(logger: &mut ProbeLogger) {
         )
     };
 
-    let mut owner = 31;
-    let mut group = 32;
-    let mut attributes = 33;
-    let mut owner_perm = 34;
-    let mut group_perm = 35;
-    let mut other_perm = 36;
     let get_attr = filesystem::get_attr(
         path,
         &mut owner,

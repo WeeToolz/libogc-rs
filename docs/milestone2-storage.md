@@ -45,11 +45,13 @@ CARD saves, disc reads, GameCube SD Gecko I/O, or physical devices. See the
 The separate no-disc DVD probe passed 119 checks and compared C and Rust DI
 wrapper results for the calls listed in its
 [run report](dolphin-runs/2026-11-03-di-wrapper-parity-final/README.md).
-The latest `runtime_probe` passed 63 checks. Its controlled image verified
-ISO9660 file operations through both C and Rust mounts. It also checked the
-closed-service ISFS stats async result and fixed issues found by those checks.
-It does not verify a physical disc or drive or successful NAND operations; see the
-[runtime run report](dolphin-runs/2026-11-03-isfs-get-stats-async-pass/README.md).
+The latest `runtime_probe` passed 65 checks. Its controlled image verified
+ISO9660 file operations through both C and Rust mounts. The ISFS probe also
+checked that 20 synchronous and asynchronous path calls reject a 64-byte path
+with `ISFS_EINVAL`, preserve output values, and do not call async callbacks.
+This checks local path validation only. It does not verify a physical disc or
+drive or successful NAND operations; see the [ISFS path report](dolphin-runs/2026-11-03-isfs-path-length-dolphin/README.md)
+and the [earlier runtime report](dolphin-runs/2026-11-03-isfs-get-stats-async-pass/README.md).
 The separate `wii_std_fs_probe` passed 99 checks on Dolphin's private virtual
 Wii SD card. It covered FAT directory, path, file, metadata, attribute,
 timestamp, remount, and cleanup behavior. This is not physical Wii evidence
