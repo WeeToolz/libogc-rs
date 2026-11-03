@@ -621,6 +621,38 @@ fn run_isfs_async_and_wait(start: impl FnOnce() -> i32) -> (i32, i32) {
     (submission, ISFS_CALLBACK_RESULT.load(Ordering::Acquire))
 }
 
+fn isfs_file_exists(path: &core::ffi::CStr) -> Option<bool> {
+    match filesystem::open(path, filesystem::ISFS_OPEN_READ) {
+        Ok(file) => Some(file.close() == filesystem::ISFS_OK),
+        Err(filesystem::ISFS_ENOENT) => Some(false),
+        Err(_) => None,
+    }
+}
+
+fn isfs_directory_exists(path: &core::ffi::CStr) -> Option<bool> {
+    let mut usage_a = 0;
+    let mut usage_b = 0;
+    match filesystem::get_usage(path, &mut usage_a, &mut usage_b) {
+        filesystem::ISFS_OK => Some(true),
+        filesystem::ISFS_ENOENT => Some(false),
+        _ => None,
+    }
+}
+
+fn cleanup_isfs_test_tree(directory: &core::ffi::CStr, file: &core::ffi::CStr) -> bool {
+    let file_removed = match isfs_file_exists(file) {
+        Some(true) => filesystem::delete(file) == filesystem::ISFS_OK,
+        Some(false) => true,
+        None => false,
+    };
+    let directory_removed = match isfs_directory_exists(directory) {
+        Some(true) if file_removed => filesystem::delete(directory) == filesystem::ISFS_OK,
+        Some(false) => true,
+        _ => false,
+    };
+    file_removed && directory_removed
+}
+
 unsafe extern "C" fn iso_ready() -> bool {
     true
 }
@@ -1039,6 +1071,47 @@ fn probe_isfs_successful_file_cycle(logger: &mut ProbeLogger) {
             && deleted_directory_usage_a == u32::MAX
             && deleted_directory_usage_b == u32::MAX,
     );
+    probe_isfs_format_apis(logger);
+}
+
+fn probe_isfs_format_apis(logger: &mut ProbeLogger) {
+    logger.section("ISFS FORMAT API PROBE");
+    let directory = c"/tmp/ogc-rs-format-verify";
+    let marker = c"/tmp/ogc-rs-format-verify/marker";
+
+    let initialized = filesystem::initialize() == filesystem::ISFS_OK;
+    let sync_directory_created =
+        initialized && filesystem::create_dir(directory, 0, 3, 3, 3) == filesystem::ISFS_OK;
+    let sync_marker_created = sync_directory_created
+        && filesystem::create_file(marker, 0, 3, 3, 3) == filesystem::ISFS_OK;
+    let sync_result = if sync_marker_created {
+        filesystem::format()
+    } else {
+        filesystem::ISFS_EINVAL
+    };
+    logger.note_i32("ISFS format result", sync_result);
+    let sync_deinitialize = filesystem::deinitialize();
+    let sync_reinitialize = filesystem::initialize();
+    let sync_file_exists = isfs_file_exists(marker);
+    let sync_directory_exists = isfs_directory_exists(directory);
+    let sync_state_matches = match sync_result {
+        filesystem::ISFS_OK => {
+            sync_file_exists == Some(false) && sync_directory_exists == Some(false)
+        }
+        filesystem::ISFS_EINVAL => {
+            sync_file_exists == Some(true) && sync_directory_exists == Some(true)
+        }
+        _ => false,
+    };
+    logger.record(
+        "ISFS format result matches marker state",
+        sync_marker_created
+            && sync_deinitialize == filesystem::ISFS_OK
+            && sync_reinitialize == filesystem::ISFS_OK
+            && sync_state_matches,
+    );
+    let sync_cleanup = cleanup_isfs_test_tree(directory, marker);
+    logger.record("ISFS format marker cleanup", sync_cleanup);
 }
 
 fn probe_isfs_async_file_cycle(directory: &core::ffi::CStr, logger: &mut ProbeLogger) {
