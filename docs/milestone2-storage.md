@@ -80,6 +80,14 @@ Dolphin `--version` check; the successful run used host permission. Target
 clippy passed with warnings denied, and `cargo xtask audit-source` accepted the
 direct API calls.
 
+The follow-up `card-owned-transfer-errors-dolphin` run passed 108 checks. It
+checked that `read_async_owned` and `write_async_owned` reject invalid
+channels; reject empty, short, misaligned, and overflowing transfers; and
+return the original file state and write bytes on rejection. These checks do
+not cover successful async transfers, callback delivery, completion polling,
+abandonment, cancellation, mounted media, or Wii hardware. See the
+[run report](dolphin-runs/2026-11-03-card-owned-transfer-errors-dolphin/README.md).
+
 CARD game and company identifiers now use tested types in `ogc-card-metadata`.
 The host test checks valid bytes, round trips, and the exact index and byte for
 NUL and `0xff` errors. `ogc-card-sys` re-exports these types, so existing public
