@@ -551,20 +551,46 @@ pub fn probe_di_no_disc(logger: &mut ProbeLogger) {
         rel_date: 0x1020_3040,
     };
     let id_result = di::identify(&mut drive_id);
+    let mut c_drive_id = di::DiDriveId {
+        rev: 0x1234,
+        dev_code: 0x5678,
+        rel_date: 0x1020_3040,
+    };
+    // SAFETY: `c_drive_id` is aligned and writable for one drive identifier.
+    let c_id_result = unsafe { di::DI_Identify(&mut c_drive_id) };
     logger.note_i32("di identify result", id_result);
     logger.note_u32("di drive revision", u32::from(drive_id.rev));
     logger.note_u32("di drive code", u32::from(drive_id.dev_code));
     logger.note_u32("di drive release date", drive_id.rel_date);
     logger.record("di identify returns a drive record", id_result == 0);
+    logger.record(
+        "C DI identify matches Rust output",
+        c_id_result == id_result
+            && c_drive_id.rev == drive_id.rev
+            && c_drive_id.dev_code == drive_id.dev_code
+            && c_drive_id.rel_date == drive_id.rel_date,
+    );
     let dvd_support = di::check_dvd_support();
+    let c_dvd_support = di::DI_CheckDVDSupport();
     logger.note_i32("di dvd support", dvd_support);
     logger.record("di dvd support reports Dolphin drive", dvd_support == 1);
+    logger.record(
+        "C DI support matches Rust result",
+        c_dvd_support == dvd_support,
+    );
 
     let mut disc_id = 0x1234_5678_9ABC_DEF0;
     let id_result = di::read_disc_id(&mut disc_id);
+    let mut c_disc_id = 0x1234_5678_9ABC_DEF0;
+    // SAFETY: `c_disc_id` is aligned and writable for one identifier.
+    let c_disc_id_result = unsafe { di::DI_ReadDiscID(&mut c_disc_id) };
     logger.record(
         "di disc id errors preserve output",
         id_result < 0 && disc_id == 0x1234_5678_9ABC_DEF0,
+    );
+    logger.record(
+        "C DI disc ID matches Rust result and output",
+        c_disc_id_result == id_result && c_disc_id == disc_id,
     );
     let mut disc_id_bytes = [0xA5; 0x20];
     let bytes_result = di::read_disc_id_bytes(&mut disc_id_bytes);
@@ -575,29 +601,61 @@ pub fn probe_di_no_disc(logger: &mut ProbeLogger) {
 
     let mut error = 0xA5A5_5A5A;
     let error_result = di::get_error(&mut error);
+    let mut c_error = 0xA5A5_5A5A;
+    // SAFETY: `c_error` is aligned and writable for one error word.
+    let c_error_result = unsafe { di::DI_GetError(&mut c_error) };
+    logger.note_i32("di get-error result", error_result);
+    logger.note_u32("di get-error output", error);
+    logger.note_i32("C DI get-error result", c_error_result);
+    logger.note_u32("C DI get-error output", c_error);
     logger.record(
         "di error output is valid or preserved",
         error_result == 0 || (error_result < 0 && error == 0xA5A5_5A5A),
     );
+    logger.record(
+        "Rust and C DI error calls return data and preserve success",
+        error_result == 0 && c_error_result == 0 && error != 0xA5A5_5A5A && c_error != 0xA5A5_5A5A,
+    );
     let mut cover = 0xA5A5_5A5A;
     let cover_result = di::get_cover_register(&mut cover);
+    let mut c_cover = 0xA5A5_5A5A;
+    // SAFETY: `c_cover` is aligned and writable for one cover-status word.
+    let c_cover_result = unsafe { di::DI_GetCoverRegister(&mut c_cover) };
     logger.record(
         "di cover result reports no inserted disc",
         (cover_result == 0 && cover & di::DVD_COVER_DISC_INSERTED == 0)
             || (cover_result < 0 && cover == 0xA5A5_5A5A),
     );
+    logger.record(
+        "C DI cover status matches Rust result and output",
+        c_cover_result == cover_result && c_cover == cover,
+    );
 
     let mut config = 0xA5A5_5A5A;
     let config_result = di::read_dvd_config(&mut config, 0);
+    let mut c_config = 0xA5A5_5A5A;
+    // SAFETY: `c_config` is aligned and writable for one configuration word.
+    let c_config_result = unsafe { di::DI_ReadDVDConfig(&mut c_config, 0) };
     logger.record(
         "di config output is valid or preserved",
         config_result == 0 || (config_result < 0 && config == 0xA5A5_5A5A),
     );
+    logger.record(
+        "C DI configuration matches Rust result and output",
+        c_config_result == config_result && c_config == config,
+    );
     let mut copyright = 0xA5A5_5A5A;
     let copyright_result = di::read_dvd_copyright(&mut copyright);
+    let mut c_copyright = 0xA5A5_5A5A;
+    // SAFETY: `c_copyright` is aligned and writable for one copyright word.
+    let c_copyright_result = unsafe { di::DI_ReadDVDCopyright(&mut c_copyright) };
     logger.record(
         "di copyright output is valid or preserved",
         copyright_result == 0 || (copyright_result < 0 && copyright == 0xA5A5_5A5A),
+    );
+    logger.record(
+        "C DI copyright matches Rust result and output",
+        c_copyright_result == copyright_result && c_copyright == copyright,
     );
 
     let mut aligned = DvdSector([0; 0x800]);
@@ -705,40 +763,57 @@ pub fn probe_di_no_disc(logger: &mut ProbeLogger) {
         unsafe { di::DI_ReportKey(0, 0, core::ptr::null_mut()) } == -22,
     );
 
-    // SAFETY: `aligned` is a writable, 32-byte aligned buffer of 0x800 bytes.
-    let key_result = unsafe { di::read_dvd_disc_key(aligned.0.as_mut_ptr().cast()) };
-    let key_c_result = unsafe { di::DI_ReadDVDDiscKey(aligned.0.as_mut_ptr().cast()) };
-    let physical_result = unsafe { di::read_dvd_physical(aligned.0.as_mut_ptr().cast()) };
-    let physical_c_result = unsafe { di::DI_ReadDVDPhysical(aligned.0.as_mut_ptr().cast()) };
+    let mut rust_key = DvdSector([0xA5; 0x800]);
+    let mut c_key = DvdSector([0xA5; 0x800]);
+    // SAFETY: both buffers are writable, 32-byte aligned, and 0x800 bytes.
+    let key_result = unsafe { di::read_dvd_disc_key(rust_key.0.as_mut_ptr().cast()) };
+    let key_c_result = unsafe { di::DI_ReadDVDDiscKey(c_key.0.as_mut_ptr().cast()) };
+    let mut rust_physical = DvdSector([0xA5; 0x800]);
+    let mut c_physical = DvdSector([0xA5; 0x800]);
+    // SAFETY: both buffers are writable, 32-byte aligned, and 0x800 bytes.
+    let physical_result = unsafe { di::read_dvd_physical(rust_physical.0.as_mut_ptr().cast()) };
+    let physical_c_result = unsafe { di::DI_ReadDVDPhysical(c_physical.0.as_mut_ptr().cast()) };
     logger.note_i32("di disc key result", key_result);
     logger.note_i32("DI_ReadDVDDiscKey result", key_c_result);
     logger.note_i32("di physical data result", physical_result);
     logger.note_i32("DI_ReadDVDPhysical result", physical_c_result);
-    logger.record("di disc key returns valid result", key_result <= 0);
-    logger.record("DI_ReadDVDDiscKey returns valid result", key_c_result <= 0);
     logger.record(
-        "di physical data returns valid result",
-        physical_result <= 0,
+        "Rust and C DI disc key results and bytes match",
+        key_result <= 0 && key_result == key_c_result && rust_key.0 == c_key.0,
     );
     logger.record(
-        "DI_ReadDVDPhysical returns valid result",
-        physical_c_result <= 0,
+        "Rust and C DI physical data results and bytes match",
+        physical_result <= 0
+            && physical_result == physical_c_result
+            && rust_physical.0 == c_physical.0,
     );
 
-    // SAFETY: `aligned` is a writable, 32-byte aligned buffer of at least 64
-    // bytes for BCA and 32 bytes for report-key data.
-    let bca_result = unsafe { di::read_bca(aligned.0.as_mut_ptr().cast()) };
-    let bca_c_result = unsafe { di::DI_Read_BCA(aligned.0.as_mut_ptr().cast()) };
-    let report_result = unsafe { di::report_key(0, 0, aligned.0.as_mut_ptr().cast()) };
-    let report_c_result = unsafe { di::DI_ReportKey(0, 0, aligned.0.as_mut_ptr().cast()) };
+    let mut rust_bca = DvdSector([0xA5; 0x800]);
+    let mut c_bca = DvdSector([0xA5; 0x800]);
+    // SAFETY: both buffers are writable and 32-byte aligned. The APIs use the
+    // first 64 bytes of each buffer.
+    let bca_result = unsafe { di::read_bca(rust_bca.0.as_mut_ptr().cast()) };
+    let bca_c_result = unsafe { di::DI_Read_BCA(c_bca.0.as_mut_ptr().cast()) };
+    let mut rust_report = DvdSector([0xA5; 0x800]);
+    let mut c_report = DvdSector([0xA5; 0x800]);
+    // SAFETY: both buffers are writable and 32-byte aligned. The APIs use the
+    // first 32 bytes of each buffer.
+    let report_result = unsafe { di::report_key(0x5A, 0x1234, rust_report.0.as_mut_ptr().cast()) };
+    let report_c_result = unsafe { di::DI_ReportKey(0x5A, 0x1234, c_report.0.as_mut_ptr().cast()) };
     logger.note_i32("di BCA result", bca_result);
     logger.note_i32("DI_Read_BCA result", bca_c_result);
     logger.note_i32("di report key result", report_result);
     logger.note_i32("DI_ReportKey result", report_c_result);
-    logger.record("di BCA returns valid result", bca_result <= 0);
-    logger.record("DI_Read_BCA returns valid result", bca_c_result <= 0);
-    logger.record("di report key returns valid result", report_result <= 0);
-    logger.record("DI_ReportKey returns valid result", report_c_result <= 0);
+    logger.record(
+        "Rust and C DI BCA results and bytes match",
+        bca_result <= 0 && bca_result == bca_c_result && rust_bca.0[..64] == c_bca.0[..64],
+    );
+    logger.record(
+        "Rust and C DI report-key results and bytes match",
+        report_result <= 0
+            && report_result == report_c_result
+            && rust_report.0[..32] == c_report.0[..32],
+    );
 
     let config_status_before = di::get_status();
     di::load_dvdx(true);

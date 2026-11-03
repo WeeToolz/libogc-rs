@@ -40,6 +40,16 @@ reached the Python network tests but sandbox rules denied a loopback bind. The
 final run used the approved local socket access and passed. This host suite
 does not verify Wii IOS or physical storage devices.
 
+The DI no-disc `dvd_probe` now compares the C ABI wrappers with the paired
+Rust APIs for drive identification, support, disc ID, cover status,
+configuration, copyright, disc key, physical data, BCA, and report-key calls.
+The final Dolphin 2609a run passed 119 checks with 0 failures. It had no disc,
+so it does not validate data reads from physical media. Two consecutive
+`DI_GetError` calls returned different non-sentinel values, while both
+returned success; the probe checks each call and does not require the values
+to match. See
+[`docs/dolphin-runs/2026-11-03-di-wrapper-parity-final/README.md`](docs/dolphin-runs/2026-11-03-di-wrapper-parity-final/README.md).
+
 `cargo xtask check-group storage` passed for all 15 Wii runtime crates.
 Clippy passed with warnings denied for the two host-testable packages:
 `cargo clippy -p ogc-card-metadata -p ogc-usbstorage-lifecycle --all-targets

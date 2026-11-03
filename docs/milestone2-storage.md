@@ -42,6 +42,9 @@ results for USB and CARD, skipped operations that need those devices, and
 exercised the virtual Wii SD path. It does not cover successful USB transfers,
 CARD saves, disc reads, GameCube SD Gecko I/O, or physical devices. See the
 [Dolphin report](dolphin-runs/2026-11-03-storage-probe-media-aware/README.md).
+The separate no-disc DVD probe passed 119 checks and compared C and Rust DI
+wrapper results for the calls listed in its
+[run report](dolphin-runs/2026-11-03-di-wrapper-parity-final/README.md).
 Earlier failed launch attempts remain in their own run directories. The
 hardware register still records physical CARD and DI behavior as not tested.
 Do not treat the zero `unverified` source count as completed storage

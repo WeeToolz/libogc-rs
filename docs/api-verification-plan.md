@@ -254,17 +254,16 @@ The protected DI read group has direct Rust and C calls. It returned `-5` for
 DVD key, physical data, and report-key requests, and `0` for BCA in Dolphin.
 The run had no disc, so the BCA result does not validate BCA data contents.
 
-The direct DI no-disc Dolphin probe passed 110 checks. It verifies Rust and C
+The direct DI no-disc Dolphin probe passed 119 checks. It verifies Rust and C
 entry points for mount state and callback delivery, drive identification,
 disc-ID errors, read argument errors, drive controls, and close/reopen cleanup.
-The direct sector read returned the Dolphin drive error through its AHBPROT
-path. A no-disc partition-open attempt did not return in an early run, so the
-final probe omits partition calls and leaves those APIs open.
-The init callback, DVDX load, cache controls, Rust protected-read success
-paths, and partition calls remain unverified. The matching C protected-read
-wrappers have only null-argument error checks. This run does not verify
-physical-drive behavior.
-See the [direct DI Dolphin run](dolphin-runs/2026-11-03-di-no-media-direct-protected/README.md).
+The latest run also compares C and Rust outputs for drive identification,
+support, disc ID, cover status, configuration, copyright, protected reads,
+BCA, and report-key calls. A no-disc partition-open attempt did not return in
+an early run, so partition-open behavior with a mounted descriptor remains
+unverified. No readable disc was present, so successful sector and partition
+reads and physical-drive behavior remain open. See the [final DI Dolphin
+run](dolphin-runs/2026-11-03-di-wrapper-parity-final/README.md).
 
 The ISO9660 probe calls its three C ABI exports and the Rust file-system
 mount, label, and unmount facade directly. Dolphin passed the
