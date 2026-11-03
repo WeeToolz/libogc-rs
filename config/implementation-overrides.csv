@@ -114,3 +114,27 @@ ogc-bt-sync,src/hid_host.rs,load_guest_link_key,protocol,bluetooth-probe,Stores 
 ogc-bt-sync,src/hid_host.rs,clear_guest_link_keys,protocol,bluetooth-probe,Removes guest-origin keys from the shared in-memory cache while retaining registered keys
 ogc-bt-sync,src/wii_host.rs,load_guest_link_key,protocol,bluetooth-probe,Forwards guest-key loading to the shared in-memory HCI cache; adapter behavior remains separate
 ogc-bt-sync,src/wii_host.rs,clear_guest_link_keys,protocol,bluetooth-probe,Forwards volatile guest-key clearing to the shared HCI cache
+modplay-capi,src/lib.rs,alloc_sfx_channels_state,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,get_effect_op_value,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,get_effect_value,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,get_instr_value,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,get_note_value,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,init_state,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,layout_snapshot,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,mix_callback_state,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,mixing_time_state,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,mod_player_state,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,mod_start_state,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,mod_trigger_note_state,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,pause_state,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,request_time_state,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,set_frequency_state,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,set_mod_state,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,set_stereo_state,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,set_volume_state,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,start_state,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,stop_state,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,trigger_note_on_voice_state,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,trigger_note_state,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,try_unload_state,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
+modplay-capi,src/lib.rs,unload_state,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image

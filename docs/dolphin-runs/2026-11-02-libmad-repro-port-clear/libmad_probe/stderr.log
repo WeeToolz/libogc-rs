@@ -1,0 +1,654 @@
+46:31:474 Core/Boot/DolReader.cpp:67 W[BOOT]: DolReader: Text section 0 size is not aligned to 32 bytes and can cause issues when loaded
+46:31:475 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 0 size is not aligned to 32 bytes and can cause issues when loaded
+46:31:475 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+46:31:476 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+46:31:476 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+46:31:526 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+46:31:527 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
+46:31:527 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
+46:31:527 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
+46:31:647 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App name: org.dolphin-emu.dolphin
+46:31:647 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App version: <unspecified>
+46:31:647 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App ID: <unspecified>
+46:31:647 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: SDL revision: SDL-3.4.12-f87239e71
+46:31:664 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
+46:31:664 InputCommon/ControllerInterface/DualShockUDPClient/DualShockUDPClient.cpp:492 I[CI]: DualShockUDPClient PopulateDevices
+46:31:664 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:141 I[CI]: SteamDeck PopulateDevices
+46:31:676 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:171 I[CI]: No Steam Deck interface found
+46:31:694 Core/ConfigManager.cpp:279 N[CORE]: Active title: 
+46:31:695 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+46:31:696 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+46:31:696 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+46:31:696 Core/Core.cpp:237 I[BOOT]: Starting core = Wii mode
+46:31:696 Core/Core.cpp:238 I[BOOT]: CPU Thread separate = No
+46:31:731 InputCommon/ControllerInterface/ControllerInterface.cpp:310 N[CI]: Removed device: Quartz/0/Keyboard & Mouse
+46:31:737 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
+46:31:746 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 0000000100000050
+46:31:746 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+46:31:746 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
+46:31:747 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+46:31:747 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+46:31:751 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:75:2a:a4
+46:31:798 Core/Boot/Boot.cpp:546 N[BOOT]: Booting from executable: [repo]/target/xtask/probes-dolphin/libmad_probe.dol
+46:31:799 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/sys/uid.sys): Result 0
+46:31:799 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/sys/uid.sys): Result 0
+46:31:799 Core/Boot/Boot_BS2Emu.cpp:435 I[BOOT]: Using serial number: 372730284
+46:31:799 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /title/00000001/00000002/data/setting.txt (NAND)
+46:31:800 Core/Boot/Boot_BS2Emu.cpp:463 I[BOOT]: Setup Wii Memory...
+46:31:800 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 000000010000003a
+46:31:800 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+46:31:800 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
+46:31:801 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+46:31:801 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+46:31:802 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:75:2a:a4
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+46:32:976 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/fs (mode 0, fd 0)
+46:32:977 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-system-probe.log (mode 3, fd 1)
+46:32:977 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/tmp/ogc-system-probe.log): Result -106
+46:32:977 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-system-probe.log (mode 3, fd 1)
+46:32:977 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/tmp/ogc-system-probe.log): Result -106
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+46:32:978 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-system-probe.log (mode 3, fd 1)
+46:32:978 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/tmp/ogc-system-probe.log): Result -106
+46:32:978 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-system-probe.log (mode 3, fd 1)
+46:32:978 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/tmp/ogc-system-probe.log): Result -106
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+
+A signal was received. A second signal will force Dolphin to stop.
+ 46:46:095 Core/WiiRoot.cpp:385 I[CORE]: Wii FS Cleanup: cleanup_required = false (wii_root_is_temporary = false, is netplay = false, is_netplay_write = false, is_netplay_host = false)
+46:46:102 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+46:46:102 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+46:46:104 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+46:46:104 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+46:46:105 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+46:46:106 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+46:46:106 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
+46:46:106 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
+46:46:106 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
+46:46:116 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+46:46:116 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+46:46:116 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+46:46:188 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+46:46:188 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+46:46:189 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
