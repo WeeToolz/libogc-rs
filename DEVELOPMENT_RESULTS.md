@@ -1,8 +1,18 @@
 # Development results
 
+## 2026-11-03: storage runtime probe follow-up
+
+The `runtime_probe` passed 63 checks in Dolphin 2609a with no failures. Its
+new `get_stats_async` check confirms that the closed ISFS service returns
+`ISFS_EINVAL`, preserves all seven output fields, and does not call the
+callback. The controlled ISO image also passed both C and Rust file-operation
+checks. This does not prove successful NAND operations or physical disc
+behavior. See
+[`docs/dolphin-runs/2026-11-03-isfs-get-stats-async-pass/README.md`](docs/dolphin-runs/2026-11-03-isfs-get-stats-async-pass/README.md).
+
 ## 2026-11-03: ISO9660 file runtime probe
 
-The runtime probe passed 62 checks in Dolphin 2609a with no failures. Its
+The earlier runtime probe passed 62 checks in Dolphin 2609a with no failures. Its
 controlled in-memory image verified file lookup, open, read, seek, close,
 stat, and root-directory change through both the C ISO mount and Rust
 filesystem mount. The probe found and verified fixes for the devoptab device

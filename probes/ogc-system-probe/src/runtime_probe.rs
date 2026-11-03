@@ -866,6 +866,14 @@ fn probe_isfs_uninitialized(logger: &mut ProbeLogger) {
         g: 7,
     };
     let get_stats = filesystem::get_stats(&mut stats);
+    reset_isfs_callback();
+    // SAFETY: the initialized service is closed, so the call must return
+    // before it can submit an IOS request or retain the output buffer.
+    let get_stats_async = unsafe {
+        filesystem::get_stats_async(&mut stats, Some(isfs_probe_callback), core::ptr::null_mut())
+    };
+    let get_stats_async_callback_not_called = !ISFS_CALLBACK_DONE.load(Ordering::Acquire)
+        && ISFS_CALLBACK_RESULT.load(Ordering::Acquire) == i32::MIN;
     // SAFETY: the initialized service is closed, so this call returns before
     // it can submit the destructive format ioctl.
     let format_async = unsafe { filesystem::format_async(None, core::ptr::null_mut()) };
@@ -1055,6 +1063,21 @@ fn probe_isfs_uninitialized(logger: &mut ProbeLogger) {
             && seek.is_err()
             && get_file_stats < 0
             && close_invalid == filesystem::ISFS_OK,
+    );
+    logger.record(
+        "ISFS get_stats_async rejects a closed service and preserves output",
+        get_stats_async == filesystem::ISFS_EINVAL
+            && get_stats_async_callback_not_called
+            && stats
+                == filesystem::IsfsStats {
+                    a: 1,
+                    b: 2,
+                    c: 3,
+                    d: 4,
+                    e: 5,
+                    f: 6,
+                    g: 7,
+                },
     );
     logger.record(
         "ISFS uninitialized async APIs reject without destructive submission",
