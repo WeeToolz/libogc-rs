@@ -1,5 +1,15 @@
 # Development results
 
+## 2026-11-03: ISO9660 file runtime probe
+
+The runtime probe passed 62 checks in Dolphin 2609a with no failures. Its
+controlled in-memory image verified file lookup, open, read, seek, close,
+stat, and root-directory change through both the C ISO mount and Rust
+filesystem mount. The probe found and verified fixes for the devoptab device
+name and valid negative pointer-shaped open results. This does not test a
+physical disc or drive. See
+[`docs/dolphin-runs/2026-11-03-iso9660-file-runtime-pass/README.md`](docs/dolphin-runs/2026-11-03-iso9660-file-runtime-pass/README.md).
+
 ## 2026-11-03: storage inventory and host-test audit
 
 The media-aware `storage_probe` run passed in Dolphin 2609a with 97 checks and
