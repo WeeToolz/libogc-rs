@@ -1419,6 +1419,119 @@ fn mount_card_owned(slot: card::CardSlot, timeout_seconds: u32) -> Option<card::
     }
 }
 
+fn probe_card_invalid_channel_apis(logger: &mut ProbeLogger) {
+    logger.section("CARD INVALID CHANNEL APIs");
+    let invalid_channel = 3;
+
+    let mut memory_size = 0x1234_5678;
+    let mut sector_size = 0x2345_6789;
+    // SAFETY: both output pointers refer to live, aligned, writable values.
+    let sys_probe =
+        unsafe { card::sys::probe_ex(invalid_channel, &mut memory_size, &mut sector_size) };
+    logger.record(
+        "CARD sys probe_ex rejects an invalid channel and preserves outputs",
+        sys_probe == card::CARD_ERROR_FATAL_ERROR
+            && memory_size == 0x1234_5678
+            && sector_size == 0x2345_6789,
+    );
+
+    memory_size = 0x3456_789a;
+    sector_size = 0x4567_89ab;
+    // SAFETY: both output pointers refer to live, aligned, writable values.
+    let wrapper_probe =
+        unsafe { card::probe_ex(invalid_channel, &mut memory_size, &mut sector_size) };
+    logger.record(
+        "CARD wrapper probe_ex forwards the invalid-channel error",
+        wrapper_probe == card::CARD_ERROR_FATAL_ERROR
+            && memory_size == 0x3456_789a
+            && sector_size == 0x4567_89ab,
+    );
+
+    logger.record(
+        "CARD sys get_error_code rejects an invalid channel",
+        card::sys::get_error_code(invalid_channel) == card::CARD_ERROR_NOCARD,
+    );
+    logger.record(
+        "CARD wrapper get_error_code forwards the invalid-channel result",
+        card::get_error_code(invalid_channel) == card::CARD_ERROR_NOCARD,
+    );
+
+    let mut block_count = 0x1234_5678;
+    // SAFETY: the pointer refers to a live, aligned, writable value.
+    let sys_block_count = unsafe { card::sys::get_block_count(invalid_channel, &mut block_count) };
+    logger.record(
+        "CARD sys get_block_count preserves output on invalid channel",
+        sys_block_count == card::CARD_ERROR_NOCARD && block_count == 0x1234_5678,
+    );
+
+    block_count = 0x2345_6789;
+    // SAFETY: the pointer refers to a live, aligned, writable value.
+    let wrapper_block_count = unsafe { card::get_block_count(invalid_channel, &mut block_count) };
+    logger.record(
+        "CARD wrapper get_block_count forwards error and preserves output",
+        wrapper_block_count == card::CARD_ERROR_NOCARD && block_count == 0x2345_6789,
+    );
+
+    let mut free_blocks = 0x1234;
+    // SAFETY: the pointer refers to a live, aligned, writable value.
+    let sys_free_blocks = unsafe { card::sys::get_free_blocks(invalid_channel, &mut free_blocks) };
+    logger.record(
+        "CARD sys get_free_blocks preserves output on invalid channel",
+        sys_free_blocks == card::CARD_ERROR_NOCARD && free_blocks == 0x1234,
+    );
+
+    free_blocks = 0x2345;
+    // SAFETY: the pointer refers to a live, aligned, writable value.
+    let wrapper_free_blocks = unsafe { card::get_free_blocks(invalid_channel, &mut free_blocks) };
+    logger.record(
+        "CARD wrapper get_free_blocks forwards error and preserves output",
+        wrapper_free_blocks == card::CARD_ERROR_NOCARD && free_blocks == 0x2345,
+    );
+
+    let mut serial_first = 0x1234_5678;
+    let mut serial_second = 0x2345_6789;
+    // SAFETY: both pointers refer to live, aligned, writable values.
+    let sys_serial =
+        unsafe { card::sys::get_serial_no(invalid_channel, &mut serial_first, &mut serial_second) };
+    logger.record(
+        "CARD sys get_serial_no preserves outputs on invalid channel",
+        sys_serial == card::CARD_ERROR_NOCARD
+            && serial_first == 0x1234_5678
+            && serial_second == 0x2345_6789,
+    );
+
+    serial_first = 0x3456_789a;
+    serial_second = 0x4567_89ab;
+    // SAFETY: both pointers refer to live, aligned, writable values.
+    let wrapper_serial =
+        unsafe { card::get_serial_no(invalid_channel, &mut serial_first, &mut serial_second) };
+    logger.record(
+        "CARD wrapper get_serial_no forwards error and preserves outputs",
+        wrapper_serial == card::CARD_ERROR_NOCARD
+            && serial_first == 0x3456_789a
+            && serial_second == 0x4567_89ab,
+    );
+
+    let slot = card::CardSlot::A;
+    let probe_result = card::probe_slot(slot);
+    let info_result = card::probe_info(slot);
+    let info_matches_probe = match (probe_result, info_result) {
+        (card::CARD_ERROR_READY, Ok(info)) => {
+            info.memory_size > 0 && info.sector_size > 0 && info.memory_size % info.sector_size == 0
+        }
+        (error, Err(info_error)) => error == info_error,
+        _ => false,
+    };
+    logger.record(
+        "CARD probe_info returns valid geometry or the probe error",
+        info_matches_probe,
+    );
+    logger.record(
+        "CARD serial_number rejects an unmounted slot",
+        card::serial_number(slot) == Err(card::CARD_ERROR_NOCARD),
+    );
+}
+
 fn probe_card_save_data(logger: &mut ProbeLogger) {
     logger.section("CARD ASYNC + DETACH");
 
@@ -1440,6 +1553,7 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     let init = card::init(Some(gamecode), Some(company));
     logger.note_i32("card init", init);
     let slot = card::CardSlot::A;
+    probe_card_invalid_channel_apis(logger);
     if card::probe_slot(slot) != card::CARD_ERROR_READY {
         logger.note("card tests skipped: insert a memory card in slot A");
         return;

@@ -218,6 +218,13 @@ The remaining `ogc-di` APIs are split into these smaller probes:
 | DI configuration and callbacks | `load_dvdx`, `use_cache`, `set_init_callback`, and their C exports | 6 |
 | DI partition lifecycle | `open_partition`, `close_partition`, and their C exports | 4 |
 
+The next CARD probe batch checks invalid-channel results and output-buffer
+preservation through both the `ogc-card` wrappers and the `ogc-card-sys` API.
+It also checks `probe_info` against the direct slot-probe result and checks the
+serial-number error for an unmounted slot. These checks compile into
+`storage_probe`, but they do not have runtime evidence yet. Keep the affected
+inventory entries `unverified` until a Dolphin or Wii run passes them.
+
 The protected DI read group has direct Rust and C calls. It returned `-5` for
 DVD key, physical data, and report-key requests, and `0` for BCA in Dolphin.
 The run had no disc, so the BCA result does not validate BCA data contents.
