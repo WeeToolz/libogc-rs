@@ -41,10 +41,21 @@ logic. A broad probe run does not prove every API in its group.
 Current runtime evidence is incomplete. An earlier media-aware `storage_probe`
 passed in Dolphin 2609a with 111 checks and 0 failures. It checked no-device
 results for USB and CARD, skipped operations that need those devices, and
-exercised the virtual Wii SD path. It does not cover successful USB transfers,
-CARD saves, disc reads, GameCube SD Gecko I/O, or physical devices. See the
+exercised the virtual Wii SD path. That run did not cover successful USB
+transfers, CARD saves, disc reads, GameCube SD Gecko I/O, or physical devices.
+See the
 [Dolphin report](dolphin-runs/2026-11-03-storage-probe-media-aware/README.md).
-The separate no-disc DVD probe passed 119 checks and compared C and Rust DI
+
+The latest rerun completed `card_probe`, `storage_probe`, `fat_sd_probe`, and
+`dvd_probe` in Dolphin 2609a. They reported 93, 153, 40, and 120 passing
+checks, with no reported failures. The CARD probe ran in GameCube mode with a
+copied, verified virtual card image. The other probes ran in Wii mode. The
+storage probe used Dolphin's virtual SD card and skipped its media hotplug
+soak. The DVD probe ran without a disc. This run adds no physical-device
+evidence and does not prove every inventory entry. See the
+[audit rerun report](dolphin-runs/2026-11-03-storage-api-audit-rerun/README.md)
+for DOL hashes, captures, and limits.
+An earlier no-disc DVD probe passed 119 checks and compared C and Rust DI
 wrapper results for the calls listed in its
 [run report](dolphin-runs/2026-11-03-di-wrapper-parity-final/README.md).
 The previous `runtime_probe` passed 85 checks. A later async-format diagnostic
