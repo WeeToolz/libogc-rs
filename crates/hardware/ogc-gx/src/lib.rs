@@ -5593,8 +5593,10 @@ pub unsafe fn init_tex_cache_region(
         let val = &mut (*region).val;
         val[0] = ((tmem_even >> 5) & 0x7fff) | pack_tex_cache_size(size_even);
         val[1] = ((tmem_odd >> 5) & 0x7fff) | pack_tex_cache_size(size_odd);
-        val[2] = is32bmipmap as u32;
-        val[3] = 1;
+        // The C layout stores flags as bytes after the two 16-bit sizes.
+        let flags = region.cast::<u8>().add(12);
+        flags.write(is32bmipmap);
+        flags.add(1).write(1);
     }
 }
 
@@ -5616,7 +5618,9 @@ pub unsafe fn init_tex_preload_region(
         val[1] = (tmem_odd >> 5) & 0x7fff;
         // BUG FIX: GXTexRegion stores these adjacent u16 values in one word.
         val[2] = (((size_even >> 5) & 0xffff) << 16) | ((size_odd >> 5) & 0xffff);
-        val[3] = 0;
+        let flags = region.cast::<u8>().add(12);
+        flags.write(0);
+        flags.add(1).write(0);
     }
 }
 
@@ -5966,7 +5970,7 @@ pub unsafe fn init_tlut_obj(obj: *mut GxTlutObj, lut: *mut c_void, fmt: u8, entr
             tlut_nentries: 0,
             _pad: [0; 2],
         };
-        ptr.tlut_fmt = (fmt as u32) << 10;
+        ptr.tlut_fmt = ((fmt as u32) & 3) << 10;
         ptr.tlut_maddr = (ogc_core::mem_virtual_to_physical(lut as usize) >> 5) | (0x64 << 24);
         ptr.tlut_nentries = entries;
     }

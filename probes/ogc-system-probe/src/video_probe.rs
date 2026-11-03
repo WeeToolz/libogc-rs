@@ -35,6 +35,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_texture_descriptors(logger);
     probe_texture_queries(logger);
     probe_texture_indexed_lod(logger);
+    probe_texture_regions(logger);
     probe_fifo_pointers(logger);
 
     let rmode = init_display(logger);
@@ -148,6 +149,56 @@ pub fn run(logger: &mut ProbeLogger) {
     let _ = video::set_post_retrace_callback(previous_post);
     PREVIOUS_PRE_CALLBACK.store(0, Ordering::Release);
     PREVIOUS_POST_CALLBACK.store(0, Ordering::Release);
+}
+
+fn probe_texture_regions(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    let mut cache = gx::GxTexRegion {
+        val: [0xdead_beef, 0xdead_beef, 0x5566_7788, 0x1122_3344],
+    };
+    // SAFETY: These are live writable descriptors. No region is submitted to GX.
+    unsafe {
+        gx::init_tex_cache_region(
+            &mut cache,
+            1,
+            0x2000,
+            gx::GX_TEXCACHE_32K,
+            0x4000,
+            gx::GX_TEXCACHE_128K,
+        );
+        logger.record(
+            "GX texture cache region C layout",
+            cache.val == [0x000d_8100, 0x0012_0200, 0x5566_7788, 0x0101_3344],
+        );
+        gx::init_tex_preload_region(&mut cache, 0x2000, 0x800, 0x4000, 0x1000);
+        logger.record(
+            "GX texture preload region C layout",
+            cache.val == [0x0020_0100, 0x0000_0200, 0x0040_0080, 0x0000_3344],
+        );
+        let mut region = gx::GxTlutRegion {
+            val: [0, 0x1122_3344, 0x5566_7788, 0x99aa_bbcc],
+        };
+        gx::init_tlut_region(&mut region, 0x80a00, 3);
+        logger.record(
+            "GX palette region preserves cached fields",
+            region.val == [0x6500_0c05, 0x1122_3344, 0x5566_7788, 0x99aa_bbcc],
+        );
+        #[repr(align(32))]
+        struct Palette([u8; 32]);
+        let mut palette = Palette([0; 32]);
+        let mut object = gx::GxTlutObj::default();
+        gx::init_tlut_obj(&mut object, palette.0.as_mut_ptr().cast(), 5, 256);
+        let expected_address = ((palette.0.as_mut_ptr() as usize) & 0x1fff_ffe0) as *mut c_void;
+        logger.record(
+            "GX palette object masks format",
+            gx::tlut_obj_snapshot(&object).is_some_and(|s| {
+                s.format == 1
+                    && s.tlut_fmt == 0x400
+                    && s.image_ptr == expected_address
+                    && s.nentries == 256
+            }),
+        );
+    }
 }
 
 fn probe_texture_indexed_lod(logger: &mut ProbeLogger) {
