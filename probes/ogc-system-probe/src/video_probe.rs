@@ -39,6 +39,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_light_object(logger);
     probe_light_falloff(logger);
     probe_specular_light(logger);
+    probe_overscan(logger);
     probe_fifo_pointers(logger);
 
     let rmode = init_display(logger);
@@ -152,6 +153,59 @@ pub fn run(logger: &mut ProbeLogger) {
     let _ = video::set_post_retrace_callback(previous_post);
     PREVIOUS_PRE_CALLBACK.store(0, Ordering::Release);
     PREVIOUS_POST_CALLBACK.store(0, Ordering::Release);
+}
+
+fn probe_overscan(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    let source = gx::GxrModeObj {
+        vi_tv_mode: 0,
+        fb_width: 640,
+        efb_height: 480,
+        xfb_height: 480,
+        vi_x_origin: 40,
+        vi_y_origin: 20,
+        vi_width: 640,
+        vi_height: 480,
+        xfb_mode: 0,
+        field_rendering: 1,
+        aa: 0,
+        sample_pattern: [[3, 4]; 12],
+        vfilter: [5; 7],
+    };
+    let mut output = source;
+    // SAFETY: Both mode objects are initialized. In-place use is supported.
+    unsafe { gx::adjust_for_overscan(&source, &mut output, 10, 20) };
+    let interlaced = output.fb_width == 620
+        && output.efb_height == 440
+        && output.xfb_height == 460
+        && output.vi_width == 620
+        && output.vi_height == 440
+        && output.vi_x_origin == 50
+        && output.vi_y_origin == 40
+        && output.sample_pattern == [[3, 4]; 12]
+        && output.vfilter == [5; 7];
+    let mut progressive = source;
+    progressive.vi_tv_mode = 2;
+    let ptr = &mut progressive as *mut gx::GxrModeObj;
+    unsafe { gx::adjust_for_overscan(ptr, ptr, 10, 20) };
+    let progressive_ok = progressive.fb_width == 620
+        && progressive.efb_height == 440
+        && progressive.xfb_height == 440
+        && progressive.vi_height == 400
+        && progressive.vi_x_origin == 50
+        && progressive.vi_y_origin == 40;
+    let mut invalid = source;
+    invalid.xfb_height = 0;
+    let before = output;
+    unsafe { gx::adjust_for_overscan(&invalid, &mut output, 10, 20) };
+    logger.record(
+        "GX overscan modes and in-place output",
+        interlaced
+            && progressive_ok
+            && output.fb_width == before.fb_width
+            && output.xfb_height == before.xfb_height
+            && output.vi_height == before.vi_height,
+    );
 }
 
 fn probe_specular_light(logger: &mut ProbeLogger) {
