@@ -1648,7 +1648,7 @@ fn milestone2_readiness(root: &Path) -> Result<(), String> {
         "crates/services/ogc-fat/src/lib.rs",
         "crates/services/ogc-usbstorage-sys/src/wii_backend.rs",
         "probes/ogc-system-probe/src/storage_probe.rs",
-        "probes/ogc-system-probe/src/storage_probe_main.rs",
+        "probes/ogc-system-probe/src/storage_probe/main.rs",
         "docs/milestone2-storage.md",
         "docs/milestone2-hardware-report.md",
     ];
