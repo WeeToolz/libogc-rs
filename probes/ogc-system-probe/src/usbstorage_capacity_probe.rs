@@ -1,8 +1,121 @@
 use crate::probe_support::ProbeLogger;
 use ogc_usbstorage::sys;
 
+#[repr(align(32))]
+struct AlignedSector([u8; 512]);
+
+fn has_error<T>(result: ogc_usbstorage::Result<T>, code: i32) -> bool {
+    result.is_err_and(|error| error.raw() == code)
+}
+
+fn probe_public_facade(logger: &mut ProbeLogger) {
+    use ogc_usbstorage as storage;
+
+    logger.section("USB STORAGE SAFE FACADE WITHOUT A DEVICE");
+    let mut handle = storage::UsbStorageHandle::default();
+    let mut sector = AlignedSector([0xa5; 512]);
+
+    let initialized = storage::try_initialize();
+    let init_ok = initialized.is_ok()
+        || initialized == Err(storage::ErrorCode::new(storage::USBSTORAGE_EINIT));
+    logger.record(
+        "safe USB initialize reports success or no-Wii error",
+        init_ok,
+    );
+
+    let raw_open = unsafe { storage::open(&mut handle, 0, 0x1234, 0x5678) };
+    let opened = unsafe { storage::try_open(&mut handle, 0, 0x1234, 0x5678) };
+    logger.note_i32("raw USB open status without device", raw_open);
+    logger.record(
+        "safe USB open preserves the raw no-device error and cleans its handle",
+        raw_open < 0
+            && has_error(opened, raw_open)
+            && handle.usb_fd < 0
+            && handle.buffer.is_null()
+            && handle.sector_size.is_null(),
+    );
+
+    let (closed, reset, max_lun, mounted, suspended, capacity, read, write) = unsafe {
+        (
+            storage::try_close(core::ptr::null_mut()),
+            storage::try_reset(core::ptr::null_mut()),
+            storage::try_get_max_lun(core::ptr::null_mut()),
+            storage::try_mount_lun(core::ptr::null_mut(), 0),
+            storage::try_suspend(core::ptr::null_mut()),
+            storage::try_read_capacity(core::ptr::null_mut(), 0),
+            storage::try_read(core::ptr::null_mut(), 0, 0, 1, sector.0.as_mut_ptr()),
+            storage::try_write(core::ptr::null_mut(), 0, 0, 1, sector.0.as_ptr()),
+        )
+    };
+    logger.record(
+        "safe USB close maps null handle to interface error",
+        has_error(closed, storage::USBSTORAGE_ENOINTERFACE),
+    );
+    logger.record(
+        "safe USB reset maps null handle to interface error",
+        has_error(reset, storage::USBSTORAGE_ENOINTERFACE),
+    );
+    logger.record(
+        "safe USB GetMaxLUN maps null handle to interface error",
+        has_error(max_lun, storage::USBSTORAGE_ENOINTERFACE),
+    );
+    logger.record(
+        "safe USB mount maps null handle to interface error",
+        has_error(mounted, storage::USBSTORAGE_ENOINTERFACE),
+    );
+    logger.record(
+        "safe USB suspend maps null handle to interface error",
+        has_error(suspended, storage::USBSTORAGE_ENOINTERFACE),
+    );
+    logger.record(
+        "safe USB capacity maps null handle to interface error",
+        has_error(capacity, storage::USBSTORAGE_ENOINTERFACE),
+    );
+    logger.record(
+        "safe USB read rejects a null handle",
+        has_error(read, storage::USBSTORAGE_EINVAL),
+    );
+    logger.record(
+        "safe USB write rejects a null handle",
+        has_error(write, storage::USBSTORAGE_EINVAL),
+    );
+
+    let default_flush = storage::flush_default();
+    let safe_default_flush = storage::try_flush_default();
+    logger.record(
+        "default USB flush reports no mounted storage",
+        default_flush == storage::USBSTORAGE_ENOINTERFACE
+            && safe_default_flush == Err(storage::ErrorCode::new(storage::USBSTORAGE_ENOINTERFACE)),
+    );
+
+    let raw_dvd = storage::is_dvd();
+    let safe_dvd = storage::try_is_dvd();
+    logger.record(
+        "safe USB DVD query maps the raw no-device result",
+        raw_dvd == 0 && safe_dvd == Ok(false),
+    );
+
+    let raw_start_stop = unsafe { storage::start_stop(core::ptr::null_mut(), 0, 0, 1, 0) };
+    let safe_start_stop = unsafe { storage::try_start_stop(core::ptr::null_mut(), 0, 0, 1, 0) };
+    logger.record(
+        "safe USB start-stop reports a missing storage interface",
+        raw_start_stop == storage::USBSTORAGE_ENOINTERFACE
+            && safe_start_stop == Err(storage::ErrorCode::new(storage::USBSTORAGE_ENOINTERFACE)),
+    );
+
+    let deinitialized = storage::try_deinitialize();
+    logger.record(
+        "safe USB deinitialize completes after the no-device probe",
+        deinitialized.is_ok()
+            && handle.usb_fd < 0
+            && handle.buffer.is_null()
+            && handle.sector_size.is_null(),
+    );
+}
+
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("USB STORAGE OPEN AND READ CAPACITY POLICY");
+    probe_public_facade(logger);
 
     logger.record(
         "open reset decision matches the C USB mode predicate",
