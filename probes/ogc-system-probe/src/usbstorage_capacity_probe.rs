@@ -35,6 +35,19 @@ fn probe_public_facade(logger: &mut ProbeLogger) {
             && handle.sector_size.is_null(),
     );
 
+    // SAFETY: A null handle is an accepted error input. The second handle is
+    // live and uniquely borrowed; its zero LUN count rejects the request.
+    let null_inquiry = unsafe { sys::inquiry(core::ptr::null_mut(), 0) };
+    let invalid_lun_inquiry = unsafe { sys::inquiry(&mut handle, 0) };
+    logger.record(
+        "USB inquiry rejects null and unavailable LUN without changing handle",
+        null_inquiry == storage::USBSTORAGE_ENOINTERFACE
+            && invalid_lun_inquiry == storage::USBSTORAGE_EINVAL
+            && handle.usb_fd < 0
+            && handle.buffer.is_null()
+            && handle.sector_size.is_null(),
+    );
+
     let (closed, flushed, reset, max_lun, mounted, suspended, capacity, read, write) = unsafe {
         (
             storage::try_close(core::ptr::null_mut()),
