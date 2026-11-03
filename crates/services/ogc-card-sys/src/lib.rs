@@ -1,6 +1,6 @@
 #![no_std]
 
-//! Legacy CARD ABI facade backed exclusively by the Wii EXI implementation.
+//! Legacy CARD ABI facade backed by the console EXI implementation.
 //!
 //! Production PowerPC builds contain no synthetic card state. Asynchronous
 //! operations are queued to the CARD worker and completion callbacks execute
@@ -236,6 +236,7 @@ pub fn set_company(company: Option<CardCompanyCode>) {
     CARD_COMPANY.store(encode_company(company), Ordering::Release);
 }
 
+/// Returns 1 if EXI detects a device in the slot, or 0 otherwise.
 pub fn probe(chn: i32) -> i32 {
     wii_backend::probe(chn)
 }

@@ -1544,7 +1544,7 @@ pub fn set_status_async_owned(
     Ok(CardSetStatusRequest { slot, active: true })
 }
 
-/// Probes a validated memory-card slot.
+/// Returns 1 when an EXI device is detected in the slot, or 0 otherwise.
 pub fn probe_slot(slot: CardSlot) -> i32 {
     sys::probe(slot.channel())
 }

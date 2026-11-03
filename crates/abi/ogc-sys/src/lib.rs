@@ -195,12 +195,11 @@ _start:
 __ogc_startup_argv:
     .space 6*4
 
-    # Dolphin identifies a standalone Wii DOL by this HID4 instruction. Keep
-    # it after the Homebrew Channel argv block and before the branch target so
-    # startup never executes it. Real Wii startup behavior is unchanged.
+    # Dolphin identifies a standalone Wii DOL by its HID4 instruction.
+    # GameCube builds use a no-op marker. Neither marker is executed.
     .globl __ogc_wii_hid4_marker
 __ogc_wii_hid4_marker:
-    .long 0x7c13fba6
+    .long {console_marker}
 
 .Lactual_start:
     # Rust emits floating-point instructions for ordinary f32 operations.
@@ -214,7 +213,8 @@ __ogc_wii_hid4_marker:
     bl _start_rust
 1:
     b 1b
-"#
+    "#,
+    console_marker = const if cfg!(gamecube) { 0x6000_0000u32 } else { 0x7c13_fba6u32 },
 );
 
 #[cfg(target_arch = "powerpc")]

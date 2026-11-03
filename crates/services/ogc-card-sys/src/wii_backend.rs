@@ -21,7 +21,6 @@ use ogc_exi::{
 
 use super::*;
 
-const EXI_REG_BASE: usize = 0xCD00_6800;
 const EXI_SELECT_MASK: u32 = 0x0405;
 const EXI_STATUS_UNLOCKED: u8 = 0x40;
 
@@ -293,7 +292,7 @@ fn check_detach_slot(slot: usize) {
         return;
     }
     let chn = if slot == 0 { CARD_SLOTA } else { CARD_SLOTB };
-    if probe(chn) == CARD_ERROR_READY {
+    if ogc_exi::probe_ex(chn) >= 0 {
         return;
     }
     SLOT_MOUNTED[slot].store(false, Ordering::Release);
@@ -560,7 +559,7 @@ impl Default for CardBat {
 
 #[inline(always)]
 fn reg_ptr(index: usize) -> *mut u32 {
-    (EXI_REG_BASE as *mut u32).wrapping_add(index)
+    (ogc_exi::hardware_exi_reg_base() as *mut u32).wrapping_add(index)
 }
 
 #[inline(always)]
@@ -722,11 +721,8 @@ fn sync_raw(chn: i32) -> bool {
     let Some(slot) = slot_index(chn) else {
         return false;
     };
-    let ctrl = unsafe { read_reg(slot * 5 + 3) };
-    if (ctrl & 1) != 0 {
-        unsafe {
-            write_reg(slot * 5 + 3, ctrl & !1);
-        }
+    while unsafe { read_reg(slot * 5 + 3) } & 1 != 0 {
+        core::hint::spin_loop();
     }
     true
 }
@@ -1501,13 +1497,30 @@ fn read_file_chain(
 }
 
 fn imm_raw(chn: i32, data: *mut c_void, len: u32, mode: u32) -> bool {
+    if data.is_null() || len == 0 {
+        return false;
+    }
+    let mut offset = 0;
+    while offset < len {
+        let count = (len - offset).min(4);
+        // SAFETY: The caller supplies a buffer valid for the full transfer.
+        let chunk = unsafe { data.cast::<u8>().add(offset as usize).cast() };
+        if !imm_raw_chunk(chn, chunk, count, mode) {
+            return false;
+        }
+        offset += count;
+    }
+    true
+}
+
+fn imm_raw_chunk(chn: i32, data: *mut c_void, len: u32, mode: u32) -> bool {
     let Some(slot) = slot_index(chn) else {
         return false;
     };
     if len == 0 || len > 4 {
         return false;
     }
-    if mode != EXI_READ && data.is_null() {
+    if data.is_null() {
         return false;
     }
     unsafe {
@@ -1523,6 +1536,9 @@ fn imm_raw(chn: i32, data: *mut c_void, len: u32, mode: u32) -> bool {
             slot * 5 + 3,
             (((len - 1) & 0x3) << 4) | ((mode & 0x3) << 2) | 0x01,
         );
+        if !sync_raw(chn) {
+            return false;
+        }
         if mode == EXI_READ {
             let value = read_reg(slot * 5 + 4);
             let bytes = core::slice::from_raw_parts_mut(data.cast::<u8>(), len as usize);
@@ -1531,7 +1547,7 @@ fn imm_raw(chn: i32, data: *mut c_void, len: u32, mode: u32) -> bool {
             }
         }
     }
-    sync_raw(chn)
+    true
 }
 
 fn exi_get_id(chn: i32) -> Option<u32> {
@@ -1602,7 +1618,7 @@ pub fn init() -> i32 {
 }
 
 pub fn probe(chn: i32) -> i32 {
-    unsafe { probe_ex(chn, core::ptr::null_mut(), core::ptr::null_mut()) }
+    ogc_exi::probe(chn)
 }
 
 /// # Safety
@@ -1617,17 +1633,14 @@ pub unsafe fn probe_ex(chn: i32, mem_size: *mut i32, sect_size: *mut i32) -> i32
             if result == CARD_ERROR_NOCARD {
                 SLOT_PRESENT[slot].store(false, Ordering::Release);
             }
-            set_error(slot, result);
             return result;
         }
         let Some(id) = exi_get_id(chn) else {
-            set_error(slot, CARD_ERROR_BUSY);
             return CARD_ERROR_BUSY;
         };
         let Some((sector_size, blocks)) = card_geometry_from_id(id) else {
             SLOT_PRESENT[slot].store(false, Ordering::Release);
             SLOT_ID[slot].store(id, Ordering::Release);
-            set_error(slot, CARD_ERROR_WRONGDEVICE);
             return CARD_ERROR_WRONGDEVICE;
         };
         SLOT_PRESENT[slot].store(true, Ordering::Release);
@@ -1641,7 +1654,6 @@ pub unsafe fn probe_ex(chn: i32, mem_size: *mut i32, sect_size: *mut i32) -> i32
         if !sect_size.is_null() {
             *sect_size = sector_size as i32;
         }
-        set_error(slot, CARD_ERROR_READY);
         CARD_ERROR_READY
     }
 }

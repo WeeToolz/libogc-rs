@@ -1,0 +1,67 @@
+
+
+
+== GAMECUBE CARD PROBE ==
+
+== CARD ASYNC + DETACH ==
+PASS card identifier validation
+PASS CARD slot conversion validates both slots and preserves invalid input
+INFO card init=0
+
+== CARD INVALID CHANNEL APIs ==
+PASS CARD sys probe_ex rejects an invalid channel and preserves outputs
+PASS CARD wrapper probe_ex forwards the invalid-channel error
+PASS CARD sys get_error_code rejects an invalid channel
+PASS CARD wrapper get_error_code forwards the invalid-channel result
+PASS CARD sys and wrapper delete reject an invalid channel
+PASS CARD sys get_block_count preserves output on invalid channel
+PASS CARD wrapper get_block_count forwards error and preserves output
+PASS CARD sys get_free_blocks preserves output on invalid channel
+PASS CARD wrapper get_free_blocks forwards error and preserves output
+PASS CARD sys get_serial_no preserves outputs on invalid channel
+PASS CARD wrapper get_serial_no forwards error and preserves outputs
+PASS CARD sys get_status rejects an invalid channel and preserves output
+-- page 2 --
+PASS CARD wrapper get_status forwards the error and preserves output
+PASS CARD sys get_status_ex rejects an invalid channel and preserves output
+PASS CARD sys get_attributes rejects an invalid channel and preserves output
+PASS CARD sys set_status rejects an invalid channel without changing input
+PASS CARD sys set_status_ex rejects an invalid channel without changing input
+PASS CARD sys set_attributes rejects an invalid channel
+PASS CARD sys get_directory rejects an invalid channel and preserves outputs
+PASS CARD sys find_first initializes its cursor before an invalid-channel error
+PASS CARD sys find_next advances its cursor before an invalid-channel error
+PASS CARD sys and wrapper mount_async reject invalid channels without callbacks
+PASS CARD sys create_async rejects an invalid channel without callback or output changes
+PASS CARD sys create_entry and delete_entry reject invalid channels
+PASS CARD sys open_entry rejects an invalid channel and preserves output
+PASS CARD sys read_async and write_async reject invalid channels without callbacks
+-- page 3 --
+PASS CARD sys metadata async submissions reject invalid channels without callbacks
+INFO CARD raw slot probe result=-1
+INFO CARD typed probe_info result=-1
+PASS CARD probe_info returns valid geometry or the probe error
+PASS CARD serial_number rejects an unmounted slot
+PASS CARD slot probe reports the busy or no-card state without media
+INFO CARD sector_size status=-3
+PASS CARD sector_size returns no-card for unavailable media
+INFO CARD block_count status=-3
+PASS CARD block_count returns no-card for unavailable media
+INFO CARD free_blocks status=-3
+PASS CARD free_blocks returns no-card for unavailable media
+INFO CARD file_status status=-3
+PASS CARD file_status returns no-card for unavailable media
+PASS CARD slice transfers reject empty, short, misaligned, and overflowing requests before I/O
+PASS CARD read_async_owned rejects an invalid channel and returns its file
+PASS CARD write_async_owned rejects an invalid channel and returns file and bytes
+PASS CARD read_async_owned rejects invalid transfer shapes and preserves files
+-- page 4 --
+PASS CARD write_async_owned rejects invalid transfer shapes and returns payloads
+PASS CARD owned create and delete reject embedded NUL and oversized filenames
+PASS CARD owned entry operations reject unterminated names and return entries
+PASS CARD set_status_async_owned rejects out-of-range file numbers and returns stat
+INFO card tests skipped: insert a memory card in slot A
+INFO card shutdown=0
+FAIL probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+INFO opening deferred log backend

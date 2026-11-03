@@ -17,7 +17,7 @@ mod aesnd_output_evidence;
 mod aesnd_stream_probe;
 #[cfg(target_arch = "powerpc")]
 pub mod aram_probe;
-#[cfg(target_arch = "powerpc")]
+#[cfg(all(target_arch = "powerpc", not(feature = "gamecube-card-probe")))]
 pub mod arena_probe;
 #[cfg(target_arch = "powerpc")]
 pub mod bluetooth_probe;
@@ -42,7 +42,7 @@ pub mod font_probe;
 pub mod general_probe;
 #[cfg(target_arch = "powerpc")]
 mod hid_descriptor_probe;
-#[cfg(target_arch = "powerpc")]
+#[cfg(all(target_arch = "powerpc", not(feature = "gamecube-card-probe")))]
 pub mod hid_probe;
 #[cfg(target_arch = "powerpc")]
 pub mod input_probe;
@@ -60,7 +60,7 @@ pub mod network_probe;
 pub mod pad_diagnostics_probe;
 #[cfg(target_arch = "powerpc")]
 pub mod probe_support;
-#[cfg(target_arch = "powerpc")]
+#[cfg(all(target_arch = "powerpc", not(feature = "gamecube-card-probe")))]
 pub mod runtime_probe;
 #[cfg(target_arch = "powerpc")]
 pub mod sound_probe;
@@ -78,9 +78,9 @@ mod ui_input_probe_core;
 mod usb_volumes_probe;
 #[cfg(target_arch = "powerpc")]
 mod usbstorage_capacity_probe;
-#[cfg(target_arch = "powerpc")]
+#[cfg(all(target_arch = "powerpc", not(feature = "gamecube-card-probe")))]
 mod usbstorage_transport_probe;
-#[cfg(target_arch = "powerpc")]
+#[cfg(all(target_arch = "powerpc", not(feature = "gamecube-card-probe")))]
 pub mod video_probe;
 #[cfg(target_arch = "powerpc")]
 pub mod wii_remote_stability_probe;
@@ -466,7 +466,7 @@ fn finish_probe() -> i32 {
     }
 }
 
-#[cfg(target_arch = "powerpc")]
+#[cfg(all(target_arch = "powerpc", not(feature = "gamecube-card-probe")))]
 /// Runs the full hardware probe suite, then enters the live input monitor.
 pub fn run_system_probe() -> i32 {
     configure_probe_app_dir("ogc-system-probe");
@@ -555,7 +555,7 @@ pub fn run_bus_probe_bin() -> i32 {
     finish_probe()
 }
 
-#[cfg(target_arch = "powerpc")]
+#[cfg(all(target_arch = "powerpc", not(feature = "gamecube-card-probe")))]
 pub fn run_arena_probe_bin() -> i32 {
     configure_probe_app_dir("arena-probe");
     let mut logger = init_probe_logger();
@@ -583,7 +583,7 @@ pub fn run_general_probe_bin() -> i32 {
     finish_probe()
 }
 
-#[cfg(target_arch = "powerpc")]
+#[cfg(all(target_arch = "powerpc", not(feature = "gamecube-card-probe")))]
 /// Runs only video probes.
 pub fn run_video_probe_bin() -> i32 {
     configure_probe_app_dir("video-probe");
@@ -611,7 +611,7 @@ pub fn run_report_smoke_probe_bin() -> i32 {
     finish_probe()
 }
 
-#[cfg(target_arch = "powerpc")]
+#[cfg(all(target_arch = "powerpc", not(feature = "gamecube-card-probe")))]
 /// Runs only runtime/IOS/crypto probes.
 pub fn run_runtime_probe_bin() -> i32 {
     configure_probe_app_dir("runtime-probe");
@@ -763,7 +763,7 @@ pub fn run_usb_volumes_probe_bin() -> i32 {
     finish_probe()
 }
 
-#[cfg(target_arch = "powerpc")]
+#[cfg(all(target_arch = "powerpc", not(feature = "gamecube-card-probe")))]
 /// Checks physical USB recovery and repeated reads without raw sector writes.
 pub fn run_usbstorage_transport_probe_bin() -> i32 {
     configure_probe_app_dir("usbstorage-transport-probe");
@@ -811,6 +811,22 @@ pub fn run_storage_probe_bin(destructive_card_format: bool) -> i32 {
     storage_probe::run(&mut logger, destructive_card_format);
     logger.summary();
     finish_probe()
+}
+
+#[cfg(all(target_arch = "powerpc", feature = "gamecube-card-probe"))]
+pub fn run_gamecube_card_probe_bin() -> ! {
+    let startup = ogc_system::init_checked();
+    let display = probe_support::ProbeDisplay::init();
+    let mut logger = probe_support::ProbeLogger::with_options(
+        display,
+        probe_support::ProbeLoggerOptions::disabled(),
+    );
+    logger.record("GameCube system initialization", startup.is_ok());
+    storage_probe::run_card_probe(&mut logger);
+    logger.summary();
+    loop {
+        probe_support::wait_vsync();
+    }
 }
 
 #[cfg(target_arch = "powerpc")]
@@ -873,7 +889,7 @@ pub fn run_ui_input_probe_bin() -> i32 {
     ui_input_probe::monitor(&mut logger)
 }
 
-#[cfg(target_arch = "powerpc")]
+#[cfg(all(target_arch = "powerpc", not(feature = "gamecube-card-probe")))]
 /// Runs the live HID probe.
 pub fn run_hid_probe_bin() -> i32 {
     configure_probe_app_dir("hid-probe");

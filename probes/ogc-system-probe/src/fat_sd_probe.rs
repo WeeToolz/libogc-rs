@@ -299,10 +299,48 @@ pub fn run(logger: &mut ProbeLogger) {
     );
 
     let closed = file.close().is_ok();
+    let reopened = match fat::FatFile::open(PROBE_FILE) {
+        Ok(mut reopened) => {
+            let mut persisted = [0xa5; 4];
+            let length = reopened.len();
+            let read = reopened.read(&mut persisted);
+            let write = reopened.write(b"x");
+            let close = reopened.close();
+            length == 4
+                && read == Ok(4)
+                && persisted == *b"abcd"
+                && write == Err(fat::FatError::BadDescriptor)
+                && close.is_ok()
+        }
+        Err(_) => false,
+    };
+    logger.record(
+        "FAT read-only reopen preserves bytes and rejects writes",
+        reopened,
+    );
     let removed = fat::remove_file(PROBE_FILE).is_ok();
     logger.record(
         "FAT temporary file closes and is removed",
         closed && removed,
+    );
+    let (created, created_cleanup) = if removed {
+        match fat::FatFile::create(PROBE_FILE) {
+            Ok(mut created) => {
+                let written = created.write(b"new");
+                let closed = created.close();
+                let cleanup = fat::remove_file(PROBE_FILE);
+                (written == Ok(3) && closed.is_ok(), cleanup.is_ok())
+            }
+            Err(_) => (false, false),
+        }
+    } else {
+        (false, false)
+    };
+    logger.record(
+        "FAT create writes a new file and cleanup removes it",
+        created
+            && created_cleanup
+            && matches!(fat::FatFile::open(PROBE_FILE), Err(fat::FatError::NotFound)),
     );
 
     let init = fat::fatInit(2, false);
@@ -374,4 +412,21 @@ pub fn run(logger: &mut ProbeLogger) {
 
     let unmounted = fat::unmount(MOUNT).is_ok();
     logger.record("FAT SD cleanup unmounts the volume", unmounted);
+    let mounted = fat::mount(
+        fat::MountSource::Sd,
+        fat::MountOptions {
+            mount_name: MOUNT,
+            read_only: true,
+        },
+    );
+    let registered = fat::is_mounted(MOUNT);
+    let unmount = if mounted.is_ok() {
+        fat::unmount(MOUNT).is_ok()
+    } else {
+        false
+    };
+    logger.record(
+        "FAT configured read-only mount registers and cleans up",
+        unmounted && mounted.is_ok() && registered && unmount && !fat::is_mounted(MOUNT),
+    );
 }

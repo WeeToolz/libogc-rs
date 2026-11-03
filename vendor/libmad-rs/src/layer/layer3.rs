@@ -252,8 +252,8 @@ pub fn parse_side_info(
         ..SideInfo::default()
     };
     if !lsf {
-        for ch in 0..channels {
-            side.scfsi[ch] = read(ptr, data, 4)? as u8;
+        for scfsi in side.scfsi.iter_mut().take(channels) {
+            *scfsi = read(ptr, data, 4)? as u8;
         }
     }
 

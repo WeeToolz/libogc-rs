@@ -1062,3 +1062,71 @@ packages. `cargo xtask check-inventory`, `cargo xtask check-group audio`,
 PowerPC Clippy with warnings denied passed for the `bus_probe` binary. Dolphin
 does not verify DSP callback delivery after `assert_int`; physical Wii shutdown
 and callback delivery remain outside this evidence.
+
+## 2026-11-03: CARD probe return and EXI address
+
+The C `CARD_Probe` calls `EXI_Probe` and returns its device-presence value.
+The Rust facade now forwards that value. CARD register access uses the same
+console detection as the EXI driver. A Wii-mode Dolphin run passed the new
+return-value check but failed four asynchronous mount checks with a busy
+submission. See the [diagnostic](docs/dolphin-runs/2026-11-03-card-probe-parity/README.md).
+GameCube mode also reached the probe but did not complete its summary. CARD
+mounting and persistence remain open on both paths.
+
+## 2026-11-03: CARD probe status and mount diagnostic
+
+The CARD probe no longer changes the recorded operation status when it returns
+a device result, matching the C `CARD_ProbeEx` control flow. Dolphin accepted
+the later asynchronous mount in Wii and GameCube modes; both completed with a
+no-card result. The Wii probe passed 112 checks. The GameCube run did not reach
+its final summary. Card save and persistence checks remain open. See the
+[diagnostic report](docs/dolphin-runs/2026-11-03-card-probe-status/README.md).
+
+## 2026-11-03: CARD EXI presence diagnostic
+
+Both Dolphin modes reported the EXI external-device presence bit before the
+CARD probe, while the extended probe returned busy and mount completed with no
+card. The GameCube run also reported an external interrupt bit. The next
+investigation is the EXI probe and device ID transaction. Save persistence and
+physical hardware remain unverified. See the
+[EXI diagnostic](docs/dolphin-runs/2026-11-03-card-exi-diagnostic/README.md).
+
+## 2026-11-03: CARD save roundtrip in Dolphin
+
+CARD immediate transfers now wait for completion and send longer commands in
+pieces. The probe waits for card detection and uses a full sector for writes.
+The Wii-mode probe passed 151 checks, including save data and deletion after
+remount. The final GameCube probe passed 91 checks, including the save and
+remount checks. Physical hardware, card formatting, and removal remain unverified.
+See the [run report](docs/dolphin-runs/2026-11-03-card-save-roundtrip/README.md).
+
+## 2026-11-03: CARD raw read and write
+
+The storage probe now calls the raw CARD read and write APIs with an aligned
+buffer and compares the bytes read after clearing that buffer. Dolphin passed
+152 Wii-mode checks and 92 GameCube-mode checks, including save cleanup and
+remount. Physical card behavior remains open. See the
+[raw roundtrip report](docs/dolphin-runs/2026-11-03-card-raw-roundtrip/README.md).
+
+## 2026-11-03: DI raw read error checks
+
+The direct DI probe checks that a misaligned read preserves its output and
+that a read after close reports the missing descriptor. Dolphin passed 120
+checks. Successful reads with a disc and physical Wii behavior remain open.
+See the [DI report](docs/dolphin-runs/2026-11-03-di-raw-errors/README.md).
+
+## 2026-11-03: FAT file and mount checks
+
+The focused FAT SD probe passed 39 checks in Dolphin. It checked direct file
+create, open, read, write, and length operations, including read-only rejection,
+temporary file removal, and a configured mount and unmount. See the
+[FAT report](docs/dolphin-runs/2026-11-03-fat-direct-file/README.md). Physical
+SD and USB devices remain unverified by this run.
+
+## 2026-11-03: USB storage direct errors
+
+The USB storage probe directly checks facade and system open, close, read, and
+write errors without a device. Dolphin passed 49 checks, including unchanged
+read-buffer bytes and failed-open cleanup. See the
+[USB report](docs/dolphin-runs/2026-11-03-usb-direct-errors/README.md).
+Successful USB media transfers and physical device behavior remain open.

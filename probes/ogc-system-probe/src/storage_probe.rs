@@ -115,6 +115,13 @@ pub fn run(logger: &mut ProbeLogger, destructive_card_format: bool) {
     );
 }
 
+/// Runs the CARD transfer and metadata checks without Wii IOS storage probes.
+pub fn run_card_probe(logger: &mut ProbeLogger) {
+    logger.section("GAMECUBE CARD PROBE");
+    probe_card_save_data(logger);
+    logger.note_i32("card shutdown", card::shutdown());
+}
+
 unsafe fn storage_debug_hook(event: lwp::DebugEvent) {
     OGC_STORAGE_PROBE_LWP_EVENTS.fetch_add(1, Ordering::AcqRel);
     OGC_STORAGE_PROBE_LAST_RESULT.store(event.event as i32, Ordering::Release);
@@ -676,10 +683,13 @@ pub fn probe_di_no_disc(logger: &mut ProbeLogger) {
         "di raw read rejects null buffer",
         unsafe { di::read(core::ptr::null_mut(), 0x20, 0) } == -22,
     );
-    // SAFETY: This deliberately checks the required 32-byte alignment.
+    let mut misaligned = DvdSector([0xa5; 0x800]);
+    // SAFETY: The pointer is live and has space for 0x20 bytes, but is
+    // deliberately unaligned so the call must reject it before I/O.
     logger.record(
-        "di raw read rejects misaligned buffer",
-        unsafe { di::read(aligned.0.as_mut_ptr().add(1).cast(), 0x20, 0) } == -14,
+        "di raw read rejects unaligned buffer and preserves bytes",
+        unsafe { di::read(misaligned.0.as_mut_ptr().add(1).cast(), 0x20, 0) } == -14
+            && misaligned.0.iter().all(|byte| *byte == 0xa5),
     );
     // SAFETY: The null pointer deliberately checks the documented argument
     // error while the DI descriptor is open.
@@ -876,6 +886,11 @@ pub fn probe_di_no_disc(logger: &mut ProbeLogger) {
     let close_result = di::close();
     logger.note_i32("di close result", close_result);
     logger.record("di close succeeds", close_result == 0);
+    // SAFETY: The closed descriptor is checked before the null buffer.
+    logger.record(
+        "di raw read after close rejects missing descriptor",
+        unsafe { di::read(core::ptr::null_mut(), 0x20, 0) } == -6,
+    );
     logger.record(
         "di close restores initial status",
         di::get_status() == (di::DVD_INIT | di::DVD_NO_DISC) as i32,
@@ -1953,8 +1968,14 @@ fn probe_card_invalid_channel_apis(logger: &mut ProbeLogger) {
     );
 
     let slot = card::CardSlot::A;
+    let exi_base = ogc_exi::hardware_exi_reg_base();
+    // SAFETY: This reads the EXI channel 0 status register without modifying it.
+    let exi_status = unsafe { core::ptr::read_volatile(exi_base as *const u32) };
+    logger.note_hex32("CARD EXI channel 0 status before probe", exi_status);
     let probe_result = card::probe_slot(slot);
+    let status_before_probe = card::sys::get_error_code(slot.channel());
     let info_result = card::probe_info(slot);
+    let status_after_probe = card::sys::get_error_code(slot.channel());
     logger.note_i32("CARD raw slot probe result", probe_result);
     logger.note_i32(
         "CARD typed probe_info result",
@@ -1962,28 +1983,34 @@ fn probe_card_invalid_channel_apis(logger: &mut ProbeLogger) {
             .as_ref()
             .map_or_else(|error| *error, |_| card::CARD_ERROR_READY),
     );
-    let info_matches_probe = match (probe_result, info_result) {
-        (card::CARD_ERROR_READY, Ok(info)) => {
+    logger.record(
+        "CARD probe returns an EXI presence value and rejects an invalid channel",
+        (0..=1).contains(&probe_result) && card::probe(-1) == ogc_exi::probe(-1),
+    );
+    let info_valid = match info_result {
+        Ok(info) => {
             info.memory_size > 0 && info.sector_size > 0 && info.memory_size % info.sector_size == 0
         }
-        (error, Err(info_error)) => error == info_error,
-        _ => false,
+        Err(error) => matches!(
+            error,
+            card::CARD_ERROR_BUSY | card::CARD_ERROR_NOCARD | card::CARD_ERROR_WRONGDEVICE
+        ),
     };
     logger.record(
-        "CARD probe_info returns valid geometry or the probe error",
-        info_matches_probe,
+        "CARD probe_info returns valid geometry or a device error",
+        info_valid,
+    );
+    logger.record(
+        "CARD probe_info preserves the operation status",
+        status_before_probe == status_after_probe,
     );
     logger.record(
         "CARD serial_number rejects an unmounted slot",
         card::serial_number(slot) == Err(card::CARD_ERROR_NOCARD),
     );
     let unavailable = matches!(
-        probe_result,
-        card::CARD_ERROR_BUSY | card::CARD_ERROR_NOCARD
-    );
-    logger.record(
-        "CARD slot probe reports the busy or no-card state without media",
-        unavailable,
+        info_result,
+        Err(card::CARD_ERROR_BUSY | card::CARD_ERROR_NOCARD)
     );
     if unavailable {
         let sector_size_result = card::sector_size(slot);
@@ -2272,10 +2299,26 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         negative_status_fileno && upper_status_fileno,
     );
 
-    if card::probe_slot(slot) != card::CARD_ERROR_READY {
+    let mut present = card::probe_slot(slot);
+    for _ in 0..10 {
+        if present == 1 {
+            break;
+        }
+        lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 100).max(1));
+        present = card::probe_slot(slot);
+    }
+    logger.note_i32("CARD slot probe after bounded retries", present);
+    if present != 1 {
         logger.note("card tests skipped: insert a memory card in slot A");
         return;
     }
+    let geometry = card::probe_info(slot);
+    logger.note_i32(
+        "CARD probe_info after bounded retries",
+        geometry
+            .as_ref()
+            .map_or_else(|error| *error, |_| card::CARD_ERROR_READY),
+    );
     let probe_gamecode = match card::CardGameCode::new(*b"TST1") {
         Ok(value) => value,
         Err(_) => {
@@ -2361,6 +2404,14 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     };
     logger.note_i32("card sector size rc", sector_rc);
     logger.note_u32("card sector size", sector_size);
+    if sector_rc != card::CARD_ERROR_READY || sector_size < card::CARD_READSIZE {
+        logger.record("card sector size supports transfers", false);
+        logger.record(
+            "card unmount after invalid sector size",
+            mounted.unmount() == card::CARD_ERROR_READY,
+        );
+        return;
+    }
     let mut existing_save = card::CardFile::default();
     // SAFETY: the filename is static and `existing_save` is a unique output.
     let existing_save_status =
@@ -2433,6 +2484,8 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         let _ = mounted.unmount();
         return;
     }
+    logger.note_i32("card SAVE file channel after create", file.chn);
+    logger.note_i32("card SAVE file number after create", file.filenum);
 
     let status_marker = card::CARD_BANNER_RGB;
     let status_request = card::file_status(slot, file.filenum)
@@ -2458,8 +2511,8 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     let mut entry = card::CardDir {
         chn: slot.channel(),
         filelen: sector_size.max(0x2000),
-        gamecode: *b"RUST",
-        company: *b"RS",
+        gamecode: *b"TST1",
+        company: *b"TS",
         ..card::CardDir::default()
     };
     entry.filename[..5].copy_from_slice(b"ENTRY");
@@ -2493,6 +2546,10 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
                 (Ok(request), Some(_)) => request.try_complete().ok(),
                 _ => None,
             };
+            logger.note_i32(
+                "card delete entry completion status",
+                entry_delete_result.unwrap_or(i32::MIN),
+            );
             logger.record(
                 "card delete entry async owned",
                 entry_delete_result == Some(card::CARD_ERROR_READY)
@@ -2502,7 +2559,7 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         }
     }
 
-    let mut write_bytes = alloc::vec![0u8; card::CARD_READSIZE as usize];
+    let mut write_bytes = alloc::vec![0u8; sector_size as usize];
     write_bytes[0] = 0x5a;
     write_bytes[1] = 0xa5;
     let write_request = card::write_async_owned(file, write_bytes, 0);
@@ -2561,6 +2618,7 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         write_ok && read_ok && bytes[0] == 0x5a && bytes[1] == 0xa5,
     );
 
+    bytes.resize(sector_size as usize, 0);
     bytes.fill(0);
     bytes[0] = 0x3c;
     bytes[1] = 0xc3;
@@ -2570,6 +2628,31 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     logger.record(
         "card safe sync roundtrip",
         sync_write && sync_read && bytes[0] == 0x3c && bytes[1] == 0xc3,
+    );
+
+    #[repr(align(32))]
+    #[derive(Clone)]
+    struct CardLine([u8; 32]);
+    let mut raw_buffer = alloc::vec![CardLine([0; 32]); (sector_size as usize).div_ceil(32)];
+    raw_buffer[0].0[0] = 0x3c;
+    raw_buffer[0].0[1] = 0xc3;
+    let raw_ptr = raw_buffer.as_mut_ptr().cast::<core::ffi::c_void>();
+    // SAFETY: The aligned allocation covers the sector and stays live for both
+    // synchronous transfers. The file is uniquely borrowed by each call.
+    let (raw_write, raw_read) = unsafe {
+        ogc_cache::dc_flush_range(raw_ptr.cast_const(), sector_size);
+        let write = card::write(&mut file, raw_ptr, sector_size, 0);
+        core::ptr::write_bytes(raw_ptr.cast::<u8>(), 0, sector_size as usize);
+        ogc_cache::dc_flush_range(raw_ptr.cast_const(), sector_size);
+        let read = card::read(&mut file, raw_ptr, card::CARD_READSIZE, 0);
+        ogc_cache::dc_invalidate_range(raw_ptr.cast_const(), card::CARD_READSIZE);
+        (write, read)
+    };
+    logger.record(
+        "card raw sync roundtrip",
+        raw_write == card::CARD_ERROR_READY
+            && raw_read == card::CARD_ERROR_READY
+            && raw_buffer[0].0[..2] == [0x3c, 0xc3],
     );
 
     logger.record(
@@ -3123,7 +3206,7 @@ fn probe_media_hotplug(logger: &mut ProbeLogger) {
                 stale == card::CARD_ERROR_NOCARD,
             );
         }
-        if !card_slot_mounted && card::probe(card::CARD_SLOTA) == card::CARD_ERROR_READY {
+        if !card_slot_mounted && card::probe(card::CARD_SLOTA) == 1 {
             // SAFETY: the aligned work area remains live through this remount.
             card_slot_mounted = unsafe {
                 card::mount(
