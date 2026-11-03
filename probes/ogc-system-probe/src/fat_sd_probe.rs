@@ -318,6 +318,37 @@ pub fn run(logger: &mut ProbeLogger) {
         "FAT read-only reopen preserves bytes and rejects writes",
         reopened,
     );
+    let persistence_unmount = fat::unmount(MOUNT).is_ok();
+    let persistence_remount = persistence_unmount && fat::mount_sd().is_ok();
+    let persisted_after_remount = if persistence_remount {
+        match fat::FatFile::open(PROBE_FILE) {
+            Ok(mut file) => {
+                let mut bytes = [0xa5; 4];
+                let length = file.len();
+                let read = file.read(&mut bytes);
+                let close = file.close();
+                length == 4 && read == Ok(4) && bytes == *b"abcd" && close.is_ok()
+            }
+            Err(_) => false,
+        }
+    } else {
+        false
+    };
+    logger.record(
+        "FAT truncated file persists across unmount and remount",
+        closed && persistence_unmount && persistence_remount && persisted_after_remount,
+    );
+    if !persistence_remount {
+        if fat::is_mounted(MOUNT) {
+            let removed = fat::remove_file(PROBE_FILE).is_ok();
+            let unmounted = fat::unmount(MOUNT).is_ok();
+            logger.record("FAT remount failure cleanup", removed && unmounted);
+        } else {
+            logger.record("FAT remount failure cleanup", false);
+        }
+        return;
+    }
+    let generation = fat::media_generation(MOUNT);
     let removed = fat::remove_file(PROBE_FILE).is_ok();
     logger.record(
         "FAT temporary file closes and is removed",
