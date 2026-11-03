@@ -2,6 +2,15 @@
 
 ## 2026-11-03: storage inventory and host-test audit
 
+The media-aware `storage_probe` run passed in Dolphin 2609a with 97 checks and
+0 failures. It captured 10 pages and no video frames. The private Dolphin
+profile had no GameCube card image and no USB storage device. The probe checked
+the expected no-card async mount result, verified the USB no-device result,
+skipped operations that require those devices, and exercised the virtual Wii
+SD path. This run does not verify card saves, USB transfers, disc reads, or
+physical hardware. See
+[`docs/dolphin-runs/2026-11-03-storage-probe-media-aware/README.md`](docs/dolphin-runs/2026-11-03-storage-probe-media-aware/README.md).
+
 `cargo xtask check-inventory` passed and confirmed 3,387 API entries. The
 current crate-role data places 15 runtime crates in the storage build group.
 The generated API inventory has 604 entries in 14 of those packages, with no

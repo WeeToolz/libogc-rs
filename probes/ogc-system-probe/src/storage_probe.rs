@@ -859,7 +859,6 @@ fn probe_usb_storage(logger: &mut ProbeLogger) {
     logger.note_i32("usb startup", startup as i32);
     logger.note_i32("usb inserted", inserted as i32);
     logger.record("usb raw startup", startup);
-    logger.record("usb raw inserted", inserted);
     logger.record(
         "usb storage null handle rejected",
         // SAFETY: null deliberately exercises the API's invalid-handle path.
@@ -872,6 +871,11 @@ fn probe_usb_storage(logger: &mut ProbeLogger) {
     if list_rc < 0 {
         logger.note_i32("usb storage list rc", list_rc);
     }
+    let no_usb_device = !inserted && device_count == 0 && list_rc == 0;
+    logger.record(
+        "usb insertion state matches device enumeration",
+        (inserted && device_count > 0) || no_usb_device,
+    );
 
     if inserted {
         let mut sector0 = SectorBuf([0; RAW_USB_SECTOR_BUFFER_SIZE]);
@@ -899,7 +903,7 @@ fn probe_usb_storage(logger: &mut ProbeLogger) {
             logger.note(line.as_str());
         }
     } else {
-        logger.note("usb raw read sector0 skipped: no inserted device");
+        logger.note("usb raw sector read skipped: no USB storage device is present");
     }
 
     logger.section("FAT USB MOUNT");
@@ -907,7 +911,17 @@ fn probe_usb_storage(logger: &mut ProbeLogger) {
     let mounted = matches!(mount_result, Ok(()) | Err(fat::FatError::AlreadyMounted));
     let owned_mount = mount_result.is_ok();
     log_fat_result(logger, "fat mount usb", &mount_result);
-    logger.record("usb fat mount", mounted);
+    if inserted {
+        logger.record("usb fat mount", mounted);
+    } else if no_usb_device {
+        logger.note("usb FAT file operations skipped: no USB storage device is present");
+        logger.record(
+            "usb FAT mount reports no device",
+            matches!(mount_result, Err(fat::FatError::DeviceUnavailable)),
+        );
+    } else {
+        logger.record("usb storage state is consistent", false);
+    }
 
     if owned_mount {
         logger.section("USB FILE I/O");
@@ -1042,12 +1056,15 @@ fn probe_usb_close_persistence(logger: &mut ProbeLogger) {
 
 fn probe_usb_argv(logger: &mut ProbeLogger) {
     let Some(argv) = (unsafe { sys::current_system_argv().as_ref() }) else {
-        logger.record("argv handoff", false);
-        logger.note("argv unavailable");
+        logger.note("argv handoff skipped: this launcher supplied no argument block");
         return;
     };
     logger.note_i32("argc", argv.argc);
-    if argv.argc <= 0 || argv.argv.is_null() {
+    if argv.argc == 0 {
+        logger.note("argv handoff skipped: this launch supplied no arguments");
+        return;
+    }
+    if argv.argc < 0 || argv.argv.is_null() {
         logger.record("argv handoff", false);
         logger.note("argv0 unavailable");
         return;
@@ -1949,6 +1966,21 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         },
         _ => None,
     };
+    if mounted.is_none() && mount_result == Some(card::CARD_ERROR_NOCARD) {
+        let no_card_checks_passed = record_owned_card_async(
+            logger,
+            "card mount async owned no-card",
+            mount_submit,
+            mount_result,
+            card::CARD_ERROR_NOCARD,
+        );
+        logger.note(if no_card_checks_passed {
+            "CARD save operations skipped: asynchronous mount reports no card"
+        } else {
+            "CARD save operations not run: no-card completion checks failed"
+        });
+        return;
+    }
     if !record_owned_card_async(
         logger,
         "card mount async owned",

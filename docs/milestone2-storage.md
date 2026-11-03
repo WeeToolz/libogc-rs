@@ -36,13 +36,16 @@ metadata operations, asynchronous completion, error handling, and cleanup.
 Each API needs a direct observable check or an exact host test of production
 logic. A broad probe run does not prove every API in its group.
 
-Current runtime evidence is incomplete. The storage probe DOL built, but the
-available Dolphin 2609a process aborted on `--version` before it launched the
-DOL. See [the recorded launch attempt](dolphin-runs/2026-11-03-storage-card-inventory-zero/README.md)
-and [the storage API audit](dolphin-runs/2026-11-03-storage-api-audit/README.md).
-These runs provide no Dolphin API results. The hardware register also records
-CARD and DI runtime checks as not tested. Do not treat the zero `unverified`
-source count as a completed storage verification result.
+Current runtime evidence is incomplete. The latest media-aware `storage_probe`
+passed in Dolphin 2609a with 97 checks and 0 failures. It checked no-device
+results for USB and CARD, skipped operations that need those devices, and
+exercised the virtual Wii SD path. It does not cover successful USB transfers,
+CARD saves, disc reads, GameCube SD Gecko I/O, or physical devices. See the
+[Dolphin report](dolphin-runs/2026-11-03-storage-probe-media-aware/README.md).
+Earlier failed launch attempts remain in their own run directories. The
+hardware register still records physical CARD and DI behavior as not tested.
+Do not treat the zero `unverified` source count as completed storage
+verification.
 
 CARD game and company identifiers now use tested types in `ogc-card-metadata`.
 The host test checks valid bytes, round trips, and the exact index and byte for

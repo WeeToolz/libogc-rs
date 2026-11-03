@@ -177,47 +177,52 @@ do not infer API coverage from a package or probe name.
 
 ## Current storage audit
 
-The current inventory has 0 unverified entries in the 12 storage packages
-below. These counts come from `docs/generated/implementation-inventory.csv`.
-Update this table after each storage batch. Do not accept source presence or a
-successful target build as runtime evidence.
+The current inventory has 604 API entries in 14 storage packages, with 0
+entries unverified for implementation evidence. These counts come from
+`docs/generated/implementation-inventory.csv`. Source mapping does not prove
+runtime behavior. Keep runtime evidence in the run reports and validation
+register. The storage build group has 15 runtime crates; one has no inventory
+API rows.
 
-| Package | Unverified entries |
+| Package | Inventory API entries |
 | --- | ---: |
-| `iso9660` | 0 |
-| `ogc-card` | 0 |
-| `ogc-card-sys` | 0 |
-| `ogc-di` | 0 |
-| `ogc-dvd` | 0 |
-| `ogc-dvd-sys` | 0 |
-| `ogc-fat` | 0 |
-| `ogc-filesystem` | 0 |
-| `ogc-gcsd` | 0 |
-| `ogc-usbstorage` | 0 |
-| `ogc-usbstorage-sys` | 0 |
-| `ogc-wiisd` | 0 |
-| **Total** | **0** |
+| `iso9660` | 9 |
+| `ogc-card` | 63 |
+| `ogc-card-metadata` | 56 |
+| `ogc-card-sys` | 90 |
+| `ogc-di` | 59 |
+| `ogc-dvd` | 27 |
+| `ogc-dvd-sys` | 32 |
+| `ogc-fat` | 64 |
+| `ogc-filesystem` | 40 |
+| `ogc-gcsd` | 44 |
+| `ogc-usbstorage` | 30 |
+| `ogc-usbstorage-lifecycle` | 20 |
+| `ogc-usbstorage-sys` | 65 |
+| `ogc-wiisd` | 5 |
+| **Total** | **604** |
 
 Use the package counts above to split storage work into these feature batches.
-Each batch still needs evidence for every API entry. A batch count does not
-mean that each API has a test or probe.
+All entries have source mapping. Each batch still needs runtime evidence for
+every API entry. A batch count does not mean that each API has a test or probe.
 
-| Batch | Packages | Unverified entries |
+| Batch | Packages | API entries |
 | --- | --- | ---: |
-| Optical disc | `iso9660`, `ogc-di`, `ogc-dvd`, `ogc-dvd-sys` | 0 |
-| GameCube memory card | `ogc-card`, `ogc-card-sys` | 0 |
-| FAT and file-system services | `ogc-fat`, `ogc-filesystem` | 0 |
-| SD card transports | `ogc-gcsd`, `ogc-wiisd` | 0 |
-| USB mass storage | `ogc-usbstorage`, `ogc-usbstorage-sys` | 0 |
-| **Total** | **12 packages** | **0** |
+| Optical disc | `iso9660`, `ogc-di`, `ogc-dvd`, `ogc-dvd-sys` | 127 |
+| GameCube memory card | `ogc-card`, `ogc-card-metadata`, `ogc-card-sys` | 209 |
+| FAT and file-system services | `ogc-fat`, `ogc-filesystem` | 104 |
+| SD card transports | `ogc-gcsd`, `ogc-wiisd` | 49 |
+| USB mass storage | `ogc-usbstorage`, `ogc-usbstorage-lifecycle`, `ogc-usbstorage-sys` | 115 |
+| **Total** | **14 packages** | **604** |
 
 The previously open `ogc-di` APIs now have direct source checks in
 `storage_probe`: the configuration setters preserve no-disc status, init
 callbacks do not fire for no-disc mounts, and partition calls return the
 closed-descriptor error through Rust and C entry points. The updated DOL builds
 with SHA-256
-`37547912e2242cde337056fcfa16312ff8d23d62d0fafcf7699cbf7004465350`. Dolphin
-still aborts before launch, so these checks have no runtime evidence. Partition
+`37547912e2242cde337056fcfa16312ff8d23d62d0fafcf7699cbf7004465350`. These
+checks have source evidence. A later storage probe passed in Dolphin 2609a with
+97 checks and 0 failures, including the available no-disc checks. Partition
 success with media and init-callback delivery on a successful mount remain
 untested. The hardware register remains `not-tested` for DI.
 
@@ -228,24 +233,22 @@ The original `ogc-di` split grouped the APIs as follows:
 | DI configuration and callbacks | `load_dvdx`, `use_cache`, `set_init_callback`, and their C exports | 6 |
 | DI partition lifecycle | `open_partition`, `close_partition`, and their C exports | 4 |
 
-The CARD APIs now have direct probe-source evidence. The probe covers
+The CARD APIs have direct probe-source evidence. The probe checks
 invalid-channel errors and output preservation through the wrapper and system
 APIs, no-callback submission errors, owned request slots and completion state,
-save persistence, and user-data-safe cleanup. The updated DOL builds with
-SHA-256
-`200cacf4b0c2b7df3f255f97fdae99c82c09f92b217487abff1e9105719f6731`. This
-only clears source evidence gaps in the generated inventory. The current
-Dolphin build aborts before launch, and physical CARD behavior has not been
-tested. The latest runner attempt is in the [CARD Dolphin run
-record](dolphin-runs/2026-11-03-storage-card-inventory-zero/README.md). The
-CARD hardware register remains `not-tested`; do not treat the zero inventory
-count as a runtime pass.
+save persistence, and user-data-safe cleanup. The latest Dolphin storage run
+checked async mount completion with no card present and skipped card save and
+format operations. It does not verify successful save behavior. Physical CARD
+behavior has not been tested. The CARD hardware register remains
+`not-tested`; do not treat the zero inventory count as a runtime pass.
 
 The storage probe uses exclusive creation for fixed FAT probe names and skips
 the CARD save checks when `SAVE` already exists. It removes a probe file only
-after this run created it. This protects existing files. The updated source
-passes target clippy and builds into a DOL, but the current Dolphin build
-aborts before launch. These changes do not add runtime evidence.
+after this run created it. The latest storage run passed in Dolphin 2609a with
+97 checks and 0 failures. It skipped operations that require absent USB or
+memory-card media. It does not prove successful USB transfers, memory-card
+save operations, disc reads, or physical device behavior. Earlier failed runs
+remain historical evidence in their run directories.
 
 The protected DI read group has direct Rust and C calls. It returned `-5` for
 DVD key, physical data, and report-key requests, and `0` for BCA in Dolphin.
