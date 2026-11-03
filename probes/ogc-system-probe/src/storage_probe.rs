@@ -198,6 +198,7 @@ pub fn probe_dvd(logger: &mut ProbeLogger) {
         logger.record("dvd presence reports no disc", disc_present == 0);
         logger.record("dvd no fake success without media", dvd::mount() < 0);
         probe_dvd_no_media_helpers(logger);
+        probe_dvd_no_media_async(logger);
         return;
     }
 
@@ -276,6 +277,127 @@ pub fn probe_dvd(logger: &mut ProbeLogger) {
         read_ok && async_read_block.txdsize == sector.0.len() as u32,
     );
     logger.note_u32("dvd last drive error", dvd::get_last_error());
+}
+
+fn probe_dvd_no_media_async(logger: &mut ProbeLogger) {
+    let mut block = dvd::DvdCmdBlk::default();
+    prepare_async_probe();
+    // SAFETY: `block` remains live until the callback completes.
+    let submit = unsafe { dvd::mount_async(&mut block, Some(dvd_async_callback)) };
+    record_async(
+        logger,
+        "dvd mount async without media",
+        submit,
+        dvd::DVD_ERROR_COVER_CLOSED,
+        10,
+    );
+
+    let mut inquiry_block = dvd::DvdCmdBlk::default();
+    let mut info = dvd::DvdDrvInfo::default();
+    prepare_async_probe();
+    // SAFETY: both values remain live until the callback completes.
+    let submit =
+        unsafe { dvd::inquiry_async(&mut inquiry_block, &mut info, Some(dvd_async_callback)) };
+    record_async(
+        logger,
+        "dvd inquiry async without media",
+        submit,
+        dvd::DVD_ERROR_OK,
+        10,
+    );
+
+    let mut bs_block = dvd::DvdCmdBlk::default();
+    let mut sector = DvdSector([0; 0x800]);
+    prepare_async_probe();
+    // SAFETY: the aligned sector and command block remain live until callback.
+    let submit = unsafe {
+        dvd::read_abs_async_for_bs(
+            &mut bs_block,
+            sector.0.as_mut_ptr().cast(),
+            sector.0.len() as u32,
+            0,
+            Some(dvd_async_callback),
+        )
+    };
+    record_async(
+        logger,
+        "dvd bs read async without media",
+        submit,
+        dvd::DVD_ERROR_COVER_CLOSED,
+        10,
+    );
+
+    let mut control_block = dvd::DvdCmdBlk::default();
+    prepare_async_probe();
+    // CHECKDISK only reads the current cover state in this implementation.
+    // SAFETY: `control_block` remains live until the callback completes.
+    let submit = unsafe {
+        dvd::control_drive_async(
+            &mut control_block,
+            dvd::DVD_SPINMOTOR_CHECKDISK,
+            Some(dvd_async_callback),
+        )
+    };
+    record_async(
+        logger,
+        "dvd control check async without media",
+        submit,
+        dvd::DVD_ERROR_COVER_CLOSED,
+        10,
+    );
+
+    let mut offset_block = dvd::DvdCmdBlk::default();
+    prepare_async_probe();
+    // SAFETY: `offset_block` remains live until the callback completes.
+    let submit =
+        unsafe { dvd::set_gcm_offset_async(&mut offset_block, 0, Some(dvd_async_callback)) };
+    record_async(
+        logger,
+        "dvd set zero gcm offset async",
+        submit,
+        dvd::DVD_ERROR_OK,
+        10,
+    );
+
+    let mut sync_offset_block = dvd::DvdCmdBlk::default();
+    // SAFETY: the command block remains exclusively accessible for this call.
+    let sync_offset = unsafe { dvd::set_gcm_offset(&mut sync_offset_block, 0) };
+    logger.note_i32("dvd set zero gcm offset sync result", sync_offset);
+    logger.record("dvd set zero gcm offset sync", sync_offset == 1);
+
+    let mut sync_control_block = dvd::DvdCmdBlk::default();
+    // CHECKDISK only reads the current cover state in this implementation.
+    // SAFETY: the command block remains exclusively accessible for this call.
+    let sync_control =
+        unsafe { dvd::control_drive(&mut sync_control_block, dvd::DVD_SPINMOTOR_CHECKDISK) };
+    logger.note_i32("dvd control check sync result", sync_control);
+    logger.record(
+        "dvd control check sync reports no media",
+        sync_control == -1,
+    );
+
+    let mut invalid_seek_block = dvd::DvdCmdBlk::default();
+    prepare_async_probe();
+    // SAFETY: `invalid_seek_block` remains live until the callback completes.
+    let submit = unsafe {
+        dvd::seek_abs_async_prio(&mut invalid_seek_block, 0, Some(dvd_async_callback), 2)
+    };
+    record_async(
+        logger,
+        "dvd zero offset seek rejects invalid offset",
+        submit,
+        dvd::DVD_ERROR_COVER_CLOSED,
+        10,
+    );
+
+    let mut sync_seek_block = dvd::DvdCmdBlk::default();
+    // SAFETY: this offset is invalid, so the call completes without a disc IO.
+    let sync_seek = unsafe { dvd::seek_prio(&mut sync_seek_block, 0, 2) };
+    logger.note_i32("dvd zero offset sync seek result", sync_seek);
+    logger.record(
+        "dvd zero offset sync seek reports invalid state",
+        sync_seek == -1,
+    );
 }
 
 fn probe_dvd_no_media_helpers(logger: &mut ProbeLogger) {
