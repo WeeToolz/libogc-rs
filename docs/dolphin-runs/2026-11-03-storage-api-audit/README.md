@@ -95,3 +95,19 @@ SHA-256 is
 The DOL built, but it did not run. Dolphin still aborts before launch, and
 physical CARD behavior is untested. The zero open count in the generated API
 inventory records mapped source checks; it is not a runtime pass.
+
+## Build after CARD metadata error checks
+
+The host metadata suite now has 18 passing tests. A new test checks malformed
+checksum input, short metadata blocks, and invalid FAT block counts. It found
+that `prepare_fat` changed its input before it returned an invalid-count error.
+The implementation now checks the count before it changes the block. Strict
+Clippy passes for `ogc-card-metadata`.
+
+The updated Wii `storage_probe` DOL has SHA-256
+`973d80e1c513f571263c6142022e1ac533ffae0cd8784ef1342fe8769cc2c2a5`. The
+updated GameCube `card_probe` DOL has SHA-256
+`146a507d5defb0eaac284996d18569a6fb8ebe505153c96c6b21e11b9c07213e`. Both
+DOLs build. Dolphin still cannot start on this host because its Qt build
+requires the `neon` processor feature, so these DOLs have no new runtime
+result.

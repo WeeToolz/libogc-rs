@@ -24,10 +24,12 @@ export, and Rust call paths. Fifty-nine `ogc-di` rows record exact wrapper
 paths from the no-disc probe. Twenty-seven `ogc-dvd` rows record exact facade
 calls from the no-disc probe. Thirty-two `ogc-dvd-sys` rows record exact calls
 through the sys module. Thirty `ogc-gcsd` rows record public wrapper calls and
-SD interface callbacks from the GameCube SD probe. In total, 381 of 604 storage
-entries record exact API paths. These checks confirm source identity only. A path match does not prove
-that an API assertion passed or that a device-dependent branch ran. Review
-each mapping and runtime report before using it as a result.
+SD interface callbacks from the GameCube SD probe. Twenty-four
+`ogc-card-metadata` rows record exact calls from host tests. In total, 405 of
+604 storage entries record exact API paths. These checks confirm source
+identity only. A path match does not prove that an API assertion passed or
+that a device-dependent branch ran. Review each mapping and runtime report
+before using it as a result.
 
 | Package | API entries | Probe group |
 | --- | ---: | --- |
@@ -181,11 +183,15 @@ Owned CARD completion values now share definitions with the host-testable
 stat, byte, and ownership accessors, including failed completion payloads.
 These tests do not verify CARD hardware behavior.
 
-`cargo test -p ogc-card-metadata --lib` currently passes all 17 tests. The
-evidence registry maps all 56 inventory entries in `ogc-card-metadata` to
-these host test functions. This closes its host-testable metadata and owned
-value batch. It does not close the 153 entries in `ogc-card` and `ogc-card-sys`
-or prove transport behavior.
+`cargo test -p ogc-card-metadata` passes all 18 tests. The new malformed-input
+test checks empty and odd checksums, short header and directory blocks, and
+invalid FAT block counts. It confirms rejected preparation calls preserve the
+input blocks. This test found that `prepare_fat` changed the FAT block before
+it rejected an invalid block count; the implementation now checks the count
+before it changes the block. Strict Clippy passes for this crate. The evidence
+registry maps all 56 inventory entries in `ogc-card-metadata` to host test
+functions. These tests do not prove CARD transport behavior, and they do not
+close the 153 entries in `ogc-card` and `ogc-card-sys`.
 
 The earlier planning count of 348 open storage entries is stale. Use
 `cargo xtask check-inventory` and the generated inventory as the current
