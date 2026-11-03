@@ -47,8 +47,9 @@ mod imp {
     const IOCTL_SDIO_SENDCMD: i32 = 0x07;
     const IOCTL_SDIO_GETSTATUS: i32 = 0x0b;
 
-    const SDIOCMD_TYPE_AC: u32 = 3;
-    const SDIOCMD_TYPE_BC: u32 = sdio_rules::SDIOCMD_TYPE_BC;
+    const SDIOCMD_TYPE_NODATA: u32 = sdio_rules::SDIOCMD_TYPE_NODATA;
+    const SDIOCMD_TYPE_READ: u32 = sdio_rules::SDIOCMD_TYPE_READ;
+    const SDIOCMD_TYPE_TRANSFER: u32 = sdio_rules::SDIOCMD_TYPE_TRANSFER;
 
     const SDIO_RESPONSE_R1: u32 = 1;
     const SDIO_RESPONSE_R1B: u32 = 2;
@@ -110,10 +111,10 @@ mod imp {
     struct AlignedBytes<const N: usize>([u8; N]);
 
     #[repr(C, align(64))]
-    struct AlignedFunctionBytes([u8; sdio_rules::SDIO_BC_BUFFER_ALIGNMENT]);
+    struct AlignedFunctionBytes([u8; sdio_rules::SDIO_READ_BUFFER_ALIGNMENT]);
 
     const _: () = assert!(
-        core::mem::align_of::<AlignedFunctionBytes>() == sdio_rules::SDIO_BC_BUFFER_ALIGNMENT
+        core::mem::align_of::<AlignedFunctionBytes>() == sdio_rules::SDIO_READ_BUFFER_ALIGNMENT
     );
 
     #[repr(C, align(32))]
@@ -285,7 +286,7 @@ mod imp {
         let Some(data_len) = sdio_rules::transfer_length(blk_cnt, blk_size) else {
             return ogc_ipc::IPC_EINVAL;
         };
-        if !sdio_rules::broadcast_range_valid(cmd_type, buffer as usize, data_len) {
+        if !sdio_rules::read_range_valid(cmd_type, buffer as usize, data_len) {
             return ogc_ipc::IPC_EINVAL;
         }
         let mut request = AlignedSdioRequest(SdioRequest {
@@ -427,7 +428,7 @@ mod imp {
         let mut rca = 0u32;
         let rc = send_command!(
             SDIO_CMD_SENDRCA,
-            0,
+            SDIOCMD_TYPE_NODATA,
             SDIO_RESPONSE_R5,
             0,
             0,
@@ -446,7 +447,7 @@ mod imp {
     fn select_card() -> i32 {
         send_command!(
             SDIO_CMD_SELECT,
-            SDIOCMD_TYPE_AC,
+            SDIOCMD_TYPE_TRANSFER,
             SDIO_RESPONSE_R1B,
             rca_arg(),
             0,
@@ -459,7 +460,7 @@ mod imp {
     fn deselect_card() -> i32 {
         send_command!(
             SDIO_CMD_DESELECT,
-            SDIOCMD_TYPE_AC,
+            SDIOCMD_TYPE_TRANSFER,
             SDIO_RESPONSE_R1B,
             0,
             0,
@@ -472,7 +473,7 @@ mod imp {
     fn set_block_length(len: u32) -> i32 {
         send_command!(
             SDIO_CMD_SETBLOCKLEN,
-            SDIOCMD_TYPE_AC,
+            SDIOCMD_TYPE_TRANSFER,
             SDIO_RESPONSE_R1,
             len,
             0,
@@ -486,7 +487,7 @@ mod imp {
         let value = if width == 4 { 0x0002 } else { 0x0000 };
         let rc = send_command!(
             SDIO_CMD_APPCMD,
-            SDIOCMD_TYPE_AC,
+            SDIOCMD_TYPE_TRANSFER,
             SDIO_RESPONSE_R1,
             rca_arg(),
             0,
@@ -499,7 +500,7 @@ mod imp {
         }
         let rc = send_command!(
             SDIO_ACMD_SETBUSWIDTH,
-            SDIOCMD_TYPE_AC,
+            SDIOCMD_TYPE_TRANSFER,
             SDIO_RESPONSE_R1,
             value,
             0,
@@ -516,7 +517,7 @@ mod imp {
     fn get_csd() -> i32 {
         send_command!(
             SDIO_CMD_SENDCSD,
-            SDIOCMD_TYPE_AC,
+            SDIOCMD_TYPE_TRANSFER,
             SDIO_RESPONSE_R2,
             rca_arg(),
             0,
@@ -529,7 +530,7 @@ mod imp {
     fn get_cid() -> i32 {
         send_command!(
             SDIO_CMD_ALL_SENDCID,
-            0,
+            SDIOCMD_TYPE_NODATA,
             SDIO_RESPONSE_R2,
             rca_arg(),
             0,
@@ -586,7 +587,17 @@ mod imp {
             if set_hcr(SDIOHCR_TIMEOUTCONTROL, 1, SDIO_DEFAULT_TIMEOUT) < 0 {
                 return fail_reset();
             }
-            if send_command!(SDIO_CMD_GOIDLE, 0, 0, 0, 0, 0, core::ptr::null_mut(), None) < 0 {
+            if send_command!(
+                SDIO_CMD_GOIDLE,
+                SDIOCMD_TYPE_NODATA,
+                0,
+                0,
+                0,
+                0,
+                core::ptr::null_mut(),
+                None
+            ) < 0
+            {
                 return fail_reset();
             }
 
@@ -596,7 +607,7 @@ mod imp {
             };
             if send_command!(
                 SDIO_CMD_SENDIFCOND,
-                0,
+                SDIOCMD_TYPE_NODATA,
                 SDIO_RESPONSE_R6,
                 0x1aa,
                 0,
@@ -615,7 +626,7 @@ mod imp {
             for _ in 0..SDIO_READY_RETRIES {
                 if send_command!(
                     SDIO_CMD_APPCMD,
-                    SDIOCMD_TYPE_AC,
+                    SDIOCMD_TYPE_TRANSFER,
                     SDIO_RESPONSE_R1,
                     0,
                     0,
@@ -628,7 +639,7 @@ mod imp {
                 }
                 if send_command!(
                     SDIO_ACMD_SENDOPCOND,
-                    0,
+                    SDIOCMD_TYPE_NODATA,
                     SDIO_RESPONSE_R3,
                     0x4030_0000,
                     0,
@@ -682,7 +693,7 @@ mod imp {
             };
             if send_command!(
                 SDIO_CMD_SWITCHFUNC,
-                SDIOCMD_TYPE_BC,
+                SDIOCMD_TYPE_READ,
                 SDIO_RESPONSE_R1,
                 0x00ff_fff0,
                 1,
@@ -697,7 +708,7 @@ mod imp {
             if u16::from_ne_bytes([functions[12], functions[13]]) & (1 << 1) != 0 {
                 if send_command!(
                     SDIO_CMD_SWITCHFUNC,
-                    SDIOCMD_TYPE_BC,
+                    SDIOCMD_TYPE_READ,
                     SDIO_RESPONSE_R1,
                     0x80ff_fff1,
                     1,
@@ -793,7 +804,7 @@ mod imp {
                 let bounce = unsafe { static_bytes_mut(addr_of_mut!(RW_BUFFER)) };
                 ret = send_command!(
                     SDIO_CMD_READMULTIBLOCK,
-                    SDIOCMD_TYPE_AC,
+                    SDIOCMD_TYPE_TRANSFER,
                     SDIO_RESPONSE_R1,
                     block_offset,
                     sectors_now,
@@ -825,7 +836,7 @@ mod imp {
             };
             ret = send_command!(
                 SDIO_CMD_READMULTIBLOCK,
-                SDIOCMD_TYPE_AC,
+                SDIOCMD_TYPE_TRANSFER,
                 SDIO_RESPONSE_R1,
                 block_offset,
                 num_sectors,
@@ -869,7 +880,7 @@ mod imp {
                 }
                 ret = send_command!(
                     SDIO_CMD_WRITEMULTIBLOCK,
-                    SDIOCMD_TYPE_AC,
+                    SDIOCMD_TYPE_TRANSFER,
                     SDIO_RESPONSE_R1,
                     block_offset,
                     sectors_now,
@@ -897,7 +908,7 @@ mod imp {
             };
             ret = send_command!(
                 SDIO_CMD_WRITEMULTIBLOCK,
-                SDIOCMD_TYPE_AC,
+                SDIOCMD_TYPE_TRANSFER,
                 SDIO_RESPONSE_R1,
                 block_offset,
                 num_sectors,

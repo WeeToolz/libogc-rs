@@ -214,8 +214,8 @@ mod wii {
         }
         logger.record(
             "allocation alignment and zero bytes",
-            allocation as usize % 64 == 0
-                && unsafe { core::slice::from_raw_parts(allocation, 8) } == &[0; 8],
+            (allocation as usize).is_multiple_of(64)
+                && unsafe { core::slice::from_raw_parts(allocation, 8) } == [0; 8],
         );
         let expected = [0x13, 0x27, 0x39, 0x4b, 0x5d, 0x6f, 0x71, 0x83];
         unsafe { allocation.copy_from_nonoverlapping(expected.as_ptr(), 8) };
@@ -227,13 +227,13 @@ mod wii {
         }
         logger.record(
             "resize preserved bytes and alignment",
-            grown as usize % 64 == 0
-                && unsafe { core::slice::from_raw_parts(grown, 8) } == &expected,
+            (grown as usize).is_multiple_of(64)
+                && unsafe { core::slice::from_raw_parts(grown, 8) } == expected,
         );
         let failed = unsafe { allocator.reallocate(grown, 128, 64, 16384) };
         logger.record(
             "failed resize preserved the old allocation",
-            failed.is_null() && unsafe { core::slice::from_raw_parts(grown, 8) } == &expected,
+            failed.is_null() && unsafe { core::slice::from_raw_parts(grown, 8) } == expected,
         );
         if !failed.is_null() {
             unsafe { allocator.deallocate(failed, 16384, 64) };
@@ -251,14 +251,14 @@ mod wii {
         }
         logger.record(
             "System ABI returns aligned zero bytes",
-            allocation as usize % 64 == 0
-                && unsafe { core::slice::from_raw_parts(allocation, 8) } == &[0; 8],
+            (allocation as usize).is_multiple_of(64)
+                && unsafe { core::slice::from_raw_parts(allocation, 8) } == [0; 8],
         );
         unsafe { allocation.copy_from_nonoverlapping(expected.as_ptr(), 8) };
         let failed = unsafe { ogc_std_runtime::__wii_std_realloc(allocation, 8, 64, usize::MAX) };
         logger.record(
             "System ABI failed resize preserves bytes",
-            failed.is_null() && unsafe { core::slice::from_raw_parts(allocation, 8) } == &expected,
+            failed.is_null() && unsafe { core::slice::from_raw_parts(allocation, 8) } == expected,
         );
         if !failed.is_null() {
             unsafe { ogc_std_runtime::__wii_std_dealloc(failed, usize::MAX, 64) };
@@ -395,7 +395,30 @@ mod wii {
     }
 
     unsafe extern "C" fn tuxedo_queue_worker(_: *mut c_void) -> isize {
-        unsafe { tuxedo::k_thr_queue_block(core::ptr::addr_of_mut!(TUXEDO_QUEUE), 0x55) as isize }
+        let result = unsafe {
+            tuxedo::k_thr_queue_block(core::ptr::addr_of_mut!(TUXEDO_QUEUE), 0x55) as isize
+        };
+        let owner = tuxedo::k_thread_get_self();
+        unsafe {
+            core::arch::asm!(
+                "mtspr 275, {owner}",
+                owner = in(reg) owner as usize,
+                options(nomem, nostack, preserves_flags)
+            );
+        }
+        result
+    }
+
+    fn fpu_owner_register() -> usize {
+        let owner: usize;
+        unsafe {
+            core::arch::asm!(
+                "mfspr {owner}, 275",
+                owner = out(reg) owner,
+                options(nomem, nostack, preserves_flags)
+            );
+        }
+        owner
     }
 
     unsafe extern "C" fn tuxedo_tick_callback(_: *mut tuxedo::KTickTask) {
@@ -822,6 +845,10 @@ mod wii {
         logger.record("Tuxedo thread finished on LWP scheduler", unsafe {
             TUXEDO_THREAD.state == tuxedo::KTHR_STATE_FINISHED
         });
+        logger.record(
+            "Tuxedo exit clears its FPU owner register",
+            fpu_owner_register() == 0,
+        );
         // SAFETY: the static task remains live until it is stopped below.
         unsafe {
             tuxedo::k_tick_task_start(

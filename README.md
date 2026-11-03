@@ -9,6 +9,17 @@ See [contribution guidance](CONTRIBUTING.md) to get started.
 The project includes material from multiple sources; see
 [license and source notices](docs/source-licenses.md).
 
+## Upstream credit
+
+This altered Rust implementation uses the C
+[libogc](https://github.com/devkitPro/libogc) project as a reference. The
+original libogc README credits Michael Wiedenbauer (`shagkur`) and Dave Murphy
+(`WinterMute`) and gives copyright dates of 2004–2025. This project does not
+claim authorship of the original library. The upstream license also credits
+On-Line Applications Research Corporation and Eric Valette for threading code
+influenced by RTEMS. See the [license and source notices](docs/source-licenses.md)
+for the full notices and component origins.
+
 Start with [the documentation guide](docs/README.md) for current status,
 validation instructions, and detailed evidence.
 For a short overview of test and review results, see

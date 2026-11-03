@@ -35,24 +35,25 @@ Rust previously rejected every zero-sector read or write before card selection. 
 Reference commit: `ff53c4a7b7ba5587d82305e710ca65bce1092e1c`.
 This supersedes the earlier no-open-gap status for the affected contract.
 
-C `libogc/wiisd.c` now prevents `SDIOCMD_TYPE_BC` data from crossing a 4 KiB
-boundary. IOS can hang on this command type when the buffer crosses that
-boundary. C uses a 64-byte local function buffer with 64-byte alignment and a
-compile-time check at command call sites.
+C `libogc/wiisd.c` prevents SDIO read data from crossing a 4 KiB boundary. IOS
+can hang on this command type when the buffer crosses that boundary. C uses a
+64-byte local function buffer with 64-byte alignment and a compile-time check
+at command call sites.
 
-Rust now gives its 64-byte switch-function buffer 64-byte alignment and labels
-both commands as broadcast commands. `send_command` uses the production-shared
-`sdio_rules` module to check the command range before constructing a data slice
-or submitting IPC. It checks transfer-length multiplication, the buffer's
-64-byte alignment, the one-page maximum, null non-empty buffers, address
-addition, the 32-bit Wii address bound, and that the full range stays in one
-page. Invalid ranges return `ogc_ipc::IPC_EINVAL`. Other command types retain
-their existing range behavior.
+Rust uses the same SDIO command type values as C: no data 0, read 1, write 2,
+and transfer 3. Its 64-byte switch-function buffer has 64-byte alignment, and
+both switch-function commands use the read type. `send_command` uses the
+production-shared `sdio_rules` module to check the command range before it
+constructs a data slice or submits IPC. It checks transfer-length
+multiplication, the buffer's 64-byte alignment, the one-page maximum, null
+non-empty buffers, address addition, the 32-bit Wii address bound, and that the
+full range stays in one page. Invalid ranges return `ogc_ipc::IPC_EINVAL`.
+Other command types retain their existing range behavior.
 
 The regression tests call that same validation code. They cover valid aligned
 ranges, unaligned and oversized buffers, null buffers, page crossing,
 32-bit address overflow, transfer-length multiplication overflow, empty
-transfers, and non-broadcast commands. The compile-time assertion checks that
+transfers, and no-data, write, and transfer commands. The compile-time assertion checks that
 the production buffer alignment matches the validator's 64-byte requirement.
 
 `cargo xtask check-group storage` passed. The five shared host tests pass.
@@ -66,7 +67,7 @@ wrote its log or reached SD startup. The run is recorded in
 `target/dolphin-validation/1792083837-e882d364e0b9/storage_probe/result.json`.
 This does not validate the SDIO range checks. Keep Wii hardware validation open.
 
-## Independent re-review — broadcast range and alignment (2026-10-15)
+## Independent re-review — SDIO read range and alignment (2026-10-15)
 
 Reviewer: `/root/review_sdio_parity`. Result: **PASS for source parity**.
 C's two broadcast calls use a 64-byte buffer aligned to 64 bytes, and the C
@@ -84,3 +85,12 @@ The page-crossing examples also fail the alignment condition, but an accepted
 64-byte-aligned range of at most 64 bytes cannot cross a 4 KiB page. Real-Wii
 SD startup remains required because host checks and the Dolphin timeout do not
 verify IOS behavior.
+
+## Upstream command type update — 2026-11-02
+
+Reference commit: `959871c0` in the C libogc repository. C renamed the SDIO
+command type constants to no-data, read, write, and transfer, with values 0, 1,
+2, and 3. Rust now uses these names and values. The two switch-function calls
+remain read commands and keep the validated 64-byte buffer. Other command call
+sites use the matching no-data or transfer type. Source parity is updated;
+hardware validation remains open.
