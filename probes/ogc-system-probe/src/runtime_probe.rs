@@ -1,6 +1,7 @@
 use ogc_aes_sys as aes;
 use ogc_conf as conf;
 use ogc_es as es;
+use ogc_filesystem as filesystem;
 use ogc_ios as ios;
 use ogc_sha as sha;
 use ogc_stm as stm;
@@ -622,7 +623,7 @@ unsafe extern "C" fn iso_read(sector: u32, count: u32, buffer: *mut core::ffi::c
 fn probe_iso9660(logger: &mut ProbeLogger) {
     use core::sync::atomic::Ordering;
     logger.section("ISO9660 PROBE");
-    let disc = iso9660::DiscInterface {
+    let disc = filesystem::DiscInterface {
         io_type: 0,
         features: 0,
         startup: Some(iso_ready),
@@ -671,4 +672,23 @@ fn probe_iso9660(logger: &mut ProbeLogger) {
             && removed
             && unsafe { iso9660::ISO9660_GetVolumeLabel(name.as_ptr()).is_null() },
     );
+
+    let rust_name = c"isfs";
+    let rust_mounted = filesystem::mount(rust_name, &disc);
+    let rust_label = filesystem::volume_label(rust_name);
+    let rust_label_ok = !rust_label.is_null()
+        && unsafe { core::ffi::CStr::from_ptr(rust_label).to_bytes() } == b"TESTVOL";
+    let rust_removed = filesystem::unmount(rust_name);
+    let rust_label_cleared = filesystem::volume_label(rust_name).is_null();
+    logger.note_i32("Rust filesystem ISO mount", rust_mounted as i32);
+    logger.note_i32("Rust filesystem ISO volume label", rust_label_ok as i32);
+    logger.note_i32("Rust filesystem ISO unmount", rust_removed as i32);
+    logger.note_i32(
+        "Rust filesystem ISO label cleared",
+        rust_label_cleared as i32,
+    );
+    logger.record("Rust filesystem ISO mount", rust_mounted);
+    logger.record("Rust filesystem ISO volume label", rust_label_ok);
+    logger.record("Rust filesystem ISO unmount", rust_removed);
+    logger.record("Rust filesystem ISO cleanup", rust_label_cleared);
 }
