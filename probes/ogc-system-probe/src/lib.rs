@@ -676,6 +676,16 @@ pub fn run_audio_sys_probe_bin() -> i32 {
 }
 
 #[cfg(target_arch = "powerpc")]
+/// Checks raw and owned ASND voice APIs.
+pub fn run_asnd_sys_probe_bin() -> i32 {
+    configure_probe_app_dir("asnd-sys-probe");
+    let mut logger = init_probe_logger();
+    sound_probe::probe_asnd_sys(&mut logger);
+    logger.summary();
+    finish_probe()
+}
+
+#[cfg(target_arch = "powerpc")]
 /// Checks that ModPlay mixes in its LWP worker and stops that worker cleanly.
 pub fn run_modplay_probe_bin() -> i32 {
     configure_probe_app_dir("modplay-probe");

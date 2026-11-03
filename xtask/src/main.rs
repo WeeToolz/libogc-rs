@@ -419,6 +419,7 @@ const PROBE_BINARIES: &[&str] = &[
     "wii_remote_stability_probe",
     "sound_probe",
     "audio_sys_probe",
+    "asnd_sys_probe",
     "aesnd_native_probe",
     "startup_probe",
     "network_probe",

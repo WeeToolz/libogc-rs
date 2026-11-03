@@ -724,3 +724,17 @@ denied for the audio libmad host harness, `cargo fmt --all -- --check`,
 `cargo xtask audit-source`, and the generated inventory check passed. The
 general host Clippy attempt was not applicable because runtime dependencies
 reject non-PowerPC builds.
+
+## 2026-11-02: ASND raw voice and timing probe
+
+`asnd_sys_probe` called the 20 open `asnd-sys` APIs directly. Dolphin 2609a
+passed 16 checks and failed none. The checks covered fixed note-frequency and
+time values, owned buffer reads, finite and infinite voice setup, busy queue
+rejection, pointer retention, pitch and volume requests, voice timers, owned
+voice accessors, and voice cleanup. The DOL SHA-256 is
+`4720835054ef41480b696a5559c1f57a2eae89419a7ec7c02891353259523266`.
+See [the suite report](docs/dolphin-runs/2026-11-02-asnd-sys-initial/suite.json)
+and [probe log](docs/dolphin-runs/2026-11-02-asnd-sys-initial/asnd_sys_probe/probe.log).
+The probe did not establish callback cadence or audible output on a physical
+Wii. The inventory now has 104 open entries across the eight wider audio
+packages. The Wii audio group remains open.

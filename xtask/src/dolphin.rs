@@ -132,6 +132,11 @@ const PROBES: &[ProbeSpec] = &[
         input_pipe: false,
     },
     ProbeSpec {
+        name: "asnd_sys_probe",
+        timeout_seconds: 90,
+        input_pipe: false,
+    },
+    ProbeSpec {
         name: "startup_probe",
         timeout_seconds: 90,
         input_pipe: false,

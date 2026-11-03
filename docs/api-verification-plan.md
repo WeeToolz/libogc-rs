@@ -92,11 +92,11 @@ remaining audio packages with exact API calls, fixed fixtures, and recorded
 Dolphin or host results. Keep the open libmad decoder message and
 fixture-dependent decoder failures open until their failures are diagnosed.
 
-The 2026-11-02 inventory has 124 open entries in these packages:
+The 2026-11-02 inventory has 104 open entries in these packages:
 
 | Package | Open entries |
 | --- | ---: |
-| `asnd-sys` | 20 |
+| `asnd-sys` | 0 |
 | `mad-sys` | 1 |
 | `modplay-capi` | 24 |
 | `mp3player-sys` | 19 |
@@ -104,7 +104,7 @@ The 2026-11-02 inventory has 124 open entries in these packages:
 | `ogc-audio-sys` | 0 |
 | `ogc-dsp` | 15 |
 | `ogc-dsp-sys` | 19 |
-| **Total** | **124** |
+| **Total** | **104** |
 
 ## Package work list
 
