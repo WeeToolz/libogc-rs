@@ -200,6 +200,10 @@ group has 15 runtime crates; one has no inventory API rows. The 56
 identifiers, completion values, metadata validation, commit order, failure
 injection, readback, and state preservation. These tests do not verify CARD
 IOS behavior on Dolphin or Wii.
+The ISO9660 package has a function-to-assertion map in
+[the ISO9660 API audit](dolphin-runs/2026-11-03-iso9660-api-audit.md). It
+records grouped wrapper assertions and their limits alongside the passing
+file operation checks.
 
 | Package | Inventory API entries |
 | --- | ---: |
