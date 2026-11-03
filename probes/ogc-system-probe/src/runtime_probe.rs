@@ -960,6 +960,7 @@ fn probe_isfs_successful_file_cycle(logger: &mut ProbeLogger) {
     );
     probe_isfs_async_file_cycle(directory, logger);
     probe_isfs_async_directory_cycle(directory, logger);
+    probe_isfs_async_rename_cycle(logger);
 
     let rename_result = if file_created {
         filesystem::rename(file_path, renamed_path)
@@ -1390,6 +1391,73 @@ fn probe_isfs_async_directory_cycle(directory: &core::ffi::CStr, logger: &mut Pr
             && absent_usage_result == filesystem::ISFS_ENOENT
             && absent_usage_a == u32::MAX
             && absent_usage_b == u32::MAX,
+    );
+}
+
+fn probe_isfs_async_rename_cycle(logger: &mut ProbeLogger) {
+    logger.section("ISFS ASYNC RENAME CYCLE");
+    let source = c"/tmp/ogc-rs-isfs-verify/async-rename-source";
+    let destination = c"/tmp/ogc-rs-isfs-verify/async-rename-destination";
+    let source_created = filesystem::create_file(source, 0, 3, 3, 3) == filesystem::ISFS_OK;
+    let (rename_submit, rename_result) = if source_created {
+        run_isfs_async_and_wait(|| unsafe {
+            filesystem::rename_async(
+                source,
+                destination,
+                Some(isfs_probe_callback),
+                core::ptr::null_mut(),
+            )
+        })
+    } else {
+        (-1, i32::MIN)
+    };
+    logger.note_i32("ISFS rename_async callback result", rename_result);
+
+    let source_open = filesystem::open(source, filesystem::ISFS_OPEN_READ);
+    let source_exists = source_open.is_ok();
+    let source_absent = source_open
+        .as_ref()
+        .is_err_and(|error| *error == filesystem::ISFS_ENOENT);
+    let source_closed = match source_open {
+        Ok(file) => file.close() == filesystem::ISFS_OK,
+        Err(_) => true,
+    };
+    let destination_open = filesystem::open(destination, filesystem::ISFS_OPEN_READ);
+    let destination_exists = destination_open.is_ok();
+    let destination_absent = destination_open
+        .as_ref()
+        .is_err_and(|error| *error == filesystem::ISFS_ENOENT);
+    let destination_closed = match destination_open {
+        Ok(file) => file.close() == filesystem::ISFS_OK,
+        Err(_) => true,
+    };
+    let state_matches_result = match rename_result {
+        filesystem::ISFS_OK => source_absent && destination_exists && destination_closed,
+        filesystem::ISFS_EINVAL => source_exists && source_closed && destination_absent,
+        _ => false,
+    };
+    logger.record(
+        "ISFS rename_async callback matches file state",
+        source_created && rename_submit >= 0 && state_matches_result,
+    );
+
+    let source_cleanup = if source_exists {
+        filesystem::delete(source) == filesystem::ISFS_OK
+    } else {
+        source_absent
+    };
+    let destination_cleanup = if destination_exists {
+        filesystem::delete(destination) == filesystem::ISFS_OK
+    } else {
+        destination_absent
+    };
+    let source_removed = filesystem::open(source, filesystem::ISFS_OPEN_READ)
+        .is_err_and(|error| error == filesystem::ISFS_ENOENT);
+    let destination_removed = filesystem::open(destination, filesystem::ISFS_OPEN_READ)
+        .is_err_and(|error| error == filesystem::ISFS_ENOENT);
+    logger.record(
+        "ISFS async rename test files are cleaned up",
+        source_cleanup && destination_cleanup && source_removed && destination_removed,
     );
 }
 
