@@ -101,7 +101,7 @@ do not infer API coverage from a package or probe name.
 The first controller model batch added host evidence for 18 inventory entries.
 A second batch recorded 14 controller model, transition, and HID APIs.
 A third batch added Xbox report boundary and Bluetooth stage text checks.
-The 2026-11-02 inventory reports 2,258 unverified entries. See the
+The 2026-11-02 inventory reports 2,257 unverified entries. See the
 [development results](../DEVELOPMENT_RESULTS.md) for the test scope and limits.
 
 
