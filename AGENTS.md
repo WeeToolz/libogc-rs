@@ -11,6 +11,11 @@ the applicable procedure.
 
 # Real Implementation Policy
 
+Do not add user-specific or machine-specific file paths to source code,
+tests, scripts, or build configuration. Read external paths from environment
+variables or command-line arguments. Build internal paths from the repository
+root, a system temporary directory, or another portable base path.
+
 ## Run DOL files in Dolphin
 
 This repository has a Dolphin runner for testing Wii DOL probes. Use it when a task needs DOL runtime validation; do not stop after building a DOL if Dolphin is available.
