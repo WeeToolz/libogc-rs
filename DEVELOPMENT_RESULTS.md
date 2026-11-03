@@ -1,5 +1,30 @@
 # Development results
 
+## 2026-11-02: HCI event parsing in Dolphin
+
+The runtime probe calls the HCI event parser with fixed command completion,
+command status, connection, disconnection, unknown, and malformed event
+packets. It verifies decoded fields, declared-length truncation, and the
+handling of extra bytes. The evidence registry records this exact parser API.
+
+The DOL ran in Dolphin 2609a with 40 passes and no failures. Its SHA-256 was
+`aa5c564f7f472f8f24128e132ccdd7ac44440a859f5be2d17ae1c4d1e08660e0`.
+The build used revision `a2da667` and the uncommitted runtime probe changes in
+this batch. The runner used a private profile and a copy of the configured Wii
+NAND. HBC was not under test. The [report](docs/dolphin-runs/2026-11-02-hci-events/suite.json),
+[transcript](docs/dolphin-runs/2026-11-02-hci-events/runtime_probe/probe.log),
+transport data, logs, and captures record the run. The final capture was
+inspected and shows the passing summary. The copied profile remains local.
+
+Build: `cargo xtask build-dol ogc-system-probe --bin runtime_probe
+--probe-features dolphin-automation --no-dev --output
+target/xtask/probes-dolphin/runtime_probe.dol`. Run: `cargo xtask
+dolphin-validate --no-build --probe runtime_probe --artifact-dir
+docs/dolphin-runs/2026-11-02-hci-events`. These checks do not exercise a
+Bluetooth transport or establish physical Wii or controller behavior.
+The source audit passed with three existing tracked debt entries. The
+completeness audit reported 2,257 APIs without accepted exact evidence.
+
 ## 2026-11-02: Bluetooth packet parsing in Dolphin
 
 The runtime probe now calls the ACL, L2CAP packet, L2CAP signal, signal

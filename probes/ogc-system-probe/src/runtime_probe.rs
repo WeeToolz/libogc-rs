@@ -17,6 +17,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_owned_audio_buffer(logger);
     probe_l2cap_packets(logger);
     probe_l2cap_parsers(logger);
+    probe_hci_events(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     probe_ios_stm(logger);
@@ -24,6 +25,61 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_es(logger);
     probe_crypto(logger);
     probe_iso9660(logger);
+}
+
+fn probe_hci_events(logger: &mut ProbeLogger) {
+    use ogc_bt_sync as bt;
+    let complete = [0x0e, 6, 1, 3, 0x0c, 0, 0x12, 0x34, 0xee];
+    let status = [0x0f, 4, 0x0c, 1, 3, 0x0c];
+    let command_ok = matches!(bt::parse_event(&complete), Ok(bt::HciEvent::CommandComplete {
+        opcode, status: 0, params: [0x12, 0x34] }) if opcode.raw() == 0x0c03)
+        && matches!(bt::parse_event(&status), Ok(bt::HciEvent::CommandStatus {
+            opcode, status: 0x0c }) if opcode.raw() == 0x0c03);
+    let short_complete =
+        (2..8).all(|n| bt::parse_event(&complete[..n]) == Err(bt::Error::MalformedEvent));
+    let short_status =
+        (2..6).all(|n| bt::parse_event(&status[..n]) == Err(bt::Error::MalformedEvent));
+    logger.record(
+        "HCI command events and truncated packets",
+        command_ok && short_complete && short_status,
+    );
+
+    let connection = [3, 11, 0, 0x34, 0x02, 1, 2, 3, 4, 5, 6, 1, 0];
+    let request = [4, 10, 1, 2, 3, 4, 5, 6, 0x11, 0x22, 0x33, 1];
+    let disconnect = [5, 4, 0, 0x34, 0x02, 0x13];
+    let connection_ok = matches!(bt::parse_event(&connection), Ok(bt::HciEvent::ConnectionComplete {
+        status: 0, address, handle: 0x234, link_type: 1, encryption: 0 })
+        if address.bytes == [1, 2, 3, 4, 5, 6]);
+    let request_ok = matches!(bt::parse_event(&request), Ok(bt::HciEvent::ConnectionRequest {
+        address, class_of_device: [0x11, 0x22, 0x33], link_type: 1 })
+        if address.bytes == [1, 2, 3, 4, 5, 6]);
+    let disconnect_ok = matches!(
+        bt::parse_event(&disconnect),
+        Ok(bt::HciEvent::DisconnectionComplete {
+            status: 0,
+            handle: 0x234,
+            reason: 0x13
+        })
+    );
+    logger.record(
+        "HCI connection and disconnection events",
+        connection_ok && request_ok && disconnect_ok,
+    );
+
+    let unknown = [0xfe, 2, 0xaa, 0xbb, 0xcc];
+    let malformed = [3, 1, 0];
+    logger.record(
+        "HCI unknown and malformed events",
+        matches!(
+            bt::parse_event(&unknown),
+            Ok(bt::HciEvent::Unknown {
+                event_code: 0xfe,
+                payload: [0xaa, 0xbb]
+            })
+        ) && bt::parse_event(&[]) == Err(bt::Error::EventBufferTooSmall)
+            && bt::parse_event(&[3]) == Err(bt::Error::EventBufferTooSmall)
+            && bt::parse_event(&malformed) == Err(bt::Error::MalformedEvent),
+    );
 }
 
 fn probe_l2cap_parsers(logger: &mut ProbeLogger) {

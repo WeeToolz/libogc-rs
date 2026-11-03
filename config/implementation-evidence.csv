@@ -1,4 +1,5 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function
+ogc-bt-sync,src/protocol.rs,parse_event,813,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_hci_events
 ogc-bt-sync,src/protocol.rs,parse_acl_packet,508,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_parsers
 ogc-bt-sync,src/protocol.rs,parse_l2cap_packet,525,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_parsers
 ogc-bt-sync,src/protocol.rs,parse_l2cap_signal,542,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_parsers
