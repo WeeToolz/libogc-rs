@@ -177,6 +177,11 @@ const PROBES: &[ProbeSpec] = &[
         input_pipe: false,
     },
     ProbeSpec {
+        name: "dvd_probe",
+        timeout_seconds: 90,
+        input_pipe: false,
+    },
+    ProbeSpec {
         name: "wiisd_probe",
         timeout_seconds: 90,
         input_pipe: false,

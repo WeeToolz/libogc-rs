@@ -814,6 +814,19 @@ pub fn run_storage_probe_bin(destructive_card_format: bool) -> i32 {
 }
 
 #[cfg(target_arch = "powerpc")]
+/// Runs DVD and `/dev/di` checks without USB, SD, or memory-card requirements.
+pub fn run_dvd_probe_bin() -> i32 {
+    configure_probe_app_dir("dvd-probe");
+    let mut logger = init_probe_logger();
+    storage_probe::probe_dvd(&mut logger);
+    let shutdown = ogc_dvd::shutdown();
+    logger.note_i32("dvd shutdown", shutdown);
+    logger.record("dvd shutdown", shutdown == 0);
+    logger.summary();
+    finish_probe()
+}
+
+#[cfg(target_arch = "powerpc")]
 /// Runs only keyboard probes.
 pub fn run_keyboard_probe_bin() -> i32 {
     configure_probe_app_dir("keyboard-probe");

@@ -154,6 +154,10 @@ name = "storage_probe"
 path = "src/storage_probe/main.rs"
 
 [[bin]]
+name = "dvd_probe"
+path = "src/dvd_probe/main.rs"
+
+[[bin]]
 name = "video_probe"
 path = "src/video_probe/main.rs"
 

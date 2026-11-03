@@ -426,6 +426,7 @@ const PROBE_BINARIES: &[&str] = &[
     "debugger_probe",
     "font_probe",
     "storage_probe",
+    "dvd_probe",
     "keyboard_probe",
     "input_probe",
     "hid_probe",
@@ -480,6 +481,14 @@ mod probe_artifact_tests {
             assert!(manifest.contains(&format!("name = \"{probe}\"")));
             assert!(manifest.contains(&format!("path = \"src/{probe}/main.rs\"")));
         }
+    }
+
+    #[test]
+    fn focused_dvd_probe_is_built_as_a_dol() {
+        let manifest = include_str!("../../probes/ogc-system-probe/Cargo.toml");
+        assert!(super::PROBE_BINARIES.contains(&"dvd_probe"));
+        assert!(manifest.contains("name = \"dvd_probe\""));
+        assert!(manifest.contains("path = \"src/dvd_probe/main.rs\""));
     }
 
     #[test]
