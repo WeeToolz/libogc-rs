@@ -749,6 +749,16 @@ ogc-usbstorage-sys,src/lib.rs,read,454,hardware,hardware-probe,probes/ogc-system
 ogc-usbstorage-sys,src/wii_backend.rs,read,2619,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_usb_close_persistence
 ogc-usbstorage-sys,src/lib.rs,write,480,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,write_usb_close_probe
 ogc-usbstorage-sys,src/wii_backend.rs,write,2636,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,write_usb_close_probe
+ogc-usbstorage-sys,src/lib.rs,bot_csw_cycle_result,165,hardware,hardware-probe,probes/ogc-system-probe/src/usbstorage_capacity_probe.rs,run
+ogc-usbstorage-sys,src/lib.rs,bot_cycle_retry_error,68,hardware,hardware-probe,probes/ogc-system-probe/src/usbstorage_capacity_probe.rs,run
+ogc-usbstorage-sys,src/lib.rs,copy_read_result,78,hardware,hardware-probe,probes/ogc-system-probe/src/usbstorage_capacity_probe.rs,run
+ogc-usbstorage-sys,src/lib.rs,decode_read_capacity,138,hardware,hardware-probe,probes/ogc-system-probe/src/usbstorage_capacity_probe.rs,run
+ogc-usbstorage-sys,src/lib.rs,idle_remount_required,62,hardware,hardware-probe,probes/ogc-system-probe/src/usbstorage_capacity_probe.rs,run
+ogc-usbstorage-sys,src/lib.rs,lun_count_after_get_max_lun,114,hardware,hardware-probe,probes/ogc-system-probe/src/usbstorage_capacity_probe.rs,run
+ogc-usbstorage-sys,src/lib.rs,lun_count_from_reported_max,107,hardware,hardware-probe,probes/ogc-system-probe/src/usbstorage_capacity_probe.rs,run
+ogc-usbstorage-sys,src/lib.rs,open_requires_bot_reset,184,hardware,hardware-probe,probes/ogc-system-probe/src/usbstorage_capacity_probe.rs,run
+ogc-usbstorage-sys,src/lib.rs,read_write_cycle_result,174,hardware,hardware-probe,probes/ogc-system-probe/src/usbstorage_capacity_probe.rs,run
+ogc-usbstorage-sys,src/lib.rs,transfer_result,91,hardware,hardware-probe,probes/ogc-system-probe/src/usbstorage_capacity_probe.rs,run
 ogc-wd,src/lib.rs,deinit,305,ios,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,run
 ogc-wd,src/lib.rs,init,284,ios,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,run
 ogc-wiisd,src/lib.rs,shutdown,773,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,run

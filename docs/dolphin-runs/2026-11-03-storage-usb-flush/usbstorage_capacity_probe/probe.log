@@ -91,6 +91,7 @@ PASS safe USB DVD query maps the raw no-device result
 PASS safe USB start-stop reports a missing storage interface
 PASS safe USB deinitialize completes after the no-device probe
 PASS open reset decision matches the C USB mode predicate
+PASS USB idle remount uses a strict sixty-second boundary
 PASS GetMaxLUN supports the full representable C count
 PASS GetMaxLUN timeout aborts while other errors default to LUN zero
 PASS short USB read copies its received prefix before returning residue
@@ -98,10 +99,11 @@ PASS zero-byte USB read returns data residue
 PASS zero-byte USB write result returns data residue
 PASS USB data transfer preserves non-timeout transport errors
 PASS BOT retries preserve cycle errors unless reset or transfer times out
+PASS USB read/write cycle status preserves C result rules
 PASS ReadCapacity accepts CSW status and residue, then decodes capacity
+-- page 4 --
 PASS ReadCapacity preserves a negative BOT cycle result
 PASS probe VI retraces complete within 100 ms
--- page 4 --
 PASS Dolphin screen-data transport completed
-INFO summary_candidate passes=29 fails=0
-PASS summary passes=29 fails=0
+INFO summary_candidate passes=31 fails=0
+PASS summary passes=31 fails=0
