@@ -4,6 +4,9 @@ use ogc_wiisd::WII_SD_INTERFACE;
 #[repr(align(32))]
 struct Sector([u8; 512]);
 
+#[repr(align(32))]
+struct MultiSector([u8; 9 * 512 + 1]);
+
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("WII SD DISC INTERFACE");
     logger.note(
@@ -94,6 +97,81 @@ pub fn run(logger: &mut ProbeLogger) {
         logger.record(
             "Wii SD original sector bytes are restored",
             restored_read && restored_sector.0 == original.0,
+        );
+
+        const MULTI_SECTOR_COUNT: u32 = 9;
+        const MULTI_SECTOR_START: u32 = 1;
+        logger.note(
+            "Dolphin-only nine-sector check crosses the eight-sector transfer buffer and restores its data.",
+        );
+        let mut original_sectors = MultiSector([0; 9 * 512 + 1]);
+        // SAFETY: The offset buffer holds all nine sectors. It is unaligned on
+        // purpose, so production uses its bounded bounce buffer.
+        let saved_sectors = inserted
+            && unsafe {
+                read_sectors(
+                    MULTI_SECTOR_START,
+                    MULTI_SECTOR_COUNT,
+                    original_sectors.0.as_mut_ptr().add(1).cast(),
+                )
+            };
+        let mut pattern_sectors = MultiSector([0; 9 * 512 + 1]);
+        for (index, byte) in pattern_sectors.0[1..].iter_mut().enumerate() {
+            *byte = (index as u8).wrapping_mul(29).wrapping_add(0x73);
+        }
+        // SAFETY: The offset input holds nine sectors and is unaligned. The
+        // save completed before the write.
+        let wrote_multi_sector = saved_sectors
+            && unsafe {
+                write_sectors(
+                    MULTI_SECTOR_START,
+                    MULTI_SECTOR_COUNT,
+                    pattern_sectors.0.as_ptr().add(1).cast(),
+                )
+            };
+        logger.record(
+            "Wii SD nine-sector write crosses the transfer buffer boundary",
+            wrote_multi_sector,
+        );
+
+        let mut observed_sectors = MultiSector([0; 9 * 512 + 1]);
+        // SAFETY: The offset destination holds nine sectors and is unaligned.
+        let read_multi_sector = wrote_multi_sector
+            && unsafe {
+                read_sectors(
+                    MULTI_SECTOR_START,
+                    MULTI_SECTOR_COUNT,
+                    observed_sectors.0.as_mut_ptr().add(1).cast(),
+                )
+            };
+        logger.record(
+            "Wii SD nine-sector read returns the written bytes",
+            read_multi_sector && observed_sectors.0[1..] == pattern_sectors.0[1..],
+        );
+
+        // SAFETY: Restore the saved bytes after any attempted write, including
+        // a write that reports an error after completing its first block.
+        let restore_multi_sector = saved_sectors
+            && unsafe {
+                write_sectors(
+                    MULTI_SECTOR_START,
+                    MULTI_SECTOR_COUNT,
+                    original_sectors.0.as_ptr().add(1).cast(),
+                )
+            };
+        let mut restored_sectors = MultiSector([0; 9 * 512 + 1]);
+        // SAFETY: The offset destination holds nine sectors and is unaligned.
+        let verify_multi_sector_restore = restore_multi_sector
+            && unsafe {
+                read_sectors(
+                    MULTI_SECTOR_START,
+                    MULTI_SECTOR_COUNT,
+                    restored_sectors.0.as_mut_ptr().add(1).cast(),
+                )
+            };
+        logger.record(
+            "Wii SD nine-sector original bytes are restored",
+            verify_multi_sector_restore && restored_sectors.0[1..] == original_sectors.0[1..],
         );
     }
 
