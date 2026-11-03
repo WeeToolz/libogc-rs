@@ -35,9 +35,13 @@ fn probe_public_facade(logger: &mut ProbeLogger) {
             && handle.sector_size.is_null(),
     );
 
-    let (closed, reset, max_lun, mounted, suspended, capacity, read, write) = unsafe {
+    let (closed, flushed, reset, max_lun, mounted, suspended, capacity, read, write) = unsafe {
         (
             storage::try_close(core::ptr::null_mut()),
+            (
+                storage::flush(core::ptr::null_mut(), 0),
+                storage::try_flush(core::ptr::null_mut(), 0),
+            ),
             storage::try_reset(core::ptr::null_mut()),
             storage::try_get_max_lun(core::ptr::null_mut()),
             storage::try_mount_lun(core::ptr::null_mut(), 0),
@@ -50,6 +54,11 @@ fn probe_public_facade(logger: &mut ProbeLogger) {
     logger.record(
         "safe USB close maps null handle to interface error",
         has_error(closed, storage::USBSTORAGE_ENOINTERFACE),
+    );
+    logger.record(
+        "raw and safe USB flush map null handle to interface error",
+        flushed.0 == storage::USBSTORAGE_ENOINTERFACE
+            && has_error(flushed.1, storage::USBSTORAGE_ENOINTERFACE),
     );
     logger.record(
         "safe USB reset maps null handle to interface error",
