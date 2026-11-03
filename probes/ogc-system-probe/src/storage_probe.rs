@@ -332,6 +332,26 @@ pub fn probe_dvd(logger: &mut ProbeLogger) {
         "dvd sector0 async matches synthetic disc header",
         read_ok && sector.0[..8] == *b"TST1TS\0\0",
     );
+    sector.0.fill(0);
+    let mut offset_read_block = dvd::DvdCmdBlk::default();
+    // SAFETY: the command block and full aligned sector buffer remain live
+    // during this synchronous read from the fixed synthetic test image.
+    let offset_read = unsafe {
+        dvd::read_prio(
+            &mut offset_read_block,
+            sector.0.as_mut_ptr().cast(),
+            sector.0.len() as u32,
+            0x2000,
+            2,
+        )
+    };
+    logger.note_i32("dvd offset sector sync bytes", offset_read);
+    logger.record(
+        "dvd offset sector sync matches synthetic payload",
+        offset_read == sector.0.len() as i32
+            && sector.0[..4] == [11, 48, 85, 122]
+            && sector.0[sector.0.len() - 1] == 230,
+    );
     logger.note_u32("dvd last drive error", dvd::get_last_error());
 }
 
