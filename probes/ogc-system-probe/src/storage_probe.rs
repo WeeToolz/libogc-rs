@@ -106,7 +106,9 @@ pub fn run(logger: &mut ProbeLogger, destructive_card_format: bool) {
     if !logger.uses_mounted_log() {
         log_fat_result(logger, "fat shutdown all", &fat::shutdown_all());
         logger.note_i32("card shutdown", card::shutdown());
-        logger.note_i32("dvd shutdown", dvd::shutdown());
+        let dvd_shutdown = dvd::sys::shutdown();
+        logger.note_i32("dvd shutdown", dvd_shutdown);
+        logger.record("dvd sys shutdown completes", dvd_shutdown == 0);
     }
     OGC_STORAGE_PROBE_STAGE.store(6, Ordering::Release);
     logger.note_u32(
@@ -232,6 +234,7 @@ pub fn probe_dvd(logger: &mut ProbeLogger) {
         logger.record("dvd no fake success without media", dvd::mount() < 0);
         probe_dvd_no_media_helpers(logger);
         probe_dvd_no_media_async(logger);
+        probe_dvd_sys_no_media(logger);
         return;
     }
 
@@ -473,6 +476,294 @@ fn probe_dvd_no_media_async(logger: &mut ProbeLogger) {
     let stop_motor = dvd::sys::stop_motor();
     logger.note_i32("dvd stop motor without media result", stop_motor);
     logger.record("dvd stop motor call completes", stop_motor == 0);
+}
+
+fn probe_dvd_sys_no_media(logger: &mut ProbeLogger) {
+    logger.section("DVD SYS DIRECT NO MEDIA");
+    dvd::sys::init();
+    let status = dvd::sys::get_drive_status();
+    let cover = dvd::sys::get_cover_status();
+    let present = dvd::sys::disk_present();
+    logger.record(
+        "dvd sys status APIs report no disc",
+        status == dvd::sys::DVD_STATE_NO_DISK
+            && cover == dvd::sys::DVD_STATE_NO_DISK
+            && present == 0,
+    );
+
+    let disk_id = dvd::sys::get_current_disk_id();
+    let drive_info = dvd::sys::get_drive_info();
+    logger.record(
+        "dvd sys static output pointers remain stable",
+        !disk_id.is_null()
+            && !drive_info.is_null()
+            && core::ptr::eq(disk_id, dvd::sys::get_current_disk_id())
+            && core::ptr::eq(drive_info, dvd::sys::get_drive_info()),
+    );
+
+    let mut idle = dvd::sys::DvdCmdBlk::default();
+    // SAFETY: the idle command block is live and is not owned by a request.
+    let idle_state = unsafe { dvd::sys::get_cmd_block_status(&mut idle) };
+    logger.record("dvd sys idle command status is readable", idle_state == 0);
+
+    let mut mount_block = dvd::sys::DvdCmdBlk::default();
+    // SAFETY: the command block stays live until its callback completes.
+    let sync_mount = dvd::sys::mount();
+    logger.record("dvd sys sync mount rejects no disc", sync_mount < 0);
+    prepare_async_probe();
+    let mount_submit = unsafe { dvd::sys::mount_async(&mut mount_block, Some(dvd_async_callback)) };
+    let mount_done = record_async(
+        logger,
+        "dvd sys mount async without media",
+        mount_submit,
+        dvd::sys::DVD_ERROR_COVER_CLOSED,
+        10,
+    );
+    // SAFETY: the callback has completed, so the command block is available.
+    let mount_state = unsafe { dvd::sys::get_cmd_block_status(&mut mount_block) };
+    logger.record(
+        "dvd sys mount async updates its command block",
+        mount_done && mount_state == dvd::sys::DVD_STATE_NO_DISK && mount_block.txdsize == 0,
+    );
+
+    let mut control_block = dvd::sys::DvdCmdBlk::default();
+    prepare_async_probe();
+    // SAFETY: the command block stays live until its callback completes.
+    let control_submit = unsafe {
+        dvd::sys::control_drive_async(
+            &mut control_block,
+            dvd::sys::DVD_SPINMOTOR_CHECKDISK,
+            Some(dvd_async_callback),
+        )
+    };
+    let control_done = record_async(
+        logger,
+        "dvd sys control async without media",
+        control_submit,
+        dvd::sys::DVD_ERROR_COVER_CLOSED,
+        10,
+    );
+    // SAFETY: this command block is exclusively available to the sync call.
+    let sync_control =
+        unsafe { dvd::sys::control_drive(&mut control_block, dvd::sys::DVD_SPINMOTOR_CHECKDISK) };
+    logger.record(
+        "dvd sys control sync reports no disc",
+        control_done && sync_control < 0,
+    );
+
+    let mut offset_block = dvd::sys::DvdCmdBlk::default();
+    prepare_async_probe();
+    // SAFETY: the command block stays live until its callback completes.
+    let offset_submit =
+        unsafe { dvd::sys::set_gcm_offset_async(&mut offset_block, 0, Some(dvd_async_callback)) };
+    let offset_done = record_async(
+        logger,
+        "dvd sys zero offset async",
+        offset_submit,
+        dvd::sys::DVD_ERROR_OK,
+        10,
+    );
+    // SAFETY: the command block is exclusively available to the sync call.
+    let sync_offset = unsafe { dvd::sys::set_gcm_offset(&mut offset_block, 0) };
+    logger.record(
+        "dvd sys zero offset sync completes",
+        offset_done && sync_offset == 1,
+    );
+
+    let mut spin_block = dvd::sys::DvdCmdBlk::default();
+    prepare_async_probe();
+    // SAFETY: the command block stays live until its callback completes.
+    let spin_submit =
+        unsafe { dvd::sys::spin_up_drive_async(&mut spin_block, Some(dvd_async_callback)) };
+    let spin_done = record_async(
+        logger,
+        "dvd sys spin up async without media",
+        spin_submit,
+        dvd::sys::DVD_ERROR_OK,
+        10,
+    );
+    // SAFETY: the command block is exclusively available to the sync call.
+    let sync_spin = unsafe { dvd::sys::spin_up_drive(&mut spin_block) };
+    logger.record(
+        "dvd sys spin up sync completes without media",
+        spin_done && sync_spin == 1,
+    );
+
+    let mut inquiry_block = dvd::sys::DvdCmdBlk::default();
+    let mut info = dvd::sys::DvdDrvInfo::default();
+    prepare_async_probe();
+    // SAFETY: both values stay live until the callback completes.
+    let inquiry_submit =
+        unsafe { dvd::sys::inquiry_async(&mut inquiry_block, &mut info, Some(dvd_async_callback)) };
+    let inquiry_done = record_async(
+        logger,
+        "dvd sys inquiry async without media",
+        inquiry_submit,
+        dvd::sys::DVD_ERROR_OK,
+        10,
+    );
+    // SAFETY: both values are distinct and exclusively available to the call.
+    let sync_inquiry = unsafe { dvd::sys::inquiry(&mut inquiry_block, &mut info) };
+    logger.record(
+        "dvd sys inquiry sync returns drive information",
+        inquiry_done && sync_inquiry >= 0,
+    );
+
+    let mut id_block = dvd::sys::DvdCmdBlk::default();
+    let mut id = dvd::sys::DvdDiskId::default();
+    prepare_async_probe();
+    // SAFETY: both values stay live until the callback completes.
+    let id_submit =
+        unsafe { dvd::sys::read_disk_id(&mut id_block, &mut id, Some(dvd_async_callback)) };
+    let id_done = record_async(
+        logger,
+        "dvd sys read disk ID async without media",
+        id_submit,
+        dvd::sys::DVD_ERROR_COVER_CLOSED,
+        10,
+    );
+    logger.record(
+        "dvd sys disk ID failure preserves transfer count",
+        id_done && id_block.state == dvd::sys::DVD_STATE_NO_DISK && id_block.txdsize == 0,
+    );
+
+    let mut read_block = dvd::sys::DvdCmdBlk::default();
+    let mut sector = DvdSector([0xa5; 0x800]);
+    prepare_async_probe();
+    // SAFETY: the block and aligned sector stay live until callback completion.
+    let read_submit = unsafe {
+        dvd::sys::read_abs_async_prio(
+            &mut read_block,
+            sector.0.as_mut_ptr().cast(),
+            sector.0.len() as u32,
+            0,
+            Some(dvd_async_callback),
+            2,
+        )
+    };
+    let read_done = record_async(
+        logger,
+        "dvd sys absolute read async without media",
+        read_submit,
+        dvd::sys::DVD_ERROR_COVER_CLOSED,
+        10,
+    );
+    let read_preserved = sector.0.iter().all(|byte| *byte == 0xa5);
+    // SAFETY: the aligned output buffer and command block are live and distinct.
+    let sync_read = unsafe {
+        dvd::sys::read_prio(
+            &mut read_block,
+            sector.0.as_mut_ptr().cast(),
+            sector.0.len() as u32,
+            0,
+            2,
+        )
+    };
+    logger.record(
+        "dvd sys reads preserve output and report no disc",
+        read_done
+            && read_preserved
+            && sync_read < 0
+            && read_block.state == dvd::sys::DVD_STATE_NO_DISK
+            && read_block.txdsize == 0
+            && sector.0.iter().all(|byte| *byte == 0xa5),
+    );
+
+    let mut bs_block = dvd::sys::DvdCmdBlk::default();
+    prepare_async_probe();
+    // SAFETY: the aligned sector and block stay live until callback completion.
+    let bs_submit = unsafe {
+        dvd::sys::read_abs_async_for_bs(
+            &mut bs_block,
+            sector.0.as_mut_ptr().cast(),
+            sector.0.len() as u32,
+            0,
+            Some(dvd_async_callback),
+        )
+    };
+    let bs_done = record_async(
+        logger,
+        "dvd sys BS read async without media",
+        bs_submit,
+        dvd::sys::DVD_ERROR_COVER_CLOSED,
+        10,
+    );
+    logger.record(
+        "dvd sys BS read preserves output and byte count",
+        bs_done && bs_block.txdsize == 0 && sector.0.iter().all(|byte| *byte == 0xa5),
+    );
+
+    let mut seek_block = dvd::sys::DvdCmdBlk::default();
+    prepare_async_probe();
+    // SAFETY: the command block stays live until callback completion.
+    let seek_submit =
+        unsafe { dvd::sys::seek_abs_async_prio(&mut seek_block, 0, Some(dvd_async_callback), 2) };
+    let seek_done = record_async(
+        logger,
+        "dvd sys seek async without media",
+        seek_submit,
+        dvd::sys::DVD_ERROR_COVER_CLOSED,
+        10,
+    );
+    // SAFETY: the command block is exclusively available to the sync call.
+    let sync_seek = unsafe { dvd::sys::seek_prio(&mut seek_block, 0, 2) };
+    logger.record(
+        "dvd sys seek sync reports no disc",
+        seek_done && sync_seek < 0,
+    );
+
+    let mut stream_block = dvd::sys::DvdCmdBlk::default();
+    prepare_async_probe();
+    // SAFETY: the command block stays live until callback completion.
+    let stream_submit =
+        unsafe { dvd::sys::stop_stream_at_end_async(&mut stream_block, Some(dvd_async_callback)) };
+    let stream_done = record_async(
+        logger,
+        "dvd sys stop stream async without media",
+        stream_submit,
+        dvd::sys::DVD_ERROR_COVER_CLOSED,
+        10,
+    );
+    // SAFETY: the command block is exclusively available to the sync call.
+    let sync_stream = unsafe { dvd::sys::stop_stream_at_end(&mut stream_block) };
+    logger.record(
+        "dvd sys stop stream sync reports no disc",
+        stream_done && sync_stream < 0,
+    );
+
+    let old_auto_invalidation = dvd::sys::set_auto_invalidation(0);
+    let changed_auto_invalidation = dvd::sys::set_auto_invalidation(1);
+    let restored_auto_invalidation = dvd::sys::set_auto_invalidation(old_auto_invalidation);
+    logger.record(
+        "dvd sys auto invalidation changes and restores state",
+        old_auto_invalidation == 1
+            && changed_auto_invalidation == 0
+            && restored_auto_invalidation == 1,
+    );
+
+    dvd::sys::pause();
+    let paused_status = dvd::sys::get_drive_status();
+    let cancel_result = dvd::sys::cancel_all_async(None);
+    let cancelled_status = dvd::sys::get_drive_status();
+    dvd::sys::reset(dvd::sys::DVD_RESETNONE);
+    let reset_status = dvd::sys::get_drive_status();
+    logger.record(
+        "dvd sys pause cancel and reset update drive state",
+        paused_status == dvd::sys::DVD_STATE_IGNORED
+            && cancel_result == 1
+            && cancelled_status == dvd::sys::DVD_STATE_IGNORED
+            && reset_status == dvd::sys::DVD_STATE_NO_DISK,
+    );
+
+    let last_error = dvd::sys::get_last_error();
+    let repeated_last_error = dvd::sys::get_last_error();
+    logger.note_u32("dvd sys last error after no-disc calls", last_error);
+    logger.record(
+        "dvd sys last error read is stable",
+        last_error == repeated_last_error,
+    );
+    let stop_motor = dvd::sys::stop_motor();
+    logger.record("dvd sys stop motor completes", stop_motor == 0);
 }
 
 fn probe_dvd_no_media_helpers(logger: &mut ProbeLogger) {
