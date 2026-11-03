@@ -1522,7 +1522,7 @@ ogc-filesystem,src/lib.rs,create_dir_async,674,compatibility-forwarder,hardware-
 ogc-filesystem,src/lib.rs,create_file,690,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_uninitialized
 ogc-filesystem,src/lib.rs,create_file_async,712,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_uninitialized
 ogc-filesystem,src/lib.rs,delete_async,1056,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_uninitialized
-ogc-filesystem,src/lib.rs,format_async,387,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_uninitialized
+ogc-filesystem,src/lib.rs,format_async,387,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_format_apis
 ogc-filesystem,src/lib.rs,from_raw,193,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_uninitialized
 ogc-filesystem,src/lib.rs,get_attr,767,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_uninitialized
 ogc-filesystem,src/lib.rs,get_attr_async,808,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_uninitialized

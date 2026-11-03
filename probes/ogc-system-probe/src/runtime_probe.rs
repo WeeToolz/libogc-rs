@@ -621,6 +621,21 @@ fn run_isfs_async_and_wait(start: impl FnOnce() -> i32) -> (i32, i32) {
     (submission, ISFS_CALLBACK_RESULT.load(Ordering::Acquire))
 }
 
+fn run_isfs_async_and_wait_bounded(start: impl FnOnce() -> i32) -> (i32, bool, i32) {
+    reset_isfs_callback();
+    let submission = start();
+    if submission < 0 {
+        return (submission, false, i32::MIN);
+    }
+    let completed = wait_isfs_callback();
+    let result = if completed {
+        ISFS_CALLBACK_RESULT.load(Ordering::Acquire)
+    } else {
+        i32::MIN
+    };
+    (submission, completed, result)
+}
+
 fn isfs_file_exists(path: &core::ffi::CStr) -> Option<bool> {
     match filesystem::open(path, filesystem::ISFS_OPEN_READ) {
         Ok(file) => Some(file.close() == filesystem::ISFS_OK),
@@ -1080,38 +1095,44 @@ fn probe_isfs_format_apis(logger: &mut ProbeLogger) {
     let marker = c"/tmp/ogc-rs-format-verify/marker";
 
     let initialized = filesystem::initialize() == filesystem::ISFS_OK;
-    let sync_directory_created =
+    let directory_created =
         initialized && filesystem::create_dir(directory, 0, 3, 3, 3) == filesystem::ISFS_OK;
-    let sync_marker_created = sync_directory_created
-        && filesystem::create_file(marker, 0, 3, 3, 3) == filesystem::ISFS_OK;
-    let sync_result = if sync_marker_created {
-        filesystem::format()
+    let marker_created =
+        directory_created && filesystem::create_file(marker, 0, 3, 3, 3) == filesystem::ISFS_OK;
+    let (submission, completed, result) = if marker_created {
+        run_isfs_async_and_wait_bounded(|| unsafe {
+            filesystem::format_async(Some(isfs_probe_callback), core::ptr::null_mut())
+        })
     } else {
-        filesystem::ISFS_EINVAL
+        (-1, false, i32::MIN)
     };
-    logger.note_i32("ISFS format result", sync_result);
-    let sync_deinitialize = filesystem::deinitialize();
-    let sync_reinitialize = filesystem::initialize();
-    let sync_file_exists = isfs_file_exists(marker);
-    let sync_directory_exists = isfs_directory_exists(directory);
-    let sync_state_matches = match sync_result {
-        filesystem::ISFS_OK => {
-            sync_file_exists == Some(false) && sync_directory_exists == Some(false)
-        }
-        filesystem::ISFS_EINVAL => {
-            sync_file_exists == Some(true) && sync_directory_exists == Some(true)
-        }
-        _ => false,
-    };
+    logger.note_i32("ISFS format_async submission result", submission);
+    logger.note_i32("ISFS format_async callback result", result);
+    let deinitialize = filesystem::deinitialize();
+    let reinitialize = filesystem::initialize();
+    let file_exists = isfs_file_exists(marker);
+    let directory_exists = isfs_directory_exists(directory);
     logger.record(
-        "ISFS format result matches marker state",
-        sync_marker_created
-            && sync_deinitialize == filesystem::ISFS_OK
-            && sync_reinitialize == filesystem::ISFS_OK
-            && sync_state_matches,
+        "ISFS format_async removes the marker file",
+        file_exists == Some(false),
     );
-    let sync_cleanup = cleanup_isfs_test_tree(directory, marker);
-    logger.record("ISFS format marker cleanup", sync_cleanup);
+    logger.record(
+        "ISFS format_async removes the marker directory",
+        directory_exists == Some(false),
+    );
+    logger.record(
+        "ISFS format_async completes and removes marker state",
+        marker_created
+            && submission >= 0
+            && completed
+            && result == filesystem::ISFS_OK
+            && deinitialize == filesystem::ISFS_OK
+            && reinitialize == filesystem::ISFS_OK
+            && file_exists == Some(false)
+            && directory_exists == Some(false),
+    );
+    let cleanup = cleanup_isfs_test_tree(directory, marker);
+    logger.record("ISFS format_async marker cleanup", cleanup);
 }
 
 fn probe_isfs_async_file_cycle(directory: &core::ffi::CStr, logger: &mut ProbeLogger) {
