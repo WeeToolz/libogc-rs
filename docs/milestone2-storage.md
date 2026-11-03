@@ -75,6 +75,16 @@ Dolphin runner stopped at its `--version` check with `SIGABRT`, before it
 started the probe. The diagnostic logs do not prove behavior with inserted
 media or on Wii hardware.
 
+The probe now checks both `CardSlot` conversions and the public
+`read_slice`/`write_slice` wrappers with empty, short, misaligned, and
+overflowing requests. The read checks also preserve the output bytes. These
+cases return before device I/O, so the probe runs them even when Dolphin has no
+memory card. `cargo xtask build-storage-probe` built the updated DOL with SHA-256
+`0d6bf5e616f4a2802ed11f5bd85b77629c074638c152c23de10e84368d28f5d9`. Target
+clippy passed with warnings denied, and `cargo xtask audit-source` accepted the
+direct API calls. The DOL still needs a Dolphin or Wii run; a successful build
+does not prove these checks passed.
+
 CARD game and company identifiers now use tested types in `ogc-card-metadata`.
 The host test checks valid bytes, round trips, and the exact index and byte for
 NUL and `0xff` errors. `ogc-card-sys` re-exports these types, so existing public

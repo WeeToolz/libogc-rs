@@ -2046,10 +2046,49 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         }
     };
     logger.record("card identifier validation", true);
+    logger.record(
+        "CARD slot conversion validates both slots and preserves invalid input",
+        card::CardSlot::A.channel() == card::CARD_SLOTA
+            && card::CardSlot::B.channel() == card::CARD_SLOTB
+            && card::CardSlot::try_from(card::CARD_SLOTA) == Ok(card::CardSlot::A)
+            && card::CardSlot::try_from(card::CARD_SLOTB) == Ok(card::CardSlot::B)
+            && card::CardSlot::try_from(3) == Err(card::InvalidCardSlot(3)),
+    );
     let init = card::init(Some(gamecode), Some(company));
     logger.note_i32("card init", init);
     let slot = card::CardSlot::A;
     probe_card_invalid_channel_apis(logger);
+
+    let mut invalid_file = card::CardFile::default();
+    let mut empty_output = [];
+    let empty_read = card::read_slice(&mut invalid_file, &mut empty_output, 0);
+    let mut short_output = [0xa5; 1];
+    let short_read = card::read_slice(&mut invalid_file, &mut short_output, 0);
+    let transfer_len = card::CARD_READSIZE as usize;
+    let mut transfer_output = alloc::vec![0xa5; transfer_len];
+    let transfer_input = alloc::vec![0x5a; transfer_len];
+    let misaligned_read = card::read_slice(&mut invalid_file, &mut transfer_output, 1);
+    let overflowing_offset = u32::MAX - (u32::MAX % card::CARD_READSIZE);
+    let overflowing_read =
+        card::read_slice(&mut invalid_file, &mut transfer_output, overflowing_offset);
+    let empty_write = card::write_slice(&mut invalid_file, &[], 0);
+    let short_write = card::write_slice(&mut invalid_file, &[0x5a], 0);
+    let misaligned_write = card::write_slice(&mut invalid_file, &transfer_input, 1);
+    let overflowing_write =
+        card::write_slice(&mut invalid_file, &transfer_input, overflowing_offset);
+    logger.record(
+        "CARD slice transfers reject empty, short, misaligned, and overflowing requests before I/O",
+        empty_read == card::CARD_ERROR_FATAL_ERROR
+            && short_read == card::CARD_ERROR_FATAL_ERROR
+            && misaligned_read == card::CARD_ERROR_FATAL_ERROR
+            && overflowing_read == card::CARD_ERROR_FATAL_ERROR
+            && empty_write == card::CARD_ERROR_FATAL_ERROR
+            && short_write == card::CARD_ERROR_FATAL_ERROR
+            && misaligned_write == card::CARD_ERROR_FATAL_ERROR
+            && overflowing_write == card::CARD_ERROR_FATAL_ERROR
+            && short_output == [0xa5]
+            && transfer_output.iter().all(|byte| *byte == 0xa5),
+    );
     if card::probe_slot(slot) != card::CARD_ERROR_READY {
         logger.note("card tests skipped: insert a memory card in slot A");
         return;
