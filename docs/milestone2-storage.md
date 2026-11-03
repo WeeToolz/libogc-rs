@@ -2,6 +2,28 @@
 
 Milestone 2 replaces the remaining disabled or inline-completion storage facades with Wii-backed implementations. The code is target-only and must be validated on real Wii hardware before the milestone is hardware-accepted.
 
+## API verification groups
+
+The generated inventory currently has 100 storage APIs marked `unverified`.
+These entries are in three packages:
+
+| Package | Open entries | Probe group |
+| --- | ---: | --- |
+| `ogc-di` | 10 | DI settings and callbacks (6); partition open and close (4) |
+| `ogc-card` | 28 | CARD compatibility wrapper |
+| `ogc-card-sys` | 62 | CARD driver ABI |
+
+The CARD entries are grouped only by package. They still need smaller
+operation groups, such as mount and status, file I/O, directory operations,
+metadata, asynchronous completion, and cleanup. A probe must call each API
+directly or use an exact host test for shared logic before its inventory entry
+can leave `unverified`. A broad probe run does not prove every API in its
+coverage group.
+
+The earlier planning count of 348 open storage entries is stale. Use
+`cargo xtask check-inventory` and the generated inventory as the current
+source of truth.
+
 Milestone 1's scheduler source and target build are prerequisites. Its real-Wii stress acceptance remains open because the current probe display produced a solid green frame rather than a readable result. Storage work therefore records scheduler hardware validation as pending rather than assuming it passed.
 
 ## DVD compatibility over `/dev/di`
