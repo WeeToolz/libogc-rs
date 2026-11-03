@@ -294,7 +294,10 @@ unsafe fn reset_progress(stage: u32, priority: u32, result: i32) {
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn main(argc: i32, argv: *mut *mut u8) -> i32 {
+/// # Safety
+///
+/// The caller must pass the live argument array provided by the libogc loader.
+pub unsafe extern "C" fn main(argc: i32, argv: *mut *mut u8) -> i32 {
     OGC_DEV_PROBE_ENTERED.store(true, Ordering::Release);
     ogc_system::report(format_args!(
         "INFO development wrapper probe entered main\n"

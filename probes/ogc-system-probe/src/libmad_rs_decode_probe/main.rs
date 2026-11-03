@@ -116,10 +116,10 @@ fn run_decode_probe(display: &ogc_system_probe::probe_support::ProbeDisplay) {
             }
         }
 
-        for channel in 0..2 {
-            for slot in 0..36 {
-                for band in 0..32 {
-                    subband_checksum ^= frame.sbsample[channel][slot][band] as u32;
+        for channel_samples in &frame.sbsample {
+            for slot_samples in channel_samples {
+                for &sample in slot_samples {
+                    subband_checksum ^= sample as u32;
                     subband_checksum = subband_checksum.wrapping_mul(16_777_619);
                 }
             }
@@ -128,20 +128,21 @@ fn run_decode_probe(display: &ogc_system_probe::probe_support::ProbeDisplay) {
         let pcm = synth.frame(&frame);
         metadata_matches &=
             pcm.samplerate == EXPECTED_RATE && pcm.channels == 2 && pcm.length == 1_152;
-        for channel in 0..2 {
-            for &sample in &pcm.samples[channel][..pcm.length as usize] {
+        for channel_samples in pcm.samples.iter().take(2) {
+            for &sample in &channel_samples[..pcm.length as usize] {
                 nonzero_pcm |= sample != 0;
                 checksum ^= sample as u32;
                 checksum = checksum.wrapping_mul(16_777_619);
                 samples += 1;
             }
         }
-        for sample_index in 0..pcm.length as usize {
-            if interleaved_pcm.len() / 2 < PLAYBACK_SAMPLE_FRAMES {
-                for channel in 0..2 {
-                    interleaved_pcm.push(to_i16(pcm.samples[channel][sample_index]));
-                }
-            }
+        let frames_to_copy = (pcm.length as usize)
+            .min(PLAYBACK_SAMPLE_FRAMES.saturating_sub(interleaved_pcm.len() / 2));
+        let left_samples = pcm.samples[0][..frames_to_copy].iter();
+        let right_samples = pcm.samples[1][..frames_to_copy].iter();
+        for (&left, &right) in left_samples.zip(right_samples) {
+            interleaved_pcm.push(to_i16(left));
+            interleaved_pcm.push(to_i16(right));
         }
         frames += 1;
     }

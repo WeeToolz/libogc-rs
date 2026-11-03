@@ -26,11 +26,17 @@ calls from the no-disc probe. Thirty-two `ogc-dvd-sys` rows record exact calls
 through the sys module. Thirty `ogc-gcsd` rows record public wrapper calls and
 SD interface callbacks from the GameCube SD probe. Twenty-four
 `ogc-card-metadata` rows record exact calls from host tests. The CARD probes now
-record 71 exact public call paths: 33 `ogc-card` and 38 `ogc-card-sys`. In total,
-476 of 604 storage entries record exact API paths. These checks confirm source
+record 101 exact public call paths: 63 `ogc-card` and 38 `ogc-card-sys`. In total,
+506 of 604 storage entries record exact API paths. These checks confirm source
 identity only. A path match does not prove that an API assertion passed or
 that a device-dependent branch ran. Review each mapping and runtime report
 before using it as a result.
+The other 98 rows have no exact path: 32 `ogc-card-metadata`, 52 `ogc-card-sys`,
+and 14 `ogc-gcsd`. Forty of the `ogc-card-sys` rows and all 14 `ogc-gcsd` rows
+name private backend functions, so they need separate implementation evidence.
+The remaining 12 public `ogc-card-sys` wrappers need direct probe checks. The
+metadata rows need exact host-test call paths. These source tasks do not close
+the runtime test gaps.
 
 | Package | API entries | Probe group |
 | --- | ---: | --- |
