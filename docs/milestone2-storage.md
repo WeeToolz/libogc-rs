@@ -70,22 +70,20 @@ transfers, CARD saves, disc reads, GameCube SD Gecko I/O, or physical devices.
 See the
 [Dolphin report](dolphin-runs/2026-11-03-storage-probe-media-aware/README.md).
 
-The latest full storage-suite rerun completed `card_probe`, `storage_probe`, `fat_sd_probe`, and
-`dvd_probe` in Dolphin 2609a. They reported 93, 153, 40, and 120 passing
-checks, with no reported failures. The CARD probe ran in GameCube mode with a
-copied, verified virtual card image. The other probes ran in Wii mode. The
-storage probe used Dolphin's virtual SD card and skipped its media hotplug
-soak. The DVD probe ran without a disc. This run adds no physical-device
-evidence and does not prove every inventory entry. See the
+The previous full storage-suite rerun completed `card_probe`, `storage_probe`,
+`fat_sd_probe`, and `dvd_probe` in Dolphin 2609a. It reported 93, 153, 40, and
+120 passing checks. See the
 [audit rerun report](dolphin-runs/2026-11-03-storage-api-audit-rerun/README.md)
-for DOL hashes, captures, and limits.
+for its DOL hashes, captures, and limits.
 
-A later GameCube `card_probe` run used the current DOL and a private copy of the
-verified card image. It passed 98 checks with no failures. The first run found
-one stale expected value in the persistence check after a later wrapper write;
-the probe was corrected and rerun successfully. See the
-[CARD accessor report](dolphin-runs/2026-11-03-card-accessor-update/README.md)
-for both logs and the inspected first and summary pages.
+The current full suite passed in Dolphin 2609a with 98 `card_probe`, 217
+`storage_probe`, 40 `fat_sd_probe`, and 178 `dvd_probe` checks. All four probes
+reported zero failures. The run used a verified copied card image and Dolphin's
+virtual Wii SD card. It skipped USB transfers, SD Gecko success paths, DVD
+reads, destructive card format, and media hotplug. This result adds no physical
+device evidence. See the
+[current full-suite report](dolphin-runs/2026-11-03-storage-api-full-current/README.md)
+for DOL hashes, logs, inspected summary pages, and limits.
 An earlier no-disc DVD probe passed 119 checks and compared C and Rust DI
 wrapper results for the calls listed in its
 [run report](dolphin-runs/2026-11-03-di-wrapper-parity-final/README.md).
