@@ -1,4 +1,12 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function
+ogc-card-sys,src/lib.rs,get_banner_fmt,705,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_card_metadata_bits
+ogc-card-sys,src/lib.rs,set_banner_fmt,717,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_card_metadata_bits
+ogc-card-sys,src/lib.rs,get_icon_fmt,727,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_card_metadata_bits
+ogc-card-sys,src/lib.rs,set_icon_fmt,739,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_card_metadata_bits
+ogc-card-sys,src/lib.rs,get_icon_speed,754,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_card_metadata_bits
+ogc-card-sys,src/lib.rs,set_icon_speed,766,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_card_metadata_bits
+ogc-card-sys,src/lib.rs,set_icon_addr,781,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_card_metadata_bits
+ogc-card-sys,src/lib.rs,set_comment_addr,791,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_card_metadata_bits
 ogc-system,src/lib.rs,alloc_arena1_mem_lo,963,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/arena_probe.rs,test_arena1
 ogc-system,src/lib.rs,alloc_arena2_mem_lo,1076,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/arena_probe.rs,test_arena2
 ogc-system,src/lib.rs,get_arena1_lo,906,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/arena_probe.rs,probe_arena1_bounds
