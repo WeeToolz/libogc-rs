@@ -45,6 +45,10 @@ CARD saves, disc reads, GameCube SD Gecko I/O, or physical devices. See the
 The separate no-disc DVD probe passed 119 checks and compared C and Rust DI
 wrapper results for the calls listed in its
 [run report](dolphin-runs/2026-11-03-di-wrapper-parity-final/README.md).
+The ISO9660 runtime probe passed 62 checks on a controlled in-memory image.
+It verified file operations through both C and Rust mounts and fixed two
+issues found by those checks. It does not verify a physical disc or drive; see
+the [ISO9660 run report](dolphin-runs/2026-11-03-iso9660-file-runtime-pass/README.md).
 Earlier failed launch attempts remain in their own run directories. The
 hardware register still records physical CARD and DI behavior as not tested.
 Do not treat the zero `unverified` source count as completed storage

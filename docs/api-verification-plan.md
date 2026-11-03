@@ -266,10 +266,14 @@ reads and physical-drive behavior remain open. See the [final DI Dolphin
 run](dolphin-runs/2026-11-03-di-wrapper-parity-final/README.md).
 
 The ISO9660 probe calls its three C ABI exports and the Rust file-system
-mount, label, and unmount facade directly. Dolphin passed the
-probe using a controlled in-memory disc image; this does not verify a physical
-optical drive. The focused DVD probe checks `/dev/di` no-disc status, rejected
-mount, asynchronous mount, inquiry, block-safe read, drive-control, GCM
+mount, label, and unmount facade directly. A controlled in-memory disc image
+now checks file lookup, open, read, seek, close, stat metadata, and root
+directory changes through both the C mount and the Rust mount. Dolphin passed
+the runtime probe with 62 checks and no failures. This exposed and fixed the
+device name used for devoptab lookup and the handling of valid negative
+pointer-shaped file handles. The probe does not verify a physical optical
+drive. The focused DVD probe checks `/dev/di` no-disc status, rejected mount,
+asynchronous mount, inquiry, block-safe read, drive-control, GCM
 offset, stream-stop, and seek operations, command-block state, pause and reset
 state, invalidation state restore, shutdown, spin-up, and stop-motor calls in
 Dolphin. Its synchronous control, seek, and stream-stop calls return `-1`; the

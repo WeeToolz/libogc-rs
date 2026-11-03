@@ -7,6 +7,7 @@ use ogc_ios as ios;
 use ogc_lwp::sys as lwp;
 use ogc_sha as sha;
 use ogc_stm as stm;
+use ogc_sysbase as sysbase;
 use ogc_system as system;
 
 use crate::probe_support::ProbeLogger;
@@ -612,6 +613,36 @@ unsafe extern "C" fn iso_ready() -> bool {
     true
 }
 
+fn write_iso_directory_record(
+    bytes: &mut [u8],
+    offset: &mut usize,
+    sector: u32,
+    size: u32,
+    flags: u8,
+    name: &[u8],
+) -> bool {
+    let record_len = 33 + name.len() + usize::from(name.len().is_multiple_of(2));
+    let Some(record_end) = offset.checked_add(record_len) else {
+        return false;
+    };
+    if name.len() > u8::MAX as usize || record_end > bytes.len() {
+        return false;
+    }
+
+    bytes[*offset] = record_len as u8;
+    bytes[*offset + 2..*offset + 6].copy_from_slice(&sector.to_le_bytes());
+    bytes[*offset + 6..*offset + 10].copy_from_slice(&sector.to_be_bytes());
+    bytes[*offset + 10..*offset + 14].copy_from_slice(&size.to_le_bytes());
+    bytes[*offset + 14..*offset + 18].copy_from_slice(&size.to_be_bytes());
+    bytes[*offset + 25] = flags;
+    bytes[*offset + 28..*offset + 30].copy_from_slice(&1u16.to_le_bytes());
+    bytes[*offset + 30..*offset + 32].copy_from_slice(&1u16.to_be_bytes());
+    bytes[*offset + 32] = name.len() as u8;
+    bytes[*offset + 33..*offset + 33 + name.len()].copy_from_slice(name);
+    *offset = record_end;
+    true
+}
+
 unsafe extern "C" fn iso_read(sector: u32, count: u32, buffer: *mut core::ffi::c_void) -> bool {
     use core::sync::atomic::Ordering;
     let case = ISO_CASE.load(Ordering::Relaxed);
@@ -632,6 +663,13 @@ unsafe extern "C" fn iso_read(sector: u32, count: u32, buffer: *mut core::ffi::c
                 bytes[136..140]
                     .copy_from_slice(&(if case == 3 { 7u32 } else { 8u32 }).to_be_bytes());
                 bytes[148..152].copy_from_slice(&20u32.to_be_bytes());
+            } else if case == 4 {
+                bytes[136..140].copy_from_slice(&10u32.to_be_bytes());
+                bytes[148..152].copy_from_slice(&20u32.to_be_bytes());
+                let mut root_record = 156;
+                if !write_iso_directory_record(bytes, &mut root_record, 21, 2048, 2, &[0]) {
+                    return false;
+                }
             }
         }
         17 => {
@@ -639,7 +677,22 @@ unsafe extern "C" fn iso_read(sector: u32, count: u32, buffer: *mut core::ffi::c
             bytes[1..6].copy_from_slice(b"CD001");
             bytes[6] = 1;
         }
+        20 if case == 4 => {
+            bytes[0] = 1;
+            bytes[2..6].copy_from_slice(&21u32.to_le_bytes());
+            bytes[6..8].copy_from_slice(&1u16.to_be_bytes());
+        }
         20 => {}
+        21 if case == 4 => {
+            let mut offset = 0;
+            let root_records = write_iso_directory_record(bytes, &mut offset, 21, 2048, 2, &[0])
+                && write_iso_directory_record(bytes, &mut offset, 21, 2048, 2, &[1])
+                && write_iso_directory_record(bytes, &mut offset, 22, 5, 0, b"HELLO.TXT;1");
+            if !root_records {
+                return false;
+            }
+        }
+        22 if case == 4 => bytes[..5].copy_from_slice(b"hello"),
         _ => return false,
     }
     true
@@ -684,11 +737,14 @@ fn probe_iso9660(logger: &mut ProbeLogger) {
         };
         logger.record(label, rejected && absent && cleanup);
     }
-    ISO_CASE.store(0, Ordering::Relaxed);
+    ISO_CASE.store(4, Ordering::Relaxed);
     let mounted = unsafe { iso9660::ISO9660_Mount(name.as_ptr(), &disc) };
     let label = unsafe { iso9660::ISO9660_GetVolumeLabel(name.as_ptr()) };
     let label_ok =
         !label.is_null() && unsafe { core::ffi::CStr::from_ptr(label).to_bytes() } == b"TESTVOL";
+    if mounted {
+        probe_iso9660_files(logger, name);
+    }
     let removed = mounted && unsafe { iso9660::ISO9660_Unmount(name.as_ptr()) };
     logger.record(
         "iso mount after failures",
@@ -703,6 +759,9 @@ fn probe_iso9660(logger: &mut ProbeLogger) {
     let rust_label = filesystem::volume_label(rust_name);
     let rust_label_ok = !rust_label.is_null()
         && unsafe { core::ffi::CStr::from_ptr(rust_label).to_bytes() } == b"TESTVOL";
+    if rust_mounted {
+        probe_iso9660_files(logger, rust_name);
+    }
     let rust_removed = filesystem::unmount(rust_name);
     let rust_label_cleared = filesystem::volume_label(rust_name).is_null();
     logger.note_i32("Rust filesystem ISO mount", rust_mounted as i32);
@@ -717,6 +776,74 @@ fn probe_iso9660(logger: &mut ProbeLogger) {
     logger.record("Rust filesystem ISO unmount", rust_removed);
     logger.record("Rust filesystem ISO cleanup", rust_label_cleared);
     probe_isfs_uninitialized(logger);
+}
+
+fn probe_iso9660_files(logger: &mut ProbeLogger, mount_name: &core::ffi::CStr) {
+    let file_path = if mount_name.to_bytes() == b"iso_test" {
+        c"iso_test:/HELLO.TXT"
+    } else {
+        c"isfs:/HELLO.TXT"
+    };
+    let device_found = sysbase::device_op_tab(file_path).is_some();
+    let (file, open_error) = match sysbase::DeviceFile::open_checked(file_path, sysbase::O_RDONLY) {
+        Ok(file) => (Some(file), 0),
+        Err(error) => (None, error),
+    };
+    logger.note_i32("ISO9660 mounted device lookup", device_found as i32);
+    logger.note_i32("ISO9660 file open error", open_error);
+    let file_opened = file.is_some();
+    let mut bytes = [0xA5; 8];
+    let file_read = file
+        .as_ref()
+        .and_then(|file| file.read(&mut bytes).ok())
+        .is_some_and(|count| count == 5 && bytes[..5] == *b"hello");
+    let file_seek = file
+        .as_ref()
+        .and_then(|file| file.seek_off_t(1, sysbase::SEEK_SET).ok())
+        == Some(1);
+    let mut suffix = [0; 4];
+    let file_seek_read = file
+        .as_ref()
+        .and_then(|file| file.read(&mut suffix).ok())
+        .is_some_and(|count| count == 4 && suffix == *b"ello");
+    let file_closed = file.is_some_and(|file| file.close().is_ok());
+
+    let stat_fn = sysbase::device_op_tab(file_path).and_then(|tab| unsafe { (*tab).stat_r });
+    let mut stat = sysbase::Stat::default();
+    let stat_result = stat_fn.map_or(-1, |callback| unsafe {
+        callback(
+            sysbase::current_reent(),
+            file_path.as_ptr(),
+            (&mut stat as *mut sysbase::Stat).cast(),
+        )
+    });
+    logger.note_i32("ISO9660 stat callback result", stat_result);
+    let stat_ok = stat_result == 0
+        && stat.st_ino == 22
+        && stat.st_size == 5
+        && stat.st_blocks == 1
+        && stat.st_mode & 0o170000 == 0o100000;
+
+    let root_path = if mount_name.to_bytes() == b"iso_test" {
+        c"iso_test:/"
+    } else {
+        c"isfs:/"
+    };
+    let chdir_fn = sysbase::device_op_tab(root_path).and_then(|tab| unsafe { (*tab).chdir_r });
+    let chdir_ok = chdir_fn.is_some_and(|callback| unsafe {
+        callback(sysbase::current_reent(), root_path.as_ptr()) == 0
+    });
+
+    logger.record("ISO9660 mounted file opens", file_opened);
+    logger.record("ISO9660 file read returns expected bytes", file_read);
+    logger.record("ISO9660 file seek returns expected position", file_seek);
+    logger.record(
+        "ISO9660 read after seek returns expected bytes",
+        file_seek_read,
+    );
+    logger.record("ISO9660 file close completes", file_closed);
+    logger.record("ISO9660 stat reports file metadata", stat_ok);
+    logger.record("ISO9660 chdir accepts the root directory", chdir_ok);
 }
 
 fn probe_isfs_uninitialized(logger: &mut ProbeLogger) {

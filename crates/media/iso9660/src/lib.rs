@@ -134,6 +134,7 @@ struct Mount {
     unicode: bool,
     root: Entry,
     device_name: Vec<u8>,
+    device_path: Vec<u8>,
     devoptab: Box<Devoptab>,
 }
 
@@ -865,9 +866,9 @@ fn mount_impl(name: &CStr, disc_interface: &DiscInterface) -> bool {
             return false;
         }
     }
-    let mut device_name = name_key.clone();
-    device_name.push(0);
-    let device_cstr = unsafe { CStr::from_bytes_with_nul_unchecked(&device_name) };
+    let mut device_path = name_key.clone();
+    device_path.push(0);
+    let device_cstr = unsafe { CStr::from_bytes_with_nul_unchecked(&device_path) };
     if sysbase::find_device(device_cstr) >= 0 {
         return false;
     }
@@ -876,6 +877,8 @@ fn mount_impl(name: &CStr, disc_interface: &DiscInterface) -> bool {
     };
     let mut volume_id = descriptor.volume_id;
     volume_id[VOLUME_ID_SIZE - 1] = 0;
+    let mut device_name = name_key[..name_key.len() - 1].to_vec();
+    device_name.push(0);
 
     let mut mount = Box::new(Mount {
         volume_id,
@@ -883,6 +886,7 @@ fn mount_impl(name: &CStr, disc_interface: &DiscInterface) -> bool {
         unicode: descriptor.unicode,
         root: descriptor.root,
         device_name,
+        device_path,
         devoptab: Box::new(make_devoptab(core::ptr::null(), core::ptr::null_mut())),
     });
     let mount_ptr: *mut Mount = &mut *mount;
@@ -894,7 +898,7 @@ fn mount_impl(name: &CStr, disc_interface: &DiscInterface) -> bool {
 
     let mut mounts = MOUNTS.lock();
     if mounts.contains_key(&name_key) {
-        let c_name = unsafe { CStr::from_bytes_with_nul_unchecked(&mount.device_name) };
+        let c_name = unsafe { CStr::from_bytes_with_nul_unchecked(&mount.device_path) };
         let _ = sysbase::remove_device(c_name);
         return false;
     }
@@ -910,7 +914,7 @@ fn unmount_impl(name: &CStr) -> bool {
     let Some(mount) = mounts.get(&name_key) else {
         return false;
     };
-    let c_name = unsafe { CStr::from_bytes_with_nul_unchecked(&mount.device_name) };
+    let c_name = unsafe { CStr::from_bytes_with_nul_unchecked(&mount.device_path) };
     if sysbase::remove_device(c_name) < 0 {
         return false;
     }
@@ -1123,7 +1127,7 @@ mod tests {
     fn clear_mounts() {
         let mut mounts = MOUNTS.lock();
         for mount in mounts.values() {
-            let name = unsafe { CStr::from_bytes_with_nul_unchecked(&mount.device_name) };
+            let name = unsafe { CStr::from_bytes_with_nul_unchecked(&mount.device_path) };
             let _ = sysbase::remove_device(name);
         }
         mounts.clear();

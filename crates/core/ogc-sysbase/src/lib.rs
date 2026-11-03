@@ -370,7 +370,9 @@ impl DeviceFile {
         // Clear stale errno so a broken callback cannot reuse an old failure.
         unsafe { set_reent_errno(current_reent(), 0) };
         let result = unsafe { open_r(current_reent(), file_struct, path.as_ptr(), flags, 0o666) };
-        if result < 0 {
+        // Newlib open callbacks use -1 to report failure. Some callbacks also
+        // return a pointer cast to `int`, which can be negative on PowerPC.
+        if result == -1 {
             let error = device_io::callback_failure(errno);
             unsafe { dealloc(file_struct.cast::<u8>(), layout) };
             return Err(error);
