@@ -83,6 +83,8 @@ pub mod video_probe;
 #[cfg(target_arch = "powerpc")]
 pub mod wii_remote_stability_probe;
 #[cfg(target_arch = "powerpc")]
+mod wiisd_probe;
+#[cfg(target_arch = "powerpc")]
 pub mod wpad_probe;
 
 #[cfg(target_arch = "powerpc")]
@@ -725,6 +727,16 @@ pub fn run_usbstorage_capacity_probe_bin() -> i32 {
     configure_probe_app_dir("usbstorage-capacity-probe");
     let mut logger = init_probe_logger();
     usbstorage_capacity_probe::run(&mut logger);
+    logger.summary();
+    finish_probe()
+}
+
+#[cfg(target_arch = "powerpc")]
+/// Checks Wii SD startup, read, empty write, shutdown, and restart.
+pub fn run_wiisd_probe_bin() -> i32 {
+    configure_probe_app_dir("wiisd-probe");
+    let mut logger = init_probe_logger();
+    wiisd_probe::run(&mut logger);
     logger.summary();
     finish_probe()
 }

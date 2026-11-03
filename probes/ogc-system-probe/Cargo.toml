@@ -260,6 +260,10 @@ name = "usbstorage_capacity_probe"
 path = "src/usbstorage_capacity_probe/main.rs"
 
 [[bin]]
+name = "wiisd_probe"
+path = "src/wiisd_probe/main.rs"
+
+[[bin]]
 name = "hid_descriptor_probe"
 path = "src/hid_descriptor_probe/main.rs"
 
