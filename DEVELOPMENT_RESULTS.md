@@ -1,5 +1,49 @@
 # Development results
 
+## 2026-11-02: GX texture descriptor queries in Dolphin
+
+The video probe checks image and user-data pointers, mipmap state, filters,
+level of detail, and the individual and grouped descriptor queries. The
+three new texture checks passed in each run. They use aligned in-memory image
+buffers and do not submit the images to GX; they do not establish rendered
+texture or physical Wii behavior. Twelve directly called APIs were added to
+the evidence registry.
+
+The overall video probe did not pass: each run reported 35 passes and one
+failure, `video framebuffer register readback`. The [first run](docs/dolphin-runs/2026-11-02-gx-texture/suite.json)
+and [repeat](docs/dolphin-runs/2026-11-02-gx-texture-repeat/suite.json) used
+the same DOL, SHA-256 `32e2f8f21fe7830690d01a43184a4cea510c27202fa89a859de00c8b1756819e`.
+The [diagnostic run](docs/dolphin-runs/2026-11-02-gx-texture-diagnostic/suite.json)
+used DOL SHA-256 `c99f42af1d207b98b4c3b202ef253455f8ad9f8f43dade5438c34145a7c9b174`.
+The diagnostic build added register logging only. All runs used Dolphin 2609a,
+private profiles, a copy of the configured Wii NAND, and revision `151cc35`
+with the uncommitted video probe changes in this batch. HBC was not under test.
+The diagnostic final capture was inspected and shows the failed summary.
+
+In the diagnostic run the expected framebuffer was `0x809712a0`; the top VI
+registers were `0x0084:0x52a0`. The page-capture marker identifies its buffer
+as `0x808452a0`, whose physical address matches those register values. The
+page logger changed the displayed framebuffer at a page boundary between
+video initialization and the readback. The capture code now restores the
+framebuffer that was displayed before capture. The same video probe then
+passed all 36 checks, including the framebuffer readback, with DOL SHA-256
+`c722130242fd2ae15786bd636d3f6cfd310cb0af2e2b95d8f9bb03e4ebb7eb42`;
+see the [passing report](docs/dolphin-runs/2026-11-02-gx-texture-restored/suite.json).
+The shared capture path also passed the runtime probe with 40 checks; its DOL
+SHA-256 was `9aa2607e86666a50d4cf2f98bc446b858be34e0b97757fcab6c037fb6e6c3b87`.
+See its [report](docs/dolphin-runs/2026-11-02-page-capture-runtime/suite.json).
+The passing video capture was inspected. These runs verify the reported paths
+in Dolphin, not every page-capture state or physical Wii behavior.
+Reports, transcripts, transport bytes, logs, and captures are retained in the
+three run directories. The copied profiles remain local.
+
+Build: `cargo xtask build-dol ogc-system-probe --bin video_probe
+--probe-features dolphin-automation --no-dev --output
+target/xtask/probes-dolphin/video_probe.dol`. Each run used `cargo xtask
+dolphin-validate --no-build --probe video_probe --artifact-dir <run-directory>`.
+The source audit passed with three existing tracked debt entries. The
+completeness audit reported 2,241 APIs without accepted exact evidence.
+
 ## 2026-11-02: GX FIFO metadata in Dolphin
 
 The video probe now verifies the FIFO base, size, initial count, high and low

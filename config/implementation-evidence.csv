@@ -1,4 +1,16 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function
+ogc-gx,src/lib.rs,init_tex_obj_from_init,5342,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_queries
+ogc-gx,src/lib.rs,init_tex_obj_data,5477,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_queries
+ogc-gx,src/lib.rs,init_tex_obj_filter_mode,5509,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_queries
+ogc-gx,src/lib.rs,init_tex_obj_min_lod,5518,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_queries
+ogc-gx,src/lib.rs,init_tex_obj_max_lod,5529,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_queries
+ogc-gx,src/lib.rs,get_tex_obj_mip_map,5755,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_queries
+ogc-gx,src/lib.rs,get_tex_obj_data,5762,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_queries
+ogc-gx,src/lib.rs,get_tex_obj_lod,5797,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_queries
+ogc-gx,src/lib.rs,get_tex_obj_filter_mode,5812,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_queries
+ogc-gx,src/lib.rs,get_tex_obj_info,5837,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_queries
+ogc-gx,src/lib.rs,get_tex_obj_all,5860,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_queries
+ogc-gx,src/lib.rs,get_tex_obj_user_data,5953,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_queries
 ogc-gx,src/lib.rs,init_fifo_limits,1656,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_fifo_pointers
 ogc-gx,src/lib.rs,get_fifo_base,1757,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_fifo_pointers
 ogc-gx,src/lib.rs,get_fifo_size,1762,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_fifo_pointers

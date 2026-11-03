@@ -849,6 +849,8 @@ impl ProbeDisplay {
 
         // Dolphin holds a stable copy while the host captures this page.
         #[cfg(feature = "dolphin-automation")]
+        let previous_framebuffer = video::get_current_framebuffer();
+        #[cfg(feature = "dolphin-automation")]
         unsafe {
             framebuffer_copy::copy_words(
                 PROBE_FRAMEBUFFER_A.cast::<u32>(),
@@ -951,7 +953,12 @@ impl ProbeDisplay {
 
         #[cfg(feature = "dolphin-automation")]
         unsafe {
-            video::set_next_framebuffer(PROBE_FRAMEBUFFER_A);
+            let restore = if previous_framebuffer.is_null() {
+                PROBE_FRAMEBUFFER_A
+            } else {
+                previous_framebuffer
+            };
+            video::set_next_framebuffer(restore);
             video::flush();
             video::wait_vsync();
         }
