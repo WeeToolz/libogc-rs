@@ -60,6 +60,21 @@ hardware register still records physical CARD and DI behavior as not tested.
 Do not treat the zero `unverified` source count as completed storage
 verification.
 
+### CARD typed query diagnostics
+
+The diagnostic run in
+[`card-query-status`](dolphin-runs/2026-11-03-card-query-status/README.md)
+observed `CARD_ERROR_BUSY` (`-1`) from `probe_slot` and `probe_info`, and
+`CARD_ERROR_NOCARD` (`-3`) from `sector_size`, `block_count`, `free_blocks`,
+and `file_status` without a memory card. The first assertions incorrectly
+expected the typed queries to return the slot-probe error. The log shows those
+four failures and the observed result values; it is not a passing run. The
+probe now checks the no-card result for each typed query when the slot probe
+reports busy or no card. A fresh run is still required. On 2026-11-03 the
+Dolphin runner stopped at its `--version` check with `SIGABRT`, before it
+started the probe. The diagnostic logs do not prove behavior with inserted
+media or on Wii hardware.
+
 CARD game and company identifiers now use tested types in `ogc-card-metadata`.
 The host test checks valid bytes, round trips, and the exact index and byte for
 NUL and `0xff` errors. `ogc-card-sys` re-exports these types, so existing public

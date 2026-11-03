@@ -1955,6 +1955,13 @@ fn probe_card_invalid_channel_apis(logger: &mut ProbeLogger) {
     let slot = card::CardSlot::A;
     let probe_result = card::probe_slot(slot);
     let info_result = card::probe_info(slot);
+    logger.note_i32("CARD raw slot probe result", probe_result);
+    logger.note_i32(
+        "CARD typed probe_info result",
+        info_result
+            .as_ref()
+            .map_or_else(|error| *error, |_| card::CARD_ERROR_READY),
+    );
     let info_matches_probe = match (probe_result, info_result) {
         (card::CARD_ERROR_READY, Ok(info)) => {
             info.memory_size > 0 && info.sector_size > 0 && info.memory_size % info.sector_size == 0
@@ -1970,6 +1977,55 @@ fn probe_card_invalid_channel_apis(logger: &mut ProbeLogger) {
         "CARD serial_number rejects an unmounted slot",
         card::serial_number(slot) == Err(card::CARD_ERROR_NOCARD),
     );
+    let unavailable = matches!(
+        probe_result,
+        card::CARD_ERROR_BUSY | card::CARD_ERROR_NOCARD
+    );
+    logger.record(
+        "CARD slot probe reports the busy or no-card state without media",
+        unavailable,
+    );
+    if unavailable {
+        let sector_size_result = card::sector_size(slot);
+        let block_count_result = card::block_count(slot);
+        let free_blocks_result = card::free_blocks(slot);
+        let file_status_result = card::file_status(slot, 0);
+        record_card_no_media_query(
+            logger,
+            "CARD sector_size status",
+            "CARD sector_size returns no-card for unavailable media",
+            sector_size_result,
+        );
+        record_card_no_media_query(
+            logger,
+            "CARD block_count status",
+            "CARD block_count returns no-card for unavailable media",
+            block_count_result,
+        );
+        record_card_no_media_query(
+            logger,
+            "CARD free_blocks status",
+            "CARD free_blocks returns no-card for unavailable media",
+            free_blocks_result,
+        );
+        record_card_no_media_query(
+            logger,
+            "CARD file_status status",
+            "CARD file_status returns no-card for unavailable media",
+            file_status_result,
+        );
+    }
+}
+
+fn record_card_no_media_query<T>(
+    logger: &mut ProbeLogger,
+    status_label: &str,
+    check_label: &str,
+    result: Result<T, i32>,
+) {
+    let status = result.map_or_else(|error| error, |_| card::CARD_ERROR_READY);
+    logger.note_i32(status_label, status);
+    logger.record(check_label, status == card::CARD_ERROR_NOCARD);
 }
 
 fn probe_card_save_data(logger: &mut ProbeLogger) {

@@ -244,8 +244,8 @@ fn run_mask_case(logger: &mut ProbeLogger, summary: &mut TraceSummary, id: &str,
     let accepted = pad::recalibrate(mask) == 1;
     let completed = wait_sync(logger, summary, SYNC_FRAMES);
     let mut selected = 0;
-    for channel in 0..4 {
-        if summary.selected_count[channel] != before[channel] {
+    for (channel, previous_count) in before.iter().enumerate() {
+        if summary.selected_count[channel] != *previous_count {
             selected |= pad::PAD_CHAN0_BIT >> channel;
         }
     }
