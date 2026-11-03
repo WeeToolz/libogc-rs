@@ -2536,7 +2536,11 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         let (create_status, returned_entry, mut entry_file) = completion.into_parts();
         if create_status == card::CARD_ERROR_READY {
             // SAFETY: no request retains `entry_file`; it is uniquely borrowed.
-            let _ = unsafe { card::close(&mut entry_file) };
+            let close_status = unsafe { card::close(&mut entry_file) };
+            logger.record(
+                "card close created entry",
+                close_status == card::CARD_ERROR_READY,
+            );
             let entry_delete_request = card::delete_entry_async_owned(slot, returned_entry);
             let entry_delete_result = entry_delete_request
                 .as_ref()
@@ -2694,7 +2698,10 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     let persisted_read = card::read_slice(&mut reopened, &mut persisted, 0);
     logger.record(
         "card data persisted after remount",
-        persisted_read == card::CARD_ERROR_READY && persisted[0] == 0x3c && persisted[1] == 0xc3,
+        persisted_read == card::CARD_ERROR_READY
+            && persisted[0] == 0x3c
+            && persisted[1] == 0xc3
+            && persisted[2..].iter().all(|byte| *byte == 0),
     );
     let status_persisted = card::file_status(slot, reopened.filenum)
         .is_ok_and(|status| status.banner_fmt == status_marker);
