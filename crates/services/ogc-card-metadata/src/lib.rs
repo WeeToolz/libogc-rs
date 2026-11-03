@@ -2,6 +2,9 @@
 
 //! Memory-card system-block validation and verified commit support.
 
+mod card_types;
+pub use card_types::*;
+
 pub const BLOCK_SIZE: usize = 8192;
 pub const HEADER_CHECKSUM_BYTES: usize = 508;
 pub const DIRECTORY_CHECKSUM_BYTES: usize = 8188;

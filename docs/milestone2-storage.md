@@ -4,18 +4,20 @@ Milestone 2 replaces the remaining disabled or inline-completion storage facades
 
 ## API verification groups
 
-The generated inventory currently has 94 storage APIs marked `unverified`.
+The generated inventory currently has 87 storage APIs marked `unverified`.
 These entries are in three packages:
 
 | Package | Open entries | Probe group |
 | --- | ---: | --- |
 | `ogc-di` | 10 | DI settings and callbacks (6); partition open and close (4) |
-| `ogc-card` | 28 | CARD compatibility wrapper |
+| `ogc-card` | 21 | CARD compatibility wrapper |
 | `ogc-card-sys` | 56 | CARD driver ABI |
 
-The CARD entries are grouped only by package. They still need smaller
-operation groups, such as mount and status, file I/O, directory operations,
-metadata, asynchronous completion, and cleanup. A probe must call each API
+The workspace also checks all 15 storage packages as one build group with
+`cargo xtask check-group storage`. The inventory groups open entries by
+package, but it does not yet define smaller operation groups. Useful groups
+include mount and status, file I/O, directory operations, metadata,
+asynchronous completion, and cleanup. A probe must call each API
 directly or use an exact host test for shared logic before its inventory entry
 can leave `unverified`. A broad probe run does not prove every API in its
 coverage group.
@@ -25,6 +27,11 @@ The host test checks valid bytes, round trips, and the exact index and byte for
 NUL and `0xff` errors. `ogc-card-sys` re-exports these types, so existing public
 type paths remain available. This closes six API entries; it does not verify
 CARD transport behavior.
+
+Owned CARD completion values now share definitions with the host-testable
+`ogc-card-metadata` crate. Direct host tests check the status, file, entry,
+stat, byte, and ownership accessors, including failed completion payloads.
+These tests do not verify CARD hardware behavior.
 
 The earlier planning count of 348 open storage entries is stale. Use
 `cargo xtask check-inventory` and the generated inventory as the current

@@ -655,101 +655,6 @@ fn abandon_transfer(slot: CardSlot, kind: CardTransferKind) {
     }
 }
 
-/// Submission failure for an owned asynchronous read.
-pub struct CardReadSubmitError {
-    status: i32,
-    file: CardFile,
-}
-
-impl CardReadSubmitError {
-    pub const fn status(&self) -> i32 {
-        self.status
-    }
-
-    pub const fn file(&self) -> &CardFile {
-        &self.file
-    }
-
-    pub fn into_file(self) -> CardFile {
-        self.file
-    }
-}
-
-/// Submission failure for an owned asynchronous write.
-pub struct CardWriteSubmitError {
-    status: i32,
-    file: CardFile,
-    bytes: Vec<u8>,
-}
-
-impl CardWriteSubmitError {
-    pub const fn status(&self) -> i32 {
-        self.status
-    }
-
-    pub const fn file(&self) -> &CardFile {
-        &self.file
-    }
-
-    pub fn bytes(&self) -> &[u8] {
-        &self.bytes
-    }
-
-    pub fn into_parts(self) -> (i32, CardFile, Vec<u8>) {
-        (self.status, self.file, self.bytes)
-    }
-}
-
-/// Completed owned asynchronous read.
-pub struct CardReadCompletion {
-    status: i32,
-    file: CardFile,
-    bytes: Vec<u8>,
-}
-
-impl CardReadCompletion {
-    pub const fn status(&self) -> i32 {
-        self.status
-    }
-
-    pub const fn file(&self) -> &CardFile {
-        &self.file
-    }
-
-    pub fn bytes(&self) -> &[u8] {
-        &self.bytes
-    }
-
-    pub fn into_parts(self) -> (i32, CardFile, Vec<u8>) {
-        (self.status, self.file, self.bytes)
-    }
-}
-
-/// Completed owned asynchronous write.
-pub struct CardWriteCompletion {
-    status: i32,
-    file: CardFile,
-    bytes: Vec<u8>,
-}
-
-impl CardWriteCompletion {
-    pub const fn status(&self) -> i32 {
-        self.status
-    }
-
-    pub const fn file(&self) -> &CardFile {
-        &self.file
-    }
-
-    pub fn bytes(&self) -> &[u8] {
-        &self.bytes
-    }
-
-    pub fn into_parts(self) -> (i32, CardFile, Vec<u8>) {
-        (self.status, self.file, self.bytes)
-    }
-}
-
 /// Pollable owned asynchronous CARD read.
 pub struct CardReadRequest {
     slot: CardSlot,
@@ -778,11 +683,11 @@ impl CardReadRequest {
             }
         }
         self.active = false;
-        Ok(CardReadCompletion {
+        Ok(CardReadCompletion::from_parts(
             status,
-            file: payload.file,
-            bytes: payload.bytes,
-        })
+            payload.file,
+            payload.bytes,
+        ))
     }
 }
 
@@ -810,11 +715,11 @@ impl CardWriteRequest {
             return Err(self);
         };
         self.active = false;
-        Ok(CardWriteCompletion {
+        Ok(CardWriteCompletion::from_parts(
             status,
-            file: payload.file,
-            bytes: payload.bytes,
-        })
+            payload.file,
+            payload.bytes,
+        ))
     }
 }
 
@@ -836,21 +741,16 @@ pub fn read_async_owned(
     offset: u32,
 ) -> Result<CardReadRequest, CardReadSubmitError> {
     if CardSlot::try_from(file.chn).is_err() {
-        return Err(CardReadSubmitError {
-            status: CARD_ERROR_NOCARD,
-            file,
-        });
+        return Err(CardReadSubmitError::from_parts(CARD_ERROR_NOCARD, file));
     }
     if let Err(status) = transfer_len(len, offset) {
-        return Err(CardReadSubmitError { status, file });
+        return Err(CardReadSubmitError::from_parts(status, file));
     }
-    let bytes = zeroed_bytes(len).map_err(|status| CardReadSubmitError { status, file })?;
+    let bytes =
+        zeroed_bytes(len).map_err(|status| CardReadSubmitError::from_parts(status, file))?;
     match submit_owned_transfer(CardTransferKind::Read, file, bytes, offset) {
         Ok(slot) => Ok(CardReadRequest { slot, active: true }),
-        Err(error) => Err(CardReadSubmitError {
-            status: error.status,
-            file: error.file,
-        }),
+        Err(error) => Err(CardReadSubmitError::from_parts(error.status, error.file)),
     }
 }
 
@@ -862,11 +762,11 @@ pub fn write_async_owned(
 ) -> Result<CardWriteRequest, CardWriteSubmitError> {
     match submit_owned_transfer(CardTransferKind::Write, file, bytes, offset) {
         Ok(slot) => Ok(CardWriteRequest { slot, active: true }),
-        Err(error) => Err(CardWriteSubmitError {
-            status: error.status,
-            file: error.file,
-            bytes: error.bytes,
-        }),
+        Err(error) => Err(CardWriteSubmitError::from_parts(
+            error.status,
+            error.file,
+            error.bytes,
+        )),
     }
 }
 
@@ -1111,34 +1011,6 @@ fn abandon_file_operation(slot: CardSlot, kind: CardFileOperationKind) {
     }
 }
 
-/// Completion of an owned asynchronous CARD file creation.
-pub struct CardCreateCompletion {
-    status: i32,
-    file: CardFile,
-}
-
-impl CardCreateCompletion {
-    pub const fn status(&self) -> i32 {
-        self.status
-    }
-
-    pub fn file(&self) -> Option<&CardFile> {
-        (self.status == CARD_ERROR_READY).then_some(&self.file)
-    }
-
-    pub fn into_result(self) -> Result<CardFile, i32> {
-        if self.status == CARD_ERROR_READY {
-            Ok(self.file)
-        } else {
-            Err(self.status)
-        }
-    }
-
-    pub fn into_parts(self) -> (i32, CardFile) {
-        (self.status, self.file)
-    }
-}
-
 /// Completion of an owned asynchronous CARD file deletion.
 pub struct CardDeleteCompletion {
     status: i32,
@@ -1179,10 +1051,7 @@ impl CardCreateRequest {
             return Err(self);
         };
         self.active = false;
-        Ok(CardCreateCompletion {
-            status,
-            file: payload.file,
-        })
+        Ok(CardCreateCompletion::from_parts(status, payload.file))
     }
 }
 
@@ -1458,71 +1327,6 @@ fn abandon_metadata(slot: CardSlot, kind: CardMetadataOperationKind) {
     }
 }
 
-/// Completion of an owned asynchronous directory-entry creation.
-pub struct CardCreateEntryCompletion {
-    status: i32,
-    entry: CardDir,
-    file: CardFile,
-}
-
-impl CardCreateEntryCompletion {
-    pub const fn status(&self) -> i32 {
-        self.status
-    }
-
-    pub const fn entry(&self) -> &CardDir {
-        &self.entry
-    }
-
-    pub fn file(&self) -> Option<&CardFile> {
-        (self.status == CARD_ERROR_READY).then_some(&self.file)
-    }
-
-    pub fn into_parts(self) -> (i32, CardDir, CardFile) {
-        (self.status, self.entry, self.file)
-    }
-}
-
-/// Completion of an owned asynchronous directory-entry deletion.
-pub struct CardDeleteEntryCompletion {
-    status: i32,
-    entry: CardDir,
-}
-
-impl CardDeleteEntryCompletion {
-    pub const fn status(&self) -> i32 {
-        self.status
-    }
-
-    pub const fn entry(&self) -> &CardDir {
-        &self.entry
-    }
-
-    pub fn into_parts(self) -> (i32, CardDir) {
-        (self.status, self.entry)
-    }
-}
-
-/// Completion of an owned asynchronous status update.
-pub struct CardSetStatusCompletion {
-    status: i32,
-    stat: CardStat,
-}
-
-impl CardSetStatusCompletion {
-    pub const fn status(&self) -> i32 {
-        self.status
-    }
-
-    pub const fn stat(&self) -> &CardStat {
-        &self.stat
-    }
-
-    pub fn into_parts(self) -> (i32, CardStat) {
-        (self.status, self.stat)
-    }
-}
-
 /// Pollable owned asynchronous directory-entry creation.
 pub struct CardCreateEntryRequest {
     slot: CardSlot,
@@ -1541,11 +1345,11 @@ impl CardCreateEntryRequest {
             return Err(self);
         };
         self.active = false;
-        Ok(CardCreateEntryCompletion {
+        Ok(CardCreateEntryCompletion::from_parts(
             status,
-            entry: payload.entry,
-            file: payload.file,
-        })
+            payload.entry,
+            payload.file,
+        ))
     }
 }
 
@@ -1575,10 +1379,7 @@ impl CardDeleteEntryRequest {
             return Err(self);
         };
         self.active = false;
-        Ok(CardDeleteEntryCompletion {
-            status,
-            entry: payload.entry,
-        })
+        Ok(CardDeleteEntryCompletion::from_parts(status, payload.entry))
     }
 }
 
@@ -1608,10 +1409,7 @@ impl CardSetStatusRequest {
             return Err(self);
         };
         self.active = false;
-        Ok(CardSetStatusCompletion {
-            status,
-            stat: payload.stat,
-        })
+        Ok(CardSetStatusCompletion::from_parts(status, payload.stat))
     }
 }
 

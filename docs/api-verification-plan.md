@@ -177,7 +177,7 @@ do not infer API coverage from a package or probe name.
 
 ## Current storage audit
 
-The current inventory has 94 unverified entries in the 12 storage packages
+The current inventory has 87 unverified entries in the 12 storage packages
 below. These counts come from `docs/generated/implementation-inventory.csv`.
 Update this table after each storage batch. Do not accept source presence or a
 successful target build as runtime evidence.
@@ -185,7 +185,7 @@ successful target build as runtime evidence.
 | Package | Unverified entries |
 | --- | ---: |
 | `iso9660` | 0 |
-| `ogc-card` | 28 |
+| `ogc-card` | 21 |
 | `ogc-card-sys` | 56 |
 | `ogc-di` | 10 |
 | `ogc-dvd` | 0 |
