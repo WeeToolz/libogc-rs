@@ -40,7 +40,7 @@ An isolated Dolphin run showed DOL entry, the explicit System Menu reset
 request, the production reset callbacks, and return-to-menu result -4100 in
 an empty test NAND. This is evidence of reaching the reset API, not of the
 System Menu loading. The log is in the test profile:
-`[temporary Dolphin profile]set-probe-us0c6zk2/Logs/dolphin.log`.
+`[temporary Dolphin profile]/Logs/dolphin.log`.
 No Wiiload report identity was supplied in this direct emulator boot, so the
 network report was not validated in that run.
 

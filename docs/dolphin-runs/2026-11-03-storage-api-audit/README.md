@@ -12,8 +12,8 @@ The first build stopped because `LIBOGC_MAD_PROBE_MP3` was not set. The retry
 used the local external fixture for both MP3 variables:
 
 ```sh
-LIBOGC_MAD_PROBE_MP3=[libmad-rs source]/test-data/layer3/libmad-stereo-mpeg1.mp3 \
-LIBOGC_MAD_REFERENCE_MP3=[libmad-rs source]/test-data/layer3/libmad-stereo-mpeg1.mp3 \
+LIBOGC_MAD_PROBE_MP3=[external tools]/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3 \
+LIBOGC_MAD_REFERENCE_MP3=[external tools]/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3 \
 cargo xtask dolphin-validate --probe storage_probe \
   --artifact-dir docs/dolphin-runs/2026-11-03-storage-api-audit
 ```
@@ -38,7 +38,7 @@ storage` completed for 15 Wii runtime packages.
 
 The probe now also checks the owned mount request slot, mounted owner slot,
 attached state, and pre-detach result. The target DOL built with the external
-fixtures from `[libogc-rs fixtures]`; its SHA-256 is
+fixtures from `[external tools]/libogc-rs-fixtures`; its SHA-256 is
 `64733665fb6b67b5fa837aad73e093c0de0913bfdd25df754c121046639fa179`.
 
 The Dolphin runner again stopped before it launched the DOL because Dolphin

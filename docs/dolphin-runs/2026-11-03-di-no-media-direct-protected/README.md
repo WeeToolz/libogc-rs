@@ -12,8 +12,8 @@
 - Command:
 
   ```sh
-  LIBOGC_MAD_PROBE_MP3=[libmad-rs source]/test-data/layer3/libmad-stereo-mpeg1.mp3 \
-  LIBOGC_MAD_REFERENCE_MP3=[libmad-rs source]/test-data/layer3/libmad-stereo-mpeg1.mp3 \
+  LIBOGC_MAD_PROBE_MP3=[external tools]/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3 \
+  LIBOGC_MAD_REFERENCE_MP3=[external tools]/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3 \
   cargo xtask dolphin-validate --probe dvd_probe \
     --artifact-dir docs/dolphin-runs/2026-11-03-di-no-media-direct-protected
   ```

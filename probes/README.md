@@ -119,12 +119,11 @@ Run one probe with:
 cargo xtask dolphin-validate --no-build --probe arena_probe
 ```
 
-The runner uses `[Dolphin executable]` by default.
-Use `--dolphin PATH` or `DOLPHIN_BIN` to select a different executable. Each
-probe gets a separate Dolphin user directory with a copy of the Wii NAND from
-`[Dolphin user data]`. The source must contain the Wii
-System Menu. Use `--nand-dir PATH` or `DOLPHIN_WII_NAND` to select another Wii
-NAND directory. Dolphin writes only to each run's copy. The runner removes that
+The runner uses `dolphin` from `PATH` by default. Set `DOLPHIN_BIN` or use
+`--dolphin PATH` to select an executable. Each probe gets a separate Dolphin
+user directory with a copy of Dolphin's Wii NAND. The source must contain the
+Wii System Menu. Use `--nand-dir PATH` or `DOLPHIN_WII_NAND` to select the NAND
+directory. Dolphin writes only to each run's copy. The runner removes that
 copy after it saves the probe log. Results, probe logs, Dolphin logs, and all
 PNG frame dumps are under `target/dolphin-validation/`.
 Each result lists `probe.log`, the readable transcript, and

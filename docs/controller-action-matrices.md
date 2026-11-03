@@ -223,7 +223,7 @@ No Wii acceptance result is added by this document.
 
 Use exact identity and physical captures before assigning a protocol or
 compatibility result. The supplied controller research report is stored at
-`[attached research report]search-report-2.md`.
+`[attached research report]`.
 
 - USB HID 1.11 defines HID descriptors and reports; it does not prove that a
 named controller uses HID: [USB-IF HID 1.11](https://www.usb.org/sites/default/files/documents/hid1_11.pdf).

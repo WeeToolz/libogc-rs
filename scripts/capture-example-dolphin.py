@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import socket
 import signal
+import shutil
 import subprocess
 import time
 import struct
@@ -21,7 +22,7 @@ parser.add_argument('--example', choices=('2048', 'letter-flip', 'easycap-patter
 parser.add_argument('--label')
 parser.add_argument('--dol', type=Path)
 parser.add_argument('--elf', type=Path)
-parser.add_argument('--dolphin', type=Path, default=Path('[Dolphin executable]'))
+parser.add_argument('--dolphin', type=Path, default=None)
 parser.add_argument('--warmup-seconds', type=int, help='Startup delay; defaults to 3 for EasyCap patterns, otherwise 12.')
 parser.add_argument('--idle-seconds', type=int, help='Idle capture delay; defaults to 0 for EasyCap patterns, otherwise 20.')
 parser.add_argument('--capture-audio', action='store_true', help='Save Dolphin DSP output as a WAV file.')
@@ -29,6 +30,11 @@ parser.add_argument('--ui-review', action='store_true', help='Capture example me
 parser.add_argument('--network-log', action='store_true', help='Record Dolphin IOS socket operations for connection diagnosis.')
 parser.add_argument('--launch-services', action='store_true', help='Launch a macOS Dolphin app through open instead of spawning its executable directly.')
 args = parser.parse_args()
+if args.dolphin is None:
+    dolphin_bin = os.environ.get('DOLPHIN_BIN') or shutil.which('dolphin')
+    if dolphin_bin is None:
+        parser.error('Dolphin executable not found; set DOLPHIN_BIN or pass --dolphin PATH')
+    args.dolphin = Path(dolphin_bin)
 if args.warmup_seconds is None:
     args.warmup_seconds = 3 if args.example == 'easycap-patterns' else 12
 if args.idle_seconds is None:

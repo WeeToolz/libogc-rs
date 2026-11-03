@@ -13,7 +13,6 @@ use std::sync::mpsc::{self, Receiver, TryRecvError};
 use std::thread;
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
-const DEFAULT_DOLPHIN: &str = "[Dolphin executable]";
 const DEFAULT_DOLPHIN_NAND: &str = "Library/Application Support/Dolphin/Wii";
 const SUMMARY_PREFIX_PASS: &str = "PASS summary passes=";
 const SUMMARY_PREFIX_FAIL: &str = "FAIL summary passes=";
@@ -364,7 +363,10 @@ pub fn validate(root: &Path, args: &[String]) -> Result<(), String> {
     let dolphin = options
         .dolphin
         .or_else(|| std::env::var_os("DOLPHIN_BIN").map(PathBuf::from))
-        .unwrap_or_else(|| PathBuf::from(DEFAULT_DOLPHIN));
+        .or_else(|| find_on_path("dolphin"))
+        .ok_or_else(|| {
+            "Dolphin executable not found; set DOLPHIN_BIN or pass --dolphin PATH".to_string()
+        })?;
     check_dolphin(&dolphin)?;
     let dolphin_version = command_output(&dolphin, &["--version"])?;
     let help = command_output(&dolphin, &["--help"])?;
@@ -508,6 +510,13 @@ fn default_nand_path() -> PathBuf {
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from("."))
         .join(DEFAULT_DOLPHIN_NAND)
+}
+
+fn find_on_path(executable: &str) -> Option<PathBuf> {
+    let paths = std::env::var_os("PATH")?;
+    std::env::split_paths(&paths)
+        .map(|directory| directory.join(executable))
+        .find(|candidate| candidate.is_file())
 }
 
 fn validate_nand_source(path: &Path) -> Result<(), String> {
