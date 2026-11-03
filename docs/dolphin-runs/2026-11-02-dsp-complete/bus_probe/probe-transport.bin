@@ -1,0 +1,182 @@
+
+
+BOOT 1/3: system and video initialized
+INFO Wiiload arguments source=entry count=0
+PASS SYS_Init completed
+INFO startup stage=0 completed_mask=0x7ff failed_stage=0
+BOOT watchdog arm starting
+INFO recovery reset watchdog not armed
+BOOT watchdog arm complete
+BOOT Wiiload report argument check
+INFO Wiiload report check disabled for this probe build
+BOOT before first vsync
+BOOT 2/3: entering IOS pre-main
+PRE 0/7: closing inherited IOS descriptors
+IPC: sync state ready
+IPC: command=0x00000002 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000002 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 1/7: IOS startup
+PRE 2/7: IOS subsystems
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 3/7: STM handler
+PRE 4/7: STM devices
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+PRE 5/7: configuration
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 6/7: Wii launch state
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 7/7: complete
+OGC_DOLPHIN_PAGE_CAPTURE page=1 capture=1 addr=0x80841e40 width=640 height=480 stride=640
+-- page 2 --
+BOOT 3/3: IOS pre-main completed
+PASS display initialized
+INFO boot stage: system/video initialized
+INFO boot stage: IOS pre-main completed
+INFO log backend disabled
+INFO argv0 unavailable
+INFO argv raw magic=0x00000000 len=0 argc=0 cmd=0x00000000 argv=0x00000000 end=0x00000000
+PASS power button callback installed
+INFO stm init deferred until shutdown
+INFO fat mount sd=not-selected usb=not-selected
+INFO previous stm handler chained=0
+INFO previous power callback replaced
+
+== BUS PROBE ==
+
+== CACHE PROBE ==
+PASS cache range operations
+INFO locked cache queue=0
+INFO locked cache base=0xe0000000
+
+== ARAM PROBE ==
+INFO aram base=0x00004000
+OGC_DOLPHIN_PAGE_CAPTURE page=2 capture=2 addr=0x80841e40 width=640 height=480 stride=640
+-- page 3 --
+PASS aram initialized
+INFO aram size=50331648
+INFO aram internal size=16777216
+INFO aram dma busy=0
+INFO aram alloc=0x00004000
+INFO aram free top=0x00004000
+PASS aram alloc/free length
+
+== DSP PROBE ==
+PASS dsp callback replaced default
+PASS DSP direct and wrapper callback registration restore the prior handler
+PASS DSP volatile task fields read and write caller memory
+PASS DSP direct and wrapper halt set the hardware halt bit
+PASS DSP direct and wrapper assert_int set the processor interrupt bit
+INFO DSP cpu mailbox ready=0 wrapper=0x12345678 direct=0x09abcdef
+PASS DSP direct and wrapper CPU mailbox APIs return the written message
+PASS DSP direct and wrapper unhalt clear the hardware halt bit
+INFO DSP incoming mailbox ready=true wrapper=0x8071feed direct=0x0071feed pending=0
+PASS DSP mailbox status and reads acknowledge incoming DSP mail
+PASS DSP direct and wrapper DMA status report idle
+PASS DSP shutdown completes all four observed stages
+OGC_DOLPHIN_PAGE_CAPTURE page=3 capture=3 addr=0x80841e40 width=640 height=480 stride=640
+-- page 4 --
+PASS DSP direct and wrapper shutdown leave DMA and mailboxes idle
+
+== EXI SI PROBE ==
+INFO exi probe ch0=0
+INFO exi probe ex ch0=1
+INFO exi state ch0=0
+INFO exi probe ch1=1
+INFO exi probe ex ch1=1
+INFO exi state ch1=0
+INFO exi probe ch2=1
+INFO exi probe ex ch2=1
+INFO exi state ch2=0
+INFO si probe ch0=0x00000080
+INFO si type ch0=0x09000000
+INFO si status ch0=0x00000020
+INFO si probe ch1=0x00000080
+INFO si type ch1=0x00000008
+INFO si status ch1=0x00002008
+INFO si probe ch2=0x00000080
+INFO si type ch2=0x00000008
+INFO si status ch2=0x00200808
+INFO si probe ch3=0x00000080
+INFO si type ch3=0x00000008
+OGC_DOLPHIN_PAGE_CAPTURE page=4 capture=4 addr=0x80841e40 width=640 height=480 stride=640
+-- page 5 --
+INFO si status ch3=0x20080808
+PASS card banner masks and null
+PASS card icon formats preserve adjacent fields
+PASS card icon speeds preserve adjacent fields
+PASS card metadata addresses remain distinct
+
+== CARD HELPER PROBE ==
+PASS card banner helper
+PASS card icon fmt helper
+PASS card icon speed helper
+INFO card probe slot0=0
+INFO card probe ex slot0=0
+INFO card mem size slot0=16777216
+INFO card sector size slot0=8192
+INFO card probe slot1=-2
+INFO card probe ex slot1=-2
+INFO card mem size slot1=0
+INFO card sector size slot1=0
+
+== DISC PROBE ==
+INFO dvd drive status=4
+INFO dvd current disk id ptr=0x8029fd40
+INFO dvd drive info ptr=0x8029fd20
+OGC_DOLPHIN_PAGE_CAPTURE page=5 capture=5 addr=0x80841e40 width=640 height=480 stride=640
+-- page 6 --
+INFO di init rc=1
+INFO di status=10
+INFO di cover rc=0
+INFO di cover=0x00000001
+INFO di error rc=0
+INFO di error=0x01000000
+
+== USB CORE PROBE ==
+INFO usb init rc=0
+INFO usb device count=0
+INFO usb deinit rc=0
+INFO usbgecko alive ch0=0
+INFO usbgecko alive ch1=1
+INFO usbgecko alive ch2=0
+
+== IRQ LWP PROBE ==
+INFO irq vi handler present=1
+INFO current thread raw=2146929087
+PASS lwp yield returned
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+INFO summary_candidate passes=26 fails=0
+PASS summary passes=26 fails=0
+OGC_DOLPHIN_PAGE_CAPTURE page=6 capture=6 addr=0x80841e40 width=640 height=480 stride=640
+OGC_DOLPHIN_CAPTURE_COMPLETE

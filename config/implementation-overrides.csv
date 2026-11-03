@@ -182,3 +182,33 @@ ogc-aram,src/arq/manager.rs,pop,hardware,aram-probe,Dolphin checks pop restores 
 ogc-aram,src/arq/manager.rs,push_data,hardware,aram-probe,Dolphin checks aligned data is transferred to ARAM before returning
 ogc-aram,src/arq/manager.rs,stack_pointer,hardware,aram-probe,"Dolphin checks manager stack pointer before push, after push, and after pop"
 ogc-aram,src/arq/manager.rs,zero_buffer,hardware,aram-probe,Dolphin checks zero-buffer address selected during manager initialization
+ogc-dsp,src/lib.rs,init,compatibility-forwarder,bus-probe,Dolphin checks initialized callback state and DSP behavior through the wrapper
+ogc-dsp,src/lib.rs,register_callback,compatibility-forwarder,bus-probe,Dolphin checks callback replacement and restoration through the wrapper
+ogc-dsp,src/lib.rs,check_mail_to,compatibility-forwarder,bus-probe,Dolphin checks CPU mailbox busy status after the DSP reads a message
+ogc-dsp,src/lib.rs,check_mail_from,compatibility-forwarder,bus-probe,Dolphin checks DSP mailbox ready state and acknowledgement
+ogc-dsp,src/lib.rs,read_mail_from,compatibility-forwarder,bus-probe,Dolphin checks the boot mailbox value and acknowledgement behavior
+ogc-dsp,src/lib.rs,send_mail_to,compatibility-forwarder,bus-probe,Dolphin checks a written CPU mailbox message
+ogc-dsp,src/lib.rs,read_cpu_to_dsp,compatibility-forwarder,bus-probe,Dolphin checks CPU mailbox values through wrapper and direct APIs
+ogc-dsp,src/lib.rs,assert_int,compatibility-forwarder,bus-probe,Dolphin checks the processor interrupt control bit
+ogc-dsp,src/lib.rs,reset,compatibility-forwarder,bus-probe,Dolphin checks DSP reset through the boot mailbox response
+ogc-dsp,src/lib.rs,shutdown,compatibility-forwarder,bus-probe,Dolphin checks shutdown leaves DSP DMA and mailboxes idle
+ogc-dsp,src/lib.rs,halt,compatibility-forwarder,bus-probe,Dolphin checks the DSP halt control bit
+ogc-dsp,src/lib.rs,unhalt,compatibility-forwarder,bus-probe,Dolphin checks the DSP halt control bit clears
+ogc-dsp,src/lib.rs,get_dma_status,compatibility-forwarder,bus-probe,Dolphin checks DMA idle state through the wrapper
+ogc-dsp-sys,src/lib.rs,init,hardware,bus-probe,Dolphin checks DSP initialization and later register operations
+ogc-dsp-sys,src/lib.rs,new,hardware,bus-probe,Dolphin checks volatile task fields with caller-owned memory
+ogc-dsp-sys,src/lib.rs,read,hardware,bus-probe,Dolphin checks volatile task field reads
+ogc-dsp-sys,src/lib.rs,write,hardware,bus-probe,Dolphin checks volatile task field writes
+ogc-dsp-sys,src/lib.rs,register_callback,hardware,bus-probe,Dolphin checks callback replacement and restoration
+ogc-dsp-sys,src/lib.rs,check_mail_to,hardware,bus-probe,Dolphin checks CPU mailbox busy status after hardware acknowledgement
+ogc-dsp-sys,src/lib.rs,check_mail_from,hardware,bus-probe,Dolphin checks DSP mailbox status before and after reading the mailbox
+ogc-dsp-sys,src/lib.rs,read_mail_from,hardware,bus-probe,Dolphin checks DSP boot mailbox message and acknowledgement
+ogc-dsp-sys,src/lib.rs,send_mail_to,hardware,bus-probe,Dolphin checks direct CPU mailbox writes
+ogc-dsp-sys,src/lib.rs,read_cp_uto_dsp,hardware,bus-probe,Dolphin checks direct CPU mailbox readback
+ogc-dsp-sys,src/lib.rs,assert_int,hardware,bus-probe,Dolphin checks the processor interrupt control bit
+ogc-dsp-sys,src/lib.rs,reset,hardware,bus-probe,Dolphin checks DSP reset and the boot mailbox response
+ogc-dsp-sys,src/lib.rs,shutdown,hardware,bus-probe,Dolphin checks completed DSP shutdown leaves DMA and mailboxes idle
+ogc-dsp-sys,src/lib.rs,shutdown_with_progress,hardware,bus-probe,Dolphin checks all four shutdown progress stages
+ogc-dsp-sys,src/lib.rs,halt,hardware,bus-probe,Dolphin checks the DSP halt control bit
+ogc-dsp-sys,src/lib.rs,unhalt,hardware,bus-probe,Dolphin checks the DSP halt control bit clears
+ogc-dsp-sys,src/lib.rs,get_dma_status,hardware,bus-probe,Dolphin checks DSP DMA reports idle
