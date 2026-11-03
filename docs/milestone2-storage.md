@@ -19,11 +19,11 @@ exact free-function or method receiver used by their named host test. Forty
 `ogc-fat` rows record exact function or method call paths from Dolphin probes
 and host tests. Thirty `ogc-usbstorage` rows record the wrapper path called by
 a named probe. Sixty-five `ogc-usbstorage-sys` rows record exact wrapper, C
-ABI, callback, or helper paths. In total, 224 of 604 rows record exact API
-paths. These checks
-confirm source identity only. A path match does not prove that an API assertion
-passed or that a device-dependent branch ran. Review each mapping and runtime
-report before using it as a result.
+ABI, callback, or helper paths. Nine `iso9660` rows now record exact C wrapper,
+C export, and Rust call paths. In total, 233 of 604 storage entries record
+exact API paths. These checks confirm source identity only. A path match does
+not prove that an API assertion passed or that a device-dependent branch ran.
+Review each mapping and runtime report before using it as a result.
 
 | Package | API entries | Probe group |
 | --- | ---: | --- |

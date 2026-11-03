@@ -776,6 +776,10 @@ fn probe_iso9660(logger: &mut ProbeLogger) {
             && !iso9660::ISO9660_Mount(name.as_ptr(), core::ptr::null())
             && !iso9660::ISO9660_Unmount(core::ptr::null())
             && iso9660::ISO9660_GetVolumeLabel(core::ptr::null()).is_null()
+            && !iso9660::iso9660_mount(core::ptr::null(), &disc)
+            && !iso9660::iso9660_mount(name.as_ptr(), core::ptr::null())
+            && !iso9660::iso9660_unmount(core::ptr::null())
+            && iso9660::iso9660_get_volume_label(core::ptr::null()).is_null()
     };
     logger.record(
         "ISO9660 C exports reject null arguments",
@@ -797,6 +801,17 @@ fn probe_iso9660(logger: &mut ProbeLogger) {
         logger.record(label, rejected && absent && cleanup);
     }
     ISO_CASE.store(4, Ordering::Relaxed);
+    let rust_c_mounted = unsafe { iso9660::iso9660_mount(name.as_ptr(), &disc) };
+    let rust_c_label = unsafe { iso9660::iso9660_get_volume_label(name.as_ptr()) };
+    let rust_c_label_matches = !rust_c_label.is_null()
+        && unsafe { core::ffi::CStr::from_ptr(rust_c_label).to_bytes() } == b"TESTVOL";
+    let rust_c_unmounted = unsafe { iso9660::iso9660_unmount(name.as_ptr()) };
+    let rust_c_label_cleared =
+        unsafe { iso9660::iso9660_get_volume_label(name.as_ptr()) }.is_null();
+    logger.record(
+        "ISO9660 Rust C wrappers mount read the label and unmount the volume",
+        rust_c_mounted && rust_c_label_matches && rust_c_unmounted && rust_c_label_cleared,
+    );
     let mounted = unsafe { iso9660::ISO9660_Mount(name.as_ptr(), &disc) };
     let label = unsafe { iso9660::ISO9660_GetVolumeLabel(name.as_ptr()) };
     let label_ok =
