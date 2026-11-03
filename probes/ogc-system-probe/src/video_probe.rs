@@ -174,6 +174,23 @@ fn probe_fog_table(logger: &mut ProbeLogger) {
         "GX fog adjustment table and zero width",
         valid && table.r == expected,
     );
+    let perspective = [
+        [2.0, 0.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0, 0.0],
+        [0.0, 0.0, -1.0, -2.0],
+        [0.0, 0.0, -1.0, 0.0],
+    ];
+    // SAFETY: The table and projection are valid. Null arguments are accepted
+    // by the Rust API and must leave the table unchanged.
+    unsafe {
+        gx::init_fog_adj_table(&mut table, 640, &perspective);
+        gx::init_fog_adj_table(&mut table, 640, core::ptr::null());
+        gx::init_fog_adj_table(core::ptr::null_mut(), 640, &perspective);
+    }
+    logger.record(
+        "GX perspective fog table and null inputs",
+        table.r == [256, 257, 258, 261, 263, 267, 271, 275, 280, 286],
+    );
 }
 
 fn probe_overscan(logger: &mut ProbeLogger) {
