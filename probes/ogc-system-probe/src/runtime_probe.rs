@@ -853,6 +853,21 @@ fn probe_iso9660(logger: &mut ProbeLogger) {
     probe_isfs_successful_file_cycle(logger);
 }
 
+fn isfs_file_contents_after_reopen(path: &core::ffi::CStr, expected: &[u8]) -> bool {
+    if expected.len() > 32 {
+        return false;
+    }
+    let Ok(file) = filesystem::open(path, filesystem::ISFS_OPEN_READ) else {
+        return false;
+    };
+    let mut bytes = AlignedIsfsBytes([0; 32]);
+    let read = file.read(&mut bytes.0[..expected.len()]);
+    let close = file.close();
+    read == Ok(expected.len())
+        && &bytes.0[..expected.len()] == expected
+        && close == filesystem::ISFS_OK
+}
+
 fn probe_isfs_successful_file_cycle(logger: &mut ProbeLogger) {
     logger.section("ISFS SUCCESSFUL FILE CYCLE");
     let directory = c"/tmp/ogc-rs-isfs-verify";
@@ -930,6 +945,10 @@ fn probe_isfs_successful_file_cycle(logger: &mut ProbeLogger) {
                     file_pos: 8,
                 }
             && file_closed,
+    );
+    logger.record(
+        "ISFS sync file data persists after close and reopen",
+        file_created && file_closed && isfs_file_contents_after_reopen(file_path, b"ISFS-rs!"),
     );
 
     let mut owner_id = u32::MAX;
@@ -1433,6 +1452,10 @@ fn probe_isfs_async_file_cycle(directory: &core::ffi::CStr, logger: &mut ProbeLo
         });
         closed = close_submit >= 0 && close_result == filesystem::ISFS_OK;
     }
+    logger.record(
+        "ISFS async file data persists after close and reopen",
+        closed && isfs_file_contents_after_reopen(path, b"async-rs"),
+    );
     let (delete_submit, delete_result) = run_isfs_async_and_wait(|| unsafe {
         filesystem::delete_async(path, Some(isfs_probe_callback), core::ptr::null_mut())
     });

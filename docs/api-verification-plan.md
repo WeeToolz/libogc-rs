@@ -355,9 +355,12 @@ The bounded async-format run reports callback status 0
 and removal of its marker state; the earlier run without callback completion
 was superseded by that result. The current probe now also checks synchronous
 format after creating marker state, restarting the service, and verifying the
-marker paths are absent. The latest Dolphin `runtime_probe` passed 97 checks
-with no failures, including this synchronous-format cycle and directory
-renames. Its first run
+marker paths are absent. The latest Dolphin `runtime_probe` log reports 99
+checks with no failures. It includes the format cycle, directory renames, and
+new checks that sync and async file bytes persist after close and reopen. Its
+summary capture was black; the log and readable check pages are in the
+[ISFS and FAT reopen report](dolphin-runs/2026-11-03-isfs-fat-reopen/README.md).
+An earlier run
 exposed that the preceding async format had removed `/tmp` from the private
 NAND copy; the probe now recreates that parent and records the setup and
 format results. Earlier sandboxed launches stopped before startup. These runs
@@ -376,8 +379,10 @@ safe `try_flush` return the interface error for a null handle. The run has no
 USB device, so successful cache synchronization on a mounted LUN remains
 untested. The same probe checks the LUN count bounds, read residue, capacity
 decoding, BOT retry behavior, and READ/WRITE status handling. The focused FAT
-probe passed in Dolphin and covers the mounted SD API, C exports, FAT file
-seek/truncate, attribute updates, init functions, and mount cleanup.
+probe passed 41 checks in Dolphin and covers the mounted SD API, C exports,
+FAT file seek/truncate, attribute updates, init functions, and mount cleanup.
+It also verifies truncated file bytes after unmount and remount, then removes
+the file. See the [ISFS and FAT reopen report](dolphin-runs/2026-11-03-isfs-fat-reopen/README.md).
 The `wii_std_fs_probe` passed 99 Dolphin checks on the private virtual Wii SD
 card. It checked directory and path operations, file I/O, metadata, attributes,
 timestamps, read-only access, remount persistence, and cleanup. This verifies
