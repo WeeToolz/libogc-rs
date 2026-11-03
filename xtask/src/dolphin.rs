@@ -1713,6 +1713,12 @@ fn write_xfb_png(capture: &PageCapture, xfb: &[u8], path: &Path) -> Result<(), S
             capture.page
         ));
     }
+    if blank_green_page(&rgb) {
+        return Err(format!(
+            "page {} framebuffer contains only black and green, with no visible text",
+            capture.page
+        ));
+    }
 
     let file = File::create(path).map_err(|err| format!("{}: {err}", path.display()))?;
     let mut encoder = png::Encoder::new(file, capture.width, capture.height);
@@ -1724,6 +1730,21 @@ fn write_xfb_png(capture: &PageCapture, xfb: &[u8], path: &Path) -> Result<(), S
     writer
         .write_image_data(&rgb)
         .map_err(|err| format!("{}: {err}", path.display()))
+}
+
+fn blank_green_page(rgb: &[u8]) -> bool {
+    let mut has_green = false;
+    for pixel in rgb.chunks_exact(3) {
+        if pixel == [0, 0, 0] {
+            continue;
+        }
+        if pixel[0] == 0 && pixel[2] == 0 && pixel[1] > 0 {
+            has_green = true;
+        } else {
+            return false;
+        }
+    }
+    has_green
 }
 
 fn write_rgb_pixel(
@@ -2000,6 +2021,13 @@ fn unix_seconds() -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn rejects_blank_green_pages_but_accepts_visible_content() {
+        assert!(blank_green_page(&[0, 0, 0, 0, 31, 0]));
+        assert!(!blank_green_page(&[0, 0, 0, 0, 31, 0, 255, 255, 255]));
+        assert!(!blank_green_page(&[0, 0, 0, 0, 0, 0]));
+    }
 
     #[test]
     fn selects_the_standard_fat_probe_with_its_own_dol_and_symbols() {
