@@ -37,7 +37,7 @@ Each API needs a direct observable check or an exact host test of production
 logic. A broad probe run does not prove every API in its group.
 
 Current runtime evidence is incomplete. The latest media-aware `storage_probe`
-passed in Dolphin 2609a with 97 checks and 0 failures. It checked no-device
+passed in Dolphin 2609a with 111 checks and 0 failures. It checked no-device
 results for USB and CARD, skipped operations that need those devices, and
 exercised the virtual Wii SD path. It does not cover successful USB transfers,
 CARD saves, disc reads, GameCube SD Gecko I/O, or physical devices. See the
@@ -100,6 +100,14 @@ detach behavior, or Wii hardware behavior. The sandboxed launch failed at the
 Dolphin `--version` check; the successful run used host permission. Target
 clippy passed with warnings denied, and `cargo xtask audit-source` accepted the
 direct API calls.
+
+The Dolphin runner accepts `LIBOGC_DOLPHIN_CARD_IMAGE` for a raw GameCube card
+image. It copies the image into the isolated probe profile before launch, so
+the probe cannot change the source image. A run with the existing Dolphin card
+image copied this way still returned `CARD_ERROR_NOCARD` and skipped save
+operations. It passed 111 other checks. The card template therefore does not
+close successful CARD runtime coverage. See the
+[card-image attachment diagnostic](dolphin-runs/2026-11-03-card-image-template-dolphin/README.md).
 
 The follow-up `card-owned-transfer-errors-dolphin` run passed 108 checks. It
 checked that `read_async_owned` and `write_async_owned` reject invalid
