@@ -1788,7 +1788,23 @@ fn probe_iso9660_files(logger: &mut ProbeLogger, mount_name: &core::ffi::CStr) {
         .as_ref()
         .and_then(|file| file.read(&mut suffix).ok())
         .is_some_and(|count| count == 4 && suffix == *b"ello");
+    let mut eof_bytes = [0xa5; 4];
+    let eof_preserved = file
+        .as_ref()
+        .is_some_and(|file| file.read(&mut eof_bytes) == Ok(0) && eof_bytes == [0xa5; 4]);
+    let write_rejected = file
+        .as_ref()
+        .is_some_and(|file| file.write_all(b"x") == Err(-sysbase::ENOTSUP));
     let file_closed = file.is_some_and(|file| file.close().is_ok());
+    let missing_path = if mount_name.to_bytes() == b"iso_test" {
+        c"iso_test:/MISSING.TXT"
+    } else {
+        c"isfs:/MISSING.TXT"
+    };
+    let missing_rejected = matches!(
+        sysbase::DeviceFile::open_checked(missing_path, sysbase::O_RDONLY),
+        Err(error) if error == -sysbase::ENOENT
+    );
 
     let stat_fn = sysbase::device_op_tab(file_path).and_then(|tab| unsafe { (*tab).stat_r });
     let mut stat = sysbase::Stat::default();
@@ -1823,6 +1839,9 @@ fn probe_iso9660_files(logger: &mut ProbeLogger, mount_name: &core::ffi::CStr) {
         "ISO9660 read after seek returns expected bytes",
         file_seek_read,
     );
+    logger.record("ISO9660 EOF preserves the output buffer", eof_preserved);
+    logger.record("ISO9660 rejects writes to a mounted file", write_rejected);
+    logger.record("ISO9660 missing file returns ENOENT", missing_rejected);
     logger.record("ISO9660 file close completes", file_closed);
     logger.record("ISO9660 stat reports file metadata", stat_ok);
     logger.record("ISO9660 chdir accepts the root directory", chdir_ok);
