@@ -111,6 +111,10 @@ the [async file report](dolphin-runs/2026-11-03-isfs-successful-async-cycle-dolp
 the [sync cycle report](dolphin-runs/2026-11-03-isfs-successful-file-cycle-cleanup/README.md),
 the [path validation report](dolphin-runs/2026-11-03-isfs-path-length-dolphin/README.md),
 and the [earlier runtime report](dolphin-runs/2026-11-03-isfs-get-stats-async-pass/README.md).
+The current `runtime_probe` also passed its synchronous-format marker cycle
+after the preceding asynchronous format removed `/tmp` from the private NAND
+copy. The probe now restores that parent directory before it creates marker
+state. See the [ISFS and ISO9660 follow-up](dolphin-runs/2026-11-03-isfs-iso-followup/README.md).
 The separate `wii_std_fs_probe` passed 99 checks on Dolphin's private virtual
 Wii SD card. It covered FAT directory, path, file, metadata, attribute,
 timestamp, remount, and cleanup behavior. This is not physical Wii evidence

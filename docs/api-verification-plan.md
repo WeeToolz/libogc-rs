@@ -308,17 +308,14 @@ run](dolphin-runs/2026-11-03-di-wrapper-parity-final/README.md).
 
 The ISO9660 probe calls its three C ABI exports and the Rust file-system
 mount, label, and unmount facade directly. A controlled in-memory disc image
-now checks file lookup, open, read, seek, close, stat metadata, and root
-directory changes through both the C mount and the Rust mount. Dolphin passed
-the runtime probe with 63 checks and no failures. This exposed and fixed the
-device name used for devoptab lookup and the handling of valid negative
-pointer-shaped file handles. The probe does not verify a physical optical
-drive. The current source also calls the lower-level Rust C wrappers directly
-and checks their mount, label, and cleanup results. The last Dolphin report
-predates those calls. The updated DOL builds and passes target Clippy, but the
-lower-level wrapper checks do not yet have a current Dolphin result. A later
-host-authorized CARD run shows that Dolphin starts in that execution context;
-it does not validate the ISO DOL. The focused DVD probe checks `/dev/di` no-disc status, rejected mount,
+checks file lookup, open, read, seek, close, stat metadata, and root directory
+changes through both the C mount and the Rust mount. The latest Dolphin
+`runtime_probe` passed 93 checks with no failures. It includes the lower-level
+Rust C wrapper mount, label, and cleanup checks. The probe exposed and fixed
+the device name used for devoptab lookup and the handling of valid negative
+pointer-shaped file handles. This does not verify a physical optical drive.
+See the [ISFS and ISO9660 follow-up](dolphin-runs/2026-11-03-isfs-iso-followup/README.md).
+The focused DVD probe checks `/dev/di` no-disc status, rejected mount,
 asynchronous mount, inquiry, block-safe read, drive-control, GCM
 offset, stream-stop, and seek operations, command-block state, pause and reset
 state, invalidation state restore, shutdown, spin-up, and stop-motor calls in
@@ -345,12 +342,13 @@ is still unverified. The bounded async-format run reports callback status 0
 and removal of its marker state; the earlier run without callback completion
 was superseded by that result. The current probe now also checks synchronous
 format after creating marker state, restarting the service, and verifying the
-marker paths are absent. The updated DOL builds and passes target Clippy, but
-this revised check has no runtime result yet. Earlier sandboxed launches
-stopped before startup; a later host-authorized CARD run started Dolphin but
-did not test this ISFS DOL. The historical sync-format report uses an earlier
-DOL and does not verify this updated check. These runs do not prove physical
-Wii NAND behavior. The probe also checks that `get_stats_async` returns
+marker paths are absent. The latest Dolphin `runtime_probe` passed 93 checks
+with no failures, including this synchronous-format cycle. Its first run
+exposed that the preceding async format had removed `/tmp` from the private
+NAND copy; the probe now recreates that parent and records the setup and
+format results. Earlier sandboxed launches stopped before startup. These runs
+do not prove physical Wii NAND behavior. The probe also checks that
+`get_stats_async` returns
 `ISFS_EINVAL` with `/dev/fs` closed, preserves all seven output fields, and
 does not call its callback. See
 the [rename result run](dolphin-runs/2026-11-03-isfs-rename-state/README.md),
