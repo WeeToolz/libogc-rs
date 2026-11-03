@@ -1,5 +1,23 @@
 # Development results
 
+## 2026-11-02: GX overscan and probe lint
+
+The video probe checks interlaced and progressive overscan, in-place output,
+preservation of sample data, and rejection of zero source height. The DOL ran
+in Dolphin 2609a with 47 passes and no failures. The final DOL SHA-256 was
+`1293f7dbff4bfb958d1c5ab3aefa13c97d877134d0334c887e8f1e6852a05a3c`.
+The build used revision `9c7a3cd` and the probe changes in this batch. The
+runner used a private profile and copied Wii NAND. HBC was not under test.
+See the [report](docs/dolphin-runs/2026-11-02-gx-overscan-lint/suite.json).
+The earlier [run](docs/dolphin-runs/2026-11-02-gx-overscan/suite.json) also
+passed. Physical Wii behavior remains untested.
+
+Build with `cargo xtask build-dol ogc-system-probe --bin video_probe
+--probe-features dolphin-automation --no-dev --output
+target/xtask/probes-dolphin/video_probe.dol`. Run with `cargo xtask
+dolphin-validate --no-build --probe video_probe --artifact-dir
+docs/dolphin-runs/2026-11-02-gx-overscan-lint`.
+
 ## 2026-11-02: GX specular light in Dolphin
 
 The video probe checks explicit and computed specular directions and the

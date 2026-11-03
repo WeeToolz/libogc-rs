@@ -20,11 +20,11 @@ pub(crate) fn progress() {
 
 /// The caller owns this complete, uncached YUY2 framebuffer for the run.
 pub(crate) unsafe fn start(frame: *mut c_void, bytes: usize, width: usize, height: usize) -> bool {
-    if frame.is_null() || width < 160 || height < 64 || bytes % height != 0 {
+    if frame.is_null() || width < 160 || height < 64 || !bytes.is_multiple_of(height) {
         return false;
     }
     let stride = bytes / height;
-    if stride < width * 2 || stride % 4 != 0 {
+    if stride < width * 2 || !stride.is_multiple_of(4) {
         return false;
     }
     let irq = ogc_irq::irq_disable();

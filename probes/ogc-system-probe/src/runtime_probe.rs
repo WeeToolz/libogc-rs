@@ -108,7 +108,7 @@ fn probe_l2cap_parsers(logger: &mut ProbeLogger) {
 
     let signal_bytes = &acl[8..16];
     let signal_ok = matches!(bt::parse_l2cap_signal(signal_bytes), Ok(s)
-        if s.code == 2 && s.identifier == 7 && s.payload == &[0x11, 0, 0x40, 0]);
+        if s.code == 2 && s.identifier == 7 && s.payload == [0x11, 0, 0x40, 0]);
     let signal_truncated = (0..8)
         .all(|n| bt::parse_l2cap_signal(&signal_bytes[..n]) == Err(bt::Error::MalformedL2cap));
     let request = bt::L2capSignal {
@@ -148,7 +148,7 @@ fn probe_l2cap_parsers(logger: &mut ProbeLogger) {
     logger.record(
         "HIDP parsing fields and empty input",
         matches!(bt::parse_hidp_packet(&hidp), Ok(p)
-            if p.transaction == 0xa0 && p.parameter == 1 && p.payload == &[0x12, 0x34])
+            if p.transaction == 0xa0 && p.parameter == 1 && p.payload == [0x12, 0x34])
             && bt::parse_hidp_packet(&[]) == Err(bt::Error::MalformedL2cap),
     );
 }
@@ -325,9 +325,11 @@ fn probe_ui_adapters(logger: &mut ProbeLogger) {
 
     let invalid = WpadInputAdapter::new(0, 480).is_err() && WpadInputAdapter::new(640, 0).is_err();
     let adapter = WpadInputAdapter::new(640, 480).expect("valid UI viewport");
-    let mut sample = wpad_sys::WpadData::default();
-    sample.btns_d = wpad_sys::WPAD_BUTTON_A | wpad_sys::WPAD_BUTTON_LEFT;
-    sample.data_present = wpad_sys::WPAD_DATA_IR;
+    let mut sample = wpad_sys::WpadData {
+        btns_d: wpad_sys::WPAD_BUTTON_A | wpad_sys::WPAD_BUTTON_LEFT,
+        data_present: wpad_sys::WPAD_DATA_IR,
+        ..Default::default()
+    };
     sample.ir.valid = 1;
     sample.ir.x = 320.0;
     sample.ir.y = 240.0;
