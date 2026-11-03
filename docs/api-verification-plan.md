@@ -177,7 +177,7 @@ do not infer API coverage from a package or probe name.
 
 ## Current storage audit
 
-The current inventory has 87 unverified entries in the 12 storage packages
+The current inventory has 77 unverified entries in the 12 storage packages
 below. These counts come from `docs/generated/implementation-inventory.csv`.
 Update this table after each storage batch. Do not accept source presence or a
 successful target build as runtime evidence.
@@ -187,7 +187,7 @@ successful target build as runtime evidence.
 | `iso9660` | 0 |
 | `ogc-card` | 21 |
 | `ogc-card-sys` | 56 |
-| `ogc-di` | 10 |
+| `ogc-di` | 0 |
 | `ogc-dvd` | 0 |
 | `ogc-dvd-sys` | 0 |
 | `ogc-fat` | 0 |
@@ -196,7 +196,7 @@ successful target build as runtime evidence.
 | `ogc-usbstorage` | 0 |
 | `ogc-usbstorage-sys` | 0 |
 | `ogc-wiisd` | 0 |
-| **Total** | **87** |
+| **Total** | **77** |
 
 Use the package counts above to split storage work into these feature batches.
 Each batch still needs evidence for every API entry. A batch count does not
@@ -204,14 +204,24 @@ mean that each API has a test or probe.
 
 | Batch | Packages | Unverified entries |
 | --- | --- | ---: |
-| Optical disc | `iso9660`, `ogc-di`, `ogc-dvd`, `ogc-dvd-sys` | 10 |
+| Optical disc | `iso9660`, `ogc-di`, `ogc-dvd`, `ogc-dvd-sys` | 0 |
 | GameCube memory card | `ogc-card`, `ogc-card-sys` | 77 |
 | FAT and file-system services | `ogc-fat`, `ogc-filesystem` | 0 |
 | SD card transports | `ogc-gcsd`, `ogc-wiisd` | 0 |
 | USB mass storage | `ogc-usbstorage`, `ogc-usbstorage-sys` | 0 |
-| **Total** | **12 packages** | **87** |
+| **Total** | **12 packages** | **77** |
 
-The remaining `ogc-di` APIs are split into these smaller probes:
+The previously open `ogc-di` APIs now have direct source checks in
+`storage_probe`: the configuration setters preserve no-disc status, init
+callbacks do not fire for no-disc mounts, and partition calls return the
+closed-descriptor error through Rust and C entry points. The updated DOL builds
+with SHA-256
+`37547912e2242cde337056fcfa16312ff8d23d62d0fafcf7699cbf7004465350`. Dolphin
+still aborts before launch, so these checks have no runtime evidence. Partition
+success with media and init-callback delivery on a successful mount remain
+untested. The hardware register remains `not-tested` for DI.
+
+The original `ogc-di` split grouped the APIs as follows:
 
 | Probe group | APIs | Count |
 | --- | --- | ---: |

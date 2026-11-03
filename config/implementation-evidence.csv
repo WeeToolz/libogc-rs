@@ -498,9 +498,14 @@ ogc-card-sys,src/wii_backend.rs,unmount,1811,hardware,hardware-probe,probes/ogc-
 ogc-card-sys,src/lib.rs,write,363,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,write_usb_close_probe
 ogc-card-sys,src/wii_backend.rs,write,2434,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,write_usb_close_probe
 ogc-di,src/lib.rs,close,921,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,write_usb_close_probe
+ogc-di,src/lib.rs,close_partition,1294,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
 ogc-di,src/lib.rs,init,814,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_dvd
+ogc-di,src/lib.rs,load_dvdx,836,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
 ogc-di,src/lib.rs,mount,864,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_dvd
+ogc-di,src/lib.rs,open_partition,1287,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
 ogc-di,src/lib.rs,read,1128,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_usb_close_persistence
+ogc-di,src/lib.rs,set_init_callback,851,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
+ogc-di,src/lib.rs,use_cache,842,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
 ogc-dsp,src/lib.rs,init,11,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_dsp
 ogc-dsp-sys,src/lib.rs,init,499,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_dsp
 ogc-dvd,src/lib.rs,cancel_all_async,200,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_dvd_no_media_helpers
@@ -1520,6 +1525,7 @@ ogc-filesystem,src/lib.rs,write_all,210,compatibility-forwarder,hardware-probe,p
 ogc-filesystem,src/lib.rs,write_async,250,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_uninitialized
 ogc-di,src/lib.rs,DI_CheckDVDSupport,1440,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
 ogc-di,src/lib.rs,DI_Close,1417,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
+ogc-di,src/lib.rs,DI_ClosePartition,1596,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
 ogc-di,src/lib.rs,DI_Eject,1494,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
 ogc-di,src/lib.rs,DI_GetCoverRegister,1473,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
 ogc-di,src/lib.rs,DI_GetError,1460,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
@@ -1527,7 +1533,9 @@ ogc-di,src/lib.rs,DI_GetStatus,1422,ios,hardware-probe,probes/ogc-system-probe/s
 ogc-di,src/lib.rs,DI_Identify,1429,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
 ogc-di,src/lib.rs,DI_Init,1392,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
 ogc-di,src/lib.rs,DI_KillDrive,1499,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
+ogc-di,src/lib.rs,DI_LoadDVDX,1397,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
 ogc-di,src/lib.rs,DI_Mount,1412,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
+ogc-di,src/lib.rs,DI_OpenPartition,1591,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
 ogc-di,src/lib.rs,DI_Read,1525,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
 ogc-di,src/lib.rs,DI_ReadDVD,1506,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
 ogc-di,src/lib.rs,DI_ReadDVDAsync,1513,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
@@ -1540,6 +1548,8 @@ ogc-di,src/lib.rs,DI_Read_BCA,1579,ios,hardware-probe,probes/ogc-system-probe/sr
 ogc-di,src/lib.rs,DI_ReportKey,1586,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
 ogc-di,src/lib.rs,DI_Reset,1484,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
 ogc-di,src/lib.rs,DI_StopMotor,1489,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
+ogc-di,src/lib.rs,DI_SetInitCallback,1407,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
+ogc-di,src/lib.rs,DI_UseCache,1402,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
 ogc-di,src/lib.rs,DI_UnencryptedRead,1532,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
 ogc-di,src/lib.rs,audio_stream,1010,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
 ogc-di,src/lib.rs,check_dvd_support,951,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc
