@@ -248,8 +248,8 @@ unsafe extern "C" fn output_callback(
         && pcm.length == state.case.samples_per_frame;
     state.pcm_frames += 1;
     state.pcm_samples += pcm.length as u32;
-    for channel in 0..pcm.channels as usize {
-        for &sample in &pcm.samples[channel][..pcm.length as usize] {
+    for channel_samples in pcm.samples.iter().take(pcm.channels as usize) {
+        for &sample in &channel_samples[..pcm.length as usize] {
             state.pcm_nonzero |= sample != 0;
             state.checksum ^= sample as u32;
             state.checksum = state.checksum.wrapping_mul(16_777_619);

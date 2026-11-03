@@ -24,7 +24,10 @@ unsafe fn reset_progress(stage: u32, priority: u32, result: i32) {
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn main(argc: i32, argv: *mut *mut u8) -> i32 {
+/// # Safety
+///
+/// The caller must pass the live argument array provided by the libogc loader.
+pub unsafe extern "C" fn main(argc: i32, argv: *mut *mut u8) -> i32 {
     RESET_PROBE_STAGE.store(1, Ordering::Release);
     system::init();
     // SAFETY: the runtime supplies valid argc/argv. The helper copies them.

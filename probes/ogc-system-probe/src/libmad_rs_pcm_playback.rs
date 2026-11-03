@@ -69,7 +69,7 @@ pub fn play_pcm_stereo_i16(
     timeout_ticks: u64,
 ) -> PlaybackResult {
     let frames = samples.len() / 2;
-    if samples.is_empty() || samples.len() % 2 != 0 || sample_rate == 0 {
+    if samples.is_empty() || !samples.len().is_multiple_of(2) || sample_rate == 0 {
         return PlaybackResult {
             submit_status: asnd_sys::SND_INVALID,
             dma_callbacks: 0,

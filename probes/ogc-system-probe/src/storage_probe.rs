@@ -1883,8 +1883,17 @@ fn record_owned_card_async(
     completed && result_value == success_result
 }
 
-fn mount_card_owned(slot: card::CardSlot, timeout_seconds: u32) -> Option<card::MountedCard> {
+fn mount_card_owned(
+    logger: &mut ProbeLogger,
+    slot: card::CardSlot,
+    timeout_seconds: u32,
+) -> Option<card::MountedCard> {
     let request = card::mount_async_owned(slot).ok()?;
+    let request_owns_slot = request.slot() == slot;
+    logger.record("card mount request retains its slot", request_owns_slot);
+    if !request_owns_slot {
+        return None;
+    }
     wait_card_owned_status(|| request.status(), timeout_seconds)?;
     match request.try_complete().ok()? {
         card::CardMountCompletion::Mounted(mounted) => Some(mounted),
@@ -2744,10 +2753,7 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     logger.record("card free blocks before create", freeblocks_ok);
     logger.note_u32("card free block count before create", freeblocks as u32);
     let create_request = card::create_async_owned(slot, b"SAVE", sector_size.max(0x2000));
-    let create_request_slot = create_request
-        .as_ref()
-        .ok()
-        .map(card::CardCreateRequest::slot);
+    let create_request_slot = create_request.as_ref().ok().map(|request| request.slot());
     logger.record(
         "card create request retains its slot",
         create_request_slot == Some(slot),
@@ -2980,7 +2986,7 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         return;
     }
 
-    let Some(remounted) = mount_card_owned(slot, 15) else {
+    let Some(remounted) = mount_card_owned(logger, slot, 15) else {
         logger.record("card remount after create", false);
         return;
     };
@@ -3044,10 +3050,7 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     );
 
     let delete_request = card::delete_async_owned(slot, b"SAVE");
-    let delete_request_slot = delete_request
-        .as_ref()
-        .ok()
-        .map(card::CardDeleteRequest::slot);
+    let delete_request_slot = delete_request.as_ref().ok().map(|request| request.slot());
     logger.record(
         "card delete request retains its slot",
         delete_request_slot == Some(slot),
@@ -3089,7 +3092,7 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     if delete_unmount != card::CARD_ERROR_READY {
         return;
     }
-    let Some(final_mount) = mount_card_owned(slot, 15) else {
+    let Some(final_mount) = mount_card_owned(logger, slot, 15) else {
         logger.record("card remount after delete", false);
         return;
     };
@@ -3117,7 +3120,7 @@ fn probe_card_format(logger: &mut ProbeLogger) {
     logger.section("CARD DESTRUCTIVE FORMAT");
     logger.note("WARNING: formatting memory card in slot A; all card data will be erased");
     let slot = card::CardSlot::A;
-    let Some(mounted) = mount_card_owned(slot, 15) else {
+    let Some(mounted) = mount_card_owned(logger, slot, 15) else {
         logger.record("card destructive format mount", false);
         return;
     };
@@ -3137,7 +3140,7 @@ fn probe_card_format(logger: &mut ProbeLogger) {
     if format_result != card::CARD_ERROR_READY || unmount_result != card::CARD_ERROR_READY {
         return;
     }
-    let Some(remounted) = mount_card_owned(slot, 15) else {
+    let Some(remounted) = mount_card_owned(logger, slot, 15) else {
         logger.record("card destructive format remount", false);
         return;
     };
