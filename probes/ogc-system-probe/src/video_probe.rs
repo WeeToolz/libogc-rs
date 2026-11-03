@@ -33,6 +33,7 @@ const RETRACE_WAIT_TIMEOUT_US: u64 = 100_000;
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("VIDEO PROBE");
     probe_texture_descriptors(logger);
+    probe_texture_queries(logger);
     probe_fifo_pointers(logger);
 
     let rmode = init_display(logger);
@@ -44,6 +45,21 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_gx_canvas_dimensions(logger, rmode);
 
     let initial_proof = unsafe { video::hardware_proof(rmode, DISPLAY_FRAMEBUFFER) };
+    if !initial_proof.next_framebuffer_registers_match {
+        logger.note_hex32("VI expected framebuffer", unsafe {
+            DISPLAY_FRAMEBUFFER as usize as u32
+        });
+        logger.note_hex32("VI top high", initial_proof.registers.top_field_high as u32);
+        logger.note_hex32("VI top low", initial_proof.registers.top_field_low as u32);
+        logger.note_hex32(
+            "VI bottom high",
+            initial_proof.registers.bottom_field_high as u32,
+        );
+        logger.note_hex32(
+            "VI bottom low",
+            initial_proof.registers.bottom_field_low as u32,
+        );
+    }
     logger.record(
         "video control register readback",
         initial_proof.control_register_matches,
@@ -131,6 +147,97 @@ pub fn run(logger: &mut ProbeLogger) {
     let _ = video::set_post_retrace_callback(previous_post);
     PREVIOUS_PRE_CALLBACK.store(0, Ordering::Release);
     PREVIOUS_POST_CALLBACK.store(0, Ordering::Release);
+}
+
+fn probe_texture_queries(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    #[repr(align(32))]
+    struct Image([u8; 64]);
+    let mut images = [Image([0; 64]), Image([0; 64])];
+    let first = images[0].0.as_mut_ptr().cast::<c_void>();
+    let second = images[1].0.as_mut_ptr().cast::<c_void>();
+    let expected_first = ((first as usize) & 0x1fff_ffe0) as *mut c_void;
+    let expected_second = ((second as usize) & 0x1fff_ffe0) as *mut c_void;
+    let mut object = gx::GxTexObj::default();
+    let mut user_data = 17u32;
+    let user_ptr = (&mut user_data as *mut u32).cast::<c_void>();
+    // SAFETY: Both aligned image buffers and all descriptor/output objects
+    // remain live and exclusively borrowed for their respective calls. This
+    // checks descriptor metadata and does not submit the images to GX.
+    unsafe {
+        gx::init_tex_obj_from_init(
+            &mut object,
+            first,
+            gx::GxTexObjInit {
+                wd: 16,
+                ht: 8,
+                fmt: gx::GX_TF_RGB565,
+                wrap_s: 1,
+                wrap_t: 2,
+                mipmap: 1,
+            },
+        );
+        gx::init_tex_obj_user_data(&mut object, user_ptr);
+        let initial = gx::get_tex_obj_data(&object) == expected_first
+            && gx::get_tex_obj_mip_map(&object) == 1
+            && gx::get_tex_obj_user_data(&object) == user_ptr;
+        gx::init_tex_obj_data(&mut object, second);
+        logger.record(
+            "GX texture image and user pointers",
+            initial
+                && gx::get_tex_obj_data(&object) == expected_second
+                && gx::get_tex_obj_user_data(&object) == user_ptr,
+        );
+
+        gx::init_tex_obj_filter_mode(&mut object, gx::GX_NEAR_MIP_NEAR, gx::GX_NEAR);
+        gx::init_tex_obj_min_lod(&mut object, 1.25);
+        gx::init_tex_obj_max_lod(&mut object, 3.5);
+        let (mut min_filter, mut mag_filter) = (255, 255);
+        let (mut min_lod, mut max_lod) = (-1.0, -1.0);
+        gx::get_tex_obj_filter_mode(&object, &mut min_filter, &mut mag_filter);
+        gx::get_tex_obj_lod(&object, &mut min_lod, &mut max_lod);
+        logger.record(
+            "GX texture filter and LOD queries",
+            min_filter == gx::GX_NEAR_MIP_NEAR
+                && mag_filter == gx::GX_NEAR
+                && min_lod == 1.25
+                && max_lod == 3.5,
+        );
+
+        let mut info = gx::GxTexObjInfo::default();
+        gx::get_tex_obj_info(&object, &mut info);
+        let (mut image, mut width, mut height, mut format, mut wrap_s, mut wrap_t, mut mipmap) =
+            (null_mut(), 0, 0, 0, 0, 0, 0);
+        gx::get_tex_obj_all(
+            &object,
+            gx::GxTexObjOutputs {
+                image_ptr: &mut image,
+                width: &mut width,
+                height: &mut height,
+                format: &mut format,
+                wrap_s: &mut wrap_s,
+                wrap_t: &mut wrap_t,
+                mipmap: &mut mipmap,
+            },
+        );
+        logger.record(
+            "GX texture grouped queries",
+            info.image_ptr == expected_second
+                && info.width == 16
+                && info.height == 8
+                && info.format == gx::GX_TF_RGB565
+                && info.wrap_s == 1
+                && info.wrap_t == 2
+                && info.mipmap == 1
+                && image == expected_second
+                && width == 16
+                && height == 8
+                && format == gx::GX_TF_RGB565
+                && wrap_s == 1
+                && wrap_t == 2
+                && mipmap == 1,
+        );
+    }
 }
 
 fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrModeObj) {
