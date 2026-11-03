@@ -31,10 +31,15 @@ The run used the code at revision `ca7e496`; only documentation changed after
 that run. Earlier runs reported the same checks. The failure causes remain
 open, and this result does not establish real-Wii behavior.
 
-The completeness gate currently reports 2,283 APIs without accepted exact
+The 2026-11-02 completeness gate reports 2,258 APIs without accepted exact
 test or probe evidence. The hardware register has 14 passed and 36 not-tested
 rows. These counts describe evidence gaps; they do not mean that every API is
 broken or tested. No real-Wii run was made for this repository preparation.
+
+The [Dolphin run records](../DEVELOPMENT_RESULTS.md) include the 30-probe
+baseline and later arena, card metadata, and Bluetooth packet checks. The
+baseline had seven non-passing probes. The focused checks do not establish
+physical Wii, card persistence, or Bluetooth transport behavior.
 
 The [review directory](review/) contains component-level findings. The
 [review workflow](review/REVIEW-WORKFLOW.md) explains how to compare a component
