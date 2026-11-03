@@ -606,6 +606,12 @@ impl<'ast> Visit<'ast> for EvidenceCallVisitor<'_> {
     }
 
     fn visit_expr_call(&mut self, expression: &'ast syn::ExprCall) {
+        if self
+            .api_path
+            .is_some_and(|expected| expression_path(&expression.func).as_deref() == Some(expected))
+        {
+            self.api_path_found = true;
+        }
         self.found |= self.api_path.map_or_else(
             || self.path_calls_symbol(&expression.func),
             |api_path| {
@@ -618,6 +624,15 @@ impl<'ast> Visit<'ast> for EvidenceCallVisitor<'_> {
     }
 
     fn visit_expr_method_call(&mut self, expression: &'ast syn::ExprMethodCall) {
+        if let Some(api_path) = self.api_path
+            && format!(
+                "{}.{}",
+                expression_path(&expression.receiver).unwrap_or_default(),
+                expression.method
+            ) == api_path
+        {
+            self.api_path_found = true;
+        }
         self.found |= self.api_path.map_or_else(
             || expression.method == self.symbol,
             |api_path| {
@@ -674,6 +689,17 @@ fn expression_path(expression: &syn::Expr) -> Option<String> {
             match &field.member {
                 syn::Member::Named(name) => name.to_string(),
                 syn::Member::Unnamed(index) => index.index.to_string(),
+            }
+        )),
+        syn::Expr::Index(index) => Some(format!(
+            "{}[{}]",
+            expression_path(&index.expr)?,
+            match index.index.as_ref() {
+                syn::Expr::Lit(literal) => match &literal.lit {
+                    syn::Lit::Int(value) => value.base10_digits().to_string(),
+                    _ => return None,
+                },
+                expression => expression_path(expression)?,
             }
         )),
         syn::Expr::Paren(paren) => expression_path(&paren.expr),
@@ -1669,6 +1695,37 @@ mod tests {
         let error = verify_evidence_call(source, &evidence, Path::new("probes/sample.rs"))
             .expect_err("the API path must identify the inventory symbol");
         assert!(error.contains("API path `sample_api.write` does not end with symbol `read`"));
+    }
+
+    #[test]
+    fn api_path_must_match_a_method_receiver() {
+        let evidence = Evidence {
+            crate_name: "sample".to_string(),
+            path: "src/lib.rs".to_string(),
+            symbol: "flush_lun".to_string(),
+            line: 1,
+            classification: "protocol".to_string(),
+            kind: "host-test".to_string(),
+            evidence_path: "crates/sample/src/lib.rs".to_string(),
+            function: "probe".to_string(),
+            api_path: Some("operations.flush_lun".to_string()),
+        };
+        let source = "#[test] fn probe() { other.flush_lun(); }";
+
+        let error = verify_evidence_call(source, &evidence, Path::new("crates/sample/src/lib.rs"))
+            .expect_err("a same-named method on another receiver must not count");
+        assert!(error.contains("does not call the API"));
+    }
+
+    #[test]
+    fn api_path_normalizes_indexed_receivers() {
+        let expression = syn::parse_str::<syn::Expr>("drives[0].remove")
+            .expect("the test expression must parse");
+
+        assert_eq!(
+            expression_path(&expression).as_deref(),
+            Some("drives[0].remove")
+        );
     }
 
     #[test]

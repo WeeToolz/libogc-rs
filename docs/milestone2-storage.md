@@ -10,10 +10,12 @@ report. This is a source-mapping result. It does not prove that a probe ran
 or that an API passed on Dolphin or Wii hardware. The inventory audit checks
 that each entry maps to evidence source; it does not check runtime results.
 Most evidence rows currently check only a function or method name; they do not
-resolve its crate or receiver type. The five `ogc-wiisd` rows also record the
+resolve its crate or receiver type. Five `ogc-wiisd` rows record the
 `WII_SD_INTERFACE` callback field and require the matching function-pointer
-call in the named probe. This path check is a staged improvement. Review each
-mapping before using it as evidence.
+call in the named probe. Twenty `ogc-usbstorage-lifecycle` rows record the
+exact free-function or method receiver used by their named host test. These
+path checks are staged improvements. Review each mapping before using it as
+evidence.
 
 | Package | API entries | Probe group |
 | --- | ---: | --- |
