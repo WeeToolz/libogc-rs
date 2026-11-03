@@ -1,5 +1,23 @@
 # Development results
 
+## 2026-11-02: GX texture buffer sizes in Dolphin
+
+The video probe checks fixed texture sizes for I4, I8, RGB565, and RGBA8
+across tile boundaries and mip levels. The DOL ran in Dolphin 2609a with 51
+passes and no failures. Its SHA-256 was
+`55c45b38c6cc9137babb5333a4d537af414605b1564f64d63eede345a9c00924`.
+The build used revision `8860d0e` and the probe change in this batch. The
+runner used a private profile and copied Wii NAND. HBC was not under test.
+The [report](docs/dolphin-runs/2026-11-02-gx-texture-sizes/suite.json)
+records the run. These checks do not establish texture rendering or physical
+Wii behavior.
+
+Build with `cargo xtask build-dol ogc-system-probe --bin video_probe
+--probe-features dolphin-automation --no-dev --output
+target/xtask/probes-dolphin/video_probe.dol`. Run with `cargo xtask
+dolphin-validate --no-build --probe video_probe --artifact-dir
+docs/dolphin-runs/2026-11-02-gx-texture-sizes`.
+
 ## 2026-11-02: GX perspective fog table in Dolphin
 
 The video probe checks ten fixed perspective fog adjustment values and the
