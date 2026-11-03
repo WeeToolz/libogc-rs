@@ -160,7 +160,7 @@ fn run_case(logger: &mut ProbeLogger, case: Case, label: &str) -> bool {
     // dereference it. Audio samples have permanent aligned storage.
     let previous = unsafe { snd::register_audio_callback_with_arg(Some(output), arg) };
     logger.record("fresh AESND audio callback slot", previous.is_none());
-    let pb = unsafe { snd::allocate_voice_with_arg(Some(voice), arg) };
+    let pb = unsafe { snd::allocate_voice_with_arg(None, arg) };
     logger.record("AESND stream voice allocated", !pb.is_null());
     if pb.is_null() {
         snd::reset();
@@ -170,6 +170,9 @@ fn run_case(logger: &mut ProbeLogger, case: Case, label: &str) -> bool {
         );
         return false;
     }
+    // SAFETY: The context is an opaque case ID, and the callback validates it.
+    let previous_voice = unsafe { snd::register_voice_callback_with_arg(pb, Some(voice), arg) };
+    logger.record("fresh AESND voice callback slot", previous_voice.is_none());
     ORIGINAL_VOICE.store(pb, Ordering::Release);
     snd::set_voice_volume(pb, 0x80, 0x40);
     snd::set_voice_stream(pb, 1);
