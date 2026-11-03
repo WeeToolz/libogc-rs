@@ -82,3 +82,16 @@ errors for Rust and C partition APIs. The updated DOL SHA-256 is
 The probe compiled, but Dolphin did not run it. These checks add no runtime
 evidence. A successful partition operation and init-callback delivery after a
 successful mount still need a disc test.
+
+## Build with CARD API source coverage
+
+The probe now checks the remaining CARD facade and system APIs, including
+output preservation, invalid-channel results, owned async request state,
+completion status, and game/company identifier selection. It skips an existing
+`SAVE` file and deletes only probe files created by the current run. The DOL
+SHA-256 is
+`200cacf4b0c2b7df3f255f97fdae99c82c09f92b217487abff1e9105719f6731`.
+
+The DOL built, but it did not run. Dolphin still aborts before launch, and
+physical CARD behavior is untested. The zero open count in the generated API
+inventory records mapped source checks; it is not a runtime pass.
