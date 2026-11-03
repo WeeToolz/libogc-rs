@@ -319,8 +319,11 @@ The ISO9660 probe calls its three C ABI exports and the Rust file-system
 mount, label, and unmount facade directly. A controlled in-memory disc image
 checks file lookup, open, read, seek, close, stat metadata, and root directory
 changes through both the C mount and the Rust mount. The latest Dolphin
-`runtime_probe` passed 97 checks with no failures. It includes the lower-level
-Rust C wrapper mount, label, and cleanup checks. The probe exposed and fixed
+`runtime_probe` passed 105 checks with no failures, including EOF, write
+rejection, and missing-file checks through both mounts. See the
+[ISO9660 boundary report](dolphin-runs/2026-11-03-iso-file-boundaries/README.md).
+The probe also checks the lower-level Rust C wrapper mount, label, and cleanup.
+The probe exposed and fixed
 the device name used for devoptab lookup and the handling of valid negative
 pointer-shaped file handles. This does not verify a physical optical drive.
 See the [ISFS and ISO9660 follow-up](dolphin-runs/2026-11-03-isfs-iso-followup/README.md).
@@ -355,9 +358,9 @@ The bounded async-format run reports callback status 0
 and removal of its marker state; the earlier run without callback completion
 was superseded by that result. The current probe now also checks synchronous
 format after creating marker state, restarting the service, and verifying the
-marker paths are absent. The latest Dolphin `runtime_probe` log reports 99
+marker paths are absent. An earlier Dolphin `runtime_probe` log reports 99
 checks with no failures. It includes the format cycle, directory renames, and
-new checks that sync and async file bytes persist after close and reopen. Its
+checks that sync and async file bytes persist after close and reopen. Its
 summary capture was black; the log and readable check pages are in the
 [ISFS and FAT reopen report](dolphin-runs/2026-11-03-isfs-fat-reopen/README.md).
 An earlier run
