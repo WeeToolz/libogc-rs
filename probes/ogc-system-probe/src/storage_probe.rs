@@ -105,7 +105,7 @@ pub fn run(logger: &mut ProbeLogger, destructive_card_format: bool) {
 
     if !logger.uses_mounted_log() {
         log_fat_result(logger, "fat shutdown all", &fat::shutdown_all());
-        logger.note_i32("card shutdown", card::shutdown());
+        logger.note_i32("card shutdown", card::sys::shutdown());
         let dvd_shutdown = dvd::sys::shutdown();
         logger.note_i32("dvd shutdown", dvd_shutdown);
         logger.record("dvd sys shutdown completes", dvd_shutdown == 0);
@@ -121,7 +121,7 @@ pub fn run(logger: &mut ProbeLogger, destructive_card_format: bool) {
 pub fn run_card_probe(logger: &mut ProbeLogger) {
     logger.section("GAMECUBE CARD PROBE");
     probe_card_save_data(logger);
-    logger.note_i32("card shutdown", card::shutdown());
+    logger.note_i32("card shutdown", card::sys::shutdown());
 }
 
 unsafe fn storage_debug_hook(event: lwp::DebugEvent) {
@@ -1941,6 +1941,34 @@ fn probe_card_invalid_channel_apis(logger: &mut ProbeLogger) {
         "CARD wrapper get_error_code forwards the invalid-channel result",
         card::get_error_code(invalid_channel) == card::CARD_ERROR_NOCARD,
     );
+
+    let mut sys_sector_size = 0x5678_9abc;
+    // SAFETY: the output pointer refers to a live, aligned, writable value.
+    let sector_result =
+        unsafe { card::sys::get_sector_size(invalid_channel, &mut sys_sector_size) };
+    logger.record(
+        "CARD sys get_sector_size preserves output on invalid channel",
+        sector_result == card::CARD_ERROR_NOCARD && sys_sector_size == 0x5678_9abc,
+    );
+
+    let mut sys_created_file = card::CardFile {
+        filenum: 0x3456,
+        ..card::CardFile::default()
+    };
+    // SAFETY: the static filename and file output are valid. An invalid
+    // channel must reject creation before it changes the output or card data.
+    let create_result = unsafe {
+        card::sys::create(
+            invalid_channel,
+            c"INVALID".as_ptr(),
+            card::CARD_READSIZE,
+            &mut sys_created_file,
+        )
+    };
+    logger.record(
+        "CARD sys create rejects invalid channel and preserves output",
+        create_result == card::CARD_ERROR_FATAL_ERROR && sys_created_file.filenum == 0x3456,
+    );
     // SAFETY: the static filename is a valid NUL-terminated string. The
     // invalid channel must reject both calls before they can affect a file.
     let sys_delete = unsafe { card::sys::delete(invalid_channel, c"INVALID".as_ptr()) };
@@ -2385,7 +2413,7 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
             && card::CardSlot::try_from(card::CARD_SLOTB) == Ok(card::CardSlot::B)
             && card::CardSlot::try_from(3) == Err(card::InvalidCardSlot(3)),
     );
-    let init = card::init(Some(gamecode), Some(company));
+    let init = card::sys::init(Some(gamecode), Some(company));
     logger.note_i32("card init", init);
     let slot = card::CardSlot::A;
     probe_card_invalid_channel_apis(logger);
@@ -2722,7 +2750,7 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         unsafe { card::open(slot.channel(), c"SAVE".as_ptr().cast(), &mut existing_save) };
     if existing_save_status == card::CARD_ERROR_READY {
         // SAFETY: `existing_save` is live and not used by another operation.
-        let close = unsafe { card::close(&mut existing_save) };
+        let close = unsafe { card::sys::close(&mut existing_save) };
         logger.record(
             "card existing SAVE handle cleanup",
             close == card::CARD_ERROR_READY,
@@ -2787,7 +2815,7 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     };
     if !create_ok {
         // SAFETY: the completed create returned a live, uniquely owned file handle.
-        let close = unsafe { card::close(&mut file) };
+        let close = unsafe { card::sys::close(&mut file) };
         logger.record(
             "card close after failed create result",
             close == card::CARD_ERROR_READY,
@@ -2847,7 +2875,7 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         let (create_status, returned_entry, mut entry_file) = completion.into_parts();
         if create_status == card::CARD_ERROR_READY {
             // SAFETY: no request retains `entry_file`; it is uniquely borrowed.
-            let close_status = unsafe { card::close(&mut entry_file) };
+            let close_status = unsafe { card::sys::close(&mut entry_file) };
             logger.record(
                 "card close created entry",
                 close_status == card::CARD_ERROR_READY,
@@ -2956,10 +2984,10 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     // synchronous transfers. The file is uniquely borrowed by each call.
     let (raw_write, raw_read) = unsafe {
         ogc_cache::dc_flush_range(raw_ptr.cast_const(), sector_size);
-        let write = card::write(&mut file, raw_ptr, sector_size, 0);
+        let write = card::sys::write(&mut file, raw_ptr, sector_size, 0);
         core::ptr::write_bytes(raw_ptr.cast::<u8>(), 0, sector_size as usize);
         ogc_cache::dc_flush_range(raw_ptr.cast_const(), sector_size);
-        let read = card::read(&mut file, raw_ptr, card::CARD_READSIZE, 0);
+        let read = card::sys::read(&mut file, raw_ptr, card::CARD_READSIZE, 0);
         ogc_cache::dc_invalidate_range(raw_ptr.cast_const(), card::CARD_READSIZE);
         (write, read)
     };
@@ -2970,11 +2998,32 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
             && raw_buffer[0].0[..2] == [0x3c, 0xc3],
     );
 
+    raw_buffer[0].0.fill(0);
+    raw_buffer[0].0[0] = 0x96;
+    raw_buffer[0].0[1] = 0x69;
+    // SAFETY: the same aligned buffer and unique file remain live for both
+    // synchronous transfers. The cache operations bracket each data transfer.
+    let (wrapper_write, wrapper_read) = unsafe {
+        ogc_cache::dc_flush_range(raw_ptr.cast_const(), sector_size);
+        let write = card::write(&mut file, raw_ptr, sector_size, 0);
+        core::ptr::write_bytes(raw_ptr.cast::<u8>(), 0, sector_size as usize);
+        ogc_cache::dc_flush_range(raw_ptr.cast_const(), sector_size);
+        let read = card::read(&mut file, raw_ptr, card::CARD_READSIZE, 0);
+        ogc_cache::dc_invalidate_range(raw_ptr.cast_const(), card::CARD_READSIZE);
+        (write, read)
+    };
+    logger.record(
+        "card raw wrapper sync roundtrip",
+        wrapper_write == card::CARD_ERROR_READY
+            && wrapper_read == card::CARD_ERROR_READY
+            && raw_buffer[0].0[..2] == [0x96, 0x69],
+    );
+
     logger.record(
         "card close save",
         // SAFETY: `file` is a live, uniquely borrowed card handle and no
         // asynchronous request remains pending.
-        unsafe { card::close(&mut file) } == card::CARD_ERROR_READY,
+        unsafe { card::sys::close(&mut file) } == card::CARD_ERROR_READY,
     );
 
     let first_unmount = mounted.unmount();
@@ -2993,7 +3042,7 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     logger.record("card remount after create", true);
     let mut reopened = card::CardFile::default();
     // SAFETY: the static filename and unique file output remain valid for the call.
-    let reopen = unsafe { card::open(slot.channel(), c"SAVE".as_ptr().cast(), &mut reopened) };
+    let reopen = unsafe { card::sys::open(slot.channel(), c"SAVE".as_ptr().cast(), &mut reopened) };
     logger.record(
         "card create persisted after remount",
         reopen == card::CARD_ERROR_READY,
@@ -3046,7 +3095,7 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     logger.record(
         "card close remounted save",
         // SAFETY: the reopened file is uniquely borrowed and has no pending request.
-        unsafe { card::close(&mut reopened) } == card::CARD_ERROR_READY,
+        unsafe { card::sys::close(&mut reopened) } == card::CARD_ERROR_READY,
     );
 
     let delete_request = card::delete_async_owned(slot, b"SAVE");
@@ -3100,7 +3149,7 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     let mut deleted_file = card::CardFile::default();
     // SAFETY: the static filename and unique file output remain valid for the call.
     let deleted_open =
-        unsafe { card::open(slot.channel(), c"SAVE".as_ptr().cast(), &mut deleted_file) };
+        unsafe { card::sys::open(slot.channel(), c"SAVE".as_ptr().cast(), &mut deleted_file) };
     logger.record(
         "card delete persisted after remount",
         deleted_open == card::CARD_ERROR_NOFILE,
@@ -3126,7 +3175,7 @@ fn probe_card_format(logger: &mut ProbeLogger) {
     };
     logger.record("card destructive format mount", true);
     let block_count = card::block_count(slot).ok();
-    let format_result = card::format(slot.channel());
+    let format_result = card::sys::format(slot.channel());
     logger.note_i32("card destructive format result", format_result);
     logger.record(
         "card destructive format completed",
@@ -3521,10 +3570,10 @@ fn probe_media_hotplug(logger: &mut ProbeLogger) {
                 stale == card::CARD_ERROR_NOCARD,
             );
         }
-        if !card_slot_mounted && card::probe(card::CARD_SLOTA) == 1 {
+        if !card_slot_mounted && card::sys::probe(card::CARD_SLOTA) == 1 {
             // SAFETY: the aligned work area remains live through this remount.
             card_slot_mounted = unsafe {
-                card::mount(
+                card::sys::mount(
                     card::CARD_SLOTA,
                     card_workarea.0.as_mut_ptr().cast(),
                     Some(card_detach_callback),
@@ -3538,7 +3587,7 @@ fn probe_media_hotplug(logger: &mut ProbeLogger) {
                     card_remounts += 1;
                 } else {
                     logger.record("card hotplug remount file open", false);
-                    let unmount = card::unmount(card::CARD_SLOTA);
+                    let unmount = card::sys::unmount(card::CARD_SLOTA);
                     logger.record(
                         "card hotplug remount cleanup",
                         unmount == card::CARD_ERROR_READY,
@@ -3590,7 +3639,7 @@ fn probe_media_hotplug(logger: &mut ProbeLogger) {
     if card_file_open {
         // SAFETY: `card_file` is live, uniquely borrowed, and has no pending
         // asynchronous operation at this cleanup point.
-        let close = unsafe { card::close(&mut card_file) };
+        let close = unsafe { card::sys::close(&mut card_file) };
         logger.record("card hotplug file close", close == card::CARD_ERROR_READY);
     }
     if card_slot_mounted {
@@ -3602,7 +3651,7 @@ fn probe_media_hotplug(logger: &mut ProbeLogger) {
                 delete == card::CARD_ERROR_READY,
             );
         }
-        let unmount = card::unmount(card::CARD_SLOTA);
+        let unmount = card::sys::unmount(card::CARD_SLOTA);
         logger.record(
             "card hotplug unmount cleanup",
             unmount == card::CARD_ERROR_READY,

@@ -1,8 +1,10 @@
 # CARD accessor probe update
 
-This run builds the GameCube CARD probe after adding a mount-request slot check
-and exact receiver paths for CARD wrapper calls. It does not contain a Dolphin
-runtime result.
+This run builds the GameCube CARD probe after adding a mount-request slot check,
+direct `ogc-card-sys` calls, and exact receiver paths for CARD wrapper calls.
+The probe checks invalid-channel sector-size and create results. It also runs
+raw transfers through both sys and wrapper calls. This report has no new
+Dolphin runtime result.
 
 ## Build
 
@@ -17,7 +19,7 @@ cargo xtask build-dolphin-probes
 The reference fixture SHA-256 matched the required value in
 `docs/dependencies.md`. The build completed and wrote
 `target/xtask/probes-dolphin/card_probe.dol` with SHA-256
-`405e8bf7e57ae8e93e171afa2528353e7df9748d60db8e30a24e5192c47ba1d3`.
+`c065aac180ba99524bd9cc5e50c55d379fffa6668b1c659ed7efff3a8ca75e0d`.
 
 ## Dolphin result
 

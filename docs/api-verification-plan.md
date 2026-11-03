@@ -188,8 +188,8 @@ The current inventory has 604 API entries in 14 storage packages. Its 0
 `unverified` entries mean that every API has an implementation-source mapping;
 they do not mean that every API has passed a test or a Dolphin run. These
 counts come from `docs/generated/implementation-inventory.csv`. Exact call
-paths are now recorded for 506 entries: 9 `iso9660`, 27 `ogc-dvd`, 32
-`ogc-dvd-sys`, 59 `ogc-di`, 30 `ogc-gcsd`, 63 `ogc-card`, 38 `ogc-card-sys`,
+paths are now recorded for 518 entries: 9 `iso9660`, 27 `ogc-dvd`, 32
+`ogc-dvd-sys`, 59 `ogc-di`, 30 `ogc-gcsd`, 63 `ogc-card`, 50 `ogc-card-sys`,
 24 `ogc-card-metadata`, 5 `ogc-wiisd`, 20
 `ogc-usbstorage-lifecycle`, 30
 `ogc-usbstorage`, 65 `ogc-usbstorage-sys`, 64 `ogc-fat`, and 40
@@ -264,9 +264,9 @@ GameCube card. The CARD hardware register remains `not-tested` for physical
 hardware. The latest metadata invalid-count change has a passing host test and
 updated DOL builds, but has no new Dolphin result because the installed
 Dolphin exits before launch on this host. The later [CARD accessor update](dolphin-runs/2026-11-03-card-accessor-update/README.md)
-adds a mount-request slot check and exact receiver paths. Its DOL builds, but
-Dolphin exits before launch because its Qt build needs NEON. It adds no runtime
-result.
+adds a mount-request slot check, direct sys API calls, and exact receiver
+paths. Its DOL builds, but Dolphin exits before launch because its Qt build
+needs NEON. It adds no runtime result.
 
 The Dolphin runner can copy a raw card image from `LIBOGC_DOLPHIN_CARD_IMAGE`
 into its isolated profile. The latest run used this option, but CARD still
