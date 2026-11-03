@@ -87,7 +87,11 @@ pub fn init(aram_base: u32, len: i32) {
             ZERO_BYTES,
         );
         let zero_buffer = ptr::addr_of_mut!((*state).zero_buffer.0).cast::<c_void>();
-        let _ = push_data(zero_buffer, ZERO_BYTES as i32);
+        if push_data(zero_buffer, ZERO_BYTES as i32) == 0 {
+            (*state).stack_location = 0;
+            (*state).stack_pointer[0] = 0;
+            (*state).free_bytes = 0;
+        }
     }
 }
 

@@ -153,3 +153,32 @@ mp3player-sys,src/lib.rs,play_buffer,hardware,mp3player-probe,Dolphin decodes a 
 mp3player-sys,src/lib.rs,play_buffer_looped,hardware,mp3player-probe,Dolphin checks repeated buffer playback and clean stop
 mp3player-sys,src/lib.rs,play_file,hardware,mp3player-probe,Dolphin checks reader callbacks and playback with a fixed MP3 fixture
 mp3player-sys,src/lib.rs,stop,hardware,mp3player-probe,Dolphin checks looped playback stops and releases its voice
+ogc-aram,src/lib.rs,alloc,hardware,aram-probe,Dolphin checks allocation and reverse-order free with caller-owned stack storage
+ogc-aram,src/lib.rs,check_init,hardware,aram-probe,Dolphin checks initialization and reset state transitions
+ogc-aram,src/lib.rs,clear,hardware,aram-probe,Dolphin clears ARAM and verifies the result through DMA readback
+ogc-aram,src/lib.rs,free,hardware,aram-probe,Dolphin checks allocation and reverse-order free with and without a size output
+ogc-aram,src/lib.rs,get_base_address,hardware,aram-probe,Dolphin checks the initialized ARAM base address
+ogc-aram,src/lib.rs,get_dma_status,hardware,aram-probe,Dolphin checks DMA idle state after completion
+ogc-aram,src/lib.rs,get_internal_size,hardware,aram-probe,Dolphin checks initialized ARAM size bounds
+ogc-aram,src/lib.rs,get_size,hardware,aram-probe,Dolphin checks initialized ARAM size bounds
+ogc-aram,src/lib.rs,register_callback,hardware,aram-probe,Dolphin checks callback replacement and delivery after a DMA write
+ogc-aram,src/lib.rs,reset,hardware,aram-probe,Dolphin checks reset and successful reinitialization
+ogc-aram,src/lib.rs,start_dma,hardware,aram-probe,Dolphin checks callback delivery and DMA completion
+ogc-aram,src/lib.rs,start_dma_read,hardware,aram-probe,Dolphin checks readback of bytes written to ARAM
+ogc-aram,src/lib.rs,start_dma_write,hardware,aram-probe,Dolphin checks aligned data roundtrip and user-area clear
+ogc-aram,src/arq.rs,chunk_size,hardware,aram-probe,Dolphin checks the default chunk size and 32-byte rounding
+ogc-aram,src/arq.rs,flush_queue,hardware,aram-probe,Dolphin checks pending request cleanup after removing queued work
+ogc-aram,src/arq.rs,new,hardware,aram-probe,Dolphin checks a newly constructed request has ready state and empty links
+ogc-aram,src/arq.rs,post_request,hardware,aram-probe,Dolphin checks synchronous request returns after DMA completion
+ogc-aram,src/arq.rs,post_request_async,hardware,aram-probe,Dolphin checks callback and finished state after asynchronous DMA
+ogc-aram,src/arq.rs,remove_owner_request,hardware,aram-probe,Dolphin checks removal count and retained queued request state
+ogc-aram,src/arq.rs,remove_request,hardware,aram-probe,Dolphin checks a queued request can be removed by address
+ogc-aram,src/arq.rs,reset,hardware,aram-probe,Dolphin checks ARQ reset call after queued work completes
+ogc-aram,src/arq.rs,set_chunk_size,hardware,aram-probe,Dolphin checks low-priority chunk-size rounding
+ogc-aram,src/arq.rs,init,hardware,aram-probe,Dolphin checks ARQ initialization and default queue settings
+ogc-aram,src/arq/manager.rs,init,hardware,aram-probe,Dolphin checks manager initialization writes its zero buffer through ARQ
+ogc-aram,src/arq/manager.rs,free_size,hardware,aram-probe,"Dolphin checks manager free bytes before push, after push, and after pop"
+ogc-aram,src/arq/manager.rs,pop,hardware,aram-probe,Dolphin checks pop restores the manager allocation stack
+ogc-aram,src/arq/manager.rs,push_data,hardware,aram-probe,Dolphin checks aligned data is transferred to ARAM before returning
+ogc-aram,src/arq/manager.rs,stack_pointer,hardware,aram-probe,"Dolphin checks manager stack pointer before push, after push, and after pop"
+ogc-aram,src/arq/manager.rs,zero_buffer,hardware,aram-probe,Dolphin checks zero-buffer address selected during manager initialization

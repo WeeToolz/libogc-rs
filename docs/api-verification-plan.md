@@ -102,17 +102,25 @@ fixed 8,777-byte MPEG Layer III fixture. The volume and speed setters ran, but
 the library has no public readback for them, so four related entries remain
 open. See `docs/dolphin-runs/2026-11-02-mp3player-final/` for the logs.
 
+The ARAM and ARQ probe passed 21 checks in Dolphin 2609a. It checked DMA
+write/read round trips, callback delivery, allocation and free, request
+completion and queue removal, manager push/pop, initialization failure state,
+and reset/reinitialization. The DOL SHA256 was
+`3bd9d9f755e8abc408e861929cf6b11fe9c2291cc22ba7760e47e8ee236a64bd`. See
+`docs/dolphin-runs/2026-11-02-aram-verified/`. Dolphin validates the emulated
+hardware path; a physical Wii run has not been recorded.
+
 | Package | Open entries |
 | --- | ---: |
 | `asnd-sys` | 0 |
 | `mad-sys` | 0 |
 | `modplay-capi` | 0 |
 | `mp3player-sys` | 4 |
-| `ogc-aram` | 26 |
+| `ogc-aram` | 0 |
 | `ogc-audio-sys` | 0 |
 | `ogc-dsp` | 15 |
 | `ogc-dsp-sys` | 19 |
-| **Total** | **64** |
+| **Total** | **38** |
 
 ## Package work list
 

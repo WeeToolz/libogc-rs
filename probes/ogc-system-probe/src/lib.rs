@@ -16,6 +16,8 @@ mod aesnd_output_evidence;
 #[cfg(target_arch = "powerpc")]
 mod aesnd_stream_probe;
 #[cfg(target_arch = "powerpc")]
+pub mod aram_probe;
+#[cfg(target_arch = "powerpc")]
 pub mod arena_probe;
 #[cfg(target_arch = "powerpc")]
 pub mod bluetooth_probe;
@@ -703,6 +705,16 @@ pub fn run_mp3player_probe_bin() -> i32 {
     configure_probe_app_dir("mp3player-probe");
     let mut logger = init_probe_logger();
     mp3player_probe::run(&mut logger);
+    logger.summary();
+    finish_probe()
+}
+
+#[cfg(target_arch = "powerpc")]
+/// Checks ARAM DMA, allocation, ARQ scheduling, and the ARQM stack on Dolphin.
+pub fn run_aram_probe_bin() -> i32 {
+    configure_probe_app_dir("aram-probe");
+    let mut logger = init_probe_logger();
+    aram_probe::run(&mut logger);
     logger.summary();
     finish_probe()
 }

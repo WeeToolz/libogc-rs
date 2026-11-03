@@ -359,6 +359,13 @@ pub unsafe fn post_request_async(
     callback: ArqCallback,
 ) {
     unsafe {
+        let level = lwp::critical_enter();
+        let state = state_ptr();
+        if !(*state).initialized {
+            lwp::critical_exit(level);
+            return;
+        }
+
         (*request).state = ARQ_TASK_READY;
         (*request).dir = transfer.dir;
         (*request).owner = transfer.owner;
@@ -368,8 +375,6 @@ pub unsafe fn post_request_async(
         (*request).prio = transfer.prio;
         (*request).callback = callback.or(Some(callback_dummy));
 
-        let level = lwp::critical_enter();
-        let state = state_ptr();
         if transfer.prio == ARQ_PRIO_LO {
             (*state).low.push_back(request);
         } else {
@@ -391,13 +396,20 @@ pub unsafe fn post_request_async(
 /// `request` must satisfy the same requirements as [`post_request_async`].
 pub unsafe fn post_request(request: *mut ArqRequest, transfer: ArqTransfer) {
     unsafe {
+        let state = state_ptr();
+        if !(*state).initialized {
+            return;
+        }
+
         post_request_async(request, transfer, Some(callback_sync));
 
-        let state = state_ptr();
         let level = lwp::critical_enter();
         // The DMA callback changes this field while the caller sleeps.
         while ptr::read_volatile(ptr::addr_of!((*request).state)) != ARQ_TASK_FINISHED {
-            let _ = lwp::queue_sleep((*state).sync_queue);
+            if lwp::queue_sleep((*state).sync_queue) != lwp::LWP_SUCCESSFUL {
+                lwp::critical_exit(level);
+                return;
+            }
         }
         lwp::critical_exit(level);
     }
