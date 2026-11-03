@@ -609,6 +609,18 @@ fn wait_isfs_callback() -> bool {
     ISFS_CALLBACK_DONE.load(Ordering::Acquire)
 }
 
+fn run_isfs_async_and_wait(start: impl FnOnce() -> i32) -> (i32, i32) {
+    reset_isfs_callback();
+    let submission = start();
+    if submission < 0 {
+        return (submission, i32::MIN);
+    }
+    while !ISFS_CALLBACK_DONE.load(Ordering::Acquire) {
+        lwp::sleep_ticks(1);
+    }
+    (submission, ISFS_CALLBACK_RESULT.load(Ordering::Acquire))
+}
+
 unsafe extern "C" fn iso_ready() -> bool {
     true
 }
@@ -946,6 +958,7 @@ fn probe_isfs_successful_file_cycle(logger: &mut ProbeLogger) {
         "ISFS read directory lists test file",
         read_dir_result == filesystem::ISFS_OK && directory_count > 0 && entry_present,
     );
+    probe_isfs_async_file_cycle(directory, logger);
 
     let rename_result = if file_created {
         filesystem::rename(file_path, renamed_path)
@@ -1023,6 +1036,239 @@ fn probe_isfs_successful_file_cycle(logger: &mut ProbeLogger) {
             && deleted_directory_usage == filesystem::ISFS_ENOENT
             && deleted_directory_usage_a == u32::MAX
             && deleted_directory_usage_b == u32::MAX,
+    );
+}
+
+fn probe_isfs_async_file_cycle(directory: &core::ffi::CStr, logger: &mut ProbeLogger) {
+    logger.section("ISFS ASYNC FILE CYCLE");
+    let path = c"/tmp/ogc-rs-isfs-verify/async-file";
+    let (create_submit, create_result) = run_isfs_async_and_wait(|| unsafe {
+        filesystem::create_file_async(
+            path,
+            0,
+            3,
+            3,
+            3,
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    });
+    logger.record(
+        "ISFS create_file_async completes successfully",
+        create_submit >= 0 && create_result == filesystem::ISFS_OK,
+    );
+
+    let (open_submit, open_result) = if create_result == filesystem::ISFS_OK {
+        run_isfs_async_and_wait(|| unsafe {
+            filesystem::open_async(
+                path,
+                filesystem::ISFS_OPEN_RW,
+                Some(isfs_probe_callback),
+                core::ptr::null_mut(),
+            )
+        })
+    } else {
+        (-1, i32::MIN)
+    };
+    let mut file =
+        (open_submit >= 0 && open_result >= 0).then(|| filesystem::IsfsFile::from_raw(open_result));
+    logger.record("ISFS open_async returns an open descriptor", file.is_some());
+
+    let mut write_buffer = AlignedIsfsBytes([0; 32]);
+    write_buffer.0[..8].copy_from_slice(b"async-rs");
+    let (write_submit, write_result) = if let Some(file) = file.as_ref() {
+        run_isfs_async_and_wait(|| unsafe {
+            file.write_async(
+                &write_buffer.0[..8],
+                Some(isfs_probe_callback),
+                core::ptr::null_mut(),
+            )
+        })
+    } else {
+        (-1, i32::MIN)
+    };
+    let (seek_submit, seek_result) = if let Some(file) = file.as_ref() {
+        run_isfs_async_and_wait(|| unsafe {
+            file.seek_async(0, 0, Some(isfs_probe_callback), core::ptr::null_mut())
+        })
+    } else {
+        (-1, i32::MIN)
+    };
+    let mut read_buffer = AlignedIsfsBytes([0; 32]);
+    let (read_submit, read_result) = if let Some(file) = file.as_ref() {
+        run_isfs_async_and_wait(|| unsafe {
+            file.read_async(
+                &mut read_buffer.0[..8],
+                Some(isfs_probe_callback),
+                core::ptr::null_mut(),
+            )
+        })
+    } else {
+        (-1, i32::MIN)
+    };
+    let mut stats = AlignedFstats(filesystem::Fstats::default());
+    let (stats_submit, stats_result) = if let Some(file) = file.as_ref() {
+        run_isfs_async_and_wait(|| unsafe {
+            file.get_stats_async(
+                &mut stats.0,
+                Some(isfs_probe_callback),
+                core::ptr::null_mut(),
+            )
+        })
+    } else {
+        (-1, i32::MIN)
+    };
+    logger.record(
+        "ISFS async write seek read and file stats",
+        write_submit >= 0
+            && write_result == 8
+            && seek_submit >= 0
+            && seek_result == 0
+            && read_submit >= 0
+            && read_result == 8
+            && read_buffer.0[..8] == *b"async-rs"
+            && stats_submit >= 0
+            && stats_result == filesystem::ISFS_OK
+            && stats.0
+                == filesystem::Fstats {
+                    file_length: 8,
+                    file_pos: 8,
+                },
+    );
+
+    let mut owner_id = u32::MAX;
+    let mut group_id = u16::MAX;
+    let mut attributes = u8::MAX;
+    let mut owner_perm = u8::MAX;
+    let mut group_perm = u8::MAX;
+    let mut other_perm = u8::MAX;
+    let (get_attr_submit, get_attr_result) = run_isfs_async_and_wait(|| unsafe {
+        filesystem::get_attr_async(
+            path,
+            filesystem::FsAttributeOutputs {
+                owner_id: &mut owner_id,
+                group_id: &mut group_id,
+                attributes: &mut attributes,
+                owner_perm: &mut owner_perm,
+                group_perm: &mut group_perm,
+                other_perm: &mut other_perm,
+            },
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    });
+    let (set_attr_submit, set_attr_result) = if get_attr_result == filesystem::ISFS_OK {
+        run_isfs_async_and_wait(|| unsafe {
+            filesystem::set_attr_async(
+                path,
+                filesystem::FsAttributes {
+                    owner_id,
+                    group_id,
+                    attributes,
+                    owner_perm: 3,
+                    group_perm: 1,
+                    other_perm: 1,
+                },
+                Some(isfs_probe_callback),
+                core::ptr::null_mut(),
+            )
+        })
+    } else {
+        (-1, i32::MIN)
+    };
+    let mut changed_owner_id = u32::MAX;
+    let mut changed_group_id = u16::MAX;
+    let mut changed_attributes = u8::MAX;
+    let mut changed_owner_perm = u8::MAX;
+    let mut changed_group_perm = u8::MAX;
+    let mut changed_other_perm = u8::MAX;
+    let (changed_attr_submit, changed_attr_result) = if set_attr_result == filesystem::ISFS_OK {
+        run_isfs_async_and_wait(|| unsafe {
+            filesystem::get_attr_async(
+                path,
+                filesystem::FsAttributeOutputs {
+                    owner_id: &mut changed_owner_id,
+                    group_id: &mut changed_group_id,
+                    attributes: &mut changed_attributes,
+                    owner_perm: &mut changed_owner_perm,
+                    group_perm: &mut changed_group_perm,
+                    other_perm: &mut changed_other_perm,
+                },
+                Some(isfs_probe_callback),
+                core::ptr::null_mut(),
+            )
+        })
+    } else {
+        (-1, i32::MIN)
+    };
+
+    let mut usage_a = u32::MAX;
+    let mut usage_b = u32::MAX;
+    let (usage_submit, usage_result) = run_isfs_async_and_wait(|| unsafe {
+        filesystem::get_usage_async(
+            directory,
+            &mut usage_a,
+            &mut usage_b,
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    });
+    let mut num = 4;
+    let mut names = AlignedIsfsBytes([0; 32 * 4]);
+    let (readdir_submit, readdir_result) = run_isfs_async_and_wait(|| unsafe {
+        filesystem::read_dir_async(
+            directory,
+            Some(&mut names.0),
+            &mut num,
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    });
+    let async_entry_present = names
+        .0
+        .split(|byte| *byte == 0)
+        .any(|entry| entry == b"async-file");
+    logger.record(
+        "ISFS async attributes usage and directory listing",
+        get_attr_submit >= 0
+            && get_attr_result == filesystem::ISFS_OK
+            && set_attr_submit >= 0
+            && set_attr_result == filesystem::ISFS_OK
+            && changed_attr_submit >= 0
+            && changed_attr_result == filesystem::ISFS_OK
+            && changed_owner_id == owner_id
+            && changed_group_id == group_id
+            && changed_attributes == attributes
+            && changed_owner_perm == 3
+            && changed_group_perm == 1
+            && changed_other_perm == 1
+            && usage_submit >= 0
+            && usage_result == filesystem::ISFS_OK
+            && usage_a != u32::MAX
+            && usage_b != u32::MAX
+            && readdir_submit >= 0
+            && readdir_result == filesystem::ISFS_OK
+            && num > 0
+            && async_entry_present,
+    );
+
+    let mut closed = false;
+    if let Some(file) = file.take() {
+        let (close_submit, close_result) = run_isfs_async_and_wait(|| unsafe {
+            file.close_async(Some(isfs_probe_callback), core::ptr::null_mut())
+        });
+        closed = close_submit >= 0 && close_result == filesystem::ISFS_OK;
+    }
+    let (delete_submit, delete_result) = run_isfs_async_and_wait(|| unsafe {
+        filesystem::delete_async(path, Some(isfs_probe_callback), core::ptr::null_mut())
+    });
+    let deleted_file_open = filesystem::open(path, filesystem::ISFS_OPEN_READ);
+    logger.record(
+        "ISFS async close delete and cleanup",
+        closed
+            && delete_submit >= 0
+            && delete_result == filesystem::ISFS_OK
+            && deleted_file_open.is_err_and(|error| error == filesystem::ISFS_ENOENT),
     );
 }
 
