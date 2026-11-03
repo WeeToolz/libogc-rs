@@ -738,3 +738,14 @@ and [probe log](docs/dolphin-runs/2026-11-02-asnd-sys-initial/asnd_sys_probe/pro
 The probe did not establish callback cadence or audible output on a physical
 Wii. The inventory now has 104 open entries across the eight wider audio
 packages. The Wii audio group remains open.
+
+## 2026-11-02: libmad unsupported message result
+
+The `decoder_message` entry now points to its existing production-source host
+test. The test passes for a null decoder and a valid decoder: both return the
+documented unsupported result, and the message bytes and length stay unchanged.
+`cargo test --manifest-path tests/mad-sys-host-tests/Cargo.toml` passed all 35
+tests. This verifies the sync-only unsupported result; it does not verify
+asynchronous message exchange. The older `libmad_probe` Dolphin checksum and
+timing failures remain open and need their own diagnosis. The inventory now
+has 103 open entries across the eight wider audio packages.

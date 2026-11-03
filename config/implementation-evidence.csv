@@ -1260,3 +1260,4 @@ asnd-sys,src/lib.rs,stop,654,hardware,hardware-probe,probes/ogc-system-probe/src
 asnd-sys,src/lib.rs,stop_voice,1224,hardware,hardware-probe,probes/ogc-system-probe/src/sound_probe.rs,probe_asnd_sys
 asnd-sys,src/lib.rs,test_pointer,1305,hardware,hardware-probe,probes/ogc-system-probe/src/sound_probe.rs,probe_asnd_sys
 asnd-sys,src/lib.rs,voice,619,hardware,hardware-probe,probes/ogc-system-probe/src/sound_probe.rs,probe_asnd_sys
+mad-sys,src/imp/decoder.rs,decoder_message,244,pure,host-test,crates/media/mad-sys/src/imp/decoder.rs,decoder_message_reports_unsupported_without_modifying_data
