@@ -216,7 +216,8 @@ probe using a controlled in-memory disc image; this does not verify a physical
 optical drive. The focused DVD probe checks `/dev/di` no-disc status, rejected
 mount, command-block state, pause and reset state, invalidation state restore,
 and shutdown in Dolphin. It does not verify disc reads or physical optical
-drive behavior. The USB storage safe facade probe covers no-device errors and
+drive behavior. See the [DVD Dolphin run](dolphin-runs/2026-11-03-dvd-no-media-final/README.md).
+The USB storage safe facade probe covers no-device errors and
 lifecycle cleanup. Its `flush` and `try_flush` APIs still need a valid mounted
 handle. The focused FAT probe passed in Dolphin and covers the mounted SD API,
 C exports, FAT file seek/truncate, attribute updates, init functions, and mount
