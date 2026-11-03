@@ -437,6 +437,7 @@ const PROBE_BINARIES: &[&str] = &[
     "mad_decode_probe",
     "modplay_probe",
     "mp3player_probe",
+    "aram_probe",
     "usbstorage_capacity_probe",
     "usbstorage_transport_probe",
     "hid_descriptor_probe",
@@ -572,9 +573,9 @@ mod probe_artifact_tests {
                 );
             }
             let expected_count = match mode {
-                Plain => 35,
-                MountedLog | Dolphin => 45,
-                AgentReport => 30,
+                Plain => 36,
+                MountedLog | Dolphin => 46,
+                AgentReport => 31,
             };
             assert_eq!(binaries.len(), expected_count, "output count in {mode:?}");
         }
@@ -629,6 +630,13 @@ mod probe_artifact_tests {
         assert!(super::PROBE_BINARIES.contains(&"mp3player_probe"));
         let manifest = include_str!("../../probes/ogc-system-probe/Cargo.toml");
         assert!(manifest.contains("name = \"mp3player_probe\""));
+    }
+
+    #[test]
+    fn aram_probe_is_built_as_a_dol() {
+        assert!(super::PROBE_BINARIES.contains(&"aram_probe"));
+        let manifest = include_str!("../../probes/ogc-system-probe/Cargo.toml");
+        assert!(manifest.contains("name = \"aram_probe\""));
     }
 
     #[test]

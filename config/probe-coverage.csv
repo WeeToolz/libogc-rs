@@ -27,3 +27,4 @@ aesnd-native-probe,probes/ogc-system-probe/src/aesnd_native_probe.rs
 aesnd-stream-probe,probes/ogc-system-probe/src/aesnd_stream_probe.rs
 usbstorage-transport-probe,probes/ogc-system-probe/src/usbstorage_transport_probe.rs
 mp3player-probe,probes/ogc-system-probe/src/mp3player_probe.rs
+aram-probe,probes/ogc-system-probe/src/aram_probe.rs

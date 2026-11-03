@@ -42,6 +42,11 @@ const PROBES: &[ProbeSpec] = &[
         input_pipe: false,
     },
     ProbeSpec {
+        name: "aram_probe",
+        timeout_seconds: 120,
+        input_pipe: false,
+    },
+    ProbeSpec {
         name: "usbstorage_capacity_probe",
         timeout_seconds: 45,
         input_pipe: false,
