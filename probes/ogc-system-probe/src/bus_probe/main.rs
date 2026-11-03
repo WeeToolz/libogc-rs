@@ -6,7 +6,12 @@ fn main() {}
 
 #[cfg(target_arch = "powerpc")]
 #[unsafe(no_mangle)]
-pub extern "C" fn main(_argc: i32, _argv: *mut *mut u8) -> i32 {
+/// Run the bus probe from the libogc process entry point.
+///
+/// # Safety
+///
+/// `_argv` must be the live argument vector supplied by libogc.
+pub unsafe extern "C" fn main(_argc: i32, _argv: *mut *mut u8) -> i32 {
     // SAFETY: libogc calls this exported entrypoint with its live argc/argv.
     unsafe { ogc_system_probe::probe_support::set_agent_arguments(_argc, _argv) };
     ogc_system_probe::run_bus_probe_bin()

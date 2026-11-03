@@ -51,6 +51,7 @@ ogc-card = { path = "../../crates/compatibility/ogc-card" }
 ogc-conf = { path = "../../crates/core/ogc-conf" }
 ogc-di = { path = "../../crates/services/ogc-di" }
 ogc-dsp = { path = "../../crates/hardware/ogc-dsp" }
+ogc-dsp-sys = { path = "../../crates/hardware/ogc-dsp-sys" }
 ogc-dvd = { path = "../../crates/compatibility/ogc-dvd" }
 ogc-es = { path = "../../crates/core/ogc-es" }
 ogc-fat = { path = "../../crates/services/ogc-fat" }

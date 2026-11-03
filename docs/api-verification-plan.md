@@ -110,6 +110,18 @@ and reset/reinitialization. The DOL SHA256 was
 `docs/dolphin-runs/2026-11-02-aram-verified/`. Dolphin validates the emulated
 hardware path; a physical Wii run has not been recorded.
 
+The DSP probe passed 26 checks in Dolphin 2609a. It checked mailbox messages
+and status bits, DSP halt and unhalt control bits, interrupt control bits,
+volatile task fields, callback replacement and restoration, DMA status, and
+all four shutdown progress stages. Its DOL SHA256 was
+`3e2510b7597394e7bd1989be99873475e2250092d352b4a3163fb9cc39919ec6`. See
+`docs/dolphin-runs/2026-11-02-dsp-complete/`. The probe did not verify DSP task
+scheduling because there is no compatible task microcode fixture. A diagnostic
+run also did not deliver the registered user callback after `assert_int`, so
+callback delivery remains unverified. Dolphin shutdown passed; physical Wii
+shutdown still needs a run because the known reset sequence has stalled on Wii.
+The callback result is in `docs/dolphin-runs/2026-11-02-dsp-first/`.
+
 | Package | Open entries |
 | --- | ---: |
 | `asnd-sys` | 0 |
@@ -118,9 +130,9 @@ hardware path; a physical Wii run has not been recorded.
 | `mp3player-sys` | 4 |
 | `ogc-aram` | 0 |
 | `ogc-audio-sys` | 0 |
-| `ogc-dsp` | 15 |
-| `ogc-dsp-sys` | 19 |
-| **Total** | **38** |
+| `ogc-dsp` | 3 |
+| `ogc-dsp-sys` | 3 |
+| **Total** | **10** |
 
 ## Package work list
 

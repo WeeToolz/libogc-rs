@@ -1,4 +1,5 @@
 use core::ffi::c_void;
+use core::sync::atomic::{AtomicU32, Ordering};
 
 use ogc_aram as aram;
 use ogc_cache as cache;
@@ -19,6 +20,20 @@ use crate::probe_support::ProbeLogger;
 struct Align32<const N: usize>([u8; N]);
 
 static mut ARAM_BLOCKS: [u32; 32] = [0; 32];
+static DSP_CALLBACKS: AtomicU32 = AtomicU32::new(0);
+static DSP_SHUTDOWN_STAGES: AtomicU32 = AtomicU32::new(0);
+
+unsafe extern "C" fn dsp_callback() {
+    DSP_CALLBACKS.fetch_add(1, Ordering::AcqRel);
+}
+
+fn dsp_shutdown_stage(stage: u32, _control: u16, _mail: u16) {
+    DSP_SHUTDOWN_STAGES.fetch_or(1 << stage, Ordering::AcqRel);
+}
+
+unsafe fn dsp_control() -> u16 {
+    unsafe { core::ptr::read_volatile((0xcc00_5000 as *const u16).add(5)) }
+}
 
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("BUS PROBE");
@@ -133,14 +148,116 @@ fn probe_aram(logger: &mut ProbeLogger) {
 fn probe_dsp(logger: &mut ProbeLogger) {
     logger.section("DSP PROBE");
     dsp::init();
+    ogc_dsp_sys::init();
     let previous = dsp::register_callback(Some(dsp_callback));
     // DSP_Init installs libogc's default task callback. Registration must
     // return that callback so the caller can restore it.
     logger.record("dsp callback replaced default", previous.is_some());
-    logger.note_u32("dsp mail to ready", dsp::check_mail_to());
-    logger.note_u32("dsp mail from ready", dsp::check_mail_from());
-    logger.note_u32("dsp dma busy", dsp::get_dma_status());
-    let _ = dsp::register_callback(previous);
+    let direct_previous = ogc_dsp_sys::register_callback(Some(dsp_callback));
+    let direct_replace = direct_previous.is_some();
+    let direct_restore = ogc_dsp_sys::register_callback(previous);
+    let wrapper_restore = dsp::register_callback(previous);
+    logger.record(
+        "DSP direct and wrapper callback registration restore the prior handler",
+        direct_replace && direct_restore.is_some() && wrapper_restore.is_some(),
+    );
+
+    let word = ogc_dsp_sys::VolatileU32::new(0x1234_5678);
+    let initial_word = word.read();
+    word.write(0x89ab_cdef);
+    let final_word = word.read();
+    logger.record(
+        "DSP volatile task fields read and write caller memory",
+        initial_word == 0x1234_5678 && final_word == 0x89ab_cdef,
+    );
+
+    dsp::halt();
+    let wrapper_halted = unsafe { dsp_control() } & 0x0004 != 0;
+    ogc_dsp_sys::halt();
+    let direct_halted = unsafe { dsp_control() } & 0x0004 != 0;
+    logger.record(
+        "DSP direct and wrapper halt set the hardware halt bit",
+        wrapper_halted && direct_halted,
+    );
+    dsp::assert_int();
+    let wrapper_interrupt = unsafe { dsp_control() } & 0x0002 != 0;
+    ogc_dsp_sys::assert_int();
+    let direct_interrupt = unsafe { dsp_control() } & 0x0002 != 0;
+    logger.record(
+        "DSP direct and wrapper assert_int set the processor interrupt bit",
+        wrapper_interrupt && direct_interrupt,
+    );
+    dsp::send_mail_to(0x1234_5678);
+    let mail_ready = dsp::check_mail_to();
+    let mail_roundtrip = dsp::read_cpu_to_dsp();
+    ogc_dsp_sys::send_mail_to(0x89ab_cdef);
+    let direct_mail_ready = ogc_dsp_sys::check_mail_to();
+    let direct_mail = ogc_dsp_sys::read_cp_uto_dsp();
+    logger.note(&alloc::format!(
+        "DSP cpu mailbox ready={mail_ready} wrapper=0x{mail_roundtrip:08x} direct=0x{direct_mail:08x}"
+    ));
+    logger.record(
+        "DSP direct and wrapper CPU mailbox APIs return the written message",
+        mail_ready == 0
+            && mail_roundtrip == 0x1234_5678
+            && direct_mail_ready == 0
+            && direct_mail == 0x09ab_cdef,
+    );
+
+    dsp::reset();
+    ogc_dsp_sys::reset();
+    dsp::unhalt();
+    let wrapper_unhalted = unsafe { dsp_control() } & 0x0004 == 0;
+    ogc_dsp_sys::unhalt();
+    let direct_unhalted = unsafe { dsp_control() } & 0x0004 == 0;
+    logger.record(
+        "DSP direct and wrapper unhalt clear the hardware halt bit",
+        wrapper_unhalted && direct_unhalted,
+    );
+    let mut dsp_mail_ready = false;
+    for _ in 0..120 {
+        if dsp::check_mail_from() != 0 {
+            dsp_mail_ready = true;
+            break;
+        }
+        logger.display().wait_vsync();
+    }
+    let incoming = dsp::read_mail_from();
+    let incoming_direct = ogc_dsp_sys::read_mail_from();
+    let incoming_pending = ogc_dsp_sys::check_mail_from();
+    logger.note(&alloc::format!(
+        "DSP incoming mailbox ready={dsp_mail_ready} wrapper=0x{incoming:08x} direct=0x{incoming_direct:08x} pending={incoming_pending}"
+    ));
+    logger.record(
+        "DSP mailbox status and reads acknowledge incoming DSP mail",
+        dsp_mail_ready
+            && incoming == 0x8071_feed
+            && incoming_direct == 0x0071_feed
+            && incoming_pending == 0,
+    );
+
+    let dma_status = dsp::get_dma_status();
+    let direct_dma_status = ogc_dsp_sys::get_dma_status();
+    logger.record(
+        "DSP direct and wrapper DMA status report idle",
+        dma_status == 0 && direct_dma_status == 0,
+    );
+
+    DSP_SHUTDOWN_STAGES.store(0, Ordering::Release);
+    ogc_dsp_sys::shutdown_with_progress(Some(dsp_shutdown_stage));
+    let stages = DSP_SHUTDOWN_STAGES.load(Ordering::Acquire);
+    logger.record(
+        "DSP shutdown completes all four observed stages",
+        stages & 0b1_1110 == 0b1_1110,
+    );
+    ogc_dsp_sys::shutdown();
+    dsp::shutdown();
+    logger.record(
+        "DSP direct and wrapper shutdown leave DMA and mailboxes idle",
+        ogc_dsp_sys::get_dma_status() == 0
+            && dsp::get_dma_status() == 0
+            && dsp::check_mail_to() == 0,
+    );
 }
 
 fn probe_exi_si(logger: &mut ProbeLogger) {
@@ -264,5 +381,3 @@ fn probe_runtime_helpers(logger: &mut ProbeLogger) {
     lwp::yield_now();
     logger.record("lwp yield returned", true);
 }
-
-unsafe extern "C" fn dsp_callback() {}
