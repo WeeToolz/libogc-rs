@@ -86,6 +86,12 @@ Owned CARD completion values now share definitions with the host-testable
 stat, byte, and ownership accessors, including failed completion payloads.
 These tests do not verify CARD hardware behavior.
 
+`cargo test -p ogc-card-metadata --lib` currently passes all 17 tests. The
+evidence registry maps all 56 inventory entries in `ogc-card-metadata` to
+these host test functions. This closes its host-testable metadata and owned
+value batch. It does not close the 153 entries in `ogc-card` and `ogc-card-sys`
+or prove transport behavior.
+
 The earlier planning count of 348 open storage entries is stale. Use
 `cargo xtask check-inventory` and the generated inventory as the current
 source of truth.
