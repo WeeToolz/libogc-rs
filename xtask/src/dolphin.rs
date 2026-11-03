@@ -33,6 +33,11 @@ struct ProbeSpec {
 
 const PROBES: &[ProbeSpec] = &[
     ProbeSpec {
+        name: "card_probe",
+        timeout_seconds: 120,
+        input_pipe: false,
+    },
+    ProbeSpec {
         name: "modplay_probe",
         timeout_seconds: 45,
         input_pipe: false,
@@ -644,6 +649,11 @@ fn copy_directory(source: &Path, destination: &Path) -> Result<(), String> {
 }
 
 fn dolphin_probe_elf_path(root: &Path, spec: ProbeSpec) -> PathBuf {
+    if spec.name == "card_probe" {
+        return root
+            .join("target/xtask/gamecube-system-probe-build/powerpc-nintendo-gamecube/release")
+            .join(spec.name);
+    }
     let directory = if spec.name == "wii_std_fs_probe" {
         "target/xtask/wii-std-fs-dolphin-build/powerpc-nintendo-none/release"
     } else {
@@ -669,7 +679,7 @@ fn run_probe(
     let probe_dir = artifact_dir.join(spec.name);
     let user_dir = probe_dir.join("user");
     fs::create_dir_all(&user_dir).map_err(|err| format!("{}: {err}", user_dir.display()))?;
-    let memory_card_path = if spec.name == "storage_probe" {
+    let memory_card_path = if matches!(spec.name, "storage_probe" | "card_probe") {
         std::env::var_os(DOLPHIN_CARD_IMAGE_ENV)
             .map(PathBuf::from)
             .map(|template| copy_card_image_to_profile(&template, &user_dir))

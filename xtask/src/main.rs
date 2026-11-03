@@ -1399,6 +1399,52 @@ fn build_probe_artifacts(include_examples: bool, mode: ProbeBuildMode) -> Result
         run_command(&mut command)?;
     }
 
+    if mode == ProbeBuildMode::Dolphin {
+        let gamecube_target_spec = root.join("targets/powerpc-nintendo-gamecube.json");
+        let gamecube_target_dir = root.join("target/xtask/gamecube-system-probe-build");
+        let mut gamecube_rustflags = encoded_powerpc_wii_rustflags(&root);
+        gamecube_rustflags.push_str("\x1f-C\x1flinker=rust-lld\x1f--cfg=gamecube");
+        let mut command = Command::new(&rustup);
+        command
+            .args([
+                "run",
+                "nightly",
+                "cargo",
+                "build",
+                "-Z",
+                "json-target-spec",
+                "-Z",
+                "build-std=core,alloc",
+                "-Z",
+                "build-std-features=compiler-builtins-mem",
+                "--target",
+            ])
+            .arg(&gamecube_target_spec)
+            .arg("--target-dir")
+            .arg(&gamecube_target_dir)
+            .args([
+                "--release",
+                "-p",
+                "ogc-system-probe",
+                "--bin",
+                "card_probe",
+                "--features",
+                "dolphin-automation,gamecube-card-probe",
+            ])
+            .env("RUSTC", rustup_which(&rustup, "rustc")?)
+            .env("CARGO_ENCODED_RUSTFLAGS", gamecube_rustflags)
+            .env_remove("RUSTFLAGS")
+            .current_dir(&root);
+        run_command(&mut command)?;
+
+        gc_elf::convert_elf_file(
+            &gamecube_target_dir.join("powerpc-nintendo-gamecube/release/card_probe"),
+            &probe_output.join("card_probe.dol"),
+            gc_elf::DolProfile::Libogc,
+        )
+        .map_err(|error| error.to_string())?;
+    }
+
     let build_root = target_dir.join("powerpc-nintendo-none/release");
     for probe in mode.binaries() {
         gc_elf::convert_elf_file(

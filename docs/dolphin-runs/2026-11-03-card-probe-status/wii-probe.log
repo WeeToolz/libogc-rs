@@ -1,0 +1,271 @@
+
+
+BOOT 1/3: system and video initialized
+INFO Wiiload arguments source=entry count=0
+PASS SYS_Init completed
+INFO startup stage=0 completed_mask=0x7ff failed_stage=0
+BOOT watchdog arm starting
+INFO recovery reset watchdog not armed
+BOOT watchdog arm complete
+BOOT Wiiload report argument check
+INFO Wiiload report check disabled for this probe build
+BOOT before first vsync
+BOOT 2/3: entering IOS pre-main
+PRE 0/7: closing inherited IOS descriptors
+IPC: sync state ready
+IPC: command=0x00000002 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000002 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 1/7: IOS startup
+PRE 2/7: IOS subsystems
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 3/7: STM handler
+PRE 4/7: STM devices
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+PRE 5/7: configuration
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 6/7: Wii launch state
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 7/7: complete
+-- page 2 --
+BOOT 3/3: IOS pre-main completed
+PASS display initialized
+INFO boot stage: system/video initialized
+INFO boot stage: IOS pre-main completed
+INFO log backend disabled
+INFO argv0 unavailable
+INFO argv raw magic=0x00000000 len=0 argc=0 cmd=0x00000000 argv=0x00000000 end=0x00000000
+PASS power button callback installed
+INFO stm init deferred until shutdown
+INFO fat mount sd=not-selected usb=not-selected
+INFO previous stm handler chained=0
+INFO previous power callback replaced
+
+== STORAGE PROBE ==
+
+== DVD /DEV/DI ==
+INFO dvd initial status=4
+INFO dvd cover status=4
+INFO dvd disc present=0
+INFO dvd tests skipped: insert a readable Wii/GameCube disc
+PASS dvd init and drive status report no disc
+PASS dvd cover status reports no disc
+-- page 3 --
+PASS dvd presence reports no disc
+PASS dvd no fake success without media
+PASS dvd idle command block status
+PASS dvd auto invalidation update and restore
+PASS dvd pause updates drive state
+PASS dvd cancel all pauses without pending requests
+PASS dvd reset none restores no-disc state
+PASS dvd static information pointers remain stable
+INFO dvd mount async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd mount async without media accepted
+PASS dvd mount async without media callback
+PASS dvd mount async without media callback after return
+PASS dvd mount async without media result
+INFO dvd inquiry async without media submit=1 complete=1 result=0 after_return=1
+PASS dvd inquiry async without media accepted
+PASS dvd inquiry async without media callback
+PASS dvd inquiry async without media callback after return
+PASS dvd inquiry async without media result
+INFO dvd bs read async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd bs read async without media accepted
+-- page 4 --
+PASS dvd bs read async without media callback
+PASS dvd bs read async without media callback after return
+PASS dvd bs read async without media result
+INFO dvd control check async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd control check async without media accepted
+PASS dvd control check async without media callback
+PASS dvd control check async without media callback after return
+PASS dvd control check async without media result
+INFO dvd set zero gcm offset async submit=1 complete=1 result=0 after_return=1
+PASS dvd set zero gcm offset async accepted
+PASS dvd set zero gcm offset async callback
+PASS dvd set zero gcm offset async callback after return
+PASS dvd set zero gcm offset async result
+INFO dvd set zero gcm offset sync result=1
+PASS dvd set zero gcm offset sync
+INFO dvd control check sync result=-1
+PASS dvd control check sync reports no media
+INFO dvd zero offset seek rejects invalid offset submit=1 complete=1 result=-4 after_return=1
+PASS dvd zero offset seek rejects invalid offset accepted
+PASS dvd zero offset seek rejects invalid offset callback
+-- page 5 --
+PASS dvd zero offset seek rejects invalid offset callback after return
+PASS dvd zero offset seek rejects invalid offset result
+INFO dvd zero offset sync seek result=-1
+PASS dvd zero offset sync seek reports invalid state
+INFO dvd stop stream async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd stop stream async without media accepted
+PASS dvd stop stream async without media callback
+PASS dvd stop stream async without media callback after return
+PASS dvd stop stream async without media result
+INFO dvd stop stream sync result=-1
+PASS dvd stop stream sync without media
+INFO dvd spin up async without media submit=1 complete=1 result=0 after_return=1
+PASS dvd spin up async without media accepted
+PASS dvd spin up async without media callback
+PASS dvd spin up async without media callback after return
+PASS dvd spin up async without media result
+INFO dvd spin up sync result=1
+PASS dvd spin up sync without media
+INFO dvd stop motor without media result=0
+PASS dvd stop motor call completes
+
+-- page 6 --
+== USB ARGV ==
+INFO argc=0
+INFO argv handoff skipped: this launch supplied no arguments
+
+== RAW USB STORAGE ==
+INFO usb initialize rc=0
+INFO usb startup=1
+INFO usb inserted=0
+PASS usb raw startup
+PASS usb storage null handle rejected
+INFO usb candidate count=0
+PASS usb insertion state matches device enumeration
+INFO usb raw sector read skipped: no USB storage device is present
+
+== FAT USB MOUNT ==
+INFO fat mount usb=device-unavailable
+INFO usb FAT file operations skipped: no USB storage device is present
+PASS usb FAT mount reports no device
+INFO usb storage deinitialize=0
+PASS usb storage deinitialize
+INFO wii sd startup=1 inserted=1 read=1 clear=1 shutdown=1 restart=1 inserted2=1 shutdown2=1
+INFO GameCube SD interfaces skipped: no emulated EXI SD adapter configured
+-- page 7 --
+
+== FAT SD MOUNT ==
+INFO fat mount sd=ok
+PASS sd fat mount
+INFO sd fopen write=1
+INFO sd write callback result=16
+INFO sd write callback errno=0
+INFO sd fsync=0
+INFO sd fsync errno=0
+INFO sd fclose write=0
+INFO sd fclose write errno=0
+INFO sd fopen read=1
+INFO sd read callback result=16
+INFO sd read callback errno=139
+INFO sd fclose read=0
+INFO sd fclose read errno=0
+INFO sd remove=0
+PASS sd file write
+PASS sd file fsync
+PASS sd file roundtrip
+PASS sd file remove
+INFO fat unmount sd=ok
+PASS sd fat unmount
+-- page 8 --
+
+== CARD ASYNC + DETACH ==
+PASS card identifier validation
+PASS CARD slot conversion validates both slots and preserves invalid input
+INFO card init=0
+
+== CARD INVALID CHANNEL APIs ==
+PASS CARD sys probe_ex rejects an invalid channel and preserves outputs
+PASS CARD wrapper probe_ex forwards the invalid-channel error
+PASS CARD sys get_error_code rejects an invalid channel
+PASS CARD wrapper get_error_code forwards the invalid-channel result
+PASS CARD sys and wrapper delete reject an invalid channel
+PASS CARD sys get_block_count preserves output on invalid channel
+PASS CARD wrapper get_block_count forwards error and preserves output
+PASS CARD sys get_free_blocks preserves output on invalid channel
+PASS CARD wrapper get_free_blocks forwards error and preserves output
+PASS CARD sys get_serial_no preserves outputs on invalid channel
+PASS CARD wrapper get_serial_no forwards error and preserves outputs
+PASS CARD sys get_status rejects an invalid channel and preserves output
+PASS CARD wrapper get_status forwards the error and preserves output
+PASS CARD sys get_status_ex rejects an invalid channel and preserves output
+-- page 9 --
+PASS CARD sys get_attributes rejects an invalid channel and preserves output
+PASS CARD sys set_status rejects an invalid channel without changing input
+PASS CARD sys set_status_ex rejects an invalid channel without changing input
+PASS CARD sys set_attributes rejects an invalid channel
+PASS CARD sys get_directory rejects an invalid channel and preserves outputs
+PASS CARD sys find_first initializes its cursor before an invalid-channel error
+PASS CARD sys find_next advances its cursor before an invalid-channel error
+PASS CARD sys and wrapper mount_async reject invalid channels without callbacks
+PASS CARD sys create_async rejects an invalid channel without callback or output changes
+PASS CARD sys create_entry and delete_entry reject invalid channels
+PASS CARD sys open_entry rejects an invalid channel and preserves output
+PASS CARD sys read_async and write_async reject invalid channels without callbacks
+PASS CARD sys metadata async submissions reject invalid channels without callbacks
+-- page 10 --
+INFO CARD raw slot probe result=0
+INFO CARD typed probe_info result=-1
+PASS CARD probe returns an EXI presence value and rejects an invalid channel
+PASS CARD probe_info returns valid geometry or a device error
+PASS CARD probe_info preserves the operation status
+PASS CARD serial_number rejects an unmounted slot
+INFO CARD sector_size status=-3
+PASS CARD sector_size returns no-card for unavailable media
+INFO CARD block_count status=-3
+PASS CARD block_count returns no-card for unavailable media
+INFO CARD free_blocks status=-3
+PASS CARD free_blocks returns no-card for unavailable media
+INFO CARD file_status status=-3
+PASS CARD file_status returns no-card for unavailable media
+PASS CARD slice transfers reject empty, short, misaligned, and overflowing requests before I/O
+PASS CARD read_async_owned rejects an invalid channel and returns its file
+PASS CARD write_async_owned rejects an invalid channel and returns file and bytes
+PASS CARD read_async_owned rejects invalid transfer shapes and preserves files
+-- page 11 --
+PASS CARD write_async_owned rejects invalid transfer shapes and returns payloads
+PASS CARD owned create and delete reject embedded NUL and oversized filenames
+PASS CARD owned entry operations reject unterminated names and return entries
+PASS CARD set_status_async_owned rejects out-of-range file numbers and returns stat
+PASS card mount request retains its slot
+INFO card mount async owned no-card submit=0 complete=1 result=-3
+PASS card mount async owned no-card accepted
+PASS card mount async owned no-card completion
+PASS card mount async owned no-card result
+INFO CARD save operations skipped: asynchronous mount reports no card
+INFO card format skipped: pass --destructive-card-format=ERASE-SLOT-A to erase slot A
+
+== MEDIA HOTPLUG SOAK ==
+INFO hotplug soak skipped: automated Dolphin run has no media operator
+INFO fat shutdown all=ok
+INFO card shutdown=0
+INFO dvd shutdown=0
+INFO storage lwp debug events=6593
+-- page 12 --
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+INFO summary_candidate passes=112 fails=0
+PASS summary passes=112 fails=0

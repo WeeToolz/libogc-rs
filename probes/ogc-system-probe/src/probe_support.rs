@@ -20,6 +20,7 @@ use core::sync::atomic::AtomicUsize;
 use core::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 
 use ogc_filesystem as filesystem;
+#[cfg(not(gamecube))]
 use ogc_stm as stm;
 use ogc_sysbase as sysbase;
 #[cfg(any(feature = "agent-report", feature = "mounted-log"))]
@@ -1148,16 +1149,17 @@ pub fn wait_vsync() {
 }
 
 pub fn service_power_shutdown() {
-    if !POWER_REQUESTED.swap(false, Ordering::AcqRel) {
-        return;
-    }
-
-    let _ = stm::init_without_event_hook();
-    let rc = stm::shutdown_to_standby();
-    if rc < 0 {
-        // SAFETY: the reset mode is a documented constant and no callback state
-        // is supplied.
-        unsafe { system::reset_system(system::sys::SYS_POWEROFF_STANDBY as i32, 0, 0) };
+    if POWER_REQUESTED.swap(false, Ordering::AcqRel) {
+        #[cfg(not(gamecube))]
+        {
+            let _ = stm::init_without_event_hook();
+            let rc = stm::shutdown_to_standby();
+            if rc < 0 {
+                // SAFETY: the reset mode is a documented constant and no callback state
+                // is supplied.
+                unsafe { system::reset_system(system::sys::SYS_POWEROFF_STANDBY as i32, 0, 0) };
+            }
+        }
     }
 }
 

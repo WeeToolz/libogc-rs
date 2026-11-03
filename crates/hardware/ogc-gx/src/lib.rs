@@ -22,7 +22,9 @@ use core::ffi::{CStr, c_char, c_void};
 use core::marker::PhantomData;
 use core::ptr;
 use core::sync::atomic::{AtomicBool, AtomicU32, Ordering, compiler_fence};
-use ogc_cache::{dc_flush_range, dc_flush_range_no_sync};
+use ogc_cache::dc_flush_range;
+#[cfg(not(gamecube))]
+use ogc_cache::dc_flush_range_no_sync;
 pub use ogc_gu::{GuVector, Mtx, Mtx33, Mtx44};
 pub use ogc_gx_sys::GxrModeObj;
 use ogc_sysbase::DeviceFile;
@@ -2143,6 +2145,7 @@ impl GxFifo {
     }
 }
 
+#[cfg(any(not(gamecube), test))]
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 struct FifoRegisterState {
     physical_base: u32,
@@ -2154,6 +2157,7 @@ struct FifoRegisterState {
     pi_write_pointer: u32,
 }
 
+#[cfg(any(not(gamecube), test))]
 fn fifo_register_state(base: usize, size: u32) -> Option<FifoRegisterState> {
     if base == 0
         || base & 31 != 0
@@ -2179,6 +2183,7 @@ fn fifo_register_state(base: usize, size: u32) -> Option<FifoRegisterState> {
     })
 }
 
+#[cfg(not(gamecube))]
 unsafe fn initialize_fifo_registers(base: *mut u8, size: u32) {
     let Some(regs) = fifo_register_state(base as usize, size) else {
         return;

@@ -5,10 +5,12 @@ Milestone 2 replaces the remaining disabled or inline-completion storage facades
 ## API verification groups
 
 The generated inventory has 604 storage API entries in 14 packages. The
-inventory currently marks none of them `unverified` for implementation
-evidence. This is a source-mapping result. It does not prove that a probe ran
+inventory records the current `unverified` count in the generated status
+report. This is a source-mapping result. It does not prove that a probe ran
 or that an API passed on Dolphin or Wii hardware. The inventory audit checks
 that each entry maps to evidence source; it does not check runtime results.
+The current call matcher checks a function or method name but does not resolve
+its crate or receiver type. Review each mapping before using it as evidence.
 
 | Package | API entries | Probe group |
 | --- | ---: | --- |
@@ -83,12 +85,21 @@ checks for startup, insertion, reads, writes, zero-sector requests, shutdown,
 and restart. See the [no-card report](dolphin-runs/2026-11-03-wiisd-no-card/README.md).
 Earlier failed launch attempts remain in their own run directories. The
 hardware register still records physical CARD and DI behavior as not tested.
-Do not treat the zero `unverified` source count as completed storage
-verification.
+Do not treat the source count as completed storage verification.
 
 ### CARD typed query diagnostics
 
-An early run expected typed queries to return the raw slot-probe error. Its
+The later [CARD save roundtrip](dolphin-runs/2026-11-03-card-save-roundtrip/README.md)
+passed 151 checks in Wii mode and 91 checks in GameCube mode. Both used copies
+of the same virtual card. They checked save creation, data and status after
+remount, deletion after remount, and free block recovery. Physical card
+behavior, card formatting, and removal remain unverified.
+
+The [raw CARD roundtrip](dolphin-runs/2026-11-03-card-raw-roundtrip/README.md)
+also calls the raw read and write APIs and checks returned bytes in both modes.
+
+Before the `CARD_Probe` parity correction, an early run expected typed queries
+to return the raw slot-probe error. Its
 four assertions failed because the APIs return different errors. The corrected
 probe passed 104 checks in Dolphin 2609a. Without a memory-card image,
 `probe_slot` and `probe_info` returned `CARD_ERROR_BUSY` (`-1`), while

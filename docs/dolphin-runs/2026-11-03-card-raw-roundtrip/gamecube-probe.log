@@ -1,0 +1,130 @@
+
+
+PASS GameCube system initialization
+
+== GAMECUBE CARD PROBE ==
+
+== CARD ASYNC + DETACH ==
+PASS card identifier validation
+PASS CARD slot conversion validates both slots and preserves invalid input
+INFO card init=0
+
+== CARD INVALID CHANNEL APIs ==
+PASS CARD sys probe_ex rejects an invalid channel and preserves outputs
+PASS CARD wrapper probe_ex forwards the invalid-channel error
+PASS CARD sys get_error_code rejects an invalid channel
+PASS CARD wrapper get_error_code forwards the invalid-channel result
+PASS CARD sys and wrapper delete reject an invalid channel
+PASS CARD sys get_block_count preserves output on invalid channel
+PASS CARD wrapper get_block_count forwards error and preserves output
+PASS CARD sys get_free_blocks preserves output on invalid channel
+PASS CARD wrapper get_free_blocks forwards error and preserves output
+PASS CARD sys get_serial_no preserves outputs on invalid channel
+PASS CARD wrapper get_serial_no forwards error and preserves outputs
+-- page 2 --
+PASS CARD sys get_status rejects an invalid channel and preserves output
+PASS CARD wrapper get_status forwards the error and preserves output
+PASS CARD sys get_status_ex rejects an invalid channel and preserves output
+PASS CARD sys get_attributes rejects an invalid channel and preserves output
+PASS CARD sys set_status rejects an invalid channel without changing input
+PASS CARD sys set_status_ex rejects an invalid channel without changing input
+PASS CARD sys set_attributes rejects an invalid channel
+PASS CARD sys get_directory rejects an invalid channel and preserves outputs
+PASS CARD sys find_first initializes its cursor before an invalid-channel error
+PASS CARD sys find_next advances its cursor before an invalid-channel error
+PASS CARD sys and wrapper mount_async reject invalid channels without callbacks
+PASS CARD sys create_async rejects an invalid channel without callback or output changes
+PASS CARD sys create_entry and delete_entry reject invalid channels
+PASS CARD sys open_entry rejects an invalid channel and preserves output
+-- page 3 --
+PASS CARD sys read_async and write_async reject invalid channels without callbacks
+PASS CARD sys metadata async submissions reject invalid channels without callbacks
+INFO CARD EXI channel 0 status before probe=0x00001008
+INFO CARD raw slot probe result=0
+INFO CARD typed probe_info result=-1
+PASS CARD probe returns an EXI presence value and rejects an invalid channel
+PASS CARD probe_info returns valid geometry or a device error
+PASS CARD probe_info preserves the operation status
+PASS CARD serial_number rejects an unmounted slot
+INFO CARD sector_size status=-3
+PASS CARD sector_size returns no-card for unavailable media
+INFO CARD block_count status=-3
+PASS CARD block_count returns no-card for unavailable media
+INFO CARD free_blocks status=-3
+PASS CARD free_blocks returns no-card for unavailable media
+INFO CARD file_status status=-3
+PASS CARD file_status returns no-card for unavailable media
+PASS CARD slice transfers reject empty, short, misaligned, and overflowing requests before I/O
+PASS CARD read_async_owned rejects an invalid channel and returns its file
+-- page 4 --
+PASS CARD write_async_owned rejects an invalid channel and returns file and bytes
+PASS CARD read_async_owned rejects invalid transfer shapes and preserves files
+PASS CARD write_async_owned rejects invalid transfer shapes and returns payloads
+PASS CARD owned create and delete reject embedded NUL and oversized filenames
+PASS CARD owned entry operations reject unterminated names and return entries
+PASS CARD set_status_async_owned rejects out-of-range file numbers and returns stat
+INFO CARD slot probe after bounded retries=1
+INFO CARD probe_info after bounded retries=0
+PASS card mount request retains its slot
+INFO card mount async owned submit=0 complete=1 result=0
+PASS card mount async owned accepted
+PASS card mount async owned completion
+PASS card mount async owned result
+PASS card mounted owner retains its slot
+PASS card mounted owner reports attached
+PASS card mounted owner has no detach result before removal
+INFO card sector size rc=0
+-- page 5 --
+INFO card sector size=8192
+PASS card SAVE preflight found no existing file
+PASS card free blocks before create
+INFO card free block count before create=2043
+PASS card create request retains its slot
+INFO card create async owned submit=0 complete=1 result=0
+PASS card create async owned accepted
+PASS card create async owned completion
+PASS card create async owned result
+INFO card SAVE file channel after create=0
+INFO card SAVE file number after create=0
+PASS card set status async owned
+PASS card create entry async owned
+INFO card delete entry completion status=0
+PASS card delete entry async owned
+INFO card write async owned submit=0 complete=1 result=0
+PASS card write async owned accepted
+PASS card write async owned completion
+PASS card write async owned result
+INFO card read async owned submit=0 complete=1 result=0
+PASS card read async owned accepted
+PASS card read async owned completion
+PASS card read async owned result
+-- page 6 --
+PASS card async owned roundtrip
+PASS card safe sync roundtrip
+PASS card raw sync roundtrip
+PASS card close save
+PASS card unmount after create
+PASS card remount after create
+PASS card create persisted after remount
+PASS card data persisted after remount
+PASS card status persisted after remount
+PASS CARD game and company setters select the created save
+PASS card close remounted save
+PASS card delete request retains its slot
+PASS card delete completion preserves operation status
+INFO card delete async owned submit=0 complete=1 result=0
+PASS card delete async owned accepted
+PASS card delete async owned completion
+PASS card delete async owned result
+PASS card delete async owned completion
+PASS card unmount after delete
+PASS card remount after delete
+PASS card delete persisted after remount
+PASS card free blocks restored after delete
+PASS card final unmount
+-- page 7 --
+INFO card shutdown=0
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+INFO summary_candidate passes=92 fails=0
+PASS summary passes=92 fails=0

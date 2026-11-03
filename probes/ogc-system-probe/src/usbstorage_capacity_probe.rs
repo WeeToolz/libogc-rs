@@ -51,9 +51,34 @@ fn probe_public_facade(logger: &mut ProbeLogger) {
             storage::try_write(core::ptr::null_mut(), 0, 0, 1, sector.0.as_ptr()),
         )
     };
+    // SAFETY: Null handles are documented error inputs. The aligned sector
+    // remains live and is large enough for the requested transfer.
+    let (raw_close, raw_read, raw_write) = unsafe {
+        (
+            storage::close(core::ptr::null_mut()),
+            storage::read(core::ptr::null_mut(), 0, 0, 1, sector.0.as_mut_ptr()),
+            storage::write(core::ptr::null_mut(), 0, 0, 1, sector.0.as_ptr()),
+        )
+    };
+    // SAFETY: Null handles are documented error inputs; the buffer is live
+    // and aligned for one sector throughout the calls.
+    let (sys_open, sys_close, sys_read, sys_write) = unsafe {
+        (
+            sys::open(core::ptr::null_mut(), 0, 0x1234, 0x5678),
+            sys::close(core::ptr::null_mut()),
+            sys::read(core::ptr::null_mut(), 0, 0, 1, sector.0.as_mut_ptr()),
+            sys::write(core::ptr::null_mut(), 0, 0, 1, sector.0.as_ptr()),
+        )
+    };
     logger.record(
-        "safe USB close maps null handle to interface error",
-        has_error(closed, storage::USBSTORAGE_ENOINTERFACE),
+        "USB storage sys open rejects a null handle",
+        sys_open == storage::USBSTORAGE_ENOINTERFACE,
+    );
+    logger.record(
+        "raw and safe USB close reject null handles",
+        raw_close == storage::USBSTORAGE_ENOINTERFACE
+            && sys_close == raw_close
+            && has_error(closed, storage::USBSTORAGE_ENOINTERFACE),
     );
     logger.record(
         "raw and safe USB flush map null handle to interface error",
@@ -81,12 +106,17 @@ fn probe_public_facade(logger: &mut ProbeLogger) {
         has_error(capacity, storage::USBSTORAGE_ENOINTERFACE),
     );
     logger.record(
-        "safe USB read rejects a null handle",
-        has_error(read, storage::USBSTORAGE_EINVAL),
+        "raw and safe USB reads reject null handles and preserve output",
+        raw_read == storage::USBSTORAGE_EINVAL
+            && sys_read == raw_read
+            && has_error(read, storage::USBSTORAGE_EINVAL)
+            && sector.0 == [0xa5; 512],
     );
     logger.record(
-        "safe USB write rejects a null handle",
-        has_error(write, storage::USBSTORAGE_EINVAL),
+        "raw and safe USB writes reject null handles",
+        raw_write == storage::USBSTORAGE_EINVAL
+            && sys_write == raw_write
+            && has_error(write, storage::USBSTORAGE_EINVAL),
     );
 
     let default_flush = storage::flush_default();

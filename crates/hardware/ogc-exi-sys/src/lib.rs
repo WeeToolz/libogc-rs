@@ -171,7 +171,8 @@ const fn exi_reg_base_for_model(hollywood_revision: u32) -> usize {
 }
 
 #[cfg(target_arch = "powerpc")]
-fn hardware_exi_reg_base() -> usize {
+/// Returns the EXI register base for the detected console.
+pub fn hardware_exi_reg_base() -> usize {
     let cached = EXI_REG_BASE.load(Ordering::Acquire);
     if cached != 0 {
         return cached;
