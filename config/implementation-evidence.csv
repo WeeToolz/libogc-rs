@@ -1,4 +1,10 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function
+ogc-system,src/lib.rs,alloc_arena1_mem_lo,963,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/arena_probe.rs,test_arena1
+ogc-system,src/lib.rs,alloc_arena2_mem_lo,1076,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/arena_probe.rs,test_arena2
+ogc-system,src/lib.rs,get_arena1_lo,906,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/arena_probe.rs,probe_arena1_bounds
+ogc-system,src/lib.rs,get_arena1_hi,929,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/arena_probe.rs,probe_arena1_bounds
+ogc-system,src/lib.rs,get_arena2_lo,1014,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/arena_probe.rs,probe_arena2_bounds
+ogc-system,src/lib.rs,get_arena2_hi,1039,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/arena_probe.rs,probe_arena2_bounds
 lwbt-sys,src/lib.rs,dolphin_disconnect_response_order_probe,17,pure,hardware-probe,probes/ogc-system-probe/src/bluetooth_probe.rs,run
 ogc-lwp-driver,src/runtime.rs,timer_start_with_key,3700,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,run_tuxedo_compatibility
 ogc-cache,src/lib.rs,dc_flush_range,325,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache

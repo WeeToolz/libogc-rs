@@ -1,5 +1,35 @@
 # Development results
 
+## 2026-11-02: Arena boundary and allocation probes in Dolphin
+
+The arena probe now tests `get_arena1_lo`, `get_arena1_hi`,
+`get_arena2_lo`, and `get_arena2_hi` after changing both bounds within the
+original free arena. It checks the reported size and restores both bounds
+before it checks them again. It also calls `alloc_arena1_mem_lo` and
+`alloc_arena2_mem_lo` with two alignments, including a 0x31-byte allocation
+whose end requires alignment. The expected addresses are calculated without
+the production allocation helper. These six exact APIs now have entries in
+the evidence registry. The existing host evidence for the setter and size
+APIs remains in that registry.
+
+The focused DOL ran in Dolphin 2609a with 11 passes and no failures. Its
+SHA-256 was `17f56683c8b0cd05bc1d55ecc496257f51d535efcc25c79741b5c910aa565de0`.
+The build used revision `5a19cba` and the uncommitted arena probe change in
+this batch. It used a private profile and a copy of the configured Wii NAND;
+HBC was not under test. The [suite report](docs/dolphin-runs/2026-11-02-arena-bounds/suite.json),
+[transcript](docs/dolphin-runs/2026-11-02-arena-bounds/arena_probe/probe.log),
+transport bytes, logs, and page captures record the result. The final captured
+page was inspected and shows the passing summary. The copied profile is local.
+
+Build: `cargo xtask build-dol ogc-system-probe --bin arena_probe
+--probe-features dolphin-automation --no-dev --output
+target/xtask/probes-dolphin/arena_probe.dol`. Run: `cargo xtask dolphin-validate
+--no-build --probe arena_probe --artifact-dir
+docs/dolphin-runs/2026-11-02-arena-bounds`. The Dolphin run does not establish
+physical Wii behavior or allocation behavior outside the cases in this probe.
+The refreshed inventory has 2,277 entries without accepted exact API evidence;
+the six entries in this batch were previously unverified.
+
 ## 2026-11-02: Dolphin API probe baseline and arena checks
 
 The registered Dolphin suite ran 30 probes from revision
