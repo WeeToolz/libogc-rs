@@ -139,6 +139,7 @@ modplay-capi,src/lib.rs,trigger_note_state,pure,modplay-probe,Dolphin verifies t
 modplay-capi,src/lib.rs,try_unload_state,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
 modplay-capi,src/lib.rs,unload_state,pure,modplay-probe,Dolphin verifies this MOD state API with a caller-owned minimal module image
 mp3player-sys,src/lib.rs,mp3_player_init,hardware,mp3player-probe,Dolphin validates initialization and playback with a fixed MP3 fixture
+mp3player-sys,src/lib.rs,mp3_player_set_speed_per_mille,hardware,mp3player-probe,Dolphin checks that normal and fast settings produce different captured PCM
 mp3player-sys,src/lib.rs,mp3_player_is_playing,hardware,mp3player-probe,Dolphin checks playback state during buffer and reader playback
 mp3player-sys,src/lib.rs,mp3_player_last_error,hardware,mp3player-probe,Dolphin checks errors for invalid buffer and reader inputs
 mp3player-sys,src/lib.rs,mp3_player_pause,hardware,mp3player-probe,Dolphin checks pause and resume through observable ASND voice state
@@ -147,6 +148,7 @@ mp3player-sys,src/lib.rs,mp3_player_play_buffer_looped,hardware,mp3player-probe,
 mp3player-sys,src/lib.rs,mp3_player_play_file,hardware,mp3player-probe,Dolphin checks reader callbacks and playback with a fixed MP3 fixture
 mp3player-sys,src/lib.rs,mp3_player_stop,hardware,mp3player-probe,Dolphin checks looped playback stops and releases its voice
 mp3player-sys,src/lib.rs,mp3_player_volume,hardware,mp3player-probe,Dolphin checks full volume and mute from captured DMA samples
+mp3player-sys,src/lib.rs,set_speed_per_mille,hardware,mp3player-probe,Dolphin checks that normal and fast settings produce different captured PCM
 mp3player-sys,src/lib.rs,is_playing,hardware,mp3player-probe,Dolphin checks playback state during buffer and reader playback
 mp3player-sys,src/lib.rs,last_error,hardware,mp3player-probe,Dolphin checks errors for invalid buffer and reader inputs
 mp3player-sys,src/lib.rs,pause,hardware,mp3player-probe,Dolphin checks pause and resume through observable ASND voice state

@@ -788,13 +788,13 @@ Dolphin 2609a. Its DOL SHA-256 is
 [passing suite](docs/dolphin-runs/2026-11-02-mad-ppc-profile-final/suite.json)
 and [probe log](docs/dolphin-runs/2026-11-02-mad-ppc-profile-final/libmad_probe/probe.log).
 
-## 2026-11-02: MP3 volume output probe
+## 2026-11-02: MP3 volume and speed output probe
 
-The MP3 probe now chains the ASND DMA callback and measures the actual DMA
-buffer samples. Direct full volume and the alias volume clamp produced nonzero
-PCM energy; alias mute produced zero energy. Dolphin 2609a passed 18 checks
-with zero failures. The DOL SHA-256 is
-`eb7249c305512323a4be5ca0564e785c3d7fd71e4532fe6b37a1c97910deb92c`. See the
-[suite](docs/dolphin-runs/2026-11-02-mp3-volume-capture/suite.json) and
-[probe log](docs/dolphin-runs/2026-11-02-mp3-volume-capture/mp3player_probe/probe.log).
-The two speed setters remain unverified. No physical Wii run was made.
+The MP3 probe chains the ASND DMA callback and measures actual DMA samples.
+Direct full volume and alias volume clamp produced nonzero PCM energy; alias
+mute produced zero energy. Normal speed and 1.4x speed produced different
+nonzero PCM hashes. Dolphin 2609a passed 19 checks with zero failures. The DOL
+SHA-256 is `a812a8c8c30bf6361031d85b7d7e8c3ca127610f8d65324625b8ce612586eb3c`.
+See the [suite](docs/dolphin-runs/2026-11-02-mp3-speed-capture-final/suite.json)
+and [probe log](docs/dolphin-runs/2026-11-02-mp3-speed-capture-final/mp3player_probe/probe.log).
+No physical Wii run was made.
