@@ -1,11 +1,25 @@
 # Development results
 
+## 2026-11-02: UI canvas clipping checks
+
+Host tests exercise the production clipped canvas for fill and text calls,
+including partial overlap, no overlap, and backend errors. The UI inventory
+now has evidence for all 66 entries. The GX rendering backend still needs
+pixel evidence. An experimental video probe in Dolphin 2609a reported 52
+passes and one failure: both rendered pixels and a control EFB poke read back
+as black. The DOL SHA-256 was
+`e01937c69728e569e1602d7f9e251f002c4b3a117a8334dafdb08cc8ac1f03a6`.
+The [report](docs/dolphin-runs/2026-11-02-ui-canvas-poke/suite.json) records
+the run. The exploratory probe and runner changes were not retained. This
+result does not establish whether GX drawing or Dolphin EFB readback failed.
+Physical Wii drawing remains untested.
+
 ## 2026-11-02: UI canvas evidence review
 
 The existing [Dolphin video run](docs/dolphin-runs/2026-11-02-gx-texconv/video_probe/probe.log)
 passed the GX canvas dimension and validation check. It calls `from_video_mode`,
-`new`, and `size`; the evidence registry now records those calls. The two Canvas
-drawing trait methods remain unverified. A new Dolphin attempt stopped before
+`new`, and `size`; the evidence registry now records those calls. At that time the two Canvas
+drawing trait methods remained unverified. A new Dolphin attempt stopped before
 the probe: Dolphin aborted during its version check and reported that its Qt
 build requires NEON. The drawing behavior and physical Wii behavior remain open.
 

@@ -163,6 +163,95 @@ impl Canvas for ClippedCanvas<'_> {
 mod public_api_tests {
     use super::*;
 
+    #[derive(Default)]
+    struct RecordingCanvas {
+        fill: Option<(Rect, Color, Rect)>,
+        text: Option<(Rect, TextStyle, Rect)>,
+        text_matches: bool,
+        fail: bool,
+    }
+
+    impl Canvas for RecordingCanvas {
+        fn fill_rect(&mut self, rect: Rect, color: Color, clip: Rect) -> Result<(), CanvasError> {
+            self.fill = Some((rect, color, clip));
+            if self.fail {
+                Err(CanvasError::Backend(7))
+            } else {
+                Ok(())
+            }
+        }
+
+        fn draw_text(
+            &mut self,
+            text: &str,
+            rect: Rect,
+            style: TextStyle,
+            clip: Rect,
+        ) -> Result<(), CanvasError> {
+            self.text = Some((rect, style, clip));
+            self.text_matches = text == "UI";
+            if self.fail {
+                Err(CanvasError::Backend(7))
+            } else {
+                Ok(())
+            }
+        }
+    }
+
+    #[test]
+    fn clipped_canvas_fill_rect_intersects_and_propagates_errors() {
+        let mut backend = RecordingCanvas::default();
+        let clip = Rect::new(10, 10, 10, 10);
+        let color = Color::rgb(1, 2, 3);
+        let rect = Rect::new(5, 12, 10, 10);
+        assert_eq!(
+            ClippedCanvas::new(&mut backend, clip).fill_rect(rect, color, clip),
+            Ok(())
+        );
+        assert_eq!(backend.fill, Some((Rect::new(10, 12, 5, 8), color, clip)));
+        backend.fill = None;
+        assert_eq!(
+            ClippedCanvas::new(&mut backend, clip).fill_rect(Rect::new(20, 10, 2, 2), color, clip),
+            Ok(())
+        );
+        assert_eq!(backend.fill, None);
+        backend.fail = true;
+        assert_eq!(
+            ClippedCanvas::new(&mut backend, clip).fill_rect(rect, color, clip),
+            Err(CanvasError::Backend(7))
+        );
+    }
+
+    #[test]
+    fn clipped_canvas_draw_text_intersects_and_propagates_errors() {
+        let mut backend = RecordingCanvas::default();
+        let clip = Rect::new(10, 10, 10, 10);
+        let rect = Rect::new(5, 12, 10, 10);
+        let style = TextStyle::default();
+        assert_eq!(
+            ClippedCanvas::new(&mut backend, clip).draw_text("UI", rect, style, clip),
+            Ok(())
+        );
+        assert_eq!(backend.text, Some((rect, style, Rect::new(10, 12, 5, 8))));
+        assert!(backend.text_matches);
+        backend.text = None;
+        assert_eq!(
+            ClippedCanvas::new(&mut backend, clip).draw_text(
+                "UI",
+                Rect::new(20, 10, 2, 2),
+                style,
+                clip
+            ),
+            Ok(())
+        );
+        assert_eq!(backend.text, None);
+        backend.fail = true;
+        assert_eq!(
+            ClippedCanvas::new(&mut backend, clip).draw_text("UI", rect, style, clip),
+            Err(CanvasError::Backend(7))
+        );
+    }
+
     #[test]
     fn rectangle_contains_uses_exclusive_edges_without_overflow() {
         let rect = Rect::new(10, 20, 3, 4);

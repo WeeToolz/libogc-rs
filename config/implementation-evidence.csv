@@ -1,4 +1,6 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function
+ogc-ui,src/canvas.rs,fill_rect,116,pure,host-test,crates/services/ogc-ui/src/canvas.rs,clipped_canvas_fill_rect_intersects_and_propagates_errors
+ogc-ui,src/canvas.rs,draw_text,118,pure,host-test,crates/services/ogc-ui/src/canvas.rs,clipped_canvas_draw_text_intersects_and_propagates_errors
 ogc-ui,src/gx.rs,from_video_mode,37,pure,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_canvas_dimensions
 ogc-ui,src/gx.rs,new,16,pure,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_canvas_dimensions
 ogc-ui,src/gx.rs,size,41,pure,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_canvas_dimensions
