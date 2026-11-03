@@ -63,116 +63,132 @@ pub fn run(logger: &mut ProbeLogger) {
 
     #[cfg(feature = "dolphin-automation")]
     {
-        logger.note("Dolphin-only write check uses sector zero and restores its original bytes.");
-        let original = Sector(sector.0);
-        let mut pattern = Sector([0; 512]);
-        for (index, byte) in pattern.0.iter_mut().enumerate() {
-            *byte = (index as u8).wrapping_mul(37).wrapping_add(0x5b);
-        }
+        if inserted && read {
+            logger
+                .note("Dolphin-only write check uses sector zero and restores its original bytes.");
+            let original = Sector(sector.0);
+            let mut pattern = Sector([0; 512]);
+            for (index, byte) in pattern.0.iter_mut().enumerate() {
+                *byte = (index as u8).wrapping_mul(37).wrapping_add(0x5b);
+            }
 
-        // SAFETY: This Dolphin-only check uses the private virtual SD card.
-        // It saves sector zero first and restores it after the round trip.
-        let wrote_pattern =
-            inserted && read && unsafe { write_sectors(0, 1, pattern.0.as_ptr().cast()) };
-        logger.record("Wii SD one-sector write completes", wrote_pattern);
+            // SAFETY: This Dolphin-only check uses the private virtual SD card.
+            // It saves sector zero first and restores it after the round trip.
+            let wrote_pattern =
+                inserted && read && unsafe { write_sectors(0, 1, pattern.0.as_ptr().cast()) };
+            logger.record("Wii SD one-sector write completes", wrote_pattern);
 
-        let mut observed_pattern = Sector([0; 512]);
-        // SAFETY: The destination is one aligned sector and the write ran on
-        // Dolphin's private virtual SD card.
-        let pattern_read =
-            wrote_pattern && unsafe { read_sectors(0, 1, observed_pattern.0.as_mut_ptr().cast()) };
-        logger.record(
-            "Wii SD read returns the written sector bytes",
-            pattern_read && observed_pattern.0 == pattern.0,
-        );
+            let mut observed_pattern = Sector([0; 512]);
+            // SAFETY: The destination is one aligned sector and the write ran on
+            // Dolphin's private virtual SD card.
+            let pattern_read = wrote_pattern
+                && unsafe { read_sectors(0, 1, observed_pattern.0.as_mut_ptr().cast()) };
+            logger.record(
+                "Wii SD read returns the written sector bytes",
+                pattern_read && observed_pattern.0 == pattern.0,
+            );
 
-        // SAFETY: Restore the saved sector even when the pattern write or
-        // read-back check failed. This DOL uses a disposable Dolphin profile.
-        let restored_write =
-            inserted && read && unsafe { write_sectors(0, 1, original.0.as_ptr().cast()) };
-        let mut restored_sector = Sector([0; 512]);
-        // SAFETY: The destination is one aligned sector on the private card.
-        let restored_read =
-            restored_write && unsafe { read_sectors(0, 1, restored_sector.0.as_mut_ptr().cast()) };
-        logger.record(
-            "Wii SD original sector bytes are restored",
-            restored_read && restored_sector.0 == original.0,
-        );
+            // SAFETY: Restore the saved sector even when the pattern write or
+            // read-back check failed. This DOL uses a disposable Dolphin profile.
+            let restored_write =
+                inserted && read && unsafe { write_sectors(0, 1, original.0.as_ptr().cast()) };
+            let mut restored_sector = Sector([0; 512]);
+            // SAFETY: The destination is one aligned sector on the private card.
+            let restored_read = restored_write
+                && unsafe { read_sectors(0, 1, restored_sector.0.as_mut_ptr().cast()) };
+            logger.record(
+                "Wii SD original sector bytes are restored",
+                restored_read && restored_sector.0 == original.0,
+            );
 
-        const MULTI_SECTOR_COUNT: u32 = 9;
-        const MULTI_SECTOR_START: u32 = 1;
-        logger.note(
+            const MULTI_SECTOR_COUNT: u32 = 9;
+            const MULTI_SECTOR_START: u32 = 1;
+            logger.note(
             "Dolphin-only nine-sector check crosses the eight-sector transfer buffer and restores its data.",
         );
-        let mut original_sectors = MultiSector([0; 9 * 512 + 1]);
-        // SAFETY: The offset buffer holds all nine sectors. It is unaligned on
-        // purpose, so production uses its bounded bounce buffer.
-        let saved_sectors = inserted
-            && unsafe {
-                read_sectors(
-                    MULTI_SECTOR_START,
-                    MULTI_SECTOR_COUNT,
-                    original_sectors.0.as_mut_ptr().add(1).cast(),
-                )
-            };
-        let mut pattern_sectors = MultiSector([0; 9 * 512 + 1]);
-        for (index, byte) in pattern_sectors.0[1..].iter_mut().enumerate() {
-            *byte = (index as u8).wrapping_mul(29).wrapping_add(0x73);
+            let mut original_sectors = MultiSector([0; 9 * 512 + 1]);
+            // SAFETY: The offset buffer holds all nine sectors. It is unaligned on
+            // purpose, so production uses its bounded bounce buffer.
+            let saved_sectors = inserted
+                && unsafe {
+                    read_sectors(
+                        MULTI_SECTOR_START,
+                        MULTI_SECTOR_COUNT,
+                        original_sectors.0.as_mut_ptr().add(1).cast(),
+                    )
+                };
+            let mut pattern_sectors = MultiSector([0; 9 * 512 + 1]);
+            for (index, byte) in pattern_sectors.0[1..].iter_mut().enumerate() {
+                *byte = (index as u8).wrapping_mul(29).wrapping_add(0x73);
+            }
+            // SAFETY: The offset input holds nine sectors and is unaligned. The
+            // save completed before the write.
+            let wrote_multi_sector = saved_sectors
+                && unsafe {
+                    write_sectors(
+                        MULTI_SECTOR_START,
+                        MULTI_SECTOR_COUNT,
+                        pattern_sectors.0.as_ptr().add(1).cast(),
+                    )
+                };
+            logger.record(
+                "Wii SD nine-sector write crosses the transfer buffer boundary",
+                wrote_multi_sector,
+            );
+
+            let mut observed_sectors = MultiSector([0; 9 * 512 + 1]);
+            // SAFETY: The offset destination holds nine sectors and is unaligned.
+            let read_multi_sector = wrote_multi_sector
+                && unsafe {
+                    read_sectors(
+                        MULTI_SECTOR_START,
+                        MULTI_SECTOR_COUNT,
+                        observed_sectors.0.as_mut_ptr().add(1).cast(),
+                    )
+                };
+            logger.record(
+                "Wii SD nine-sector read returns the written bytes",
+                read_multi_sector && observed_sectors.0[1..] == pattern_sectors.0[1..],
+            );
+
+            // SAFETY: Restore the saved bytes after any attempted write, including
+            // a write that reports an error after completing its first block.
+            let restore_multi_sector = saved_sectors
+                && unsafe {
+                    write_sectors(
+                        MULTI_SECTOR_START,
+                        MULTI_SECTOR_COUNT,
+                        original_sectors.0.as_ptr().add(1).cast(),
+                    )
+                };
+            let mut restored_sectors = MultiSector([0; 9 * 512 + 1]);
+            // SAFETY: The offset destination holds nine sectors and is unaligned.
+            let verify_multi_sector_restore = restore_multi_sector
+                && unsafe {
+                    read_sectors(
+                        MULTI_SECTOR_START,
+                        MULTI_SECTOR_COUNT,
+                        restored_sectors.0.as_mut_ptr().add(1).cast(),
+                    )
+                };
+            logger.record(
+                "Wii SD nine-sector original bytes are restored",
+                verify_multi_sector_restore && restored_sectors.0[1..] == original_sectors.0[1..],
+            );
+        } else if !inserted {
+            let rejected_write_input = Sector([0x6d; 512]);
+            // SAFETY: This aligned input is valid, and the test confirms that
+            // the API rejects the request because no SD card is present.
+            let write_without_card =
+                unsafe { write_sectors(0, 1, rejected_write_input.0.as_ptr().cast()) };
+            logger.record(
+                "Wii SD one-sector write rejects an absent card",
+                !write_without_card,
+            );
+            logger.note("Wii SD write and persistence checks skipped: no card is present");
+        } else {
+            logger.note("Wii SD write checks skipped: the initial sector read failed");
         }
-        // SAFETY: The offset input holds nine sectors and is unaligned. The
-        // save completed before the write.
-        let wrote_multi_sector = saved_sectors
-            && unsafe {
-                write_sectors(
-                    MULTI_SECTOR_START,
-                    MULTI_SECTOR_COUNT,
-                    pattern_sectors.0.as_ptr().add(1).cast(),
-                )
-            };
-        logger.record(
-            "Wii SD nine-sector write crosses the transfer buffer boundary",
-            wrote_multi_sector,
-        );
-
-        let mut observed_sectors = MultiSector([0; 9 * 512 + 1]);
-        // SAFETY: The offset destination holds nine sectors and is unaligned.
-        let read_multi_sector = wrote_multi_sector
-            && unsafe {
-                read_sectors(
-                    MULTI_SECTOR_START,
-                    MULTI_SECTOR_COUNT,
-                    observed_sectors.0.as_mut_ptr().add(1).cast(),
-                )
-            };
-        logger.record(
-            "Wii SD nine-sector read returns the written bytes",
-            read_multi_sector && observed_sectors.0[1..] == pattern_sectors.0[1..],
-        );
-
-        // SAFETY: Restore the saved bytes after any attempted write, including
-        // a write that reports an error after completing its first block.
-        let restore_multi_sector = saved_sectors
-            && unsafe {
-                write_sectors(
-                    MULTI_SECTOR_START,
-                    MULTI_SECTOR_COUNT,
-                    original_sectors.0.as_ptr().add(1).cast(),
-                )
-            };
-        let mut restored_sectors = MultiSector([0; 9 * 512 + 1]);
-        // SAFETY: The offset destination holds nine sectors and is unaligned.
-        let verify_multi_sector_restore = restore_multi_sector
-            && unsafe {
-                read_sectors(
-                    MULTI_SECTOR_START,
-                    MULTI_SECTOR_COUNT,
-                    restored_sectors.0.as_mut_ptr().add(1).cast(),
-                )
-            };
-        logger.record(
-            "Wii SD nine-sector original bytes are restored",
-            verify_multi_sector_restore && restored_sectors.0[1..] == original_sectors.0[1..],
-        );
     }
 
     let before_write = sector.0;

@@ -226,6 +226,7 @@ struct Options {
     probes: Vec<String>,
     artifact_dir: Option<PathBuf>,
     timeout_seconds: Option<u64>,
+    disable_wii_sd_card: bool,
 }
 
 #[derive(Serialize)]
@@ -406,7 +407,15 @@ pub fn validate(root: &Path, args: &[String]) -> Result<(), String> {
     for spec in selected {
         println!("Dolphin probe: {}", spec.name);
         let timeout = options.timeout_seconds.unwrap_or(spec.timeout_seconds);
-        let result = run_probe(root, &artifact_dir, &dolphin, &nand_source, spec, timeout)?;
+        let result = run_probe(
+            root,
+            &artifact_dir,
+            &dolphin,
+            &nand_source,
+            spec,
+            timeout,
+            !options.disable_wii_sd_card,
+        )?;
         let passed = result.status == "pass";
         println!("  status={} frames={}", result.status, result.frame_count);
         results.push(result);
@@ -453,6 +462,10 @@ fn parse_options(args: &[String]) -> Result<Options, String> {
     while index < args.len() {
         match args[index].as_str() {
             "--no-build" => index += 1,
+            "--disable-wii-sd-card" => {
+                options.disable_wii_sd_card = true;
+                index += 1;
+            }
             "--dolphin" | "--nand-dir" | "--probe" | "--artifact-dir" | "--timeout-seconds" => {
                 let key = args[index].as_str();
                 let value = args
@@ -489,6 +502,7 @@ pub fn print_help() {
     eprintln!("  --nand-dir PATH         source Wii NAND (default: Dolphin user NAND)");
     eprintln!("  --artifact-dir PATH     result directory");
     eprintln!("  --timeout-seconds N     override every probe timeout");
+    eprintln!("  --disable-wii-sd-card   run probes without Dolphin's virtual Wii SD card");
     eprintln!("  {DOLPHIN_CARD_IMAGE_ENV}=PATH attaches a copied raw card image to storage_probe");
 }
 
@@ -650,6 +664,7 @@ fn run_probe(
     nand_source: &Path,
     spec: ProbeSpec,
     timeout_seconds: u64,
+    wii_sd_card_enabled: bool,
 ) -> Result<ProbeResult, String> {
     let probe_dir = artifact_dir.join(spec.name);
     let user_dir = probe_dir.join("user");
@@ -699,7 +714,13 @@ fn run_probe(
     let mut transport_bytes = File::create(&transport_bytes_path)
         .map_err(|err| format!("{}: {err}", transport_bytes_path.display()))?;
     let gdb_port = unused_tcp_port()?;
-    let arguments = dolphin_arguments(&user_dir, &dol_path, gdb_port, memory_card_path.as_deref());
+    let arguments = dolphin_arguments(
+        &user_dir,
+        &dol_path,
+        gdb_port,
+        memory_card_path.as_deref(),
+        wii_sd_card_enabled,
+    );
     let started = Instant::now();
     let mut child = ChildGuard::new(
         Command::new(dolphin)
@@ -1091,6 +1112,7 @@ fn dolphin_arguments(
     dol_path: &Path,
     gdb_port: u16,
     memory_card_path: Option<&Path>,
+    wii_sd_card_enabled: bool,
 ) -> Vec<String> {
     let speed = "1.0";
     let mut arguments = [
@@ -1141,9 +1163,9 @@ fn dolphin_arguments(
         "-C".to_string(),
         "Dolphin.Core.SlotB=7".to_string(),
         "-C".to_string(),
-        "Dolphin.Core.WiiSDCard=True".to_string(),
+        format!("Dolphin.Core.WiiSDCard={wii_sd_card_enabled}"),
         "-C".to_string(),
-        "Dolphin.Core.WiiSDCardAllowWrites=True".to_string(),
+        format!("Dolphin.Core.WiiSDCardAllowWrites={wii_sd_card_enabled}"),
     ]
     .into_iter()
     .collect::<Vec<_>>();
@@ -2272,6 +2294,7 @@ mod tests {
             Path::new("/run/storage_probe.dol"),
             1234,
             Some(&card_path),
+            true,
         );
 
         assert!(
@@ -2283,8 +2306,13 @@ mod tests {
                 && pair[1] == format!("Dolphin.Core.MemcardAPath={}", card_path.display())
         }));
 
-        let args_without_card =
-            dolphin_arguments(profile, Path::new("/run/storage_probe.dol"), 1234, None);
+        let args_without_card = dolphin_arguments(
+            profile,
+            Path::new("/run/storage_probe.dol"),
+            1234,
+            None,
+            true,
+        );
         assert!(
             !args_without_card
                 .iter()
@@ -2295,6 +2323,36 @@ mod tests {
                 .iter()
                 .any(|argument| argument.starts_with("Dolphin.Core.MemcardAPath="))
         );
+    }
+
+    #[test]
+    fn dolphin_args_disable_virtual_sd_only_when_requested() {
+        let profile = Path::new("/run/profile");
+        let dol = Path::new("/run/wiisd_probe.dol");
+        let enabled = dolphin_arguments(profile, dol, 1234, None, true);
+        let disabled = dolphin_arguments(profile, dol, 1234, None, false);
+        assert!(
+            enabled
+                .windows(2)
+                .any(|pair| { pair[0] == "-C" && pair[1] == "Dolphin.Core.WiiSDCard=true" })
+        );
+        assert!(enabled.windows(2).any(|pair| {
+            pair[0] == "-C" && pair[1] == "Dolphin.Core.WiiSDCardAllowWrites=true"
+        }));
+        assert!(
+            disabled
+                .windows(2)
+                .any(|pair| { pair[0] == "-C" && pair[1] == "Dolphin.Core.WiiSDCard=false" })
+        );
+        assert!(disabled.windows(2).any(|pair| {
+            pair[0] == "-C" && pair[1] == "Dolphin.Core.WiiSDCardAllowWrites=false"
+        }));
+        assert!(
+            parse_options(&["--disable-wii-sd-card".to_string()])
+                .unwrap()
+                .disable_wii_sd_card
+        );
+        assert!(!parse_options(&[]).unwrap().disable_wii_sd_card);
     }
 
     #[test]

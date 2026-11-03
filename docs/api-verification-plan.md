@@ -325,7 +325,11 @@ path, shutdown, and restart. The non-zero write tests are enabled only for
 Dolphin; they do not test writes or transport behavior on a physical Wii. See
 [the multi-sector report](dolphin-runs/2026-11-03-wiisd-multisector/README.md),
 [the earlier one-sector report](dolphin-runs/2026-11-03-wiisd-write-roundtrip/README.md),
-and [development results](../DEVELOPMENT_RESULTS.md).
+and [development results](../DEVELOPMENT_RESULTS.md). A separate Dolphin run
+disabled the virtual SD card. Ten checks passed for no-card startup, insertion,
+read, write, zero-sector, shutdown, and restart behavior. See the
+[no-card report](dolphin-runs/2026-11-03-wiisd-no-card/README.md). Both runs use
+Dolphin's virtual SD interface; physical Wii behavior remains open.
 
 The 2026-11-03 storage probe run passed 62 checks and failed 3 because it had
 no Wiiload arguments and no USB storage device. The run configured a private
