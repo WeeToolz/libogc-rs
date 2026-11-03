@@ -1,4 +1,7 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function
+iso9660,src/lib.rs,ISO9660_GetVolumeLabel,1014,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_iso9660
+iso9660,src/lib.rs,ISO9660_Mount,991,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_iso9660
+iso9660,src/lib.rs,ISO9660_Unmount,1004,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_iso9660
 ogc-ui,src/canvas.rs,fill_rect,116,pure,host-test,crates/services/ogc-ui/src/canvas.rs,clipped_canvas_fill_rect_intersects_and_propagates_errors
 ogc-ui,src/canvas.rs,draw_text,118,pure,host-test,crates/services/ogc-ui/src/canvas.rs,clipped_canvas_draw_text_intersects_and_propagates_errors
 ogc-ui,src/gx.rs,from_video_mode,37,pure,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_canvas_dimensions

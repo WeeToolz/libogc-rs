@@ -36,7 +36,7 @@ and its DOL SHA-256 is
 `6353a1b9cb993e1d1547cbea98b8037358a4d6bd4fb4015e51a8fed294201c41`.
 These runs do not establish real-Wii behavior.
 
-The 2026-11-02 completeness gate reports 2,166 APIs without accepted exact
+The 2026-11-03 inventory reports 2,017 APIs without accepted exact
 test or probe evidence. The hardware register has 14 passed and 36 not-tested
 rows. These counts describe evidence gaps; they do not mean that every API is
 broken or tested. No real-Wii run was made for this repository preparation.
