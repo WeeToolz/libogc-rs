@@ -127,6 +127,11 @@ const PROBES: &[ProbeSpec] = &[
         input_pipe: false,
     },
     ProbeSpec {
+        name: "audio_sys_probe",
+        timeout_seconds: 90,
+        input_pipe: false,
+    },
+    ProbeSpec {
         name: "startup_probe",
         timeout_seconds: 90,
         input_pipe: false,
