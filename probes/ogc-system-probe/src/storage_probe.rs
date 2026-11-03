@@ -258,7 +258,7 @@ pub fn probe_dvd(logger: &mut ProbeLogger) {
     // SAFETY: both structures remain live until `record_async` observes callback
     // completion below.
     let submit = unsafe { dvd::read_disk_id(&mut id_block, &mut id, Some(dvd_async_callback)) };
-    let id_ok = record_async(logger, "dvd disk id async", submit, dvd::DVD_ERROR_OK, 10);
+    let id_ok = record_async(logger, "dvd disk id async", submit, 0x20, 10);
     logger.record("dvd disk id transferred", id_ok && id_block.txdsize == 0x20);
     if id_ok {
         let game = [
@@ -307,7 +307,13 @@ pub fn probe_dvd(logger: &mut ProbeLogger) {
             2,
         )
     };
-    let read_ok = record_async(logger, "dvd sector0 async", submit, dvd::DVD_ERROR_OK, 10);
+    let read_ok = record_async(
+        logger,
+        "dvd sector0 async",
+        submit,
+        sector.0.len() as i32,
+        10,
+    );
     logger.record(
         "dvd async byte count",
         read_ok && async_read_block.txdsize == sector.0.len() as u32,
