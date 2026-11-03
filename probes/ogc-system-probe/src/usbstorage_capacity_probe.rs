@@ -195,6 +195,53 @@ fn probe_c_abi_without_device(logger: &mut ProbeLogger) {
         storage::async_control_cleanup_failures() == 0,
     );
 
+    let raw_flush = unsafe { storage::flush(core::ptr::null_mut(), 0) };
+    let raw_flush_default = storage::flush_default();
+    let raw_reset = unsafe { storage::reset(core::ptr::null_mut()) };
+    let raw_mount = unsafe { storage::mount_lun(core::ptr::null_mut(), 0) };
+    let raw_suspend = unsafe { storage::suspend(core::ptr::null_mut()) };
+    let raw_start_stop = unsafe { storage::start_stop(core::ptr::null_mut(), 0, 0, 1, 0) };
+    logger.record(
+        "raw USB flush and default flush report no interface",
+        raw_flush == storage::USBSTORAGE_ENOINTERFACE
+            && raw_flush_default == storage::USBSTORAGE_ENOINTERFACE,
+    );
+    logger.record(
+        "raw USB reset, mount, suspend, and start-stop reject null handles",
+        raw_reset == storage::USBSTORAGE_ENOINTERFACE
+            && raw_mount == storage::USBSTORAGE_ENOINTERFACE
+            && raw_suspend == storage::USBSTORAGE_ENOINTERFACE
+            && raw_start_stop == storage::USBSTORAGE_ENOINTERFACE,
+    );
+
+    let mut raw_sector_size = 0x1234_5678;
+    let mut raw_sectors = 0x8765_4321;
+    let raw_capacity = unsafe {
+        storage::read_capacity(
+            core::ptr::null_mut(),
+            0,
+            &mut raw_sector_size,
+            &mut raw_sectors,
+        )
+    };
+    logger.record(
+        "raw USB capacity preserves outputs when the handle is null",
+        raw_capacity == storage::USBSTORAGE_ENOINTERFACE
+            && raw_sector_size == 0x1234_5678
+            && raw_sectors == 0x8765_4321,
+    );
+
+    let raw_dvd = storage::is_dvd();
+    logger.record("raw USB DVD query reports no mounted DVD", raw_dvd == 0);
+    let clear_status = storage::USB_STORAGE_INTERFACE
+        .clear_status
+        .expect("USB interface must provide clear_status");
+    let clear_status = unsafe { clear_status() };
+    logger.record(
+        "USB disc-interface clear-status callback succeeds",
+        clear_status,
+    );
+
     storage::c_deinitialize();
     logger.record(
         "C USB deinitialize records its result for C callers",

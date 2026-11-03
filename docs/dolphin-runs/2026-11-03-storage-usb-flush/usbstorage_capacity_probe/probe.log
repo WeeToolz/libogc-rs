@@ -104,6 +104,11 @@ PASS C USB DVD query reports no mounted DVD
 PASS USB ioctl and C bridge reject an unmounted request
 -- page 4 --
 PASS USB async control cleanup counter remains clear
+PASS raw USB flush and default flush report no interface
+PASS raw USB reset, mount, suspend, and start-stop reject null handles
+PASS raw USB capacity preserves outputs when the handle is null
+PASS raw USB DVD query reports no mounted DVD
+PASS USB disc-interface clear-status callback succeeds
 PASS C USB deinitialize records its result for C callers
 PASS open reset decision matches the C USB mode predicate
 PASS USB idle remount uses a strict sixty-second boundary
@@ -119,5 +124,6 @@ PASS ReadCapacity accepts CSW status and residue, then decodes capacity
 PASS ReadCapacity preserves a negative BOT cycle result
 PASS probe VI retraces complete within 100 ms
 PASS Dolphin screen-data transport completed
-INFO summary_candidate passes=43 fails=0
-PASS summary passes=43 fails=0
+INFO summary_candidate passes=48 fails=0
+-- page 5 --
+PASS summary passes=48 fails=0
