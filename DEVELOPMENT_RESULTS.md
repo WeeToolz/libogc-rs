@@ -1137,3 +1137,10 @@ The USB storage probe calls the Rust inquiry API directly and checks null and
 unavailable LUN errors without changing the failed-open handle. Dolphin passed
 50 checks. Successful inquiry and physical USB behavior remain open. See the
 [inquiry report](docs/dolphin-runs/2026-11-03-usb-inquiry-direct/README.md).
+
+## 2026-11-03: ISFS async format callback
+
+With a longer bounded wait, Dolphin received the async format callback with
+status 0 and verified marker removal after restarting the ISFS service. The
+runtime probe passed 88 checks. The prior timeout and physical Wii limit remain
+documented in the [run report](docs/dolphin-runs/2026-11-03-isfs-format-async-bounded/README.md).
