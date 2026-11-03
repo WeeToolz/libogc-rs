@@ -24,6 +24,18 @@ use crate::probe_support::ProbeLogger;
 #[repr(align(32))]
 struct Workarea([u8; card::CARD_WORKAREA_SIZE as usize]);
 
+struct CardIdentifierReset {
+    gamecode: card::CardGameCode,
+    company: card::CardCompanyCode,
+}
+
+impl Drop for CardIdentifierReset {
+    fn drop(&mut self) {
+        card::sys::set_gamecode(Some(self.gamecode));
+        card::sys::set_company(Some(self.company));
+    }
+}
+
 #[repr(align(32))]
 struct SectorBuf([u8; RAW_USB_SECTOR_BUFFER_SIZE]);
 
@@ -1729,6 +1741,75 @@ fn probe_card_invalid_channel_apis(logger: &mut ProbeLogger) {
             && CARD_INVALID_CHANNEL_CALLBACKS.load(Ordering::Acquire) == 0,
     );
 
+    let mut entry_file = card::CardFile {
+        filenum: 0x2345,
+        ..card::CardFile::default()
+    };
+    let mut create_entry = card::CardDir {
+        filelen: 0x2000,
+        ..card::CardDir::default()
+    };
+    create_entry.filename[..7].copy_from_slice(b"INVALID");
+    // SAFETY: both objects are live and writable; invalid channel validation
+    // must reject these calls before any CARD state changes.
+    let create_entry_rc =
+        unsafe { card::sys::create_entry(invalid_channel, &mut create_entry, &mut entry_file) };
+    let delete_entry_rc = unsafe { card::sys::delete_entry(invalid_channel, &mut create_entry) };
+    logger.record(
+        "CARD sys create_entry and delete_entry reject invalid channels",
+        create_entry_rc == card::CARD_ERROR_FATAL_ERROR
+            && delete_entry_rc == card::CARD_ERROR_NOCARD
+            && entry_file.filenum == 0x2345,
+    );
+
+    let mut open_entry_file = card::CardFile {
+        filenum: 0x3456,
+        ..card::CardFile::default()
+    };
+    // SAFETY: the directory entry and file output are valid and remain live.
+    let open_entry_rc =
+        unsafe { card::sys::open_entry(invalid_channel, &mut create_entry, &mut open_entry_file) };
+    logger.record(
+        "CARD sys open_entry rejects an invalid channel and preserves output",
+        open_entry_rc == card::CARD_ERROR_NOCARD && open_entry_file.filenum == 0x3456,
+    );
+
+    let mut invalid_channel_file = card::CardFile {
+        chn: invalid_channel,
+        filenum: 0,
+        ..card::CardFile::default()
+    };
+    let mut transfer_buffer = DvdSector([0; 0x800]);
+    CARD_INVALID_CHANNEL_CALLBACKS.store(0, Ordering::Release);
+    // SAFETY: the file and aligned transfer buffer remain live; its invalid
+    // channel must reject the operations before retaining either pointer.
+    let read_async_rc = unsafe {
+        card::sys::read_async(
+            &mut invalid_channel_file,
+            transfer_buffer.0.as_mut_ptr().cast(),
+            0x200,
+            0,
+            Some(card_invalid_channel_callback),
+        )
+    };
+    let write_async_rc = unsafe {
+        card::sys::write_async(
+            &mut invalid_channel_file,
+            transfer_buffer.0.as_mut_ptr().cast(),
+            0x200,
+            0,
+            Some(card_invalid_channel_callback),
+        )
+    };
+    logger.record(
+        "CARD sys read_async and write_async reject invalid channels without callbacks",
+        read_async_rc == card::CARD_ERROR_FATAL_ERROR
+            && write_async_rc == card::CARD_ERROR_FATAL_ERROR
+            && CARD_INVALID_CHANNEL_CALLBACKS.load(Ordering::Acquire) == 0
+            && invalid_channel_file.chn == invalid_channel
+            && invalid_channel_file.filenum == 0,
+    );
+
     CARD_INVALID_CHANNEL_CALLBACKS.store(0, Ordering::Release);
     // SAFETY: all operation objects are valid; the invalid channel must stop
     // these submissions before any callback or payload ownership begins.
@@ -1825,6 +1906,23 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         logger.note("card tests skipped: insert a memory card in slot A");
         return;
     }
+    let probe_gamecode = match card::CardGameCode::new(*b"TST1") {
+        Ok(value) => value,
+        Err(_) => {
+            logger.record("card probe game identifier validation", false);
+            return;
+        }
+    };
+    let probe_company = match card::CardCompanyCode::new(*b"TS") {
+        Ok(value) => value,
+        Err(_) => {
+            logger.record("card probe company identifier validation", false);
+            return;
+        }
+    };
+    let _identifier_reset = CardIdentifierReset { gamecode, company };
+    card::sys::set_gamecode(Some(probe_gamecode));
+    card::sys::set_company(Some(probe_company));
 
     prepare_async_probe();
     let mount_request = card::mount_async_owned(slot);
@@ -1915,6 +2013,14 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     logger.record("card free blocks before create", freeblocks_ok);
     logger.note_u32("card free block count before create", freeblocks as u32);
     let create_request = card::create_async_owned(slot, b"SAVE", sector_size.max(0x2000));
+    let create_request_slot = create_request
+        .as_ref()
+        .ok()
+        .map(card::CardCreateRequest::slot);
+    logger.record(
+        "card create request retains its slot",
+        create_request_slot == Some(slot),
+    );
     let create_submit = create_request
         .as_ref()
         .map_or_else(|status| *status, |_| card::CARD_ERROR_READY);
@@ -2125,6 +2231,32 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     let status_persisted = card::file_status(slot, reopened.filenum)
         .is_ok_and(|status| status.banner_fmt == status_marker);
     logger.record("card status persisted after remount", status_persisted);
+    let mut directory = alloc::vec![card::CardDir::default(); card::CARD_MAXFILES];
+    let mut directory_count = 0;
+    // SAFETY: the directory allocation can hold every entry returned by the
+    // API, and `directory_count` is a live writable output.
+    let directory_result = unsafe {
+        card::sys::get_directory(
+            slot.channel(),
+            directory.as_mut_ptr(),
+            &mut directory_count,
+            0,
+        )
+    };
+    let save_has_expected_identifiers = directory_result == card::CARD_ERROR_READY
+        && directory_count >= 0
+        && directory
+            .iter()
+            .take(directory_count as usize)
+            .any(|entry| {
+                entry.filename[..4] == *b"SAVE"
+                    && entry.gamecode == *b"TST1"
+                    && entry.company == *b"TS"
+            });
+    logger.record(
+        "CARD game and company setters select the created save",
+        save_has_expected_identifiers,
+    );
     logger.record(
         "card close remounted save",
         // SAFETY: the reopened file is uniquely borrowed and has no pending request.
@@ -2132,6 +2264,14 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     );
 
     let delete_request = card::delete_async_owned(slot, b"SAVE");
+    let delete_request_slot = delete_request
+        .as_ref()
+        .ok()
+        .map(card::CardDeleteRequest::slot);
+    logger.record(
+        "card delete request retains its slot",
+        delete_request_slot == Some(slot),
+    );
     let delete_submit = delete_request
         .as_ref()
         .map_or_else(|status| *status, |_| card::CARD_ERROR_READY);
@@ -2143,6 +2283,13 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         (Ok(request), Some(_)) => request.try_complete().ok(),
         _ => None,
     };
+    let delete_completion_status = delete_completion
+        .as_ref()
+        .map(card::CardDeleteCompletion::status);
+    logger.record(
+        "card delete completion preserves operation status",
+        delete_completion_status == Some(card::CARD_ERROR_READY),
+    );
     let delete_ok = record_owned_card_async(
         logger,
         "card delete async owned",

@@ -177,7 +177,7 @@ do not infer API coverage from a package or probe name.
 
 ## Current storage audit
 
-The current inventory has 77 unverified entries in the 12 storage packages
+The current inventory has 0 unverified entries in the 12 storage packages
 below. These counts come from `docs/generated/implementation-inventory.csv`.
 Update this table after each storage batch. Do not accept source presence or a
 successful target build as runtime evidence.
@@ -185,8 +185,8 @@ successful target build as runtime evidence.
 | Package | Unverified entries |
 | --- | ---: |
 | `iso9660` | 0 |
-| `ogc-card` | 21 |
-| `ogc-card-sys` | 56 |
+| `ogc-card` | 0 |
+| `ogc-card-sys` | 0 |
 | `ogc-di` | 0 |
 | `ogc-dvd` | 0 |
 | `ogc-dvd-sys` | 0 |
@@ -196,7 +196,7 @@ successful target build as runtime evidence.
 | `ogc-usbstorage` | 0 |
 | `ogc-usbstorage-sys` | 0 |
 | `ogc-wiisd` | 0 |
-| **Total** | **77** |
+| **Total** | **0** |
 
 Use the package counts above to split storage work into these feature batches.
 Each batch still needs evidence for every API entry. A batch count does not
@@ -205,11 +205,11 @@ mean that each API has a test or probe.
 | Batch | Packages | Unverified entries |
 | --- | --- | ---: |
 | Optical disc | `iso9660`, `ogc-di`, `ogc-dvd`, `ogc-dvd-sys` | 0 |
-| GameCube memory card | `ogc-card`, `ogc-card-sys` | 77 |
+| GameCube memory card | `ogc-card`, `ogc-card-sys` | 0 |
 | FAT and file-system services | `ogc-fat`, `ogc-filesystem` | 0 |
 | SD card transports | `ogc-gcsd`, `ogc-wiisd` | 0 |
 | USB mass storage | `ogc-usbstorage`, `ogc-usbstorage-sys` | 0 |
-| **Total** | **12 packages** | **77** |
+| **Total** | **12 packages** | **0** |
 
 The previously open `ogc-di` APIs now have direct source checks in
 `storage_probe`: the configuration setters preserve no-disc status, init
@@ -228,12 +228,18 @@ The original `ogc-di` split grouped the APIs as follows:
 | DI configuration and callbacks | `load_dvdx`, `use_cache`, `set_init_callback`, and their C exports | 6 |
 | DI partition lifecycle | `open_partition`, `close_partition`, and their C exports | 4 |
 
-The next CARD probe batch checks invalid-channel results and output-buffer
-preservation through both the `ogc-card` wrappers and the `ogc-card-sys` API.
-It also checks `probe_info` against the direct slot-probe result and checks the
-serial-number error for an unmounted slot. These checks compile into
-`storage_probe`, but they do not have runtime evidence yet. Keep the affected
-inventory entries `unverified` until a Dolphin or Wii run passes them.
+The CARD APIs now have direct probe-source evidence. The probe covers
+invalid-channel errors and output preservation through the wrapper and system
+APIs, no-callback submission errors, owned request slots and completion state,
+save persistence, and user-data-safe cleanup. The updated DOL builds with
+SHA-256
+`200cacf4b0c2b7df3f255f97fdae99c82c09f92b217487abff1e9105719f6731`. This
+only clears source evidence gaps in the generated inventory. The current
+Dolphin build aborts before launch, and physical CARD behavior has not been
+tested. The latest runner attempt is in the [CARD Dolphin run
+record](dolphin-runs/2026-11-03-storage-card-inventory-zero/README.md). The
+CARD hardware register remains `not-tested`; do not treat the zero inventory
+count as a runtime pass.
 
 The storage probe uses exclusive creation for fixed FAT probe names and skips
 the CARD save checks when `SAVE` already exists. It removes a probe file only
