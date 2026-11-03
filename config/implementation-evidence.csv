@@ -436,7 +436,7 @@ ogc-card,src/lib.rs,channel,34,compatibility-forwarder,hardware-probe,probes/ogc
 ogc-card,src/lib.rs,create,1755,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,open_or_create_hotplug_card
 ogc-card,src/lib.rs,create_async_owned,1106,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data
 ogc-card,src/lib.rs,create_entry_async_owned,1426,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data
-ogc-card,src/lib.rs,delete,1762,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data
+ogc-card,src/lib.rs,delete,1762,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
 ogc-card,src/lib.rs,delete_async_owned,1117,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data
 ogc-card,src/lib.rs,delete_entry_async_owned,1467,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data
 ogc-card,src/lib.rs,file_status,1593,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data
@@ -475,8 +475,8 @@ ogc-card-sys,src/lib.rs,close,395,hardware,hardware-probe,probes/ogc-system-prob
 ogc-card-sys,src/wii_backend.rs,close,2416,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,write_usb_close_probe
 ogc-card-sys,src/lib.rs,create,424,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,open_or_create_hotplug_card
 ogc-card-sys,src/wii_backend.rs,create,3148,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,open_or_create_hotplug_card
-ogc-card-sys,src/lib.rs,delete,473,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data
-ogc-card-sys,src/wii_backend.rs,delete,3277,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data
+ogc-card-sys,src/lib.rs,delete,473,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
+ogc-card-sys,src/wii_backend.rs,delete,3277,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
 ogc-card-sys,src/lib.rs,format,708,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_format
 ogc-card-sys,src/wii_backend.rs,format,3415,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_format
 ogc-card-sys,src/lib.rs,get_sector_size,259,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,open_or_create_hotplug_card

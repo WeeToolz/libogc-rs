@@ -59,3 +59,15 @@ SHA-256 is
 Dolphin again aborted on `--version` with `SIGABRT` before it launched the
 DOL. The new checks compiled, but they remain unverified until a Dolphin or Wii
 run executes them.
+
+## Build after fixed-path cleanup protection
+
+The probe now uses exclusive create for fixed FAT paths and skips CARD save
+checks when `SAVE` already exists. It only removes probe paths created by the
+current run. The target clippy command passed, and `cargo xtask
+build-agent-probes` built the updated DOL. Its SHA-256 is
+`0d1d07be662ed7115529caed586f4c1962c6f41f770b4d6c7727f19f9e4e2ab4`.
+
+This DOL has not run. The available Dolphin build still aborts before launch
+while handling `--version`, as recorded above. The build result adds no runtime
+evidence.
