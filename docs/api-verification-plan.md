@@ -186,8 +186,10 @@ do not infer API coverage from a package or probe name.
 
 The current inventory has 604 API entries in 14 storage packages, with 0
 entries unverified for implementation evidence. These counts come from
-`docs/generated/implementation-inventory.csv`. Source mapping does not prove
-runtime behavior. Keep runtime evidence in the run reports and validation
+`docs/generated/implementation-inventory.csv`. Exact call paths are now
+recorded for 184 entries: 5 `ogc-wiisd`, 20 `ogc-usbstorage-lifecycle`, 30
+`ogc-usbstorage`, 65 `ogc-usbstorage-sys`, and 64 `ogc-fat`. Exact source
+mapping does not prove runtime behavior. Keep runtime evidence in the run reports and validation
 register. The storage build group has 15 runtime crates; one has no inventory
 API rows.
 
