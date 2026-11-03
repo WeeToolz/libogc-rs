@@ -58,6 +58,45 @@ pub fn run(logger: &mut ProbeLogger) {
         },
     );
 
+    #[cfg(feature = "dolphin-automation")]
+    {
+        logger.note("Dolphin-only write check uses sector zero and restores its original bytes.");
+        let original = Sector(sector.0);
+        let mut pattern = Sector([0; 512]);
+        for (index, byte) in pattern.0.iter_mut().enumerate() {
+            *byte = (index as u8).wrapping_mul(37).wrapping_add(0x5b);
+        }
+
+        // SAFETY: This Dolphin-only check uses the private virtual SD card.
+        // It saves sector zero first and restores it after the round trip.
+        let wrote_pattern =
+            inserted && read && unsafe { write_sectors(0, 1, pattern.0.as_ptr().cast()) };
+        logger.record("Wii SD one-sector write completes", wrote_pattern);
+
+        let mut observed_pattern = Sector([0; 512]);
+        // SAFETY: The destination is one aligned sector and the write ran on
+        // Dolphin's private virtual SD card.
+        let pattern_read =
+            wrote_pattern && unsafe { read_sectors(0, 1, observed_pattern.0.as_mut_ptr().cast()) };
+        logger.record(
+            "Wii SD read returns the written sector bytes",
+            pattern_read && observed_pattern.0 == pattern.0,
+        );
+
+        // SAFETY: Restore the saved sector even when the pattern write or
+        // read-back check failed. This DOL uses a disposable Dolphin profile.
+        let restored_write =
+            inserted && read && unsafe { write_sectors(0, 1, original.0.as_ptr().cast()) };
+        let mut restored_sector = Sector([0; 512]);
+        // SAFETY: The destination is one aligned sector on the private card.
+        let restored_read =
+            restored_write && unsafe { read_sectors(0, 1, restored_sector.0.as_mut_ptr().cast()) };
+        logger.record(
+            "Wii SD original sector bytes are restored",
+            restored_read && restored_sector.0 == original.0,
+        );
+    }
+
     let before_write = sector.0;
     // SAFETY: The aligned array remains live. The offset makes the pointer
     // unaligned, so a zero-sector request exits before any SDIO write command.

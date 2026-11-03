@@ -153,6 +153,17 @@ The command was `cargo xtask dolphin-validate --no-build --probe wiisd_probe
 Physical Wii SD startup and read behavior remain open in the
 [hardware register](docs/hardware-api-validation.csv).
 
+## 2026-11-03: Wii SD virtual-card write round trip
+
+The Dolphin-only section in `wiisd_probe` now writes a known pattern to sector
+zero of the runner's private virtual SD card, reads it back, restores the
+original sector, and verifies the restored bytes. Dolphin 2609a passed 12
+checks with no failures. The DOL SHA-256 is
+`dd4be0b0ec2ec7b88d2637685b5e7e7bc4cd5a6b3a4f413a38afb2c07c6959a8`.
+This run verifies the emulated write path and restoration only. It does not
+prove physical SD transport or physical-card data integrity. See the
+[Dolphin report](docs/dolphin-runs/2026-11-03-wiisd-write-roundtrip/README.md).
+
 ## 2026-11-03: ISO9660 C ABI probe update
 
 The runtime probe now calls the exported `ISO9660_Mount`,
