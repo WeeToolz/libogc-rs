@@ -100,11 +100,15 @@ ISO9660 file operations through both C and Rust mounts. The ISFS checks cover
 closed-service errors, 20 sync and async path rejections, and successful sync
 and async NAND file cycles with metadata, directory listing, and verified
 cleanup. Async directory creation, usage, listing, and deletion also pass with
-output checks after deletion. Sync and async rename returned `ISFS_EINVAL`; the
-async result preserved the source and left the destination absent. Successful
-rename remains unverified. Sync and async format returned success and removed
-marker state from Dolphin's private NAND copy. Physical Wii NAND behavior
-remains open. See the [sync format report](dolphin-runs/2026-11-03-isfs-format-sync-dolphin/README.md),
+output checks after deletion. Sync and async file renames with changed
+basenames returned `ISFS_EINVAL`; the probe checked that each source stayed
+and each destination stayed absent. Sync and async renames of empty
+directories passed in Dolphin. The probe checked the moved directory state and
+cleanup. Successful file rename on Wii remains open. Sync and async format
+returned success and removed marker state from Dolphin's private NAND copy.
+Physical Wii NAND behavior remains open. See the
+[directory rename report](dolphin-runs/2026-11-03-isfs-directory-rename/README.md),
+[sync format report](dolphin-runs/2026-11-03-isfs-format-sync-dolphin/README.md),
 the [async rename report](dolphin-runs/2026-11-03-isfs-async-rename-cycle-dolphin/README.md),
 the [async directory report](dolphin-runs/2026-11-03-isfs-async-directory-cycle-dolphin/README.md),
 the [async file report](dolphin-runs/2026-11-03-isfs-successful-async-cycle-dolphin/README.md),
@@ -114,7 +118,10 @@ and the [earlier runtime report](dolphin-runs/2026-11-03-isfs-get-stats-async-pa
 The current `runtime_probe` also passed its synchronous-format marker cycle
 after the preceding asynchronous format removed `/tmp` from the private NAND
 copy. The probe now restores that parent directory before it creates marker
-state. See the [ISFS and ISO9660 follow-up](dolphin-runs/2026-11-03-isfs-iso-followup/README.md).
+state. The latest `runtime_probe` passed 97 checks, including sync and async
+rename of empty directories. See the
+[ISFS and ISO9660 follow-up](dolphin-runs/2026-11-03-isfs-iso-followup/README.md)
+and the [directory rename report](dolphin-runs/2026-11-03-isfs-directory-rename/README.md).
 The separate `wii_std_fs_probe` passed 99 checks on Dolphin's private virtual
 Wii SD card. It covered FAT directory, path, file, metadata, attribute,
 timestamp, remount, and cleanup behavior. This is not physical Wii evidence

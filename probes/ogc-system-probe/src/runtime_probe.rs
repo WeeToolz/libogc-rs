@@ -1022,6 +1022,7 @@ fn probe_isfs_successful_file_cycle(logger: &mut ProbeLogger) {
     );
     probe_isfs_async_file_cycle(directory, logger);
     probe_isfs_async_directory_cycle(directory, logger);
+    probe_isfs_directory_rename_cycles(logger);
     probe_isfs_async_rename_cycle(logger);
 
     let rename_result = if file_created {
@@ -1593,6 +1594,92 @@ fn probe_isfs_async_rename_cycle(logger: &mut ProbeLogger) {
         "ISFS async rename test files are cleaned up",
         cleanup_isfs_rename_paths(source, destination),
     );
+}
+
+fn probe_isfs_directory_rename_cycles(logger: &mut ProbeLogger) {
+    logger.section("ISFS DIRECTORY RENAME CYCLES");
+    let source = c"/tmp/ogc-rs-isfs-verify/rename-dir-source";
+    let destination = c"/tmp/ogc-rs-isfs-verify/rename-dir-destination";
+    let stale_cleanup = cleanup_isfs_directory_paths(source, destination);
+    let create_result = if stale_cleanup {
+        filesystem::create_dir(source, 0, 3, 3, 3)
+    } else {
+        filesystem::ISFS_EINVAL
+    };
+    let rename_result = if create_result == filesystem::ISFS_OK {
+        filesystem::rename(source, destination)
+    } else {
+        filesystem::ISFS_EINVAL
+    };
+    let source_after_sync = isfs_directory_exists(source);
+    let destination_after_sync = isfs_directory_exists(destination);
+    logger.note_i32("ISFS sync directory rename result", rename_result);
+    logger.record(
+        "ISFS sync rename moves an empty directory",
+        stale_cleanup
+            && create_result == filesystem::ISFS_OK
+            && rename_result == filesystem::ISFS_OK
+            && source_after_sync == Some(false)
+            && destination_after_sync == Some(true),
+    );
+    let sync_cleanup = cleanup_isfs_directory_paths(source, destination);
+    logger.record(
+        "ISFS sync directory rename cleanup removes both paths",
+        sync_cleanup,
+    );
+
+    let async_source = c"/tmp/ogc-rs-isfs-verify/async-rename-dir-source";
+    let async_destination = c"/tmp/ogc-rs-isfs-verify/async-rename-dir-destination";
+    let async_stale_cleanup = cleanup_isfs_directory_paths(async_source, async_destination);
+    let async_create_result = if async_stale_cleanup {
+        filesystem::create_dir(async_source, 0, 3, 3, 3)
+    } else {
+        filesystem::ISFS_EINVAL
+    };
+    let (rename_submit, rename_result) = if async_create_result == filesystem::ISFS_OK {
+        run_isfs_async_and_wait(|| unsafe {
+            filesystem::rename_async(
+                async_source,
+                async_destination,
+                Some(isfs_probe_callback),
+                core::ptr::null_mut(),
+            )
+        })
+    } else {
+        (-1, i32::MIN)
+    };
+    let async_source_after = isfs_directory_exists(async_source);
+    let async_destination_after = isfs_directory_exists(async_destination);
+    logger.note_i32("ISFS async directory rename submit result", rename_submit);
+    logger.note_i32("ISFS async directory rename callback result", rename_result);
+    logger.record(
+        "ISFS async rename completes and moves an empty directory",
+        async_stale_cleanup
+            && async_create_result == filesystem::ISFS_OK
+            && rename_submit >= 0
+            && rename_result == filesystem::ISFS_OK
+            && async_source_after == Some(false)
+            && async_destination_after == Some(true),
+    );
+    let async_cleanup = cleanup_isfs_directory_paths(async_source, async_destination);
+    logger.record(
+        "ISFS async directory rename cleanup removes both paths",
+        async_cleanup,
+    );
+}
+
+fn cleanup_isfs_directory_paths(source: &core::ffi::CStr, destination: &core::ffi::CStr) -> bool {
+    let remove_path = |path: &core::ffi::CStr| match isfs_directory_exists(path) {
+        Some(true) => filesystem::delete(path) == filesystem::ISFS_OK,
+        Some(false) => true,
+        None => false,
+    };
+    let source_removed = remove_path(source);
+    let destination_removed = remove_path(destination);
+    source_removed
+        && destination_removed
+        && isfs_directory_exists(source) == Some(false)
+        && isfs_directory_exists(destination) == Some(false)
 }
 
 fn isfs_rename_result_matches_paths(

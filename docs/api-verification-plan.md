@@ -310,7 +310,7 @@ The ISO9660 probe calls its three C ABI exports and the Rust file-system
 mount, label, and unmount facade directly. A controlled in-memory disc image
 checks file lookup, open, read, seek, close, stat metadata, and root directory
 changes through both the C mount and the Rust mount. The latest Dolphin
-`runtime_probe` passed 93 checks with no failures. It includes the lower-level
+`runtime_probe` passed 97 checks with no failures. It includes the lower-level
 Rust C wrapper mount, label, and cleanup checks. The probe exposed and fixed
 the device name used for devoptab lookup and the handling of valid negative
 pointer-shaped file handles. This does not verify a physical optical drive.
@@ -336,14 +336,19 @@ closed. It checks service close and reopen, async errors for invalid
 descriptors, output preservation, and that format requests do not reach IOS
 while the service is closed. Separate Dolphin runs check successful sync and
 async file operations against a private NAND copy. Dolphin returns
-`ISFS_EINVAL` for sync and async rename; the probe checks that the source stays
-and the destination stays absent, then removes both paths. Successful rename
-is still unverified. The bounded async-format run reports callback status 0
+`ISFS_EINVAL` for sync and async file rename when the basename changes; the
+probe checks that the source stays and the destination stays absent, then
+removes both paths. Sync and async rename of an empty directory passed in
+Dolphin, with moved-path state, callback result, and cleanup checks. Successful
+file rename on Wii remains unverified. See the
+[directory rename report](dolphin-runs/2026-11-03-isfs-directory-rename/README.md).
+The bounded async-format run reports callback status 0
 and removal of its marker state; the earlier run without callback completion
 was superseded by that result. The current probe now also checks synchronous
 format after creating marker state, restarting the service, and verifying the
-marker paths are absent. The latest Dolphin `runtime_probe` passed 93 checks
-with no failures, including this synchronous-format cycle. Its first run
+marker paths are absent. The latest Dolphin `runtime_probe` passed 97 checks
+with no failures, including this synchronous-format cycle and directory
+renames. Its first run
 exposed that the preceding async format had removed `/tmp` from the private
 NAND copy; the probe now recreates that parent and records the setup and
 format results. Earlier sandboxed launches stopped before startup. These runs
