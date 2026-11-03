@@ -1,5 +1,33 @@
 # Development results
 
+## 2026-11-02: Bluetooth packet parsing in Dolphin
+
+The runtime probe now calls the ACL, L2CAP packet, L2CAP signal, signal
+payload, signal iterator, and HIDP parsers with independent fixed bytes. It
+checks decoded fields, every truncated header and payload prefix, an empty
+HIDP packet, two consecutive signals, and preservation of the iterator input
+after an error. The evidence registry records these six exact APIs. It also
+records five response and reject builders that the existing probe directly
+checks with fixed output bytes, short buffers, and invalid handles.
+
+The DOL ran in Dolphin 2609a with 37 passes and no failures. Its SHA-256 was
+`f7308607ad258fd8f07869970d3a9ad43cc5eb0dd8a8e19de5e4f5adb5bc98b0`.
+The build used revision `f5de973` and the uncommitted runtime probe change in
+this batch. The runner used a private profile and a copy of the configured Wii
+NAND. HBC was not under test. The [report](docs/dolphin-runs/2026-11-02-bt-parser/suite.json),
+[transcript](docs/dolphin-runs/2026-11-02-bt-parser/runtime_probe/probe.log),
+transport bytes, logs, and captures record the run. The final capture was
+inspected and shows the passing summary. The copied profile remains local.
+
+Build: `cargo xtask build-dol ogc-system-probe --bin runtime_probe
+--probe-features dolphin-automation --no-dev --output
+target/xtask/probes-dolphin/runtime_probe.dol`. Run: `cargo xtask
+dolphin-validate --no-build --probe runtime_probe --artifact-dir
+docs/dolphin-runs/2026-11-02-bt-parser`. These packet checks do not exercise a
+Bluetooth transport or establish physical Wii or controller behavior.
+The source audit passed with three existing tracked debt entries. The
+completeness audit reported 2,258 APIs without accepted exact evidence.
+
 ## 2026-11-02: Memory-card metadata helpers in Dolphin
 
 The bus probe calls the eight `ogc-card-sys` banner, icon format, icon speed,

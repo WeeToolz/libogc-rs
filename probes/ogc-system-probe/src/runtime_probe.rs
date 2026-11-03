@@ -16,6 +16,7 @@ pub fn run(logger: &mut ProbeLogger) {
 
     probe_owned_audio_buffer(logger);
     probe_l2cap_packets(logger);
+    probe_l2cap_parsers(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     probe_ios_stm(logger);
@@ -23,6 +24,77 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_es(logger);
     probe_crypto(logger);
     probe_iso9660(logger);
+}
+
+fn probe_l2cap_parsers(logger: &mut ProbeLogger) {
+    use ogc_bt_sync as bt;
+
+    // These bytes are fixed independently of the packet builders.
+    let acl = [
+        0x23, 0xa1, 12, 0, 8, 0, 1, 0, 2, 7, 4, 0, 0x11, 0, 0x40, 0, 0xee,
+    ];
+    let parsed_acl = bt::parse_acl_packet(&acl);
+    let acl_ok = matches!(parsed_acl, Ok(p) if p.handle == 0x123
+        && p.packet_boundary == 2 && p.broadcast == 2 && p.payload == &acl[4..16]);
+    let acl_truncated =
+        (0..16).all(|n| bt::parse_acl_packet(&acl[..n]) == Err(bt::Error::MalformedAcl));
+    logger.record("ACL parsing fields and truncation", acl_ok && acl_truncated);
+
+    let l2cap = &acl[4..16];
+    let l2cap_ok = matches!(bt::parse_l2cap_packet(l2cap), Ok(p)
+        if p.length == 8 && p.channel_id == 1 && p.payload == &acl[8..16]);
+    let l2cap_truncated =
+        (0..12).all(|n| bt::parse_l2cap_packet(&l2cap[..n]) == Err(bt::Error::MalformedL2cap));
+    logger.record(
+        "L2CAP parsing fields and truncation",
+        l2cap_ok && l2cap_truncated,
+    );
+
+    let signal_bytes = &acl[8..16];
+    let signal_ok = matches!(bt::parse_l2cap_signal(signal_bytes), Ok(s)
+        if s.code == 2 && s.identifier == 7 && s.payload == &[0x11, 0, 0x40, 0]);
+    let signal_truncated = (0..8)
+        .all(|n| bt::parse_l2cap_signal(&signal_bytes[..n]) == Err(bt::Error::MalformedL2cap));
+    let request = bt::L2capSignal {
+        code: 2,
+        identifier: 7,
+        payload: &[0x11, 0, 0x40, 0],
+    };
+    let request_ok = bt::parse_l2cap_signal_payload(request)
+        == Ok(bt::L2capSignalPayload::ConnectionRequest {
+            psm: 0x11,
+            source_cid: 0x40,
+        });
+    let short = bt::L2capSignal {
+        payload: &[0x11, 0, 0x40],
+        ..request
+    };
+    let short_rejected = bt::parse_l2cap_signal_payload(short) == Err(bt::Error::MalformedL2cap);
+    logger.record(
+        "L2CAP signal parsing and payload",
+        signal_ok && signal_truncated && request_ok && short_rejected,
+    );
+
+    let commands = [2, 7, 4, 0, 0x11, 0, 0x40, 0, 6, 9, 0, 0];
+    let mut remaining = &commands[..];
+    let first = bt::parse_next_l2cap_signal(&mut remaining);
+    let second = bt::parse_next_l2cap_signal(&mut remaining);
+    let end = bt::parse_next_l2cap_signal(&mut remaining);
+    let mut incomplete = &commands[..7];
+    let rejected = bt::parse_next_l2cap_signal(&mut incomplete);
+    logger.record("L2CAP signal iteration and error cursor",
+        matches!(first, Ok(Some(s)) if s == request)
+        && matches!(second, Ok(Some(s)) if s.code == 6 && s.identifier == 9 && s.payload.is_empty())
+        && end == Ok(None) && rejected == Err(bt::Error::MalformedL2cap)
+        && incomplete == &commands[..7]);
+
+    let hidp = [0xa1, 0x12, 0x34];
+    logger.record(
+        "HIDP parsing fields and empty input",
+        matches!(bt::parse_hidp_packet(&hidp), Ok(p)
+            if p.transaction == 0xa0 && p.parameter == 1 && p.payload == &[0x12, 0x34])
+            && bt::parse_hidp_packet(&[]) == Err(bt::Error::MalformedL2cap),
+    );
 }
 
 fn probe_owned_audio_buffer(logger: &mut ProbeLogger) {
