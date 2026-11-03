@@ -13,7 +13,8 @@ Most evidence rows currently check only a function or method name; they do not
 resolve its crate or receiver type. Five `ogc-wiisd` rows record the
 `WII_SD_INTERFACE` callback field and require the matching function-pointer
 call in the named probe. Twenty `ogc-usbstorage-lifecycle` rows record the
-exact free-function or method receiver used by their named host test. These
+exact free-function or method receiver used by their named host test. Thirty
+`ogc-usbstorage` rows record the wrapper path called by a named probe. These
 path checks are staged improvements. Review each mapping before using it as
 evidence.
 

@@ -9,3 +9,15 @@ that the failed-open handle remained closed and its buffer pointers remained
 null. See the [probe log](probe.log).
 
 This run does not verify a successful SCSI inquiry or physical USB behavior.
+
+## API path inventory rerun
+
+A fresh Dolphin 2609a run passed 50 checks with 0 failures. Its DOL SHA-256 is
+`b7f22f2851b8b0c71fdf57ecc7e9c524abebaf9b4b7969ec93759acefcb93c0b`. The
+runner accepted all 5 captured pages. The [probe log](api-path-audit-rerun/probe.log)
+and [summary capture](api-path-audit-rerun/summary-page.png) are retained.
+
+The no-device checks covered raw and safe facade errors, output preservation,
+closed-handle state, inquiry errors, and deinitialization status. The probe
+also checked pure USB transfer and capacity helpers. It did not test a
+successful SCSI inquiry, transfer, or physical USB device.
