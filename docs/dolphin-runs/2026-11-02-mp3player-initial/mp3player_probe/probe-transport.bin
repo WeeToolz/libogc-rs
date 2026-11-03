@@ -1,0 +1,104 @@
+
+
+BOOT 1/3: system and video initialized
+INFO Wiiload arguments source=entry count=0
+PASS SYS_Init completed
+INFO startup stage=0 completed_mask=0x7ff failed_stage=0
+BOOT watchdog arm starting
+INFO recovery reset watchdog not armed
+BOOT watchdog arm complete
+BOOT Wiiload report argument check
+INFO Wiiload report check disabled for this probe build
+BOOT before first vsync
+BOOT 2/3: entering IOS pre-main
+PRE 0/7: closing inherited IOS descriptors
+IPC: sync state ready
+IPC: command=0x00000002 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000002 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 1/7: IOS startup
+PRE 2/7: IOS subsystems
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 3/7: STM handler
+PRE 4/7: STM devices
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+PRE 5/7: configuration
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 6/7: Wii launch state
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 7/7: complete
+OGC_DOLPHIN_PAGE_CAPTURE page=1 capture=1 addr=0x8089db60 width=640 height=480 stride=640
+-- page 2 --
+BOOT 3/3: IOS pre-main completed
+PASS display initialized
+INFO boot stage: system/video initialized
+INFO boot stage: IOS pre-main completed
+INFO log backend disabled
+INFO argv0 unavailable
+INFO argv raw magic=0x00000000 len=0 argc=0 cmd=0x00000000 argv=0x00000000 end=0x00000000
+PASS power button callback installed
+INFO stm init deferred until shutdown
+INFO fat mount sd=not-selected usb=not-selected
+INFO previous stm handler chained=0
+INFO previous power callback replaced
+
+== MP3 PLAYER API PROBE ==
+INFO fixture bytes=8777 layer=III rate=44100 stereo
+PASS fixed MP3 fixture has a valid length
+PASS direct and alias init leave playback stopped
+PASS direct and alias buffer starts reject null and empty input
+PASS direct and alias file starts reject a missing reader
+INFO volume and speed setters were called; they have no public readback
+INFO buffer start=0 filter_frames=21 pause=0 resume=0
+FAIL buffer playback starts and calls the frame filter
+OGC_DOLPHIN_PAGE_CAPTURE page=2 capture=2 addr=0x8089db60 width=640 height=480 stride=640
+-- page 3 --
+FAIL pause changes ASND voice state and alias resume restarts it
+PASS direct and alias stop leave playback inactive
+INFO direct looped start=0 filter_frames=30 active=true
+PASS direct looped playback repeats the fixture until stop
+INFO alias looped start=0 filter_frames=30 active=true
+PASS alias looped playback repeats the fixture until stop
+INFO direct file start=0 reader_calls=2 filter_frames=21 completed=true
+PASS direct file reader supplies fixture bytes and playback completes
+INFO alias file start=0 reader_calls=2 filter_frames=21 completed=true
+PASS alias file reader supplies fixture bytes and playback completes
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+INFO summary_candidate passes=13 fails=2
+OGC_DOLPHIN_PAGE_CAPTURE page=3 capture=3 addr=0x8089db60 width=640 height=480 stride=640
+FAILED CHECKS (retained from all pages)
+FAIL buffer playback starts and calls the frame filter
+FAIL pause changes ASND voice state and alias resume restarts it
+FAIL summary passes=13 fails=2
+OGC_DOLPHIN_PAGE_CAPTURE page=3 capture=4 addr=0x8089db60 width=640 height=480 stride=640
+OGC_DOLPHIN_CAPTURE_COMPLETE

@@ -436,6 +436,7 @@ const PROBE_BINARIES: &[&str] = &[
     "libmad_rs_decode_probe",
     "mad_decode_probe",
     "modplay_probe",
+    "mp3player_probe",
     "usbstorage_capacity_probe",
     "usbstorage_transport_probe",
     "hid_descriptor_probe",
@@ -571,9 +572,9 @@ mod probe_artifact_tests {
                 );
             }
             let expected_count = match mode {
-                Plain => 32,
-                MountedLog | Dolphin => 42,
-                AgentReport => 27,
+                Plain => 35,
+                MountedLog | Dolphin => 45,
+                AgentReport => 30,
             };
             assert_eq!(binaries.len(), expected_count, "output count in {mode:?}");
         }
@@ -621,6 +622,13 @@ mod probe_artifact_tests {
         let manifest = include_str!("../../probes/ogc-system-probe/Cargo.toml");
         assert!(manifest.contains("name = \"modplay_probe\""));
         assert!(manifest.contains("modplay-capi = { path = \"../../crates/abi/modplay-capi\" }"));
+    }
+
+    #[test]
+    fn mp3player_probe_is_built_as_a_dol() {
+        assert!(super::PROBE_BINARIES.contains(&"mp3player_probe"));
+        let manifest = include_str!("../../probes/ogc-system-probe/Cargo.toml");
+        assert!(manifest.contains("name = \"mp3player_probe\""));
     }
 
     #[test]
