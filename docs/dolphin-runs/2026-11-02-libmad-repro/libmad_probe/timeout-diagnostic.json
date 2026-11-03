@@ -1,0 +1,10 @@
+{
+  "boot_stage_address": null,
+  "boot_stage": null,
+  "program_counter": null,
+  "program_counter_symbol": null,
+  "program_counter_reply": null,
+  "debugger_stop": null,
+  "stack_trace": [],
+  "error": "ELF has no OGC_PROBE_BOOT_STAGE symbol"
+}

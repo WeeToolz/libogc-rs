@@ -749,3 +749,40 @@ tests. This verifies the sync-only unsupported result; it does not verify
 asynchronous message exchange. The older `libmad_probe` Dolphin checksum and
 timing failures remain open and need their own diagnosis. The inventory now
 has 103 open entries across the eight wider audio packages.
+
+## 2026-11-02: ModPlay state API probe
+
+The Dolphin `modplay_probe` now calls all 24 open `modplay-capi` state APIs
+directly. It uses a fixed 2,112-byte caller-owned MOD image and checks ABI
+layout, parsed pattern values, SFX channel setup, note routing, volume bounds,
+supported and rejected rates, mono/stereo state, silent paused output, mixer
+timing, worker start, callback progress, pause/resume, stop, and unload.
+Dolphin 2609a passed 27 checks with zero failures on the current source tree.
+The DOL SHA-256 is
+`4eb58b203e15485c65e34aacfe68a0a64a4ceb72af0353da20853ac9af3938eb`.
+See [the current suite](docs/dolphin-runs/2026-11-02-modplay-state-current/suite.json)
+and [probe log](docs/dolphin-runs/2026-11-02-modplay-state-current/modplay_probe/probe.log).
+The earlier final run remains at
+[its suite](docs/dolphin-runs/2026-11-02-modplay-state-final/suite.json).
+Two earlier failures exposed errors in the new probe's expected channel index
+and callback setup. Their reports remain at
+[the first run](docs/dolphin-runs/2026-11-02-modplay-state/suite.json) and
+[the diagnostic run](docs/dolphin-runs/2026-11-02-modplay-state-diagnostic/suite.json).
+The inventory now has 79 open entries across the eight wider audio packages.
+
+## 2026-11-02: libmad Dolphin failure recheck
+
+The focused `libmad_probe` now uses the shared probe initializer. The earlier
+direct logger setup did not run IOS pre-main and could not open its log backend;
+that also caused the retrace timing check to fail. With the shared setup, the
+probe passes logger transport and retrace timing. It still fails both synthetic
+PCM checks. Dolphin reports full-rate hash `0x5a848a33` and half-rate hash
+`0xc89b5e9a`; the checked-in expected values are `0x3584d894` and `0x7308c305`.
+A host run of the same Rust synthesis code reproduces the checked-in values.
+This confirms that the mismatch is target-specific, but it does not identify
+which side matches PowerPC C. Keep the checks open until the same fixture runs
+through the C `FPM_PPC` reference. See the
+[Dolphin suite](docs/dolphin-runs/2026-11-02-libmad-init-diagnostic/suite.json)
+and [probe log](docs/dolphin-runs/2026-11-02-libmad-init-diagnostic/libmad_probe/probe.log).
+The DOL SHA-256 is
+`4323c0dc5ccd42563e5d8dd103e920106fb78d9ffd26db480947dd4dcaab1171`.

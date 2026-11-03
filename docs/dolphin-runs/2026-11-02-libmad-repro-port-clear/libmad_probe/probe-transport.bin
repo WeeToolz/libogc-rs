@@ -1,0 +1,27 @@
+
+
+
+== LIBMAD-RS SYNTHESIS ==
+PASS full-rate PCM metadata
+PASS full-rate synthesis phase
+PASS full-rate filter history
+FAIL full-rate PCM checksum
+PASS half-rate PCM metadata
+PASS half-rate synthesis phase
+FAIL half-rate PCM checksum
+FAIL probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+INFO opening deferred log backend
+INFO deferred log unavailable
+INFO summary_candidate passes=6 fails=3
+OGC_DOLPHIN_PAGE_CAPTURE page=1 capture=1 addr=0x802538a0 width=640 height=480 stride=640
+FAILED CHECKS (retained from all pages)
+FAIL full-rate PCM checksum
+FAIL half-rate PCM checksum
+FAIL probe VI retraces complete within 100 ms
+  timeouts=9
+FAIL probe log or screen output failed
+FAIL summary passes=6 fails=4
+OGC_DOLPHIN_PAGE_CAPTURE page=1 capture=2 addr=0x802538a0 width=640 height=480 stride=640
+OGC_DOLPHIN_CAPTURE_COMPLETE
+FAIL probe log status error=Some(BackendUnavailable) lost_bytes=0

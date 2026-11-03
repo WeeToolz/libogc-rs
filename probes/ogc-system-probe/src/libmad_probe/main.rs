@@ -5,6 +5,9 @@
 fn main() {}
 
 #[cfg(target_arch = "powerpc")]
+extern crate alloc;
+
+#[cfg(target_arch = "powerpc")]
 #[unsafe(no_mangle)]
 pub extern "C" fn main(_argc: i32, _argv: *mut *mut u8) -> i32 {
     use libmad_rs::{
@@ -12,14 +15,12 @@ pub extern "C" fn main(_argc: i32, _argv: *mut *mut u8) -> i32 {
         frame::{Frame, Header, Layer, Mode, OPTION_HALFSAMPLERATE},
         synth::Synth,
     };
-    use ogc_system_probe::probe_support::{ProbeDisplay, ProbeLogger};
-
     // Golden values for the current C-like DCT/SSO synthesis path. Update
     // these only when the reference comparison confirms a synthesis change.
     const FULL_RATE_HASH: u32 = 897_898_644;
     const HALF_RATE_HASH: u32 = 1_929_954_053;
 
-    let mut logger = ProbeLogger::new(ProbeDisplay::init());
+    let mut logger = ogc_system_probe::init_named_probe_logger("libmad-probe");
     logger.section("LIBMAD-RS SYNTHESIS");
     if !logger.display().console_ready() {
         loop {
@@ -66,6 +67,12 @@ pub extern "C" fn main(_argc: i32, _argv: *mut *mut u8) -> i32 {
     let half_phase = synth.phase == 8;
     let half_checksum = half_hash == HALF_RATE_HASH;
 
+    logger.note(&alloc::format!(
+        "full-rate PCM FNV actual=0x{full_hash:08x} expected=0x{FULL_RATE_HASH:08x}"
+    ));
+    logger.note(&alloc::format!(
+        "half-rate PCM FNV actual=0x{half_hash:08x} expected=0x{HALF_RATE_HASH:08x}"
+    ));
     logger.record("full-rate PCM metadata", full_metadata);
     logger.record("full-rate synthesis phase", full_phase);
     logger.record("full-rate filter history", full_state);
