@@ -52,6 +52,11 @@ const PROBES: &[ProbeSpec] = &[
         input_pipe: false,
     },
     ProbeSpec {
+        name: "fat_sd_probe",
+        timeout_seconds: 90,
+        input_pipe: false,
+    },
+    ProbeSpec {
         name: "hid_descriptor_probe",
         timeout_seconds: 45,
         input_pipe: false,

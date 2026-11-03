@@ -307,7 +307,7 @@ impl FatMount {
         self.online.load(Ordering::Acquire)
     }
 
-    pub fn media_generation(&self) -> u32 {
+    fn media_generation(&self) -> u32 {
         self.media_generation.load(Ordering::Acquire)
     }
 
@@ -837,6 +837,7 @@ impl DirectoryWalk {
 
 struct RegisteredMount {
     dev_name_with_nul: Box<[u8]>,
+    devoptab_name_with_nul: Box<[u8]>,
     mount: SpinLock<FatMount>,
     manage_transport: bool,
     _cache_pages: u32,
@@ -1746,8 +1747,11 @@ fn mount_disc(
         }
         return Err(FatError::AlreadyMounted);
     }
+    let mut devoptab_name_with_nul = key[..key.len() - 1].to_vec();
+    devoptab_name_with_nul.push(0);
     let mut registered = Box::new(RegisteredMount {
         dev_name_with_nul: dev_name.into_boxed_slice(),
+        devoptab_name_with_nul: devoptab_name_with_nul.into_boxed_slice(),
         mount: SpinLock::new(mount),
         manage_transport,
         _cache_pages: cache_pages.max(2),
@@ -1756,7 +1760,9 @@ fn mount_disc(
         registered: false,
     });
 
-    registered.devoptab.name = registered.dev_name_with_nul.as_ptr().cast();
+    // Newlib stores bare device names. The colon belongs to lookup paths such
+    // as `sd:`, which remain in `dev_name_with_nul` for FindDevice/RemoveDevice.
+    registered.devoptab.name = registered.devoptab_name_with_nul.as_ptr().cast();
     registered.devoptab.struct_size = size_of::<FatFileState>();
     registered.devoptab.open_r = Some(fat_open_r);
     registered.devoptab.close_r = Some(fat_close_r);

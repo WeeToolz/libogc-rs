@@ -1,5 +1,35 @@
 # Development results
 
+## 2026-11-03: FAT SD API probe and devoptab fix
+
+The focused `fat_sd_probe` passed all 21 checks in Dolphin 2609a. It mounted
+the private virtual FAT32 SD image, checked the SD insertion and mount state,
+compared the C and Rust volume labels, created and removed a temporary file,
+checked file seek and truncate results, set and restored a DOS attribute, and
+checked the C FAT init, mount, and unmount exports. Both GameCube SD Gecko FAT
+mount calls returned `DeviceUnavailable` because this Dolphin setup has no EXI
+SD adapter. That result checks the no-device path. It does not verify a
+physical SD Gecko, non-virtual Wii SD transport, or disk persistence outside
+the private profile.
+
+The probe found that the FAT devoptab stored the colon-terminated lookup key
+(`sd:`) as its registered device name. `FindDevice("sd:")` expects the bare
+name (`sd`), so both `fatInit` and `fatInitDefault` returned false even though
+the mount remained online. The mount now keeps a bare devoptab name and a
+separate colon-terminated lookup key. The probe checked direct path lookup and
+both init exports after this change.
+
+The repository base was `caeaa31`; the run used a dirty worktree containing
+the FAT fix and probe. The DOL SHA-256 was
+`2a93ae09e5b67fdfbc1735456edf9d152cc9a9b354277c059c89597ad628ce43`.
+The command was `cargo xtask dolphin-validate --no-build --probe fat_sd_probe
+--artifact-dir docs/dolphin-runs/2026-11-03-fat-sd-final --dolphin
+[Dolphin executable]`. See the
+[report](docs/dolphin-runs/2026-11-03-fat-sd-final/suite.json) and
+[probe log](docs/dolphin-runs/2026-11-03-fat-sd-final/fat_sd_probe/probe.log).
+The two physical GameCube SD Gecko mount checks remain open in the
+[hardware register](docs/hardware-api-validation.csv).
+
 ## 2026-11-03: Wii SD interface probe
 
 The focused `wiisd_probe` calls the registered Wii SD interface callbacks for

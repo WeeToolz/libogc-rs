@@ -264,6 +264,10 @@ name = "wiisd_probe"
 path = "src/wiisd_probe/main.rs"
 
 [[bin]]
+name = "fat_sd_probe"
+path = "src/fat_sd_probe/main.rs"
+
+[[bin]]
 name = "hid_descriptor_probe"
 path = "src/hid_descriptor_probe/main.rs"
 
