@@ -1,5 +1,23 @@
 # Development results
 
+## 2026-11-02: GX light attenuation in Dolphin
+
+The video probe checks gentle, medium, and steep distance attenuation,
+invalid distance, and flat spotlight cutoff and rejection. It checks an
+in-memory light object. Rendered lighting and physical Wii behavior remain
+untested. The DOL ran in Dolphin 2609a with 45 passes and no failures. Its
+SHA-256 was `3aec8348add7ed5dab7bf90e47d8265e0b284e03b965e956f74c402c25c4caab`.
+The build used revision `d287dd8` and the probe change in this batch. The
+runner used a private profile and a copy of the configured Wii NAND. HBC was
+not under test. The [report](docs/dolphin-runs/2026-11-02-gx-falloff/suite.json)
+records the configuration and result.
+
+Build with `cargo xtask build-dol ogc-system-probe --bin video_probe
+--probe-features dolphin-automation --no-dev --output
+target/xtask/probes-dolphin/video_probe.dol`. Run with `cargo xtask
+dolphin-validate --no-build --probe video_probe --artifact-dir
+docs/dolphin-runs/2026-11-02-gx-falloff`.
+
 ## 2026-11-02: GX light object in Dolphin
 
 The video probe checks light position, negated direction, color, and both

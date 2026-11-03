@@ -37,6 +37,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_texture_indexed_lod(logger);
     probe_texture_regions(logger);
     probe_light_object(logger);
+    probe_light_falloff(logger);
     probe_fifo_pointers(logger);
 
     let rmode = init_display(logger);
@@ -150,6 +151,37 @@ pub fn run(logger: &mut ProbeLogger) {
     let _ = video::set_post_retrace_callback(previous_post);
     PREVIOUS_PRE_CALLBACK.store(0, Ordering::Release);
     PREVIOUS_POST_CALLBACK.store(0, Ordering::Release);
+}
+
+fn probe_light_falloff(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    let mut light = gx::GxLightObj::default();
+    // SAFETY: The light object is initialized and exclusively accessible.
+    unsafe {
+        gx::init_light_dist_attn(&mut light, 2.0, 0.5, gx::GX_DA_GENTLE);
+        let gentle =
+            gx::light_obj_snapshot(&light).is_some_and(|s| s.attenuation_coeff == [1.0, 0.5, 0.0]);
+        gx::init_light_dist_attn(&mut light, 2.0, 0.5, gx::GX_DA_MEDIUM);
+        let medium = gx::light_obj_snapshot(&light)
+            .is_some_and(|s| s.attenuation_coeff == [1.0, 0.25, 0.125]);
+        gx::init_light_dist_attn(&mut light, 2.0, 0.5, gx::GX_DA_STEEP);
+        let steep =
+            gx::light_obj_snapshot(&light).is_some_and(|s| s.attenuation_coeff == [1.0, 0.0, 0.25]);
+        gx::init_light_dist_attn(&mut light, -1.0, 0.5, gx::GX_DA_GENTLE);
+        let invalid =
+            gx::light_obj_snapshot(&light).is_some_and(|s| s.attenuation_coeff == [1.0, 0.0, 0.0]);
+        logger.record(
+            "GX light distance attenuation modes",
+            gentle && medium && steep && invalid,
+        );
+        gx::init_light_spot(&mut light, 90.0, gx::GX_SP_FLAT);
+        let flat = gx::light_obj_snapshot(&light)
+            .is_some_and(|s| s.attenuation[0].abs() < 0.001 && s.attenuation[1..] == [1000.0, 0.0]);
+        gx::init_light_spot(&mut light, 91.0, gx::GX_SP_FLAT);
+        let invalid =
+            gx::light_obj_snapshot(&light).is_some_and(|s| s.attenuation == [1.0, 0.0, 0.0]);
+        logger.record("GX light spotlight cutoff", flat && invalid);
+    }
 }
 
 fn probe_light_object(logger: &mut ProbeLogger) {
