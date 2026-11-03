@@ -297,14 +297,19 @@ safe `try_flush` return the interface error for a null handle. The run has no
 USB device, so successful cache synchronization on a mounted LUN remains
 untested. The same probe checks the LUN count bounds, read residue, capacity
 decoding, BOT retry behavior, and READ/WRITE status handling. The focused FAT
-probe passed in Dolphin and covers the mounted SD API,
-C exports, FAT file seek/truncate, attribute updates, init functions, and mount
-cleanup. The probe also checks that GameCube SD Gecko mounts report the expected
-no-adapter error. A 2026-11-03 Dolphin run also passed 36 GameCube SD API
+probe passed in Dolphin and covers the mounted SD API, C exports, FAT file
+seek/truncate, attribute updates, init functions, and mount cleanup.
+The `wii_std_fs_probe` passed 99 Dolphin checks on the private virtual Wii SD
+card. It checked directory and path operations, file I/O, metadata, attributes,
+timestamps, read-only access, remount persistence, and cleanup. This verifies
+many FAT operations on Dolphin; it does not verify each FAT inventory entry or
+physical Wii media. See the
+[Wii FAT run](dolphin-runs/2026-11-03-wii-std-fs-storage/README.md).
+The `fat_sd_probe` also checks that GameCube SD Gecko mounts report the
+expected no-adapter error. A 2026-11-03 Dolphin run passed 36 GameCube SD API
 checks. It checked invalid drive errors for C and Rust APIs, no-card backend
 results, speed and page-size state restoration, buffer-pool exhaustion and
-reuse, and interface callback cleanup. It did not exercise an EXI SD Gecko.
-See the
+reuse, and interface callback cleanup. It did not exercise an EXI SD Gecko. See the
 [SD Gecko invalid-drive run](dolphin-runs/2026-11-03-gcsd-invalid-drive/README.md).
 The Wii SD probe passed in Dolphin with its private virtual SD card. It
 checks startup, insertion, sector-zero read, a zero-sector write that sends no

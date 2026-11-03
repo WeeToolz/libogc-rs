@@ -45,10 +45,16 @@ CARD saves, disc reads, GameCube SD Gecko I/O, or physical devices. See the
 The separate no-disc DVD probe passed 119 checks and compared C and Rust DI
 wrapper results for the calls listed in its
 [run report](dolphin-runs/2026-11-03-di-wrapper-parity-final/README.md).
-The ISO9660 runtime probe passed 62 checks on a controlled in-memory image.
-It verified file operations through both C and Rust mounts and fixed two
-issues found by those checks. It does not verify a physical disc or drive; see
-the [ISO9660 run report](dolphin-runs/2026-11-03-iso9660-file-runtime-pass/README.md).
+The latest `runtime_probe` passed 63 checks. Its controlled image verified
+ISO9660 file operations through both C and Rust mounts. It also checked the
+closed-service ISFS stats async result and fixed issues found by those checks.
+It does not verify a physical disc or drive or successful NAND operations; see the
+[runtime run report](dolphin-runs/2026-11-03-isfs-get-stats-async-pass/README.md).
+The separate `wii_std_fs_probe` passed 99 checks on Dolphin's private virtual
+Wii SD card. It covered FAT directory, path, file, metadata, attribute,
+timestamp, remount, and cleanup behavior. This is not physical Wii evidence
+and does not prove every FAT and filesystem entry. See the
+[FAT run report](dolphin-runs/2026-11-03-wii-std-fs-storage/README.md).
 Earlier failed launch attempts remain in their own run directories. The
 hardware register still records physical CARD and DI behavior as not tested.
 Do not treat the zero `unverified` source count as completed storage
