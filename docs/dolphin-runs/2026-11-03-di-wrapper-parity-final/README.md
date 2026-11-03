@@ -24,8 +24,8 @@ values.
 ## Reproduction
 
 ```sh
-LIBOGC_MAD_PROBE_MP3=[libogc-rs fixtures]/layer3-stereo.mp3 \
-LIBOGC_MAD_REFERENCE_MP3=[libogc-rs fixtures]/libmad-stereo-mpeg1.mp3 \
+LIBOGC_MAD_PROBE_MP3=[external tools]/libogc-rs-fixtures/layer3-stereo.mp3 \
+LIBOGC_MAD_REFERENCE_MP3=[external tools]/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3 \
 cargo xtask dolphin-validate --probe dvd_probe \
   --artifact-dir docs/dolphin-runs/2026-11-03-di-wrapper-parity-final
 ```

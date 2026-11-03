@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_dir="${0:A:h:h}"
-dolphin_bin="${DOLPHIN_BIN:-[Dolphin executable]}"
+dolphin_bin="${DOLPHIN_BIN:-$(command -v dolphin || true)}"
 build_probe=1
 
 usage() {
@@ -39,7 +39,7 @@ while (( $# > 0 )); do
   esac
 done
 
-if [[ ! -x "$dolphin_bin" || -d "$dolphin_bin" ]]; then
+if [[ -z "$dolphin_bin" || ! -x "$dolphin_bin" || -d "$dolphin_bin" ]]; then
   print -u2 -- "Dolphin executable not found: $dolphin_bin"
   print -u2 -- "Use --dolphin PATH or set DOLPHIN_BIN."
   exit 1

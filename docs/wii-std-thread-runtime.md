@@ -135,9 +135,9 @@ in Finder, or run it from a terminal:
 ```
 
 The script builds the std probes and opens `wii_std_thread_probe.dol`. It uses
-`[Dolphin executable]` by default. Use `--dolphin PATH`
-or `DOLPHIN_BIN` to select another executable. Use `--no-build` to run the
-existing DOL. Use `--help` for the options.
+`dolphin` from `PATH` by default. Use `--dolphin PATH` or `DOLPHIN_BIN` to
+select an executable. Use `--no-build` to run the existing DOL. Use `--help`
+for the options.
 
 Each run creates a separate profile under `target/dolphin-std-thread/`. That
 directory holds the build log, Dolphin console output, Dolphin's own log under

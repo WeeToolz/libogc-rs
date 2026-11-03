@@ -47,15 +47,15 @@ register. Do not reuse an older run ID after changing the DOL.
 
 ## Capture the physical Wii video output
 
-EasyCap Studio is available at `[external checkout]`. Its Rust source
-is in `src/`, and its CLI is `target/release/easycap-studio`. Use this CLI
-to capture the physical Wii output during a hardware debug run. The device
-uses direct USB access; it is not a generic macOS camera.
+Build the EasyCap Studio checkout and add its `target/release` directory to
+`PATH`. Use the `easycap-studio` CLI to capture the physical Wii output during
+a hardware debug run. The device uses direct USB access; it is not a generic
+macOS camera.
 
 Check for the capture card before a run:
 
 ```sh
-[external checkout]/target/release/easycap-studio list
+easycap-studio list
 ```
 
 The supported USB IDs are `1c88:003c` for capture and `1c88:0007` for the
@@ -69,9 +69,9 @@ Create an evidence directory, then save a screen image or a raw frame:
 
 ```sh
 mkdir -p target/wii-runs/capture
-[external checkout]/target/release/easycap-studio snapshot \
+easycap-studio snapshot \
   --output target/wii-runs/capture/screen.png --timeout 15
-[external checkout]/target/release/easycap-studio raw-frame \
+easycap-studio raw-frame \
   --output target/wii-runs/capture/screen.uyvy --timeout 15
 ```
 
@@ -79,7 +79,7 @@ For a startup failure or a freeze, start a bounded recording in a separate
 Terminal before the existing Wiiload launcher:
 
 ```sh
-[external checkout]/target/release/easycap-studio record \
+easycap-studio record \
   --output target/wii-runs/capture/video.mkv --seconds 60 --no-audio
 ```
 

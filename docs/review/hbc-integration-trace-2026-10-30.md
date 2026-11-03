@@ -41,7 +41,7 @@ probe.
 The run used `cargo xtask build-dolphin-probes` followed by
 `cargo xtask dolphin-validate --no-build --probe video_probe --artifact-dir
 docs/review/evidence/gx-canvas-dolphin-2026-10-30`. The fixture build used the
-external MP3 path at `[libogc-rs fixtures]/libmad-stereo-mpeg1.mp3`;
+external MP3 path at `[external tools]/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3`;
 its SHA-256 matches the documented reference fixture. The probe DOL SHA-256 is
 `f0222974a215f2cc455dc0f9beccf76e40fac3c85305c756797acd3e23dc50ef`.
 Dolphin reported `PASS summary passes=29 fails=0`, including
