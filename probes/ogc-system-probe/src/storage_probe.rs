@@ -67,6 +67,7 @@ static ASYNC_AFTER_RETURN: AtomicBool = AtomicBool::new(false);
 static ASYNC_RESULT: AtomicI32 = AtomicI32::new(i32::MIN);
 static CARD_DETACHED: AtomicBool = AtomicBool::new(false);
 static USB_V5_CALLBACKS: AtomicU32 = AtomicU32::new(0);
+static CARD_INVALID_CHANNEL_CALLBACKS: AtomicU32 = AtomicU32::new(0);
 
 pub fn run(logger: &mut ProbeLogger, destructive_card_format: bool) {
     logger.section("STORAGE PROBE");
@@ -145,6 +146,10 @@ unsafe extern "C" fn di_mount_callback(status: u32, error: u32) -> i32 {
 unsafe extern "C" fn card_detach_callback(_chn: i32, result: i32) {
     CARD_DETACHED.store(true, Ordering::Release);
     OGC_STORAGE_PROBE_LAST_RESULT.store(result, Ordering::Release);
+}
+
+unsafe extern "C" fn card_invalid_channel_callback(_chn: i32, _result: i32) {
+    CARD_INVALID_CHANNEL_CALLBACKS.fetch_add(1, Ordering::AcqRel);
 }
 
 unsafe extern "C" fn usb_v5_removal_callback(result: i32, userdata: *mut c_void) -> i32 {
@@ -1510,6 +1515,200 @@ fn probe_card_invalid_channel_apis(logger: &mut ProbeLogger) {
         wrapper_serial == card::CARD_ERROR_NOCARD
             && serial_first == 0x3456_789a
             && serial_second == 0x4567_89ab,
+    );
+
+    let mut stats = card::CardStat {
+        len: 0x1234_5678,
+        ..card::CardStat::default()
+    };
+    // SAFETY: `stats` is a live, aligned, writable output.
+    let status = unsafe { card::sys::get_status(invalid_channel, 0, &mut stats) };
+    logger.record(
+        "CARD sys get_status rejects an invalid channel and preserves output",
+        status == card::CARD_ERROR_NOCARD && stats.len == 0x1234_5678,
+    );
+    stats.len = 0x2345_6789;
+    // SAFETY: `stats` is a live, aligned, writable output.
+    let wrapper_status = unsafe { card::get_status(invalid_channel, 0, &mut stats) };
+    logger.record(
+        "CARD wrapper get_status forwards the error and preserves output",
+        wrapper_status == card::CARD_ERROR_NOCARD && stats.len == 0x2345_6789,
+    );
+
+    let mut entry = card::sys::CardDirEntry {
+        last_modified: 0x1234_5678,
+        ..card::sys::CardDirEntry::default()
+    };
+    // SAFETY: `entry` is a live, aligned, writable output.
+    let status_ex = unsafe { card::sys::get_status_ex(invalid_channel, 0, &mut entry) };
+    logger.record(
+        "CARD sys get_status_ex rejects an invalid channel and preserves output",
+        status_ex == card::CARD_ERROR_FATAL_ERROR && entry.last_modified == 0x1234_5678,
+    );
+
+    let mut attributes = 0xa5;
+    // SAFETY: `attributes` is a live, aligned, writable output.
+    let attribute_status =
+        unsafe { card::sys::get_attributes(invalid_channel, 0, &mut attributes) };
+    logger.record(
+        "CARD sys get_attributes rejects an invalid channel and preserves output",
+        attribute_status == card::CARD_ERROR_FATAL_ERROR && attributes == 0xa5,
+    );
+
+    // SAFETY: `stats` is initialized and remains live for this call.
+    let set_status = unsafe { card::sys::set_status(invalid_channel, 0, &mut stats) };
+    logger.record(
+        "CARD sys set_status rejects an invalid channel without changing input",
+        set_status == card::CARD_ERROR_NOCARD && stats.len == 0x2345_6789,
+    );
+    // SAFETY: `entry` is initialized and remains live for this call.
+    let set_status_ex = unsafe { card::sys::set_status_ex(invalid_channel, 0, &mut entry) };
+    logger.record(
+        "CARD sys set_status_ex rejects an invalid channel without changing input",
+        set_status_ex == card::CARD_ERROR_NOCARD && entry.last_modified == 0x1234_5678,
+    );
+    logger.record(
+        "CARD sys set_attributes rejects an invalid channel",
+        card::sys::set_attributes(invalid_channel, 0, 0) == card::CARD_ERROR_NOCARD,
+    );
+
+    let mut directories = [card::CardDir::default(); 1];
+    directories[0].fileno = 0x1234;
+    let mut directory_count = 0x5678;
+    // SAFETY: `directories` and `directory_count` are live writable outputs.
+    let directory_status = unsafe {
+        card::sys::get_directory(
+            invalid_channel,
+            directories.as_mut_ptr(),
+            &mut directory_count,
+            0,
+        )
+    };
+    logger.record(
+        "CARD sys get_directory rejects an invalid channel and preserves outputs",
+        directory_status == card::CARD_ERROR_NOCARD
+            && directories[0].fileno == 0x1234
+            && directory_count == 0x5678,
+    );
+
+    let mut search = card::CardDir {
+        fileno: 4,
+        ..card::CardDir::default()
+    };
+    // SAFETY: `search` is a live, aligned, writable directory cursor.
+    let first_status = unsafe { card::sys::find_first(invalid_channel, &mut search, 0) };
+    logger.record(
+        "CARD sys find_first initializes its cursor before an invalid-channel error",
+        first_status == card::CARD_ERROR_NOCARD
+            && search.chn == invalid_channel
+            && search.fileno == 0
+            && search.showall == 0,
+    );
+    search.fileno = 4;
+    // SAFETY: `search` contains an invalid channel and remains live.
+    let next_status = unsafe { card::sys::find_next(&mut search) };
+    logger.record(
+        "CARD sys find_next advances its cursor before an invalid-channel error",
+        next_status == card::CARD_ERROR_NOCARD && search.fileno == 5,
+    );
+
+    let mut workarea = Workarea([0; card::CARD_WORKAREA_SIZE as usize]);
+    CARD_INVALID_CHANNEL_CALLBACKS.store(0, Ordering::Release);
+    // SAFETY: the work area is aligned, writable, and remains live; invalid
+    // channel validation must reject the request before it retains the pointer.
+    let mount_async = unsafe {
+        card::sys::mount_async(
+            invalid_channel,
+            workarea.0.as_mut_ptr().cast(),
+            Some(card_invalid_channel_callback),
+            Some(card_invalid_channel_callback),
+        )
+    };
+    let wrapper_mount_async = unsafe {
+        card::mount_async(
+            invalid_channel,
+            workarea.0.as_mut_ptr().cast(),
+            Some(card_invalid_channel_callback),
+            Some(card_invalid_channel_callback),
+        )
+    };
+    logger.record(
+        "CARD sys and wrapper mount_async reject invalid channels without callbacks",
+        mount_async == card::CARD_ERROR_FATAL_ERROR
+            && wrapper_mount_async == card::CARD_ERROR_FATAL_ERROR
+            && CARD_INVALID_CHANNEL_CALLBACKS.load(Ordering::Acquire) == 0,
+    );
+
+    let mut output_file = card::CardFile {
+        filenum: 0x1234,
+        ..card::CardFile::default()
+    };
+    CARD_INVALID_CHANNEL_CALLBACKS.store(0, Ordering::Release);
+    // SAFETY: the static filename and output file are valid for the call.
+    let create_async = unsafe {
+        card::sys::create_async(
+            invalid_channel,
+            c"INVALID".as_ptr(),
+            0x2000,
+            &mut output_file,
+            Some(card_invalid_channel_callback),
+        )
+    };
+    logger.record(
+        "CARD sys create_async rejects an invalid channel without callback or output changes",
+        create_async == card::CARD_ERROR_FATAL_ERROR
+            && output_file.filenum == 0x1234
+            && CARD_INVALID_CHANNEL_CALLBACKS.load(Ordering::Acquire) == 0,
+    );
+
+    CARD_INVALID_CHANNEL_CALLBACKS.store(0, Ordering::Release);
+    // SAFETY: all operation objects are valid; the invalid channel must stop
+    // these submissions before any callback or payload ownership begins.
+    let create_entry_async = unsafe {
+        card::sys::create_entry_async(
+            invalid_channel,
+            &mut search,
+            &mut output_file,
+            Some(card_invalid_channel_callback),
+        )
+    };
+    let delete_async = unsafe {
+        card::sys::delete_async(
+            invalid_channel,
+            c"INVALID".as_ptr(),
+            Some(card_invalid_channel_callback),
+        )
+    };
+    let delete_entry_async = unsafe {
+        card::sys::delete_entry_async(
+            invalid_channel,
+            &mut search,
+            Some(card_invalid_channel_callback),
+        )
+    };
+    let format_async =
+        card::sys::format_async(invalid_channel, Some(card_invalid_channel_callback));
+    let set_status_async = unsafe {
+        card::sys::set_status_async(
+            invalid_channel,
+            0,
+            &mut stats,
+            Some(card_invalid_channel_callback),
+        )
+    };
+    let set_attributes_async =
+        card::sys::set_attributes_async(invalid_channel, 0, 0, Some(card_invalid_channel_callback));
+    logger.record(
+        "CARD sys metadata async submissions reject invalid channels without callbacks",
+        create_entry_async == card::CARD_ERROR_FATAL_ERROR
+            && delete_async == card::CARD_ERROR_FATAL_ERROR
+            && delete_entry_async == card::CARD_ERROR_FATAL_ERROR
+            && format_async == card::CARD_ERROR_NOCARD
+            && set_status_async == card::CARD_ERROR_NOCARD
+            && set_attributes_async == card::CARD_ERROR_FATAL_ERROR
+            && output_file.filenum == 0x1234
+            && stats.len == 0x2345_6789
+            && CARD_INVALID_CHANNEL_CALLBACKS.load(Ordering::Acquire) == 0,
     );
 
     let slot = card::CardSlot::A;

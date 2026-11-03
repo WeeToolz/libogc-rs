@@ -46,3 +46,16 @@ aborted on `--version` with `SIGABRT`. Direct invocation reported the missing
 `neon` processor feature. This repeat adds no runtime evidence. The new owner
 checks remain unverified until a compatible Dolphin build or Wii run executes
 the DOL.
+
+## Repeat after CARD invalid-channel checks
+
+The probe now checks invalid-channel results for CARD status, metadata,
+directory search, mount, create, delete, and format calls. It checks output
+preservation and verifies that rejected asynchronous requests do not call
+their callbacks. The target DOL built with the same external fixtures; its
+SHA-256 is
+`a795ee6da078dcf369556940eb07c4d1e7738facc9c99a883e5fcbf7b25edd67`.
+
+Dolphin again aborted on `--version` with `SIGABRT` before it launched the
+DOL. The new checks compiled, but they remain unverified until a Dolphin or Wii
+run executes them.
