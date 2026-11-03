@@ -291,6 +291,10 @@ not tested. See the
 [current storage-suite report](dolphin-runs/2026-11-03-storage-api-full-current/README.md)
 for DOL hashes, logs, and limits.
 
+A later [private-card format run](dolphin-runs/2026-11-03-card-format-private/README.md)
+passed in Dolphin Wii mode. It checked format, remount, free blocks, and final
+unmount. It did not check removal of a save created immediately before format.
+
 A repeat at revision `43b800a` mounted the verified card copy and completed
 the save and remount checks in both GameCube and Wii modes. The probes reported
 98 and 217 passes, respectively, with zero failures. See the

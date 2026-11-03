@@ -233,6 +233,24 @@ struct Options {
     artifact_dir: Option<PathBuf>,
     timeout_seconds: Option<u64>,
     disable_wii_sd_card: bool,
+    format_private_card: bool,
+}
+
+fn validate_format_selection(options: &Options, has_card: bool) -> Result<(), String> {
+    if options.format_private_card && (options.probes.as_slice() != ["storage_probe"] || !has_card)
+    {
+        return Err("--format-private-card requires only --probe storage_probe and LIBOGC_DOLPHIN_CARD_IMAGE".to_string());
+    }
+    Ok(())
+}
+
+fn format_card_boot_arguments(address: u32) -> ([u8; 12], &'static [u8]) {
+    let command = b"storage_probe.dol\0--destructive-card-format=ERASE-SLOT-A\0";
+    let mut header = [0; 12];
+    header[..4].copy_from_slice(&0x5f61_7267u32.to_be_bytes());
+    header[4..8].copy_from_slice(&address.to_be_bytes());
+    header[8..].copy_from_slice(&(command.len() as u32).to_be_bytes());
+    (header, command)
 }
 
 #[derive(Serialize)]
@@ -364,6 +382,7 @@ impl Drop for NandProfileCopy {
 
 pub fn validate(root: &Path, args: &[String]) -> Result<(), String> {
     let options = parse_options(args)?;
+    validate_format_selection(&options, std::env::var_os(DOLPHIN_CARD_IMAGE_ENV).is_some())?;
     if options.disc_image.is_some() && options.probes.is_empty() {
         return Err("--disc-image requires an explicit --probe selection".to_string());
     }
@@ -438,6 +457,7 @@ pub fn validate(root: &Path, args: &[String]) -> Result<(), String> {
             ProbeMedia {
                 wii_sd_card_enabled: !options.disable_wii_sd_card,
                 disc_image: disc_image.as_deref(),
+                format_private_card: options.format_private_card,
             },
         )?;
         let passed = result.status == "pass";
@@ -486,6 +506,10 @@ fn parse_options(args: &[String]) -> Result<Options, String> {
     while index < args.len() {
         match args[index].as_str() {
             "--no-build" => index += 1,
+            "--format-private-card" => {
+                options.format_private_card = true;
+                index += 1;
+            }
             "--disable-wii-sd-card" => {
                 options.disable_wii_sd_card = true;
                 index += 1;
@@ -527,6 +551,7 @@ pub fn print_help() {
     eprintln!("  --dolphin PATH          Dolphin executable");
     eprintln!("  --nand-dir PATH         source Wii NAND (default: Dolphin user NAND)");
     eprintln!("  --disc-image PATH       attach a disc image; requires explicit --probe");
+    eprintln!("  --format-private-card   format a private card copy with storage_probe only");
     eprintln!("  --artifact-dir PATH     result directory");
     eprintln!("  --timeout-seconds N     override every probe timeout");
     eprintln!("  --disable-wii-sd-card   run probes without Dolphin's virtual Wii SD card");
@@ -692,6 +717,7 @@ fn dolphin_probe_dol_path(root: &Path, spec: ProbeSpec) -> PathBuf {
 struct ProbeMedia<'a> {
     wii_sd_card_enabled: bool,
     disc_image: Option<&'a Path>,
+    format_private_card: bool,
 }
 
 fn run_probe(
@@ -771,6 +797,27 @@ fn run_probe(
     );
     let mut gdb = GdbClient::connect(gdb_port, Duration::from_secs(10))?;
     gdb.initialise()?;
+    if media.format_private_card {
+        let symbols = symbols
+            .as_ref()
+            .map_err(|error| format!("card format needs ELF symbols: {error}"))?;
+        let symbol = |name: &str| {
+            symbols
+                .iter()
+                .find(|symbol| symbol.name == name)
+                .map(|symbol| symbol.address)
+                .ok_or_else(|| format!("card format needs ELF symbol {name}"))
+        };
+        let header_address = symbol("__ogc_startup_argv")?;
+        let buffer_address = symbol("__bss_end")?
+            .checked_add(0x10000)
+            .filter(|address| *address < 0x817e0000)
+            .ok_or_else(|| "no safe startup argument space".to_string())?;
+        let (header, command) = format_card_boot_arguments(buffer_address);
+        gdb.write_memory(buffer_address, command)?;
+        gdb.write_memory(header_address, &header)?;
+    }
+    gdb.continue_execution()?;
 
     let session_probe_log_path = user_dir.join("WiiSession/tmp/ogc-system-probe.log");
     let configured_probe_log_path = user_dir.join("Wii/tmp/ogc-system-probe.log");
@@ -965,7 +1012,7 @@ fn run_probe(
     } else {
         None
     };
-    let (status, detail) = classify_probe_completion(
+    let (mut status, mut detail) = classify_probe_completion(
         &completion,
         timeout_seconds,
         CompletionEvidence {
@@ -978,6 +1025,14 @@ fn run_probe(
             summary_count: summaries.len(),
         },
     );
+    if media.format_private_card
+        && !probe_log
+            .lines()
+            .any(|line| line == "PASS card destructive format final unmount")
+    {
+        status = "fail";
+        detail = "card format did not reach its final unmount assertion".to_string();
+    }
     let result = ProbeResult {
         schema_version: 1,
         probe: spec.name.to_string(),
@@ -1425,7 +1480,21 @@ impl GdbClient {
                 "Dolphin GDB returned an unexpected initial stop {stop:?}"
             ));
         }
-        self.continue_execution()
+        Ok(())
+    }
+
+    fn write_memory(&mut self, address: u32, bytes: &[u8]) -> Result<(), String> {
+        use std::fmt::Write as _;
+        let mut payload = format!("M{address:x},{:x}:", bytes.len());
+        for byte in bytes {
+            write!(&mut payload, "{byte:02x}").map_err(|error| error.to_string())?;
+        }
+        self.send_packet(&payload)?;
+        let reply = self.read_packet()?;
+        if reply != "OK" {
+            return Err(format!("Dolphin GDB rejected memory write: {reply}"));
+        }
+        Ok(())
     }
 
     fn continue_execution(&mut self) -> Result<(), String> {
@@ -2055,6 +2124,36 @@ fn unix_seconds() -> u64 {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn private_card_format_requires_explicit_isolated_probe() {
+        let options = super::parse_options(&[
+            "--format-private-card".into(),
+            "--probe".into(),
+            "storage_probe".into(),
+        ])
+        .unwrap();
+        assert!(options.format_private_card);
+        assert!(super::validate_format_selection(&options, true).is_ok());
+        assert!(super::validate_format_selection(&options, false).is_err());
+        let default_suite = super::parse_options(&["--format-private-card".into()]).unwrap();
+        assert!(super::validate_format_selection(&default_suite, true).is_err());
+        let wrong_probe = super::parse_options(&[
+            "--format-private-card".into(),
+            "--probe".into(),
+            "card_probe".into(),
+        ])
+        .unwrap();
+        assert!(super::validate_format_selection(&wrong_probe, true).is_err());
+        let (header, command) = super::format_card_boot_arguments(0x8132_fc00);
+        assert_eq!(
+            header,
+            [0x5f, 0x61, 0x72, 0x67, 0x81, 0x32, 0xfc, 0x00, 0, 0, 0, 57]
+        );
+        assert_eq!(
+            command,
+            b"storage_probe.dol\0--destructive-card-format=ERASE-SLOT-A\0"
+        );
+    }
     use super::*;
 
     #[test]
