@@ -9,8 +9,11 @@ inventory records the current `unverified` count in the generated status
 report. This is a source-mapping result. It does not prove that a probe ran
 or that an API passed on Dolphin or Wii hardware. The inventory audit checks
 that each entry maps to evidence source; it does not check runtime results.
-The current call matcher checks a function or method name but does not resolve
-its crate or receiver type. Review each mapping before using it as evidence.
+Most evidence rows currently check only a function or method name; they do not
+resolve its crate or receiver type. The five `ogc-wiisd` rows also record the
+`WII_SD_INTERFACE` callback field and require the matching function-pointer
+call in the named probe. This path check is a staged improvement. Review each
+mapping before using it as evidence.
 
 | Package | API entries | Probe group |
 | --- | ---: | --- |
