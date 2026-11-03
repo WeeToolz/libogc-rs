@@ -228,6 +228,7 @@ const PROBES: &[ProbeSpec] = &[
 struct Options {
     dolphin: Option<PathBuf>,
     nand_dir: Option<PathBuf>,
+    disc_image: Option<PathBuf>,
     probes: Vec<String>,
     artifact_dir: Option<PathBuf>,
     timeout_seconds: Option<u64>,
@@ -363,6 +364,21 @@ impl Drop for NandProfileCopy {
 
 pub fn validate(root: &Path, args: &[String]) -> Result<(), String> {
     let options = parse_options(args)?;
+    if options.disc_image.is_some() && options.probes.is_empty() {
+        return Err("--disc-image requires an explicit --probe selection".to_string());
+    }
+    let disc_image = options
+        .disc_image
+        .as_ref()
+        .map(|path| {
+            let canonical = fs::canonicalize(path)
+                .map_err(|error| format!("disc image {}: {error}", path.display()))?;
+            if !canonical.is_file() {
+                return Err(format!("disc image {} is not a file", path.display()));
+            }
+            Ok(canonical)
+        })
+        .transpose()?;
     let nand_source = options
         .nand_dir
         .or_else(|| std::env::var_os("DOLPHIN_WII_NAND").map(PathBuf::from))
@@ -419,7 +435,10 @@ pub fn validate(root: &Path, args: &[String]) -> Result<(), String> {
             &nand_source,
             spec,
             timeout,
-            !options.disable_wii_sd_card,
+            ProbeMedia {
+                wii_sd_card_enabled: !options.disable_wii_sd_card,
+                disc_image: disc_image.as_deref(),
+            },
         )?;
         let passed = result.status == "pass";
         println!("  status={} frames={}", result.status, result.frame_count);
@@ -471,7 +490,8 @@ fn parse_options(args: &[String]) -> Result<Options, String> {
                 options.disable_wii_sd_card = true;
                 index += 1;
             }
-            "--dolphin" | "--nand-dir" | "--probe" | "--artifact-dir" | "--timeout-seconds" => {
+            "--dolphin" | "--nand-dir" | "--disc-image" | "--probe" | "--artifact-dir"
+            | "--timeout-seconds" => {
                 let key = args[index].as_str();
                 let value = args
                     .get(index + 1)
@@ -479,6 +499,7 @@ fn parse_options(args: &[String]) -> Result<Options, String> {
                 match key {
                     "--dolphin" => options.dolphin = Some(PathBuf::from(value)),
                     "--nand-dir" => options.nand_dir = Some(PathBuf::from(value)),
+                    "--disc-image" => options.disc_image = Some(PathBuf::from(value)),
                     "--probe" => options.probes.push(value.clone()),
                     "--artifact-dir" => options.artifact_dir = Some(PathBuf::from(value)),
                     "--timeout-seconds" => {
@@ -505,6 +526,7 @@ pub fn print_help() {
     eprintln!("cargo xtask dolphin-validate [--no-build] [--probe NAME]...");
     eprintln!("  --dolphin PATH          Dolphin executable");
     eprintln!("  --nand-dir PATH         source Wii NAND (default: Dolphin user NAND)");
+    eprintln!("  --disc-image PATH       attach a disc image; requires explicit --probe");
     eprintln!("  --artifact-dir PATH     result directory");
     eprintln!("  --timeout-seconds N     override every probe timeout");
     eprintln!("  --disable-wii-sd-card   run probes without Dolphin's virtual Wii SD card");
@@ -667,6 +689,11 @@ fn dolphin_probe_dol_path(root: &Path, spec: ProbeSpec) -> PathBuf {
     root.join(directory).join(format!("{}.dol", spec.name))
 }
 
+struct ProbeMedia<'a> {
+    wii_sd_card_enabled: bool,
+    disc_image: Option<&'a Path>,
+}
+
 fn run_probe(
     root: &Path,
     artifact_dir: &Path,
@@ -674,7 +701,7 @@ fn run_probe(
     nand_source: &Path,
     spec: ProbeSpec,
     timeout_seconds: u64,
-    wii_sd_card_enabled: bool,
+    media: ProbeMedia<'_>,
 ) -> Result<ProbeResult, String> {
     let probe_dir = artifact_dir.join(spec.name);
     let user_dir = probe_dir.join("user");
@@ -729,7 +756,8 @@ fn run_probe(
         &dol_path,
         gdb_port,
         memory_card_path.as_deref(),
-        wii_sd_card_enabled,
+        media.wii_sd_card_enabled,
+        media.disc_image,
     );
     let started = Instant::now();
     let mut child = ChildGuard::new(
@@ -1123,6 +1151,7 @@ fn dolphin_arguments(
     gdb_port: u16,
     memory_card_path: Option<&Path>,
     wii_sd_card_enabled: bool,
+    disc_image: Option<&Path>,
 ) -> Vec<String> {
     let speed = "1.0";
     let mut arguments = [
@@ -1185,6 +1214,12 @@ fn dolphin_arguments(
             "Dolphin.Core.SlotA=1".to_string(),
             "-C".to_string(),
             format!("Dolphin.Core.MemcardAPath={}", path.display()),
+        ]);
+    }
+    if let Some(path) = disc_image {
+        arguments.extend([
+            "-C".to_string(),
+            format!("Dolphin.Core.DefaultISO={}", path.display()),
         ]);
     }
     arguments.extend(["--exec".to_string(), dol_path.display().to_string()]);
@@ -2324,6 +2359,56 @@ mod tests {
     }
 
     #[test]
+    fn dolphin_args_attach_an_explicit_disc_image() {
+        let profile = Path::new("/run/profile with spaces");
+        let image = Path::new("/run/disc image.iso");
+        let args = dolphin_arguments(
+            profile,
+            Path::new("/run/dvd_probe.dol"),
+            1234,
+            None,
+            true,
+            Some(image),
+        );
+        assert!(args.windows(2).any(|pair| {
+            pair[0] == "-C" && pair[1] == format!("Dolphin.Core.DefaultISO={}", image.display())
+        }));
+        let options = parse_options(&["--disc-image".into(), image.display().to_string()]).unwrap();
+        assert_eq!(options.disc_image.as_deref(), Some(image));
+        let without_disc = dolphin_arguments(
+            profile,
+            Path::new("/run/dvd_probe.dol"),
+            1234,
+            None,
+            true,
+            None,
+        );
+        assert!(
+            !without_disc
+                .iter()
+                .any(|argument| argument.starts_with("Dolphin.Core.DefaultISO="))
+        );
+        assert!(parse_options(&["--disc-image".into()]).is_err());
+        let error = validate(
+            Path::new("."),
+            &["--disc-image".into(), image.display().to_string()],
+        )
+        .unwrap_err();
+        assert!(error.contains("explicit --probe"));
+        let error = validate(
+            Path::new("."),
+            &[
+                "--disc-image".into(),
+                image.display().to_string(),
+                "--probe".into(),
+                "dvd_probe".into(),
+            ],
+        )
+        .unwrap_err();
+        assert!(error.contains("disc image"));
+    }
+
+    #[test]
     fn dolphin_args_can_attach_a_memory_card_in_the_private_profile() {
         let profile = Path::new("/run/profile with spaces");
         let card_path = profile.join("GC/MemoryCardA.USA.raw");
@@ -2333,6 +2418,7 @@ mod tests {
             1234,
             Some(&card_path),
             true,
+            None,
         );
 
         assert!(
@@ -2350,6 +2436,7 @@ mod tests {
             1234,
             None,
             true,
+            None,
         );
         assert!(
             !args_without_card
@@ -2367,8 +2454,8 @@ mod tests {
     fn dolphin_args_disable_virtual_sd_only_when_requested() {
         let profile = Path::new("/run/profile");
         let dol = Path::new("/run/wiisd_probe.dol");
-        let enabled = dolphin_arguments(profile, dol, 1234, None, true);
-        let disabled = dolphin_arguments(profile, dol, 1234, None, false);
+        let enabled = dolphin_arguments(profile, dol, 1234, None, true, None);
+        let disabled = dolphin_arguments(profile, dol, 1234, None, false, None);
         assert!(
             enabled
                 .windows(2)

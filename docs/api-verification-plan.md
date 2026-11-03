@@ -343,6 +343,11 @@ results, callbacks, output state, and cleanup. The current `dvd_probe` passed
 disc. Successful disc reads and physical drive behavior remain unverified.
 See the
 [current storage-suite report](dolphin-runs/2026-11-03-storage-api-full-current/README.md).
+The Dolphin runner accepts `--disc-image <path>` with an explicit `--probe`
+selection. It passes the image as Dolphin's default disc while booting the
+probe DOL. The existing `dvd_probe` expects no disc; a media-aware probe and a
+suitable image are still needed to test successful disc reads and partitions.
+The runner option has host tests but has not yet been verified with an image.
 The ISFS probe checks file-system API errors while the `/dev/fs` service is
 closed. It checks service close and reopen, async errors for invalid
 descriptors, output preservation, and that format requests do not reach IOS
