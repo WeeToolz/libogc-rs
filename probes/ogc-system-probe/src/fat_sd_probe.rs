@@ -14,6 +14,7 @@ fn probe_gcsd_invalid_drive(logger: &mut ProbeLogger) {
     use ogc_gcsd as gcsd;
 
     logger.section("GAMECUBE SD INVALID DRIVE API CHECKS");
+    let init_io_default = gcsd::sdgecko_initIODefault;
     gcsd::sdgecko_initIODefault();
 
     let speed = gcsd::sdgecko_get_speed(-1);
@@ -53,7 +54,8 @@ fn probe_gcsd_invalid_drive(logger: &mut ProbeLogger) {
 
     let speed_before = gcsd::sdgecko_get_speed(0).unwrap_or(0);
     let speed_changed_to = speed_before ^ 1;
-    let speed_set = gcsd::sdgecko_set_speed(0, speed_changed_to);
+    let set_speed = gcsd::sdgecko_set_speed;
+    let speed_set = set_speed(0, speed_changed_to);
     let speed_after_set = gcsd::sdgecko_get_speed(0);
     gcsd::sdgecko_insertedCB(0);
     gcsd::sdgecko_ejectedCB(0);
@@ -67,7 +69,7 @@ fn probe_gcsd_invalid_drive(logger: &mut ProbeLogger) {
         "C SD Gecko callbacks and invalid speed setter preserve drive state",
         speed_after_set == speed_after_callbacks,
     );
-    gcsd::sdgecko_initIODefault();
+    init_io_default();
     logger.record(
         "C SD Gecko default initialization restores the original speed",
         gcsd::sdgecko_get_speed(0) == Some(speed_before),
@@ -108,9 +110,105 @@ fn probe_gcsd_invalid_drive(logger: &mut ProbeLogger) {
     unsafe { gcsd::sdgecko_freeBuffer(reusable) };
 }
 
+fn probe_gcsd_without_adapter(logger: &mut ProbeLogger) {
+    use ogc_gcsd as gcsd;
+
+    logger.section("GAMECUBE SD BACKEND WITHOUT AN ADAPTER");
+    let init_io = gcsd::sdgecko_initIO;
+    let pre_io = gcsd::sdgecko_preIO;
+    let read_cid_api = gcsd::sdgecko_readCID;
+    let read_csd_api = gcsd::sdgecko_readCSD;
+    let read_status_api = gcsd::sdgecko_readStatus;
+    let init = init_io(0);
+    let pre_io = pre_io(0);
+    let cid = read_cid_api(0);
+    let csd = read_csd_api(0);
+    let status = read_status_api(0);
+    logger.record(
+        "SD Gecko init and metadata APIs report no card in slot A",
+        [init, pre_io, cid, csd, status]
+            .into_iter()
+            .all(|result| result == GCSD_ERROR_NOCARD),
+    );
+
+    let interface = &gcsd::GAMECUBE_SD_A_INTERFACE;
+    let startup = interface
+        .startup
+        .expect("slot A interface must provide startup");
+    let is_inserted = interface
+        .is_inserted
+        .expect("slot A interface must provide insertion query");
+    let read_sectors = interface
+        .read_sectors
+        .expect("slot A interface must provide sector reads");
+    let write_sectors = interface
+        .write_sectors
+        .expect("slot A interface must provide sector writes");
+    let clear_status = interface
+        .clear_status
+        .expect("slot A interface must provide status cleanup");
+    let shutdown = interface
+        .shutdown
+        .expect("slot A interface must provide shutdown");
+    let started = unsafe { startup() };
+    let present = unsafe { is_inserted() };
+    let mut sector = CardSector([0xa5; 512]);
+    // SAFETY: The buffers are aligned and each transfer requests one sector.
+    let read = unsafe { read_sectors(0, 1, sector.0.as_mut_ptr().cast()) };
+    // SAFETY: The buffers are aligned and each transfer requests one sector.
+    let write = unsafe { write_sectors(0, 1, sector.0.as_ptr().cast()) };
+    let cleared = unsafe { clear_status() };
+    let stopped = unsafe { shutdown() };
+    logger.record(
+        "slot A interface callbacks report no card and clean up",
+        !started && !present && !read && !write && !cleared && stopped,
+    );
+
+    let do_unmount = gcsd::sdgecko_doUnmount;
+    let do_unmount = do_unmount(0);
+    logger.record(
+        "SD Gecko unmount succeeds when slot A has no card",
+        do_unmount == 0,
+    );
+
+    let get_speed = gcsd::sdgecko_get_speed;
+    let get_page_size = gcsd::sdgecko_get_page_size;
+    let get_addressing_type = gcsd::sdgecko_get_addressing_type;
+    let speed = get_speed(0);
+    let page_size = get_page_size(0);
+    let addressing = get_addressing_type(0);
+    logger.record(
+        "SD Gecko backend getters return slot A state",
+        speed.is_some() && page_size.is_some() && addressing == Some(gcsd::CARD_IO_BYTE_ADDRESSING),
+    );
+
+    let original_page_size = page_size.unwrap_or(0);
+    let set_page_size = gcsd::sdgecko_set_page_size;
+    let changed_page_size = set_page_size(0, 512);
+    let page_size_changed = get_page_size(0) == Some(512);
+    let restored_page_size = set_page_size(0, original_page_size);
+    logger.record(
+        "SD Gecko page-size setter restores slot state after no-card errors",
+        changed_page_size.is_some_and(|result| result < 0)
+            && page_size_changed
+            && restored_page_size.is_some_and(|result| result < 0)
+            && get_page_size(0) == Some(original_page_size),
+    );
+
+    let read_sectors_result = gcsd::sdgecko_readSectors;
+    let read_result = unsafe { read_sectors_result(0, 0, 1, sector.0.as_mut_ptr().cast()) };
+    let write_sectors_result = gcsd::sdgecko_writeSectors;
+    let write_result = unsafe { write_sectors_result(0, 0, 1, sector.0.as_ptr().cast()) };
+    logger.record(
+        "SD Gecko sector result APIs preserve no-card errors",
+        read_result == GCSD_ERROR_NOCARD && write_result == GCSD_ERROR_NOCARD,
+    );
+}
+
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("FAT SD API PROBE");
     probe_gcsd_invalid_drive(logger);
+    probe_gcsd_without_adapter(logger);
 
     let mount_result = fat::mount_sd();
     logger.record("FAT SD mount", mount_result.is_ok());
