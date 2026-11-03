@@ -1,5 +1,34 @@
 # Development results
 
+## 2026-11-02: AESND voice controls and cycle checks
+
+The focused AESND DOL ran in Dolphin 2609a with a private profile and copied
+NAND. It reported 100 passes and no failures. The DOL SHA-256 was
+`f1a880317ff563bb70dba052105ec862e4d104402ebe67a1ecd72a6e7d16992c`.
+The build used revision `479981a` and the probe changes in this batch. See the
+[report](docs/dolphin-runs/2026-11-02-aesnd-delay-drain/suite.json). HBC was
+not under test.
+
+The probe checks buffer replacement, mute, format, frequency, delay, loop, and
+stream behavior through wrapper and backend calls where applicable. It checks
+PCM output, silence, callbacks, and playback duration. The private DSP cycle
+methods are checked using the same source compiled into the DOL; that check
+does not observe the live callback's internal state. All 23 remaining AESND
+inventory entries now have evidence. Real Wii audio behavior remains untested.
+
+Two earlier runs failed both delay checks. The diagnostic run recorded one
+matching output buffer during each early window. The final run drains four
+frames before measuring; its following twelve-frame window had zero matches,
+and matching output arrived later. The failed reports remain in
+`docs/dolphin-runs/2026-11-02-aesnd-timing` and
+`docs/dolphin-runs/2026-11-02-aesnd-delay-diagnostic`.
+
+Build with `cargo xtask build-dol ogc-system-probe --bin aesnd_native_probe
+--probe-features dolphin-automation --no-dev --output
+target/xtask/probes-dolphin/aesnd_native_probe.dol`. Run with `cargo xtask
+dolphin-validate --no-build --probe aesnd_native_probe --timeout-seconds 180
+--artifact-dir docs/dolphin-runs/2026-11-02-aesnd-delay-drain`.
+
 ## 2026-11-02: AESND wrapper and callback checks
 
 The AESND native DOL ran in Dolphin 2609a with a private profile and copied
