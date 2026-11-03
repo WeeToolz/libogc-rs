@@ -4,15 +4,28 @@
 
 The runtime probe now calls the exported `ISO9660_Mount`,
 `ISO9660_GetVolumeLabel`, and `ISO9660_Unmount` functions directly. It checks
-null arguments, rejected media reads, volume-label bytes, and unmount cleanup.
-The PowerPC DOL built successfully with SHA-256
-`141586a156931ad96fe445c125dd1dd7f68011c5a6b8e25f2b3acbae2dac8b02`.
-Dolphin did not start the DOL: its `--version` preflight aborted with
-`Incompatible processor. This Qt build requires the following features: neon`.
-The probe has no accepted runtime evidence yet, and the three ISO9660 C ABI
-entries remain unverified. Direct execution of Dolphin reproduced the abort.
-`codesign --verify --deep --strict` also reported an invalid app signature. No
-changes were made to the Dolphin installation.
+null arguments, rejected media reads, the fixed volume-label bytes, and
+unmount cleanup. Dolphin 2609a passed all 41 runtime-probe checks, including
+five ISO9660 checks, with no failures. The runner used a private profile and a
+copy of the Wii NAND. The run command was `cargo xtask dolphin-validate
+--no-build --probe runtime_probe --artifact-dir
+docs/dolphin-runs/2026-11-03-iso9660-c-abi --dolphin
+[Dolphin executable]`. The DOL SHA-256 was
+`141586a156931ad96fe445c125dd1dd7f68011c5a6b8e25f2b3acbae2dac8b02`; the
+source revision was `982b3f4`. The run used the Intel Dolphin slice because
+the native slice stopped at Qt's NEON check. The temporary launcher used for
+the run is archived as [dolphin-intel-wrapper.sh](docs/dolphin-runs/2026-11-03-iso9660-c-abi/dolphin-intel-wrapper.sh).
+See the
+[report](docs/dolphin-runs/2026-11-03-iso9660-c-abi/suite.json) and
+[probe log](docs/dolphin-runs/2026-11-03-iso9660-c-abi/runtime_probe/probe.log).
+The disc interface reads a controlled in-memory ISO image. This checks the
+production mount code and C ABI, but it does not test a physical optical drive.
+The build used `cargo xtask build-dol ogc-system-probe --bin runtime_probe
+--probe-features dolphin-automation --no-dev --output
+target/xtask/probes-dolphin/runtime_probe.dol` with the external fixture paths
+recorded in `docs/dependencies.md`. The fixture was
+`[libmad-rs source]/test-data/layer3/libmad-stereo-mpeg1.mp3`
+(SHA-256 `c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73`).
 
 ## 2026-11-02: AESND voice controls and cycle checks
 

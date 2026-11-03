@@ -177,14 +177,14 @@ do not infer API coverage from a package or probe name.
 
 ## Current storage audit
 
-The current inventory has 348 unverified entries in the 12 storage packages
+The current inventory has 345 unverified entries in the 12 storage packages
 below. These counts come from `docs/generated/implementation-inventory.csv`.
 Update this table after each storage batch. Do not accept source presence or a
 successful target build as runtime evidence.
 
 | Package | Unverified entries |
 | --- | ---: |
-| `iso9660` | 3 |
+| `iso9660` | 0 |
 | `ogc-card` | 28 |
 | `ogc-card-sys` | 62 |
 | `ogc-di` | 55 |
@@ -196,19 +196,18 @@ successful target build as runtime evidence.
 | `ogc-usbstorage` | 19 |
 | `ogc-usbstorage-sys` | 47 |
 | `ogc-wiisd` | 4 |
-| **Total** | **348** |
+| **Total** | **345** |
 
-The ISO9660 probe now calls its three C ABI exports directly, but Dolphin did
-not launch for this run because its Qt preflight reported a missing `neon`
-processor feature and aborted. Keep those entries open until the DOL runs.
-See [development results](../DEVELOPMENT_RESULTS.md).
+The ISO9660 probe calls its three C ABI exports directly. Dolphin passed the
+probe using a controlled in-memory disc image; this does not verify a physical
+optical drive. See [development results](../DEVELOPMENT_RESULTS.md).
 
 ## First batch
 
 The first controller model batch added host evidence for 18 inventory entries.
 A second batch recorded 14 controller model, transition, and HID APIs.
 A third batch added Xbox report boundary and Bluetooth stage text checks.
-The 2026-11-02 inventory reports 2,166 unverified entries. See the
+The 2026-11-03 inventory reports 2,017 unverified entries. See the
 [development results](../DEVELOPMENT_RESULTS.md) for the test scope and limits.
 
 
