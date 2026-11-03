@@ -269,7 +269,7 @@ The ISO9660 probe calls its three C ABI exports and the Rust file-system
 mount, label, and unmount facade directly. A controlled in-memory disc image
 now checks file lookup, open, read, seek, close, stat metadata, and root
 directory changes through both the C mount and the Rust mount. Dolphin passed
-the runtime probe with 62 checks and no failures. This exposed and fixed the
+the runtime probe with 63 checks and no failures. This exposed and fixed the
 device name used for devoptab lookup and the handling of valid negative
 pointer-shaped file handles. The probe does not verify a physical optical
 drive. The focused DVD probe checks `/dev/di` no-disc status, rejected mount,
@@ -286,8 +286,11 @@ The ISFS probe checks file-system API errors while the `/dev/fs` service is
 closed. It checks service close and reopen, async errors for invalid
 descriptors, output preservation, and that format requests do not reach IOS
 while the service is closed. It does not test successful NAND file changes or
-format a filesystem. See the
-[ISFS Dolphin run](dolphin-runs/2026-11-03-filesystem-isfs/README.md).
+format a filesystem. The probe also checks that `get_stats_async` returns
+`ISFS_EINVAL` with `/dev/fs` closed, preserves all seven output fields, and
+does not call its callback. See the
+[ISFS closed-service run](dolphin-runs/2026-11-03-isfs-get-stats-async-pass/README.md)
+and the [earlier ISFS run](dolphin-runs/2026-11-03-filesystem-isfs/README.md).
 The USB storage safe facade probe covers no-device errors and
 lifecycle cleanup. A focused Dolphin probe also checks that raw `flush` and
 safe `try_flush` return the interface error for a null handle. The run has no
