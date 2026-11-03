@@ -90,6 +90,21 @@ PASS default USB flush reports no mounted storage
 PASS safe USB DVD query maps the raw no-device result
 PASS safe USB start-stop reports a missing storage interface
 PASS safe USB deinitialize completes after the no-device probe
+
+== USB STORAGE C ABI WITHOUT A DEVICE ==
+PASS C USB initialize reports success or no-Wii error
+PASS C USB open rejects a null storage handle
+PASS C USB close and reset reject null storage handles
+PASS C USB GetMaxLUN and mount reject null storage handles
+PASS C USB suspend and start-stop reject null storage handles
+PASS C USB inquiry rejects a null storage handle
+PASS C USB capacity rejects null handle and preserves outputs
+PASS C USB read and write reject null storage handles
+PASS C USB DVD query reports no mounted DVD
+PASS USB ioctl and C bridge reject an unmounted request
+-- page 4 --
+PASS USB async control cleanup counter remains clear
+PASS C USB deinitialize records its result for C callers
 PASS open reset decision matches the C USB mode predicate
 PASS USB idle remount uses a strict sixty-second boundary
 PASS GetMaxLUN supports the full representable C count
@@ -101,9 +116,8 @@ PASS USB data transfer preserves non-timeout transport errors
 PASS BOT retries preserve cycle errors unless reset or transfer times out
 PASS USB read/write cycle status preserves C result rules
 PASS ReadCapacity accepts CSW status and residue, then decodes capacity
--- page 4 --
 PASS ReadCapacity preserves a negative BOT cycle result
 PASS probe VI retraces complete within 100 ms
 PASS Dolphin screen-data transport completed
-INFO summary_candidate passes=31 fails=0
-PASS summary passes=31 fails=0
+INFO summary_candidate passes=43 fails=0
+PASS summary passes=43 fails=0

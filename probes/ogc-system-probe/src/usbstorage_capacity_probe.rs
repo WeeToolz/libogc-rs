@@ -122,9 +122,91 @@ fn probe_public_facade(logger: &mut ProbeLogger) {
     );
 }
 
+fn probe_c_abi_without_device(logger: &mut ProbeLogger) {
+    use ogc_usbstorage_sys as storage;
+
+    logger.section("USB STORAGE C ABI WITHOUT A DEVICE");
+    let init = storage::c_initialize();
+    logger.record(
+        "C USB initialize reports success or no-Wii error",
+        init == storage::USBSTORAGE_OK || init == storage::USBSTORAGE_EINIT,
+    );
+
+    let open = unsafe { storage::c_open(core::ptr::null_mut(), 0, 0x1234, 0x5678) };
+    let close = unsafe { storage::c_close(core::ptr::null_mut()) };
+    let reset = unsafe { storage::c_reset(core::ptr::null_mut()) };
+    let max_lun = unsafe { storage::c_get_max_lun(core::ptr::null_mut()) };
+    let mount = unsafe { storage::c_mount_lun(core::ptr::null_mut(), 0) };
+    let suspend = unsafe { storage::c_suspend(core::ptr::null_mut()) };
+    let start_stop = unsafe { storage::c_start_stop(core::ptr::null_mut(), 0, 0, 1, 0) };
+    logger.record(
+        "C USB open rejects a null storage handle",
+        open == storage::USBSTORAGE_ENOINTERFACE,
+    );
+    logger.record(
+        "C USB close and reset reject null storage handles",
+        close == storage::USBSTORAGE_ENOINTERFACE && reset == storage::USBSTORAGE_ENOINTERFACE,
+    );
+    logger.record(
+        "C USB GetMaxLUN and mount reject null storage handles",
+        max_lun == storage::USBSTORAGE_ENOINTERFACE && mount == storage::USBSTORAGE_ENOINTERFACE,
+    );
+    logger.record(
+        "C USB suspend and start-stop reject null storage handles",
+        suspend == storage::USBSTORAGE_ENOINTERFACE
+            && start_stop == storage::USBSTORAGE_ENOINTERFACE,
+    );
+
+    let inquiry = unsafe { storage::c_inquiry(core::ptr::null_mut(), 0) };
+    let mut sector_size = 0x1234_5678;
+    let mut sectors = 0x8765_4321;
+    let capacity = unsafe {
+        storage::c_read_capacity(core::ptr::null_mut(), 0, &mut sector_size, &mut sectors)
+    };
+    logger.record(
+        "C USB inquiry rejects a null storage handle",
+        inquiry == storage::USBSTORAGE_ENOINTERFACE,
+    );
+    logger.record(
+        "C USB capacity rejects null handle and preserves outputs",
+        capacity == storage::USBSTORAGE_ENOINTERFACE
+            && sector_size == 0x1234_5678
+            && sectors == 0x8765_4321,
+    );
+
+    let mut sector = AlignedSector([0xa5; 512]);
+    let read = unsafe { storage::c_read(core::ptr::null_mut(), 0, 0, 1, sector.0.as_mut_ptr()) };
+    let write = unsafe { storage::c_write(core::ptr::null_mut(), 0, 0, 1, sector.0.as_ptr()) };
+    logger.record(
+        "C USB read and write reject null storage handles",
+        read == storage::USBSTORAGE_EINVAL && write == storage::USBSTORAGE_EINVAL,
+    );
+
+    let dvd = storage::c_is_dvd();
+    logger.record("C USB DVD query reports no mounted DVD", dvd == 0);
+    let ioctl = unsafe { storage::ioctl(0, core::ptr::null_mut()) };
+    let bridge = unsafe { storage::__ogc_usbstorage_ioctl_bridge(0, core::ptr::null_mut()) };
+    logger.record(
+        "USB ioctl and C bridge reject an unmounted request",
+        ioctl == -1 && bridge == -1,
+    );
+    logger.record(
+        "USB async control cleanup counter remains clear",
+        storage::async_control_cleanup_failures() == 0,
+    );
+
+    storage::c_deinitialize();
+    logger.record(
+        "C USB deinitialize records its result for C callers",
+        storage::c_last_deinitialize_status() == storage::USBSTORAGE_OK
+            && storage::last_deinitialize_status() == storage::USBSTORAGE_OK,
+    );
+}
+
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("USB STORAGE OPEN AND READ CAPACITY POLICY");
     probe_public_facade(logger);
+    probe_c_abi_without_device(logger);
 
     logger.record(
         "open reset decision matches the C USB mode predicate",

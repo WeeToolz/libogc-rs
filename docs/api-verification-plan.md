@@ -177,7 +177,7 @@ do not infer API coverage from a package or probe name.
 
 ## Current storage audit
 
-The current inventory has 225 unverified entries in the 12 storage packages
+The current inventory has 206 unverified entries in the 12 storage packages
 below. These counts come from `docs/generated/implementation-inventory.csv`.
 Update this table after each storage batch. Do not accept source presence or a
 successful target build as runtime evidence.
@@ -194,9 +194,9 @@ successful target build as runtime evidence.
 | `ogc-filesystem` | 0 |
 | `ogc-gcsd` | 43 |
 | `ogc-usbstorage` | 0 |
-| `ogc-usbstorage-sys` | 37 |
+| `ogc-usbstorage-sys` | 18 |
 | `ogc-wiisd` | 0 |
-| **Total** | **225** |
+| **Total** | **206** |
 
 Use the package counts above to split storage work into these feature batches.
 Each batch still needs evidence for every API entry. A batch count does not
@@ -208,8 +208,8 @@ mean that each API has a test or probe.
 | GameCube memory card | `ogc-card`, `ogc-card-sys` | 90 |
 | FAT and file-system services | `ogc-fat`, `ogc-filesystem` | 0 |
 | SD card transports | `ogc-gcsd`, `ogc-wiisd` | 43 |
-| USB mass storage | `ogc-usbstorage`, `ogc-usbstorage-sys` | 37 |
-| **Total** | **12 packages** | **225** |
+| USB mass storage | `ogc-usbstorage`, `ogc-usbstorage-sys` | 18 |
+| **Total** | **12 packages** | **206** |
 
 The ISO9660 probe calls its three C ABI exports and the Rust file-system
 mount, label, and unmount facade directly. Dolphin passed the
@@ -253,8 +253,9 @@ reduce the 90 open memory-card entries or the open USB transport entries. See
 the [private-card Dolphin run](dolphin-runs/2026-11-03-storage-card-abs/README.md)
 for the DOL hash, command, report, and limits. The separate
 [USB storage probe](dolphin-runs/2026-11-03-storage-usb-flush/README.md) passed
-31 checks, including both null-handle flush calls and transfer-policy checks.
-It does not test a mounted USB device.
+43 checks, including both null-handle flush calls, transfer-policy checks,
+C ABI error paths, output preservation, and deinitialization status. It does
+not test a mounted USB device.
 
 ## First batch
 
