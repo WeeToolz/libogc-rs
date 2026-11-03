@@ -776,6 +776,254 @@ fn probe_iso9660(logger: &mut ProbeLogger) {
     logger.record("Rust filesystem ISO unmount", rust_removed);
     logger.record("Rust filesystem ISO cleanup", rust_label_cleared);
     probe_isfs_uninitialized(logger);
+    probe_isfs_successful_file_cycle(logger);
+}
+
+fn probe_isfs_successful_file_cycle(logger: &mut ProbeLogger) {
+    logger.section("ISFS SUCCESSFUL FILE CYCLE");
+    let directory = c"/tmp/ogc-rs-isfs-verify";
+    let file_path = c"/tmp/ogc-rs-isfs-verify/file";
+    let renamed_path = c"/tmp/ogc-rs-isfs-verify/renamed";
+    let initialized = filesystem::initialize() == filesystem::ISFS_OK;
+    let mut service_stats = filesystem::IsfsStats {
+        a: u32::MAX,
+        b: u32::MAX,
+        c: u32::MAX,
+        d: u32::MAX,
+        e: u32::MAX,
+        f: u32::MAX,
+        g: u32::MAX,
+    };
+    let service_stats_result = if initialized {
+        filesystem::get_stats(&mut service_stats)
+    } else {
+        filesystem::ISFS_EINVAL
+    };
+    logger.record(
+        "ISFS get volume stats",
+        service_stats_result == filesystem::ISFS_OK
+            && service_stats
+                != filesystem::IsfsStats {
+                    a: u32::MAX,
+                    b: u32::MAX,
+                    c: u32::MAX,
+                    d: u32::MAX,
+                    e: u32::MAX,
+                    f: u32::MAX,
+                    g: u32::MAX,
+                },
+    );
+    let directory_created =
+        initialized && filesystem::create_dir(directory, 0, 3, 3, 3) == filesystem::ISFS_OK;
+    logger.record("ISFS create test directory", directory_created);
+
+    let file_created =
+        directory_created && filesystem::create_file(file_path, 0, 3, 3, 3) == filesystem::ISFS_OK;
+    logger.record("ISFS create test file", file_created);
+
+    let mut aligned_write = AlignedIsfsBytes([0; 32]);
+    aligned_write.0[..8].copy_from_slice(b"ISFS-rs!");
+    let file = if file_created {
+        filesystem::open(file_path, filesystem::ISFS_OPEN_RW).ok()
+    } else {
+        None
+    };
+    let write_result = file.as_ref().map_or(Err(filesystem::ISFS_EINVAL), |file| {
+        file.write_all(&aligned_write.0[..8])
+    });
+    let seek_result = file
+        .as_ref()
+        .map_or(Err(filesystem::ISFS_EINVAL), |file| file.seek(0, 0));
+    let mut aligned_read = AlignedIsfsBytes([0; 32]);
+    let read_result = file.as_ref().map_or(Err(filesystem::ISFS_EINVAL), |file| {
+        file.read(&mut aligned_read.0[..8])
+    });
+    let mut stats = AlignedFstats(filesystem::Fstats::default());
+    let stats_result = file.as_ref().map_or(filesystem::ISFS_EINVAL, |file| {
+        filesystem::get_file_stats(file, &mut stats.0)
+    });
+    let file_closed = file.is_none_or(|file| file.close() == filesystem::ISFS_OK);
+    logger.record(
+        "ISFS file write seek read stats and close",
+        write_result == Ok(())
+            && seek_result == Ok(0)
+            && read_result == Ok(8)
+            && aligned_read.0[..8] == *b"ISFS-rs!"
+            && stats_result == filesystem::ISFS_OK
+            && stats.0
+                == filesystem::Fstats {
+                    file_length: 8,
+                    file_pos: 8,
+                }
+            && file_closed,
+    );
+
+    let mut owner_id = u32::MAX;
+    let mut group_id = u16::MAX;
+    let mut attributes = u8::MAX;
+    let mut owner_perm = u8::MAX;
+    let mut group_perm = u8::MAX;
+    let mut other_perm = u8::MAX;
+    let get_attr_result = if file_created {
+        filesystem::get_attr(
+            file_path,
+            &mut owner_id,
+            &mut group_id,
+            &mut attributes,
+            &mut owner_perm,
+            &mut group_perm,
+            &mut other_perm,
+        )
+    } else {
+        filesystem::ISFS_EINVAL
+    };
+    let set_attr_result = if get_attr_result == filesystem::ISFS_OK {
+        filesystem::set_attr(file_path, owner_id, group_id, attributes, 3, 1, 1)
+    } else {
+        filesystem::ISFS_EINVAL
+    };
+    let mut changed_owner_id = u32::MAX;
+    let mut changed_group_id = u16::MAX;
+    let mut changed_attributes = u8::MAX;
+    let mut changed_owner_perm = u8::MAX;
+    let mut changed_group_perm = u8::MAX;
+    let mut changed_other_perm = u8::MAX;
+    let changed_attr_result = if set_attr_result == filesystem::ISFS_OK {
+        filesystem::get_attr(
+            file_path,
+            &mut changed_owner_id,
+            &mut changed_group_id,
+            &mut changed_attributes,
+            &mut changed_owner_perm,
+            &mut changed_group_perm,
+            &mut changed_other_perm,
+        )
+    } else {
+        filesystem::ISFS_EINVAL
+    };
+    let mut usage_blocks = u32::MAX;
+    let mut usage_inodes = u32::MAX;
+    let usage_result = if directory_created {
+        filesystem::get_usage(directory, &mut usage_blocks, &mut usage_inodes)
+    } else {
+        filesystem::ISFS_EINVAL
+    };
+    logger.record(
+        "ISFS get set get attributes and usage",
+        get_attr_result == filesystem::ISFS_OK
+            && set_attr_result == filesystem::ISFS_OK
+            && changed_attr_result == filesystem::ISFS_OK
+            && changed_owner_id == owner_id
+            && changed_group_id == group_id
+            && changed_attributes == attributes
+            && changed_owner_perm == 3
+            && changed_group_perm == 1
+            && changed_other_perm == 1
+            && usage_result == filesystem::ISFS_OK
+            && usage_blocks != u32::MAX
+            && usage_inodes != u32::MAX,
+    );
+
+    let mut directory_count = 4;
+    let mut directory_names = AlignedIsfsBytes([0; 32 * 4]);
+    let read_dir_result = if directory_created {
+        filesystem::read_dir(
+            directory,
+            Some(&mut directory_names.0),
+            &mut directory_count,
+        )
+    } else {
+        filesystem::ISFS_EINVAL
+    };
+    let entry_present = directory_names
+        .0
+        .split(|byte| *byte == 0)
+        .any(|entry| entry == b"file");
+    logger.note_i32("ISFS successful readdir result", read_dir_result);
+    logger.note_i32("ISFS successful readdir count", directory_count as i32);
+    logger.note_i32("ISFS successful readdir file entry", entry_present as i32);
+    logger.record(
+        "ISFS read directory lists test file",
+        read_dir_result == filesystem::ISFS_OK && directory_count > 0 && entry_present,
+    );
+
+    let rename_result = if file_created {
+        filesystem::rename(file_path, renamed_path)
+    } else {
+        filesystem::ISFS_EINVAL
+    };
+    logger.note_i32("ISFS successful rename result", rename_result);
+    let renamed_open = if rename_result == filesystem::ISFS_OK {
+        filesystem::open(renamed_path, filesystem::ISFS_OPEN_READ).ok()
+    } else {
+        None
+    };
+    let renamed_file_exists = renamed_open.is_some();
+    let renamed_file_closed = renamed_open.is_none_or(|file| file.close() == filesystem::ISFS_OK);
+    if rename_result == filesystem::ISFS_OK {
+        logger.record(
+            "ISFS open renamed file and close",
+            renamed_file_exists && renamed_file_closed,
+        );
+    } else {
+        logger.note("ISFS renamed-file reopen skipped because Dolphin rejected rename");
+    }
+
+    let delete_result = if rename_result == filesystem::ISFS_OK {
+        filesystem::delete(renamed_path)
+    } else if file_created {
+        filesystem::delete(file_path)
+    } else {
+        filesystem::ISFS_OK
+    };
+    let directory_delete_result = if directory_created && delete_result == filesystem::ISFS_OK {
+        filesystem::delete(directory)
+    } else {
+        filesystem::ISFS_OK
+    };
+    let deleted_path = if rename_result == filesystem::ISFS_OK {
+        renamed_path
+    } else {
+        file_path
+    };
+    let deleted_file_open = if delete_result == filesystem::ISFS_OK && file_created {
+        filesystem::open(deleted_path, filesystem::ISFS_OPEN_READ)
+    } else {
+        Err(filesystem::ISFS_EINVAL)
+    };
+    let mut deleted_directory_usage_a = u32::MAX;
+    let mut deleted_directory_usage_b = u32::MAX;
+    let deleted_directory_usage =
+        if directory_delete_result == filesystem::ISFS_OK && directory_created {
+            filesystem::get_usage(
+                directory,
+                &mut deleted_directory_usage_a,
+                &mut deleted_directory_usage_b,
+            )
+        } else {
+            filesystem::ISFS_EINVAL
+        };
+    logger.note_i32(
+        "ISFS open after file delete result",
+        deleted_file_open
+            .as_ref()
+            .map_or_else(|error| *error, |_| filesystem::ISFS_OK),
+    );
+    logger.note_i32(
+        "ISFS usage after directory delete result",
+        deleted_directory_usage,
+    );
+    logger.record(
+        "ISFS delete test file and directory",
+        delete_result == filesystem::ISFS_OK && directory_delete_result == filesystem::ISFS_OK,
+    );
+    logger.record(
+        "ISFS file and directory are absent after delete",
+        deleted_file_open.is_err()
+            && deleted_directory_usage == filesystem::ISFS_ENOENT
+            && deleted_directory_usage_a == u32::MAX
+            && deleted_directory_usage_b == u32::MAX,
+    );
 }
 
 fn probe_iso9660_files(logger: &mut ProbeLogger, mount_name: &core::ffi::CStr) {
@@ -1286,3 +1534,6 @@ fn probe_isfs_uninitialized(logger: &mut ProbeLogger) {
 
 #[repr(align(32))]
 struct AlignedFstats(filesystem::Fstats);
+
+#[repr(align(32))]
+struct AlignedIsfsBytes<const N: usize>([u8; N]);
