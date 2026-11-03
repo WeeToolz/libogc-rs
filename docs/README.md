@@ -7,6 +7,8 @@ Use this guide to find the current state of the project and the evidence behind 
   gives the detailed crate and API inventory.
 - [Evidence and open work](evidence-summary.md) summarizes the ledgers and
   explains what each type of evidence can establish.
+- [Verification guide](verification.md) lists host, target, probe, and milestone
+  commands and explains their limits.
 - [Architecture](architecture.md) and [crate roles](crate-roles.md) explain the
   workspace boundaries. [API documentation](api.md) describes the API surface.
 - [License and source notices](source-licenses.md) identify the known upstream
@@ -17,7 +19,8 @@ Use this guide to find the current state of the project and the evidence behind 
   that are not included in this repository.
 - [Wii hardware validation](wii-hardware-validation.md) explains the physical
   test procedure and evidence requirements. [Probe instructions](../probes/README.md)
-  describe target probes. Dolphin results do not replace physical hardware results.
+  describe target probes, including the physical AESND and USB procedures.
+  Dolphin results do not replace physical hardware results.
 - [Wii standard library checklist](wii-std-checklist.md) tracks its implementation
   and acceptance work. [Contract gaps](wii-std-contract-gaps.md) records limits.
 - [Review records](review/) contain detailed component findings and evidence.
@@ -25,5 +28,5 @@ Use this guide to find the current state of the project and the evidence behind 
   individual records. [Hardware evidence](hardware-evidence/) contains saved
   run evidence; check its dates and scope before using it for a claim.
 
-The top-level [README](../README.md) contains setup, build, and test commands.
+The top-level [README](../README.md) contains a project overview and quick start.
 For agent work, read [AGENTS.md](../AGENTS.md) and the parent instructions first.
