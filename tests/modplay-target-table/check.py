@@ -7,7 +7,6 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
-TMP_ROOT = Path('[workspace temp]')
 
 # Big-endian encoding of libogc libmodplay/freqtab.c, 140 u16 values.
 # This fixture is independent of the Rust table and target object.
@@ -36,8 +35,7 @@ def main():
     host = next(line.removeprefix('host: ') for line in command('rustc', '-vV', capture_output=True).stdout.splitlines() if line.startswith('host: '))
     sysroot = command('rustc', '--print', 'sysroot', capture_output=True).stdout.strip()
     tools = Path(sysroot) / 'lib' / 'rustlib' / host / 'bin'
-    TMP_ROOT.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix='modplay-table-', dir=TMP_ROOT) as temp:
+    with tempfile.TemporaryDirectory(prefix='modplay-table-') as temp:
         target = Path(temp) / 'target'
         env = os.environ.copy()
         env['RUSTC'] = rustc
