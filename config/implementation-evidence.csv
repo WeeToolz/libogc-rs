@@ -1,4 +1,6 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function
+ogc-gx,src/lib.rs,init_light_dist_attn,7718,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_light_falloff
+ogc-gx,src/lib.rs,init_light_spot,7788,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_light_falloff
 ogc-gx,src/lib.rs,init_light_attn,7750,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_light_object
 ogc-gx,src/lib.rs,init_light_attn_a,7770,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_light_object
 ogc-gx,src/lib.rs,init_light_attn_k,7779,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_light_object
