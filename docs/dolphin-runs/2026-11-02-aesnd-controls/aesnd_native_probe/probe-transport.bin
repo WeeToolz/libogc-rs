@@ -1,0 +1,244 @@
+
+
+BOOT 1/3: system and video initialized
+INFO Wiiload arguments source=entry count=0
+PASS SYS_Init completed
+INFO startup stage=0 completed_mask=0x7ff failed_stage=0
+BOOT watchdog arm starting
+INFO recovery reset watchdog not armed
+BOOT watchdog arm complete
+BOOT Wiiload report argument check
+INFO Wiiload report check disabled for this probe build
+BOOT before first vsync
+BOOT 2/3: entering IOS pre-main
+PRE 0/7: closing inherited IOS descriptors
+IPC: sync state ready
+IPC: command=0x00000002 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000002 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 1/7: IOS startup
+PRE 2/7: IOS subsystems
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 3/7: STM handler
+PRE 4/7: STM devices
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+PRE 5/7: configuration
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 6/7: Wii launch state
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 7/7: complete
+OGC_DOLPHIN_PAGE_CAPTURE page=1 capture=1 addr=0x808569a0 width=640 height=480 stride=640
+-- page 2 --
+BOOT 3/3: IOS pre-main completed
+OGC_DOLPHIN_PAGE_CAPTURE page=2 capture=2 addr=0x808569a0 width=640 height=480 stride=640
+PASS display initialized
+INFO boot stage: system/video initialized
+INFO boot stage: IOS pre-main completed
+INFO log backend disabled
+INFO argv0 unavailable
+INFO argv raw magic=0x00000000 len=0 argc=0 cmd=0x00000000 argv=0x00000000 end=0x00000000
+PASS power button callback installed
+INFO stm init deferred until shutdown
+INFO fat mount sd=not-selected usb=not-selected
+INFO previous stm handler chained=0
+INFO previous power callback replaced
+PASS activity indicator has a valid framebuffer
+INFO Corner: spinner means VI active; IDLE s is seconds since logged progress.
+INFO STEP 1 AESND probe startup complete; vi_frame=145 frame_increment=13 passes=3 fails=0
+
+== NATIVE AESND DSP PROBE ==
+PASS AESND DSP cycle transitions
+INFO STEP 2 AESND native pass 0: initialize DSP; vi_frame=149 frame_increment=4 passes=4 fails=0
+OGC_DOLPHIN_PAGE_CAPTURE page=2 capture=3 addr=0x808569a0 width=640 height=480 stride=640
+-- page 3 --
+PASS fresh native AESND audio callback slot
+PASS voice allocation
+INFO STEP 3 AESND native: start loop playback and wait 60 frames; vi_frame=214 frame_increment=65 passes=6 fails=0
+INFO PCM first_nonzero=04000800 nonzero_frames=47711 silent_buffers=546
+PASS DSP RAM samples match left 2048 and right 1024
+PASS running and audio callbacks complete
+PASS callback buffer contract
+INFO STEP 4 AESND native: pause and check callback completion; vi_frame=279 frame_increment=65 passes=9 fails=0
+PASS pause stops new voice dispatch
+PASS pause preserves completed DSP metric
+PASS DSP usage reports the completed interval
+INFO STEP 5 AESND native: stop, free voice, and reset DSP; vi_frame=291 frame_increment=12 passes=12 fails=0
+PASS reset stops DMA callbacks
+INFO pass 0: buffers=496 running=500 DSP_us=10
+INFO STEP 6 AESND native pass complete; vi_frame=298 frame_increment=7 passes=13 fails=0
+INFO STEP 7 AESND native pass 1: initialize DSP; vi_frame=299 frame_increment=1 passes=13 fails=0
+PASS fresh native AESND audio callback slot
+PASS voice allocation
+OGC_DOLPHIN_PAGE_CAPTURE page=3 capture=4 addr=0x808569a0 width=640 height=480 stride=640
+-- page 4 --
+INFO STEP 8 AESND native: start loop playback and wait 60 frames; vi_frame=302 frame_increment=3 passes=15 fails=0
+INFO PCM first_nonzero=04000800 nonzero_frames=47711 silent_buffers=546
+PASS DSP RAM samples match left 2048 and right 1024
+PASS running and audio callbacks complete
+PASS callback buffer contract
+INFO STEP 9 AESND native: pause and check callback completion; vi_frame=429 frame_increment=127 passes=18 fails=0
+PASS pause stops new voice dispatch
+PASS pause preserves completed DSP metric
+PASS DSP usage reports the completed interval
+INFO STEP 10 AESND native: stop, free voice, and reset DSP; vi_frame=441 frame_increment=12 passes=21 fails=0
+PASS reset stops DMA callbacks
+INFO pass 1: buffers=496 running=500 DSP_us=10
+INFO STEP 11 AESND native pass complete; vi_frame=448 frame_increment=7 passes=22 fails=0
+
+== AESND STREAM REPLACEMENT RETAINS ONCE ==
+INFO STEP 12 AESND STREAM REPLACEMENT RETAINS ONCE; vi_frame=451 frame_increment=3 passes=22 fails=0
+INFO STEP 13 AESND stream: initialize DSP; vi_frame=452 frame_increment=1 passes=22 fails=0
+OGC_DOLPHIN_PAGE_CAPTURE page=4 capture=5 addr=0x808569a0 width=640 height=480 stride=640
+-- page 5 --
+PASS fresh AESND audio callback slot
+PASS AESND stream voice allocated
+PASS fresh AESND voice callback slot
+INFO STEP 14 AESND stream: start source and wait 120 frames; vi_frame=518 frame_increment=66 passes=25 fails=0
+INFO PCM first_nonzero=04000800 nonzero_frames=7487 silent_buffers=1474
+PASS initial source produced expected DSP samples
+PASS stream callback ran exactly once
+PASS callback buffer and context valid
+PASS AI DMA continued during observation
+PASS ONCE replacement does not play
+PASS ONCE stops voice dispatch after callback
+PASS ONCE produces silence after stop
+INFO initial=77 replacement=0 running=80 stream=1
+INFO STEP 15 AESND stream: stop voice and check silence; vi_frame=660 frame_increment=142 passes=32 fails=0
+PASS explicit stop prevents new voice callbacks
+PASS explicit stop produces silence
+INFO STEP 16 AESND stream: free voice and reset DSP; vi_frame=679 frame_increment=19 passes=34 fails=0
+PASS reset disables DMA and all probe callbacks
+INFO STEP 17 AESND stream case complete; vi_frame=685 frame_increment=6 passes=35 fails=0
+OGC_DOLPHIN_PAGE_CAPTURE page=5 capture=6 addr=0x808569a0 width=640 height=480 stride=640
+-- page 6 --
+
+== AESND STREAM REPLACEMENT RETAINS LOOP ==
+INFO STEP 18 AESND STREAM REPLACEMENT RETAINS LOOP; vi_frame=750 frame_increment=65 passes=35 fails=0
+INFO STEP 19 AESND stream: initialize DSP; vi_frame=751 frame_increment=1 passes=35 fails=0
+PASS fresh AESND audio callback slot
+PASS AESND stream voice allocated
+PASS fresh AESND voice callback slot
+INFO STEP 20 AESND stream: start source and wait 120 frames; vi_frame=755 frame_increment=4 passes=38 fails=0
+INFO PCM first_nonzero=04000800 nonzero_frames=90879 silent_buffers=81
+PASS initial source produced expected DSP samples
+PASS stream callback ran exactly once
+PASS callback buffer and context valid
+PASS AI DMA continued during observation
+PASS replacement source produced expected DSP samples
+PASS replacement loop continues voice dispatch
+PASS replacement loop continues correct PCM
+INFO initial=84 replacement=1008 running=1168 stream=1
+INFO STEP 21 AESND stream: stop voice and check silence; vi_frame=897 frame_increment=142 passes=45 fails=0
+PASS explicit stop prevents new voice callbacks
+OGC_DOLPHIN_PAGE_CAPTURE page=6 capture=7 addr=0x808569a0 width=640 height=480 stride=640
+-- page 7 --
+PASS explicit stop produces silence
+INFO STEP 22 AESND stream: free voice and reset DSP; vi_frame=978 frame_increment=81 passes=47 fails=0
+PASS reset disables DMA and all probe callbacks
+INFO STEP 23 AESND stream case complete; vi_frame=984 frame_increment=6 passes=48 fails=0
+
+== AESND STREAM CALLBACK RESTARTS AS LOOP ==
+INFO STEP 24 AESND STREAM CALLBACK RESTARTS AS LOOP; vi_frame=987 frame_increment=3 passes=48 fails=0
+INFO STEP 25 AESND stream: initialize DSP; vi_frame=988 frame_increment=1 passes=48 fails=0
+PASS fresh AESND audio callback slot
+PASS AESND stream voice allocated
+PASS fresh AESND voice callback slot
+INFO STEP 26 AESND stream: start source and wait 120 frames; vi_frame=992 frame_increment=4 passes=51 fails=0
+INFO PCM first_nonzero=04000800 nonzero_frames=91327 silent_buffers=77
+PASS initial source produced expected DSP samples
+PASS stream callback ran exactly once
+PASS callback buffer and context valid
+PASS AI DMA continued during observation
+PASS replacement source produced expected DSP samples
+OGC_DOLPHIN_PAGE_CAPTURE page=7 capture=8 addr=0x808569a0 width=640 height=480 stride=640
+-- page 8 --
+PASS replacement loop continues voice dispatch
+PASS replacement loop continues correct PCM
+INFO initial=78 replacement=1500 running=1685 stream=1
+INFO STEP 27 AESND stream: stop voice and check silence; vi_frame=1196 frame_increment=204 passes=58 fails=0
+PASS explicit stop prevents new voice callbacks
+PASS explicit stop produces silence
+INFO STEP 28 AESND stream: free voice and reset DSP; vi_frame=1215 frame_increment=19 passes=60 fails=0
+PASS reset disables DMA and all probe callbacks
+INFO STEP 29 AESND stream case complete; vi_frame=1221 frame_increment=6 passes=61 fails=0
+
+== AESND STREAM CALLBACK REALLOCATES THE SAME SLOT ==
+INFO STEP 30 AESND STREAM CALLBACK REALLOCATES THE SAME SLOT; vi_frame=1224 frame_increment=3 passes=61 fails=0
+INFO STEP 31 AESND stream: initialize DSP; vi_frame=1225 frame_increment=1 passes=61 fails=0
+PASS fresh AESND audio callback slot
+PASS AESND stream voice allocated
+PASS fresh AESND voice callback slot
+INFO STEP 32 AESND stream: start source and wait 120 frames; vi_frame=1229 frame_increment=4 passes=64 fails=0
+OGC_DOLPHIN_PAGE_CAPTURE page=8 capture=9 addr=0x808569a0 width=640 height=480 stride=640
+-- page 9 --
+INFO PCM first_nonzero=04000800 nonzero_frames=91230 silent_buffers=78
+PASS initial source produced expected DSP samples
+PASS stream callback ran exactly once
+PASS callback buffer and context valid
+PASS AI DMA continued during observation
+PASS replacement source produced expected DSP samples
+PASS replacement loop continues voice dispatch
+PASS replacement loop continues correct PCM
+INFO initial=78 replacement=1499 running=1685 stream=1
+PASS callback reallocated the same voice slot
+INFO STEP 33 AESND stream: stop voice and check silence; vi_frame=1434 frame_increment=205 passes=72 fails=0
+PASS explicit stop prevents new voice callbacks
+PASS explicit stop produces silence
+INFO STEP 34 AESND stream: free voice and reset DSP; vi_frame=1453 frame_increment=19 passes=74 fails=0
+PASS reset disables DMA and all probe callbacks
+INFO STEP 35 AESND stream case complete; vi_frame=1459 frame_increment=6 passes=75 fails=0
+
+== AESND WRAPPER LIFECYCLE ==
+PASS wrapper callbacks and DSP samples
+PASS wrapper DSP usage
+OGC_DOLPHIN_PAGE_CAPTURE page=9 capture=10 addr=0x808569a0 width=640 height=480 stride=640
+-- page 10 --
+PASS wrapper stop ends voice dispatch
+PASS wrapper free returns voice slot
+PASS wrapper free function returns voice slot
+PASS backend free slot reused
+PASS wrapper reset stops DMA
+
+== AESND OWNED PLAYBACK ==
+PASS owned playback buffer replacement and recovery
+PASS owned playback reset stops DMA
+PASS wrapper voice buffer replacement
+PASS wrapper mute and format
+PASS voice controls reset
+PASS backend mute and format
+PASS voice controls reset
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+INFO summary_candidate passes=91 fails=0
+PASS summary passes=91 fails=0
+OGC_DOLPHIN_PAGE_CAPTURE page=10 capture=11 addr=0x808569a0 width=640 height=480 stride=640
+OGC_DOLPHIN_CAPTURE_COMPLETE

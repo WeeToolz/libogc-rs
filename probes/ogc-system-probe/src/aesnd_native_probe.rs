@@ -4,6 +4,10 @@ use aesnd_sys as snd;
 use core::ffi::c_void;
 use core::sync::atomic::{AtomicU32, Ordering};
 
+// Compile the same private cycle implementation used by the AESND backend.
+#[path = "../../../crates/media/aesnd-sys/src/process_cycle.rs"]
+mod process_cycle;
+
 #[repr(align(32))]
 struct Input([u8; 4608]);
 const fn input() -> [u8; 4608] {
@@ -16,10 +20,34 @@ const fn input() -> [u8; 4608] {
     data
 }
 static INPUT: Input = Input(input());
+const fn negative_input() -> [u8; 4608] {
+    let mut data = [0; 4608];
+    let mut index = 0;
+    while index < data.len() {
+        data[index] = 0xf0;
+        index += 2;
+    }
+    data
+}
+static NEGATIVE: Input = Input(negative_input());
+#[repr(align(32))]
+struct LongInput([u8; 16_384]);
+const fn long_input() -> [u8; 16_384] {
+    let mut data = [0; 16_384];
+    let mut index = 0;
+    while index < data.len() {
+        data[index] = 0x10;
+        index += 2;
+    }
+    data
+}
+static LONG_INPUT: LongInput = LongInput(long_input());
 static AUDIO_CALLS: AtomicU32 = AtomicU32::new(0);
 static MATCHED_BUFFERS: AtomicU32 = AtomicU32::new(0);
 static REPLACED_BUFFERS: AtomicU32 = AtomicU32::new(0);
+static SILENT_BUFFERS: AtomicU32 = AtomicU32::new(0);
 static RUNNING_CALLS: AtomicU32 = AtomicU32::new(0);
+static STREAM_CALLS: AtomicU32 = AtomicU32::new(0);
 static INVALID_BUFFER: AtomicU32 = AtomicU32::new(0);
 static OUTPUT_EVIDENCE: crate::aesnd_output_evidence::OutputEvidence =
     crate::aesnd_output_evidence::OutputEvidence::new();
@@ -34,6 +62,9 @@ unsafe extern "C" fn audio(ptr: *mut c_void, len: u32, _arg: *mut c_void) {
     // replacement hardware path supplies these bytes.
     let bytes = unsafe { core::slice::from_raw_parts(ptr.cast::<u8>(), len as usize) };
     OUTPUT_EVIDENCE.observe(bytes);
+    if bytes.iter().all(|byte| *byte == 0) {
+        SILENT_BUFFERS.fetch_add(1, Ordering::Relaxed);
+    }
     if crate::aesnd_output_evidence::matches_pcm(
         bytes,
         &crate::aesnd_output_evidence::INITIAL_FRAME,
@@ -63,6 +94,7 @@ fn frames(count: u32) {
 
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("NATIVE AESND DSP PROBE");
+    probe_process_cycle(logger);
     for pass in 0..2 {
         OUTPUT_EVIDENCE.reset();
         AUDIO_CALLS.store(0, Ordering::Release);
@@ -156,6 +188,263 @@ pub fn run(logger: &mut ProbeLogger) {
     crate::aesnd_stream_probe::run(logger);
     probe_wrapper_lifecycle(logger);
     probe_owned_playback(logger);
+    probe_voice_controls(logger);
+    probe_timed_controls(logger);
+}
+
+fn probe_timed_controls(logger: &mut ProbeLogger) {
+    for backend in [false, true] {
+        MATCHED_BUFFERS.store(0, Ordering::Release);
+        STREAM_CALLS.store(0, Ordering::Release);
+        aesnd::init();
+        aesnd::pause(true);
+        aesnd::register_audio_callback(Some(wrapper_audio));
+        let Some(handle) = aesnd::allocate_voice(Some(wrapper_voice)) else {
+            logger.record("timed controls allocation", false);
+            aesnd::reset();
+            return;
+        };
+        let raw = handle.as_ptr();
+        handle.set_volume(0x80, 0x40);
+        // SAFETY: The aligned static buffer outlives playback and reset.
+        unsafe {
+            handle.play_voice(
+                snd::VOICE_MONO16,
+                LONG_INPUT.0.as_ptr().cast(),
+                LONG_INPUT.0.len() as u32,
+                48_000.0,
+                0,
+                false,
+            );
+        }
+        if backend {
+            snd::set_voice_frequency(raw, 24_000.0);
+        } else {
+            handle.set_frequency(24_000.0);
+        }
+        aesnd::pause(false);
+        frames(15);
+        let before = MATCHED_BUFFERS.load(Ordering::Acquire);
+        frames(3);
+        let frequency = before > 0 && MATCHED_BUFFERS.load(Ordering::Acquire) > before;
+        frames(20);
+        let ended = MATCHED_BUFFERS.load(Ordering::Acquire);
+        frames(6);
+        let ended = MATCHED_BUFFERS.load(Ordering::Acquire) == ended;
+        logger.record(
+            if backend {
+                "backend frequency controls playback duration"
+            } else {
+                "wrapper frequency controls playback duration"
+            },
+            frequency && ended,
+        );
+        aesnd::pause(true);
+        frames(8);
+        MATCHED_BUFFERS.store(0, Ordering::Release);
+        // SAFETY: The aligned static buffer outlives playback and reset.
+        unsafe {
+            handle.play_voice(
+                snd::VOICE_MONO16,
+                LONG_INPUT.0.as_ptr().cast(),
+                LONG_INPUT.0.len() as u32,
+                48_000.0,
+                0,
+                true,
+            );
+        }
+        if backend {
+            snd::set_voice_delay(raw, 500);
+        } else {
+            handle.set_delay(500);
+        }
+        aesnd::pause(false);
+        // Drain the final output buffer from the preceding playback before
+        // measuring the delayed voice. A missing delay still produces many
+        // matching buffers during the following twelve frames.
+        frames(4);
+        MATCHED_BUFFERS.store(0, Ordering::Release);
+        frames(12);
+        let early = MATCHED_BUFFERS.load(Ordering::Acquire);
+        frames(40);
+        let late = MATCHED_BUFFERS.load(Ordering::Acquire);
+        logger.note_u32("delay early matching buffers", early);
+        logger.note_u32("delay later matching buffers", late);
+        logger.record(
+            if backend {
+                "backend delay postpones playback"
+            } else {
+                "wrapper delay postpones playback"
+            },
+            early == 0 && late >= 10,
+        );
+        if backend {
+            snd::set_voice_loop(raw, 0);
+        } else {
+            handle.set_loop(false);
+        }
+        frames(40);
+        let count = MATCHED_BUFFERS.load(Ordering::Acquire);
+        frames(15);
+        let stopped_loop = MATCHED_BUFFERS.load(Ordering::Acquire) == count;
+        if backend {
+            snd::set_voice_loop(raw, 1);
+        } else {
+            handle.set_loop(true);
+        }
+        frames(40);
+        logger.record(
+            if backend {
+                "backend loop changes playback"
+            } else {
+                "wrapper loop changes playback"
+            },
+            stopped_loop && MATCHED_BUFFERS.load(Ordering::Acquire) > count,
+        );
+        if !backend {
+            STREAM_CALLS.store(0, Ordering::Release);
+            handle.set_stream(true);
+            frames(30);
+            let notified = STREAM_CALLS.load(Ordering::Acquire) > 0;
+            handle.set_stream(false);
+            frames(8);
+            let count = STREAM_CALLS.load(Ordering::Acquire);
+            frames(20);
+            logger.record(
+                "wrapper stream enables and disables callbacks",
+                notified && STREAM_CALLS.load(Ordering::Acquire) == count,
+            );
+        }
+        handle.set_stop(true);
+        handle.free();
+        aesnd::reset();
+        logger.record(
+            "timed controls reset",
+            ogc_audio::get_dma_enable_flag() == 0,
+        );
+    }
+}
+
+fn probe_voice_controls(logger: &mut ProbeLogger) {
+    for backend in [false, true] {
+        MATCHED_BUFFERS.store(0, Ordering::Release);
+        REPLACED_BUFFERS.store(0, Ordering::Release);
+        SILENT_BUFFERS.store(0, Ordering::Release);
+        aesnd::init();
+        aesnd::register_audio_callback(Some(wrapper_audio));
+        let Some(handle) = aesnd::allocate_voice(None) else {
+            logger.record("voice controls allocation", false);
+            aesnd::reset();
+            return;
+        };
+        let raw = handle.as_ptr();
+        handle.set_volume(0x80, 0x40);
+        // SAFETY: Both aligned static buffers remain live through reset.
+        unsafe {
+            handle.play_voice(
+                snd::VOICE_MONO16,
+                INPUT.0.as_ptr().cast(),
+                INPUT.0.len() as u32,
+                48_000.0,
+                0,
+                true,
+            );
+        }
+        frames(20);
+        let initial = MATCHED_BUFFERS.load(Ordering::Acquire) >= 10;
+        if backend {
+            snd::set_voice_mute(raw, 1);
+        } else {
+            handle.set_mute(true);
+        }
+        frames(8);
+        let before = MATCHED_BUFFERS.load(Ordering::Acquire);
+        let silence = SILENT_BUFFERS.load(Ordering::Acquire);
+        frames(8);
+        let muted = MATCHED_BUFFERS.load(Ordering::Acquire) == before
+            && SILENT_BUFFERS.load(Ordering::Acquire) > silence;
+        if backend {
+            snd::set_voice_mute(raw, 0);
+        } else {
+            handle.set_mute(false);
+        }
+        frames(16);
+        let resumed = MATCHED_BUFFERS.load(Ordering::Acquire) > before;
+        if backend {
+            snd::set_voice_format(raw, snd::VOICE_MONO8);
+        } else {
+            handle.set_format(snd::VOICE_MONO8);
+        }
+        frames(8);
+        let before = MATCHED_BUFFERS.load(Ordering::Acquire);
+        frames(8);
+        let changed = MATCHED_BUFFERS.load(Ordering::Acquire) == before;
+        if backend {
+            snd::set_voice_format(raw, snd::VOICE_MONO16);
+        } else {
+            handle.set_format(snd::VOICE_MONO16);
+        }
+        frames(16);
+        let restored = MATCHED_BUFFERS.load(Ordering::Acquire) > before;
+        if !backend {
+            // SAFETY: NEGATIVE remains valid until this voice is stopped.
+            unsafe {
+                handle.set_buffer(NEGATIVE.0.as_ptr().cast(), NEGATIVE.0.len() as u32);
+            }
+            frames(20);
+            logger.record(
+                "wrapper voice buffer replacement",
+                REPLACED_BUFFERS.load(Ordering::Acquire) >= 10,
+            );
+        }
+        logger.record(
+            if backend {
+                "backend mute and format"
+            } else {
+                "wrapper mute and format"
+            },
+            initial && muted && resumed && changed && restored,
+        );
+        handle.set_stop(true);
+        handle.free();
+        aesnd::reset();
+        logger.record(
+            "voice controls reset",
+            ogc_audio::get_dma_enable_flag() == 0,
+        );
+    }
+}
+
+fn probe_process_cycle(logger: &mut ProbeLogger) {
+    let mut cycle = process_cycle::ProcessCycle::new();
+    let initial = !cycle.is_ready()
+        && !cycle.is_active()
+        && !cycle.output_requested()
+        && !cycle.begin(100)
+        && !cycle.complete(100);
+    cycle.task_ready();
+    let started = cycle.is_ready()
+        && cycle.begin(100)
+        && cycle.is_active()
+        && !cycle.is_ready()
+        && !cycle.begin(101)
+        && !cycle.complete(200);
+    cycle.request_output();
+    let completed = cycle.output_requested()
+        && cycle.complete(60_850)
+        && cycle.is_ready()
+        && !cycle.is_active()
+        && !cycle.output_requested()
+        && cycle.microseconds(60_750_000) == 1_000
+        && !cycle.complete(70_000);
+    cycle.task_done();
+    let stopped =
+        !cycle.is_ready() && !cycle.is_active() && cycle.microseconds(60_750_000) == 1_000;
+    cycle.idle();
+    logger.record(
+        "AESND DSP cycle transitions",
+        initial && started && completed && stopped && cycle.microseconds(60_750_000) == 0,
+    );
 }
 
 fn probe_owned_playback(logger: &mut ProbeLogger) {
@@ -220,6 +509,9 @@ unsafe extern "C" fn wrapper_audio(ptr: *mut c_void, len: u32) {
 unsafe extern "C" fn wrapper_voice(_pb: *mut snd::Aesndpb, event: u32) {
     if event == snd::VOICE_STATE_RUNNING {
         RUNNING_CALLS.fetch_add(1, Ordering::Relaxed);
+    }
+    if event == snd::VOICE_STATE_STREAM {
+        STREAM_CALLS.fetch_add(1, Ordering::Relaxed);
     }
 }
 
