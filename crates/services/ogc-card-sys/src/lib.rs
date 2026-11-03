@@ -16,6 +16,7 @@ compile_error!(
 use core::ffi::{CStr, c_char, c_void};
 use core::sync::atomic::{AtomicU8, AtomicU16, AtomicU32, Ordering};
 
+pub use ogc_card_metadata::{CardCompanyCode, CardGameCode, InvalidCardIdentifier};
 pub use ogc_sys::Bool;
 
 pub const CARD_SLOTA: i32 = 0;
@@ -74,83 +75,6 @@ pub const CARD_SPEED_SLOW: u8 = 0x03;
 pub const CARD_SPEED_MASK: u8 = 0x03;
 
 pub type CardCallback = Option<unsafe extern "C" fn(chan: i32, result: i32)>;
-
-/// Error returned when a CARD identifier contains a reserved byte.
-///
-/// Identifier bytes may not contain NUL because the original C API treated
-/// identifiers as strings. `0xff` is reserved internally for the wildcard
-/// state represented by `None` in the typed APIs.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct InvalidCardIdentifier {
-    index: usize,
-    byte: u8,
-}
-
-impl InvalidCardIdentifier {
-    pub const fn index(self) -> usize {
-        self.index
-    }
-
-    pub const fn byte(self) -> u8 {
-        self.byte
-    }
-}
-
-const fn validate_identifier<const N: usize>(bytes: &[u8; N]) -> Result<(), InvalidCardIdentifier> {
-    let mut index = 0;
-    while index < N {
-        let byte = bytes[index];
-        if byte == 0 || byte == 0xff {
-            return Err(InvalidCardIdentifier { index, byte });
-        }
-        index += 1;
-    }
-    Ok(())
-}
-
-/// Exact four-byte CARD game identifier.
-#[repr(transparent)]
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct CardGameCode([u8; 4]);
-
-impl CardGameCode {
-    pub const fn new(bytes: [u8; 4]) -> Result<Self, InvalidCardIdentifier> {
-        match validate_identifier(&bytes) {
-            Ok(()) => Ok(Self(bytes)),
-            Err(error) => Err(error),
-        }
-    }
-
-    pub const fn as_bytes(&self) -> &[u8; 4] {
-        &self.0
-    }
-
-    pub const fn into_bytes(self) -> [u8; 4] {
-        self.0
-    }
-}
-
-/// Exact two-byte CARD company identifier.
-#[repr(transparent)]
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct CardCompanyCode([u8; 2]);
-
-impl CardCompanyCode {
-    pub const fn new(bytes: [u8; 2]) -> Result<Self, InvalidCardIdentifier> {
-        match validate_identifier(&bytes) {
-            Ok(()) => Ok(Self(bytes)),
-            Err(error) => Err(error),
-        }
-    }
-
-    pub const fn as_bytes(&self) -> &[u8; 2] {
-        &self.0
-    }
-
-    pub const fn into_bytes(self) -> [u8; 2] {
-        self.0
-    }
-}
 
 #[repr(C)]
 #[derive(Copy, Clone, Default)]

@@ -4,14 +4,14 @@ Milestone 2 replaces the remaining disabled or inline-completion storage facades
 
 ## API verification groups
 
-The generated inventory currently has 100 storage APIs marked `unverified`.
+The generated inventory currently has 94 storage APIs marked `unverified`.
 These entries are in three packages:
 
 | Package | Open entries | Probe group |
 | --- | ---: | --- |
 | `ogc-di` | 10 | DI settings and callbacks (6); partition open and close (4) |
 | `ogc-card` | 28 | CARD compatibility wrapper |
-| `ogc-card-sys` | 62 | CARD driver ABI |
+| `ogc-card-sys` | 56 | CARD driver ABI |
 
 The CARD entries are grouped only by package. They still need smaller
 operation groups, such as mount and status, file I/O, directory operations,
@@ -19,6 +19,12 @@ metadata, asynchronous completion, and cleanup. A probe must call each API
 directly or use an exact host test for shared logic before its inventory entry
 can leave `unverified`. A broad probe run does not prove every API in its
 coverage group.
+
+CARD game and company identifiers now use tested types in `ogc-card-metadata`.
+The host test checks valid bytes, round trips, and the exact index and byte for
+NUL and `0xff` errors. `ogc-card-sys` re-exports these types, so existing public
+type paths remain available. This closes six API entries; it does not verify
+CARD transport behavior.
 
 The earlier planning count of 348 open storage entries is stale. Use
 `cargo xtask check-inventory` and the generated inventory as the current

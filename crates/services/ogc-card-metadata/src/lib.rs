@@ -7,6 +7,82 @@ pub const HEADER_CHECKSUM_BYTES: usize = 508;
 pub const DIRECTORY_CHECKSUM_BYTES: usize = 8188;
 pub const FAT_CHECKSUM_START: usize = 4;
 
+/// Error returned when a CARD identifier contains a reserved byte.
+///
+/// Identifier bytes cannot contain NUL because the original C API treated
+/// them as strings. `0xff` is reserved for wildcard identifiers.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct InvalidCardIdentifier {
+    index: usize,
+    byte: u8,
+}
+
+impl InvalidCardIdentifier {
+    pub const fn index(self) -> usize {
+        self.index
+    }
+
+    pub const fn byte(self) -> u8 {
+        self.byte
+    }
+}
+
+const fn validate_identifier<const N: usize>(bytes: &[u8; N]) -> Result<(), InvalidCardIdentifier> {
+    let mut index = 0;
+    while index < N {
+        let byte = bytes[index];
+        if byte == 0 || byte == 0xff {
+            return Err(InvalidCardIdentifier { index, byte });
+        }
+        index += 1;
+    }
+    Ok(())
+}
+
+/// Exact four-byte CARD game identifier.
+#[repr(transparent)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct CardGameCode([u8; 4]);
+
+impl CardGameCode {
+    pub const fn new(bytes: [u8; 4]) -> Result<Self, InvalidCardIdentifier> {
+        match validate_identifier(&bytes) {
+            Ok(()) => Ok(Self(bytes)),
+            Err(error) => Err(error),
+        }
+    }
+
+    pub const fn as_bytes(&self) -> &[u8; 4] {
+        &self.0
+    }
+
+    pub const fn into_bytes(self) -> [u8; 4] {
+        self.0
+    }
+}
+
+/// Exact two-byte CARD company identifier.
+#[repr(transparent)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct CardCompanyCode([u8; 2]);
+
+impl CardCompanyCode {
+    pub const fn new(bytes: [u8; 2]) -> Result<Self, InvalidCardIdentifier> {
+        match validate_identifier(&bytes) {
+            Ok(()) => Ok(Self(bytes)),
+            Err(error) => Err(error),
+        }
+    }
+
+    pub const fn as_bytes(&self) -> &[u8; 2] {
+        &self.0
+    }
+
+    pub const fn into_bytes(self) -> [u8; 2] {
+        self.0
+    }
+}
+
 const HEADER_CHECKSUM_1: usize = 508;
 const HEADER_CHECKSUM_2: usize = 510;
 const DIRECTORY_UPDATED: usize = 8186;
@@ -297,6 +373,22 @@ mod tests {
     use super::*;
     use std::vec;
     use std::vec::Vec;
+
+    #[test]
+    fn card_identifiers_round_trip_and_report_invalid_bytes() {
+        let game = CardGameCode::new(*b"GAME").unwrap();
+        assert_eq!(game.as_bytes(), b"GAME");
+        assert_eq!(game.into_bytes(), *b"GAME");
+
+        let company = CardCompanyCode::new(*b"AB").unwrap();
+        assert_eq!(company.as_bytes(), b"AB");
+        assert_eq!(company.into_bytes(), *b"AB");
+
+        let nul = CardGameCode::new(*b"A\0CD").unwrap_err();
+        assert_eq!((nul.index(), nul.byte()), (1, 0));
+        let reserved = CardCompanyCode::new([b'A', 0xff]).unwrap_err();
+        assert_eq!((reserved.index(), reserved.byte()), (1, 0xff));
+    }
 
     #[test]
     fn checksum_uses_fixed_known_vector() {
