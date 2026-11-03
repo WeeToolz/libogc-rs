@@ -38,7 +38,7 @@ metadata operations, asynchronous completion, error handling, and cleanup.
 Each API needs a direct observable check or an exact host test of production
 logic. A broad probe run does not prove every API in its group.
 
-Current runtime evidence is incomplete. The latest media-aware `storage_probe`
+Current runtime evidence is incomplete. An earlier media-aware `storage_probe`
 passed in Dolphin 2609a with 111 checks and 0 failures. It checked no-device
 results for USB and CARD, skipped operations that need those devices, and
 exercised the virtual Wii SD path. It does not cover successful USB transfers,
@@ -104,7 +104,7 @@ Before the `CARD_Probe` parity correction, an early run expected typed queries
 to return the raw slot-probe error. Its
 four assertions failed because the APIs return different errors. The corrected
 probe passed 104 checks in Dolphin 2609a. Without a memory-card image,
-`probe_slot` and `probe_info` returned `CARD_ERROR_BUSY` (`-1`), while
+the old `probe_slot` and `probe_info` implementations returned `CARD_ERROR_BUSY` (`-1`), while
 `sector_size`, `block_count`, `free_blocks`, and `file_status` returned
 `CARD_ERROR_NOCARD` (`-3`). It also checked both `CardSlot` conversions and
 that `read_slice` and `write_slice` reject empty, short, misaligned, and
