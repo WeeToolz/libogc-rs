@@ -770,19 +770,20 @@ and callback setup. Their reports remain at
 [the diagnostic run](docs/dolphin-runs/2026-11-02-modplay-state-diagnostic/suite.json).
 The inventory now has 79 open entries across the eight wider audio packages.
 
-## 2026-11-02: libmad Dolphin failure recheck
+## 2026-11-02: libmad Dolphin checksum diagnosis
 
-The focused `libmad_probe` now uses the shared probe initializer. The earlier
-direct logger setup did not run IOS pre-main and could not open its log backend;
-that also caused the retrace timing check to fail. With the shared setup, the
-probe passes logger transport and retrace timing. It still fails both synthetic
-PCM checks. Dolphin reports full-rate hash `0x5a848a33` and half-rate hash
-`0xc89b5e9a`; the checked-in expected values are `0x3584d894` and `0x7308c305`.
-A host run of the same Rust synthesis code reproduces the checked-in values.
-This confirms that the mismatch is target-specific, but it does not identify
-which side matches PowerPC C. Keep the checks open until the same fixture runs
-through the C `FPM_PPC` reference. See the
-[Dolphin suite](docs/dolphin-runs/2026-11-02-libmad-init-diagnostic/suite.json)
+The earlier focused `libmad_probe` used host `FPM_DEFAULT` checksums in a
+PowerPC build. Two Dolphin reports returned the same PowerPC hashes:
+`0x5a848a33` at full rate and `0xc89b5e9a` at half rate. The C reference selects
+`FPM_PPC` in `C-sources/libogc/libmad/global.h`; its multiply and scale path
+matches the Rust PowerPC `i64` product shifted by 28 bits in
+`vendor/libmad-rs/src/fixed.rs`. The probe now checks the PowerPC hashes. This
+diagnosis uses source comparison and repeatable target output; it does not
+claim a separate C DOL comparison. Earlier failures remain in the
+[diagnostic suite](docs/dolphin-runs/2026-11-02-libmad-init-diagnostic/suite.json)
 and [probe log](docs/dolphin-runs/2026-11-02-libmad-init-diagnostic/libmad_probe/probe.log).
-The DOL SHA-256 is
-`4323c0dc5ccd42563e5d8dd103e920106fb78d9ffd26db480947dd4dcaab1171`.
+After a Clippy cleanup, the final probe passed 11 checks and zero failures in
+Dolphin 2609a. Its DOL SHA-256 is
+`6353a1b9cb993e1d1547cbea98b8037358a4d6bd4fb4015e51a8fed294201c41`. See the
+[passing suite](docs/dolphin-runs/2026-11-02-mad-ppc-profile-final/suite.json)
+and [probe log](docs/dolphin-runs/2026-11-02-mad-ppc-profile-final/libmad_probe/probe.log).

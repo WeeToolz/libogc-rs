@@ -19,8 +19,9 @@ existing test or probe before selecting cases.
 1. **Establish the test environment.** Review the runtime probe's
    timebase and STM results recorded in [development results](../DEVELOPMENT_RESULTS.md).
    Do not weaken these checks. Preserve the failed run and compare any new run
-   with its recorded DOL and configuration. Review the open libmad Dolphin
-   failure in [evidence summary](evidence-summary.md) before relying on it.
+   with its recorded DOL and configuration. Review the resolved libmad Dolphin
+   checksum profile and earlier failures in
+   [evidence summary](evidence-summary.md) before relying on them.
 2. **Pure and protocol paths.** Start with `ogc-runtime`, `ogc-ui`, `mad-sys`,
    `ogc-controller`, `tinysmb-sys`, `ogc-fat`, and `iso9660`. Identify host
    harnesses that compile production logic. Check fixed input and output bytes,
@@ -89,8 +90,10 @@ and removal are checked, but callback delivery is not accepted from Dolphin:
 the AI DMA byte count did not advance and neither AI callback ran during the
 emulated wait. Track callback delivery for a real-Wii run. Continue through the
 remaining audio packages with exact API calls, fixed fixtures, and recorded
-Dolphin or host results. Keep the open libmad decoder message and
-fixture-dependent decoder failures open until their failures are diagnosed.
+Dolphin or host results. The sync-only libmad decoder message has host evidence.
+The earlier Dolphin checksum mismatch came from using host `FPM_DEFAULT`
+goldens in a PowerPC `FPM_PPC` probe; the probe now uses the repeatable
+PowerPC hashes. No fixture-dependent decoder failure is counted as evidence.
 
 The 2026-11-02 inventory has 64 open entries in these packages. The MP3
 player probe passed 17 checks in Dolphin 2609a. It checked direct and alias
