@@ -728,10 +728,47 @@ pub fn probe_di_no_disc(logger: &mut ProbeLogger) {
     logger.record("di report key returns valid result", report_result <= 0);
     logger.record("DI_ReportKey returns valid result", report_c_result <= 0);
 
+    let config_status_before = di::get_status();
     di::load_dvdx(true);
     di::load_dvdx(false);
     di::use_cache(true);
     di::use_cache(false);
+    logger.record(
+        "Rust DI configuration setters preserve drive status",
+        di::get_status() == config_status_before,
+    );
+    di::DI_LoadDVDX(true);
+    di::DI_LoadDVDX(false);
+    di::DI_UseCache(true);
+    di::DI_UseCache(false);
+    logger.record(
+        "C DI configuration setters preserve drive status",
+        di::get_status() == config_status_before,
+    );
+
+    DI_MOUNT_CALLBACK_STATUS.store(u32::MAX, Ordering::Release);
+    DI_MOUNT_CALLBACK_ERROR.store(u32::MAX, Ordering::Release);
+    di::set_init_callback(Some(di_mount_callback));
+    di::mount();
+    let rust_init_callback_untouched = DI_MOUNT_CALLBACK_STATUS.load(Ordering::Acquire) == u32::MAX
+        && DI_MOUNT_CALLBACK_ERROR.load(Ordering::Acquire) == u32::MAX;
+    di::set_init_callback(None);
+    logger.record(
+        "Rust DI init callback is not called for no-disc mount",
+        rust_init_callback_untouched,
+    );
+
+    DI_MOUNT_CALLBACK_STATUS.store(u32::MAX, Ordering::Release);
+    DI_MOUNT_CALLBACK_ERROR.store(u32::MAX, Ordering::Release);
+    di::DI_SetInitCallback(Some(di_mount_callback));
+    di::DI_Mount();
+    let c_init_callback_untouched = DI_MOUNT_CALLBACK_STATUS.load(Ordering::Acquire) == u32::MAX
+        && DI_MOUNT_CALLBACK_ERROR.load(Ordering::Acquire) == u32::MAX;
+    di::DI_SetInitCallback(None);
+    logger.record(
+        "C DI init callback is not called for no-disc mount",
+        c_init_callback_untouched,
+    );
     let reset_result = di::reset();
     logger.note_i32("di reset result", reset_result);
     logger.record("di reset completes in Dolphin", reset_result == 0);
@@ -776,6 +813,18 @@ pub fn probe_di_no_disc(logger: &mut ProbeLogger) {
     let final_close_result = di::close();
     logger.note_i32("di final close result", final_close_result);
     logger.record("di final close succeeds", final_close_result == 0);
+    let rust_open_partition_closed = di::open_partition(0) == -6;
+    let rust_close_partition_closed = di::close_partition() == -6;
+    logger.record(
+        "Rust DI partition APIs reject a closed descriptor",
+        rust_open_partition_closed && rust_close_partition_closed,
+    );
+    let c_open_partition_closed = di::DI_OpenPartition(0) == -6;
+    let c_close_partition_closed = di::DI_ClosePartition() == -6;
+    logger.record(
+        "C DI partition APIs reject a closed descriptor",
+        c_open_partition_closed && c_close_partition_closed,
+    );
 }
 
 fn probe_usb_storage(logger: &mut ProbeLogger) {

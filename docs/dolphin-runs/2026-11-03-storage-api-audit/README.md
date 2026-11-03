@@ -71,3 +71,14 @@ build-agent-probes` built the updated DOL. Its SHA-256 is
 This DOL has not run. The available Dolphin build still aborts before launch
 while handling `--version`, as recorded above. The build result adds no runtime
 evidence.
+
+## Build with DI configuration and partition error checks
+
+The probe now checks DI configuration setter effects on no-disc status, the
+no-disc init-callback path through Rust and C setters, and closed-descriptor
+errors for Rust and C partition APIs. The updated DOL SHA-256 is
+`37547912e2242cde337056fcfa16312ff8d23d62d0fafcf7699cbf7004465350`.
+
+The probe compiled, but Dolphin did not run it. These checks add no runtime
+evidence. A successful partition operation and init-callback delivery after a
+successful mount still need a disc test.
