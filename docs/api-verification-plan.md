@@ -177,7 +177,7 @@ do not infer API coverage from a package or probe name.
 
 ## Current storage audit
 
-The current inventory has 324 unverified entries in the 12 storage packages
+The current inventory has 307 unverified entries in the 12 storage packages
 below. These counts come from `docs/generated/implementation-inventory.csv`.
 Update this table after each storage batch. Do not accept source presence or a
 successful target build as runtime evidence.
@@ -190,19 +190,23 @@ successful target build as runtime evidence.
 | `ogc-di` | 55 |
 | `ogc-dvd` | 20 |
 | `ogc-dvd-sys` | 21 |
-| `ogc-fat` | 17 |
+| `ogc-fat` | 0 |
 | `ogc-filesystem` | 29 |
 | `ogc-gcsd` | 43 |
 | `ogc-usbstorage` | 2 |
 | `ogc-usbstorage-sys` | 47 |
 | `ogc-wiisd` | 0 |
-| **Total** | **324** |
+| **Total** | **307** |
 
 The ISO9660 probe calls its three C ABI exports directly. Dolphin passed the
 probe using a controlled in-memory disc image; this does not verify a physical
 optical drive. The USB storage safe facade probe covers no-device errors and
 lifecycle cleanup. Its `flush` and `try_flush` APIs still need a valid mounted
-handle. The Wii SD probe passed in Dolphin with its private virtual SD card. It
+handle. The focused FAT probe passed in Dolphin and covers the mounted SD API,
+C exports, FAT file seek/truncate, attribute updates, init functions, and mount
+cleanup. The probe also checks that GameCube SD Gecko mounts report the expected
+no-adapter error. This does not verify physical SD Gecko operation. The Wii SD
+probe passed in Dolphin with its private virtual SD card. It
 checks startup, insertion, sector-zero read, a zero-sector write that sends no
 data command, shutdown, and restart. It does not test non-zero writes or a
 physical Wii. See [development results](../DEVELOPMENT_RESULTS.md).

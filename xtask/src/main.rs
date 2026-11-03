@@ -441,6 +441,7 @@ const PROBE_BINARIES: &[&str] = &[
     "usbstorage_capacity_probe",
     "usbstorage_transport_probe",
     "wiisd_probe",
+    "fat_sd_probe",
     "hid_descriptor_probe",
     "lwp_probe",
 ];
@@ -473,6 +474,7 @@ mod probe_artifact_tests {
             "aesnd_native_probe",
             "usbstorage_transport_probe",
             "wiisd_probe",
+            "fat_sd_probe",
         ] {
             assert!(super::PROBE_BINARIES.contains(&probe));
             assert!(manifest.contains(&format!("name = \"{probe}\"")));
@@ -649,6 +651,14 @@ mod probe_artifact_tests {
         assert!(super::PROBE_BINARIES.contains(&"usbstorage_capacity_probe"));
         let manifest = include_str!("../../probes/ogc-system-probe/Cargo.toml");
         assert!(manifest.contains("name = \"usbstorage_capacity_probe\""));
+    }
+
+    #[test]
+    fn fat_sd_probe_is_built_as_a_dol() {
+        assert!(super::PROBE_BINARIES.contains(&"fat_sd_probe"));
+        let manifest = include_str!("../../probes/ogc-system-probe/Cargo.toml");
+        assert!(manifest.contains("name = \"fat_sd_probe\""));
+        assert!(manifest.contains("path = \"src/fat_sd_probe/main.rs\""));
     }
 
     #[test]

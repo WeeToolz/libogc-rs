@@ -35,6 +35,8 @@ pub mod debugger_probe;
 #[cfg(target_arch = "powerpc")]
 pub mod event_line;
 #[cfg(target_arch = "powerpc")]
+mod fat_sd_probe;
+#[cfg(target_arch = "powerpc")]
 pub mod font_probe;
 #[cfg(target_arch = "powerpc")]
 pub mod general_probe;
@@ -737,6 +739,16 @@ pub fn run_wiisd_probe_bin() -> i32 {
     configure_probe_app_dir("wiisd-probe");
     let mut logger = init_probe_logger();
     wiisd_probe::run(&mut logger);
+    logger.summary();
+    finish_probe()
+}
+
+#[cfg(target_arch = "powerpc")]
+/// Checks FAT C and Rust APIs on the Dolphin virtual SD card.
+pub fn run_fat_sd_probe_bin() -> i32 {
+    configure_probe_app_dir("fat-sd-probe");
+    let mut logger = init_probe_logger();
+    fat_sd_probe::run(&mut logger);
     logger.summary();
     finish_probe()
 }
