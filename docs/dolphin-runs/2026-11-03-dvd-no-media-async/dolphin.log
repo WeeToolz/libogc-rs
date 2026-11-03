@@ -1,67 +1,67 @@
-57:18:161 Core/Boot/DolReader.cpp:67 W[BOOT]: DolReader: Text section 0 size is not aligned to 32 bytes and can cause issues when loaded
-57:18:162 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 0 size is not aligned to 32 bytes and can cause issues when loaded
-57:18:162 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 1 size is not aligned to 32 bytes and can cause issues when loaded
-57:18:162 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
-57:18:163 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-57:18:163 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-57:18:211 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
-57:18:211 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
-57:18:211 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
-57:18:211 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
-57:18:329 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App name: org.dolphin-emu.dolphin
-57:18:329 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App version: <unspecified>
-57:18:329 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App ID: <unspecified>
-57:18:329 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: SDL revision: SDL-3.4.12-f87239e71
-57:18:344 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
-57:18:344 InputCommon/ControllerInterface/DualShockUDPClient/DualShockUDPClient.cpp:492 I[CI]: DualShockUDPClient PopulateDevices
-57:18:344 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:141 I[CI]: SteamDeck PopulateDevices
-57:18:359 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:171 I[CI]: No Steam Deck interface found
-57:18:375 Core/ConfigManager.cpp:279 N[CORE]: Active title: 
-57:18:376 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
-57:18:377 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-57:18:377 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-57:18:377 Core/Core.cpp:237 I[BOOT]: Starting core = Wii mode
-57:18:377 Core/Core.cpp:238 I[BOOT]: CPU Thread separate = No
-57:18:411 InputCommon/ControllerInterface/ControllerInterface.cpp:310 N[CI]: Removed device: Quartz/0/Keyboard & Mouse
-57:18:416 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
-57:18:425 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 0000000100000050
-57:18:425 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
-57:18:426 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
-57:18:426 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-57:18:426 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-57:18:430 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:18:2c:c4
-57:18:478 Core/Boot/Boot.cpp:546 N[BOOT]: Booting from executable: [repo]/target/xtask/probes-dolphin/dvd_probe.dol
-57:18:479 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/sys/uid.sys): Result 0
-57:18:479 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/sys/uid.sys): Result 0
-57:18:480 Core/Boot/Boot_BS2Emu.cpp:435 I[BOOT]: Using serial number: 372730284
-57:18:480 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /title/00000001/00000002/data/setting.txt (NAND)
-57:18:480 Core/Boot/Boot_BS2Emu.cpp:463 I[BOOT]: Setup Wii Memory...
-57:18:480 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 000000010000003a
-57:18:480 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
-57:18:480 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
-57:18:481 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-57:18:481 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-57:18:481 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:18:2c:c4
-57:18:594 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/es (mode 0, fd 0)
-57:18:612 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 1)
-57:18:631 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 2)
-57:18:678 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 3)
-57:18:696 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 4)
-57:18:751 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/SYSCONF (mode 1, fd 3)
-57:18:751 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/SYSCONF): Result 0
-57:18:770 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/SYSCONF, 0x006b8682, 16384): Result 0
-57:18:788 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/SYSCONF): Result 0
-57:18:788 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/setting.txt (mode 1, fd 3)
-57:18:789 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/setting.txt): Result 0
-57:18:789 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/setting.txt, 0x006bc682, 256): Result 0
-57:18:799 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/setting.txt): Result 0
-57:18:836 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/state.dat (mode 1, fd 3)
-57:18:836 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/state.dat): Result 0
-57:18:854 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/state.dat, 0x017f8220, 32): Result 0
-57:18:873 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/state.dat): Result 0
-57:18:873 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/NANDBOOTINFO (mode 1, fd 3)
-57:18:873 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/NANDBOOTINFO): Result 0
-57:18:873 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/NANDBOOTINFO, 0x017f8220, 4128): Result 0
-57:18:883 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/NANDBOOTINFO): Result 0
-57:20:509 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/di (mode 3, fd 3)
-57:22:386 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/di (mode 3, fd 4)
+01:23:659 Core/Boot/DolReader.cpp:67 W[BOOT]: DolReader: Text section 0 size is not aligned to 32 bytes and can cause issues when loaded
+01:23:660 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 0 size is not aligned to 32 bytes and can cause issues when loaded
+01:23:660 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 1 size is not aligned to 32 bytes and can cause issues when loaded
+01:23:660 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+01:23:661 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+01:23:661 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+01:23:714 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+01:23:714 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
+01:23:714 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
+01:23:714 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
+01:23:832 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App name: org.dolphin-emu.dolphin
+01:23:832 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App version: <unspecified>
+01:23:832 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App ID: <unspecified>
+01:23:832 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: SDL revision: SDL-3.4.12-f87239e71
+01:23:848 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
+01:23:848 InputCommon/ControllerInterface/DualShockUDPClient/DualShockUDPClient.cpp:492 I[CI]: DualShockUDPClient PopulateDevices
+01:23:848 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:141 I[CI]: SteamDeck PopulateDevices
+01:23:861 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:171 I[CI]: No Steam Deck interface found
+01:23:878 Core/ConfigManager.cpp:279 N[CORE]: Active title:
+01:23:879 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+01:23:880 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+01:23:880 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+01:23:881 Core/Core.cpp:237 I[BOOT]: Starting core = Wii mode
+01:23:881 Core/Core.cpp:238 I[BOOT]: CPU Thread separate = No
+01:23:916 InputCommon/ControllerInterface/ControllerInterface.cpp:310 N[CI]: Removed device: Quartz/0/Keyboard & Mouse
+01:23:924 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
+01:23:932 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 0000000100000050
+01:23:932 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+01:23:932 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
+01:23:933 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+01:23:933 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+01:23:936 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:64:ec:5d
+01:23:983 Core/Boot/Boot.cpp:546 N[BOOT]: Booting from executable: [repo]/target/xtask/probes-dolphin/dvd_probe.dol
+01:23:984 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/sys/uid.sys): Result 0
+01:23:984 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/sys/uid.sys): Result 0
+01:23:984 Core/Boot/Boot_BS2Emu.cpp:435 I[BOOT]: Using serial number: 372730284
+01:23:984 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /title/00000001/00000002/data/setting.txt (NAND)
+01:23:984 Core/Boot/Boot_BS2Emu.cpp:463 I[BOOT]: Setup Wii Memory...
+01:23:985 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 000000010000003a
+01:23:985 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+01:23:985 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
+01:23:985 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+01:23:986 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+01:23:986 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:64:ec:5d
+01:24:122 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/es (mode 0, fd 0)
+01:24:140 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 1)
+01:24:158 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 2)
+01:24:205 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 3)
+01:24:223 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 4)
+01:24:278 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/SYSCONF (mode 1, fd 3)
+01:24:278 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/SYSCONF): Result 0
+01:24:296 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/SYSCONF, 0x006b8a42, 16384): Result 0
+01:24:315 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/SYSCONF): Result 0
+01:24:315 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/setting.txt (mode 1, fd 3)
+01:24:315 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/setting.txt): Result 0
+01:24:315 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/setting.txt, 0x006bca42, 256): Result 0
+01:24:326 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/setting.txt): Result 0
+01:24:363 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/state.dat (mode 1, fd 3)
+01:24:363 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/state.dat): Result 0
+01:24:381 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/state.dat, 0x017f8220, 32): Result 0
+01:24:400 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/state.dat): Result 0
+01:24:400 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/NANDBOOTINFO (mode 1, fd 3)
+01:24:400 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/NANDBOOTINFO): Result 0
+01:24:400 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/NANDBOOTINFO, 0x017f8220, 4128): Result 0
+01:24:410 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/NANDBOOTINFO): Result 0
+01:26:063 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/di (mode 3, fd 3)
+01:27:921 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/di (mode 3, fd 4)

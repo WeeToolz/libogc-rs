@@ -131,9 +131,19 @@ PASS dvd stop stream async without media callback after return
 PASS dvd stop stream async without media result
 INFO dvd stop stream sync result=-1
 PASS dvd stop stream sync without media
+INFO dvd spin up async without media submit=1 complete=1 result=0 after_return=1
+PASS dvd spin up async without media accepted
+PASS dvd spin up async without media callback
+PASS dvd spin up async without media callback after return
+PASS dvd spin up async without media result
+INFO dvd spin up sync result=1
+PASS dvd spin up sync without media
+INFO dvd stop motor without media result=0
+PASS dvd stop motor call completes
 INFO dvd shutdown=0
 PASS dvd shutdown
 PASS probe VI retraces complete within 100 ms
+-- page 6 --
 PASS Dolphin screen-data transport completed
-INFO summary_candidate passes=47 fails=0
-PASS summary passes=47 fails=0
+INFO summary_candidate passes=53 fails=0
+PASS summary passes=53 fails=0
