@@ -257,28 +257,29 @@ save persistence, and user-data-safe cleanup. The Wii `storage_probe` ran
 without an available card and skipped save and format operations. A separate
 GameCube `card_probe` run used a copied, verified virtual card and passed 93
 checks. It verified create, read, write, status, delete, persistence after
-remount, and cleanup. See the
+remount, and cleanup. A later CARD accessor run passed 98 checks with the
+updated DOL. It checked direct sys and wrapper calls, owned async completion,
+raw transfers, persistence after remount, delete, and cleanup. See the
+[CARD accessor report](dolphin-runs/2026-11-03-card-accessor-update/README.md)
+for the DOL hash and logs. See the
 [CARD audit rerun](dolphin-runs/2026-11-03-storage-api-audit-rerun/README.md).
 This proves these operations on Dolphin's virtual card, not on a physical
 GameCube card. The CARD hardware register remains `not-tested` for physical
-hardware. The latest metadata invalid-count change has a passing host test and
-updated DOL builds, but has no new Dolphin result because the installed
-Dolphin exits before launch on this host. The later [CARD accessor update](dolphin-runs/2026-11-03-card-accessor-update/README.md)
-adds a mount-request slot check, direct sys API calls, and exact receiver
-paths. Its DOL builds, but Dolphin exits before launch because its Qt build
-needs NEON. It adds no runtime result.
+hardware. The metadata invalid-count change has host test evidence. Earlier
+sandboxed Dolphin attempts stopped before launch. The CARD accessor run used
+host access and passed. That result does not cover APIs in the other probe DOLs.
 
 The Dolphin runner can copy a raw card image from `LIBOGC_DOLPHIN_CARD_IMAGE`
-into its isolated profile. The latest run used this option, but CARD still
-returned `CARD_ERROR_NOCARD` and skipped save operations. That diagnostic
+into its isolated profile. An earlier attachment diagnostic used this option,
+but CARD returned `CARD_ERROR_NOCARD` and skipped save operations. That run
 adds no successful CARD operation evidence. See the
 [attachment diagnostic](dolphin-runs/2026-11-03-card-image-template-dolphin/README.md).
 
 The storage probe uses exclusive creation for fixed FAT probe names and skips
 the CARD save checks when `SAVE` already exists. It removes a probe file only
-after this run created it. The latest storage run passed in Dolphin 2609a with
-111 checks and 0 failures. It skipped operations that require absent USB or
-memory-card media. It does not prove successful USB transfers, memory-card
+after this run created it. A previous `storage_probe` run passed in Dolphin
+2609a with 111 checks and 0 failures. It skipped operations that require absent
+USB or memory-card media. It does not prove successful USB transfers, memory-card
 save operations, disc reads, or physical device behavior. Earlier failed runs
 remain historical evidence in their run directories.
 
@@ -307,9 +308,9 @@ pointer-shaped file handles. The probe does not verify a physical optical
 drive. The current source also calls the lower-level Rust C wrappers directly
 and checks their mount, label, and cleanup results. The last Dolphin report
 predates those calls. The updated DOL builds and passes target Clippy, but the
-installed Dolphin exits before startup because its Qt build reports a missing
-NEON feature. The lower-level wrapper checks therefore do not yet have a
-current Dolphin result. The focused DVD probe checks `/dev/di` no-disc status, rejected mount,
+lower-level wrapper checks do not yet have a current Dolphin result. A later
+host-authorized CARD run shows that Dolphin starts in that execution context;
+it does not validate the ISO DOL. The focused DVD probe checks `/dev/di` no-disc status, rejected mount,
 asynchronous mount, inquiry, block-safe read, drive-control, GCM
 offset, stream-stop, and seek operations, command-block state, pause and reset
 state, invalidation state restore, shutdown, spin-up, and stop-motor calls in
@@ -322,9 +323,10 @@ behavior. See the
 The probe now also calls all 32 `ogc-dvd-sys` APIs directly and checks their
 no-disc results, callbacks, output state, and cleanup. The current DOL builds
 with target Clippy and warnings denied. The existing Dolphin reports cover the
-facade calls only; they do not cover these new direct sys calls. A fresh run
-cannot start with the installed Dolphin because its Qt build reports a missing
-NEON feature. Disc reads and physical drive behavior remain unverified.
+facade calls only; they do not cover these new direct sys calls. The direct sys
+calls still need a fresh runtime run. A host-authorized CARD run started the
+same Dolphin executable, but that does not verify the DVD DOL. Disc reads and
+physical drive behavior remain unverified.
 The ISFS probe checks file-system API errors while the `/dev/fs` service is
 closed. It checks service close and reopen, async errors for invalid
 descriptors, output preservation, and that format requests do not reach IOS
@@ -337,10 +339,11 @@ and removal of its marker state; the earlier run without callback completion
 was superseded by that result. The current probe now also checks synchronous
 format after creating marker state, restarting the service, and verifying the
 marker paths are absent. The updated DOL builds and passes target Clippy, but
-the installed Dolphin exits before startup because its Qt build reports a
-missing NEON feature. The historical sync-format report uses an earlier DOL
-and does not verify this updated check. These runs do not prove physical Wii
-NAND behavior. The probe also checks that `get_stats_async` returns
+this revised check has no runtime result yet. Earlier sandboxed launches
+stopped before startup; a later host-authorized CARD run started Dolphin but
+did not test this ISFS DOL. The historical sync-format report uses an earlier
+DOL and does not verify this updated check. These runs do not prove physical
+Wii NAND behavior. The probe also checks that `get_stats_async` returns
 `ISFS_EINVAL` with `/dev/fs` closed, preserves all seven output fields, and
 does not call its callback. See
 the [rename result run](dolphin-runs/2026-11-03-isfs-rename-state/README.md),

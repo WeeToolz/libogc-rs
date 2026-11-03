@@ -3059,8 +3059,8 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     logger.record(
         "card data persisted after remount",
         persisted_read == card::CARD_ERROR_READY
-            && persisted[0] == 0x3c
-            && persisted[1] == 0xc3
+            && persisted[0] == 0x96
+            && persisted[1] == 0x69
             && persisted[2..].iter().all(|byte| *byte == 0),
     );
     let status_persisted = card::file_status(slot, reopened.filenum)

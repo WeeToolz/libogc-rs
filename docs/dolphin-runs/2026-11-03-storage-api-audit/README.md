@@ -108,9 +108,9 @@ The updated Wii `storage_probe` DOL has SHA-256
 `973d80e1c513f571263c6142022e1ac533ffae0cd8784ef1342fe8769cc2c2a5`. The
 updated GameCube `card_probe` DOL has SHA-256
 `146a507d5defb0eaac284996d18569a6fb8ebe505153c96c6b21e11b9c07213e`. Both
-DOLs build. Dolphin still cannot start on this host because its Qt build
-requires the `neon` processor feature, so these DOLs have no new runtime
-result.
+DOLs build. The sandboxed launch attempt stopped on Dolphin's `--version`
+check, so it produced no runtime result. A later host-authorized CARD run is
+recorded below; it does not cover these Wii and CARD DOL versions.
 
 ## Build after CARD cleanup-result checks
 
@@ -121,5 +121,15 @@ results were discarded. The updated Wii `storage_probe` DOL has SHA-256
 `dcd485e43ff2bbb4b25f09436ffc7ad30de917d19711deaf1e4b94f77878127a`. The
 updated GameCube `card_probe` DOL has SHA-256
 `a91bbbfe11e54fc098ff5284b7dbb2d72baebec67ac3735acff4595eb7bd1564`.
-Both DOLs build without compiler warnings. They have no new Dolphin result;
-the installed Dolphin still fails before launch on the missing `neon` feature.
+Both DOLs build without compiler warnings. Those sandboxed attempts did not
+produce a Dolphin result. See the later CARD run below for a subsequent run
+with the same Dolphin executable.
+
+## Later CARD run
+
+The launch failures above came from sandboxed runner attempts. A later
+host-authorized run started Dolphin 2609a and ran the current GameCube CARD
+probe. It passed 98 checks with no failures after one stale persistence
+expectation was corrected. See the [CARD accessor report](../2026-11-03-card-accessor-update/README.md)
+for the DOL identity, both probe logs, and the inspected output pages. This
+later run does not add runtime results for the other DOLs listed above.
