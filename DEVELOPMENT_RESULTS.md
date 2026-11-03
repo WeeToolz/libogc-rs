@@ -1,5 +1,19 @@
 # Development results
 
+## 2026-11-03: ISO9660 C ABI probe update
+
+The runtime probe now calls the exported `ISO9660_Mount`,
+`ISO9660_GetVolumeLabel`, and `ISO9660_Unmount` functions directly. It checks
+null arguments, rejected media reads, volume-label bytes, and unmount cleanup.
+The PowerPC DOL built successfully with SHA-256
+`141586a156931ad96fe445c125dd1dd7f68011c5a6b8e25f2b3acbae2dac8b02`.
+Dolphin did not start the DOL: its `--version` preflight aborted with
+`Incompatible processor. This Qt build requires the following features: neon`.
+The probe has no accepted runtime evidence yet, and the three ISO9660 C ABI
+entries remain unverified. Direct execution of Dolphin reproduced the abort.
+`codesign --verify --deep --strict` also reported an invalid app signature. No
+changes were made to the Dolphin installation.
+
 ## 2026-11-02: AESND voice controls and cycle checks
 
 The focused AESND DOL ran in Dolphin 2609a with a private profile and copied
