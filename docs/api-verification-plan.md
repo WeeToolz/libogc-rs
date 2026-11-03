@@ -184,14 +184,15 @@ do not infer API coverage from a package or probe name.
 
 ## Current storage audit
 
-The current inventory has 604 API entries in 14 storage packages, with 0
-entries unverified for implementation evidence. These counts come from
-`docs/generated/implementation-inventory.csv`. Exact call paths are now
-recorded for 184 entries: 5 `ogc-wiisd`, 20 `ogc-usbstorage-lifecycle`, 30
-`ogc-usbstorage`, 65 `ogc-usbstorage-sys`, and 64 `ogc-fat`. Exact source
-mapping does not prove runtime behavior. Keep runtime evidence in the run reports and validation
-register. The storage build group has 15 runtime crates; one has no inventory
-API rows.
+The current inventory has 604 API entries in 14 storage packages. Its 0
+`unverified` entries mean that every API has an implementation-source mapping;
+they do not mean that every API has passed a test or a Dolphin run. These
+counts come from `docs/generated/implementation-inventory.csv`. Exact call paths are now
+recorded for 224 entries: 5 `ogc-wiisd`, 20 `ogc-usbstorage-lifecycle`, 30
+`ogc-usbstorage`, 65 `ogc-usbstorage-sys`, 64 `ogc-fat`, and 40
+`ogc-filesystem`. Exact source mapping does not prove runtime behavior. Keep
+runtime evidence in the run reports and validation register. The storage build
+group has 15 runtime crates; one has no inventory API rows.
 
 | Package | Inventory API entries |
 | --- | ---: |
@@ -304,11 +305,17 @@ while the service is closed. Separate Dolphin runs check successful sync and
 async file operations against a private NAND copy. Dolphin returns
 `ISFS_EINVAL` for sync and async rename; the probe checks that the source stays
 and the destination stays absent, then removes both paths. Successful rename
-is still unverified. The async format probe removes its marker file and
-directory, but its callback does not complete in Dolphin, so the final IOS
-result is unverified. These runs do not prove physical Wii NAND behavior. The
-probe also checks that `get_stats_async` returns `ISFS_EINVAL` with `/dev/fs`
-closed, preserves all seven output fields, and does not call its callback. See
+is still unverified. The bounded async-format run reports callback status 0
+and removal of its marker state; the earlier run without callback completion
+was superseded by that result. The current probe now also checks synchronous
+format after creating marker state, restarting the service, and verifying the
+marker paths are absent. The updated DOL builds and passes target Clippy, but
+the installed Dolphin exits before startup because its Qt build reports a
+missing NEON feature. The historical sync-format report uses an earlier DOL
+and does not verify this updated check. These runs do not prove physical Wii
+NAND behavior. The probe also checks that `get_stats_async` returns
+`ISFS_EINVAL` with `/dev/fs` closed, preserves all seven output fields, and
+does not call its callback. See
 the [rename result run](dolphin-runs/2026-11-03-isfs-rename-state/README.md),
 [async file cycle](dolphin-runs/2026-11-03-isfs-successful-async-cycle-dolphin/README.md),
 [async format diagnostic](dolphin-runs/2026-11-03-isfs-format-async-dolphin/README.md),
