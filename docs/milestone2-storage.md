@@ -70,7 +70,7 @@ transfers, CARD saves, disc reads, GameCube SD Gecko I/O, or physical devices.
 See the
 [Dolphin report](dolphin-runs/2026-11-03-storage-probe-media-aware/README.md).
 
-The latest rerun completed `card_probe`, `storage_probe`, `fat_sd_probe`, and
+The latest full storage-suite rerun completed `card_probe`, `storage_probe`, `fat_sd_probe`, and
 `dvd_probe` in Dolphin 2609a. They reported 93, 153, 40, and 120 passing
 checks, with no reported failures. The CARD probe ran in GameCube mode with a
 copied, verified virtual card image. The other probes ran in Wii mode. The
@@ -79,6 +79,13 @@ soak. The DVD probe ran without a disc. This run adds no physical-device
 evidence and does not prove every inventory entry. See the
 [audit rerun report](dolphin-runs/2026-11-03-storage-api-audit-rerun/README.md)
 for DOL hashes, captures, and limits.
+
+A later GameCube `card_probe` run used the current DOL and a private copy of the
+verified card image. It passed 98 checks with no failures. The first run found
+one stale expected value in the persistence check after a later wrapper write;
+the probe was corrected and rerun successfully. See the
+[CARD accessor report](dolphin-runs/2026-11-03-card-accessor-update/README.md)
+for both logs and the inspected first and summary pages.
 An earlier no-disc DVD probe passed 119 checks and compared C and Rust DI
 wrapper results for the calls listed in its
 [run report](dolphin-runs/2026-11-03-di-wrapper-parity-final/README.md).
@@ -134,6 +141,11 @@ behavior, card formatting, and removal remain unverified.
 
 The [raw CARD roundtrip](dolphin-runs/2026-11-03-card-raw-roundtrip/README.md)
 also calls the raw read and write APIs and checks returned bytes in both modes.
+
+The [CARD accessor update](dolphin-runs/2026-11-03-card-accessor-update/README.md)
+adds a current GameCube-mode result for direct sys and wrapper transfers,
+invalid-channel checks, owned asynchronous requests, and persistence after
+remount. Physical card behavior remains untested.
 
 Before the `CARD_Probe` parity correction, an early run expected typed queries
 to return the raw slot-probe error. Its
