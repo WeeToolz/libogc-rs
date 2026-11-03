@@ -164,6 +164,17 @@ This run verifies the emulated write path and restoration only. It does not
 prove physical SD transport or physical-card data integrity. See the
 [Dolphin report](docs/dolphin-runs/2026-11-03-wiisd-write-roundtrip/README.md).
 
+## 2026-11-03: Wii SD transfer and no-card probes
+
+The focused `wiisd_probe` passed 15 checks in Dolphin 2609a with the virtual
+Wii SD card enabled. It wrote and read back nine sectors through the
+unaligned-buffer bounce path, then restored and verified the original data.
+A separate run with the virtual card disabled passed 10 checks: reads and
+writes failed, read data stayed unchanged, and shutdown/restart kept the
+interface closed. These runs verify Dolphin behavior only. See the
+[multi-sector report](docs/dolphin-runs/2026-11-03-wiisd-multisector/README.md)
+and [no-card report](docs/dolphin-runs/2026-11-03-wiisd-no-card/README.md).
+
 ## 2026-11-03: ISO9660 C ABI probe update
 
 The runtime probe now calls the exported `ISO9660_Mount`,

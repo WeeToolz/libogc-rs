@@ -78,6 +78,9 @@ read-back bytes, restored the saved sectors, and verified restoration on
 Dolphin's private virtual SD card. This does not prove physical Wii SD writes.
 See the [multi-sector report](dolphin-runs/2026-11-03-wiisd-multisector/README.md)
 and the earlier [one-sector report](dolphin-runs/2026-11-03-wiisd-write-roundtrip/README.md).
+With Dolphin's virtual SD card disabled, the same probe passed 10 no-card
+checks for startup, insertion, reads, writes, zero-sector requests, shutdown,
+and restart. See the [no-card report](dolphin-runs/2026-11-03-wiisd-no-card/README.md).
 Earlier failed launch attempts remain in their own run directories. The
 hardware register still records physical CARD and DI behavior as not tested.
 Do not treat the zero `unverified` source count as completed storage
