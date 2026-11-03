@@ -275,6 +275,12 @@ pub fn probe_dvd(logger: &mut ProbeLogger) {
         );
         logger.note(line.as_str());
     }
+    logger.record(
+        "dvd disk id matches synthetic disc header",
+        id_ok
+            && id.gamename.map(|byte| byte as u8) == *b"TST1"
+            && id.company.map(|byte| byte as u8) == *b"TS",
+    );
 
     let mut sector = DvdSector([0; 0x800]);
     let mut read_block = dvd::DvdCmdBlk::default();
@@ -291,6 +297,10 @@ pub fn probe_dvd(logger: &mut ProbeLogger) {
     };
     logger.note_i32("dvd sector0 sync bytes", sync_read);
     logger.record("dvd sector0 sync read", sync_read == sector.0.len() as i32);
+    logger.record(
+        "dvd sector0 sync matches synthetic disc header",
+        sync_read == sector.0.len() as i32 && sector.0[..8] == *b"TST1TS\0\0",
+    );
 
     sector.0.fill(0);
     let mut async_read_block = dvd::DvdCmdBlk::default();
@@ -317,6 +327,10 @@ pub fn probe_dvd(logger: &mut ProbeLogger) {
     logger.record(
         "dvd async byte count",
         read_ok && async_read_block.txdsize == sector.0.len() as u32,
+    );
+    logger.record(
+        "dvd sector0 async matches synthetic disc header",
+        read_ok && sector.0[..8] == *b"TST1TS\0\0",
     );
     logger.note_u32("dvd last drive error", dvd::get_last_error());
 }

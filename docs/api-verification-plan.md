@@ -351,7 +351,11 @@ behavior. See the
 The probe calls all 32 `ogc-dvd-sys` APIs directly and checks their no-disc
 results, callbacks, output state, and cleanup. The current `dvd_probe` passed
 178 checks in Dolphin 2609a, including these direct sys calls. The run had no
-disc. Successful disc reads and physical drive behavior remain unverified.
+disc. A generated sparse GameCube image now gives successful synchronous and
+asynchronous sector-zero reads with known bytes. The probe still has failures
+for mount and for checks that expect no disc. This diagnostic does not verify
+a valid disc filesystem, partition operations, or physical drive behavior.
+See the [synthetic sector-read report](dolphin-runs/2026-11-03-dvd-synthetic-read/README.md).
 See the
 [current storage-suite report](dolphin-runs/2026-11-03-storage-api-full-current/README.md).
 The Dolphin runner accepts `--disc-image <path>` with an explicit `--probe`
