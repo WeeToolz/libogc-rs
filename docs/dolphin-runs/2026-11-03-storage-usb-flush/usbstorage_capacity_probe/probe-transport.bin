@@ -56,7 +56,7 @@ IPC: polling, no completion bits
 IPC: ctrl=0x00000031 arm=0x133e0f40
 IPC: IOS reply ready
 PRE 7/7: complete
-OGC_DOLPHIN_PAGE_CAPTURE page=1 capture=1 addr=0x80826320 width=640 height=480 stride=640
+OGC_DOLPHIN_PAGE_CAPTURE page=1 capture=1 addr=0x80828380 width=640 height=480 stride=640
 -- page 2 --
 BOOT 3/3: IOS pre-main completed
 PASS display initialized
@@ -79,7 +79,7 @@ INFO raw USB open status without device=-6
 PASS safe USB open preserves the raw no-device error and cleans its handle
 PASS safe USB close maps null handle to interface error
 PASS raw and safe USB flush map null handle to interface error
-OGC_DOLPHIN_PAGE_CAPTURE page=2 capture=2 addr=0x80826320 width=640 height=480 stride=640
+OGC_DOLPHIN_PAGE_CAPTURE page=2 capture=2 addr=0x80828380 width=640 height=480 stride=640
 -- page 3 --
 PASS safe USB reset maps null handle to interface error
 PASS safe USB GetMaxLUN maps null handle to interface error
@@ -92,6 +92,22 @@ PASS default USB flush reports no mounted storage
 PASS safe USB DVD query maps the raw no-device result
 PASS safe USB start-stop reports a missing storage interface
 PASS safe USB deinitialize completes after the no-device probe
+
+== USB STORAGE C ABI WITHOUT A DEVICE ==
+PASS C USB initialize reports success or no-Wii error
+PASS C USB open rejects a null storage handle
+PASS C USB close and reset reject null storage handles
+PASS C USB GetMaxLUN and mount reject null storage handles
+PASS C USB suspend and start-stop reject null storage handles
+PASS C USB inquiry rejects a null storage handle
+PASS C USB capacity rejects null handle and preserves outputs
+PASS C USB read and write reject null storage handles
+PASS C USB DVD query reports no mounted DVD
+PASS USB ioctl and C bridge reject an unmounted request
+OGC_DOLPHIN_PAGE_CAPTURE page=3 capture=3 addr=0x80828380 width=640 height=480 stride=640
+-- page 4 --
+PASS USB async control cleanup counter remains clear
+PASS C USB deinitialize records its result for C callers
 PASS open reset decision matches the C USB mode predicate
 PASS USB idle remount uses a strict sixty-second boundary
 PASS GetMaxLUN supports the full representable C count
@@ -103,12 +119,10 @@ PASS USB data transfer preserves non-timeout transport errors
 PASS BOT retries preserve cycle errors unless reset or transfer times out
 PASS USB read/write cycle status preserves C result rules
 PASS ReadCapacity accepts CSW status and residue, then decodes capacity
-OGC_DOLPHIN_PAGE_CAPTURE page=3 capture=3 addr=0x80826320 width=640 height=480 stride=640
--- page 4 --
 PASS ReadCapacity preserves a negative BOT cycle result
 PASS probe VI retraces complete within 100 ms
 PASS Dolphin screen-data transport completed
-INFO summary_candidate passes=31 fails=0
-PASS summary passes=31 fails=0
-OGC_DOLPHIN_PAGE_CAPTURE page=4 capture=4 addr=0x80826320 width=640 height=480 stride=640
+INFO summary_candidate passes=43 fails=0
+PASS summary passes=43 fails=0
+OGC_DOLPHIN_PAGE_CAPTURE page=4 capture=4 addr=0x80828380 width=640 height=480 stride=640
 OGC_DOLPHIN_CAPTURE_COMPLETE
