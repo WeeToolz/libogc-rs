@@ -38,6 +38,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_texture_regions(logger);
     probe_light_object(logger);
     probe_light_falloff(logger);
+    probe_specular_light(logger);
     probe_fifo_pointers(logger);
 
     let rmode = init_display(logger);
@@ -151,6 +152,25 @@ pub fn run(logger: &mut ProbeLogger) {
     let _ = video::set_post_retrace_callback(previous_post);
     PREVIOUS_PRE_CALLBACK.store(0, Ordering::Release);
     PREVIOUS_POST_CALLBACK.store(0, Ordering::Release);
+}
+
+fn probe_specular_light(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    let mut light = gx::GxLightObj::default();
+    // SAFETY: The initialized light object is exclusively accessible.
+    unsafe {
+        gx::init_specular_dir_ha(&mut light, 1.0, 0.0, -1.0, 0.25, 0.5, 0.75);
+        let explicit = gx::light_obj_snapshot(&light).is_some_and(|s| {
+            s.position == [-1.0e18, 0.0, 1.0e18] && s.direction == [0.25, 0.5, 0.75]
+        });
+        gx::init_specular_dir(&mut light, 0.0, 0.0, -1.0);
+        let computed = gx::light_obj_snapshot(&light)
+            .is_some_and(|s| s.position == [0.0, 0.0, 1.0e18] && s.direction == [0.0, 0.0, 1.0]);
+        gx::init_specular_dir(&mut light, 0.0, 0.0, 1.0);
+        let zero = gx::light_obj_snapshot(&light)
+            .is_some_and(|s| s.position == [0.0, 0.0, -1.0e18] && s.direction == [0.0, 0.0, 0.0]);
+        logger.record("GX specular directions", explicit && computed && zero);
+    }
 }
 
 fn probe_light_falloff(logger: &mut ProbeLogger) {
