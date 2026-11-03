@@ -356,6 +356,9 @@ asynchronous sector-zero reads with known bytes. The probe still has failures
 for mount and for checks that expect no disc. This diagnostic does not verify
 a valid disc filesystem, partition operations, or physical drive behavior.
 See the [synthetic sector-read report](dolphin-runs/2026-11-03-dvd-synthetic-read/README.md).
+An additional [offset-read run](dolphin-runs/2026-11-03-dvd-synthetic-read-offset/README.md)
+checks a known payload at byte offset `0x2000`. It has the same mount and
+no-disc-check failures and does not close disc mount or partition coverage.
 See the
 [current storage-suite report](dolphin-runs/2026-11-03-storage-api-full-current/README.md).
 The Dolphin runner accepts `--disc-image <path>` with an explicit `--probe`
