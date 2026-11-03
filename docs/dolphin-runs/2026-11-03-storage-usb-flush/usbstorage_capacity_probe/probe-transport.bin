@@ -56,7 +56,7 @@ IPC: polling, no completion bits
 IPC: ctrl=0x00000031 arm=0x133e0f40
 IPC: IOS reply ready
 PRE 7/7: complete
-OGC_DOLPHIN_PAGE_CAPTURE page=1 capture=1 addr=0x80828380 width=640 height=480 stride=640
+OGC_DOLPHIN_PAGE_CAPTURE page=1 capture=1 addr=0x80827000 width=640 height=480 stride=640
 -- page 2 --
 BOOT 3/3: IOS pre-main completed
 PASS display initialized
@@ -79,7 +79,7 @@ INFO raw USB open status without device=-6
 PASS safe USB open preserves the raw no-device error and cleans its handle
 PASS safe USB close maps null handle to interface error
 PASS raw and safe USB flush map null handle to interface error
-OGC_DOLPHIN_PAGE_CAPTURE page=2 capture=2 addr=0x80828380 width=640 height=480 stride=640
+OGC_DOLPHIN_PAGE_CAPTURE page=2 capture=2 addr=0x80827000 width=640 height=480 stride=640
 -- page 3 --
 PASS safe USB reset maps null handle to interface error
 PASS safe USB GetMaxLUN maps null handle to interface error
@@ -104,9 +104,14 @@ PASS C USB capacity rejects null handle and preserves outputs
 PASS C USB read and write reject null storage handles
 PASS C USB DVD query reports no mounted DVD
 PASS USB ioctl and C bridge reject an unmounted request
-OGC_DOLPHIN_PAGE_CAPTURE page=3 capture=3 addr=0x80828380 width=640 height=480 stride=640
+OGC_DOLPHIN_PAGE_CAPTURE page=3 capture=3 addr=0x80827000 width=640 height=480 stride=640
 -- page 4 --
 PASS USB async control cleanup counter remains clear
+PASS raw USB flush and default flush report no interface
+PASS raw USB reset, mount, suspend, and start-stop reject null handles
+PASS raw USB capacity preserves outputs when the handle is null
+PASS raw USB DVD query reports no mounted DVD
+PASS USB disc-interface clear-status callback succeeds
 PASS C USB deinitialize records its result for C callers
 PASS open reset decision matches the C USB mode predicate
 PASS USB idle remount uses a strict sixty-second boundary
@@ -122,7 +127,9 @@ PASS ReadCapacity accepts CSW status and residue, then decodes capacity
 PASS ReadCapacity preserves a negative BOT cycle result
 PASS probe VI retraces complete within 100 ms
 PASS Dolphin screen-data transport completed
-INFO summary_candidate passes=43 fails=0
-PASS summary passes=43 fails=0
-OGC_DOLPHIN_PAGE_CAPTURE page=4 capture=4 addr=0x80828380 width=640 height=480 stride=640
+INFO summary_candidate passes=48 fails=0
+OGC_DOLPHIN_PAGE_CAPTURE page=4 capture=4 addr=0x80827000 width=640 height=480 stride=640
+-- page 5 --
+PASS summary passes=48 fails=0
+OGC_DOLPHIN_PAGE_CAPTURE page=5 capture=5 addr=0x80827000 width=640 height=480 stride=640
 OGC_DOLPHIN_CAPTURE_COMPLETE

@@ -1,44 +1,44 @@
-51:29:334 Core/Boot/DolReader.cpp:67 W[BOOT]: DolReader: Text section 0 size is not aligned to 32 bytes and can cause issues when loaded
-51:29:334 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 0 size is not aligned to 32 bytes and can cause issues when loaded
-51:29:334 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 1 size is not aligned to 32 bytes and can cause issues when loaded
-51:29:382 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
-51:29:382 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
-51:29:382 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
-51:29:382 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
-51:29:500 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App name: org.dolphin-emu.dolphin
-51:29:500 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App version: <unspecified>
-51:29:500 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App ID: <unspecified>
-51:29:500 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: SDL revision: SDL-3.4.12-f87239e71
-51:29:516 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
-51:29:517 InputCommon/ControllerInterface/DualShockUDPClient/DualShockUDPClient.cpp:492 I[CI]: DualShockUDPClient PopulateDevices
-51:29:517 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:141 I[CI]: SteamDeck PopulateDevices
-51:29:530 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:171 I[CI]: No Steam Deck interface found
-51:29:549 Core/ConfigManager.cpp:279 N[CORE]: Active title:
-51:29:550 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
-51:29:550 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-51:29:551 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-51:29:551 Core/Core.cpp:237 I[BOOT]: Starting core = Wii mode
-51:29:551 Core/Core.cpp:238 I[BOOT]: CPU Thread separate = No
-51:29:586 InputCommon/ControllerInterface/ControllerInterface.cpp:310 N[CI]: Removed device: Quartz/0/Keyboard & Mouse
-51:29:591 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
-51:29:600 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 0000000100000050
-51:29:600 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
-51:29:600 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
-51:29:601 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-51:29:601 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-51:29:602 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:01:73:35
-51:29:651 Core/Boot/Boot.cpp:546 N[BOOT]: Booting from executable: [repo]/target/xtask/probes-dolphin/usbstorage_capacity_probe.dol
-51:29:652 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/sys/uid.sys): Result 0
-51:29:652 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/sys/uid.sys): Result 0
-51:29:652 Core/Boot/Boot_BS2Emu.cpp:435 I[BOOT]: Using serial number: 372730284
-51:29:653 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /title/00000001/00000002/data/setting.txt (NAND)
-51:29:653 Core/Boot/Boot_BS2Emu.cpp:463 I[BOOT]: Setup Wii Memory...
-51:29:653 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 000000010000003a
-51:29:653 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
-51:29:653 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
-51:29:654 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-51:29:654 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-51:29:655 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:01:73:35
+54:16:762 Core/Boot/DolReader.cpp:67 W[BOOT]: DolReader: Text section 0 size is not aligned to 32 bytes and can cause issues when loaded
+54:16:762 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 0 size is not aligned to 32 bytes and can cause issues when loaded
+54:16:762 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 1 size is not aligned to 32 bytes and can cause issues when loaded
+54:16:810 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+54:16:811 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
+54:16:811 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
+54:16:811 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
+54:16:928 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App name: org.dolphin-emu.dolphin
+54:16:928 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App version: <unspecified>
+54:16:928 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App ID: <unspecified>
+54:16:928 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: SDL revision: SDL-3.4.12-f87239e71
+54:16:944 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
+54:16:944 InputCommon/ControllerInterface/DualShockUDPClient/DualShockUDPClient.cpp:492 I[CI]: DualShockUDPClient PopulateDevices
+54:16:945 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:141 I[CI]: SteamDeck PopulateDevices
+54:16:958 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:171 I[CI]: No Steam Deck interface found
+54:16:979 Core/ConfigManager.cpp:279 N[CORE]: Active title:
+54:16:980 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+54:16:980 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+54:16:981 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+54:16:981 Core/Core.cpp:237 I[BOOT]: Starting core = Wii mode
+54:16:981 Core/Core.cpp:238 I[BOOT]: CPU Thread separate = No
+54:17:016 InputCommon/ControllerInterface/ControllerInterface.cpp:310 N[CI]: Removed device: Quartz/0/Keyboard & Mouse
+54:17:022 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
+54:17:030 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 0000000100000050
+54:17:031 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+54:17:031 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
+54:17:031 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+54:17:032 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+54:17:033 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:01:73:35
+54:17:079 Core/Boot/Boot.cpp:546 N[BOOT]: Booting from executable: [repo]/target/xtask/probes-dolphin/usbstorage_capacity_probe.dol
+54:17:080 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/sys/uid.sys): Result 0
+54:17:080 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/sys/uid.sys): Result 0
+54:17:081 Core/Boot/Boot_BS2Emu.cpp:435 I[BOOT]: Using serial number: 372730284
+54:17:081 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /title/00000001/00000002/data/setting.txt (NAND)
+54:17:081 Core/Boot/Boot_BS2Emu.cpp:463 I[BOOT]: Setup Wii Memory...
+54:17:081 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 000000010000003a
+54:17:081 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+54:17:081 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
+54:17:082 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+54:17:082 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+54:17:083 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:01:73:35
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -449,6 +449,7 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+54:17:189 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/es (mode 0, fd 0)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -479,6 +480,7 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+54:17:207 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 1)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -501,7 +503,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-51:29:783 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/es (mode 0, fd 0)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -516,6 +517,7 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+54:17:225 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 2)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -536,7 +538,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-51:29:803 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 1)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -576,8 +577,8 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-51:29:823 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 2)
 Warning: Partial sends might not be handled properly.
+54:17:272 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 3)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -611,6 +612,7 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+54:17:290 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 4)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -647,7 +649,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-51:29:871 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 3)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -682,7 +683,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-51:29:890 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 4)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -705,6 +705,8 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+54:17:345 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/SYSCONF (mode 1, fd 3)
+54:17:346 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/SYSCONF): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -739,6 +741,7 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+54:17:364 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/SYSCONF, 0x0069cae2, 16384): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -772,12 +775,14 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-51:29:946 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/SYSCONF (mode 1, fd 3)
-51:29:946 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/SYSCONF): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+54:17:383 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/SYSCONF): Result 0
+54:17:383 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/setting.txt (mode 1, fd 3)
+54:17:383 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/setting.txt): Result 0
+54:17:383 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/setting.txt, 0x006a0ae2, 256): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -790,6 +795,7 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+54:17:393 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/setting.txt): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -807,7 +813,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-51:29:965 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/SYSCONF, 0x0069de62, 16384): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -847,10 +852,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-51:29:984 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/SYSCONF): Result 0
-51:29:984 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/setting.txt (mode 1, fd 3)
-51:29:984 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/setting.txt): Result 0
-51:29:984 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/setting.txt, 0x006a1e62, 256): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -859,12 +860,13 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+54:17:430 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/state.dat (mode 1, fd 3)
+54:17:430 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/state.dat): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-51:29:995 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/setting.txt): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -894,6 +896,7 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+54:17:449 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/state.dat, 0x017f8240, 32): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -928,9 +931,11 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-51:30:032 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/state.dat (mode 1, fd 3)
-51:30:032 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/state.dat): Result 0
 Warning: Partial sends might not be handled properly.
+54:17:468 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/state.dat): Result 0
+54:17:468 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/NANDBOOTINFO (mode 1, fd 3)
+54:17:468 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/NANDBOOTINFO): Result 0
+54:17:468 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/NANDBOOTINFO, 0x017f8240, 4128): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -941,6 +946,7 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+54:17:477 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/NANDBOOTINFO): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -962,7 +968,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-51:30:051 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/state.dat, 0x017f8240, 32): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -990,10 +995,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-51:30:070 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/state.dat): Result 0
-51:30:070 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/NANDBOOTINFO (mode 1, fd 3)
-51:30:070 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/NANDBOOTINFO): Result 0
-51:30:070 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/NANDBOOTINFO, 0x017f8240, 4128): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -1006,7 +1007,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-51:30:080 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/NANDBOOTINFO): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -1390,6 +1390,10 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+54:19:187 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0/1234/5678 (mode 0, fd 3)
+54:19:187 Core/IOS/IOS.cpp:698 E[IOS]: Unknown device: /dev/usb/oh0/1234/5678
+54:19:187 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0/1234/5678 (mode 0, fd 3)
+54:19:187 Core/IOS/IOS.cpp:698 E[IOS]: Unknown device: /dev/usb/oh0/1234/5678
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -1442,10 +1446,192 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-51:31:836 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0/1234/5678 (mode 0, fd 3)
-51:31:836 Core/IOS/IOS.cpp:698 E[IOS]: Unknown device: /dev/usb/oh0/1234/5678
-51:31:836 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0/1234/5678 (mode 0, fd 3)
-51:31:836 Core/IOS/IOS.cpp:698 E[IOS]: Unknown device: /dev/usb/oh0/1234/5678
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
