@@ -217,9 +217,9 @@ optical drive. The focused DVD probe checks `/dev/di` no-disc status, rejected
 mount, asynchronous mount, inquiry, block-safe read, drive-control, GCM
 offset, stream-stop, and seek operations, command-block state, pause and reset
 state, invalidation state restore, and shutdown in Dolphin. Its synchronous
-control and seek calls return `-1`; their asynchronous forms report the
-cover-closed error. Dolphin inquiry succeeds without a disc. The probe does
-not verify disc reads or physical motor and optical-drive behavior. See the
+control, seek, and stream-stop calls return `-1`; their asynchronous forms
+report the cover-closed error. Dolphin inquiry succeeds without a disc. The
+probe does not verify disc reads or physical motor and optical-drive behavior. See the
 [DVD Dolphin run](dolphin-runs/2026-11-03-dvd-no-media-final/README.md) and
 [DVD async no-media run](dolphin-runs/2026-11-03-dvd-no-media-async/README.md).
 The USB storage safe facade probe covers no-device errors and
