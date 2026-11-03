@@ -1436,3 +1436,7 @@ ogc-dvd-sys,src/lib.rs,seek_prio,2054,compatibility-forwarder,hardware-probe,pro
 ogc-dvd-sys,src/lib.rs,set_gcm_offset_async,1767,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_dvd_no_media_async
 ogc-dvd-sys,src/lib.rs,set_gcm_offset,1791,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_dvd_no_media_async
 ogc-dvd-sys,src/lib.rs,control_drive,1752,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_dvd_no_media_async
+ogc-dvd,src/lib.rs,stop_stream_at_end_async,208,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_dvd_no_media_async
+ogc-dvd,src/lib.rs,stop_stream_at_end,216,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_dvd_no_media_async
+ogc-dvd-sys,src/lib.rs,stop_stream_at_end_async,2076,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_dvd_no_media_async
+ogc-dvd-sys,src/lib.rs,stop_stream_at_end,2098,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_dvd_no_media_async
