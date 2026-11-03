@@ -175,6 +175,34 @@ do not infer API coverage from a package or probe name.
 | hardware | 301 | `ogc-exi` 27, `ogc-exi-sys` 14, `ogc-gx` 260 |
 | ui | 27 | `ogc-ui` 27 |
 
+## Current storage audit
+
+The current inventory has 348 unverified entries in the 12 storage packages
+below. These counts come from `docs/generated/implementation-inventory.csv`.
+Update this table after each storage batch. Do not accept source presence or a
+successful target build as runtime evidence.
+
+| Package | Unverified entries |
+| --- | ---: |
+| `iso9660` | 3 |
+| `ogc-card` | 28 |
+| `ogc-card-sys` | 62 |
+| `ogc-di` | 55 |
+| `ogc-dvd` | 20 |
+| `ogc-dvd-sys` | 21 |
+| `ogc-fat` | 17 |
+| `ogc-filesystem` | 29 |
+| `ogc-gcsd` | 43 |
+| `ogc-usbstorage` | 19 |
+| `ogc-usbstorage-sys` | 47 |
+| `ogc-wiisd` | 4 |
+| **Total** | **348** |
+
+The ISO9660 probe now calls its three C ABI exports directly, but Dolphin did
+not launch for this run because its Qt preflight reported a missing `neon`
+processor feature and aborted. Keep those entries open until the DOL runs.
+See [development results](../DEVELOPMENT_RESULTS.md).
+
 ## First batch
 
 The first controller model batch added host evidence for 18 inventory entries.

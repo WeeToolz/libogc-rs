@@ -633,29 +633,42 @@ fn probe_iso9660(logger: &mut ProbeLogger) {
         shutdown: None,
     };
     let name = c"iso_test";
+    let null_arguments_rejected = unsafe {
+        !iso9660::ISO9660_Mount(core::ptr::null(), &disc)
+            && !iso9660::ISO9660_Mount(name.as_ptr(), core::ptr::null())
+            && !iso9660::ISO9660_Unmount(core::ptr::null())
+            && iso9660::ISO9660_GetVolumeLabel(core::ptr::null()).is_null()
+    };
+    logger.record(
+        "ISO9660 C exports reject null arguments",
+        null_arguments_rejected,
+    );
     for (case, label) in [
         (1, "iso descriptor read failure"),
         (2, "iso path table read failure"),
         (3, "iso truncated path table"),
     ] {
         ISO_CASE.store(case, Ordering::Relaxed);
-        let rejected = !iso9660::mount(name, &disc);
-        let absent = iso9660::volume_label(name).is_null();
+        let rejected = unsafe { !iso9660::ISO9660_Mount(name.as_ptr(), &disc) };
+        let absent = unsafe { iso9660::ISO9660_GetVolumeLabel(name.as_ptr()).is_null() };
         let cleanup = if rejected {
             true
         } else {
-            iso9660::unmount(name)
+            unsafe { iso9660::ISO9660_Unmount(name.as_ptr()) }
         };
         logger.record(label, rejected && absent && cleanup);
     }
     ISO_CASE.store(0, Ordering::Relaxed);
-    let mounted = iso9660::mount(name, &disc);
-    let label = iso9660::volume_label(name);
+    let mounted = unsafe { iso9660::ISO9660_Mount(name.as_ptr(), &disc) };
+    let label = unsafe { iso9660::ISO9660_GetVolumeLabel(name.as_ptr()) };
     let label_ok =
         !label.is_null() && unsafe { core::ffi::CStr::from_ptr(label).to_bytes() } == b"TESTVOL";
-    let removed = mounted && iso9660::unmount(name);
+    let removed = mounted && unsafe { iso9660::ISO9660_Unmount(name.as_ptr()) };
     logger.record(
         "iso mount after failures",
-        mounted && label_ok && removed && iso9660::volume_label(name).is_null(),
+        mounted
+            && label_ok
+            && removed
+            && unsafe { iso9660::ISO9660_GetVolumeLabel(name.as_ptr()).is_null() },
     );
 }
