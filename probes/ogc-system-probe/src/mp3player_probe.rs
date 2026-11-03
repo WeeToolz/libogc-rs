@@ -20,10 +20,27 @@ type StopFn = fn();
 
 static FILTER_FRAMES: AtomicU32 = AtomicU32::new(0);
 static AUDIO_STAGE: AtomicU32 = AtomicU32::new(0);
-static AUDIO_STAGE_CALLS: [AtomicU32; 3] =
-    [AtomicU32::new(0), AtomicU32::new(0), AtomicU32::new(0)];
-static AUDIO_STAGE_ENERGY: [AtomicU32; 3] =
-    [AtomicU32::new(0), AtomicU32::new(0), AtomicU32::new(0)];
+static AUDIO_STAGE_CALLS: [AtomicU32; 5] = [
+    AtomicU32::new(0),
+    AtomicU32::new(0),
+    AtomicU32::new(0),
+    AtomicU32::new(0),
+    AtomicU32::new(0),
+];
+static AUDIO_STAGE_ENERGY: [AtomicU32; 5] = [
+    AtomicU32::new(0),
+    AtomicU32::new(0),
+    AtomicU32::new(0),
+    AtomicU32::new(0),
+    AtomicU32::new(0),
+];
+static AUDIO_STAGE_HASH: [AtomicU32; 5] = [
+    AtomicU32::new(0),
+    AtomicU32::new(0),
+    AtomicU32::new(0),
+    AtomicU32::new(0),
+    AtomicU32::new(0),
+];
 static AUDIO_CAPTURE_ERRORS: AtomicU32 = AtomicU32::new(0);
 static PREVIOUS_AUDIO_CALLBACK: AtomicUsize = AtomicUsize::new(0);
 
@@ -102,6 +119,7 @@ pub fn run(logger: &mut ProbeLogger) {
     mp3player_sys::mp3_player_set_speed_per_mille(1_000);
     mp3player_sys::set_speed_per_mille(1_400);
     probe_volume_output(logger);
+    probe_speed_output(logger);
 
     probe_buffer_playback(logger, mp3player_sys::mp3_player_play_buffer, "direct");
     probe_buffer_playback(logger, mp3player_sys::play_buffer, "alias");
@@ -187,6 +205,68 @@ fn probe_volume_output(logger: &mut ProbeLogger) {
     PREVIOUS_AUDIO_CALLBACK.store(0, Ordering::Release);
 }
 
+fn probe_speed_output(logger: &mut ProbeLogger) {
+    for stage in 3..5 {
+        AUDIO_STAGE_CALLS[stage].store(0, Ordering::Release);
+        AUDIO_STAGE_ENERGY[stage].store(0, Ordering::Release);
+        AUDIO_STAGE_HASH[stage].store(0, Ordering::Release);
+    }
+    AUDIO_CAPTURE_ERRORS.store(0, Ordering::Release);
+    let previous = ogc_audio::register_dma_callback(Some(capture_mp3_output));
+    PREVIOUS_AUDIO_CALLBACK.store(
+        previous.map_or(0, |callback| callback as usize),
+        Ordering::Release,
+    );
+
+    mp3player_sys::mp3_player_set_speed_per_mille(1_000);
+    let normal_started = start_speed_capture(logger, 4);
+    let normal_hash = AUDIO_STAGE_HASH[3].load(Ordering::Acquire);
+    let normal_energy = AUDIO_STAGE_ENERGY[3].load(Ordering::Acquire);
+    mp3player_sys::mp3_player_stop();
+
+    mp3player_sys::set_speed_per_mille(1_400);
+    let fast_started = start_speed_capture(logger, 5);
+    let fast_hash = AUDIO_STAGE_HASH[4].load(Ordering::Acquire);
+    let fast_energy = AUDIO_STAGE_ENERGY[4].load(Ordering::Acquire);
+    let capture_errors = AUDIO_CAPTURE_ERRORS.load(Ordering::Acquire);
+    logger.note(&alloc::format!(
+        "MP3 speed DMA normal={normal_hash:08x}/{normal_energy} fast={fast_hash:08x}/{fast_energy} capture_errors={capture_errors}"
+    ));
+    logger.record(
+        "direct and alias MP3 speed setters change captured PCM",
+        normal_started
+            && fast_started
+            && normal_energy > 0
+            && fast_energy > 0
+            && normal_hash != fast_hash
+            && capture_errors == 0,
+    );
+
+    AUDIO_STAGE.store(0, Ordering::Release);
+    mp3player_sys::mp3_player_stop();
+    ogc_audio::register_dma_callback(previous);
+    PREVIOUS_AUDIO_CALLBACK.store(0, Ordering::Release);
+}
+
+fn start_speed_capture(logger: &mut ProbeLogger, stage: usize) -> bool {
+    AUDIO_STAGE.store(0, Ordering::Release);
+    mp3player_sys::mp3_player_volume(255);
+    FILTER_FRAMES.store(0, Ordering::Release);
+    let start = unsafe {
+        mp3player_sys::mp3_player_play_buffer_looped(
+            MP3.as_ptr().cast(),
+            MP3.len() as i32,
+            Some(record_filter),
+        )
+    };
+    let ready = start == 0 && wait_for_filter(logger, MIN_FILTER_FRAMES);
+    if !ready {
+        return false;
+    }
+    AUDIO_STAGE.store(stage as u32, Ordering::Release);
+    wait_for_audio_stage(logger, stage, 4)
+}
+
 fn wait_for_audio_stage(logger: &mut ProbeLogger, stage: usize, required: u32) -> bool {
     for _ in 0..MAX_WAIT_FRAMES {
         if AUDIO_STAGE_CALLS[stage - 1].load(Ordering::Acquire) >= required {
@@ -205,7 +285,7 @@ unsafe extern "C" fn capture_mp3_output() {
     }
 
     let stage = AUDIO_STAGE.load(Ordering::Acquire);
-    if !(1..=3).contains(&stage) {
+    if !(1..=5).contains(&stage) {
         return;
     }
     let snapshot = ogc_audio::snapshot();
@@ -224,8 +304,14 @@ unsafe extern "C" fn capture_mp3_output() {
         .iter()
         .map(|sample| i16::from_be_bytes(*sample).unsigned_abs() as u32)
         .fold(0_u32, u32::wrapping_add);
-    AUDIO_STAGE_ENERGY[stage as usize - 1].fetch_add(energy, Ordering::Relaxed);
-    AUDIO_STAGE_CALLS[stage as usize - 1].fetch_add(1, Ordering::Release);
+    let mut hash = 2_166_136_261_u32;
+    for &byte in samples {
+        hash = (hash ^ u32::from(byte)).wrapping_mul(16_777_619);
+    }
+    let index = stage as usize - 1;
+    AUDIO_STAGE_ENERGY[index].fetch_add(energy, Ordering::Relaxed);
+    let sequence = AUDIO_STAGE_CALLS[index].fetch_add(1, Ordering::AcqRel);
+    AUDIO_STAGE_HASH[index].fetch_xor(hash.rotate_left(sequence), Ordering::Relaxed);
 }
 
 fn probe_buffer_playback(logger: &mut ProbeLogger, play: BufferPlayFn, label: &str) {
