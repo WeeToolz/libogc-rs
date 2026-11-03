@@ -1,4 +1,4 @@
-crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function
+crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
 ogc-fat,src/lib.rs,FAT_getAttr,1991,protocol,hardware-probe,probes/ogc-system-probe/src/fat_sd_probe.rs,run
 ogc-fat,src/lib.rs,FAT_setAttr,2004,protocol,hardware-probe,probes/ogc-system-probe/src/fat_sd_probe.rs,run
 ogc-fat,src/lib.rs,device_is_inserted,1632,protocol,hardware-probe,probes/ogc-system-probe/src/fat_sd_probe.rs,run
@@ -15,10 +15,10 @@ ogc-fat,src/lib.rs,repair_interrupted_directory_rename,1413,protocol,hardware-pr
 ogc-fat,src/lib.rs,seek,1014,protocol,hardware-probe,probes/ogc-system-probe/src/fat_sd_probe.rs,run
 ogc-fat,src/lib.rs,truncate,1099,protocol,hardware-probe,probes/ogc-system-probe/src/fat_sd_probe.rs,run
 ogc-fat,src/lib.rs,volume_label,1374,protocol,hardware-probe,probes/ogc-system-probe/src/fat_sd_probe.rs,run
-ogc-wiisd,src/lib.rs,is_inserted,780,ios,hardware-probe,probes/ogc-system-probe/src/wiisd_probe.rs,run
-ogc-wiisd,src/lib.rs,read_sectors,784,ios,hardware-probe,probes/ogc-system-probe/src/wiisd_probe.rs,run
-ogc-wiisd,src/lib.rs,startup,749,ios,hardware-probe,probes/ogc-system-probe/src/wiisd_probe.rs,run
-ogc-wiisd,src/lib.rs,write_sectors,853,ios,hardware-probe,probes/ogc-system-probe/src/wiisd_probe.rs,run
+ogc-wiisd,src/lib.rs,is_inserted,780,ios,hardware-probe,probes/ogc-system-probe/src/wiisd_probe.rs,run,WII_SD_INTERFACE.is_inserted
+ogc-wiisd,src/lib.rs,read_sectors,784,ios,hardware-probe,probes/ogc-system-probe/src/wiisd_probe.rs,run,WII_SD_INTERFACE.read_sectors
+ogc-wiisd,src/lib.rs,startup,749,ios,hardware-probe,probes/ogc-system-probe/src/wiisd_probe.rs,run,WII_SD_INTERFACE.startup
+ogc-wiisd,src/lib.rs,write_sectors,853,ios,hardware-probe,probes/ogc-system-probe/src/wiisd_probe.rs,run,WII_SD_INTERFACE.write_sectors
 ogc-usbstorage,src/lib.rs,flush,70,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/usbstorage_capacity_probe.rs,probe_public_facade
 ogc-usbstorage,src/lib.rs,flush_default,82,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/usbstorage_capacity_probe.rs,probe_public_facade
 ogc-usbstorage,src/lib.rs,is_dvd,153,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/usbstorage_capacity_probe.rs,probe_public_facade
@@ -790,7 +790,7 @@ ogc-usbstorage-sys,src/lib.rs,suspend,373,hardware,hardware-probe,probes/ogc-sys
 ogc-usbstorage-sys,src/wii_backend.rs,suspend,2493,hardware,hardware-probe,probes/ogc-system-probe/src/usbstorage_capacity_probe.rs,probe_c_abi_without_device
 ogc-wd,src/lib.rs,deinit,305,ios,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,run
 ogc-wd,src/lib.rs,init,284,ios,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,run
-ogc-wiisd,src/lib.rs,shutdown,773,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,run
+ogc-wiisd,src/lib.rs,shutdown,773,ios,hardware-probe,probes/ogc-system-probe/src/wiisd_probe.rs,run,WII_SD_INTERFACE.shutdown
 tinysmb-sys,src/lib.rs,connect,499,protocol,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,probe_short_wii_sockaddr
 tinysmb-sys,src/powerpc_backend.rs,connect,2035,protocol,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,probe_short_wii_sockaddr
 tinysmb-sys,src/lib.rs,init,399,protocol,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,run

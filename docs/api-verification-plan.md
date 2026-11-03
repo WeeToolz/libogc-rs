@@ -72,6 +72,13 @@ real-Wii probe with production APIs and observed results; a Dolphin pass does
 not replace it. Track blocked fixtures, unsupported operations, hardware
 revisions, recovery requirements, and failures as open work.
 
+The optional `api_path` field records an exact Rust call path or function-pointer
+field for an evidence row. The inventory checker confirms that the named
+function binds or calls that path and calls the listed symbol. Rows without
+this field still use the older symbol-name check. Add `api_path` when a probe
+uses callbacks, aliases, or generic operation helpers so that the evidence
+points to the intended API.
+
 For each batch record: exact entries and contract; existing evidence; cases and
 independent expectations; test or probe source; commands and results; target,
 DOL hash and run ID where relevant; failure and cleanup outcomes; and remaining

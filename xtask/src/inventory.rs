@@ -45,6 +45,7 @@ struct Evidence {
     kind: String,
     evidence_path: String,
     function: String,
+    api_path: Option<String>,
 }
 
 #[derive(Clone, Debug)]
@@ -287,10 +288,16 @@ fn collect_inventory(root: &Path) -> Result<Vec<ApiEntry>, String> {
                     if let Some((index, item)) = matching_evidence {
                         verify_evidence(root, item, &declared_classification)?;
                         used_evidence[index] = true;
-                        evidence_summary = format!(
-                            "{}:{}::{} calls {}",
-                            item.kind, item.evidence_path, item.function, item.symbol
-                        );
+                        evidence_summary = match &item.api_path {
+                            Some(api_path) => format!(
+                                "{}:{}::{} calls {} through `{api_path}`",
+                                item.kind, item.evidence_path, item.function, item.symbol
+                            ),
+                            None => format!(
+                                "{}:{}::{} calls {}",
+                                item.kind, item.evidence_path, item.function, item.symbol
+                            ),
+                        };
                         if let Some(review) = source_review {
                             limitations = format!("{limitations}; source review: {review}");
                         }
@@ -362,9 +369,9 @@ fn load_evidence(root: &Path) -> Result<Vec<Evidence>, String> {
         if row.iter().all(|field| field.trim().is_empty()) {
             continue;
         }
-        if row.len() != 8 || row.iter().any(|field| field.trim().is_empty()) {
+        if !(8..=9).contains(&row.len()) || row[..8].iter().any(|field| field.trim().is_empty()) {
             return Err(format!(
-                "{}:{}: expected eight non-empty evidence columns",
+                "{}:{}: expected eight required evidence columns and one optional API path",
                 path.display(),
                 line_no + 1
             ));
@@ -384,6 +391,7 @@ fn load_evidence(root: &Path) -> Result<Vec<Evidence>, String> {
             kind: row[5].clone(),
             evidence_path: row[6].clone(),
             function: row[7].clone(),
+            api_path: row.get(8).filter(|value| !value.trim().is_empty()).cloned(),
         };
         if evidence.iter().any(|existing: &Evidence| {
             existing.crate_name == item.crate_name
@@ -450,6 +458,14 @@ fn is_host_test_source(path: &str, source: &str) -> bool {
 }
 
 fn verify_evidence_call(source: &str, evidence: &Evidence, path: &Path) -> Result<(), String> {
+    if let Some(api_path) = &evidence.api_path
+        && api_path.rsplit(['.', ':']).next() != Some(evidence.symbol.as_str())
+    {
+        return Err(format!(
+            "{}::{} API path `{api_path}` does not end with symbol `{}`",
+            evidence.crate_name, evidence.symbol, evidence.symbol
+        ));
+    }
     let file = syn::parse_file(source).map_err(|err| {
         format!(
             "{}::{} evidence source {} is invalid Rust: {err}",
@@ -461,9 +477,11 @@ fn verify_evidence_call(source: &str, evidence: &Evidence, path: &Path) -> Resul
     let mut visitor = EvidenceFunctionVisitor {
         function: &evidence.function,
         symbol: &evidence.symbol,
+        api_path: evidence.api_path.as_deref(),
         require_test: evidence.kind == "host-test",
         function_count: 0,
         call_found: false,
+        api_path_found: false,
     };
     visitor.visit_file(&file);
 
@@ -499,15 +517,28 @@ fn verify_evidence_call(source: &str, evidence: &Evidence, path: &Path) -> Resul
             path.display()
         ));
     }
+    if let Some(api_path) = &evidence.api_path
+        && !visitor.api_path_found
+    {
+        return Err(format!(
+            "{}::{} evidence function `{}` does not bind or call API path `{api_path}` in {}",
+            evidence.crate_name,
+            evidence.symbol,
+            evidence.function,
+            path.display()
+        ));
+    }
     Ok(())
 }
 
 struct EvidenceFunctionVisitor<'a> {
     function: &'a str,
     symbol: &'a str,
+    api_path: Option<&'a str>,
     require_test: bool,
     function_count: usize,
     call_found: bool,
+    api_path_found: bool,
 }
 
 impl<'ast> Visit<'ast> for EvidenceFunctionVisitor<'_> {
@@ -520,10 +551,13 @@ impl<'ast> Visit<'ast> for EvidenceFunctionVisitor<'_> {
             self.function_count += 1;
             let mut calls = EvidenceCallVisitor {
                 symbol: self.symbol,
+                api_path: self.api_path,
                 found: false,
+                api_path_found: false,
             };
             calls.visit_block(&function.block);
             self.call_found |= calls.found;
+            self.api_path_found |= calls.api_path_found;
         }
         visit::visit_item_fn(self, function);
     }
@@ -531,7 +565,9 @@ impl<'ast> Visit<'ast> for EvidenceFunctionVisitor<'_> {
 
 struct EvidenceCallVisitor<'a> {
     symbol: &'a str,
+    api_path: Option<&'a str>,
     found: bool,
+    api_path_found: bool,
 }
 
 impl EvidenceCallVisitor<'_> {
@@ -550,13 +586,49 @@ impl EvidenceCallVisitor<'_> {
 }
 
 impl<'ast> Visit<'ast> for EvidenceCallVisitor<'_> {
+    fn visit_local(&mut self, local: &'ast syn::Local) {
+        if let Some(api_path) = self.api_path
+            && local
+                .init
+                .as_ref()
+                .and_then(|initializer| expression_path(&initializer.expr))
+                .as_deref()
+                == Some(api_path)
+        {
+            let mut bindings = PatternIdentifierVisitor {
+                symbol: self.symbol,
+                found: false,
+            };
+            bindings.visit_pat(&local.pat);
+            self.api_path_found |= bindings.found;
+        }
+        visit::visit_local(self, local);
+    }
+
     fn visit_expr_call(&mut self, expression: &'ast syn::ExprCall) {
-        self.found |= self.path_calls_symbol(&expression.func);
+        self.found |= self.api_path.map_or_else(
+            || self.path_calls_symbol(&expression.func),
+            |api_path| {
+                expression_path(&expression.func).as_deref() == Some(api_path)
+                    || (self.api_path_found
+                        && expression_path(&expression.func).as_deref() == Some(self.symbol))
+            },
+        );
         visit::visit_expr_call(self, expression);
     }
 
     fn visit_expr_method_call(&mut self, expression: &'ast syn::ExprMethodCall) {
-        self.found |= expression.method == self.symbol;
+        self.found |= self.api_path.map_or_else(
+            || expression.method == self.symbol,
+            |api_path| {
+                expression.method == self.symbol
+                    && format!(
+                        "{}.{}",
+                        expression_path(&expression.receiver).unwrap_or_default(),
+                        expression.method
+                    ) == api_path
+            },
+        );
         visit::visit_expr_method_call(self, expression);
     }
 
@@ -571,6 +643,42 @@ impl<'ast> Visit<'ast> for EvidenceCallVisitor<'_> {
                 self.visit_expr(&expression);
             }
         }
+    }
+}
+
+struct PatternIdentifierVisitor<'a> {
+    symbol: &'a str,
+    found: bool,
+}
+
+impl<'ast> Visit<'ast> for PatternIdentifierVisitor<'_> {
+    fn visit_pat_ident(&mut self, pattern: &'ast syn::PatIdent) {
+        self.found |= pattern.ident == self.symbol;
+        visit::visit_pat_ident(self, pattern);
+    }
+}
+
+fn expression_path(expression: &syn::Expr) -> Option<String> {
+    match expression {
+        syn::Expr::Path(path) => Some(
+            path.path
+                .segments
+                .iter()
+                .map(|segment| segment.ident.to_string())
+                .collect::<Vec<_>>()
+                .join("::"),
+        ),
+        syn::Expr::Field(field) => Some(format!(
+            "{}.{}",
+            expression_path(&field.base)?,
+            match &field.member {
+                syn::Member::Named(name) => name.to_string(),
+                syn::Member::Unnamed(index) => index.index.to_string(),
+            }
+        )),
+        syn::Expr::Paren(paren) => expression_path(&paren.expr),
+        syn::Expr::Group(group) => expression_path(&group.expr),
+        _ => None,
     }
 }
 
@@ -1415,6 +1523,7 @@ mod tests {
             kind: "host-test".to_string(),
             evidence_path: "unused".to_string(),
             function: "initialize_test".to_string(),
+            api_path: None,
         };
 
         let error = verify_evidence(Path::new("."), &evidence, "hardware")
@@ -1433,6 +1542,7 @@ mod tests {
             kind: "host-test".to_string(),
             evidence_path: "unused".to_string(),
             function: "parse_test".to_string(),
+            api_path: None,
         };
 
         let error = verify_evidence(Path::new("."), &evidence, "protocol")
@@ -1451,6 +1561,7 @@ mod tests {
             kind: "host-test".to_string(),
             evidence_path: "sample.rs".to_string(),
             function: "parses_valid_input".to_string(),
+            api_path: None,
         };
         let source = r#"
             #[test]
@@ -1474,6 +1585,7 @@ mod tests {
             kind: "host-test".to_string(),
             evidence_path: "sample.rs".to_string(),
             function: "does_not_call_api".to_string(),
+            api_path: None,
         };
         let source = r#"
             #[test]
@@ -1490,6 +1602,76 @@ mod tests {
     }
 
     #[test]
+    fn evidence_api_path_must_be_present_in_the_named_function() {
+        let evidence = Evidence {
+            crate_name: "ogc-card".to_string(),
+            path: "src/lib.rs".to_string(),
+            symbol: "read".to_string(),
+            line: 1,
+            classification: "protocol".to_string(),
+            kind: "hardware-probe".to_string(),
+            evidence_path: "probes/card.rs".to_string(),
+            function: "probe".to_string(),
+            api_path: Some("CARD_INTERFACE.read".to_string()),
+        };
+        let source = r#"
+            use std::fs;
+            fn probe() { let _ = fs::read("sample"); }
+        "#;
+
+        let error = verify_evidence_call(source, &evidence, Path::new("probes/card.rs"))
+            .expect_err("the mapped API path must occur in the evidence function");
+        assert!(
+            error.contains("does not call the API")
+                || error.contains("does not bind or call API path `CARD_INTERFACE.read`")
+        );
+    }
+
+    #[test]
+    fn qualified_api_path_and_call_in_named_function_are_accepted() {
+        let evidence = Evidence {
+            crate_name: "sample".to_string(),
+            path: "src/lib.rs".to_string(),
+            symbol: "read".to_string(),
+            line: 1,
+            classification: "protocol".to_string(),
+            kind: "hardware-probe".to_string(),
+            evidence_path: "probes/sample.rs".to_string(),
+            function: "probe".to_string(),
+            api_path: Some("sample_api::read".to_string()),
+        };
+        let source = r#"
+            fn probe() {
+                let Some(read) = sample_api::read else { return; };
+                let _ = read();
+            }
+        "#;
+
+        verify_evidence_call(source, &evidence, Path::new("probes/sample.rs"))
+            .expect("the expected API path and call must pass");
+    }
+
+    #[test]
+    fn api_path_must_end_with_the_inventory_symbol() {
+        let evidence = Evidence {
+            crate_name: "sample".to_string(),
+            path: "src/lib.rs".to_string(),
+            symbol: "read".to_string(),
+            line: 1,
+            classification: "protocol".to_string(),
+            kind: "hardware-probe".to_string(),
+            evidence_path: "probes/sample.rs".to_string(),
+            function: "probe".to_string(),
+            api_path: Some("sample_api.write".to_string()),
+        };
+        let source = "fn probe() { let _ = sample_api::write(); }";
+
+        let error = verify_evidence_call(source, &evidence, Path::new("probes/sample.rs"))
+            .expect_err("the API path must identify the inventory symbol");
+        assert!(error.contains("API path `sample_api.write` does not end with symbol `read`"));
+    }
+
+    #[test]
     fn api_call_outside_named_test_is_not_evidence() {
         let evidence = Evidence {
             crate_name: "sample".to_string(),
@@ -1500,6 +1682,7 @@ mod tests {
             kind: "host-test".to_string(),
             evidence_path: "sample.rs".to_string(),
             function: "unrelated_test".to_string(),
+            api_path: None,
         };
         let source = r#"
             fn helper() { let _ = parser::parse("value"); }
@@ -1523,6 +1706,7 @@ mod tests {
             kind: "host-test".to_string(),
             evidence_path: "sample.rs".to_string(),
             function: "helper".to_string(),
+            api_path: None,
         };
         let source = "fn helper() { parser::parse(\"value\"); }";
 
@@ -1542,6 +1726,7 @@ mod tests {
             kind: "host-test".to_string(),
             evidence_path: "sample.rs".to_string(),
             function: "parses_input".to_string(),
+            api_path: None,
         };
         let source = r#"
             mod first {
