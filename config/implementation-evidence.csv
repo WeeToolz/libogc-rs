@@ -1,4 +1,8 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function
+ogc-wiisd,src/lib.rs,is_inserted,780,ios,hardware-probe,probes/ogc-system-probe/src/wiisd_probe.rs,run
+ogc-wiisd,src/lib.rs,read_sectors,784,ios,hardware-probe,probes/ogc-system-probe/src/wiisd_probe.rs,run
+ogc-wiisd,src/lib.rs,startup,749,ios,hardware-probe,probes/ogc-system-probe/src/wiisd_probe.rs,run
+ogc-wiisd,src/lib.rs,write_sectors,853,ios,hardware-probe,probes/ogc-system-probe/src/wiisd_probe.rs,run
 ogc-usbstorage,src/lib.rs,flush_default,82,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/usbstorage_capacity_probe.rs,probe_public_facade
 ogc-usbstorage,src/lib.rs,is_dvd,153,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/usbstorage_capacity_probe.rs,probe_public_facade
 ogc-usbstorage,src/lib.rs,start_stop,246,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/usbstorage_capacity_probe.rs,probe_public_facade

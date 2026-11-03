@@ -1,5 +1,24 @@
 # Development results
 
+## 2026-11-03: Wii SD interface probe
+
+The focused `wiisd_probe` calls the registered Wii SD interface callbacks for
+startup, insertion state, sector-zero reads, zero-sector writes, and shutdown.
+Dolphin 2609a passed all 9 checks with no failures. The runner used a private
+profile with its virtual Wii SD card enabled. The zero-sector write uses an
+unaligned buffer so the callback skips the data-command loop; it sends no data
+command and leaves the buffer unchanged. This does not test a non-zero sector
+write or physical Wii SD hardware. The repository base was `609c0ae`; the DOL
+was built with the probe changes in a dirty worktree. Its SHA-256 was
+`7d95e5e9446de29913a52d140570ad59a1af543072fe46dbca72374f31297439`.
+The command was `cargo xtask dolphin-validate --no-build --probe wiisd_probe
+--artifact-dir docs/dolphin-runs/2026-11-03-wiisd --dolphin
+[Dolphin executable]`. See the
+[report](docs/dolphin-runs/2026-11-03-wiisd/suite.json) and
+[probe log](docs/dolphin-runs/2026-11-03-wiisd/wiisd_probe/probe.log).
+Physical Wii SD startup and read behavior remain open in the
+[hardware register](docs/hardware-api-validation.csv).
+
 ## 2026-11-03: ISO9660 C ABI probe update
 
 The runtime probe now calls the exported `ISO9660_Mount`,

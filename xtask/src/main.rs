@@ -440,6 +440,7 @@ const PROBE_BINARIES: &[&str] = &[
     "aram_probe",
     "usbstorage_capacity_probe",
     "usbstorage_transport_probe",
+    "wiisd_probe",
     "hid_descriptor_probe",
     "lwp_probe",
 ];
@@ -468,7 +469,11 @@ mod probe_artifact_tests {
     #[test]
     fn physical_audio_and_usb_probes_are_built_as_dols() {
         let manifest = include_str!("../../probes/ogc-system-probe/Cargo.toml");
-        for probe in ["aesnd_native_probe", "usbstorage_transport_probe"] {
+        for probe in [
+            "aesnd_native_probe",
+            "usbstorage_transport_probe",
+            "wiisd_probe",
+        ] {
             assert!(super::PROBE_BINARIES.contains(&probe));
             assert!(manifest.contains(&format!("name = \"{probe}\"")));
             assert!(manifest.contains(&format!("path = \"src/{probe}/main.rs\"")));

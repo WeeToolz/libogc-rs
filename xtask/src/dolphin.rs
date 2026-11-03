@@ -172,6 +172,11 @@ const PROBES: &[ProbeSpec] = &[
         input_pipe: false,
     },
     ProbeSpec {
+        name: "wiisd_probe",
+        timeout_seconds: 90,
+        input_pipe: false,
+    },
+    ProbeSpec {
         name: "wii_std_fs_probe",
         timeout_seconds: 240,
         input_pipe: false,

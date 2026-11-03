@@ -1,4 +1,5 @@
 probe,source
+wiisd-probe,probes/ogc-system-probe/src/wiisd_probe.rs
 modplay-probe,probes/ogc-system-probe/src/modplay_probe/main.rs
 asnd-sys-probe,probes/ogc-system-probe/src/asnd_sys_probe/main.rs
 audio-sys-probe,probes/ogc-system-probe/src/audio_sys_probe/main.rs
