@@ -569,7 +569,7 @@ ogc-filesystem,src/lib.rs,raw,199,compatibility-forwarder,hardware-probe,probes/
 ogc-filesystem,src/lib.rs,read,217,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_uninitialized
 ogc-filesystem,src/lib.rs,unmount,1396,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_iso9660
 ogc-filesystem,src/lib.rs,write,203,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_uninitialized
-ogc-gcsd,src/wii_backend.rs,shutdown,1550,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,run
+ogc-gcsd,src/wii_backend.rs,shutdown,1550,hardware,hardware-probe,probes/ogc-system-probe/src/fat_sd_probe.rs,probe_gcsd_without_adapter
 ogc-gcsd,src/lib.rs,sdgecko_allocBuffer,280,hardware,hardware-probe,probes/ogc-system-probe/src/fat_sd_probe.rs,probe_gcsd_invalid_drive
 ogc-gcsd,src/lib.rs,sdgecko_doUnmount,233,hardware,hardware-probe,probes/ogc-system-probe/src/fat_sd_probe.rs,probe_gcsd_invalid_drive
 ogc-gcsd,src/lib.rs,sdgecko_ejectedCB,245,hardware,hardware-probe,probes/ogc-system-probe/src/fat_sd_probe.rs,probe_gcsd_invalid_drive

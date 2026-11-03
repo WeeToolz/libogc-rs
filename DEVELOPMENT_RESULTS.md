@@ -1138,6 +1138,13 @@ unavailable LUN errors without changing the failed-open handle. Dolphin passed
 50 checks. Successful inquiry and physical USB behavior remain open. See the
 [inquiry report](docs/dolphin-runs/2026-11-03-usb-inquiry-direct/README.md).
 
+## 2026-11-03: CARD close and persistence checks
+
+The CARD probe records the created entry's close result and compares all 512
+bytes read after remount. Dolphin passed 93 GameCube-mode checks and 153
+Wii-mode checks, including deletion and free-block recovery. Physical card
+behavior remains open. See the [run report](docs/dolphin-runs/2026-11-03-card-close-persistence/README.md).
+
 ## 2026-11-03: ISFS async format callback
 
 With a longer bounded wait, Dolphin received the async format callback with
