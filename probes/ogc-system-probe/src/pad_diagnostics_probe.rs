@@ -174,8 +174,7 @@ fn type_step(channel: i32, result: u32, outcome: u32) -> si::SiFaultStep {
         0,
         outcome,
         result,
-        0,
-        [0; 10],
+        (0, [0; 10]),
     )
 }
 
@@ -193,8 +192,7 @@ fn transfer_step(
         0,
         outcome,
         result,
-        payload.len() as u32,
-        payload,
+        (payload.len() as u32, payload),
     )
 }
 

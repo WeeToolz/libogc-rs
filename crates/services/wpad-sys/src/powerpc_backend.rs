@@ -643,13 +643,13 @@ fn complete_wii_ack(slot_idx: usize, ack: wiiuse_rs::AckReport) -> bool {
             } else {
                 None
             };
-            if let Some(action) = action {
-                if !submit_expansion_action(slot_idx, action) {
-                    if !abort_wii_command_queue(slot_idx) {
-                        return false;
-                    }
+            if let Some(action) = action
+                && !submit_expansion_action(slot_idx, action)
+            {
+                if !abort_wii_command_queue(slot_idx) {
                     return false;
                 }
+                return false;
             }
             if next.is_some() {
                 send_active_wii_command(slot_idx)

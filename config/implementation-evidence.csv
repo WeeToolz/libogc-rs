@@ -626,7 +626,7 @@ ogc-runtime,src/driver.rs,close,46,pure,hardware-probe,probes/lwp-probe/src/main
 ogc-runtime,src/scheduler.rs,new,16,pure,hardware-probe,probes/lwp-probe/src/main.rs,async_ipc_callback
 ogc-runtime,src/driver.rs,poll,37,pure,hardware-probe,probes/lwp-probe/src/main.rs,run_ipc_wakeup
 ogc-si,src/lib.rs,init,17,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,init_probe_state
-ogc-si-sys,src/lib.rs,init,1465,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,init_probe_state
+ogc-si-sys,src/lib.rs,init,1464,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,init_probe_state
 ogc-si-sys,src/lib.rs,new,295,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,monitor
 ogc-usb,src/lib.rs,device_list,532,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/hid_probe.rs,refresh_hid_state
 ogc-usbgecko,src/lib.rs,flashread,574,hardware,hardware-probe,probes/ogc-system-probe/src/debugger_probe.rs,probe_usb_gecko
@@ -1031,12 +1031,12 @@ wiiuse-rs,src/command_queue.rs,tag,167,protocol,host-test,crates/services/wiiuse
 wiiuse-rs,src/command_queue.rs,enqueue_tagged,209,protocol,host-test,crates/services/wiiuse-rs/src/command_queue.rs,expansion_setup_queues_each_exact_operation_after_its_ack_and_recovery_status
 ogc-bt-sync,src/hid_host.rs,has_link,675,protocol,host-test,crates/services/ogc-bt-sync/src/hid_host.rs,disconnect_request_waits_for_adapter_completion
 ogc-bt-sync,src/wii_host.rs,has_link,127,protocol,host-test,crates/services/ogc-bt-sync/src/wii_host.rs,has_link_is_false_before_a_controller_connects
-ogc-usbstorage-lifecycle,src/bulk.rs,begin,21,protocol,host-test,crates/services/ogc-usbstorage-lifecycle/src/bulk.rs,timeout_keeps_handle_busy_until_late_request_callback_finishes
-ogc-usbstorage-lifecycle,src/bulk.rs,arm_alarm,36,protocol,host-test,crates/services/ogc-usbstorage-lifecycle/src/bulk.rs,completion_before_alarm_arm_is_preserved_and_alarm_is_canceled
-ogc-usbstorage-lifecycle,src/bulk.rs,mark_no_alarm,87,protocol,host-test,crates/services/ogc-usbstorage-lifecycle/src/bulk.rs,failed_alarm_setup_waits_for_request_callback_without_arming_timer
-ogc-usbstorage-lifecycle,src/bulk.rs,complete,93,protocol,host-test,crates/services/ogc-usbstorage-lifecycle/src/bulk.rs,timeout_keeps_handle_busy_until_late_request_callback_finishes
-ogc-usbstorage-lifecycle,src/bulk.rs,timeout,145,protocol,host-test,crates/services/ogc-usbstorage-lifecycle/src/bulk.rs,failed_alarm_cancel_blocks_reuse_until_alarm_callback_finishes
-ogc-usbstorage-lifecycle,src/bulk.rs,classify,162,protocol,host-test,crates/services/ogc-usbstorage-lifecycle/src/bulk.rs,timeout_keeps_handle_busy_until_late_request_callback_finishes
+ogc-usbstorage-lifecycle,src/bulk.rs,begin,24,protocol,host-test,crates/services/ogc-usbstorage-lifecycle/src/bulk.rs,timeout_keeps_handle_busy_until_late_request_callback_finishes
+ogc-usbstorage-lifecycle,src/bulk.rs,arm_alarm,39,protocol,host-test,crates/services/ogc-usbstorage-lifecycle/src/bulk.rs,completion_before_alarm_arm_is_preserved_and_alarm_is_canceled
+ogc-usbstorage-lifecycle,src/bulk.rs,mark_no_alarm,90,protocol,host-test,crates/services/ogc-usbstorage-lifecycle/src/bulk.rs,failed_alarm_setup_waits_for_request_callback_without_arming_timer
+ogc-usbstorage-lifecycle,src/bulk.rs,complete,96,protocol,host-test,crates/services/ogc-usbstorage-lifecycle/src/bulk.rs,timeout_keeps_handle_busy_until_late_request_callback_finishes
+ogc-usbstorage-lifecycle,src/bulk.rs,timeout,148,protocol,host-test,crates/services/ogc-usbstorage-lifecycle/src/bulk.rs,failed_alarm_cancel_blocks_reuse_until_alarm_callback_finishes
+ogc-usbstorage-lifecycle,src/bulk.rs,classify,165,protocol,host-test,crates/services/ogc-usbstorage-lifecycle/src/bulk.rs,timeout_keeps_handle_busy_until_late_request_callback_finishes
 ogc-usbstorage-lifecycle,src/deinitialize.rs,record_status,5,protocol,host-test,crates/services/ogc-usbstorage-lifecycle/src/deinitialize.rs,deinitialization_result_stays_visible_until_next_attempt
 ogc-usbstorage-lifecycle,src/deinitialize.rs,latest_status,9,protocol,host-test,crates/services/ogc-usbstorage-lifecycle/src/deinitialize.rs,deinitialization_result_stays_visible_until_next_attempt
 ogc-bt-sync,src/hid_host.rs,search_wii_guest,616,protocol,host-test,crates/services/ogc-bt-sync/src/hid_host.rs,guest_search_disconnects_wii_remotes_before_periodic_inquiry

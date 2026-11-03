@@ -1,5 +1,30 @@
 # Development results
 
+## 2026-11-02: Wii-target probe Clippy cleanup
+
+The Wii-target `ogc-system-probe` library and its dependencies passed Clippy
+with `-D warnings` and the `dolphin-automation` feature. The host default
+packages also passed Clippy with `-D warnings`, formatting, and their tests.
+The USB lifecycle host suite passed 21 tests. The source audit passed with
+three existing tracked debt entries. The completeness audit reported 2,218
+APIs without accepted exact evidence.
+
+The cleanup changes two Rust API signatures. USB bulk `begin` now returns
+`PendingCompletion` instead of `()` for a pending completion. Diagnostic
+`SiFaultStep::new` now accepts the payload length and bytes as a tuple.
+Callers must update these arguments and error types. Other changes preserve
+the control flow and the arena probe's direct evidence calls.
+
+The [arena probe](docs/dolphin-runs/2026-11-02-arena-lint/suite.json) ran in
+Dolphin 2609a with 11 passes and no failures. Its DOL SHA-256 was
+`ca62557b6ae49e513070be93d8b3608d28975a6171b921e412685ab17b3e24f4`.
+The [PAD state probe](docs/dolphin-runs/2026-11-02-pad-clippy/suite.json) ran
+with 61 passes and no failures. Its DOL SHA-256 was
+`c2f87f0666893db690bb499ae4c590e64a8fa98887a6db7217a0b29c8c4a55ea`.
+Both used private profiles, copied Wii NAND, revision `14400cd`, and the
+uncommitted changes in this batch. HBC was not under test. These runs do not
+establish physical Wii behavior.
+
 ## 2026-11-02: GX spotlight modes in Dolphin
 
 The video probe checks the cosine, cosine-squared, sharp, and two ring

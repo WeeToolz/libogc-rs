@@ -18,11 +18,14 @@ pub enum State {
     AlarmCancelFailed { alarm_pending: bool },
 }
 
-pub fn begin(result: &AtomicI32) -> Result<(), ()> {
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct PendingCompletion;
+
+pub fn begin(result: &AtomicI32) -> Result<(), PendingCompletion> {
     loop {
         let previous = result.load(Ordering::Acquire);
         if matches!(previous, TIMED_OUT_PENDING | ALARM_CANCEL_PENDING) {
-            return Err(());
+            return Err(PendingCompletion);
         }
         if result
             .compare_exchange(previous, PROCESSING, Ordering::AcqRel, Ordering::Acquire)
@@ -192,7 +195,7 @@ mod tests {
                 request_pending: true
             }
         );
-        assert!(begin(&result).is_err());
+        assert_eq!(begin(&result), Err(PendingCompletion));
 
         complete(&result, 512, || {
             panic!("a fired alarm is not canceled again")

@@ -299,8 +299,7 @@ impl SiFaultStep {
         occurrence: u32,
         outcome: u32,
         result: u32,
-        payload_len: u32,
-        payload: [u8; 10],
+        data: (u32, [u8; 10]),
     ) -> Self {
         Self {
             operation,
@@ -310,8 +309,8 @@ impl SiFaultStep {
             occurrence,
             outcome,
             result,
-            payload_len,
-            payload,
+            payload_len: data.0,
+            payload: data.1,
             _padding: [0; 2],
         }
     }
@@ -347,7 +346,7 @@ impl SiFaultSlot {
         Self {
             active: false,
             consumed: false,
-            step: SiFaultStep::new(0, -1, 0xff, 0, 0, 0, 0, [0; 10]),
+            step: SiFaultStep::new(0, -1, 0xff, 0, 0, 0, (0, [0; 10])),
         }
     }
 }
@@ -374,7 +373,7 @@ impl SiHeldOperation {
             in_: core::ptr::null_mut(),
             in_len: 0,
             callback: None,
-            step: SiFaultStep::new(0, -1, 0xff, 0, 0, 0, 0, [0; 10]),
+            step: SiFaultStep::new(0, -1, 0xff, 0, 0, 0, (0, [0; 10])),
         }
     }
 }
@@ -1734,8 +1733,7 @@ mod tests {
             0,
             SI_FAULT_REJECT,
             0,
-            0,
-            [0; 10],
+            (0, [0; 10]),
         );
         assert_eq!(si_fault_install(&[step]), 1);
         assert!(si_fault_take(SI_FAULT_OPERATION_TRANSFER, 0, 0x41).is_none());
