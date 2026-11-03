@@ -255,6 +255,25 @@ fn probe_light_falloff(logger: &mut ProbeLogger) {
         let invalid =
             gx::light_obj_snapshot(&light).is_some_and(|s| s.attenuation == [1.0, 0.0, 0.0]);
         logger.record("GX light spotlight cutoff", flat && invalid);
+        let cases = [
+            (gx::GX_SP_COS, [0.0, 1.0, 0.0]),
+            (gx::GX_SP_COS2, [0.0, 0.0, 1.0]),
+            (gx::GX_SP_SHARP, [0.0, 2.0, -1.0]),
+            (gx::GX_SP_RING1, [0.0, 4.0, -4.0]),
+            (gx::GX_SP_RING2, [1.0, 0.0, -2.0]),
+        ];
+        let mut modes_match = true;
+        for (mode, expected) in cases {
+            gx::init_light_spot(&mut light, 90.0, mode);
+            modes_match &= gx::light_obj_snapshot(&light).is_some_and(|snapshot| {
+                snapshot
+                    .attenuation
+                    .iter()
+                    .zip(expected)
+                    .all(|(actual, expected)| (*actual - expected).abs() < 0.000_01)
+            });
+        }
+        logger.record("GX light spotlight modes", modes_match);
     }
 }
 

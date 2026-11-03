@@ -1,5 +1,23 @@
 # Development results
 
+## 2026-11-02: GX spotlight modes in Dolphin
+
+The video probe checks the cosine, cosine-squared, sharp, and two ring
+spotlight modes at 90 degrees against fixed coefficients. The DOL ran in
+Dolphin 2609a with 48 passes and no failures. Its SHA-256 was
+`47f48cf99d9423d530d3c5250f6a5a19624114a1777216312761c61e42ce832a`.
+The build used revision `cdf9fc1` and the probe change in this batch. The
+runner used a private profile and copied Wii NAND. HBC was not under test.
+The [report](docs/dolphin-runs/2026-11-02-gx-spot-modes/suite.json) records
+the run. The checks inspect an in-memory light object. Rendered lighting and
+physical Wii behavior remain untested.
+
+Build with `cargo xtask build-dol ogc-system-probe --bin video_probe
+--probe-features dolphin-automation --no-dev --output
+target/xtask/probes-dolphin/video_probe.dol`. Run with `cargo xtask
+dolphin-validate --no-build --probe video_probe --artifact-dir
+docs/dolphin-runs/2026-11-02-gx-spot-modes`.
+
 ## 2026-11-02: GX overscan and probe lint
 
 The video probe checks interlaced and progressive overscan, in-place output,
