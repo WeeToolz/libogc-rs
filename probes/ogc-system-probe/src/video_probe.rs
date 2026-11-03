@@ -34,6 +34,7 @@ pub fn run(logger: &mut ProbeLogger) {
     logger.section("VIDEO PROBE");
     probe_texture_descriptors(logger);
     probe_texture_queries(logger);
+    probe_texture_indexed_lod(logger);
     probe_fifo_pointers(logger);
 
     let rmode = init_display(logger);
@@ -147,6 +148,75 @@ pub fn run(logger: &mut ProbeLogger) {
     let _ = video::set_post_retrace_callback(previous_post);
     PREVIOUS_PRE_CALLBACK.store(0, Ordering::Release);
     PREVIOUS_POST_CALLBACK.store(0, Ordering::Release);
+}
+
+fn probe_texture_indexed_lod(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    #[repr(align(32))]
+    struct Image([u8; 64]);
+    let mut image = Image([0; 64]);
+    let mut first = gx::GxTexObj::default();
+    let mut second = gx::GxTexObj::default();
+    let init = gx::GxTexObjInit {
+        wd: 16,
+        ht: 8,
+        fmt: gx::GX_TF_CI8,
+        wrap_s: 1,
+        wrap_t: 2,
+        mipmap: 0,
+    };
+    // SAFETY: The image and both descriptor objects are live and writable.
+    // The descriptors are inspected only; no image data is submitted to GX.
+    unsafe {
+        gx::init_tex_obj_ci(&mut first, image.0.as_mut_ptr().cast(), init, 0x1234);
+        gx::init_tex_obj_ci_from_init(&mut second, image.0.as_mut_ptr().cast(), init, 0x5678);
+        let first_ok = gx::tex_obj_snapshot(&first).is_some_and(|s| {
+            s.width == 16
+                && s.height == 8
+                && s.format == gx::GX_TF_CI8
+                && s.tex_tlut == 0x1234
+                && s.tex_flag & 2 == 0
+        });
+        let second_ok = gx::tex_obj_snapshot(&second).is_some_and(|s| {
+            s.width == 16
+                && s.height == 8
+                && s.format == gx::GX_TF_CI8
+                && s.tex_tlut == 0x5678
+                && s.tex_flag & 2 == 0
+        });
+        gx::init_tex_obj_tlut(&mut second, 0x9abc);
+        logger.record(
+            "GX indexed texture descriptors and palette",
+            first_ok
+                && second_ok
+                && gx::tex_obj_snapshot(&second).is_some_and(|s| s.tex_tlut == 0x9abc),
+        );
+
+        gx::init_tex_obj_lod_from_params(
+            &mut first,
+            gx::GxTexObjLod {
+                minfilt: gx::GX_NEAR_MIP_NEAR,
+                magfilt: gx::GX_LINEAR,
+                minlod: -1.0,
+                maxlod: 12.0,
+                lodbias: 1.5,
+                biasclamp: 1,
+                edgelod: 0,
+                maxaniso: 2,
+            },
+        );
+        // Fixed register words follow the libogc C field layout and scale.
+        let grouped = gx::tex_obj_snapshot(&first)
+            .is_some_and(|s| s.tex_filt == 0x0030_6139 && s.tex_lod == 0x0000_a000);
+        gx::init_tex_obj_edge_lod(&mut first, 1);
+        gx::init_tex_obj_lod_bias(&mut first, 0.5);
+        logger.record(
+            "GX texture LOD fields and clamps",
+            grouped
+                && gx::tex_obj_snapshot(&first)
+                    .is_some_and(|s| s.tex_filt == 0x0030_2039 && s.tex_lod == 0x0000_a000),
+        );
+    }
 }
 
 fn probe_texture_queries(logger: &mut ProbeLogger) {

@@ -1,5 +1,32 @@
 # Development results
 
+## 2026-11-02: GX indexed textures and LOD in Dolphin
+
+The video probe checks both indexed texture initializers, palette selection,
+grouped level-of-detail initialization, edge LOD, and LOD bias. It verifies
+fixed register words from the C field layout, including minimum and maximum
+LOD clamps. The six directly called APIs are in the evidence registry. The
+probe inspects in-memory descriptors; it does not submit texture data to GX or
+verify rendered output.
+
+The DOL ran in Dolphin 2609a with 38 passes and no failures. Its SHA-256 was
+`2901bee5ff5feb70cdaff1e6ed79ffaec5ec1433c19c7c15412fa33efcb84d4c`.
+The build used revision `3c1946f` and the uncommitted video probe change in
+this batch. The runner used a private profile and a copy of the configured Wii
+NAND. HBC was not under test. The [report](docs/dolphin-runs/2026-11-02-gx-indexed/suite.json),
+[transcript](docs/dolphin-runs/2026-11-02-gx-indexed/video_probe/probe.log),
+transport data, logs, and captures record the run. The final capture was
+inspected and shows the passing summary. The copied profile remains local.
+
+Build: `cargo xtask build-dol ogc-system-probe --bin video_probe
+--probe-features dolphin-automation --no-dev --output
+target/xtask/probes-dolphin/video_probe.dol`. Run: `cargo xtask
+dolphin-validate --no-build --probe video_probe --artifact-dir
+docs/dolphin-runs/2026-11-02-gx-indexed`. The checks do not establish physical
+Wii behavior or texture rendering.
+The source audit passed with three existing tracked debt entries. The
+completeness audit reported 2,235 APIs without accepted exact evidence.
+
 ## 2026-11-02: GX texture descriptor queries in Dolphin
 
 The video probe checks image and user-data pointers, mipmap state, filters,
