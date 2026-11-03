@@ -16,6 +16,8 @@ use ogc_usbgecko as usbgecko;
 
 use crate::probe_support::ProbeLogger;
 
+mod dsp_tasks;
+
 #[repr(align(32))]
 struct Align32<const N: usize>([u8; N]);
 
@@ -242,6 +244,8 @@ fn probe_dsp(logger: &mut ProbeLogger) {
         "DSP direct and wrapper DMA status report idle",
         dma_status == 0 && direct_dma_status == 0,
     );
+
+    dsp_tasks::probe_dsp_tasks(logger);
 
     DSP_SHUTDOWN_STAGES.store(0, Ordering::Release);
     ogc_dsp_sys::shutdown_with_progress(Some(dsp_shutdown_stage));

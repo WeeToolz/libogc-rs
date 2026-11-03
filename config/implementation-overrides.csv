@@ -199,6 +199,9 @@ ogc-dsp,src/lib.rs,shutdown,compatibility-forwarder,bus-probe,Dolphin checks shu
 ogc-dsp,src/lib.rs,halt,compatibility-forwarder,bus-probe,Dolphin checks the DSP halt control bit
 ogc-dsp,src/lib.rs,unhalt,compatibility-forwarder,bus-probe,Dolphin checks the DSP halt control bit clears
 ogc-dsp,src/lib.rs,get_dma_status,compatibility-forwarder,bus-probe,Dolphin checks DMA idle state through the wrapper
+ogc-dsp,src/lib.rs,add_task,compatibility-forwarder,dsp-task-probe,Dolphin boots the AESND DSP fixture through the task wrapper and checks task state
+ogc-dsp,src/lib.rs,cancel_task,compatibility-forwarder,dsp-task-probe,Dolphin checks task cancellation flags and completion through the wrapper
+ogc-dsp,src/lib.rs,assert_task,compatibility-forwarder,dsp-task-probe,Dolphin checks the no-current-task result through the wrapper
 ogc-dsp-sys,src/lib.rs,init,hardware,bus-probe,Dolphin checks DSP initialization and later register operations
 ogc-dsp-sys,src/lib.rs,new,hardware,bus-probe,Dolphin checks volatile task fields with caller-owned memory
 ogc-dsp-sys,src/lib.rs,read,hardware,bus-probe,Dolphin checks volatile task field reads
@@ -216,3 +219,6 @@ ogc-dsp-sys,src/lib.rs,shutdown_with_progress,hardware,bus-probe,Dolphin checks 
 ogc-dsp-sys,src/lib.rs,halt,hardware,bus-probe,Dolphin checks the DSP halt control bit
 ogc-dsp-sys,src/lib.rs,unhalt,hardware,bus-probe,Dolphin checks the DSP halt control bit clears
 ogc-dsp-sys,src/lib.rs,get_dma_status,hardware,bus-probe,Dolphin checks DSP DMA reports idle
+ogc-dsp-sys,src/lib.rs,add_task,hardware,dsp-task-probe,Dolphin boots the AESND DSP fixture and checks init and completion callbacks
+ogc-dsp-sys,src/lib.rs,cancel_task,hardware,dsp-task-probe,Dolphin checks cancellation flags and task removal after completion
+ogc-dsp-sys,src/lib.rs,assert_task,hardware,dsp-task-probe,Dolphin checks the no-current-task result while the scheduler is idle

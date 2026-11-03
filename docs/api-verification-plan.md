@@ -81,25 +81,32 @@ findings in `DEVELOPMENT_RESULTS.md` and evidence outside `target`.
 
 ## Wider audio group status
 
-The current audio batch covers `asnd-sys`, `mad-sys`, `modplay-capi`,
-`mp3player-sys`, `ogc-aram`, `ogc-audio-sys`, `ogc-dsp`, and `ogc-dsp-sys`.
+The current audio batch covers `aesnd`, `aesnd-sys`, `asnd-sys`, `mad-sys`,
+`modplay-capi`, `mp3player-sys`, `ogc-aram`, `ogc-audio-sys`, `ogc-dsp`, and
+`ogc-dsp-sys`.
 Use the generated inventory for current per-symbol counts; the package counts
 in the initial audio work list are a baseline and can change as evidence is
 accepted. `ogc-audio-sys` has a focused Dolphin probe. Its callback registration
 and removal are checked, but callback delivery is not accepted from Dolphin:
 the AI DMA byte count did not advance and neither AI callback ran during the
-emulated wait. Track callback delivery for a real-Wii run. Continue through the
-remaining audio packages with exact API calls, fixed fixtures, and recorded
-Dolphin or host results. The sync-only libmad decoder message has host evidence.
+emulated wait. Track callback delivery for a real-Wii run. All current audio
+inventory entries have accepted Dolphin or host evidence. The sync-only libmad
+decoder message has host evidence.
+These inventory results are Dolphin or host evidence; they do not imply that
+the APIs passed in this batch were tested on Wii hardware. A separate
+application build played audible sound effects on a physical Wii, as recorded
+in [the Wii hardware log](wii-hardware-validation.md), but that observation
+does not validate individual audio APIs.
 The earlier Dolphin checksum mismatch came from using host `FPM_DEFAULT`
 goldens in a PowerPC `FPM_PPC` probe; the probe now uses the repeatable
 PowerPC hashes. No fixture-dependent decoder failure is counted as evidence.
 
-The 2026-11-02 inventory has 64 open entries in these packages. The MP3
-player probe passed 19 checks in Dolphin 2609a. It checked direct and alias
-initialization, invalid arguments, buffer and reader playback to completion,
-looped playback, pause and resume through ASND voice state, error state, and
-cleanup. A chained AI DMA callback sampled actual DMA buffers. Full volume and
+The current generated inventory has zero open entries in the wider audio
+group. The MP3 player probe passed 19 checks in Dolphin 2609a. It checked
+direct and alias initialization, invalid arguments, buffer and reader playback
+to completion, looped playback, pause and resume through ASND voice state,
+error state, and cleanup. A chained AI DMA callback sampled actual DMA buffers.
+Full volume and
 the alias clamp produced nonzero PCM energy, while mute produced zero energy.
 Normal speed and 1.4x speed produced different nonzero PCM hashes. The run used
 DOL SHA-256
@@ -115,31 +122,40 @@ and reset/reinitialization. The DOL SHA256 was
 `docs/dolphin-runs/2026-11-02-aram-verified/`. Dolphin validates the emulated
 hardware path; a physical Wii run has not been recorded.
 
-The DSP probe passed 26 checks in Dolphin 2609a. It checked mailbox messages
-and status bits, DSP halt and unhalt control bits, interrupt control bits,
-volatile task fields, callback replacement and restoration, DMA status, and
-all four shutdown progress stages. Its DOL SHA256 was
+The DSP control probe passed 26 checks in Dolphin 2609a. It checked mailbox
+messages and status bits, DSP halt and unhalt control bits, interrupt control
+bits, volatile task fields, callback replacement and restoration, DMA status,
+and all four shutdown progress stages. Its DOL SHA-256 was
 `3e2510b7597394e7bd1989be99873475e2250092d352b4a3163fb9cc39919ec6`. See
-`docs/dolphin-runs/2026-11-02-dsp-complete/`. The probe did not directly verify the public DSP task scheduler APIs. The
-repository has a DSP mixer fixture in `crates/media/aesnd-sys/dsp/dspmixer.bin`,
-but that program requires the AESND mailbox and command-buffer protocol. The
-standalone probe has not yet built a safe, valid task lifecycle around that
-protocol. A diagnostic run also did not deliver the registered user callback
-after `assert_int`, so callback delivery remains unverified. Dolphin shutdown passed; physical Wii
-shutdown still needs a run because the known reset sequence has stalled on Wii.
-The callback result is in `docs/dolphin-runs/2026-11-02-dsp-first/`.
+`docs/dolphin-runs/2026-11-02-dsp-complete/`.
+
+A second bus probe now exercises the task scheduler with the repository's
+AESND mixer code and mailbox handoff. It checks task boot, init and done
+callbacks, cancellation flags, task removal, wrapper null rejection, and the
+empty-queue result from `assert_task`. Dolphin 2609a passed 32 checks with zero
+failures. Its final DOL SHA-256 is
+`2cd036f50c2b265c8e16c80d79e537bb0e134c62ccce63a72e25d241fc536a55`. See
+`dolphin-runs/2026-11-02-dsp-task-scheduler-final/`. The first task run
+timed out because the preceding mailbox probe had consumed the DSP boot
+message; the corrected probe resets the DSP and leaves its boot mailbox ready
+for `add_task`. Active-task preemption through `assert_task` remains untested.
+A diagnostic run also did not deliver the registered user callback after
+`assert_int`, so callback delivery remains unverified. Dolphin shutdown passed;
+physical Wii shutdown and callback delivery remain untested.
 
 | Package | Open entries |
 | --- | ---: |
+| `aesnd` | 0 |
+| `aesnd-sys` | 0 |
 | `asnd-sys` | 0 |
 | `mad-sys` | 0 |
 | `modplay-capi` | 0 |
 | `mp3player-sys` | 0 |
 | `ogc-aram` | 0 |
 | `ogc-audio-sys` | 0 |
-| `ogc-dsp` | 3 |
-| `ogc-dsp-sys` | 3 |
-| **Total** | **6** |
+| `ogc-dsp` | 0 |
+| `ogc-dsp-sys` | 0 |
+| **Total** | **0** |
 
 ## Package work list
 

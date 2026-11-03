@@ -14,7 +14,9 @@ stream behavior through wrapper and backend calls where applicable. It checks
 PCM output, silence, callbacks, and playback duration. The private DSP cycle
 methods are checked using the same source compiled into the DOL; that check
 does not observe the live callback's internal state. All 23 remaining AESND
-inventory entries now have evidence. Real Wii audio behavior remains untested.
+inventory entries now have accepted evidence. A separate application build has
+played audible sound effects on Wii hardware; the individual API checks in this
+audio batch use Dolphin or host tests and have not run on Wii hardware.
 
 Two earlier runs failed both delay checks. The diagnostic run recorded one
 matching output buffer during each early window. The final run drains four
@@ -798,3 +800,29 @@ SHA-256 is `a812a8c8c30bf6361031d85b7d7e8c3ca127610f8d65324625b8ce612586eb3c`.
 See the [suite](docs/dolphin-runs/2026-11-02-mp3-speed-capture-final/suite.json)
 and [probe log](docs/dolphin-runs/2026-11-02-mp3-speed-capture-final/mp3player_probe/probe.log).
 No physical Wii run was made.
+
+## 2026-11-02: DSP task scheduler probe
+
+The bus probe now uses the AESND DSP mixer fixture and its required mailbox
+handoff to exercise `add_task`, `cancel_task`, and `assert_task` through the
+direct APIs and wrappers. It verifies task boot, init and done callbacks,
+cancellation flags, and task removal. `assert_task` checks the empty-queue
+result; active-task preemption remains untested. The first run timed out because
+the earlier DSP register checks had consumed the boot mailbox. The final probe
+resets the DSP and waits until the boot message is ready without reading it.
+Dolphin 2609a passed 32 checks with zero failures. The task microcode and DRAM
+buffers are 32-byte aligned. The final DOL SHA-256 is
+`2cd036f50c2b265c8e16c80d79e537bb0e134c62ccce63a72e25d241fc536a55`. See the
+[suite](docs/dolphin-runs/2026-11-02-dsp-task-scheduler-final/suite.json) and
+[probe log](docs/dolphin-runs/2026-11-02-dsp-task-scheduler-final/bus_probe/probe.log).
+The initial timeout is retained in
+`docs/dolphin-runs/2026-11-02-dsp-task-scheduler/`. User callback delivery
+after `assert_int` and physical Wii DSP shutdown remain unverified.
+
+The regenerated inventory contains zero unverified entries in the ten audio
+packages. `cargo xtask check-inventory`, `cargo xtask check-group audio`,
+`cargo xtask audit-source`, and `cargo fmt --all -- --check` passed. The full
+`cargo xtask test-host` suite passed with the required local socket permission.
+PowerPC Clippy with warnings denied passed for the `bus_probe` binary. Dolphin
+does not verify DSP callback delivery after `assert_int`; physical Wii shutdown
+and callback delivery remain outside this evidence.

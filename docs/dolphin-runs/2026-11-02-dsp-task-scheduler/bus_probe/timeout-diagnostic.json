@@ -1,0 +1,10 @@
+{
+  "boot_stage_address": 2148144256,
+  "boot_stage": 3,
+  "program_counter": null,
+  "program_counter_symbol": null,
+  "program_counter_reply": "T0540:8005e2ac;01:817fc760;",
+  "debugger_stop": "T0540:8005e2ac;01:817fc760;",
+  "stack_trace": [],
+  "error": "invalid PC reply: Dolphin GDB returned an odd-length hex value; Dolphin GDB returned 4 bytes, expected 8"
+}

@@ -693,8 +693,8 @@ ogc-usbstorage-sys,src/lib.rs,read,454,hardware,hardware-probe,probes/ogc-system
 ogc-usbstorage-sys,src/wii_backend.rs,read,2619,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_usb_close_persistence
 ogc-usbstorage-sys,src/lib.rs,write,480,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,write_usb_close_probe
 ogc-usbstorage-sys,src/wii_backend.rs,write,2636,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,write_usb_close_probe
-ogc-wd,src/lib.rs,deinit,313,ios,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,run
-ogc-wd,src/lib.rs,init,292,ios,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,run
+ogc-wd,src/lib.rs,deinit,305,ios,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,run
+ogc-wd,src/lib.rs,init,284,ios,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,run
 ogc-wiisd,src/lib.rs,shutdown,773,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,run
 tinysmb-sys,src/lib.rs,connect,499,protocol,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,probe_short_wii_sockaddr
 tinysmb-sys,src/powerpc_backend.rs,connect,2035,protocol,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,probe_short_wii_sockaddr
@@ -1342,6 +1342,9 @@ ogc-dsp,src/lib.rs,shutdown,48,compatibility-forwarder,hardware-probe,probes/ogc
 ogc-dsp,src/lib.rs,halt,52,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_dsp
 ogc-dsp,src/lib.rs,unhalt,56,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_dsp
 ogc-dsp,src/lib.rs,get_dma_status,60,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_dsp
+ogc-dsp,src/lib.rs,add_task,67,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/bus_probe/dsp_tasks.rs,probe_dsp_tasks
+ogc-dsp,src/lib.rs,cancel_task,74,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/bus_probe/dsp_tasks.rs,probe_dsp_tasks
+ogc-dsp,src/lib.rs,assert_task,81,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/bus_probe/dsp_tasks.rs,probe_dsp_tasks
 ogc-dsp-sys,src/lib.rs,new,50,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_dsp
 ogc-dsp-sys,src/lib.rs,read,54,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_dsp
 ogc-dsp-sys,src/lib.rs,write,58,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_dsp
@@ -1358,3 +1361,6 @@ ogc-dsp-sys,src/lib.rs,shutdown_with_progress,657,hardware,hardware-probe,probes
 ogc-dsp-sys,src/lib.rs,halt,702,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_dsp
 ogc-dsp-sys,src/lib.rs,unhalt,717,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_dsp
 ogc-dsp-sys,src/lib.rs,get_dma_status,732,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_dsp
+ogc-dsp-sys,src/lib.rs,add_task,743,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe/dsp_tasks.rs,probe_dsp_tasks
+ogc-dsp-sys,src/lib.rs,cancel_task,772,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe/dsp_tasks.rs,probe_dsp_tasks
+ogc-dsp-sys,src/lib.rs,assert_task,792,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe/dsp_tasks.rs,probe_dsp_tasks
