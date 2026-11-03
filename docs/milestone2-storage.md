@@ -13,10 +13,12 @@ Most evidence rows currently check only a function or method name; they do not
 resolve its crate or receiver type. Five `ogc-wiisd` rows record the
 `WII_SD_INTERFACE` callback field and require the matching function-pointer
 call in the named probe. Twenty `ogc-usbstorage-lifecycle` rows record the
-exact free-function or method receiver used by their named host test. Thirty
+exact free-function or method receiver used by their named host test. Sixty-four `ogc-fat` rows record exact function or method call paths from
+Dolphin probes and host tests. Thirty
 `ogc-usbstorage` rows record the wrapper path called by a named probe.
 Sixty-five `ogc-usbstorage-sys` rows record exact wrapper, C ABI, callback, or
-helper paths. A path match checks source identity; it does not prove that a
+helper paths. In total, 184 of 604 rows record exact API paths. These checks
+confirm source identity only. A path match checks source identity; it does not prove that a
 device-dependent branch ran. Review each mapping and its runtime evidence
 before using it as a result.
 
