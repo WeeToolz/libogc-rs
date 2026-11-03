@@ -1149,8 +1149,16 @@ behavior remains open. See the [run report](docs/dolphin-runs/2026-11-03-card-cl
 
 An audit found 137 identical green and black screenshots with no readable text.
 They do not support visual claims. The Dolphin runner now rejects that blank
-page pattern. A diagnostic run detected the pattern on its first page; the
-capture cause remains open. See the [audit and file list](docs/review/evidence/screenshot-audit-2026-11-03/README.md).
+page pattern. A diagnostic run detected the pattern on its first page. See the
+[audit and file list](docs/review/evidence/screenshot-audit-2026-11-03/README.md).
+
+## 2026-11-03: Console scroll capture
+
+Console scrolling now copies uncached framebuffer rows with aligned word
+accesses. The USB storage probe passed 50 checks in Dolphin with five captured
+pages and the blank-page check enabled. Its first page contains readable
+startup text. See the [run report](docs/dolphin-runs/2026-11-03-console-scroll/README.md).
+Physical Wii video behavior remains unverified.
 
 ## 2026-11-03: ISFS async format callback
 
