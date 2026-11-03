@@ -420,6 +420,20 @@ pub fn run(logger: &mut ProbeLogger) {
         },
     );
     let registered = fat::is_mounted(MOUNT);
+    let (create_rejected, unexpected_file_closed) = if mounted.is_ok() {
+        match fat::FatFile::create_new(PROBE_FILE) {
+            Err(fat::FatError::ReadOnly) => (true, true),
+            Err(_) => (false, true),
+            Ok(file) => (false, file.close().is_ok()),
+        }
+    } else {
+        (false, false)
+    };
+    let absent = matches!(fat::FatFile::open(PROBE_FILE), Err(fat::FatError::NotFound));
+    logger.record(
+        "FAT read-only mount rejects file creation and preserves absence",
+        create_rejected && absent && unexpected_file_closed,
+    );
     let unmount = if mounted.is_ok() {
         fat::unmount(MOUNT).is_ok()
     } else {
@@ -429,4 +443,10 @@ pub fn run(logger: &mut ProbeLogger) {
         "FAT configured read-only mount registers and cleans up",
         unmounted && mounted.is_ok() && registered && unmount && !fat::is_mounted(MOUNT),
     );
+    if !absent && unmount {
+        let cleanup_mount = fat::mount_sd().is_ok();
+        let removed = cleanup_mount && fat::remove_file(PROBE_FILE).is_ok();
+        let cleanup_unmount = cleanup_mount && fat::unmount(MOUNT).is_ok();
+        logger.record("FAT unexpected file cleanup", removed && cleanup_unmount);
+    }
 }

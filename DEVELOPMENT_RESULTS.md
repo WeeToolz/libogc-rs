@@ -1167,6 +1167,13 @@ blank-page check enabled. Their first and summary captures were inspected and
 contain readable text. See the [run report](docs/dolphin-runs/2026-11-03-storage-readable-pages/README.md)
 for counts, logs, captures, and limits. Physical storage remains unverified.
 
+## 2026-11-03: FAT read-only mount
+
+The FAT SD probe now checks that a read-only mount rejects file creation and
+leaves the path absent. Dolphin passed 40 checks and unmounted the volume. See
+the [run report](docs/dolphin-runs/2026-11-03-fat-readonly-mount/README.md).
+Physical media behavior remains unverified.
+
 ## 2026-11-03: ISFS async format callback
 
 With a longer bounded wait, Dolphin received the async format callback with
