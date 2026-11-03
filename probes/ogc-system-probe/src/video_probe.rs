@@ -37,6 +37,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_texture_indexed_lod(logger);
     probe_texture_regions(logger);
     probe_texture_sizes(logger);
+    probe_texture_conversion(logger);
     probe_light_object(logger);
     probe_light_falloff(logger);
     probe_specular_light(logger);
@@ -155,6 +156,30 @@ pub fn run(logger: &mut ProbeLogger) {
     let _ = video::set_post_retrace_callback(previous_post);
     PREVIOUS_PRE_CALLBACK.store(0, Ordering::Release);
     PREVIOUS_POST_CALLBACK.store(0, Ordering::Release);
+}
+
+fn probe_texture_conversion(logger: &mut ProbeLogger) {
+    let mut source = [0u8; 4 * 1024];
+    for row in 0..4 {
+        for column in 0..16 {
+            source[row * 1024 + column] = (row * 16 + column) as u8;
+        }
+    }
+    let mut output = [0xa5u8; 72];
+    // SAFETY: Source rows use the required 1024-byte stride. The output has
+    // space for both complete tiles and does not overlap the source.
+    unsafe { ogc_gx::make_texture565(source.as_ptr().cast(), output.as_mut_ptr().cast(), 9, 5) };
+    let expected = [
+        0, 1, 2, 3, 4, 5, 6, 7, 16, 17, 18, 19, 20, 21, 22, 23, 32, 33, 34, 35, 36, 37, 38, 39, 48,
+        49, 50, 51, 52, 53, 54, 55, 8, 9, 10, 11, 12, 13, 14, 15, 24, 25, 26, 27, 28, 29, 30, 31,
+        40, 41, 42, 43, 44, 45, 46, 47, 56, 57, 58, 59, 60, 61, 62, 63,
+    ];
+    let valid = output[..64] == expected && output[64..] == [0xa5; 8];
+    unsafe { ogc_gx::make_texture565(source.as_ptr().cast(), output.as_mut_ptr().cast(), -1, 4) };
+    logger.record(
+        "GX RGB565 tiled conversion and partial dimensions",
+        valid && output[..64] == expected && output[64..] == [0xa5; 8],
+    );
 }
 
 fn probe_texture_sizes(logger: &mut ProbeLogger) {
