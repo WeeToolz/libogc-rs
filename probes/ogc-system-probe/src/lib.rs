@@ -49,6 +49,8 @@ pub mod keyboard_probe;
 #[cfg(target_arch = "powerpc")]
 mod modplay_probe;
 #[cfg(target_arch = "powerpc")]
+mod mp3player_probe;
+#[cfg(target_arch = "powerpc")]
 pub mod network_probe;
 #[cfg(all(target_arch = "powerpc", feature = "pad-diagnostics"))]
 pub mod pad_diagnostics_probe;
@@ -691,6 +693,16 @@ pub fn run_modplay_probe_bin() -> i32 {
     configure_probe_app_dir("modplay-probe");
     let mut logger = init_probe_logger();
     modplay_probe::run(&mut logger);
+    logger.summary();
+    finish_probe()
+}
+
+#[cfg(target_arch = "powerpc")]
+/// Checks MP3 buffer and reader playback, callbacks, pause and cleanup.
+pub fn run_mp3player_probe_bin() -> i32 {
+    configure_probe_app_dir("mp3player-probe");
+    let mut logger = init_probe_logger();
+    mp3player_probe::run(&mut logger);
     logger.summary();
     finish_probe()
 }

@@ -92,19 +92,27 @@ remaining audio packages with exact API calls, fixed fixtures, and recorded
 Dolphin or host results. Keep the open libmad decoder message and
 fixture-dependent decoder failures open until their failures are diagnosed.
 
-The 2026-11-02 inventory has 79 open entries in these packages:
+The 2026-11-02 inventory has 64 open entries in these packages. The MP3
+player probe passed 17 checks in Dolphin 2609a. It checked direct and alias
+initialization, invalid arguments, buffer and reader playback to completion,
+looped playback, pause and resume through ASND voice state, error state, and
+cleanup. The run used DOL SHA256
+`ea80f7b00f614ed3a7ef995d81660ab9051ddb073d1971f1654b69ae1b7bae66` and a
+fixed 8,777-byte MPEG Layer III fixture. The volume and speed setters ran, but
+the library has no public readback for them, so four related entries remain
+open. See `docs/dolphin-runs/2026-11-02-mp3player-final/` for the logs.
 
 | Package | Open entries |
 | --- | ---: |
 | `asnd-sys` | 0 |
 | `mad-sys` | 0 |
 | `modplay-capi` | 0 |
-| `mp3player-sys` | 19 |
+| `mp3player-sys` | 4 |
 | `ogc-aram` | 26 |
 | `ogc-audio-sys` | 0 |
 | `ogc-dsp` | 15 |
 | `ogc-dsp-sys` | 19 |
-| **Total** | **79** |
+| **Total** | **64** |
 
 ## Package work list
 

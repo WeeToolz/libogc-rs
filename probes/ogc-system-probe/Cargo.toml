@@ -246,6 +246,10 @@ name = "modplay_probe"
 path = "src/modplay_probe/main.rs"
 
 [[bin]]
+name = "mp3player_probe"
+path = "src/mp3player_probe/main.rs"
+
+[[bin]]
 name = "usbstorage_capacity_probe"
 path = "src/usbstorage_capacity_probe/main.rs"
 
