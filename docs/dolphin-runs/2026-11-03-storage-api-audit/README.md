@@ -111,3 +111,15 @@ updated GameCube `card_probe` DOL has SHA-256
 DOLs build. Dolphin still cannot start on this host because its Qt build
 requires the `neon` processor feature, so these DOLs have no new runtime
 result.
+
+## Build after CARD cleanup-result checks
+
+The probe now records the result of unmount after an incomplete create, write,
+or read. If create completes with an inconsistent submission result, the
+probe closes its returned file before it unmounts. Previously these unmount
+results were discarded. The updated Wii `storage_probe` DOL has SHA-256
+`dcd485e43ff2bbb4b25f09436ffc7ad30de917d19711deaf1e4b94f77878127a`. The
+updated GameCube `card_probe` DOL has SHA-256
+`a91bbbfe11e54fc098ff5284b7dbb2d72baebec67ac3735acff4595eb7bd1564`.
+Both DOLs build without compiler warnings. They have no new Dolphin result;
+the installed Dolphin still fails before launch on the missing `neon` feature.
