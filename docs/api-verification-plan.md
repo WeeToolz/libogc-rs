@@ -177,7 +177,7 @@ do not infer API coverage from a package or probe name.
 
 ## Current storage audit
 
-The current inventory has 100 unverified entries in the 12 storage packages
+The current inventory has 94 unverified entries in the 12 storage packages
 below. These counts come from `docs/generated/implementation-inventory.csv`.
 Update this table after each storage batch. Do not accept source presence or a
 successful target build as runtime evidence.
@@ -186,7 +186,7 @@ successful target build as runtime evidence.
 | --- | ---: |
 | `iso9660` | 0 |
 | `ogc-card` | 28 |
-| `ogc-card-sys` | 62 |
+| `ogc-card-sys` | 56 |
 | `ogc-di` | 10 |
 | `ogc-dvd` | 0 |
 | `ogc-dvd-sys` | 0 |
@@ -196,7 +196,7 @@ successful target build as runtime evidence.
 | `ogc-usbstorage` | 0 |
 | `ogc-usbstorage-sys` | 0 |
 | `ogc-wiisd` | 0 |
-| **Total** | **100** |
+| **Total** | **94** |
 
 Use the package counts above to split storage work into these feature batches.
 Each batch still needs evidence for every API entry. A batch count does not
@@ -205,11 +205,11 @@ mean that each API has a test or probe.
 | Batch | Packages | Unverified entries |
 | --- | --- | ---: |
 | Optical disc | `iso9660`, `ogc-di`, `ogc-dvd`, `ogc-dvd-sys` | 10 |
-| GameCube memory card | `ogc-card`, `ogc-card-sys` | 90 |
+| GameCube memory card | `ogc-card`, `ogc-card-sys` | 84 |
 | FAT and file-system services | `ogc-fat`, `ogc-filesystem` | 0 |
 | SD card transports | `ogc-gcsd`, `ogc-wiisd` | 0 |
 | USB mass storage | `ogc-usbstorage`, `ogc-usbstorage-sys` | 0 |
-| **Total** | **12 packages** | **100** |
+| **Total** | **12 packages** | **94** |
 
 The remaining `ogc-di` APIs are split into these smaller probes:
 
