@@ -62,28 +62,23 @@ verification.
 
 ### CARD typed query diagnostics
 
-The diagnostic run in
-[`card-query-status`](dolphin-runs/2026-11-03-card-query-status/README.md)
-observed `CARD_ERROR_BUSY` (`-1`) from `probe_slot` and `probe_info`, and
-`CARD_ERROR_NOCARD` (`-3`) from `sector_size`, `block_count`, `free_blocks`,
-and `file_status` without a memory card. The first assertions incorrectly
-expected the typed queries to return the slot-probe error. The log shows those
-four failures and the observed result values; it is not a passing run. The
-probe now checks the no-card result for each typed query when the slot probe
-reports busy or no card. A fresh run is still required. On 2026-11-03 the
-Dolphin runner stopped at its `--version` check with `SIGABRT`, before it
-started the probe. The diagnostic logs do not prove behavior with inserted
-media or on Wii hardware.
+An early run expected typed queries to return the raw slot-probe error. Its
+four assertions failed because the APIs return different errors. The corrected
+probe passed 104 checks in Dolphin 2609a. Without a memory-card image,
+`probe_slot` and `probe_info` returned `CARD_ERROR_BUSY` (`-1`), while
+`sector_size`, `block_count`, `free_blocks`, and `file_status` returned
+`CARD_ERROR_NOCARD` (`-3`). It also checked both `CardSlot` conversions and
+that `read_slice` and `write_slice` reject empty, short, misaligned, and
+overflowing requests before device I/O. Rejected reads preserved their output
+bytes. See the [run report](dolphin-runs/2026-11-03-card-slice-preconditions-dolphin/README.md)
+and the [earlier failed assertions](dolphin-runs/2026-11-03-card-query-status/README.md).
 
-The probe now checks both `CardSlot` conversions and the public
-`read_slice`/`write_slice` wrappers with empty, short, misaligned, and
-overflowing requests. The read checks also preserve the output bytes. These
-cases return before device I/O, so the probe runs them even when Dolphin has no
-memory card. `cargo xtask build-storage-probe` built the updated DOL with SHA-256
-`0d6bf5e616f4a2802ed11f5bd85b77629c074638c152c23de10e84368d28f5d9`. Target
+The probe skipped mounted-card queries, save-file operations, and format. This
+run does not prove successful card geometry or file-status queries, persistence,
+detach behavior, or Wii hardware behavior. The sandboxed launch failed at the
+Dolphin `--version` check; the successful run used host permission. Target
 clippy passed with warnings denied, and `cargo xtask audit-source` accepted the
-direct API calls. The DOL still needs a Dolphin or Wii run; a successful build
-does not prove these checks passed.
+direct API calls.
 
 CARD game and company identifiers now use tested types in `ogc-card-metadata`.
 The host test checks valid bytes, round trips, and the exact index and byte for
