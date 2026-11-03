@@ -1892,6 +1892,10 @@ fn mount_card_owned(slot: card::CardSlot, timeout_seconds: u32) -> Option<card::
     }
 }
 
+fn record_card_unmount(logger: &mut ProbeLogger, label: &str, mounted: card::MountedCard) {
+    logger.record(label, mounted.unmount() == card::CARD_ERROR_READY);
+}
+
 fn probe_card_invalid_channel_apis(logger: &mut ProbeLogger) {
     logger.section("CARD INVALID CHANNEL APIs");
     let invalid_channel = 3;
@@ -2768,11 +2772,21 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     );
     let Some(mut file) = create_completion.and_then(|completion| completion.into_result().ok())
     else {
-        let _ = mounted.unmount();
+        record_card_unmount(
+            logger,
+            "card unmount after failed create completion",
+            mounted,
+        );
         return;
     };
     if !create_ok {
-        let _ = mounted.unmount();
+        // SAFETY: the completed create returned a live, uniquely owned file handle.
+        let close = unsafe { card::close(&mut file) };
+        logger.record(
+            "card close after failed create result",
+            close == card::CARD_ERROR_READY,
+        );
+        record_card_unmount(logger, "card unmount after failed create result", mounted);
         return;
     }
     logger.note_i32("card SAVE file channel after create", file.chn);
@@ -2877,7 +2891,7 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         card::CARD_ERROR_READY,
     );
     let Some(write_completion) = write_completion else {
-        let _ = mounted.unmount();
+        record_card_unmount(logger, "card unmount after incomplete write", mounted);
         return;
     };
     let (_, returned_file, _) = write_completion.into_parts();
@@ -2903,7 +2917,7 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         card::CARD_ERROR_READY,
     );
     let Some(read_completion) = read_completion else {
-        let _ = mounted.unmount();
+        record_card_unmount(logger, "card unmount after incomplete read", mounted);
         return;
     };
     let (_, returned_file, mut bytes) = read_completion.into_parts();
