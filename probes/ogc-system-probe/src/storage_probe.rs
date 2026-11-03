@@ -2190,6 +2190,88 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         write_rejections_preserve_payloads,
     );
 
+    let nul_filename = [b'A', 0, b'B'];
+    let oversized_filename = [b'F'; card::CARD_FILENAMELEN + 1];
+    logger.record(
+        "CARD owned create and delete reject embedded NUL and oversized filenames",
+        matches!(
+            card::create_async_owned(slot, &nul_filename, card::CARD_READSIZE),
+            Err(card::CARD_ERROR_FATAL_ERROR)
+        ) && matches!(
+            card::create_async_owned(slot, &oversized_filename, card::CARD_READSIZE),
+            Err(card::CARD_ERROR_NAMETOOLONG)
+        ) && matches!(
+            card::delete_async_owned(slot, &nul_filename),
+            Err(card::CARD_ERROR_FATAL_ERROR)
+        ) && matches!(
+            card::delete_async_owned(slot, &oversized_filename),
+            Err(card::CARD_ERROR_NAMETOOLONG)
+        ),
+    );
+
+    let mut invalid_entry = card::CardDir {
+        filelen: 0x2345,
+        fileno: 0x3456,
+        ..card::CardDir::default()
+    };
+    invalid_entry.filename.fill(b'X');
+    let create_entry_rejects_name = match card::create_entry_async_owned(slot, invalid_entry) {
+        Err(error) => {
+            error.status() == card::CARD_ERROR_NAMETOOLONG
+                && error.value().filelen == invalid_entry.filelen
+                && error.value().fileno == invalid_entry.fileno
+                && error.value().filename == invalid_entry.filename
+        }
+        Ok(request) => {
+            drop(request);
+            false
+        }
+    };
+    let delete_entry_rejects_name = match card::delete_entry_async_owned(slot, invalid_entry) {
+        Err(error) => {
+            error.status() == card::CARD_ERROR_NAMETOOLONG
+                && error.value().filelen == invalid_entry.filelen
+                && error.value().fileno == invalid_entry.fileno
+                && error.value().filename == invalid_entry.filename
+        }
+        Ok(request) => {
+            drop(request);
+            false
+        }
+    };
+    logger.record(
+        "CARD owned entry operations reject unterminated names and return entries",
+        create_entry_rejects_name && delete_entry_rejects_name,
+    );
+
+    let invalid_status = card::CardStat {
+        len: 0x1234_5678,
+        ..card::CardStat::default()
+    };
+    let negative_status_fileno = match card::set_status_async_owned(slot, -1, invalid_status) {
+        Err(error) => {
+            error.status() == card::CARD_ERROR_FATAL_ERROR && error.value().len == 0x1234_5678
+        }
+        Ok(request) => {
+            drop(request);
+            false
+        }
+    };
+    let upper_status_fileno =
+        match card::set_status_async_owned(slot, card::CARD_MAXFILES as i32, invalid_status) {
+            Err(error) => {
+                error.status() == card::CARD_ERROR_FATAL_ERROR && error.value().len == 0x1234_5678
+            }
+            Ok(request) => {
+                drop(request);
+                false
+            }
+        };
+    logger.record(
+        "CARD set_status_async_owned rejects out-of-range file numbers and returns stat",
+        negative_status_fileno && upper_status_fileno,
+    );
+
     if card::probe_slot(slot) != card::CARD_ERROR_READY {
         logger.note("card tests skipped: insert a memory card in slot A");
         return;
