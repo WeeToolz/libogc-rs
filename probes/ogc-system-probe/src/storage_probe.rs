@@ -418,6 +418,28 @@ fn probe_dvd_no_media_async(logger: &mut ProbeLogger) {
     let sync_stream = unsafe { dvd::stop_stream_at_end(&mut sync_stream_block) };
     logger.note_i32("dvd stop stream sync result", sync_stream);
     logger.record("dvd stop stream sync without media", sync_stream == -1);
+
+    let mut spin_block = dvd::DvdCmdBlk::default();
+    prepare_async_probe();
+    // SAFETY: `spin_block` remains live until the callback completes.
+    let submit = unsafe { dvd::spin_up_drive_async(&mut spin_block, Some(dvd_async_callback)) };
+    record_async(
+        logger,
+        "dvd spin up async without media",
+        submit,
+        dvd::DVD_ERROR_OK,
+        10,
+    );
+
+    let mut sync_spin_block = dvd::DvdCmdBlk::default();
+    // SAFETY: the command block remains exclusively accessible for this call.
+    let sync_spin = unsafe { dvd::spin_up_drive(&mut sync_spin_block) };
+    logger.note_i32("dvd spin up sync result", sync_spin);
+    logger.record("dvd spin up sync without media", sync_spin == 1);
+
+    let stop_motor = dvd::sys::stop_motor();
+    logger.note_i32("dvd stop motor without media result", stop_motor);
+    logger.record("dvd stop motor call completes", stop_motor == 0);
 }
 
 fn probe_dvd_no_media_helpers(logger: &mut ProbeLogger) {

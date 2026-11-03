@@ -177,7 +177,7 @@ do not infer API coverage from a package or probe name.
 
 ## Current storage audit
 
-The current inventory has 271 unverified entries in the 12 storage packages
+The current inventory has 266 unverified entries in the 12 storage packages
 below. These counts come from `docs/generated/implementation-inventory.csv`.
 Update this table after each storage batch. Do not accept source presence or a
 successful target build as runtime evidence.
@@ -188,15 +188,15 @@ successful target build as runtime evidence.
 | `ogc-card` | 28 |
 | `ogc-card-sys` | 62 |
 | `ogc-di` | 55 |
-| `ogc-dvd` | 2 |
-| `ogc-dvd-sys` | 3 |
+| `ogc-dvd` | 0 |
+| `ogc-dvd-sys` | 0 |
 | `ogc-fat` | 0 |
 | `ogc-filesystem` | 29 |
 | `ogc-gcsd` | 43 |
 | `ogc-usbstorage` | 2 |
 | `ogc-usbstorage-sys` | 47 |
 | `ogc-wiisd` | 0 |
-| **Total** | **271** |
+| **Total** | **266** |
 
 Use the package counts above to split storage work into these feature batches.
 Each batch still needs evidence for every API entry. A batch count does not
@@ -204,22 +204,23 @@ mean that each API has a test or probe.
 
 | Batch | Packages | Unverified entries |
 | --- | --- | ---: |
-| Optical disc | `iso9660`, `ogc-di`, `ogc-dvd`, `ogc-dvd-sys` | 60 |
+| Optical disc | `iso9660`, `ogc-di`, `ogc-dvd`, `ogc-dvd-sys` | 55 |
 | GameCube memory card | `ogc-card`, `ogc-card-sys` | 90 |
 | FAT and file-system services | `ogc-fat`, `ogc-filesystem` | 29 |
 | SD card transports | `ogc-gcsd`, `ogc-wiisd` | 43 |
 | USB mass storage | `ogc-usbstorage`, `ogc-usbstorage-sys` | 49 |
-| **Total** | **12 packages** | **271** |
+| **Total** | **12 packages** | **266** |
 
 The ISO9660 probe calls its three C ABI exports directly. Dolphin passed the
 probe using a controlled in-memory disc image; this does not verify a physical
 optical drive. The focused DVD probe checks `/dev/di` no-disc status, rejected
 mount, asynchronous mount, inquiry, block-safe read, drive-control, GCM
 offset, stream-stop, and seek operations, command-block state, pause and reset
-state, invalidation state restore, and shutdown in Dolphin. Its synchronous
-control, seek, and stream-stop calls return `-1`; their asynchronous forms
-report the cover-closed error. Dolphin inquiry succeeds without a disc. The
-probe does not verify disc reads or physical motor and optical-drive behavior. See the
+state, invalidation state restore, shutdown, spin-up, and stop-motor calls in
+Dolphin. Its synchronous control, seek, and stream-stop calls return `-1`; the
+asynchronous forms report the cover-closed error. Dolphin inquiry succeeds
+without a disc. These checks do not verify disc reads or physical drive motor
+behavior. See the
 [DVD Dolphin run](dolphin-runs/2026-11-03-dvd-no-media-final/README.md) and
 [DVD async no-media run](dolphin-runs/2026-11-03-dvd-no-media-async/README.md).
 The USB storage safe facade probe covers no-device errors and
