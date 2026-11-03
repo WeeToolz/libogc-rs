@@ -13,6 +13,13 @@ check before making a claim about a later change.
 | [Dolphin probes](../probes/README.md) | Target execution for the checks in each probe | Dolphin does not replace a physical Wii run. Check the probe source and its report for exact coverage. |
 | [Wii std checklist](wii-std-checklist.md) | Work and evidence for the standard library backend | Service and hardware acceptance remain incomplete. |
 
+The separate [hbc-rs application](https://github.com/WeeToolz/hbc-rs) uses
+libogc-rs and has recorded Dolphin runs for pointer input, app sorting, network
+settings, and receiver return. These results cover the recorded builds only;
+they do not validate every API or real-Wii behavior. HBC controller input has
+separate limits: an input acknowledgement does not prove that the requested
+screen action completed. See the [HBC input notes](https://github.com/WeeToolz/hbc-rs/blob/ce3ebb1656903ee79b9f956c83b766cf2d7b985c/docs/network-controller-input.md).
+
 The [implementation status](implementation-status.md) records open API and
 parity work, including USB FAT persistence evidence and Wii std entropy
 support. These are collaboration tasks, not public-sharing gates.
