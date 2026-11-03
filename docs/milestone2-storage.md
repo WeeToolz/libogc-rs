@@ -4,23 +4,26 @@ Milestone 2 replaces the remaining disabled or inline-completion storage facades
 
 ## API verification groups
 
-The generated inventory has 604 storage API entries in 14 packages. The
-inventory records the current `unverified` count in the generated status
-report. This is a source-mapping result. It does not prove that a probe ran
-or that an API passed on Dolphin or Wii hardware. The inventory audit checks
-that each entry maps to evidence source; it does not check runtime results.
+The generated inventory has 604 storage API entries in 14 packages. Its
+`unverified` count tracks missing implementation-source mappings. A zero in
+that field does not mean that every API passed a test or a Dolphin run. This
+source-mapping result does not prove runtime behavior on Dolphin or Wii hardware.
+The inventory audit checks that each entry maps to an evidence source. It does
+not check runtime results.
 Most evidence rows currently check only a function or method name; they do not
 resolve its crate or receiver type. Five `ogc-wiisd` rows record the
 `WII_SD_INTERFACE` callback field and require the matching function-pointer
 call in the named probe. Twenty `ogc-usbstorage-lifecycle` rows record the
-exact free-function or method receiver used by their named host test. Sixty-four `ogc-fat` rows record exact function or method call paths from
-Dolphin probes and host tests. Thirty
-`ogc-usbstorage` rows record the wrapper path called by a named probe.
-Sixty-five `ogc-usbstorage-sys` rows record exact wrapper, C ABI, callback, or
-helper paths. In total, 184 of 604 rows record exact API paths. These checks
-confirm source identity only. A path match checks source identity; it does not prove that a
-device-dependent branch ran. Review each mapping and its runtime evidence
-before using it as a result.
+exact free-function or method receiver used by their named host test. Forty
+`ogc-filesystem` rows record exact API paths in the runtime probe. Sixty-four
+`ogc-fat` rows record exact function or method call paths from Dolphin probes
+and host tests. Thirty `ogc-usbstorage` rows record the wrapper path called by
+a named probe. Sixty-five `ogc-usbstorage-sys` rows record exact wrapper, C
+ABI, callback, or helper paths. In total, 224 of 604 rows record exact API
+paths. These checks
+confirm source identity only. A path match does not prove that an API assertion
+passed or that a device-dependent branch ran. Review each mapping and runtime
+report before using it as a result.
 
 | Package | API entries | Probe group |
 | --- | ---: | --- |

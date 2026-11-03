@@ -1118,6 +1118,43 @@ fn probe_isfs_format_apis(logger: &mut ProbeLogger) {
     );
     let cleanup = cleanup_isfs_test_tree(directory, marker);
     logger.record("ISFS format_async marker cleanup", cleanup);
+    probe_isfs_format_sync(logger);
+}
+
+fn probe_isfs_format_sync(logger: &mut ProbeLogger) {
+    logger.section("ISFS SYNCHRONOUS FORMAT PROBE");
+    let directory = c"/tmp/ogc-rs-format-sync-verify";
+    let marker = c"/tmp/ogc-rs-format-sync-verify/marker";
+
+    let initialized = filesystem::initialize() == filesystem::ISFS_OK;
+    let stale_state_removed = initialized && cleanup_isfs_test_tree(directory, marker);
+    let directory_created =
+        stale_state_removed && filesystem::create_dir(directory, 0, 3, 3, 3) == filesystem::ISFS_OK;
+    let marker_created =
+        directory_created && filesystem::create_file(marker, 0, 3, 3, 3) == filesystem::ISFS_OK;
+    let format_result = if marker_created {
+        filesystem::format()
+    } else {
+        filesystem::ISFS_EINVAL
+    };
+    let deinitialize = filesystem::deinitialize();
+    let reinitialize = filesystem::initialize();
+    let file_exists = isfs_file_exists(marker);
+    let directory_exists = isfs_directory_exists(directory);
+    logger.record(
+        "ISFS synchronous format creates isolated marker state",
+        initialized && stale_state_removed && directory_created && marker_created,
+    );
+    logger.record(
+        "ISFS synchronous format clears marker state after service restart",
+        format_result == filesystem::ISFS_OK
+            && deinitialize == filesystem::ISFS_OK
+            && reinitialize == filesystem::ISFS_OK
+            && file_exists == Some(false)
+            && directory_exists == Some(false),
+    );
+    let cleanup = reinitialize == filesystem::ISFS_OK && cleanup_isfs_test_tree(directory, marker);
+    logger.record("ISFS synchronous format cleanup succeeds", cleanup);
 }
 
 fn probe_isfs_async_file_cycle(directory: &core::ffi::CStr, logger: &mut ProbeLogger) {
