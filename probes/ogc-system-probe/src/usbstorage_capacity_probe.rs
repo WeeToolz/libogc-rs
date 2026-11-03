@@ -133,6 +133,12 @@ pub fn run(logger: &mut ProbeLogger) {
             && sys::open_requires_bot_reset(0x1f, 512)
             && !sys::open_requires_bot_reset(-2, 512),
     );
+    logger.record(
+        "USB idle remount uses a strict sixty-second boundary",
+        !sys::idle_remount_required(160, 100)
+            && sys::idle_remount_required(161, 100)
+            && sys::idle_remount_required(100, 0),
+    );
 
     logger.record(
         "GetMaxLUN supports the full representable C count",
@@ -175,6 +181,13 @@ pub fn run(logger: &mut ProbeLogger) {
                 == Some(sys::USBSTORAGE_ETIMEDOUT)
             && sys::bot_cycle_retry_error(sys::USBSTORAGE_ETIMEDOUT, 0)
                 == Some(sys::USBSTORAGE_ETIMEDOUT),
+    );
+    logger.record(
+        "USB read/write cycle status preserves C result rules",
+        sys::read_write_cycle_result(0, 1) == 0
+            && sys::read_write_cycle_result(1, 1) == sys::USBSTORAGE_ESTATUS
+            && sys::read_write_cycle_result(1, 0) == 1
+            && sys::read_write_cycle_result(-41, 1) == -41,
     );
 
     let response = [0, 0, 0, 9, 0, 0, 2, 0];
