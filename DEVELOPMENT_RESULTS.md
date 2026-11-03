@@ -1,5 +1,22 @@
 # Development results
 
+## 2026-11-02: GX perspective fog table in Dolphin
+
+The video probe checks ten fixed perspective fog adjustment values and the
+null input handling. The DOL ran in Dolphin 2609a with 50 passes and no
+failures. Its SHA-256 was
+`fa5b0236ab1b8c3afae18ae01bd9f3c1f44ebc274ac854f924450eacca112518`.
+The build used revision `1541644` and the probe change in this batch. The
+runner used a private profile and copied Wii NAND. HBC was not under test.
+The [report](docs/dolphin-runs/2026-11-02-gx-fog-perspective/suite.json)
+records the run. Fog rendering and physical Wii behavior remain untested.
+
+Build with `cargo xtask build-dol ogc-system-probe --bin video_probe
+--probe-features dolphin-automation --no-dev --output
+target/xtask/probes-dolphin/video_probe.dol`. Run with `cargo xtask
+dolphin-validate --no-build --probe video_probe --artifact-dir
+docs/dolphin-runs/2026-11-02-gx-fog-perspective`.
+
 ## 2026-11-02: GX fog adjustment table in Dolphin
 
 The video probe checks ten fixed orthographic fog adjustment values and
