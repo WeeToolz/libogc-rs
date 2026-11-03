@@ -283,6 +283,14 @@ USB or memory-card media. It does not prove successful USB transfers, memory-car
 save operations, disc reads, or physical device behavior. Earlier failed runs
 remain historical evidence in their run directories.
 
+The current Dolphin suite passed `card_probe` with 98 checks, `storage_probe`
+with 217, `fat_sd_probe` with 40, and `dvd_probe` with 178. Each reported zero
+failures. The copied memory card and virtual Wii SD paths ran. USB transfers,
+SD Gecko success paths, DVD reads, destructive format, and media hotplug were
+not tested. See the
+[current storage-suite report](dolphin-runs/2026-11-03-storage-api-full-current/README.md)
+for DOL hashes, logs, and limits.
+
 The protected DI read group has direct Rust and C calls. It returned `-5` for
 DVD key, physical data, and report-key requests, and `0` for BCA in Dolphin.
 The run had no disc, so the BCA result does not validate BCA data contents.
@@ -320,13 +328,12 @@ without a disc. These checks do not verify disc reads or physical drive motor
 behavior. See the
 [DVD Dolphin run](dolphin-runs/2026-11-03-dvd-no-media-final/README.md) and
 [DVD async no-media run](dolphin-runs/2026-11-03-dvd-no-media-async/README.md).
-The probe now also calls all 32 `ogc-dvd-sys` APIs directly and checks their
-no-disc results, callbacks, output state, and cleanup. The current DOL builds
-with target Clippy and warnings denied. The existing Dolphin reports cover the
-facade calls only; they do not cover these new direct sys calls. The direct sys
-calls still need a fresh runtime run. A host-authorized CARD run started the
-same Dolphin executable, but that does not verify the DVD DOL. Disc reads and
-physical drive behavior remain unverified.
+The probe calls all 32 `ogc-dvd-sys` APIs directly and checks their no-disc
+results, callbacks, output state, and cleanup. The current `dvd_probe` passed
+178 checks in Dolphin 2609a, including these direct sys calls. The run had no
+disc. Successful disc reads and physical drive behavior remain unverified.
+See the
+[current storage-suite report](dolphin-runs/2026-11-03-storage-api-full-current/README.md).
 The ISFS probe checks file-system API errors while the `/dev/fs` service is
 closed. It checks service close and reopen, async errors for invalid
 descriptors, output preservation, and that format requests do not reach IOS
