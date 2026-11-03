@@ -1,5 +1,24 @@
 # Development results
 
+## 2026-11-02: GX light object in Dolphin
+
+The video probe checks light position, negated direction, color, and both
+attenuation coefficient groups. It verifies that updating attenuation preserves
+position and direction. The DOL ran in Dolphin 2609a with 43 passes and no
+failures. Its SHA-256 was
+`fdad8f4853efe8d69e0c28808b11da4cd72aa85d821f00a5a97c6423206a376d`.
+The build used revision `0109bb9` and the uncommitted probe change in this
+batch. The runner used a private profile and a copy of the configured Wii
+NAND. HBC was not under test. The [report](docs/dolphin-runs/2026-11-02-gx-light/suite.json)
+contains the run configuration and results. These checks inspect an in-memory
+object. Rendered lighting and physical Wii behavior remain untested.
+
+Build with `cargo xtask build-dol ogc-system-probe --bin video_probe
+--probe-features dolphin-automation --no-dev --output
+target/xtask/probes-dolphin/video_probe.dol`. Run with `cargo xtask
+dolphin-validate --no-build --probe video_probe --artifact-dir
+docs/dolphin-runs/2026-11-02-gx-light`.
+
 ## 2026-11-02: GX texture regions and palette in Dolphin
 
 The video probe checks cache and preload region fields against the C packed
