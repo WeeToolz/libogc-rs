@@ -88,6 +88,13 @@ not cover successful async transfers, callback delivery, completion polling,
 abandonment, cancellation, mounted media, or Wii hardware. See the
 [run report](dolphin-runs/2026-11-03-card-owned-transfer-errors-dolphin/README.md).
 
+The `card-owned-metadata-errors-dolphin` run passed 111 checks. It also
+checked rejected owned create/delete filenames, rejected unterminated
+directory-entry names with payload retention, and rejected out-of-range status
+file numbers while retaining `CardStat`. These are pre-device validation
+errors; successful operations and callbacks remain open. See the
+[run report](dolphin-runs/2026-11-03-card-owned-metadata-errors-dolphin/README.md).
+
 CARD game and company identifiers now use tested types in `ogc-card-metadata`.
 The host test checks valid bytes, round trips, and the exact index and byte for
 NUL and `0xff` errors. `ogc-card-sys` re-exports these types, so existing public
