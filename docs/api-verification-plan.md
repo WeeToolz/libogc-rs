@@ -242,10 +242,16 @@ format operations. It does not verify successful save behavior. Physical CARD
 behavior has not been tested. The CARD hardware register remains
 `not-tested`; do not treat the zero inventory count as a runtime pass.
 
+The Dolphin runner can copy a raw card image from `LIBOGC_DOLPHIN_CARD_IMAGE`
+into its isolated profile. The latest run used this option, but CARD still
+returned `CARD_ERROR_NOCARD` and skipped save operations. See the
+[attachment diagnostic](dolphin-runs/2026-11-03-card-image-template-dolphin/README.md).
+This run adds no successful CARD operation evidence.
+
 The storage probe uses exclusive creation for fixed FAT probe names and skips
 the CARD save checks when `SAVE` already exists. It removes a probe file only
 after this run created it. The latest storage run passed in Dolphin 2609a with
-97 checks and 0 failures. It skipped operations that require absent USB or
+111 checks and 0 failures. It skipped operations that require absent USB or
 memory-card media. It does not prove successful USB transfers, memory-card
 save operations, disc reads, or physical device behavior. Earlier failed runs
 remain historical evidence in their run directories.

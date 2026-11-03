@@ -21,6 +21,8 @@ const PAGE_CAPTURE_PREFIX: &str = "OGC_DOLPHIN_PAGE_CAPTURE ";
 const CAPTURE_COMPLETE: &str = "OGC_DOLPHIN_CAPTURE_COMPLETE";
 const USB_GECKO_FIRST_PORT: u16 = 0xd6ec;
 const USB_GECKO_PORT_ATTEMPTS: u16 = 11;
+const DOLPHIN_CARD_IMAGE_ENV: &str = "LIBOGC_DOLPHIN_CARD_IMAGE";
+const GAMECUBE_CARD_BLOCK_SIZE: u64 = 8192;
 
 #[derive(Clone, Copy)]
 struct ProbeSpec {
@@ -487,6 +489,41 @@ pub fn print_help() {
     eprintln!("  --nand-dir PATH         source Wii NAND (default: Dolphin user NAND)");
     eprintln!("  --artifact-dir PATH     result directory");
     eprintln!("  --timeout-seconds N     override every probe timeout");
+    eprintln!("  {DOLPHIN_CARD_IMAGE_ENV}=PATH attaches a copied raw card image to storage_probe");
+}
+
+fn copy_card_image_to_profile(template: &Path, profile: &Path) -> Result<PathBuf, String> {
+    let source_metadata =
+        fs::metadata(template).map_err(|error| format!("{}: {error}", template.display()))?;
+    if !source_metadata.is_file()
+        || source_metadata.len() < GAMECUBE_CARD_BLOCK_SIZE * 6
+        || !source_metadata
+            .len()
+            .is_multiple_of(GAMECUBE_CARD_BLOCK_SIZE)
+    {
+        return Err(format!(
+            "{} is not a raw GameCube memory card image",
+            template.display()
+        ));
+    }
+
+    let card_directory = profile.join("GC");
+    fs::create_dir_all(&card_directory)
+        .map_err(|error| format!("{}: {error}", card_directory.display()))?;
+    let destination = card_directory.join("MemoryCardA.USA.raw");
+    fs::copy(template, &destination)
+        .map_err(|error| format!("{}: {error}", destination.display()))?;
+    let copied_size = fs::metadata(&destination)
+        .map_err(|error| format!("{}: {error}", destination.display()))?
+        .len();
+    if copied_size != source_metadata.len() {
+        return Err(format!(
+            "{}: copied card size {copied_size} differs from source size {}",
+            destination.display(),
+            source_metadata.len()
+        ));
+    }
+    Ok(destination)
 }
 
 fn select_probes(names: &[String]) -> Result<Vec<ProbeSpec>, String> {
@@ -618,12 +655,10 @@ fn run_probe(
     let user_dir = probe_dir.join("user");
     fs::create_dir_all(&user_dir).map_err(|err| format!("{}: {err}", user_dir.display()))?;
     let memory_card_path = if spec.name == "storage_probe" {
-        let path = root.join(&user_dir).join("GC/MemoryCardA.USA.raw");
-        let directory = path
-            .parent()
-            .ok_or_else(|| format!("{} has no parent directory", path.display()))?;
-        fs::create_dir_all(directory).map_err(|err| format!("{}: {err}", directory.display()))?;
-        Some(path)
+        std::env::var_os(DOLPHIN_CARD_IMAGE_ENV)
+            .map(PathBuf::from)
+            .map(|template| copy_card_image_to_profile(&template, &user_dir))
+            .transpose()?
     } else {
         None
     };
@@ -2260,5 +2295,50 @@ mod tests {
                 .iter()
                 .any(|argument| argument.starts_with("Dolphin.Core.MemcardAPath="))
         );
+    }
+
+    #[test]
+    fn copies_card_template_into_private_profile_without_changing_source() {
+        let root = std::env::temp_dir().join(format!(
+            "xtask-card-copy-{}-{}",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        let source = root.join("template.raw");
+        let profile = root.join("profile");
+        let contents = vec![0x5a; 6 * GAMECUBE_CARD_BLOCK_SIZE as usize];
+        fs::create_dir_all(&root).unwrap();
+        fs::write(&source, &contents).unwrap();
+
+        let destination = copy_card_image_to_profile(&source, &profile).unwrap();
+
+        assert_eq!(destination, profile.join("GC/MemoryCardA.USA.raw"));
+        assert_eq!(fs::read(&destination).unwrap(), contents);
+        assert_eq!(fs::read(&source).unwrap(), contents);
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn rejects_non_raw_card_template_sizes() {
+        let root = std::env::temp_dir().join(format!(
+            "xtask-invalid-card-{}-{}",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        let source = root.join("invalid.raw");
+        fs::create_dir_all(&root).unwrap();
+        fs::write(&source, [0; 64]).unwrap();
+
+        let error = copy_card_image_to_profile(&source, &root.join("profile")).unwrap_err();
+
+        assert!(error.contains("not a raw GameCube memory card image"));
+        assert!(!root.join("profile/GC/MemoryCardA.USA.raw").exists());
+        fs::remove_dir_all(root).unwrap();
     }
 }
