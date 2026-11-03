@@ -1,4 +1,7 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function
+ogc-ui,src/gx.rs,from_video_mode,37,pure,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_canvas_dimensions
+ogc-ui,src/gx.rs,new,16,pure,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_canvas_dimensions
+ogc-ui,src/gx.rs,size,41,pure,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_canvas_dimensions
 ogc-gx,src/lib.rs,make_texture565,8946,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_conversion
 ogc-gx,src/lib.rs,init_fog_adj_table,6591,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_fog_table
 ogc-gx,src/lib.rs,adjust_for_overscan,6076,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_overscan
