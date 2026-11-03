@@ -16,7 +16,12 @@ compile_error!(
 use core::ffi::{CStr, c_char, c_void};
 use core::sync::atomic::{AtomicU8, AtomicU16, AtomicU32, Ordering};
 
-pub use ogc_card_metadata::{CardCompanyCode, CardGameCode, InvalidCardIdentifier};
+pub use ogc_card_metadata::{
+    CARD_FILENAMELEN, CARD_MAXICONS, CardCompanyCode, CardCreateCompletion,
+    CardCreateEntryCompletion, CardDeleteEntryCompletion, CardDir, CardFile, CardGameCode,
+    CardReadCompletion, CardReadSubmitError, CardSetStatusCompletion, CardStat,
+    CardWriteCompletion, CardWriteSubmitError, InvalidCardIdentifier,
+};
 pub use ogc_sys::Bool;
 
 pub const CARD_SLOTA: i32 = 0;
@@ -24,7 +29,6 @@ pub const CARD_SLOTB: i32 = 1;
 
 pub const CARD_WORKAREA_SIZE: u32 = 5 * 8 * 1024;
 pub const CARD_READSIZE: u32 = 512;
-pub const CARD_FILENAMELEN: usize = 32;
 pub const CARD_MAXFILES: usize = 127;
 
 pub const CARD_ERROR_UNLOCKED: i32 = 1;
@@ -56,7 +60,6 @@ pub const CARD_BANNER_CI: u8 = 0x01;
 pub const CARD_BANNER_RGB: u8 = 0x02;
 pub const CARD_BANNER_MASK: u8 = 0x03;
 
-pub const CARD_MAXICONS: usize = 8;
 pub const CARD_ICON_W: u32 = 32;
 pub const CARD_ICON_H: u32 = 32;
 pub const CARD_ICON_NONE: u8 = 0x00;
@@ -75,44 +78,6 @@ pub const CARD_SPEED_SLOW: u8 = 0x03;
 pub const CARD_SPEED_MASK: u8 = 0x03;
 
 pub type CardCallback = Option<unsafe extern "C" fn(chan: i32, result: i32)>;
-
-#[repr(C)]
-#[derive(Copy, Clone, Default)]
-pub struct CardFile {
-    pub chn: i32,
-    pub filenum: i32,
-    pub offset: i32,
-    pub len: i32,
-    pub iblock: u16,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct CardDir {
-    pub chn: i32,
-    pub fileno: u32,
-    pub filelen: u32,
-    pub permissions: u8,
-    pub filename: [u8; CARD_FILENAMELEN],
-    pub gamecode: [u8; 4],
-    pub company: [u8; 2],
-    pub showall: Bool,
-}
-
-impl Default for CardDir {
-    fn default() -> Self {
-        Self {
-            chn: 0,
-            fileno: 0,
-            filelen: 0,
-            permissions: 0,
-            filename: [0; CARD_FILENAMELEN],
-            gamecode: [0; 4],
-            company: [0; 2],
-            showall: 0,
-        }
-    }
-}
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -152,52 +117,6 @@ impl Default for CardDirEntry {
             length: 0,
             pad_01: 0,
             comment_addr: 0,
-        }
-    }
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct CardStat {
-    pub filename: [u8; CARD_FILENAMELEN],
-    pub len: u32,
-    pub time: u32,
-    pub gamecode: [u8; 4],
-    pub company: [u8; 2],
-    pub banner_fmt: u8,
-    pub icon_addr: u32,
-    pub icon_fmt: u16,
-    pub iconfmt: [u16; CARD_MAXICONS],
-    pub icon_speed: u16,
-    pub iconspeed: [u16; CARD_MAXICONS],
-    pub comment_addr: u32,
-    pub offset_banner: u32,
-    pub offset_banner_tlut: u32,
-    pub offset_icon: [u32; CARD_MAXICONS],
-    pub offset_icon_tlut: [u32; CARD_MAXICONS],
-    pub offset_data: u32,
-}
-
-impl Default for CardStat {
-    fn default() -> Self {
-        Self {
-            filename: [0; CARD_FILENAMELEN],
-            len: 0,
-            time: 0,
-            gamecode: [0; 4],
-            company: [0; 2],
-            banner_fmt: 0,
-            icon_addr: 0,
-            icon_fmt: 0,
-            iconfmt: [0; CARD_MAXICONS],
-            icon_speed: 0,
-            iconspeed: [0; CARD_MAXICONS],
-            comment_addr: 0,
-            offset_banner: 0,
-            offset_banner_tlut: 0,
-            offset_icon: [0; CARD_MAXICONS],
-            offset_icon_tlut: [0; CARD_MAXICONS],
-            offset_data: 0,
         }
     }
 }
