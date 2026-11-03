@@ -600,11 +600,11 @@ fn reset_isfs_callback() {
 }
 
 fn wait_isfs_callback() -> bool {
-    for _ in 0..3000 {
+    for _ in 0..1000 {
         if ISFS_CALLBACK_DONE.load(Ordering::Acquire) {
             return true;
         }
-        lwp::sleep_ticks(1);
+        lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 100).max(1));
     }
     ISFS_CALLBACK_DONE.load(Ordering::Acquire)
 }
