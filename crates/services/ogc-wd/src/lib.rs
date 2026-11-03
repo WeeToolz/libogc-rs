@@ -142,7 +142,7 @@ pub struct IeHdr {
 #[cfg(target_arch = "powerpc")]
 mod runtime {
     use super::*;
-    use core::ptr::{addr_of_mut, copy_nonoverlapping};
+    use core::ptr::copy_nonoverlapping;
     use core::sync::atomic::{AtomicI32, Ordering};
 
     use ogc_ipc::{FileDescriptor, IoctlvEntry, open_file};
@@ -193,7 +193,6 @@ mod runtime {
     struct AlignedWdInfo(WdInfo);
 
     static WD_FD: AtomicI32 = AtomicI32::new(-1);
-    static mut NCD_COMMON_BUFFER: AlignedBytes<0x20> = AlignedBytes([0; 0x20]);
 
     #[inline]
     fn wd_fd() -> Option<FileDescriptor> {
@@ -232,16 +231,6 @@ mod runtime {
     }
 
     #[inline]
-    unsafe fn static_bytes<const N: usize>(ptr: *const AlignedBytes<N>) -> &'static [u8] {
-        unsafe { core::slice::from_raw_parts((*ptr).0.as_ptr(), N) }
-    }
-
-    #[inline]
-    unsafe fn static_bytes_mut<const N: usize>(ptr: *mut AlignedBytes<N>) -> &'static mut [u8] {
-        unsafe { core::slice::from_raw_parts_mut((*ptr).0.as_mut_ptr(), N) }
-    }
-
-    #[inline]
     fn scan_settle_delay() {
         const TB_TICKS_PER_MILLISECOND: u64 = 60_750;
         let start = unsafe { sys_time() };
@@ -258,13 +247,16 @@ mod runtime {
         let Ok(fd) = open_file(c"/dev/net/ncd/manage", 0) else {
             return -1;
         };
-        let common = unsafe { static_bytes_mut(addr_of_mut!(NCD_COMMON_BUFFER)) };
-        common.fill(0);
-        let rc = fd.ioctlv(IOCTLV_NCD_LOCK, 0, [IoctlvEntry::Out(common)]);
-        let lockid = i32::from_ne_bytes(common[..4].try_into().unwrap());
+        let mut reply = AlignedBytes([0u8; 8]);
+        let rc = fd.ioctlv(IOCTLV_NCD_LOCK, 0, [IoctlvEntry::Out(&mut reply.0)]);
+        let status = i32::from_be_bytes(reply.0[..4].try_into().unwrap());
+        let lockid = i32::from_be_bytes(reply.0[4..8].try_into().unwrap());
         let result = finish_file_operation(fd, rc);
         if result < 0 {
             return result;
+        }
+        if status < 0 {
+            return status;
         }
         lockid
     }
@@ -276,15 +268,15 @@ mod runtime {
         let Ok(fd) = open_file(c"/dev/net/ncd/manage", 0) else {
             return u32::MAX;
         };
-        let common = unsafe { static_bytes(addr_of_mut!(NCD_COMMON_BUFFER).cast_const()) };
+        let mut request = AlignedBytes([0u8; 4]);
+        request.0.copy_from_slice(&lockid.to_be_bytes());
         let mut reply = AlignedBytes([0u8; 4]);
-        reply.0.copy_from_slice(&lockid.to_ne_bytes());
         let rc = fd.ioctlv(
             IOCTLV_NCD_UNLOCK,
             1,
-            [IoctlvEntry::In(common), IoctlvEntry::Out(&mut reply.0)],
+            [IoctlvEntry::In(&request.0), IoctlvEntry::Out(&mut reply.0)],
         );
-        let result = u32::from_ne_bytes(reply.0);
+        let result = u32::from_be_bytes(reply.0);
         let rc = finish_file_operation(fd, rc);
         if rc < 0 { u32::MAX } else { result }
     }

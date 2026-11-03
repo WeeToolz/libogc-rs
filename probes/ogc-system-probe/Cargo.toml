@@ -78,6 +78,7 @@ ogc-usbstorage = { path = "../../crates/services/ogc-usbstorage" }
 ogc-ui = { path = "../../crates/services/ogc-ui", optional = true }
 ogc-video = { path = "../../crates/hardware/ogc-video" }
 ogc-wiisd = { path = "../../crates/services/ogc-wiisd" }
+ogc-wd = { path = "../../crates/services/ogc-wd" }
 
 [[bin]]
 name = "bus_probe"
