@@ -276,9 +276,10 @@ fn probe_c_abi_without_device(logger: &mut ProbeLogger) {
 
     let raw_dvd = storage::is_dvd();
     logger.record("raw USB DVD query reports no mounted DVD", raw_dvd == 0);
-    let clear_status = storage::USB_STORAGE_INTERFACE
-        .clear_status
-        .expect("USB interface must provide clear_status");
+    let Some(clear_status) = storage::USB_STORAGE_INTERFACE.clear_status else {
+        logger.record("USB disc-interface clear-status callback exists", false);
+        return;
+    };
     let clear_status = unsafe { clear_status() };
     logger.record(
         "USB disc-interface clear-status callback succeeds",
