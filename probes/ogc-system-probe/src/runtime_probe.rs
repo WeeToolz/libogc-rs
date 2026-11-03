@@ -959,6 +959,7 @@ fn probe_isfs_successful_file_cycle(logger: &mut ProbeLogger) {
         read_dir_result == filesystem::ISFS_OK && directory_count > 0 && entry_present,
     );
     probe_isfs_async_file_cycle(directory, logger);
+    probe_isfs_async_directory_cycle(directory, logger);
 
     let rename_result = if file_created {
         filesystem::rename(file_path, renamed_path)
@@ -1269,6 +1270,126 @@ fn probe_isfs_async_file_cycle(directory: &core::ffi::CStr, logger: &mut ProbeLo
             && delete_submit >= 0
             && delete_result == filesystem::ISFS_OK
             && deleted_file_open.is_err_and(|error| error == filesystem::ISFS_ENOENT),
+    );
+}
+
+fn probe_isfs_async_directory_cycle(directory: &core::ffi::CStr, logger: &mut ProbeLogger) {
+    logger.section("ISFS ASYNC DIRECTORY CYCLE");
+    let path = c"/tmp/ogc-rs-isfs-verify/async-dir";
+    let mut stats = filesystem::IsfsStats {
+        a: u32::MAX,
+        b: u32::MAX,
+        c: u32::MAX,
+        d: u32::MAX,
+        e: u32::MAX,
+        f: u32::MAX,
+        g: u32::MAX,
+    };
+    let (stats_submit, stats_result) = run_isfs_async_and_wait(|| unsafe {
+        filesystem::get_stats_async(&mut stats, Some(isfs_probe_callback), core::ptr::null_mut())
+    });
+    logger.record(
+        "ISFS get_stats_async returns service stats",
+        stats_submit >= 0
+            && stats_result == filesystem::ISFS_OK
+            && stats
+                != filesystem::IsfsStats {
+                    a: u32::MAX,
+                    b: u32::MAX,
+                    c: u32::MAX,
+                    d: u32::MAX,
+                    e: u32::MAX,
+                    f: u32::MAX,
+                    g: u32::MAX,
+                },
+    );
+
+    let (create_submit, create_result) = run_isfs_async_and_wait(|| unsafe {
+        filesystem::create_dir_async(
+            path,
+            0,
+            3,
+            3,
+            3,
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    });
+    let mut usage_a = u32::MAX;
+    let mut usage_b = u32::MAX;
+    let (usage_submit, usage_result) = if create_result == filesystem::ISFS_OK {
+        run_isfs_async_and_wait(|| unsafe {
+            filesystem::get_usage_async(
+                path,
+                &mut usage_a,
+                &mut usage_b,
+                Some(isfs_probe_callback),
+                core::ptr::null_mut(),
+            )
+        })
+    } else {
+        (-1, i32::MIN)
+    };
+
+    let mut count = 8;
+    let mut names = AlignedIsfsBytes([0; 32 * 8]);
+    let (read_dir_submit, read_dir_result) = run_isfs_async_and_wait(|| unsafe {
+        filesystem::read_dir_async(
+            directory,
+            Some(&mut names.0),
+            &mut count,
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    });
+    let directory_entry_present = names
+        .0
+        .split(|byte| *byte == 0)
+        .any(|entry| entry == b"async-dir");
+    logger.record(
+        "ISFS create_dir_async usage and read_dir_async",
+        create_submit >= 0
+            && create_result == filesystem::ISFS_OK
+            && usage_submit >= 0
+            && usage_result == filesystem::ISFS_OK
+            && usage_a != u32::MAX
+            && usage_b != u32::MAX
+            && read_dir_submit >= 0
+            && read_dir_result == filesystem::ISFS_OK
+            && count > 0
+            && directory_entry_present,
+    );
+
+    let (delete_submit, delete_result) = if create_result == filesystem::ISFS_OK {
+        run_isfs_async_and_wait(|| unsafe {
+            filesystem::delete_async(path, Some(isfs_probe_callback), core::ptr::null_mut())
+        })
+    } else {
+        (-1, i32::MIN)
+    };
+    let mut absent_usage_a = u32::MAX;
+    let mut absent_usage_b = u32::MAX;
+    let (absent_usage_submit, absent_usage_result) = if delete_result == filesystem::ISFS_OK {
+        run_isfs_async_and_wait(|| unsafe {
+            filesystem::get_usage_async(
+                path,
+                &mut absent_usage_a,
+                &mut absent_usage_b,
+                Some(isfs_probe_callback),
+                core::ptr::null_mut(),
+            )
+        })
+    } else {
+        (-1, i32::MIN)
+    };
+    logger.record(
+        "ISFS delete_async removes directory and preserves error outputs",
+        delete_submit >= 0
+            && delete_result == filesystem::ISFS_OK
+            && absent_usage_submit >= 0
+            && absent_usage_result == filesystem::ISFS_ENOENT
+            && absent_usage_a == u32::MAX
+            && absent_usage_b == u32::MAX,
     );
 }
 
