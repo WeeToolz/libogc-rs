@@ -188,13 +188,17 @@ The current inventory has 604 API entries in 14 storage packages. Its 0
 `unverified` entries mean that every API has an implementation-source mapping;
 they do not mean that every API has passed a test or a Dolphin run. These
 counts come from `docs/generated/implementation-inventory.csv`. Exact call
-paths are now recorded for 381 entries: 9 `iso9660`, 27 `ogc-dvd`, 32
-`ogc-dvd-sys`, 59 `ogc-di`, 30 `ogc-gcsd`, 5 `ogc-wiisd`, 20
+paths are now recorded for 405 entries: 9 `iso9660`, 27 `ogc-dvd`, 32
+`ogc-dvd-sys`, 59 `ogc-di`, 30 `ogc-gcsd`, 24 `ogc-card-metadata`, 5 `ogc-wiisd`, 20
 `ogc-usbstorage-lifecycle`, 30
 `ogc-usbstorage`, 65 `ogc-usbstorage-sys`, 64 `ogc-fat`, and 40
 `ogc-filesystem`. Exact source mapping does not prove runtime behavior. Keep
 runtime evidence in the run reports and validation register. The storage build
-group has 15 runtime crates; one has no inventory API rows.
+group has 15 runtime crates; one has no inventory API rows. The 56
+`ogc-card-metadata` entries have host test evidence. The 18 crate tests check
+identifiers, completion values, metadata validation, commit order, failure
+injection, readback, and state preservation. These tests do not verify CARD
+IOS behavior on Dolphin or Wii.
 
 | Package | Inventory API entries |
 | --- | ---: |
@@ -248,17 +252,23 @@ The original `ogc-di` split grouped the APIs as follows:
 The CARD APIs have direct probe-source evidence. The probe checks
 invalid-channel errors and output preservation through the wrapper and system
 APIs, no-callback submission errors, owned request slots and completion state,
-save persistence, and user-data-safe cleanup. The latest Dolphin storage run
-checked async mount completion with no card present and skipped card save and
-format operations. It does not verify successful save behavior. Physical CARD
-behavior has not been tested. The CARD hardware register remains
-`not-tested`; do not treat the zero inventory count as a runtime pass.
+save persistence, and user-data-safe cleanup. The Wii `storage_probe` ran
+without an available card and skipped save and format operations. A separate
+GameCube `card_probe` run used a copied, verified virtual card and passed 93
+checks. It verified create, read, write, status, delete, persistence after
+remount, and cleanup. See the
+[CARD audit rerun](dolphin-runs/2026-11-03-storage-api-audit-rerun/README.md).
+This proves these operations on Dolphin's virtual card, not on a physical
+GameCube card. The CARD hardware register remains `not-tested` for physical
+hardware. The latest metadata invalid-count change has a passing host test and
+updated DOL builds, but has no new Dolphin result because the installed
+Dolphin exits before launch on this host.
 
 The Dolphin runner can copy a raw card image from `LIBOGC_DOLPHIN_CARD_IMAGE`
 into its isolated profile. The latest run used this option, but CARD still
-returned `CARD_ERROR_NOCARD` and skipped save operations. See the
+returned `CARD_ERROR_NOCARD` and skipped save operations. That diagnostic
+adds no successful CARD operation evidence. See the
 [attachment diagnostic](dolphin-runs/2026-11-03-card-image-template-dolphin/README.md).
-This run adds no successful CARD operation evidence.
 
 The storage probe uses exclusive creation for fixed FAT probe names and skips
 the CARD save checks when `SAVE` already exists. It removes a probe file only

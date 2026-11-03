@@ -5,6 +5,7 @@ use ogc_wiisd::WII_SD_INTERFACE;
 struct Sector([u8; 512]);
 
 #[repr(align(32))]
+#[cfg(feature = "dolphin-automation")]
 struct MultiSector([u8; 9 * 512 + 1]);
 
 pub fn run(logger: &mut ProbeLogger) {

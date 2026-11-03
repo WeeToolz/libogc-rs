@@ -208,9 +208,16 @@ pub fn validate_directory(block: &[u8]) -> Result<u16, MetadataError> {
     read_u16(block, DIRECTORY_UPDATED)
 }
 
+fn valid_block_count(block_count: u16) -> bool {
+    block_count >= 5 && usize::from(block_count - 5) <= (BLOCK_SIZE - FAT_ENTRIES) / 2
+}
+
 pub fn prepare_fat(block: &mut [u8], block_count: u16) -> Result<u16, MetadataError> {
     if block.len() != BLOCK_SIZE {
         return Err(MetadataError::InvalidLength);
+    }
+    if !valid_block_count(block_count) {
+        return Err(MetadataError::InvalidBlockCount);
     }
     let updated = read_u16(block, FAT_UPDATED)?.wrapping_add(1);
     write_u16(block, FAT_UPDATED, updated)?;
@@ -225,7 +232,7 @@ pub fn validate_fat(block: &[u8], block_count: u16) -> Result<u16, MetadataError
     if block.len() != BLOCK_SIZE {
         return Err(MetadataError::InvalidLength);
     }
-    if block_count < 5 || usize::from(block_count - 5) > (BLOCK_SIZE - FAT_ENTRIES) / 2 {
+    if !valid_block_count(block_count) {
         return Err(MetadataError::InvalidBlockCount);
     }
     if !checksum_matches(
@@ -402,6 +409,47 @@ mod tests {
                 second: 0x41fd,
             }
         );
+    }
+
+    #[test]
+    fn malformed_metadata_inputs_fail_without_mutation() {
+        assert_eq!(checksum(&[]), Err(MetadataError::InvalidLength));
+        assert_eq!(checksum(&[0]), Err(MetadataError::InvalidLength));
+
+        let mut short = vec![0xa5; BLOCK_SIZE - 1];
+        let original = short.clone();
+        assert_eq!(
+            prepare_header(&mut short),
+            Err(MetadataError::InvalidLength)
+        );
+        assert_eq!(short, original);
+        assert_eq!(validate_header(&short), Err(MetadataError::InvalidLength));
+
+        let mut short_directory = vec![0xa5; BLOCK_SIZE - 1];
+        let original_directory = short_directory.clone();
+        assert_eq!(
+            prepare_directory(&mut short_directory),
+            Err(MetadataError::InvalidLength)
+        );
+        assert_eq!(short_directory, original_directory);
+        assert_eq!(
+            validate_directory(&short_directory),
+            Err(MetadataError::InvalidLength)
+        );
+
+        let mut fat = vec![0xa5; BLOCK_SIZE];
+        let original_fat = fat.clone();
+        assert_eq!(
+            prepare_fat(&mut fat, 4),
+            Err(MetadataError::InvalidBlockCount)
+        );
+        assert_eq!(fat, original_fat);
+        assert_eq!(validate_fat(&fat, 4), Err(MetadataError::InvalidBlockCount));
+        assert_eq!(
+            prepare_fat(&mut fat, u16::MAX),
+            Err(MetadataError::InvalidBlockCount)
+        );
+        assert_eq!(fat, original_fat);
     }
 
     #[test]
