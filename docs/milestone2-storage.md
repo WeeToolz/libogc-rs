@@ -45,7 +45,13 @@ CARD saves, disc reads, GameCube SD Gecko I/O, or physical devices. See the
 The separate no-disc DVD probe passed 119 checks and compared C and Rust DI
 wrapper results for the calls listed in its
 [run report](dolphin-runs/2026-11-03-di-wrapper-parity-final/README.md).
-The latest `runtime_probe` passed 85 checks. Its controlled image verified
+The previous `runtime_probe` passed 85 checks. A later async-format diagnostic
+run recorded 86 checks and 1 failure: `format_async` returned submission status
+0 and erased the marker file and directory, but its callback did not complete
+within the bounded wait. Treat this as a failure, not as a passing operation.
+The run used Dolphin's isolated NAND copy. See the
+[async format diagnostic](dolphin-runs/2026-11-03-isfs-format-async-dolphin/README.md).
+The controlled image verified
 ISO9660 file operations through both C and Rust mounts. The ISFS checks cover
 closed-service errors, 20 sync and async path rejections, and successful sync
 and async NAND file cycles with metadata, directory listing, and verified
@@ -53,8 +59,8 @@ cleanup. Async directory creation, usage, listing, and deletion also pass with
 output checks after deletion. Sync and async rename returned `ISFS_EINVAL`; the
 async result preserved the source and left the destination absent. Successful
 rename remains unverified. Sync format returned success and removed a marker
-file and directory from Dolphin's private NAND copy. Async format and physical
-Wii NAND behavior remain open. See the [sync format report](dolphin-runs/2026-11-03-isfs-format-sync-dolphin/README.md),
+file and directory from Dolphin's private NAND copy. Async format completion
+and physical Wii NAND behavior remain open. See the [sync format report](dolphin-runs/2026-11-03-isfs-format-sync-dolphin/README.md),
 the [async rename report](dolphin-runs/2026-11-03-isfs-async-rename-cycle-dolphin/README.md),
 the [async directory report](dolphin-runs/2026-11-03-isfs-async-directory-cycle-dolphin/README.md),
 the [async file report](dolphin-runs/2026-11-03-isfs-successful-async-cycle-dolphin/README.md),
