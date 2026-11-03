@@ -1,5 +1,33 @@
 # Development results
 
+## 2026-11-02: GX FIFO metadata in Dolphin
+
+The video probe now verifies the FIFO base, size, initial count, high and low
+watermarks, and rejection of a short FIFO initialization. It checks the
+watermark bytes against the C `__gxfifo` layout and verifies that adjacent
+fields remain unchanged. It also reads both values of the wrap flag from an
+isolated FIFO object. The flag is set in the object for that check; this does
+not establish that graphics hardware produced a FIFO wrap. The evidence
+registry records the four directly called APIs.
+
+The DOL ran in Dolphin 2609a with 33 passes and no failures. Its SHA-256 was
+`f2a235b588e78a96633edc299925bc5e915fe323e5ad20000d50781baa16cb56`.
+The build used revision `2e492ee` and the uncommitted video probe change in
+this batch. The runner used a private profile and a copy of the configured Wii
+NAND. HBC was not under test. The [report](docs/dolphin-runs/2026-11-02-gx-fifo/suite.json),
+[transcript](docs/dolphin-runs/2026-11-02-gx-fifo/video_probe/probe.log),
+transport data, logs, and captures record the run. The final capture was
+inspected and shows the passing summary. The copied profile remains local.
+
+Build: `cargo xtask build-dol ogc-system-probe --bin video_probe
+--probe-features dolphin-automation --no-dev --output
+target/xtask/probes-dolphin/video_probe.dol`. Run: `cargo xtask
+dolphin-validate --no-build --probe video_probe --artifact-dir
+docs/dolphin-runs/2026-11-02-gx-fifo`. The checks do not establish physical
+Wii behavior or hardware FIFO wrap and watermark interrupt behavior.
+The source audit passed with three existing tracked debt entries. The
+completeness audit reported 2,253 APIs without accepted exact evidence.
+
 ## 2026-11-02: HCI event parsing in Dolphin
 
 The runtime probe calls the HCI event parser with fixed command completion,
