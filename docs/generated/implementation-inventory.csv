@@ -1056,10 +1056,10 @@ ogc-di,set_mount_callback,rust-function,crates/services/ogc-di/src/lib.rs,860,un
 ogc-di,stop_motor,rust-function,crates/services/ogc-di/src/lib.rs,1002,unverified,ios,none,dvd-probe,declared `ios` without exact API test or probe evidence
 ogc-di,unencrypted_read,rust-function,crates/services/ogc-di/src/lib.rs,1153,unverified,ios,none,dvd-probe,declared `ios` without exact API test or probe evidence
 ogc-di,use_cache,rust-function,crates/services/ogc-di/src/lib.rs,842,unverified,ios,none,dvd-probe,declared `ios` without exact API test or probe evidence
-ogc-dsp,add_task,rust-function,crates/hardware/ogc-dsp/src/lib.rs,67,unverified,compatibility-forwarder,none,audio-probe,declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-dsp,add_task,rust-function,crates/hardware/ogc-dsp/src/lib.rs,67,compatibility-forwarder,compatibility-forwarder,hardware-probe:probes/ogc-system-probe/src/bus_probe/dsp_tasks.rs::probe_dsp_tasks calls add_task,dsp-task-probe,Dolphin boots the AESND DSP fixture through the task wrapper and checks task state
 ogc-dsp,assert_int,rust-function,crates/hardware/ogc-dsp/src/lib.rs,39,compatibility-forwarder,compatibility-forwarder,hardware-probe:probes/ogc-system-probe/src/bus_probe.rs::probe_dsp calls assert_int,bus-probe,Dolphin checks the processor interrupt control bit
-ogc-dsp,assert_task,rust-function,crates/hardware/ogc-dsp/src/lib.rs,81,unverified,compatibility-forwarder,none,audio-probe,declared `compatibility-forwarder` without exact API test or probe evidence
-ogc-dsp,cancel_task,rust-function,crates/hardware/ogc-dsp/src/lib.rs,74,unverified,compatibility-forwarder,none,audio-probe,declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-dsp,assert_task,rust-function,crates/hardware/ogc-dsp/src/lib.rs,81,compatibility-forwarder,compatibility-forwarder,hardware-probe:probes/ogc-system-probe/src/bus_probe/dsp_tasks.rs::probe_dsp_tasks calls assert_task,dsp-task-probe,Dolphin checks the no-current-task result through the wrapper
+ogc-dsp,cancel_task,rust-function,crates/hardware/ogc-dsp/src/lib.rs,74,compatibility-forwarder,compatibility-forwarder,hardware-probe:probes/ogc-system-probe/src/bus_probe/dsp_tasks.rs::probe_dsp_tasks calls cancel_task,dsp-task-probe,Dolphin checks task cancellation flags and completion through the wrapper
 ogc-dsp,check_mail_from,rust-function,crates/hardware/ogc-dsp/src/lib.rs,23,compatibility-forwarder,compatibility-forwarder,hardware-probe:probes/ogc-system-probe/src/bus_probe.rs::probe_dsp calls check_mail_from,bus-probe,Dolphin checks DSP mailbox ready state and acknowledgement
 ogc-dsp,check_mail_to,rust-function,crates/hardware/ogc-dsp/src/lib.rs,19,compatibility-forwarder,compatibility-forwarder,hardware-probe:probes/ogc-system-probe/src/bus_probe.rs::probe_dsp calls check_mail_to,bus-probe,Dolphin checks CPU mailbox busy status after the DSP reads a message
 ogc-dsp,get_dma_status,rust-function,crates/hardware/ogc-dsp/src/lib.rs,60,compatibility-forwarder,compatibility-forwarder,hardware-probe:probes/ogc-system-probe/src/bus_probe.rs::probe_dsp calls get_dma_status,bus-probe,Dolphin checks DMA idle state through the wrapper
@@ -1072,10 +1072,10 @@ ogc-dsp,reset,rust-function,crates/hardware/ogc-dsp/src/lib.rs,43,compatibility-
 ogc-dsp,send_mail_to,rust-function,crates/hardware/ogc-dsp/src/lib.rs,31,compatibility-forwarder,compatibility-forwarder,hardware-probe:probes/ogc-system-probe/src/bus_probe.rs::probe_dsp calls send_mail_to,bus-probe,Dolphin checks a written CPU mailbox message
 ogc-dsp,shutdown,rust-function,crates/hardware/ogc-dsp/src/lib.rs,48,compatibility-forwarder,compatibility-forwarder,hardware-probe:probes/ogc-system-probe/src/bus_probe.rs::probe_dsp calls shutdown,bus-probe,Dolphin checks shutdown leaves DSP DMA and mailboxes idle
 ogc-dsp,unhalt,rust-function,crates/hardware/ogc-dsp/src/lib.rs,56,compatibility-forwarder,compatibility-forwarder,hardware-probe:probes/ogc-system-probe/src/bus_probe.rs::probe_dsp calls unhalt,bus-probe,Dolphin checks the DSP halt control bit clears
-ogc-dsp-sys,add_task,rust-function,crates/hardware/ogc-dsp-sys/src/lib.rs,743,unverified,hardware,none,audio-probe,declared `hardware` without exact API test or probe evidence
+ogc-dsp-sys,add_task,rust-function,crates/hardware/ogc-dsp-sys/src/lib.rs,743,hardware,hardware,hardware-probe:probes/ogc-system-probe/src/bus_probe/dsp_tasks.rs::probe_dsp_tasks calls add_task,dsp-task-probe,Dolphin boots the AESND DSP fixture and checks init and completion callbacks
 ogc-dsp-sys,assert_int,rust-function,crates/hardware/ogc-dsp-sys/src/lib.rs,618,hardware,hardware,hardware-probe:probes/ogc-system-probe/src/bus_probe.rs::probe_dsp calls assert_int,bus-probe,Dolphin checks the processor interrupt control bit
-ogc-dsp-sys,assert_task,rust-function,crates/hardware/ogc-dsp-sys/src/lib.rs,792,unverified,hardware,none,audio-probe,declared `hardware` without exact API test or probe evidence
-ogc-dsp-sys,cancel_task,rust-function,crates/hardware/ogc-dsp-sys/src/lib.rs,772,unverified,hardware,none,audio-probe,declared `hardware` without exact API test or probe evidence
+ogc-dsp-sys,assert_task,rust-function,crates/hardware/ogc-dsp-sys/src/lib.rs,792,hardware,hardware,hardware-probe:probes/ogc-system-probe/src/bus_probe/dsp_tasks.rs::probe_dsp_tasks calls assert_task,dsp-task-probe,Dolphin checks the no-current-task result while the scheduler is idle
+ogc-dsp-sys,cancel_task,rust-function,crates/hardware/ogc-dsp-sys/src/lib.rs,772,hardware,hardware,hardware-probe:probes/ogc-system-probe/src/bus_probe/dsp_tasks.rs::probe_dsp_tasks calls cancel_task,dsp-task-probe,Dolphin checks cancellation flags and task removal after completion
 ogc-dsp-sys,check_mail_from,rust-function,crates/hardware/ogc-dsp-sys/src/lib.rs,586,hardware,hardware,hardware-probe:probes/ogc-system-probe/src/bus_probe.rs::probe_dsp calls check_mail_from,bus-probe,Dolphin checks DSP mailbox status before and after reading the mailbox
 ogc-dsp-sys,check_mail_to,rust-function,crates/hardware/ogc-dsp-sys/src/lib.rs,579,hardware,hardware,hardware-probe:probes/ogc-system-probe/src/bus_probe.rs::probe_dsp calls check_mail_to,bus-probe,Dolphin checks CPU mailbox busy status after hardware acknowledgement
 ogc-dsp-sys,get_dma_status,rust-function,crates/hardware/ogc-dsp-sys/src/lib.rs,732,hardware,hardware,hardware-probe:probes/ogc-system-probe/src/bus_probe.rs::probe_dsp calls get_dma_status,bus-probe,Dolphin checks DSP DMA reports idle
@@ -3100,29 +3100,29 @@ ogc-video-sys,vi_timing_for_mode,rust-function,crates/hardware/ogc-video-sys/src
 ogc-video-sys,video_standard_for_mode,rust-function,crates/hardware/ogc-video-sys/src/platform_timing.rs,243,unverified,hardware,none,system-probe,declared `hardware` without exact API test or probe evidence
 ogc-video-sys,wait_v_sync,rust-function,crates/hardware/ogc-video-sys/src/lib.rs,978,unverified,hardware,none,system-probe,declared `hardware` without exact API test or probe evidence
 ogc-video-sys,wait_v_sync_timeout_us,rust-function,crates/hardware/ogc-video-sys/src/lib.rs,1019,unverified,hardware,none,system-probe,declared `hardware` without exact API test or probe evidence
-ogc-wd,copy_ie,rust-function,crates/services/ogc-wd/src/lib.rs,776,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-wd,default_scan_parameters,rust-function,crates/services/ogc-wd/src/lib.rs,607,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-wd,deinit,rust-method-or-module-function,crates/services/ogc-wd/src/lib.rs,313,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::run calls deinit,network-probe,See crate contract for wireless-discovery role and hardware validation status
-ogc-wd,get_ie,rust-function,crates/services/ogc-wd/src/lib.rs,753,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-wd,get_ie_length,rust-function,crates/services/ogc-wd/src/lib.rs,734,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-wd,get_info,rust-method-or-module-function,crates/services/ogc-wd/src/lib.rs,341,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-wd,get_info_result,rust-function,crates/services/ogc-wd/src/lib.rs,562,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-wd,get_number_of_ies,rust-function,crates/services/ogc-wd/src/lib.rs,691,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-wd,get_radio_level,rust-function,crates/services/ogc-wd/src/lib.rs,573,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-wd,ie_length,rust-function,crates/services/ogc-wd/src/lib.rs,742,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-wd,init,rust-method-or-module-function,crates/services/ogc-wd/src/lib.rs,292,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::run calls init,network-probe,See crate contract for wireless-discovery role and hardware validation status
-ogc-wd,ncd_lock_wireless_driver,rust-method-or-module-function,crates/services/ogc-wd/src/lib.rs,254,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-wd,ncd_unlock_wireless_driver,rust-method-or-module-function,crates/services/ogc-wd/src/lib.rs,272,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-wd,number_of_ies,rust-function,crates/services/ogc-wd/src/lib.rs,725,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-wd,scan,rust-method-or-module-function,crates/services/ogc-wd/src/lib.rs,392,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-wd,scan_once,rust-method-or-module-function,crates/services/ogc-wd/src/lib.rs,494,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-wd,scan_once_detailed,rust-method-or-module-function,crates/services/ogc-wd/src/lib.rs,439,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-wd,scan_once_detailed_result,rust-function,crates/services/ogc-wd/src/lib.rs,633,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-wd,scan_once_result,rust-function,crates/services/ogc-wd/src/lib.rs,623,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-wd,scan_result,rust-function,crates/services/ogc-wd/src/lib.rs,613,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-wd,set_default_scan_parameters,rust-function,crates/services/ogc-wd/src/lib.rs,592,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-wd,try_wd_deinit,rust-function,crates/services/ogc-wd/src/lib.rs,558,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-wd,try_wd_init,rust-function,crates/services/ogc-wd/src/lib.rs,554,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-wd,copy_ie,rust-function,crates/services/ogc-wd/src/lib.rs,768,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-wd,default_scan_parameters,rust-function,crates/services/ogc-wd/src/lib.rs,599,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-wd,deinit,rust-method-or-module-function,crates/services/ogc-wd/src/lib.rs,305,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::run calls deinit,network-probe,See crate contract for wireless-discovery role and hardware validation status
+ogc-wd,get_ie,rust-function,crates/services/ogc-wd/src/lib.rs,745,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-wd,get_ie_length,rust-function,crates/services/ogc-wd/src/lib.rs,726,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-wd,get_info,rust-method-or-module-function,crates/services/ogc-wd/src/lib.rs,333,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-wd,get_info_result,rust-function,crates/services/ogc-wd/src/lib.rs,554,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-wd,get_number_of_ies,rust-function,crates/services/ogc-wd/src/lib.rs,683,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-wd,get_radio_level,rust-function,crates/services/ogc-wd/src/lib.rs,565,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-wd,ie_length,rust-function,crates/services/ogc-wd/src/lib.rs,734,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-wd,init,rust-method-or-module-function,crates/services/ogc-wd/src/lib.rs,284,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::run calls init,network-probe,See crate contract for wireless-discovery role and hardware validation status
+ogc-wd,ncd_lock_wireless_driver,rust-method-or-module-function,crates/services/ogc-wd/src/lib.rs,243,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-wd,ncd_unlock_wireless_driver,rust-method-or-module-function,crates/services/ogc-wd/src/lib.rs,264,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-wd,number_of_ies,rust-function,crates/services/ogc-wd/src/lib.rs,717,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-wd,scan,rust-method-or-module-function,crates/services/ogc-wd/src/lib.rs,384,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-wd,scan_once,rust-method-or-module-function,crates/services/ogc-wd/src/lib.rs,486,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-wd,scan_once_detailed,rust-method-or-module-function,crates/services/ogc-wd/src/lib.rs,431,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-wd,scan_once_detailed_result,rust-function,crates/services/ogc-wd/src/lib.rs,625,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-wd,scan_once_result,rust-function,crates/services/ogc-wd/src/lib.rs,615,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-wd,scan_result,rust-function,crates/services/ogc-wd/src/lib.rs,605,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-wd,set_default_scan_parameters,rust-function,crates/services/ogc-wd/src/lib.rs,584,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-wd,try_wd_deinit,rust-function,crates/services/ogc-wd/src/lib.rs,550,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-wd,try_wd_init,rust-function,crates/services/ogc-wd/src/lib.rs,546,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 ogc-wiilaunch,from_raw_code,rust-method-or-module-function,crates/core/ogc-wiilaunch/src/lib.rs,55,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-wiilaunch,initialize,rust-function,crates/core/ogc-wiilaunch/src/lib.rs,263,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-wiilaunch,launch_title,rust-function,crates/core/ogc-wiilaunch/src/lib.rs,283,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
