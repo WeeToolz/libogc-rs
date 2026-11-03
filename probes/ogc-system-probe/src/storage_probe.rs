@@ -176,17 +176,28 @@ fn record_async(
     completed && after_return && result == success_result
 }
 
-fn probe_dvd(logger: &mut ProbeLogger) {
+pub fn probe_dvd(logger: &mut ProbeLogger) {
     logger.section("DVD /DEV/DI");
     dvd::init();
     let initial_status = dvd::get_drive_status();
+    let cover_status = dvd::get_cover_status();
+    let disc_present = dvd::disk_present();
     logger.note_i32("dvd initial status", initial_status);
-    logger.note_i32("dvd cover status", dvd::get_cover_status());
-    logger.note_i32("dvd disc present", dvd::disk_present() as i32);
+    logger.note_i32("dvd cover status", cover_status);
+    logger.note_i32("dvd disc present", disc_present as i32);
 
-    if dvd::disk_present() == 0 {
+    if disc_present == 0 {
         logger.note("dvd tests skipped: insert a readable Wii/GameCube disc");
+        // libogc reports DVD_STATE_NO_DISK as 4. Check the literal value so
+        // this probe can detect a wrong public constant or state mapping.
+        logger.record(
+            "dvd init and drive status report no disc",
+            initial_status == 4,
+        );
+        logger.record("dvd cover status reports no disc", cover_status == 4);
+        logger.record("dvd presence reports no disc", disc_present == 0);
         logger.record("dvd no fake success without media", dvd::mount() < 0);
+        probe_dvd_no_media_helpers(logger);
         return;
     }
 
@@ -265,6 +276,48 @@ fn probe_dvd(logger: &mut ProbeLogger) {
         read_ok && async_read_block.txdsize == sector.0.len() as u32,
     );
     logger.note_u32("dvd last drive error", dvd::get_last_error());
+}
+
+fn probe_dvd_no_media_helpers(logger: &mut ProbeLogger) {
+    let mut block = dvd::DvdCmdBlk::default();
+    // SAFETY: `block` is live and no request uses it.
+    logger.record(
+        "dvd idle command block status",
+        unsafe { dvd::get_cmd_block_status(&mut block) } == 0,
+    );
+
+    let previous_invalidation = dvd::set_auto_invalidation(0);
+    let disabled_invalidation = dvd::set_auto_invalidation(1);
+    logger.record(
+        "dvd auto invalidation update and restore",
+        previous_invalidation == 1 && disabled_invalidation == 0,
+    );
+
+    dvd::pause();
+    let paused_status = dvd::get_drive_status();
+    logger.record("dvd pause updates drive state", paused_status == 8);
+
+    let cancel_result = dvd::cancel_all_async(None);
+    let cancelled_status = dvd::get_drive_status();
+    logger.record(
+        "dvd cancel all pauses without pending requests",
+        cancel_result == 1 && cancelled_status == 8,
+    );
+
+    // DVD_RESETNONE clears the pause state without issuing a drive reset.
+    dvd::reset(2);
+    let reset_status = dvd::get_drive_status();
+    logger.record("dvd reset none restores no-disc state", reset_status == 4);
+
+    let disk_id = dvd::get_current_disk_id();
+    let drive_info = dvd::get_drive_info();
+    logger.record(
+        "dvd static information pointers remain stable",
+        !disk_id.is_null()
+            && !drive_info.is_null()
+            && core::ptr::eq(disk_id, dvd::get_current_disk_id())
+            && core::ptr::eq(drive_info, dvd::get_drive_info()),
+    );
 }
 
 fn probe_usb_storage(logger: &mut ProbeLogger) {

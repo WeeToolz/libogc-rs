@@ -177,7 +177,7 @@ do not infer API coverage from a package or probe name.
 
 ## Current storage audit
 
-The current inventory has 307 unverified entries in the 12 storage packages
+The current inventory has 293 unverified entries in the 12 storage packages
 below. These counts come from `docs/generated/implementation-inventory.csv`.
 Update this table after each storage batch. Do not accept source presence or a
 successful target build as runtime evidence.
@@ -188,15 +188,15 @@ successful target build as runtime evidence.
 | `ogc-card` | 28 |
 | `ogc-card-sys` | 62 |
 | `ogc-di` | 55 |
-| `ogc-dvd` | 20 |
-| `ogc-dvd-sys` | 21 |
+| `ogc-dvd` | 13 |
+| `ogc-dvd-sys` | 14 |
 | `ogc-fat` | 0 |
 | `ogc-filesystem` | 29 |
 | `ogc-gcsd` | 43 |
 | `ogc-usbstorage` | 2 |
 | `ogc-usbstorage-sys` | 47 |
 | `ogc-wiisd` | 0 |
-| **Total** | **307** |
+| **Total** | **293** |
 
 Use the package counts above to split storage work into these feature batches.
 Each batch still needs evidence for every API entry. A batch count does not
@@ -204,16 +204,19 @@ mean that each API has a test or probe.
 
 | Batch | Packages | Unverified entries |
 | --- | --- | ---: |
-| Optical disc | `iso9660`, `ogc-di`, `ogc-dvd`, `ogc-dvd-sys` | 96 |
+| Optical disc | `iso9660`, `ogc-di`, `ogc-dvd`, `ogc-dvd-sys` | 82 |
 | GameCube memory card | `ogc-card`, `ogc-card-sys` | 90 |
 | FAT and file-system services | `ogc-fat`, `ogc-filesystem` | 29 |
 | SD card transports | `ogc-gcsd`, `ogc-wiisd` | 43 |
 | USB mass storage | `ogc-usbstorage`, `ogc-usbstorage-sys` | 49 |
-| **Total** | **12 packages** | **307** |
+| **Total** | **12 packages** | **293** |
 
 The ISO9660 probe calls its three C ABI exports directly. Dolphin passed the
 probe using a controlled in-memory disc image; this does not verify a physical
-optical drive. The USB storage safe facade probe covers no-device errors and
+optical drive. The focused DVD probe checks `/dev/di` no-disc status, rejected
+mount, command-block state, pause and reset state, invalidation state restore,
+and shutdown in Dolphin. It does not verify disc reads or physical optical
+drive behavior. The USB storage safe facade probe covers no-device errors and
 lifecycle cleanup. Its `flush` and `try_flush` APIs still need a valid mounted
 handle. The focused FAT probe passed in Dolphin and covers the mounted SD API,
 C exports, FAT file seek/truncate, attribute updates, init functions, and mount
@@ -229,7 +232,8 @@ physical Wii. See [development results](../DEVELOPMENT_RESULTS.md).
 The first controller model batch added host evidence for 18 inventory entries.
 A second batch recorded 14 controller model, transition, and HID APIs.
 A third batch added Xbox report boundary and Bluetooth stage text checks.
-The 2026-11-03 inventory reports 2,000 unverified entries. See the
+The inventory had 2,000 unverified entries after those batches. It now has
+1,965. See the
 [development results](../DEVELOPMENT_RESULTS.md) for the test scope and limits.
 
 

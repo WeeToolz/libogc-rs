@@ -158,6 +158,10 @@ can pass through allow-listed host USB devices, but this runner does not attach
 host hardware. It does not opt a real mass-storage device into a test that can
 write to media.
 
+The focused `dvd_probe` checks the no-disc status, mount error, and shutdown
+path. Inserted-disc inquiry, asynchronous reads, sector reads, and physical
+drive behavior remain open until a supported disc is available.
+
 Dolphin's current `/dev/net/ip/top` model accepts protocol zero for stream and
 datagram sockets, but rejects explicit TCP and UDP protocol values. The runtime
 uses protocol zero where only the default protocol is required. The network
