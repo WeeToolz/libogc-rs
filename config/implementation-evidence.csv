@@ -1536,8 +1536,8 @@ ogc-filesystem,src/lib.rs,open_async,1112,compatibility-forwarder,hardware-probe
 ogc-filesystem,src/lib.rs,read_async,232,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_uninitialized
 ogc-filesystem,src/lib.rs,read_dir,409,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_uninitialized
 ogc-filesystem,src/lib.rs,read_dir_async,517,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_uninitialized
-ogc-filesystem,src/lib.rs,rename,1071,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_uninitialized
-ogc-filesystem,src/lib.rs,rename_async,1086,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_uninitialized
+ogc-filesystem,src/lib.rs,rename,1071,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_successful_file_cycle
+ogc-filesystem,src/lib.rs,rename_async,1086,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_async_rename_cycle
 ogc-filesystem,src/lib.rs,seek,222,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_uninitialized
 ogc-filesystem,src/lib.rs,seek_async,267,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_uninitialized
 ogc-filesystem,src/lib.rs,set_attr,880,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_uninitialized

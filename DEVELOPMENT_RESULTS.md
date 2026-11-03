@@ -20,6 +20,18 @@ checks. This does not prove successful NAND operations or physical disc
 behavior. See
 [`docs/dolphin-runs/2026-11-03-isfs-get-stats-async-pass/README.md`](docs/dolphin-runs/2026-11-03-isfs-get-stats-async-pass/README.md).
 
+## 2026-11-03: ISFS rename result and cleanup checks
+
+The updated `runtime_probe` checks that sync and async rename results match
+the file state. Dolphin 2609a returned `ISFS_EINVAL` for both calls. The source
+files remained, destination paths stayed absent, and cleanup checks passed.
+The full probe reported 87 passes and 1 failure. `format_async` removed its
+marker file and directory, but its callback did not complete, so the final IOS
+result remains unknown. The DOL SHA-256 is
+`e6cd69a135e2fd730cb2bacda1de473e3ee54b71cc389c1a091e7fb1de6c06dd`. This
+does not prove successful rename or physical Wii NAND behavior. See the
+[run report](docs/dolphin-runs/2026-11-03-isfs-rename-state/README.md).
+
 ## 2026-11-03: ISO9660 file runtime probe
 
 The earlier runtime probe passed 62 checks in Dolphin 2609a with no failures. Its

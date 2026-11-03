@@ -291,12 +291,20 @@ behavior. See the
 The ISFS probe checks file-system API errors while the `/dev/fs` service is
 closed. It checks service close and reopen, async errors for invalid
 descriptors, output preservation, and that format requests do not reach IOS
-while the service is closed. It does not test successful NAND file changes or
-format a filesystem. The probe also checks that `get_stats_async` returns
-`ISFS_EINVAL` with `/dev/fs` closed, preserves all seven output fields, and
-does not call its callback. See the
-[ISFS closed-service run](dolphin-runs/2026-11-03-isfs-get-stats-async-pass/README.md)
-and the [earlier ISFS run](dolphin-runs/2026-11-03-filesystem-isfs/README.md).
+while the service is closed. Separate Dolphin runs check successful sync and
+async file operations against a private NAND copy. Dolphin returns
+`ISFS_EINVAL` for sync and async rename; the probe checks that the source stays
+and the destination stays absent, then removes both paths. Successful rename
+is still unverified. The async format probe removes its marker file and
+directory, but its callback does not complete in Dolphin, so the final IOS
+result is unverified. These runs do not prove physical Wii NAND behavior. The
+probe also checks that `get_stats_async` returns `ISFS_EINVAL` with `/dev/fs`
+closed, preserves all seven output fields, and does not call its callback. See
+the [rename result run](dolphin-runs/2026-11-03-isfs-rename-state/README.md),
+[async file cycle](dolphin-runs/2026-11-03-isfs-successful-async-cycle-dolphin/README.md),
+[async format diagnostic](dolphin-runs/2026-11-03-isfs-format-async-dolphin/README.md),
+[ISFS closed-service run](dolphin-runs/2026-11-03-isfs-get-stats-async-pass/README.md),
+and [earlier ISFS run](dolphin-runs/2026-11-03-filesystem-isfs/README.md).
 The USB storage safe facade probe covers no-device errors and
 lifecycle cleanup. A focused Dolphin probe also checks that raw `flush` and
 safe `try_flush` return the interface error for a null handle. The run has no
