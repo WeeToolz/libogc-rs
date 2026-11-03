@@ -15,9 +15,8 @@ image. The probe reached the CARD query calls. The log records:
 The four typed query assertions in this run expected the raw slot-probe error,
 so they failed. The probe source now expects `CARD_ERROR_NOCARD` for these
 typed queries when the slot reports busy or no card. This diagnostic is not a
-passing test. The corrected assertions need a fresh Dolphin run. A later
-attempt on 2026-11-03 stopped at the runner's `Dolphin --version` check with
-`SIGABRT`; it did not start the probe.
+passing test. The corrected assertions passed in the later
+[CARD no-media run](../2026-11-03-card-slice-preconditions-dolphin/README.md).
 
 This run has no inserted card. It does not check successful queries, card
 geometry, file status on a mounted card, or physical Wii behavior. The
@@ -29,4 +28,5 @@ passed its existing checks but skipped these query assertions. The
 run repeated the same mistaken expectation, and the
 [`state`](../2026-11-03-card-query-state/suite.json) run recorded statuses
 without asserting them. Keep those reports as diagnostic history; none proves
-the corrected checks.
+the corrected checks. The later CARD no-media run proves the corrected
+no-media behavior only; it does not test a mounted card or physical hardware.
