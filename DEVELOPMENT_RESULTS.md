@@ -15,6 +15,22 @@ DI runtime checks remain open; see the storage verification groups in
 CARD metadata and USB lifecycle logic. They do not exercise the target-only
 storage backends or physical devices.
 
+The `xtask` test harness now imports the exact `ogc-fat` shared source modules
+for file transfer, media presence, rename transactions, sector caching, and
+timestamps. This runs their existing tests on the host without copying the
+logic or compiling the Wii-only backends. `cargo test --manifest-path
+xtask/Cargo.toml --bin xtask` passed 107 tests, including 28 FAT shared-logic
+tests. These results do not verify FAT device I/O or media behavior.
+
+`LIBOGC_MAD_REFERENCE_MP3=[libogc-rs fixtures]/libmad-stereo-mpeg1.mp3
+cargo xtask test-host` passed all 28 host-capable packages, the standalone
+Rust suites, and the Python suites. The fixture SHA-256 is
+`c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73`. The
+first run stopped because this fixture variable was unset. The next run
+reached the Python network tests but sandbox rules denied a loopback bind. The
+final run used the approved local socket access and passed. This host suite
+does not verify Wii IOS or physical storage devices.
+
 `cargo xtask check-group storage` passed for all 15 Wii runtime crates.
 Clippy passed with warnings denied for the two host-testable packages:
 `cargo clippy -p ogc-card-metadata -p ogc-usbstorage-lifecycle --all-targets
@@ -31,7 +47,13 @@ aborted on `--version` before launch; the crash report records `SIGABRT` in
 Qt's `qDetectCpuFeatures` initializer. The two CARD launch attempts and their
 DOL identities are recorded in `docs/dolphin-runs/2026-11-03-storage-api-audit/`
 and `docs/dolphin-runs/2026-11-03-storage-card-inventory-zero/`. No new
-Dolphin or hardware result was collected in this audit.
+Dolphin or hardware result was collected in this audit. Diagnostic retries
+with the offscreen Qt platform did not start: the bundle has only the Cocoa
+platform plugin. The ARM64 retry still reported the missing `neon` feature.
+The x86_64 retry still failed to connect to the macOS pasteboard. Launching
+the app through LaunchServices also returned `kLSNoExecutableErr` even though
+the signed app bundle and its executable are present. These checks do not
+provide runtime evidence.
 
 ## 2026-11-03: FAT SD API probe and devoptab fix
 
