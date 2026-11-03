@@ -398,6 +398,26 @@ fn probe_dvd_no_media_async(logger: &mut ProbeLogger) {
         "dvd zero offset sync seek reports invalid state",
         sync_seek == -1,
     );
+
+    let mut stream_block = dvd::DvdCmdBlk::default();
+    prepare_async_probe();
+    // This command stops DVD audio streaming; it does not move the drive motor.
+    // SAFETY: `stream_block` remains live until the callback completes.
+    let submit =
+        unsafe { dvd::stop_stream_at_end_async(&mut stream_block, Some(dvd_async_callback)) };
+    record_async(
+        logger,
+        "dvd stop stream async without media",
+        submit,
+        dvd::DVD_ERROR_COVER_CLOSED,
+        10,
+    );
+
+    let mut sync_stream_block = dvd::DvdCmdBlk::default();
+    // SAFETY: the command block remains exclusively accessible for this call.
+    let sync_stream = unsafe { dvd::stop_stream_at_end(&mut sync_stream_block) };
+    logger.note_i32("dvd stop stream sync result", sync_stream);
+    logger.record("dvd stop stream sync without media", sync_stream == -1);
 }
 
 fn probe_dvd_no_media_helpers(logger: &mut ProbeLogger) {
