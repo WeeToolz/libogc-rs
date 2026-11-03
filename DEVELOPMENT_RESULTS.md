@@ -1,5 +1,38 @@
 # Development results
 
+## 2026-11-02: GX texture regions and palette in Dolphin
+
+The video probe checks cache and preload region fields against the C packed
+layout, preservation of reserved bytes, palette region fields, and palette
+format masking. Before the fix, three checks failed: cache region layout,
+preload region layout, and palette format masking. The [before report](docs/dolphin-runs/2026-11-02-gx-regions-before/suite.json)
+records 39 passes and three failures; DOL SHA-256
+`de5c6711341fdbb9f5739713e6c93f63dcd8d21f705c27d535a2c125bb8e16b3`.
+
+The production GX code now writes the two cache flags at their C byte offsets,
+preserves the adjacent size and reserved fields, and masks the palette format
+to two bits. The [after report](docs/dolphin-runs/2026-11-02-gx-regions-after/suite.json)
+records 42 passes and no failures; DOL SHA-256
+`95d2e8dbcab4164bc21df982130e57ce408ae391cbdd263d2afca3564f68b844`.
+The final capture was inspected. Both DOLs used Dolphin 2609a, a private
+profile, a copy of the configured Wii NAND, and revision `75d7f06` with the
+uncommitted changes in this batch. HBC was not under test. Transcripts,
+transport data, logs, and captures are retained with the reports. The copied
+profiles remain local. The checks inspect descriptors and do not establish
+texture transfer or physical Wii behavior.
+
+Build each DOL with `cargo xtask build-dol ogc-system-probe --bin video_probe
+--probe-features dolphin-automation --no-dev --output
+target/xtask/probes-dolphin/video_probe.dol`. Run with `cargo xtask
+dolphin-validate --no-build --probe video_probe --artifact-dir <run-directory>`.
+`cargo test --manifest-path tests/ogc-gx-host-tests/Cargo.toml` passed five
+host tests after the fix. The evidence registry records the five directly
+called region and palette APIs.
+`cargo xtask check-group hardware` also passed target compilation for six
+hardware packages; compilation is not target execution.
+The source audit passed with three existing tracked debt entries. The
+completeness audit reported 2,230 APIs without accepted exact evidence.
+
 ## 2026-11-02: GX indexed textures and LOD in Dolphin
 
 The video probe checks both indexed texture initializers, palette selection,
