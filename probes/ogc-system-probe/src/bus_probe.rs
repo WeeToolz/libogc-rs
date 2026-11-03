@@ -27,10 +27,65 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_aram(logger);
     probe_dsp(logger);
     probe_exi_si(logger);
+    probe_card_metadata_bits(logger);
     probe_card_helpers(logger);
     probe_disc(logger);
     probe_usb(logger);
     probe_runtime_helpers(logger);
+}
+
+fn probe_card_metadata_bits(logger: &mut ProbeLogger) {
+    let mut stat = card::CardStat {
+        banner_fmt: 0xa4,
+        icon_fmt: 0xaaaa,
+        icon_speed: 0x5555,
+        ..Default::default()
+    };
+    // SAFETY: `stat` is initialized and exclusively accessible. Null is
+    // permitted by these metadata helpers and is tested explicitly.
+    unsafe {
+        card::sys::set_banner_fmt(&mut stat, 0xfe);
+        let banner = stat.banner_fmt == 0xa6
+            && card::sys::get_banner_fmt(&stat) == 2
+            && card::sys::get_banner_fmt(core::ptr::null()) == 0;
+        card::sys::set_banner_fmt(core::ptr::null_mut(), 1);
+        logger.record("card banner masks and null", banner);
+
+        card::sys::set_icon_fmt(&mut stat, 0, 1);
+        card::sys::set_icon_fmt(&mut stat, 7, 0xffff);
+        card::sys::set_icon_fmt(&mut stat, 8, 0);
+        card::sys::set_icon_fmt(core::ptr::null_mut(), 0, 0);
+        logger.record(
+            "card icon formats preserve adjacent fields",
+            stat.icon_fmt == 0xeaa9
+                && card::sys::get_icon_fmt(&stat, 0) == 1
+                && card::sys::get_icon_fmt(&stat, 7) == 3
+                && card::sys::get_icon_fmt(&stat, 8) == 0
+                && card::sys::get_icon_fmt(core::ptr::null(), 0) == 0,
+        );
+
+        card::sys::set_icon_speed(&mut stat, 0, 3);
+        card::sys::set_icon_speed(&mut stat, 7, 0xfffe);
+        card::sys::set_icon_speed(&mut stat, 8, 0);
+        card::sys::set_icon_speed(core::ptr::null_mut(), 0, 0);
+        logger.record(
+            "card icon speeds preserve adjacent fields",
+            stat.icon_speed == 0x9557
+                && card::sys::get_icon_speed(&stat, 0) == 3
+                && card::sys::get_icon_speed(&stat, 7) == 2
+                && card::sys::get_icon_speed(&stat, 8) == 0
+                && card::sys::get_icon_speed(core::ptr::null(), 0) == 0,
+        );
+
+        card::sys::set_icon_addr(&mut stat, 0x1234_5678);
+        card::sys::set_comment_addr(&mut stat, 0xabcdef01);
+        card::sys::set_icon_addr(core::ptr::null_mut(), 0);
+        card::sys::set_comment_addr(core::ptr::null_mut(), 0);
+        logger.record(
+            "card metadata addresses remain distinct",
+            stat.icon_addr == 0x1234_5678 && stat.comment_addr == 0xabcdef01,
+        );
+    }
 }
 
 fn probe_cache(logger: &mut ProbeLogger) {

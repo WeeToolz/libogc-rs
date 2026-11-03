@@ -1,5 +1,33 @@
 # Development results
 
+## 2026-11-02: Memory-card metadata helpers in Dolphin
+
+The bus probe calls the eight `ogc-card-sys` banner, icon format, icon speed,
+and icon and comment address helpers directly. It checks fixed bit patterns,
+preservation of adjacent fields, the first and last icon, an out-of-range
+index, null inputs, and distinct address values. It uses an in-memory
+`CardStat` and does not write to a memory card. The evidence registry records
+the exact calls; it does not establish card persistence or physical hardware
+behavior.
+
+The DOL ran in Dolphin 2609a with 16 passes and no failures. Its SHA-256 was
+`e66ac5f9bee92668b05dcc6285e362250ccd95c4f8298047628d565a38964f36`.
+The build used revision `97eadf3` and the uncommitted bus probe change in this
+batch. The runner used a private profile and a copy of the configured Wii
+NAND. HBC was not under test. The [report](docs/dolphin-runs/2026-11-02-card-metadata/suite.json),
+[transcript](docs/dolphin-runs/2026-11-02-card-metadata/bus_probe/probe.log),
+transport bytes, logs, and page captures record the run. The final capture was
+inspected and shows the passing summary. The private profile remains local.
+
+Build: `cargo xtask build-dol ogc-system-probe --bin bus_probe
+--probe-features dolphin-automation --no-dev --output
+target/xtask/probes-dolphin/bus_probe.dol`. Run: `cargo xtask dolphin-validate
+--no-build --probe bus_probe --artifact-dir
+docs/dolphin-runs/2026-11-02-card-metadata`.
+The refreshed inventory reports 2,269 entries without accepted exact API
+evidence. The source audit passed with three existing tracked debt entries;
+the completeness audit failed on those 2,269 entries.
+
 ## 2026-11-02: Arena boundary and allocation probes in Dolphin
 
 The arena probe now tests `get_arena1_lo`, `get_arena1_hi`,
