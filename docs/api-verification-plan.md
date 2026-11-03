@@ -177,7 +177,7 @@ do not infer API coverage from a package or probe name.
 
 ## Current storage audit
 
-The current inventory has 265 unverified entries in the 12 storage packages
+The current inventory has 237 unverified entries in the 12 storage packages
 below. These counts come from `docs/generated/implementation-inventory.csv`.
 Update this table after each storage batch. Do not accept source presence or a
 successful target build as runtime evidence.
@@ -191,12 +191,12 @@ successful target build as runtime evidence.
 | `ogc-dvd` | 0 |
 | `ogc-dvd-sys` | 0 |
 | `ogc-fat` | 0 |
-| `ogc-filesystem` | 28 |
+| `ogc-filesystem` | 0 |
 | `ogc-gcsd` | 43 |
 | `ogc-usbstorage` | 2 |
 | `ogc-usbstorage-sys` | 47 |
 | `ogc-wiisd` | 0 |
-| **Total** | **265** |
+| **Total** | **237** |
 
 Use the package counts above to split storage work into these feature batches.
 Each batch still needs evidence for every API entry. A batch count does not
@@ -206,10 +206,10 @@ mean that each API has a test or probe.
 | --- | --- | ---: |
 | Optical disc | `iso9660`, `ogc-di`, `ogc-dvd`, `ogc-dvd-sys` | 54 |
 | GameCube memory card | `ogc-card`, `ogc-card-sys` | 90 |
-| FAT and file-system services | `ogc-fat`, `ogc-filesystem` | 29 |
+| FAT and file-system services | `ogc-fat`, `ogc-filesystem` | 0 |
 | SD card transports | `ogc-gcsd`, `ogc-wiisd` | 43 |
 | USB mass storage | `ogc-usbstorage`, `ogc-usbstorage-sys` | 49 |
-| **Total** | **12 packages** | **265** |
+| **Total** | **12 packages** | **237** |
 
 The ISO9660 probe calls its three C ABI exports and the Rust file-system
 mount, label, and unmount facade directly. Dolphin passed the
@@ -224,6 +224,12 @@ without a disc. These checks do not verify disc reads or physical drive motor
 behavior. See the
 [DVD Dolphin run](dolphin-runs/2026-11-03-dvd-no-media-final/README.md) and
 [DVD async no-media run](dolphin-runs/2026-11-03-dvd-no-media-async/README.md).
+The ISFS probe checks file-system API errors while the `/dev/fs` service is
+closed. It checks service close and reopen, async errors for invalid
+descriptors, output preservation, and that format requests do not reach IOS
+while the service is closed. It does not test successful NAND file changes or
+format a filesystem. See the
+[ISFS Dolphin run](dolphin-runs/2026-11-03-filesystem-isfs/README.md).
 The USB storage safe facade probe covers no-device errors and
 lifecycle cleanup. Its `flush` and `try_flush` APIs still need a valid mounted
 handle. The focused FAT probe passed in Dolphin and covers the mounted SD API,
