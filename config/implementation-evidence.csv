@@ -1,4 +1,8 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function
+ogc-gx,src/lib.rs,init_fifo_limits,1656,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_fifo_pointers
+ogc-gx,src/lib.rs,get_fifo_base,1757,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_fifo_pointers
+ogc-gx,src/lib.rs,get_fifo_size,1762,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_fifo_pointers
+ogc-gx,src/lib.rs,get_fifo_wrap,1772,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_fifo_pointers
 ogc-bt-sync,src/protocol.rs,parse_event,813,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_hci_events
 ogc-bt-sync,src/protocol.rs,parse_acl_packet,508,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_parsers
 ogc-bt-sync,src/protocol.rs,parse_l2cap_packet,525,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_parsers

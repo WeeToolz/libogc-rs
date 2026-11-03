@@ -177,6 +177,38 @@ fn probe_fifo_pointers(logger: &mut ProbeLogger) {
     // check. Both pointers are within its 64 KiB range; GX is not started.
     unsafe {
         gx::init_fifo_base(&mut fifo, base.cast(), 65536);
+    }
+    logger.record("GX FIFO base size and initial count", unsafe {
+        gx::get_fifo_base(&fifo) == base.cast()
+            && gx::get_fifo_size(&fifo) == 65536
+            && gx::get_fifo_count(&fifo) == 0
+            && gx::get_fifo_wrap(&fifo) == 0
+    });
+    let before_limits = fifo;
+    // The C __gxfifo layout has 32-bit high and low watermarks at byte
+    // offsets 12 and 16. The target stores these values in big-endian order.
+    unsafe { gx::init_fifo_limits(&mut fifo, 0xc000, 0x4000) };
+    logger.record(
+        "GX FIFO watermarks and adjacent fields",
+        fifo.pad[12..20] == [0, 0, 0xc0, 0, 0, 0, 0x40, 0]
+            && fifo.pad[..12] == before_limits.pad[..12]
+            && fifo.pad[20..] == before_limits.pad[20..],
+    );
+    let before_rejected_init = fifo;
+    // SAFETY: The object and base are valid; the short size must be rejected.
+    unsafe { gx::init_fifo_base(&mut fifo, base.cast(), 65535) };
+    logger.record(
+        "GX FIFO short initialization preserves object",
+        fifo == before_rejected_init,
+    );
+    // The C layout stores the wrap flag at offset 32. This exercises metadata
+    // readback only; it does not simulate or claim a hardware FIFO wrap.
+    fifo.pad[32] = 1;
+    logger.record("GX FIFO wrap flag readback", unsafe {
+        gx::get_fifo_wrap(&fifo) == 1
+    });
+    fifo.pad[32] = 0;
+    unsafe {
         gx::init_fifo_ptrs(&mut fifo, base.add(0xf000).cast(), base.add(0x1000).cast());
         gx::get_fifo_ptrs(&fifo, &mut read, &mut write);
     }
