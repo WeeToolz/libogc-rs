@@ -608,6 +608,16 @@ fn run_probe(
     let probe_dir = artifact_dir.join(spec.name);
     let user_dir = probe_dir.join("user");
     fs::create_dir_all(&user_dir).map_err(|err| format!("{}: {err}", user_dir.display()))?;
+    let memory_card_path = if spec.name == "storage_probe" {
+        let path = root.join(&user_dir).join("GC/MemoryCardA.USA.raw");
+        let directory = path
+            .parent()
+            .ok_or_else(|| format!("{} has no parent directory", path.display()))?;
+        fs::create_dir_all(directory).map_err(|err| format!("{}: {err}", directory.display()))?;
+        Some(path)
+    } else {
+        None
+    };
     let mut nand_copy = NandProfileCopy::new(user_dir.join("Wii"));
     copy_nand(nand_source, &nand_copy.path)?;
     let isfs_tmp = user_dir.join("Wii/tmp");
@@ -645,7 +655,7 @@ fn run_probe(
     let mut transport_bytes = File::create(&transport_bytes_path)
         .map_err(|err| format!("{}: {err}", transport_bytes_path.display()))?;
     let gdb_port = unused_tcp_port()?;
-    let arguments = dolphin_arguments(&user_dir, &dol_path, gdb_port);
+    let arguments = dolphin_arguments(&user_dir, &dol_path, gdb_port, memory_card_path.as_deref());
     let started = Instant::now();
     let mut child = ChildGuard::new(
         Command::new(dolphin)
@@ -1032,9 +1042,14 @@ impl Drop for ChildGuard {
     }
 }
 
-fn dolphin_arguments(user_dir: &Path, dol_path: &Path, gdb_port: u16) -> Vec<String> {
+fn dolphin_arguments(
+    user_dir: &Path,
+    dol_path: &Path,
+    gdb_port: u16,
+    memory_card_path: Option<&Path>,
+) -> Vec<String> {
     let speed = "1.0";
-    [
+    let mut arguments = [
         "--user".to_string(),
         user_dir.display().to_string(),
         "--batch".to_string(),
@@ -1085,11 +1100,19 @@ fn dolphin_arguments(user_dir: &Path, dol_path: &Path, gdb_port: u16) -> Vec<Str
         "Dolphin.Core.WiiSDCard=True".to_string(),
         "-C".to_string(),
         "Dolphin.Core.WiiSDCardAllowWrites=True".to_string(),
-        "--exec".to_string(),
-        dol_path.display().to_string(),
     ]
     .into_iter()
-    .collect()
+    .collect::<Vec<_>>();
+    if let Some(path) = memory_card_path {
+        arguments.extend([
+            "-C".to_string(),
+            "Dolphin.Core.SlotA=1".to_string(),
+            "-C".to_string(),
+            format!("Dolphin.Core.MemcardAPath={}", path.display()),
+        ]);
+    }
+    arguments.extend(["--exec".to_string(), dol_path.display().to_string()]);
+    arguments
 }
 
 fn strip_dolphin_protocol(contents: &str) -> String {
@@ -2193,6 +2216,40 @@ mod tests {
         assert_eq!(
             selected.iter().map(|spec| spec.name).collect::<Vec<_>>(),
             ["font_probe", "arena_probe"]
+        );
+    }
+
+    #[test]
+    fn dolphin_args_can_attach_a_memory_card_in_the_private_profile() {
+        let profile = Path::new("/run/profile with spaces");
+        let card_path = profile.join("GC/MemoryCardA.USA.raw");
+        let args = dolphin_arguments(
+            profile,
+            Path::new("/run/storage_probe.dol"),
+            1234,
+            Some(&card_path),
+        );
+
+        assert!(
+            args.windows(2)
+                .any(|pair| { pair[0] == "-C" && pair[1] == "Dolphin.Core.SlotA=1" })
+        );
+        assert!(args.windows(2).any(|pair| {
+            pair[0] == "-C"
+                && pair[1] == format!("Dolphin.Core.MemcardAPath={}", card_path.display())
+        }));
+
+        let args_without_card =
+            dolphin_arguments(profile, Path::new("/run/storage_probe.dol"), 1234, None);
+        assert!(
+            !args_without_card
+                .iter()
+                .any(|argument| argument == "Dolphin.Core.SlotA=1")
+        );
+        assert!(
+            !args_without_card
+                .iter()
+                .any(|argument| argument.starts_with("Dolphin.Core.MemcardAPath="))
         );
     }
 }
