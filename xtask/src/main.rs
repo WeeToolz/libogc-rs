@@ -17,6 +17,21 @@ mod dolphin;
 #[cfg(test)]
 #[path = "../../crates/hardware/ogc-dsp-sys/src/mailbox.rs"]
 mod dsp_mailbox_tests;
+#[cfg(test)]
+#[path = "../../crates/services/ogc-fat/src/file_transfer.rs"]
+mod fat_file_transfer_tests;
+#[cfg(test)]
+#[path = "../../crates/services/ogc-fat/src/media_presence.rs"]
+mod fat_media_presence_tests;
+#[cfg(test)]
+#[path = "../../crates/services/ogc-fat/src/rename_transaction.rs"]
+mod fat_rename_transaction_tests;
+#[cfg(test)]
+#[path = "../../crates/services/ogc-fat/src/sector_cache.rs"]
+mod fat_sector_cache_tests;
+#[cfg(test)]
+#[path = "../../crates/services/ogc-fat/src/timestamps.rs"]
+mod fat_timestamps_tests;
 mod hardware_register;
 mod host_tests;
 mod inventory;
