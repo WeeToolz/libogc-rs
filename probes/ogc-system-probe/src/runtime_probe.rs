@@ -1015,6 +1015,10 @@ fn probe_isfs_successful_file_cycle(logger: &mut ProbeLogger) {
         filesystem::ISFS_EINVAL
     };
     logger.note_i32("ISFS successful rename result", rename_result);
+    logger.record(
+        "ISFS sync rename result matches file state",
+        file_created && isfs_rename_result_matches_paths(file_path, renamed_path, rename_result),
+    );
     let renamed_open = if rename_result == filesystem::ISFS_OK {
         filesystem::open(renamed_path, filesystem::ISFS_OPEN_READ).ok()
     } else {
@@ -1031,28 +1035,14 @@ fn probe_isfs_successful_file_cycle(logger: &mut ProbeLogger) {
         logger.note("ISFS renamed-file reopen skipped because Dolphin rejected rename");
     }
 
-    let delete_result = if rename_result == filesystem::ISFS_OK {
-        filesystem::delete(renamed_path)
-    } else if file_created {
-        filesystem::delete(file_path)
-    } else {
-        filesystem::ISFS_OK
-    };
-    let directory_delete_result = if directory_created && delete_result == filesystem::ISFS_OK {
+    let rename_paths_removed = cleanup_isfs_rename_paths(file_path, renamed_path);
+    let directory_delete_result = if directory_created {
         filesystem::delete(directory)
     } else {
         filesystem::ISFS_OK
     };
-    let deleted_path = if rename_result == filesystem::ISFS_OK {
-        renamed_path
-    } else {
-        file_path
-    };
-    let deleted_file_open = if delete_result == filesystem::ISFS_OK && file_created {
-        filesystem::open(deleted_path, filesystem::ISFS_OPEN_READ)
-    } else {
-        Err(filesystem::ISFS_EINVAL)
-    };
+    let source_after_cleanup = filesystem::open(file_path, filesystem::ISFS_OPEN_READ);
+    let destination_after_cleanup = filesystem::open(renamed_path, filesystem::ISFS_OPEN_READ);
     let mut deleted_directory_usage_a = u32::MAX;
     let mut deleted_directory_usage_b = u32::MAX;
     let deleted_directory_usage =
@@ -1066,22 +1056,17 @@ fn probe_isfs_successful_file_cycle(logger: &mut ProbeLogger) {
             filesystem::ISFS_EINVAL
         };
     logger.note_i32(
-        "ISFS open after file delete result",
-        deleted_file_open
-            .as_ref()
-            .map_or_else(|error| *error, |_| filesystem::ISFS_OK),
-    );
-    logger.note_i32(
         "ISFS usage after directory delete result",
         deleted_directory_usage,
     );
     logger.record(
         "ISFS delete test file and directory",
-        delete_result == filesystem::ISFS_OK && directory_delete_result == filesystem::ISFS_OK,
+        file_created && rename_paths_removed && directory_delete_result == filesystem::ISFS_OK,
     );
     logger.record(
         "ISFS file and directory are absent after delete",
-        deleted_file_open.is_err()
+        source_after_cleanup.is_err_and(|error| error == filesystem::ISFS_ENOENT)
+            && destination_after_cleanup.is_err_and(|error| error == filesystem::ISFS_ENOENT)
             && deleted_directory_usage == filesystem::ISFS_ENOENT
             && deleted_directory_usage_a == u32::MAX
             && deleted_directory_usage_b == u32::MAX,
@@ -1506,53 +1491,71 @@ fn probe_isfs_async_rename_cycle(logger: &mut ProbeLogger) {
         (-1, i32::MIN)
     };
     logger.note_i32("ISFS rename_async callback result", rename_result);
+    logger.record(
+        "ISFS rename_async callback matches file state",
+        source_created
+            && rename_submit >= 0
+            && isfs_rename_result_matches_paths(source, destination, rename_result),
+    );
+    logger.record(
+        "ISFS async rename test files are cleaned up",
+        cleanup_isfs_rename_paths(source, destination),
+    );
+}
 
+fn isfs_rename_result_matches_paths(
+    source: &core::ffi::CStr,
+    destination: &core::ffi::CStr,
+    result: i32,
+) -> bool {
     let source_open = filesystem::open(source, filesystem::ISFS_OPEN_READ);
+    let destination_open = filesystem::open(destination, filesystem::ISFS_OPEN_READ);
     let source_exists = source_open.is_ok();
     let source_absent = source_open
         .as_ref()
         .is_err_and(|error| *error == filesystem::ISFS_ENOENT);
-    let source_closed = match source_open {
-        Ok(file) => file.close() == filesystem::ISFS_OK,
-        Err(_) => true,
-    };
-    let destination_open = filesystem::open(destination, filesystem::ISFS_OPEN_READ);
     let destination_exists = destination_open.is_ok();
     let destination_absent = destination_open
         .as_ref()
         .is_err_and(|error| *error == filesystem::ISFS_ENOENT);
+    let source_closed = match source_open {
+        Ok(file) => file.close() == filesystem::ISFS_OK,
+        Err(error) => error == filesystem::ISFS_ENOENT,
+    };
     let destination_closed = match destination_open {
         Ok(file) => file.close() == filesystem::ISFS_OK,
-        Err(_) => true,
+        Err(error) => error == filesystem::ISFS_ENOENT,
     };
-    let state_matches_result = match rename_result {
-        filesystem::ISFS_OK => source_absent && destination_exists && destination_closed,
-        filesystem::ISFS_EINVAL => source_exists && source_closed && destination_absent,
-        _ => false,
-    };
-    logger.record(
-        "ISFS rename_async callback matches file state",
-        source_created && rename_submit >= 0 && state_matches_result,
-    );
 
-    let source_cleanup = if source_exists {
-        filesystem::delete(source) == filesystem::ISFS_OK
-    } else {
-        source_absent
-    };
-    let destination_cleanup = if destination_exists {
-        filesystem::delete(destination) == filesystem::ISFS_OK
-    } else {
-        destination_absent
-    };
-    let source_removed = filesystem::open(source, filesystem::ISFS_OPEN_READ)
-        .is_err_and(|error| error == filesystem::ISFS_ENOENT);
-    let destination_removed = filesystem::open(destination, filesystem::ISFS_OPEN_READ)
-        .is_err_and(|error| error == filesystem::ISFS_ENOENT);
-    logger.record(
-        "ISFS async rename test files are cleaned up",
-        source_cleanup && destination_cleanup && source_removed && destination_removed,
-    );
+    match result {
+        filesystem::ISFS_OK => {
+            source_absent && destination_exists && source_closed && destination_closed
+        }
+        filesystem::ISFS_EINVAL => {
+            source_exists && destination_absent && source_closed && destination_closed
+        }
+        _ => false,
+    }
+}
+
+fn cleanup_isfs_rename_paths(source: &core::ffi::CStr, destination: &core::ffi::CStr) -> bool {
+    let remove_path =
+        |path: &core::ffi::CStr| match filesystem::open(path, filesystem::ISFS_OPEN_READ) {
+            Ok(file) => {
+                let close_result = file.close();
+                let delete_result = filesystem::delete(path);
+                close_result == filesystem::ISFS_OK && delete_result == filesystem::ISFS_OK
+            }
+            Err(error) => error == filesystem::ISFS_ENOENT,
+        };
+    let source_removed = remove_path(source);
+    let destination_removed = remove_path(destination);
+    source_removed
+        && destination_removed
+        && filesystem::open(source, filesystem::ISFS_OPEN_READ)
+            .is_err_and(|error| error == filesystem::ISFS_ENOENT)
+        && filesystem::open(destination, filesystem::ISFS_OPEN_READ)
+            .is_err_and(|error| error == filesystem::ISFS_ENOENT)
 }
 
 fn probe_iso9660_files(logger: &mut ProbeLogger, mount_name: &core::ffi::CStr) {
