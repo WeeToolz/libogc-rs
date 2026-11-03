@@ -1145,6 +1145,13 @@ bytes read after remount. Dolphin passed 93 GameCube-mode checks and 153
 Wii-mode checks, including deletion and free-block recovery. Physical card
 behavior remains open. See the [run report](docs/dolphin-runs/2026-11-03-card-close-persistence/README.md).
 
+## 2026-11-03: Dolphin blank page audit
+
+An audit found 137 identical green and black screenshots with no readable text.
+They do not support visual claims. The Dolphin runner now rejects that blank
+page pattern. A diagnostic run detected the pattern on its first page; the
+capture cause remains open. See the [audit and file list](docs/review/evidence/screenshot-audit-2026-11-03/README.md).
+
 ## 2026-11-03: ISFS async format callback
 
 With a longer bounded wait, Dolphin received the async format callback with
