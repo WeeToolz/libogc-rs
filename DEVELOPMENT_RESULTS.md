@@ -1,5 +1,14 @@
 # Development results
 
+## 2026-11-02: UI canvas evidence review
+
+The existing [Dolphin video run](docs/dolphin-runs/2026-11-02-gx-texconv/video_probe/probe.log)
+passed the GX canvas dimension and validation check. It calls `from_video_mode`,
+`new`, and `size`; the evidence registry now records those calls. The two Canvas
+drawing trait methods remain unverified. A new Dolphin attempt stopped before
+the probe: Dolphin aborted during its version check and reported that its Qt
+build requires NEON. The drawing behavior and physical Wii behavior remain open.
+
 ## 2026-11-02: GX RGB565 conversion in Dolphin
 
 The video probe checks two RGB565 tiles using fixed expected bytes, the
