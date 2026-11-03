@@ -2089,6 +2089,107 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
             && short_output == [0xa5]
             && transfer_output.iter().all(|byte| *byte == 0xa5),
     );
+
+    let invalid_owned_file = card::CardFile {
+        chn: 3,
+        filenum: 0x3456,
+        ..card::CardFile::default()
+    };
+    let read_invalid_channel =
+        match card::read_async_owned(invalid_owned_file, card::CARD_READSIZE as usize, 0) {
+            Err(error) => {
+                error.status() == card::CARD_ERROR_NOCARD
+                    && error.file().chn == invalid_owned_file.chn
+                    && error.file().filenum == invalid_owned_file.filenum
+            }
+            Ok(request) => {
+                drop(request);
+                false
+            }
+        };
+    logger.record(
+        "CARD read_async_owned rejects an invalid channel and returns its file",
+        read_invalid_channel,
+    );
+    let invalid_write_bytes = alloc::vec![0xa5; card::CARD_READSIZE as usize];
+    let write_invalid_channel =
+        match card::write_async_owned(invalid_owned_file, invalid_write_bytes.clone(), 0) {
+            Err(error) => {
+                let (status, file, bytes) = error.into_parts();
+                status == card::CARD_ERROR_NOCARD
+                    && file.chn == invalid_owned_file.chn
+                    && file.filenum == invalid_owned_file.filenum
+                    && bytes == invalid_write_bytes
+            }
+            Ok(request) => {
+                drop(request);
+                false
+            }
+        };
+    logger.record(
+        "CARD write_async_owned rejects an invalid channel and returns file and bytes",
+        write_invalid_channel,
+    );
+
+    let invalid_transfer_shapes = [
+        (0usize, 0u32),
+        (1usize, 0u32),
+        (card::CARD_READSIZE as usize, 1u32),
+        (card::CARD_READSIZE as usize, overflowing_offset),
+    ];
+    let mut read_rejections_preserve_files = true;
+    let mut write_rejections_preserve_payloads = true;
+    for (case, (len, offset)) in invalid_transfer_shapes.into_iter().enumerate() {
+        let file = card::CardFile {
+            chn: card::CARD_SLOTA,
+            filenum: 0x4000 + case as i32,
+            offset: 0x1234,
+            len: 0x2345,
+            iblock: 0x3456,
+        };
+        match card::read_async_owned(file, len, offset) {
+            Err(error) => {
+                read_rejections_preserve_files &= error.status() == card::CARD_ERROR_FATAL_ERROR
+                    && error.file().chn == file.chn
+                    && error.file().filenum == file.filenum
+                    && error.file().offset == file.offset
+                    && error.file().len == file.len
+                    && error.file().iblock == file.iblock;
+            }
+            Ok(request) => {
+                drop(request);
+                read_rejections_preserve_files = false;
+            }
+        }
+
+        let bytes = alloc::vec![0x5a; len];
+        let expected_bytes = bytes.clone();
+        match card::write_async_owned(file, bytes, offset) {
+            Err(error) => {
+                let (status, returned_file, returned_bytes) = error.into_parts();
+                write_rejections_preserve_payloads &= status == card::CARD_ERROR_FATAL_ERROR
+                    && returned_file.chn == file.chn
+                    && returned_file.filenum == file.filenum
+                    && returned_file.offset == file.offset
+                    && returned_file.len == file.len
+                    && returned_file.iblock == file.iblock
+                    && returned_bytes == expected_bytes;
+            }
+            Ok(request) => {
+                drop(request);
+                write_rejections_preserve_payloads = false;
+            }
+        }
+    }
+    logger.record(
+        "CARD read_async_owned rejects invalid transfer shapes and preserves files",
+        read_rejections_preserve_files,
+    );
+    logger.record(
+        "CARD write_async_owned rejects invalid transfer shapes and returns payloads",
+        write_rejections_preserve_payloads,
+    );
+
     if card::probe_slot(slot) != card::CARD_ERROR_READY {
         logger.note("card tests skipped: insert a memory card in slot A");
         return;
