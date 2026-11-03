@@ -241,6 +241,14 @@ checks startup, insertion, sector-zero read, a zero-sector write that sends no
 data command, shutdown, and restart. It does not test non-zero writes or a
 physical Wii. See [development results](../DEVELOPMENT_RESULTS.md).
 
+The 2026-11-03 storage probe run passed 62 checks and failed 3 because it had
+no Wiiload arguments and no USB storage device. The run configured a private
+Dolphin memory card path, but Dolphin did not create the card image. The card
+probe therefore skipped save operations and formatting. This run does not
+reduce the 90 open memory-card entries or the open USB transport entries. See
+the [private-card Dolphin run](dolphin-runs/2026-11-03-storage-card-abs/README.md)
+for the DOL hash, command, report, and limits.
+
 ## First batch
 
 The first controller model batch added host evidence for 18 inventory entries.
