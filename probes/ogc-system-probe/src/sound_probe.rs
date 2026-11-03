@@ -298,6 +298,165 @@ pub fn probe_audio_sys(logger: &mut ProbeLogger, stack: &mut [u8; 1024]) {
     );
 }
 
+#[repr(align(32))]
+struct AsndRawSamples([u8; 256]);
+
+pub fn probe_asnd_sys(logger: &mut ProbeLogger) {
+    logger.section("ASND SYS PROBE");
+    GLOBAL_CALLBACK_COUNT.store(0, Ordering::Release);
+    VOICE_CALLBACK_COUNT.store(0, Ordering::Release);
+    snd::init();
+    logger.record(
+        "asnd-sys initializes at 48 kHz paused",
+        snd::is_paused() == 1
+            && snd::get_audio_rate() == 48_000
+            && snd::get_samples_per_tick() == 1024,
+    );
+
+    snd::set_time(2);
+    logger.record(
+        "asnd-sys set and get time",
+        snd::get_time() == 2048
+            && snd::get_sample_counter() == 98_304
+            && snd::get_dsp_percent_use() <= 100,
+    );
+    let a4 = snd::note(snd::NOTE_A, 4);
+    logger.record(
+        "asnd-sys note and frequency helpers",
+        a4 == 57
+            && snd::note(snd::NOTE_C, 5) == 60
+            && snd::a_note2_freq(a4, 44_100, a4) == 44_100
+            && snd::a_note2_freq(snd::note(snd::NOTE_A, 5), 44_100, a4) == 88_200
+            && snd::a_note2_freq(snd::note(snd::NOTE_C, 4), 44_100, a4) == 26_228,
+    );
+
+    let sample_bytes = [0x11, 0x22, 0x33, 0x44, 0x55];
+    let buffer = snd::OwnedVoiceBuffer::copy_from_slice(&sample_bytes).ok();
+    let buffer_valid = buffer.as_ref().is_some_and(|buffer| {
+        buffer.len() == sample_bytes.len() as i32
+            && !buffer.is_empty()
+            && buffer.as_bytes() == sample_bytes
+    });
+    logger.record("asnd-sys owned sample buffer accessors", buffer_valid);
+
+    let voice = snd::get_first_unused_voice();
+    let mut raw_samples = AsndRawSamples([0x80; 256]);
+    let sample_ptr = raw_samples.0.as_mut_ptr().cast();
+    // SAFETY: `raw_samples` is 32-byte aligned and remains alive through voice
+    // teardown. The selected format reads unsigned 8-bit mono sample bytes.
+    let raw_status = unsafe {
+        snd::set_voice(snd::VoiceConfig {
+            voice,
+            format: snd::VOICE_MONO_8BIT_U,
+            pitch: 44_100,
+            delay: 0,
+            snd: sample_ptr,
+            size_snd: raw_samples.0.len() as i32,
+            volume_l: 255,
+            volume_r: 255,
+            callback: None,
+        })
+    };
+    let raw_active = raw_status == snd::SND_OK && snd::status_voice(voice) == snd::SND_WORKING;
+    logger.record("asnd-sys raw finite voice setup", raw_active);
+    logger.record(
+        "asnd-sys pointer and timer queries",
+        snd::test_pointer(voice, sample_ptr) == snd::SND_BUSY
+            && snd::get_timer_voice(voice) == snd::get_tick_counter_voice(voice) / 48,
+    );
+
+    let mut second_samples = AsndRawSamples([0x40; 256]);
+    // SAFETY: the second aligned sample block stays live until the voice stops.
+    let add_status = unsafe {
+        snd::add_voice(
+            voice,
+            second_samples.0.as_mut_ptr().cast(),
+            second_samples.0.len() as i32,
+        )
+    };
+    let changed = snd::change_pitch_voice(voice, 22_050) == snd::SND_OK
+        && snd::change_volume_voice(voice, 127, 63) == snd::SND_OK;
+    logger.record(
+        "asnd-sys busy queue and voice controls",
+        add_status == snd::SND_INVALID && changed,
+    );
+    logger.record(
+        "asnd-sys raw voice stop",
+        snd::stop_voice(voice) == snd::SND_OK && snd::status_voice(voice) == snd::SND_UNUSED,
+    );
+
+    let loop_voice = snd::get_first_unused_voice();
+    // SAFETY: the aligned sample block remains alive until this looping voice stops.
+    let loop_status = unsafe {
+        snd::set_infinite_voice(snd::InfiniteVoiceConfig {
+            voice: loop_voice,
+            format: snd::VOICE_MONO_8BIT_U,
+            pitch: 44_100,
+            delay: 0,
+            snd: raw_samples.0.as_mut_ptr().cast(),
+            size_snd: raw_samples.0.len() as i32,
+            volume_l: 255,
+            volume_r: 255,
+        })
+    };
+    logger.record(
+        "asnd-sys infinite voice start and stop",
+        loop_status == snd::SND_OK
+            && snd::status_voice(loop_voice) == snd::SND_WORKING
+            && snd::test_pointer(loop_voice, raw_samples.0.as_mut_ptr().cast()) == snd::SND_BUSY
+            && snd::stop_voice(loop_voice) == snd::SND_OK
+            && snd::status_voice(loop_voice) == snd::SND_UNUSED,
+    );
+
+    let mut owned_voice = buffer.and_then(|buffer| {
+        snd::set_voice_owned(
+            snd::OwnedVoiceConfig {
+                voice,
+                format: snd::VOICE_MONO_8BIT_U,
+                pitch: 44_100,
+                delay: 0,
+                volume_l: 255,
+                volume_r: 255,
+                callback: None,
+            },
+            buffer,
+        )
+        .ok()
+    });
+    let owned_valid = owned_voice.as_ref().is_some_and(|voice_handle| {
+        voice_handle.voice() == voice && voice_handle.buffer_count() == 1
+    });
+    let queued_buffer = snd::OwnedVoiceBuffer::copy_from_slice(&[0xaa, 0xbb]).ok();
+    let error_buffer_valid = match (owned_voice.as_mut(), queued_buffer) {
+        (Some(voice_handle), Some(buffer)) => match voice_handle.add_buffer(buffer) {
+            Ok(()) => false,
+            Err(error) => {
+                error.status() == snd::SND_INVALID && error.buffer().as_bytes() == [0xaa, 0xbb]
+            }
+        },
+        _ => false,
+    };
+    logger.record(
+        "asnd-sys owned voice accessors and rejected buffer",
+        owned_valid && error_buffer_valid,
+    );
+    if let Some(voice_handle) = owned_voice {
+        voice_handle.stop();
+    }
+    logger.record(
+        "asnd-sys owned voice stop releases voice",
+        snd::status_voice(voice) == snd::SND_UNUSED,
+    );
+
+    snd::pause(0);
+    snd::stop_voice(voice);
+    snd::end();
+    logger.record(
+        "asnd-sys end stops DMA and clears callback",
+        snd::is_paused() == 0 && audio::get_dma_enable_flag() == 0,
+    );
+}
+
 unsafe extern "C" fn stream_callback(_smp_cnt: u32) {}
 
 unsafe extern "C" fn dma_callback() {}

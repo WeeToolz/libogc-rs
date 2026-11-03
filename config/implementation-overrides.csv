@@ -1,4 +1,5 @@
 crate,path,symbol,classification,probe,limitations
+asnd-sys,*,*,hardware,asnd-sys-probe,Dolphin verifies API state and voice lifecycle; callback cadence and audible output need physical Wii evidence
 ogc-audio-sys,*,*,hardware,audio-sys-probe,Dolphin checks register behavior and callback slot lifecycle; AI callback delivery needs a physical Wii
 ogc-lwp-driver,*,*,scheduler,lwp-probe,Authoritative cooperative priority scheduler; hardware validation is required before declaring Milestone 1 accepted
 ogc-lwp-sys,*,*,compatibility-forwarder,lwp-probe,Thin ABI facade over ogc-lwp-driver

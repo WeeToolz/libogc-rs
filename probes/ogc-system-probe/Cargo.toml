@@ -140,6 +140,10 @@ name = "audio_sys_probe"
 path = "src/audio_sys_probe/main.rs"
 
 [[bin]]
+name = "asnd_sys_probe"
+path = "src/asnd_sys_probe/main.rs"
+
+[[bin]]
 name = "startup_probe"
 path = "src/startup_probe/main.rs"
 
