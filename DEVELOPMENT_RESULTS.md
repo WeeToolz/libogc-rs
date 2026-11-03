@@ -1,5 +1,27 @@
 # Development results
 
+## 2026-11-02: AESND wrapper and callback checks
+
+The AESND native DOL ran in Dolphin 2609a with a private profile and copied
+NAND. It reported 85 passes and no failures. The DOL SHA-256 was
+`20dfd70155a9b52bfcbb00ce90af817fa3b685970f57f4d3c229871bf0920339`.
+The build used revision `677d38f` and the AESND probe changes in this batch.
+The [report](docs/dolphin-runs/2026-11-02-aesnd-callbacks/suite.json) and
+probe log record the run. HBC was not under test.
+
+The checks cover callback registration and delivery, known DSP output, wrapper
+volume, stop, voice slot reuse, DSP usage, and owned buffer replacement. They
+add evidence for 22 inventory entries. Seven `aesnd` and 16 `aesnd-sys`
+entries remain unverified. The run does not prove physical Wii audio or every
+setter and error path. The full probe build required an unavailable libmad
+fixture; the focused AESND DOL was built separately and run with `--no-build`.
+
+Build with `cargo xtask build-dol ogc-system-probe --bin aesnd_native_probe
+--probe-features dolphin-automation --no-dev --output
+target/xtask/probes-dolphin/aesnd_native_probe.dol`. Run with `cargo xtask
+dolphin-validate --no-build --probe aesnd_native_probe --artifact-dir
+docs/dolphin-runs/2026-11-02-aesnd-callbacks`.
+
 ## 2026-11-02: UI canvas clipping checks
 
 Host tests exercise the production clipped canvas for fill and text calls,
