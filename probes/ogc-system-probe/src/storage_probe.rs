@@ -1561,6 +1561,14 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
 
     prepare_async_probe();
     let mount_request = card::mount_async_owned(slot);
+    let request_slot = mount_request
+        .as_ref()
+        .ok()
+        .map(card::CardMountRequest::slot);
+    logger.record(
+        "card mount request retains its slot",
+        request_slot == Some(slot),
+    );
     let mount_submit = mount_request
         .as_ref()
         .map_or_else(|status| *status, |_| card::CARD_ERROR_READY);
@@ -1587,6 +1595,15 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         return;
     }
     let mounted = mounted.unwrap();
+    logger.record(
+        "card mounted owner retains its slot",
+        mounted.slot() == slot,
+    );
+    logger.record("card mounted owner reports attached", mounted.is_attached());
+    logger.record(
+        "card mounted owner has no detach result before removal",
+        mounted.detach_result().is_none(),
+    );
 
     let (sector_rc, sector_size) = match card::sector_size(slot) {
         Ok(value) => (card::CARD_ERROR_READY, value),

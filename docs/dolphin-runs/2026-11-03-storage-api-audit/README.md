@@ -33,3 +33,16 @@ runtime evidence for the probe or its APIs.
 The next Dolphin run requires a Dolphin build that starts successfully on this
 host. The storage group check remains separate: `cargo xtask check-group
 storage` completed for 15 Wii runtime packages.
+
+## Repeat after CARD owner-state checks
+
+The probe now also checks the owned mount request slot, mounted owner slot,
+attached state, and pre-detach result. The target DOL built with the external
+fixtures from `[libogc-rs fixtures]`; its SHA-256 is
+`64733665fb6b67b5fa837aad73e093c0de0913bfdd25df754c121046639fa179`.
+
+The Dolphin runner again stopped before it launched the DOL because Dolphin
+aborted on `--version` with `SIGABRT`. Direct invocation reported the missing
+`neon` processor feature. This repeat adds no runtime evidence. The new owner
+checks remain unverified until a compatible Dolphin build or Wii run executes
+the DOL.
