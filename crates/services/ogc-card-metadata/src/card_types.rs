@@ -88,6 +88,7 @@ mod tests {
             ..CardDir::default()
         };
         let delete_entry = CardDeleteEntryCompletion::from_parts(0, entry);
+        assert_eq!(delete_entry.status(), 0);
         assert_eq!(delete_entry.entry().fileno, 10);
         let (status, returned_entry) = delete_entry.into_parts();
         assert_eq!(status, 0);
@@ -97,6 +98,7 @@ mod tests {
         stat.filename[..4].copy_from_slice(b"META");
         stat.len = 1024;
         let set_status = CardSetStatusCompletion::from_parts(-7, stat);
+        assert_eq!(set_status.status(), -7);
         assert_eq!(set_status.stat().len, 1024);
         let (status, returned_stat) = set_status.into_parts();
         assert_eq!(status, -7);
