@@ -253,7 +253,7 @@ The original `ogc-di` split grouped the APIs as follows:
 The CARD APIs have direct probe-source evidence. The probe checks
 invalid-channel errors and output preservation through the wrapper and system
 APIs, no-callback submission errors, owned request slots and completion state,
-save persistence, and user-data-safe cleanup. The Wii `storage_probe` ran
+save persistence, and user-data-safe cleanup. An earlier Wii `storage_probe` ran
 without an available card and skipped save and format operations. A separate
 GameCube `card_probe` run used a copied, verified virtual card and passed 93
 checks. It verified create, read, write, status, delete, persistence after
@@ -290,6 +290,12 @@ SD Gecko success paths, DVD reads, destructive format, and media hotplug were
 not tested. See the
 [current storage-suite report](dolphin-runs/2026-11-03-storage-api-full-current/README.md)
 for DOL hashes, logs, and limits.
+
+A repeat at revision `43b800a` mounted the verified card copy and completed
+the save and remount checks in both GameCube and Wii modes. The probes reported
+98 and 217 passes, respectively, with zero failures. See the
+[CARD repeat report](dolphin-runs/2026-11-03-card-current-repeat/README.md)
+for the logs, DOL hashes, and limits.
 
 The protected DI read group has direct Rust and C calls. It returned `-5` for
 DVD key, physical data, and report-key requests, and `0` for BCA in Dolphin.
