@@ -296,6 +296,9 @@ the save and remount checks in both GameCube and Wii modes. The probes reported
 98 and 217 passes, respectively, with zero failures. See the
 [CARD repeat report](dolphin-runs/2026-11-03-card-current-repeat/README.md)
 for the logs, DOL hashes, and limits.
+The later [full-buffer CARD run](dolphin-runs/2026-11-03-card-full-buffer/README.md)
+checks all bytes returned by the 512-byte owned async read and the full safe
+sync sector read. It passed in both Dolphin modes.
 
 The protected DI read group has direct Rust and C calls. It returned `-5` for
 DVD key, physical data, and report-key requests, and `0` for BCA in Dolphin.

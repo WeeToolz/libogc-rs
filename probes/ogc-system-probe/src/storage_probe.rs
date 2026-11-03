@@ -2902,8 +2902,7 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         }
     }
 
-    let mut write_bytes = alloc::vec![0u8; sector_size as usize];
-    write_bytes[0] = 0x5a;
+    let mut write_bytes = alloc::vec![0x5a; sector_size as usize];
     write_bytes[1] = 0xa5;
     let write_request = card::write_async_owned(file, write_bytes, 0);
     let write_submit = write_request
@@ -2958,7 +2957,11 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     file = returned_file;
     logger.record(
         "card async owned roundtrip",
-        write_ok && read_ok && bytes[0] == 0x5a && bytes[1] == 0xa5,
+        write_ok
+            && read_ok
+            && bytes[0] == 0x5a
+            && bytes[1] == 0xa5
+            && bytes[2..].iter().all(|byte| *byte == 0x5a),
     );
 
     bytes.resize(sector_size as usize, 0);
@@ -2970,7 +2973,11 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     let sync_read = card::read_slice(&mut file, &mut bytes, 0) == card::CARD_ERROR_READY;
     logger.record(
         "card safe sync roundtrip",
-        sync_write && sync_read && bytes[0] == 0x3c && bytes[1] == 0xc3,
+        sync_write
+            && sync_read
+            && bytes[0] == 0x3c
+            && bytes[1] == 0xc3
+            && bytes[2..].iter().all(|byte| *byte == 0),
     );
 
     #[repr(align(32))]
