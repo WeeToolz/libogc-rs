@@ -1,5 +1,22 @@
 # Development results
 
+## 2026-11-02: GX RGB565 conversion in Dolphin
+
+The video probe checks two RGB565 tiles using fixed expected bytes, the
+1024-byte source stride, partial dimensions, a negative width, and output
+sentinels. The DOL ran in Dolphin 2609a with 52 passes and no failures. Its
+SHA-256 was `f26d092530bf92f317f1444fdef380f4d377bdae8120de2e307e533279053374`.
+The build used revision `fde546b` and the probe change in this batch. The
+runner used a private profile and copied Wii NAND. HBC was not under test.
+The [report](docs/dolphin-runs/2026-11-02-gx-texconv/suite.json) records the
+run. Texture rendering and physical Wii behavior remain untested.
+
+Build with `cargo xtask build-dol ogc-system-probe --bin video_probe
+--probe-features dolphin-automation --no-dev --output
+target/xtask/probes-dolphin/video_probe.dol`. Run with `cargo xtask
+dolphin-validate --no-build --probe video_probe --artifact-dir
+docs/dolphin-runs/2026-11-02-gx-texconv`.
+
 ## 2026-11-02: GX texture buffer sizes in Dolphin
 
 The video probe checks fixed texture sizes for I4, I8, RGB565, and RGBA8
