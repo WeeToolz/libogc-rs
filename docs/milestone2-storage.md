@@ -23,8 +23,9 @@ ABI, callback, or helper paths. Nine `iso9660` rows record exact C wrapper, C
 export, and Rust call paths. Fifty-nine `ogc-di` rows record exact wrapper
 paths from the no-disc probe. Twenty-seven `ogc-dvd` rows record exact facade
 calls from the no-disc probe. Thirty-two `ogc-dvd-sys` rows record exact calls
-through the sys module. In total, 351 of 604 storage entries record exact API
-paths. These checks confirm source identity only. A path match does not prove
+through the sys module. Thirty `ogc-gcsd` rows record public wrapper calls and
+SD interface callbacks from the GameCube SD probe. In total, 381 of 604 storage
+entries record exact API paths. These checks confirm source identity only. A path match does not prove
 that an API assertion passed or that a device-dependent branch ran. Review
 each mapping and runtime report before using it as a result.
 

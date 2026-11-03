@@ -188,8 +188,8 @@ The current inventory has 604 API entries in 14 storage packages. Its 0
 `unverified` entries mean that every API has an implementation-source mapping;
 they do not mean that every API has passed a test or a Dolphin run. These
 counts come from `docs/generated/implementation-inventory.csv`. Exact call
-paths are now recorded for 351 entries: 9 `iso9660`, 27 `ogc-dvd`, 32
-`ogc-dvd-sys`, 59 `ogc-di`, 5 `ogc-wiisd`, 20
+paths are now recorded for 381 entries: 9 `iso9660`, 27 `ogc-dvd`, 32
+`ogc-dvd-sys`, 59 `ogc-di`, 30 `ogc-gcsd`, 5 `ogc-wiisd`, 20
 `ogc-usbstorage-lifecycle`, 30
 `ogc-usbstorage`, 65 `ogc-usbstorage-sys`, 64 `ogc-fat`, and 40
 `ogc-filesystem`. Exact source mapping does not prove runtime behavior. Keep
@@ -349,11 +349,14 @@ many FAT operations on Dolphin; it does not verify each FAT inventory entry or
 physical Wii media. See the
 [Wii FAT run](dolphin-runs/2026-11-03-wii-std-fs-storage/README.md).
 The `fat_sd_probe` also checks that GameCube SD Gecko mounts report the
-expected no-adapter error. A 2026-11-03 Dolphin run passed 36 GameCube SD API
-checks. It checked invalid drive errors for C and Rust APIs, no-card backend
-results, speed and page-size state restoration, buffer-pool exhaustion and
-reuse, and interface callback cleanup. It did not exercise an EXI SD Gecko. See the
-[SD Gecko invalid-drive run](dolphin-runs/2026-11-03-gcsd-invalid-drive/README.md).
+expected no-adapter error. Its earlier 2026-11-03 Dolphin run passed 36
+GameCube SD API checks. The storage audit rerun passed 40 `fat_sd_probe`
+checks, including the SD Gecko checks. These checks cover invalid-drive
+results for C and Rust APIs, no-card results, speed and page-size state
+restoration, buffer-pool exhaustion and reuse, and interface callback cleanup.
+They do not exercise an EXI SD Gecko. See the
+[earlier SD Gecko run](dolphin-runs/2026-11-03-gcsd-invalid-drive/README.md)
+and the [storage audit rerun](dolphin-runs/2026-11-03-storage-api-audit-rerun/README.md).
 The Wii SD probe passed 15 checks in Dolphin with its private virtual SD card.
 It checks startup, insertion, sector-zero read, a one-sector write/read-back
 round trip, a nine-sector unaligned write across the bounce-buffer boundary,
