@@ -78,6 +78,34 @@ hardware limits. Use the existing [hardware register](hardware-api-validation.cs
 and [probe coverage map](../config/probe-coverage.csv). Keep durable run
 findings in `DEVELOPMENT_RESULTS.md` and evidence outside `target`.
 
+## Wider audio group status
+
+The current audio batch covers `asnd-sys`, `mad-sys`, `modplay-capi`,
+`mp3player-sys`, `ogc-aram`, `ogc-audio-sys`, `ogc-dsp`, and `ogc-dsp-sys`.
+Use the generated inventory for current per-symbol counts; the package counts
+in the initial audio work list are a baseline and can change as evidence is
+accepted. `ogc-audio-sys` has a focused Dolphin probe. Its callback registration
+and removal are checked, but callback delivery is not accepted from Dolphin:
+the AI DMA byte count did not advance and neither AI callback ran during the
+emulated wait. Track callback delivery for a real-Wii run. Continue through the
+remaining audio packages with exact API calls, fixed fixtures, and recorded
+Dolphin or host results. Keep the open libmad decoder message and
+fixture-dependent decoder failures open until their failures are diagnosed.
+
+The 2026-11-02 inventory has 124 open entries in these packages:
+
+| Package | Open entries |
+| --- | ---: |
+| `asnd-sys` | 20 |
+| `mad-sys` | 1 |
+| `modplay-capi` | 24 |
+| `mp3player-sys` | 19 |
+| `ogc-aram` | 26 |
+| `ogc-audio-sys` | 0 |
+| `ogc-dsp` | 15 |
+| `ogc-dsp-sys` | 19 |
+| **Total** | **124** |
+
 ## Package work list
 
 Counts below are the number of unverified inventory entries at the baseline.

@@ -664,6 +664,18 @@ pub fn run_sound_probe_bin() -> i32 {
 }
 
 #[cfg(target_arch = "powerpc")]
+/// Checks the low-level AI register and DSP DMA audio APIs.
+pub fn run_audio_sys_probe_bin() -> i32 {
+    configure_probe_app_dir("audio-sys-probe");
+    let mut logger = init_probe_logger();
+    logger.section("OGC AUDIO SYS PROBE");
+    let mut stack = [0u8; 1024];
+    sound_probe::probe_audio_sys(&mut logger, &mut stack);
+    logger.summary();
+    finish_probe()
+}
+
+#[cfg(target_arch = "powerpc")]
 /// Checks that ModPlay mixes in its LWP worker and stops that worker cleanly.
 pub fn run_modplay_probe_bin() -> i32 {
     configure_probe_app_dir("modplay-probe");

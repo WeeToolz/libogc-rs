@@ -694,3 +694,33 @@ See the [probe log](docs/review/evidence/l2cap-runtime-20261030/probe.log) and
 checks do not establish Bluetooth transport or physical controller behavior.
 The Bluetooth host suite passed 103 tests; clippy and formatting passed.
 The completeness audit remains open with 2,283 unverified entries.
+
+## 2026-11-02: Low-level audio register probe
+
+`audio_sys_probe` called all 22 previously unverified `ogc-audio-sys` APIs
+directly. Dolphin 2609a passed 11 checks with zero failures. The checks covered
+AI initialization and callback stack storage, AI volume, sample rates, stream
+trigger and play state, stream counter reset, DMA address and length
+readback, DMA enable and stop, and callback registration and removal. The DMA
+address check uses the hardware-visible 29-bit bus address, which omits the
+cached-memory prefix from the CPU pointer. The final DOL SHA-256 is
+`95c6874a3d5484780822dc953a2765efdec34dc53b0ff769b35254fba653a4aa`.
+See [the passing suite](docs/dolphin-runs/2026-11-02-audio-sys-final/suite.json)
+and [probe log](docs/dolphin-runs/2026-11-02-audio-sys-final/audio_sys_probe/probe.log).
+
+Dolphin did not advance the DMA byte count or dispatch the AI callbacks, so
+callback delivery remains open for a real-Wii probe. The failed exploratory
+runs are retained at
+[the invalid-address/full sound run](docs/dolphin-runs/2026-11-02-audio-sys/suite.json),
+[the focused callback run](docs/dolphin-runs/2026-11-02-audio-sys-callbacks/suite.json),
+and [the aligned-buffer run](docs/dolphin-runs/2026-11-02-audio-sys-valid-dma/suite.json).
+The [bus-address diagnostic run](docs/dolphin-runs/2026-11-02-audio-sys-focused/suite.json)
+also records the first address mismatch.
+The full sound run also stalled later during ASND startup, outside this focused
+probe. These results do not prove physical Wii behavior. The wider audio group
+remains open. `cargo xtask check-group audio`, PowerPC Clippy with warnings
+denied for `ogc-audio-sys` and the probe library, host Clippy with warnings
+denied for the audio libmad host harness, `cargo fmt --all -- --check`,
+`cargo xtask audit-source`, and the generated inventory check passed. The
+general host Clippy attempt was not applicable because runtime dependencies
+reject non-PowerPC builds.

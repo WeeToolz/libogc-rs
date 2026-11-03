@@ -43,6 +43,7 @@ wpad-sys = { path = "../../crates/services/wpad-sys" }
 # ogc
 iso9660 = { path = "../../crates/media/iso9660" }
 ogc-audio = { path = "../../crates/hardware/ogc-audio" }
+ogc-audio-sys = { path = "../../crates/hardware/ogc-audio-sys" }
 ogc-aram = { path = "../../crates/hardware/ogc-aram" }
 ogc-bt-sync = { path = "../../crates/services/ogc-bt-sync" }
 ogc-cache = { path = "../../crates/core/ogc-cache" }
@@ -133,6 +134,10 @@ path = "src/sram_probe/main.rs"
 [[bin]]
 name = "sound_probe"
 path = "src/sound_probe/main.rs"
+
+[[bin]]
+name = "audio_sys_probe"
+path = "src/audio_sys_probe/main.rs"
 
 [[bin]]
 name = "startup_probe"
