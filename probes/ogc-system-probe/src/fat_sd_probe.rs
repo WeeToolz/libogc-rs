@@ -5,9 +5,112 @@ use ogc_wiisd::WII_SD_INTERFACE;
 
 const MOUNT: &core::ffi::CStr = c"sd";
 const PROBE_FILE: &core::ffi::CStr = c"sd:/libogc-fat-api-probe.tmp";
+const GCSD_ERROR_NOCARD: i32 = -3;
+
+#[repr(align(32))]
+struct CardSector([u8; 512]);
+
+fn probe_gcsd_invalid_drive(logger: &mut ProbeLogger) {
+    use ogc_gcsd as gcsd;
+
+    logger.section("GAMECUBE SD INVALID DRIVE API CHECKS");
+    gcsd::sdgecko_initIODefault();
+
+    let speed = gcsd::sdgecko_get_speed(-1);
+    let page_size = gcsd::sdgecko_get_page_size(-1);
+    let addressing = gcsd::sdgecko_get_addressing_type(-1);
+    logger.record(
+        "Rust SD Gecko getters reject an invalid drive",
+        speed.is_none() && page_size.is_none() && addressing.is_none(),
+    );
+    logger.record(
+        "Rust SD Gecko setters reject an invalid drive",
+        !gcsd::sdgecko_set_speed(-1, 12_345_678) && gcsd::sdgecko_set_page_size(-1, 512).is_none(),
+    );
+
+    let init = gcsd::sdgecko_initIO(-1);
+    let pre_io = gcsd::sdgecko_preIO(-1);
+    let cid = gcsd::sdgecko_readCID(-1);
+    let csd = gcsd::sdgecko_readCSD(-1);
+    let status = gcsd::sdgecko_readStatus(-1);
+    let unmount = gcsd::sdgecko_doUnmount(-1);
+    logger.record(
+        "C SD Gecko lifecycle and metadata APIs reject an invalid drive",
+        [init, pre_io, cid, csd, status, unmount]
+            .into_iter()
+            .all(|result| result == GCSD_ERROR_NOCARD),
+    );
+
+    let mut sector = CardSector([0xa5; 512]);
+    // SAFETY: The sector buffer is aligned and large enough for one sector.
+    let read = unsafe { gcsd::sdgecko_readSectors(-1, 0, 1, sector.0.as_mut_ptr().cast()) };
+    // SAFETY: The sector buffer is aligned and large enough for one sector.
+    let write = unsafe { gcsd::sdgecko_writeSectors(-1, 0, 1, sector.0.as_ptr().cast()) };
+    logger.record(
+        "C SD Gecko sector APIs reject an invalid drive",
+        read == GCSD_ERROR_NOCARD && write == GCSD_ERROR_NOCARD,
+    );
+
+    let speed_before = gcsd::sdgecko_get_speed(0).unwrap_or(0);
+    let speed_changed_to = speed_before ^ 1;
+    let speed_set = gcsd::sdgecko_set_speed(0, speed_changed_to);
+    let speed_after_set = gcsd::sdgecko_get_speed(0);
+    gcsd::sdgecko_insertedCB(0);
+    gcsd::sdgecko_ejectedCB(0);
+    gcsd::sdgecko_setSpeed(-1, 12_345_678);
+    let speed_after_callbacks = gcsd::sdgecko_get_speed(0);
+    logger.record(
+        "Rust SD Gecko speed setter changes drive state",
+        speed_set && speed_after_set == Some(speed_changed_to),
+    );
+    logger.record(
+        "C SD Gecko callbacks and invalid speed setter preserve drive state",
+        speed_after_set == speed_after_callbacks,
+    );
+    gcsd::sdgecko_initIODefault();
+    logger.record(
+        "C SD Gecko default initialization restores the original speed",
+        gcsd::sdgecko_get_speed(0) == Some(speed_before),
+    );
+
+    logger.record(
+        "C SD Gecko getters use documented invalid-drive defaults",
+        gcsd::sdgecko_getSpeed(-1) == 0
+            && gcsd::sdgecko_getPageSize(-1) == 0
+            && gcsd::sdgecko_getAddressingType(-1) == gcsd::CARD_IO_SECTOR_ADDRESSING
+            && gcsd::sdgecko_setPageSize(-1, 512) == GCSD_ERROR_NOCARD,
+    );
+
+    gcsd::sdgecko_initBufferPool();
+    let first = gcsd::sdgecko_allocBuffer();
+    let second = gcsd::sdgecko_allocBuffer();
+    let third = gcsd::sdgecko_allocBuffer();
+    let exhausted = gcsd::sdgecko_allocBuffer();
+    let buffers_are_distinct = !first.is_null()
+        && !second.is_null()
+        && !third.is_null()
+        && first != second
+        && first != third
+        && second != third
+        && exhausted.is_null();
+    // SAFETY: Free only live buffers returned by the matching SD Gecko pool.
+    unsafe {
+        gcsd::sdgecko_freeBuffer(first);
+        gcsd::sdgecko_freeBuffer(second);
+        gcsd::sdgecko_freeBuffer(third);
+    }
+    let reusable = gcsd::sdgecko_allocBuffer();
+    logger.record(
+        "C SD Gecko buffer pool allocates, exhausts, frees, and reuses buffers",
+        buffers_are_distinct && !reusable.is_null(),
+    );
+    // SAFETY: Free the live buffer returned by the matching SD Gecko pool.
+    unsafe { gcsd::sdgecko_freeBuffer(reusable) };
+}
 
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("FAT SD API PROBE");
+    probe_gcsd_invalid_drive(logger);
 
     let mount_result = fat::mount_sd();
     logger.record("FAT SD mount", mount_result.is_ok());

@@ -177,7 +177,7 @@ do not infer API coverage from a package or probe name.
 
 ## Current storage audit
 
-The current inventory has 188 unverified entries in the 12 storage packages
+The current inventory has 164 unverified entries in the 12 storage packages
 below. These counts come from `docs/generated/implementation-inventory.csv`.
 Update this table after each storage batch. Do not accept source presence or a
 successful target build as runtime evidence.
@@ -192,11 +192,11 @@ successful target build as runtime evidence.
 | `ogc-dvd-sys` | 0 |
 | `ogc-fat` | 0 |
 | `ogc-filesystem` | 0 |
-| `ogc-gcsd` | 43 |
+| `ogc-gcsd` | 19 |
 | `ogc-usbstorage` | 0 |
 | `ogc-usbstorage-sys` | 0 |
 | `ogc-wiisd` | 0 |
-| **Total** | **188** |
+| **Total** | **164** |
 
 Use the package counts above to split storage work into these feature batches.
 Each batch still needs evidence for every API entry. A batch count does not
@@ -207,9 +207,9 @@ mean that each API has a test or probe.
 | Optical disc | `iso9660`, `ogc-di`, `ogc-dvd`, `ogc-dvd-sys` | 55 |
 | GameCube memory card | `ogc-card`, `ogc-card-sys` | 90 |
 | FAT and file-system services | `ogc-fat`, `ogc-filesystem` | 0 |
-| SD card transports | `ogc-gcsd`, `ogc-wiisd` | 43 |
+| SD card transports | `ogc-gcsd`, `ogc-wiisd` | 19 |
 | USB mass storage | `ogc-usbstorage`, `ogc-usbstorage-sys` | 0 |
-| **Total** | **12 packages** | **188** |
+| **Total** | **12 packages** | **164** |
 
 The ISO9660 probe calls its three C ABI exports and the Rust file-system
 mount, label, and unmount facade directly. Dolphin passed the
@@ -239,8 +239,12 @@ decoding, BOT retry behavior, and READ/WRITE status handling. The focused FAT
 probe passed in Dolphin and covers the mounted SD API,
 C exports, FAT file seek/truncate, attribute updates, init functions, and mount
 cleanup. The probe also checks that GameCube SD Gecko mounts report the expected
-no-adapter error. This does not verify physical SD Gecko operation. The Wii SD
-probe passed in Dolphin with its private virtual SD card. It
+no-adapter error. A 2026-11-03 Dolphin run also passed 30 GameCube SD API
+checks. It checked invalid drive errors for C and Rust APIs, speed state
+updates and restoration, and buffer-pool exhaustion and reuse. It did not
+exercise an EXI SD Gecko. See the
+[SD Gecko invalid-drive run](dolphin-runs/2026-11-03-gcsd-invalid-drive/README.md).
+The Wii SD probe passed in Dolphin with its private virtual SD card. It
 checks startup, insertion, sector-zero read, a zero-sector write that sends no
 data command, shutdown, and restart. It does not test non-zero writes or a
 physical Wii. See [development results](../DEVELOPMENT_RESULTS.md).
