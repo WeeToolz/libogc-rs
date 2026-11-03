@@ -1,4 +1,15 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function
+ogc-bt-sync,src/protocol.rs,parse_acl_packet,508,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_parsers
+ogc-bt-sync,src/protocol.rs,parse_l2cap_packet,525,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_parsers
+ogc-bt-sync,src/protocol.rs,parse_l2cap_signal,542,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_parsers
+ogc-bt-sync,src/protocol.rs,parse_next_l2cap_signal,557,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_parsers
+ogc-bt-sync,src/protocol.rs,parse_l2cap_signal_payload,567,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_parsers
+ogc-bt-sync,src/protocol.rs,parse_hidp_packet,636,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_parsers
+ogc-bt-sync,src/protocol.rs,build_l2cap_configuration_response,686,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_packets
+ogc-bt-sync,src/protocol.rs,build_l2cap_connection_response,740,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_packets
+ogc-bt-sync,src/protocol.rs,build_l2cap_disconnection_response,754,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_packets
+ogc-bt-sync,src/protocol.rs,build_l2cap_command_reject,767,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_packets
+ogc-bt-sync,src/protocol.rs,build_l2cap_invalid_cid_reject,776,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_packets
 ogc-card-sys,src/lib.rs,get_banner_fmt,705,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_card_metadata_bits
 ogc-card-sys,src/lib.rs,set_banner_fmt,717,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_card_metadata_bits
 ogc-card-sys,src/lib.rs,get_icon_fmt,727,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_card_metadata_bits
