@@ -6,6 +6,7 @@ use core::ptr::null_mut;
 use core::sync::atomic::{AtomicBool, AtomicI32, AtomicU32, Ordering};
 
 use ogc_card as card;
+use ogc_di as di;
 use ogc_dvd as dvd;
 use ogc_fat as fat;
 #[cfg(not(feature = "dolphin-automation"))]
@@ -57,6 +58,8 @@ pub static OGC_STORAGE_PROBE_USB_V5_REMOVALS: AtomicU32 = AtomicU32::new(0);
 pub static OGC_STORAGE_PROBE_USB_V5_LAST_RESULT: AtomicI32 = AtomicI32::new(i32::MIN);
 #[unsafe(no_mangle)]
 pub static OGC_STORAGE_PROBE_USB_V5_LAST_USERDATA: AtomicU32 = AtomicU32::new(0);
+static DI_MOUNT_CALLBACK_STATUS: AtomicU32 = AtomicU32::new(u32::MAX);
+static DI_MOUNT_CALLBACK_ERROR: AtomicU32 = AtomicU32::new(u32::MAX);
 
 static ASYNC_RETURNED: AtomicBool = AtomicBool::new(false);
 static ASYNC_DONE: AtomicBool = AtomicBool::new(false);
@@ -131,6 +134,12 @@ unsafe extern "C" fn dvd_async_callback(result: i32, _block: *mut dvd::DvdCmdBlk
     ASYNC_RESULT.store(result, Ordering::Release);
     OGC_STORAGE_PROBE_LAST_RESULT.store(result, Ordering::Release);
     ASYNC_DONE.store(true, Ordering::Release);
+}
+
+unsafe extern "C" fn di_mount_callback(status: u32, error: u32) -> i32 {
+    DI_MOUNT_CALLBACK_STATUS.store(status, Ordering::Release);
+    DI_MOUNT_CALLBACK_ERROR.store(error, Ordering::Release);
+    0
 }
 
 unsafe extern "C" fn card_detach_callback(_chn: i32, result: i32) {
@@ -482,6 +491,286 @@ fn probe_dvd_no_media_helpers(logger: &mut ProbeLogger) {
             && core::ptr::eq(disk_id, dvd::get_current_disk_id())
             && core::ptr::eq(drive_info, dvd::get_drive_info()),
     );
+}
+
+pub fn probe_di_no_disc(logger: &mut ProbeLogger) {
+    logger.section("OGC DI DIRECT NO-DISC");
+    let init_result = di::init();
+    logger.note_i32("di init result", init_result);
+    logger.record("di init opens transport", init_result == 0);
+    logger.record(
+        "di init state has no disc",
+        di::get_status() == (di::DVD_INIT | di::DVD_NO_DISC) as i32,
+    );
+
+    DI_MOUNT_CALLBACK_STATUS.store(u32::MAX, Ordering::Release);
+    DI_MOUNT_CALLBACK_ERROR.store(u32::MAX, Ordering::Release);
+    di::set_mount_callback(Some(di_mount_callback));
+    di::mount();
+    di::set_mount_callback(None);
+    logger.record(
+        "di no-disc mount callback",
+        DI_MOUNT_CALLBACK_STATUS.load(Ordering::Acquire) == di::DVD_NO_DISC
+            && DI_MOUNT_CALLBACK_ERROR.load(Ordering::Acquire) == 0,
+    );
+    logger.record(
+        "di mount leaves no-disc state",
+        di::get_status() == di::DVD_NO_DISC as i32,
+    );
+    DI_MOUNT_CALLBACK_STATUS.store(u32::MAX, Ordering::Release);
+    DI_MOUNT_CALLBACK_ERROR.store(u32::MAX, Ordering::Release);
+    di::set_mount_callback(Some(di_mount_callback));
+    di::DI_Mount();
+    di::set_mount_callback(None);
+    logger.record(
+        "DI_Mount delivers no-disc callback",
+        DI_MOUNT_CALLBACK_STATUS.load(Ordering::Acquire) == di::DVD_NO_DISC
+            && DI_MOUNT_CALLBACK_ERROR.load(Ordering::Acquire) == 0,
+    );
+
+    let mut drive_id = di::DiDriveId {
+        rev: 0x1234,
+        dev_code: 0x5678,
+        rel_date: 0x1020_3040,
+    };
+    let id_result = di::identify(&mut drive_id);
+    logger.note_i32("di identify result", id_result);
+    logger.note_u32("di drive revision", u32::from(drive_id.rev));
+    logger.note_u32("di drive code", u32::from(drive_id.dev_code));
+    logger.note_u32("di drive release date", drive_id.rel_date);
+    logger.record("di identify returns a drive record", id_result == 0);
+    let dvd_support = di::check_dvd_support();
+    logger.note_i32("di dvd support", dvd_support);
+    logger.record("di dvd support reports Dolphin drive", dvd_support == 1);
+
+    let mut disc_id = 0x1234_5678_9ABC_DEF0;
+    let id_result = di::read_disc_id(&mut disc_id);
+    logger.record(
+        "di disc id errors preserve output",
+        id_result < 0 && disc_id == 0x1234_5678_9ABC_DEF0,
+    );
+    let mut disc_id_bytes = [0xA5; 0x20];
+    let bytes_result = di::read_disc_id_bytes(&mut disc_id_bytes);
+    logger.record(
+        "di disc id bytes errors preserve output",
+        bytes_result < 0 && disc_id_bytes == [0xA5; 0x20],
+    );
+
+    let mut error = 0xA5A5_5A5A;
+    let error_result = di::get_error(&mut error);
+    logger.record(
+        "di error output is valid or preserved",
+        error_result == 0 || (error_result < 0 && error == 0xA5A5_5A5A),
+    );
+    let mut cover = 0xA5A5_5A5A;
+    let cover_result = di::get_cover_register(&mut cover);
+    logger.record(
+        "di cover result reports no inserted disc",
+        (cover_result == 0 && cover & di::DVD_COVER_DISC_INSERTED == 0)
+            || (cover_result < 0 && cover == 0xA5A5_5A5A),
+    );
+
+    let mut config = 0xA5A5_5A5A;
+    let config_result = di::read_dvd_config(&mut config, 0);
+    logger.record(
+        "di config output is valid or preserved",
+        config_result == 0 || (config_result < 0 && config == 0xA5A5_5A5A),
+    );
+    let mut copyright = 0xA5A5_5A5A;
+    let copyright_result = di::read_dvd_copyright(&mut copyright);
+    logger.record(
+        "di copyright output is valid or preserved",
+        copyright_result == 0 || (copyright_result < 0 && copyright == 0xA5A5_5A5A),
+    );
+
+    let mut aligned = DvdSector([0; 0x800]);
+    // SAFETY: `aligned` is a writable, 32-byte aligned buffer of one sector.
+    let read_result = unsafe { di::read_dvd(aligned.0.as_mut_ptr().cast(), 1, 0) };
+    logger.note_i32("di sector read result", read_result);
+    logger.note_u32(
+        "di sector read first word",
+        u32::from_be_bytes(aligned.0[..4].try_into().unwrap()),
+    );
+    logger.record(
+        "di direct sector read reports no-media error",
+        read_result == 1,
+    );
+    // SAFETY: The null pointer deliberately checks the documented argument
+    // error. The open DI descriptor takes precedence over pointer validation.
+    logger.record(
+        "di raw read rejects null buffer",
+        unsafe { di::read(core::ptr::null_mut(), 0x20, 0) } == -22,
+    );
+    // SAFETY: This deliberately checks the required 32-byte alignment.
+    logger.record(
+        "di raw read rejects misaligned buffer",
+        unsafe { di::read(aligned.0.as_mut_ptr().add(1).cast(), 0x20, 0) } == -14,
+    );
+    // SAFETY: The null pointer deliberately checks the documented argument
+    // error while the DI descriptor is open.
+    logger.record(
+        "di unencrypted read rejects null buffer",
+        unsafe { di::unencrypted_read(core::ptr::null_mut(), 0x20, 0) } == -22,
+    );
+
+    logger.section("OGC DI C ABI ARGUMENTS");
+    logger.record(
+        "DI_GetStatus reports no-disc state",
+        di::DI_GetStatus() == di::DVD_NO_DISC as i32,
+    );
+    // SAFETY: Null pointers deliberately exercise the C wrapper checks.
+    logger.record(
+        "DI_Identify rejects null output",
+        unsafe { di::DI_Identify(core::ptr::null_mut()) } == -22,
+    );
+    logger.record(
+        "DI_CheckDVDSupport reports Dolphin drive",
+        di::DI_CheckDVDSupport() == 1,
+    );
+    // SAFETY: Null pointers deliberately exercise the C wrapper checks.
+    logger.record(
+        "DI_ReadDiscID rejects null output",
+        unsafe { di::DI_ReadDiscID(core::ptr::null_mut()) } == -22,
+    );
+    logger.record(
+        "DI_GetError rejects null output",
+        unsafe { di::DI_GetError(core::ptr::null_mut()) } == -22,
+    );
+    logger.record(
+        "DI_GetCoverRegister rejects null output",
+        unsafe { di::DI_GetCoverRegister(core::ptr::null_mut()) } == -22,
+    );
+    logger.record("DI_Reset completes", di::DI_Reset() == 0);
+    logger.record("DI_StopMotor completes", di::DI_StopMotor() == 0);
+    logger.record("DI_Eject completes", di::DI_Eject() == 0);
+    logger.record("DI_KillDrive completes", di::DI_KillDrive() == 0);
+    // SAFETY: `aligned` is a writable, 32-byte aligned buffer of one sector.
+    logger.record(
+        "DI_ReadDVD reports no-media error",
+        unsafe { di::DI_ReadDVD(aligned.0.as_mut_ptr().cast(), 1, 0) } == 1,
+    );
+    // SAFETY: The no-disc state rejects this request before any buffer access.
+    logger.record(
+        "DI_ReadDVDAsync reports no mounted media",
+        unsafe { di::DI_ReadDVDAsync(core::ptr::null_mut(), 1, 0, None) } < 0,
+    );
+    // SAFETY: Null pointers deliberately exercise the C wrapper checks.
+    logger.record(
+        "DI_Read rejects null buffer",
+        unsafe { di::DI_Read(core::ptr::null_mut(), 0x20, 0) } == -22,
+    );
+    logger.record(
+        "DI_UnencryptedRead rejects null buffer",
+        unsafe { di::DI_UnencryptedRead(core::ptr::null_mut(), 0x20, 0) } == -22,
+    );
+    logger.record(
+        "DI_ReadDVDConfig rejects null output",
+        unsafe { di::DI_ReadDVDConfig(core::ptr::null_mut(), 0) } == -22,
+    );
+    logger.record(
+        "DI_ReadDVDCopyright rejects null output",
+        unsafe { di::DI_ReadDVDCopyright(core::ptr::null_mut()) } == -22,
+    );
+    logger.record(
+        "DI_ReadDVDDiscKey rejects null buffer",
+        unsafe { di::DI_ReadDVDDiscKey(core::ptr::null_mut()) } == -22,
+    );
+    logger.record(
+        "DI_ReadDVDPhysical rejects null buffer",
+        unsafe { di::DI_ReadDVDPhysical(core::ptr::null_mut()) } == -22,
+    );
+    logger.record(
+        "DI_Read_BCA rejects null buffer",
+        unsafe { di::DI_Read_BCA(core::ptr::null_mut()) } == -22,
+    );
+    logger.record(
+        "DI_ReportKey rejects null buffer",
+        unsafe { di::DI_ReportKey(0, 0, core::ptr::null_mut()) } == -22,
+    );
+
+    // SAFETY: `aligned` is a writable, 32-byte aligned buffer of 0x800 bytes.
+    let key_result = unsafe { di::read_dvd_disc_key(aligned.0.as_mut_ptr().cast()) };
+    let key_c_result = unsafe { di::DI_ReadDVDDiscKey(aligned.0.as_mut_ptr().cast()) };
+    let physical_result = unsafe { di::read_dvd_physical(aligned.0.as_mut_ptr().cast()) };
+    let physical_c_result = unsafe { di::DI_ReadDVDPhysical(aligned.0.as_mut_ptr().cast()) };
+    logger.note_i32("di disc key result", key_result);
+    logger.note_i32("DI_ReadDVDDiscKey result", key_c_result);
+    logger.note_i32("di physical data result", physical_result);
+    logger.note_i32("DI_ReadDVDPhysical result", physical_c_result);
+    logger.record("di disc key returns valid result", key_result <= 0);
+    logger.record("DI_ReadDVDDiscKey returns valid result", key_c_result <= 0);
+    logger.record(
+        "di physical data returns valid result",
+        physical_result <= 0,
+    );
+    logger.record(
+        "DI_ReadDVDPhysical returns valid result",
+        physical_c_result <= 0,
+    );
+
+    // SAFETY: `aligned` is a writable, 32-byte aligned buffer of at least 64
+    // bytes for BCA and 32 bytes for report-key data.
+    let bca_result = unsafe { di::read_bca(aligned.0.as_mut_ptr().cast()) };
+    let bca_c_result = unsafe { di::DI_Read_BCA(aligned.0.as_mut_ptr().cast()) };
+    let report_result = unsafe { di::report_key(0, 0, aligned.0.as_mut_ptr().cast()) };
+    let report_c_result = unsafe { di::DI_ReportKey(0, 0, aligned.0.as_mut_ptr().cast()) };
+    logger.note_i32("di BCA result", bca_result);
+    logger.note_i32("DI_Read_BCA result", bca_c_result);
+    logger.note_i32("di report key result", report_result);
+    logger.note_i32("DI_ReportKey result", report_c_result);
+    logger.record("di BCA returns valid result", bca_result <= 0);
+    logger.record("DI_Read_BCA returns valid result", bca_c_result <= 0);
+    logger.record("di report key returns valid result", report_result <= 0);
+    logger.record("DI_ReportKey returns valid result", report_c_result <= 0);
+
+    di::load_dvdx(true);
+    di::load_dvdx(false);
+    di::use_cache(true);
+    di::use_cache(false);
+    let reset_result = di::reset();
+    logger.note_i32("di reset result", reset_result);
+    logger.record("di reset completes in Dolphin", reset_result == 0);
+    let stop_result = di::stop_motor();
+    let eject_result = di::eject();
+    let kill_result = di::kill_drive();
+    logger.note_i32("di stop motor result", stop_result);
+    logger.note_i32("di eject result", eject_result);
+    logger.note_i32("di kill drive result", kill_result);
+    logger.record("di stop motor command completes", stop_result == 0);
+    logger.record("di eject command completes", eject_result == 0);
+    logger.record("di kill drive command completes", kill_result == 0);
+    logger.record(
+        "di audio stream without media reports an error",
+        di::audio_stream(0, 0, 0) < 0,
+    );
+
+    let close_result = di::close();
+    logger.note_i32("di close result", close_result);
+    logger.record("di close succeeds", close_result == 0);
+    logger.record(
+        "di close restores initial status",
+        di::get_status() == (di::DVD_INIT | di::DVD_NO_DISC) as i32,
+    );
+    // SAFETY: The null pointer is rejected by the closed-descriptor state
+    // before any buffer access.
+    logger.record(
+        "di closed async read rejects missing descriptor",
+        unsafe { di::read_dvd_async(core::ptr::null_mut(), 1, 0, None) } == -6,
+    );
+    let c_reopen_result = di::DI_Init();
+    logger.note_i32("DI_Init after close result", c_reopen_result);
+    logger.record("DI_Init reopens transport", c_reopen_result == 0);
+    di::DI_Close();
+    logger.record(
+        "DI_Close restores initial status",
+        di::DI_GetStatus() == (di::DVD_INIT | di::DVD_NO_DISC) as i32,
+    );
+    let reopen_result = di::init();
+    logger.note_i32("di reopen result", reopen_result);
+    logger.record("di reinitializes after close", reopen_result == 0);
+    let final_close_result = di::close();
+    logger.note_i32("di final close result", final_close_result);
+    logger.record("di final close succeeds", final_close_result == 0);
 }
 
 fn probe_usb_storage(logger: &mut ProbeLogger) {

@@ -177,7 +177,7 @@ do not infer API coverage from a package or probe name.
 
 ## Current storage audit
 
-The current inventory has 145 unverified entries in the 12 storage packages
+The current inventory has 100 unverified entries in the 12 storage packages
 below. These counts come from `docs/generated/implementation-inventory.csv`.
 Update this table after each storage batch. Do not accept source presence or a
 successful target build as runtime evidence.
@@ -187,7 +187,7 @@ successful target build as runtime evidence.
 | `iso9660` | 0 |
 | `ogc-card` | 28 |
 | `ogc-card-sys` | 62 |
-| `ogc-di` | 55 |
+| `ogc-di` | 10 |
 | `ogc-dvd` | 0 |
 | `ogc-dvd-sys` | 0 |
 | `ogc-fat` | 0 |
@@ -196,7 +196,7 @@ successful target build as runtime evidence.
 | `ogc-usbstorage` | 0 |
 | `ogc-usbstorage-sys` | 0 |
 | `ogc-wiisd` | 0 |
-| **Total** | **145** |
+| **Total** | **100** |
 
 Use the package counts above to split storage work into these feature batches.
 Each batch still needs evidence for every API entry. A batch count does not
@@ -204,12 +204,35 @@ mean that each API has a test or probe.
 
 | Batch | Packages | Unverified entries |
 | --- | --- | ---: |
-| Optical disc | `iso9660`, `ogc-di`, `ogc-dvd`, `ogc-dvd-sys` | 55 |
+| Optical disc | `iso9660`, `ogc-di`, `ogc-dvd`, `ogc-dvd-sys` | 10 |
 | GameCube memory card | `ogc-card`, `ogc-card-sys` | 90 |
 | FAT and file-system services | `ogc-fat`, `ogc-filesystem` | 0 |
 | SD card transports | `ogc-gcsd`, `ogc-wiisd` | 0 |
 | USB mass storage | `ogc-usbstorage`, `ogc-usbstorage-sys` | 0 |
-| **Total** | **12 packages** | **145** |
+| **Total** | **12 packages** | **100** |
+
+The remaining `ogc-di` APIs are split into these smaller probes:
+
+| Probe group | APIs | Count |
+| --- | --- | ---: |
+| DI configuration and callbacks | `load_dvdx`, `use_cache`, `set_init_callback`, and their C exports | 6 |
+| DI partition lifecycle | `open_partition`, `close_partition`, and their C exports | 4 |
+
+The protected DI read group has direct Rust and C calls. It returned `-5` for
+DVD key, physical data, and report-key requests, and `0` for BCA in Dolphin.
+The run had no disc, so the BCA result does not validate BCA data contents.
+
+The direct DI no-disc Dolphin probe passed 110 checks. It verifies Rust and C
+entry points for mount state and callback delivery, drive identification,
+disc-ID errors, read argument errors, drive controls, and close/reopen cleanup.
+The direct sector read returned the Dolphin drive error through its AHBPROT
+path. A no-disc partition-open attempt did not return in an early run, so the
+final probe omits partition calls and leaves those APIs open.
+The init callback, DVDX load, cache controls, Rust protected-read success
+paths, and partition calls remain unverified. The matching C protected-read
+wrappers have only null-argument error checks. This run does not verify
+physical-drive behavior.
+See the [direct DI Dolphin run](dolphin-runs/2026-11-03-di-no-media-direct-protected/README.md).
 
 The ISO9660 probe calls its three C ABI exports and the Rust file-system
 mount, label, and unmount facade directly. Dolphin passed the
