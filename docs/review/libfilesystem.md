@@ -338,3 +338,13 @@ changing the read-only bit, verify read-only metadata, reject a writable open,
 and restore the original attributes with checked cleanup. Exact inventory
 evidence now points to `readonly_attribute_checks`. This records probe coverage;
 it does not establish parity with the unavailable project libfat source.
+
+## Current Dolphin result — 2026-11-03
+
+The current `wii_std_fs_probe` run passed 99 checks under Dolphin 2609a. It
+ran on the runner's private virtual Wii SD card. It rechecked file creation,
+path operations, attributes, persistence across remount, and cleanup along
+with the rest of the filesystem suite. See the
+[current run report](../dolphin-runs/2026-11-03-wii-std-fs-storage/README.md).
+This does not establish physical Wii media behavior or source parity with the
+unavailable libfat revision.

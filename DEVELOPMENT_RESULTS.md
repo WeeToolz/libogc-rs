@@ -1,5 +1,15 @@
 # Development results
 
+## 2026-11-03: Wii FAT file and path probe
+
+`wii_std_fs_probe` passed 99 checks in Dolphin 2609a on the private virtual
+Wii SD card. It checked directory and path operations, file I/O, metadata,
+attributes, timestamps, read-only access, remount persistence, and cleanup.
+The DOL SHA-256 is
+`51d1dc129173a4c427340fad52540bcb36f4fdd4fc05efddaa3c394e82ed226f`. This
+does not validate physical Wii SD, USB, or GameCube card behavior. See
+[`docs/dolphin-runs/2026-11-03-wii-std-fs-storage/README.md`](docs/dolphin-runs/2026-11-03-wii-std-fs-storage/README.md).
+
 ## 2026-11-03: storage runtime probe follow-up
 
 The `runtime_probe` passed 63 checks in Dolphin 2609a with no failures. Its
