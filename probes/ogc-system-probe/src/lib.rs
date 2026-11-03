@@ -822,6 +822,7 @@ pub fn run_dvd_probe_bin() -> i32 {
     let shutdown = ogc_dvd::shutdown();
     logger.note_i32("dvd shutdown", shutdown);
     logger.record("dvd shutdown", shutdown == 0);
+    storage_probe::probe_di_no_disc(&mut logger);
     logger.summary();
     finish_probe()
 }
