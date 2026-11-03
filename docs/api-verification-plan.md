@@ -177,7 +177,7 @@ do not infer API coverage from a package or probe name.
 
 ## Current storage audit
 
-The current inventory has 237 unverified entries in the 12 storage packages
+The current inventory has 235 unverified entries in the 12 storage packages
 below. These counts come from `docs/generated/implementation-inventory.csv`.
 Update this table after each storage batch. Do not accept source presence or a
 successful target build as runtime evidence.
@@ -193,10 +193,10 @@ successful target build as runtime evidence.
 | `ogc-fat` | 0 |
 | `ogc-filesystem` | 0 |
 | `ogc-gcsd` | 43 |
-| `ogc-usbstorage` | 2 |
+| `ogc-usbstorage` | 0 |
 | `ogc-usbstorage-sys` | 47 |
 | `ogc-wiisd` | 0 |
-| **Total** | **237** |
+| **Total** | **235** |
 
 Use the package counts above to split storage work into these feature batches.
 Each batch still needs evidence for every API entry. A batch count does not
@@ -208,8 +208,8 @@ mean that each API has a test or probe.
 | GameCube memory card | `ogc-card`, `ogc-card-sys` | 90 |
 | FAT and file-system services | `ogc-fat`, `ogc-filesystem` | 0 |
 | SD card transports | `ogc-gcsd`, `ogc-wiisd` | 43 |
-| USB mass storage | `ogc-usbstorage`, `ogc-usbstorage-sys` | 49 |
-| **Total** | **12 packages** | **237** |
+| USB mass storage | `ogc-usbstorage`, `ogc-usbstorage-sys` | 47 |
+| **Total** | **12 packages** | **235** |
 
 The ISO9660 probe calls its three C ABI exports and the Rust file-system
 mount, label, and unmount facade directly. Dolphin passed the
@@ -231,8 +231,10 @@ while the service is closed. It does not test successful NAND file changes or
 format a filesystem. See the
 [ISFS Dolphin run](dolphin-runs/2026-11-03-filesystem-isfs/README.md).
 The USB storage safe facade probe covers no-device errors and
-lifecycle cleanup. Its `flush` and `try_flush` APIs still need a valid mounted
-handle. The focused FAT probe passed in Dolphin and covers the mounted SD API,
+lifecycle cleanup. A focused Dolphin probe also checks that raw `flush` and
+safe `try_flush` return the interface error for a null handle. The run has no
+USB device, so successful cache synchronization on a mounted LUN remains
+untested. The focused FAT probe passed in Dolphin and covers the mounted SD API,
 C exports, FAT file seek/truncate, attribute updates, init functions, and mount
 cleanup. The probe also checks that GameCube SD Gecko mounts report the expected
 no-adapter error. This does not verify physical SD Gecko operation. The Wii SD
@@ -247,7 +249,10 @@ Dolphin memory card path, but Dolphin did not create the card image. The card
 probe therefore skipped save operations and formatting. This run does not
 reduce the 90 open memory-card entries or the open USB transport entries. See
 the [private-card Dolphin run](dolphin-runs/2026-11-03-storage-card-abs/README.md)
-for the DOL hash, command, report, and limits.
+for the DOL hash, command, report, and limits. The separate
+[USB flush probe](dolphin-runs/2026-11-03-storage-usb-flush/README.md) passed
+29 checks, including both null-handle flush calls. It does not test a mounted
+USB device.
 
 ## First batch
 
