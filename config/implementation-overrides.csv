@@ -146,6 +146,7 @@ mp3player-sys,src/lib.rs,mp3_player_play_buffer,hardware,mp3player-probe,Dolphin
 mp3player-sys,src/lib.rs,mp3_player_play_buffer_looped,hardware,mp3player-probe,Dolphin checks repeated buffer playback and clean stop
 mp3player-sys,src/lib.rs,mp3_player_play_file,hardware,mp3player-probe,Dolphin checks reader callbacks and playback with a fixed MP3 fixture
 mp3player-sys,src/lib.rs,mp3_player_stop,hardware,mp3player-probe,Dolphin checks looped playback stops and releases its voice
+mp3player-sys,src/lib.rs,mp3_player_volume,hardware,mp3player-probe,Dolphin checks full volume and mute from captured DMA samples
 mp3player-sys,src/lib.rs,is_playing,hardware,mp3player-probe,Dolphin checks playback state during buffer and reader playback
 mp3player-sys,src/lib.rs,last_error,hardware,mp3player-probe,Dolphin checks errors for invalid buffer and reader inputs
 mp3player-sys,src/lib.rs,pause,hardware,mp3player-probe,Dolphin checks pause and resume through observable ASND voice state
@@ -153,6 +154,7 @@ mp3player-sys,src/lib.rs,play_buffer,hardware,mp3player-probe,Dolphin decodes a 
 mp3player-sys,src/lib.rs,play_buffer_looped,hardware,mp3player-probe,Dolphin checks repeated buffer playback and clean stop
 mp3player-sys,src/lib.rs,play_file,hardware,mp3player-probe,Dolphin checks reader callbacks and playback with a fixed MP3 fixture
 mp3player-sys,src/lib.rs,stop,hardware,mp3player-probe,Dolphin checks looped playback stops and releases its voice
+mp3player-sys,src/lib.rs,volume,hardware,mp3player-probe,Dolphin checks the alias volume clamp and captured DMA samples
 ogc-aram,src/lib.rs,alloc,hardware,aram-probe,Dolphin checks allocation and reverse-order free with caller-owned stack storage
 ogc-aram,src/lib.rs,check_init,hardware,aram-probe,Dolphin checks initialization and reset state transitions
 ogc-aram,src/lib.rs,clear,hardware,aram-probe,Dolphin clears ARAM and verifies the result through DMA readback

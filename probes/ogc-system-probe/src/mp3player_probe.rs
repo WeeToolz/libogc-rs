@@ -19,6 +19,13 @@ type FilePlayFn =
 type StopFn = fn();
 
 static FILTER_FRAMES: AtomicU32 = AtomicU32::new(0);
+static AUDIO_STAGE: AtomicU32 = AtomicU32::new(0);
+static AUDIO_STAGE_CALLS: [AtomicU32; 3] =
+    [AtomicU32::new(0), AtomicU32::new(0), AtomicU32::new(0)];
+static AUDIO_STAGE_ENERGY: [AtomicU32; 3] =
+    [AtomicU32::new(0), AtomicU32::new(0), AtomicU32::new(0)];
+static AUDIO_CAPTURE_ERRORS: AtomicU32 = AtomicU32::new(0);
+static PREVIOUS_AUDIO_CALLBACK: AtomicUsize = AtomicUsize::new(0);
 
 struct ReaderState {
     offset: AtomicUsize,
@@ -94,7 +101,7 @@ pub fn run(logger: &mut ProbeLogger) {
     mp3player_sys::volume(u32::MAX);
     mp3player_sys::mp3_player_set_speed_per_mille(1_000);
     mp3player_sys::set_speed_per_mille(1_400);
-    logger.note("volume and speed setters were called; they have no public readback");
+    probe_volume_output(logger);
 
     probe_buffer_playback(logger, mp3player_sys::mp3_player_play_buffer, "direct");
     probe_buffer_playback(logger, mp3player_sys::play_buffer, "alias");
@@ -112,6 +119,113 @@ pub fn run(logger: &mut ProbeLogger) {
     );
     probe_reader_playback(logger, mp3player_sys::mp3_player_play_file, "direct");
     probe_reader_playback(logger, mp3player_sys::play_file, "alias");
+}
+
+fn probe_volume_output(logger: &mut ProbeLogger) {
+    for value in &AUDIO_STAGE_CALLS {
+        value.store(0, Ordering::Release);
+    }
+    for value in &AUDIO_STAGE_ENERGY {
+        value.store(0, Ordering::Release);
+    }
+    AUDIO_CAPTURE_ERRORS.store(0, Ordering::Release);
+
+    let previous = ogc_audio::register_dma_callback(Some(capture_mp3_output));
+    PREVIOUS_AUDIO_CALLBACK.store(
+        previous.map_or(0, |callback| callback as usize),
+        Ordering::Release,
+    );
+    FILTER_FRAMES.store(0, Ordering::Release);
+    let start = unsafe {
+        mp3player_sys::mp3_player_play_buffer_looped(
+            MP3.as_ptr().cast(),
+            MP3.len() as i32,
+            Some(record_filter),
+        )
+    };
+    let started = start == 0 && wait_for_filter(logger, 4);
+    if started {
+        AUDIO_STAGE.store(1, Ordering::Release);
+        mp3player_sys::mp3_player_volume(255);
+        let full_volume = wait_for_audio_stage(logger, 1, 3);
+
+        AUDIO_STAGE.store(2, Ordering::Release);
+        mp3player_sys::volume(0);
+        let muted = wait_for_audio_stage(logger, 2, 3);
+
+        AUDIO_STAGE.store(3, Ordering::Release);
+        mp3player_sys::volume(u32::MAX);
+        let clamped = wait_for_audio_stage(logger, 3, 3);
+
+        let full_energy = AUDIO_STAGE_ENERGY[0].load(Ordering::Acquire);
+        let mute_energy = AUDIO_STAGE_ENERGY[1].load(Ordering::Acquire);
+        let clamp_energy = AUDIO_STAGE_ENERGY[2].load(Ordering::Acquire);
+        let capture_errors = AUDIO_CAPTURE_ERRORS.load(Ordering::Acquire);
+        logger.note(&alloc::format!(
+            "MP3 DMA capture full_energy={full_energy} muted_energy={mute_energy} clamped_energy={clamp_energy} capture_errors={capture_errors}"
+        ));
+        logger.record(
+            "direct and alias MP3 volume setters change audible DMA samples",
+            full_volume
+                && muted
+                && clamped
+                && full_energy > 0
+                && mute_energy == 0
+                && clamp_energy > 0
+                && capture_errors == 0,
+        );
+    } else {
+        logger.record(
+            "direct and alias MP3 volume setters change audible DMA samples",
+            false,
+        );
+    }
+
+    AUDIO_STAGE.store(0, Ordering::Release);
+    mp3player_sys::mp3_player_stop();
+    ogc_audio::register_dma_callback(previous);
+    PREVIOUS_AUDIO_CALLBACK.store(0, Ordering::Release);
+}
+
+fn wait_for_audio_stage(logger: &mut ProbeLogger, stage: usize, required: u32) -> bool {
+    for _ in 0..MAX_WAIT_FRAMES {
+        if AUDIO_STAGE_CALLS[stage - 1].load(Ordering::Acquire) >= required {
+            return true;
+        }
+        logger.display().wait_vsync();
+    }
+    false
+}
+
+unsafe extern "C" fn capture_mp3_output() {
+    let previous = PREVIOUS_AUDIO_CALLBACK.load(Ordering::Acquire);
+    if previous != 0 {
+        let callback: unsafe extern "C" fn() = unsafe { core::mem::transmute(previous) };
+        unsafe { callback() };
+    }
+
+    let stage = AUDIO_STAGE.load(Ordering::Acquire);
+    if !(1..=3).contains(&stage) {
+        return;
+    }
+    let snapshot = ogc_audio::snapshot();
+    let address = snapshot.dma_start_addr;
+    let length = snapshot.dma_length as usize;
+    if address >= 0x0400_0000 || length == 0 || length > 4096 || !length.is_multiple_of(2) {
+        AUDIO_CAPTURE_ERRORS.fetch_add(1, Ordering::Relaxed);
+        return;
+    }
+
+    let samples =
+        unsafe { core::slice::from_raw_parts((address | 0x8000_0000) as *const u8, length) };
+    let energy = samples
+        .as_chunks::<2>()
+        .0
+        .iter()
+        .map(|sample| i16::from_be_bytes(*sample).unsigned_abs() as u32)
+        .fold(0_u32, u32::wrapping_add);
+    AUDIO_STAGE_ENERGY[stage as usize - 1].fetch_add(energy, Ordering::Relaxed);
+    AUDIO_STAGE_CALLS[stage as usize - 1].fetch_add(1, Ordering::Release);
 }
 
 fn probe_buffer_playback(logger: &mut ProbeLogger, play: BufferPlayFn, label: &str) {

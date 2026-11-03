@@ -96,14 +96,16 @@ goldens in a PowerPC `FPM_PPC` probe; the probe now uses the repeatable
 PowerPC hashes. No fixture-dependent decoder failure is counted as evidence.
 
 The 2026-11-02 inventory has 64 open entries in these packages. The MP3
-player probe passed 17 checks in Dolphin 2609a. It checked direct and alias
+player probe passed 18 checks in Dolphin 2609a. It checked direct and alias
 initialization, invalid arguments, buffer and reader playback to completion,
 looped playback, pause and resume through ASND voice state, error state, and
-cleanup. The run used DOL SHA256
-`ea80f7b00f614ed3a7ef995d81660ab9051ddb073d1971f1654b69ae1b7bae66` and a
-fixed 8,777-byte MPEG Layer III fixture. The volume and speed setters ran, but
-the library has no public readback for them, so four related entries remain
-open. See `docs/dolphin-runs/2026-11-02-mp3player-final/` for the logs.
+cleanup. A chained AI DMA callback sampled the real output buffer: full volume
+and the alias clamp produced nonzero PCM energy, while mute produced zero
+energy. The run used DOL SHA-256
+`eb7249c305512323a4be5ca0564e785c3d7fd71e4532fe6b37a1c97910deb92c` and a
+fixed 8,777-byte MPEG Layer III fixture. The two speed setters remain open
+because the probe has not yet measured their effect on PCM output. See
+`docs/dolphin-runs/2026-11-02-mp3-volume-capture/` for the report and logs.
 
 The ARAM and ARQ probe passed 21 checks in Dolphin 2609a. It checked DMA
 write/read round trips, callback delivery, allocation and free, request
@@ -132,12 +134,12 @@ The callback result is in `docs/dolphin-runs/2026-11-02-dsp-first/`.
 | `asnd-sys` | 0 |
 | `mad-sys` | 0 |
 | `modplay-capi` | 0 |
-| `mp3player-sys` | 4 |
+| `mp3player-sys` | 2 |
 | `ogc-aram` | 0 |
 | `ogc-audio-sys` | 0 |
 | `ogc-dsp` | 3 |
 | `ogc-dsp-sys` | 3 |
-| **Total** | **10** |
+| **Total** | **8** |
 
 ## Package work list
 

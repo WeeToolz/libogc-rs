@@ -1319,6 +1319,7 @@ mp3player-sys,src/lib.rs,mp3_player_play_buffer,803,hardware,hardware-probe,prob
 mp3player-sys,src/lib.rs,mp3_player_play_buffer_looped,818,hardware,hardware-probe,probes/ogc-system-probe/src/mp3player_probe.rs,run
 mp3player-sys,src/lib.rs,mp3_player_play_file,860,hardware,hardware-probe,probes/ogc-system-probe/src/mp3player_probe.rs,run
 mp3player-sys,src/lib.rs,mp3_player_stop,741,hardware,hardware-probe,probes/ogc-system-probe/src/mp3player_probe.rs,probe_buffer_playback
+mp3player-sys,src/lib.rs,mp3_player_volume,787,hardware,hardware-probe,probes/ogc-system-probe/src/mp3player_probe.rs,probe_volume_output
 mp3player-sys,src/lib.rs,is_playing,898,hardware,hardware-probe,probes/ogc-system-probe/src/mp3player_probe.rs,run
 mp3player-sys,src/lib.rs,last_error,902,hardware,hardware-probe,probes/ogc-system-probe/src/mp3player_probe.rs,run
 mp3player-sys,src/lib.rs,pause,914,hardware,hardware-probe,probes/ogc-system-probe/src/mp3player_probe.rs,probe_looped_playback
@@ -1326,6 +1327,7 @@ mp3player-sys,src/lib.rs,play_buffer,921,hardware,hardware-probe,probes/ogc-syst
 mp3player-sys,src/lib.rs,play_buffer_looped,929,hardware,hardware-probe,probes/ogc-system-probe/src/mp3player_probe.rs,run
 mp3player-sys,src/lib.rs,play_file,936,hardware,hardware-probe,probes/ogc-system-probe/src/mp3player_probe.rs,run
 mp3player-sys,src/lib.rs,stop,894,hardware,hardware-probe,probes/ogc-system-probe/src/mp3player_probe.rs,probe_buffer_playback
+mp3player-sys,src/lib.rs,volume,906,hardware,hardware-probe,probes/ogc-system-probe/src/mp3player_probe.rs,probe_volume_output
 ogc-dsp,src/lib.rs,register_callback,15,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_dsp
 ogc-dsp,src/lib.rs,check_mail_to,19,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_dsp
 ogc-dsp,src/lib.rs,check_mail_from,23,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_dsp
