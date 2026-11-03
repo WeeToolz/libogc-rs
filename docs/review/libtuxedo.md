@@ -162,3 +162,23 @@ The final named Tuxedo structural blocker is closed at source level. C restores 
 The copy is byte-based. It does not create a Rust `Context` reference to the caller-owned object and therefore does not impose the driver's 32-byte internal alignment on the C-layout field. Save behavior remains unchanged: cooperative and interrupt saves first update the driver's private context and then mirror the saved bytes back to `KThread.ctx`. The same centralized restore helper is used by both restore paths. Because a prepared Tuxedo thread now starts directly from its public context, the Rust `k_thread_exit` target stored in LR uses the C ABI, matching C's `KThreadExit` return path.
 
 A focused regression exercises an intentionally non-`Context`-aligned, four-byte-aligned caller buffer and verifies that edited PC, LR, GPR, and GQR fields are consumed into the aligned restore context. This is source-level regression coverage; the current sandbox has no Rust toolchain, so `cargo check`, `cargo test`, and the PowerPC probe build could not be rerun here. `git diff --check` and repository-level static inspection remain applicable. Independent runtime re-review is still required.
+
+## 2026-11-02 exiting FPU owner cleanup
+
+Reference commit: `7d4b8b3e` in C libogc. The Rust Tuxedo exit path now reads
+SPRG3 with interrupts disabled and clears it only when it still names the
+exiting `KThread`. The thread adapter routes a returned entrypoint through
+`k_thread_exit`, so normal return and explicit Tuxedo exit use the same cleanup
+path. The LWP Dolphin probe sets SPRG3 to the worker's Tuxedo object before the
+worker exits, then checks that the register is zero after join. This tests the
+cleanup transition; it does not establish Rust's FPU ownership policy, which
+remains eager in the LWP context switch.
+
+The final LWP probe passed in Dolphin 2609a: 149 checks, 0 failures. The SPRG3
+check passed. Its DOL SHA-256 is
+`1459c0c5eb6db32c64d1182b31526d010001dfbe187d9fcf999d73b67d373559`. See
+`docs/dolphin-runs/2026-11-02-tuxedo-fpu-owner-final/suite.json` and
+`lwp_probe/probe.log`. An earlier run with the same DOL hash timed out at boot
+stage 0. The retry passed. Both reports are kept in
+`docs/dolphin-runs/2026-11-02-tuxedo-fpu-owner-failed-artifact/` and
+`docs/dolphin-runs/2026-11-02-tuxedo-fpu-owner-final/`.

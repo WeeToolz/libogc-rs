@@ -10,6 +10,7 @@ compile_error!(
     "This crate targets Wii/GameCube PowerPC only. Use the powerpc-nintendo-none target."
 );
 
+use core::arch::asm;
 use core::ffi::c_void;
 use core::ptr;
 
@@ -519,12 +520,7 @@ unsafe extern "C" fn thread_adapter(argument: *mut c_void) -> *mut c_void {
         (*object).suspend = 0;
     }
     let result = unsafe { entry(arg) };
-    unsafe {
-        thread_list_remove(object);
-        (*object).state = KTHR_STATE_FINISHED;
-        set_finish_result(object, result);
-    }
-    result as usize as *mut c_void
+    k_thread_exit(result)
 }
 
 /// # Safety
@@ -786,16 +782,43 @@ pub fn k_thread_sleep_us(us: u64) {
 pub fn k_thread_sleep_ms(ms: u64) {
     k_thread_sleep_ticks(ms_to_ticks(ms));
 }
-pub extern "C" fn k_thread_exit(rc: isize) {
+pub extern "C" fn k_thread_exit(rc: isize) -> ! {
+    let irq = lwp::critical_enter();
     unsafe {
         let current = current_object();
         if !current.is_null() {
+            clear_fpu_owner_if_current(current);
             thread_list_remove(current);
             (*current).state = KTHR_STATE_FINISHED;
             set_finish_result(current, rc);
         }
     }
+    lwp::critical_exit(irq);
     lwp::thread_exit(rc as usize as *mut c_void);
+}
+
+/// Clear Tuxedo's saved FPU owner when this thread exits.
+///
+/// SAFETY: The caller must prevent an interrupt from changing SPRG3 while it
+/// reads and conditionally clears the register.
+unsafe fn clear_fpu_owner_if_current(thread: *mut KThread) {
+    let owner: usize;
+    unsafe {
+        asm!(
+            "mfspr {owner}, 275",
+            owner = out(reg) owner,
+            options(nomem, nostack, preserves_flags)
+        );
+    }
+    if owner == thread as usize {
+        unsafe {
+            asm!(
+                "mtspr 275, {owner}",
+                owner = in(reg) 0usize,
+                options(nomem, nostack, preserves_flags)
+            );
+        }
+    }
 }
 
 /// # Safety

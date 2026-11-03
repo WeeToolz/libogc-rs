@@ -26,7 +26,8 @@ Some components have separate notices and license declarations:
 
 The libogc reference used for the current review is
 [`devkitPro/libogc`](https://github.com/devkitPro/libogc) at
-`ff53c4a7b7ba5587d82305e710ca65bce1092e1c`. The Wiiuse reference is
+`7d4b8b3e7b845516f0cc2a85274879ddd8cbf142`. Its README credits Michael
+Wiedenbauer (`shagkur`) and Dave Murphy (`WinterMute`). The Wiiuse reference is
 [`wiiuse/wiiuse`](https://github.com/wiiuse/wiiuse); the GameCube tools reference
 is [`devkitPro/gamecube-tools`](https://github.com/devkitPro/gamecube-tools).
 See each component's source and review notes for its specific origin.
