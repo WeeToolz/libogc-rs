@@ -1436,12 +1436,28 @@ unsafe fn new_row() {
             let mut line_ptr = ptr;
             for _ in 0..scroll_height {
                 {
-                    core::ptr::copy(line_ptr.add(row_bytes), line_ptr, line_width);
+                    copy_framebuffer_line(line_ptr.add(row_bytes), line_ptr, line_width);
                 }
                 line_ptr = line_ptr.add(console.con_stride as usize);
             }
             clear_line(console.window_height, 1, console.window_width + 1);
             console.cursor_y = console.window_height;
+        }
+    }
+}
+
+/// Copy one aligned XFB line towards a lower address. Volatile word stores
+/// preserve both pixels in each packed YCbCr word on uncached memory.
+unsafe fn copy_framebuffer_line(source: *const u8, destination: *mut u8, bytes: usize) {
+    debug_assert!(bytes.is_multiple_of(4));
+    for index in 0..bytes / 4 {
+        // SAFETY: Console rows are word-aligned and the caller supplies valid
+        // ranges. Forward order is correct for the downward scroll copy.
+        unsafe {
+            destination
+                .cast::<u32>()
+                .add(index)
+                .write_volatile(source.cast::<u32>().add(index).read_volatile());
         }
     }
 }
@@ -1876,6 +1892,16 @@ fn offset_by_pixels(ptr: *mut u8, dy_pixels: i32, stride_bytes: i32, dx_pixels: 
 #[cfg(all(test, target_arch = "powerpc"))]
 mod tests {
     use super::*;
+
+    #[test]
+    fn framebuffer_scroll_copy_preserves_words_and_boundaries() {
+        let mut pixels = [0x1111_1111u32, 0x2222_2222, 0x3333_3333, 0x4444_4444];
+        let base = pixels.as_mut_ptr();
+        // SAFETY: Both aligned ranges are inside the array, and the source is
+        // above the destination as it is during a console scroll.
+        unsafe { copy_framebuffer_line(base.add(1).cast(), base.cast(), 12) };
+        assert_eq!(pixels, [0x2222_2222, 0x3333_3333, 0x4444_4444, 0x4444_4444]);
+    }
 
     #[test]
     fn console_video_setup_runs_only_once() {
