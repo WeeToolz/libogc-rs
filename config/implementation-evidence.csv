@@ -1,4 +1,5 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function
+ogc-gx,src/lib.rs,init_fog_adj_table,6591,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_fog_table
 ogc-gx,src/lib.rs,adjust_for_overscan,6076,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_overscan
 ogc-gx,src/lib.rs,init_specular_dir_ha,7819,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_specular_light
 ogc-gx,src/lib.rs,init_specular_dir,7845,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_specular_light

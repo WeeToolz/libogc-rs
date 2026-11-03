@@ -40,6 +40,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_light_falloff(logger);
     probe_specular_light(logger);
     probe_overscan(logger);
+    probe_fog_table(logger);
     probe_fifo_pointers(logger);
 
     let rmode = init_display(logger);
@@ -153,6 +154,26 @@ pub fn run(logger: &mut ProbeLogger) {
     let _ = video::set_post_retrace_callback(previous_post);
     PREVIOUS_PRE_CALLBACK.store(0, Ordering::Release);
     PREVIOUS_POST_CALLBACK.store(0, Ordering::Release);
+}
+
+fn probe_fog_table(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    let projection = [
+        [1.0, 0.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0, 0.0],
+        [0.0, 0.0, 1.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    ];
+    let mut table = gx::GxFogAdjTbl { r: [0xffff; 10] };
+    // SAFETY: The projection and output table are live and valid.
+    unsafe { gx::init_fog_adj_table(&mut table, 640, &projection) };
+    let expected = [256, 257, 259, 262, 266, 270, 276, 281, 288, 295];
+    let valid = table.r == expected;
+    unsafe { gx::init_fog_adj_table(&mut table, 0, &projection) };
+    logger.record(
+        "GX fog adjustment table and zero width",
+        valid && table.r == expected,
+    );
 }
 
 fn probe_overscan(logger: &mut ProbeLogger) {
