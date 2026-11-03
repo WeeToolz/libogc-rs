@@ -42,23 +42,27 @@ pub fn run(logger: &mut ProbeLogger) {
 }
 
 fn probe_arena1_bounds() -> bool {
-    check_bounds(
-        || system::get_arena1_lo(),
-        || system::get_arena1_hi(),
+    let before = (system::get_arena1_lo(), system::get_arena1_hi());
+    let checked = check_bounds(
+        system::get_arena1_lo,
+        system::get_arena1_hi,
         |value| unsafe { system::set_arena1_lo(value) },
         |value| unsafe { system::set_arena1_hi(value) },
         system::get_arena1_size,
-    )
+    );
+    checked && before == (system::get_arena1_lo(), system::get_arena1_hi())
 }
 
 fn probe_arena2_bounds() -> bool {
-    check_bounds(
-        || system::get_arena2_lo(),
-        || system::get_arena2_hi(),
+    let before = (system::get_arena2_lo(), system::get_arena2_hi());
+    let checked = check_bounds(
+        system::get_arena2_lo,
+        system::get_arena2_hi,
         |value| unsafe { system::set_arena2_lo(value) },
         |value| unsafe { system::set_arena2_hi(value) },
         system::get_arena2_size,
-    )
+    );
+    checked && before == (system::get_arena2_lo(), system::get_arena2_hi())
 }
 
 // The temporary bounds stay inside the original free arena. No memory is

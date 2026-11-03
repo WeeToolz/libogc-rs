@@ -1533,10 +1533,10 @@ unsafe fn bulk_message_with_timeout(
     let alarm_result =
         unsafe { sys_set_alarm(dev.alarm, &timeout, Some(bulk_message_timeout), userdata) };
     if alarm_result < 0 {
-        if !close_policy::bulk::mark_no_alarm(retval) {
-            if let Some(result) = bulk_result(retval) {
-                return result;
-            }
+        if !close_policy::bulk::mark_no_alarm(retval)
+            && let Some(result) = bulk_result(retval)
+        {
+            return result;
         }
         return wait_for_submitted_request_after_alarm_error(
             alarm_result,
