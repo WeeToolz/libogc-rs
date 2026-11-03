@@ -31,3 +31,30 @@ retained under `evidence/wd-scan-repeat-detail-dolphin-2026-10-31/` and
 `evidence/wd-scan-repeat-dolphin-2026-10-31/`. The final run reported 33 passes
 and one failure. The failing diagnostic patch was not added to the standard
 probe. Cleanup failure injection and physical Wii behavior remain open.
+
+## NCD handle fix — 2026-11-02
+
+The current failure was in the NCD lock and unlock IOCTLV buffers. Dolphin's
+`Manage.cpp` writes the operation result to word 0 and the lock handle to word
+1 of the lock output. Unlock reads the handle from word 0 of its input and
+writes its result to word 0 of its output. The Rust code read the result as the
+handle and sent the handle in the output buffer. This made the first scan
+report unlock failure `-1`; the second scan then failed to acquire the held
+lock with `-4`.
+
+`ogc-wd` now reads the handle from the second big-endian word and sends it in a
+separate four-byte input buffer to unlock. It checks the lock operation result
+before returning the handle. The network probe calls the production scan API
+twice after it stops the socket stack. It checks the returned count against the
+buffer capacity on each call.
+
+The regression check failed before the fix in Dolphin: the first scan reported
+stage 5/code `-1`, and the second reported stage 1/code `-4`. After the fix,
+both scans passed and each returned one valid result. Evidence is in
+`evidence/wd-scan-red-2026-11-02/` and
+`evidence/wd-scan-verified-2026-11-02/`. The complete network probe still
+reported six socket-open failures, which also appeared in the earlier
+2026-11-02 network baseline. Those failures are outside this wireless scan
+fix.
+
+This is Dolphin-only evidence. A Wii hardware scan remains untested.

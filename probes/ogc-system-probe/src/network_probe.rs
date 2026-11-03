@@ -66,7 +66,43 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_cleanup_cycle(logger);
 
     network::deinit();
+    probe_wireless_scan(logger);
     network::wc24_cleanup();
+}
+
+fn probe_wireless_scan(logger: &mut ProbeLogger) {
+    let mut settings = ogc_wd::default_scan_parameters();
+    let mut buffer = [0xa5; 256];
+
+    for attempt in 1..=2 {
+        let result = ogc_wd::scan_once_detailed_result(&mut settings, &mut buffer);
+        let succeeded = result.is_ok();
+        let count = u16::from_be_bytes([buffer[0], buffer[1]]) as usize;
+        let results_valid = succeeded
+            && buffer[..2] != [0xa5; 2]
+            && count <= buffer.len().saturating_sub(2) / size_of::<ogc_wd::BssDescriptor>();
+        logger.record(
+            if attempt == 1 {
+                "wireless scan succeeds on first attempt"
+            } else {
+                "wireless scan succeeds on second attempt"
+            },
+            succeeded,
+        );
+        logger.record(
+            if attempt == 1 {
+                "wireless scan result count is valid on first attempt"
+            } else {
+                "wireless scan result count is valid on second attempt"
+            },
+            results_valid,
+        );
+        logger.note_i32("wireless scan result count", count as i32);
+        if let Err(failure) = result {
+            logger.note_i32("wireless scan failure stage", failure.stage as i32);
+            logger.note_i32("wireless scan failure code", failure.code);
+        }
+    }
 }
 
 fn probe_socket_edges(logger: &mut ProbeLogger) {
