@@ -36,6 +36,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_texture_queries(logger);
     probe_texture_indexed_lod(logger);
     probe_texture_regions(logger);
+    probe_light_object(logger);
     probe_fifo_pointers(logger);
 
     let rmode = init_display(logger);
@@ -149,6 +150,51 @@ pub fn run(logger: &mut ProbeLogger) {
     let _ = video::set_post_retrace_callback(previous_post);
     PREVIOUS_PRE_CALLBACK.store(0, Ordering::Release);
     PREVIOUS_POST_CALLBACK.store(0, Ordering::Release);
+}
+
+fn probe_light_object(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    let mut light = gx::GxLightObj::default();
+    // SAFETY: The initialized light object is exclusively accessible.
+    unsafe {
+        gx::init_light_pos(&mut light, 1.0, -2.0, 3.5);
+        gx::init_light_dir(&mut light, 4.0, -5.0, 6.0);
+        gx::init_light_color(
+            &mut light,
+            gx::GxColor {
+                r: 0x12,
+                g: 0x34,
+                b: 0x56,
+                a: 0x78,
+            },
+        );
+        gx::init_light_attn(&mut light, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
+        let initial = gx::light_obj_snapshot(&light).is_some_and(|s| {
+            s.position == [1.0, -2.0, 3.5]
+                && s.direction == [-4.0, 5.0, -6.0]
+                && s.color
+                    == gx::GxColor {
+                        r: 0x12,
+                        g: 0x34,
+                        b: 0x56,
+                        a: 0x78,
+                    }
+                && s.attenuation == [1.0, 2.0, 3.0]
+                && s.attenuation_coeff == [4.0, 5.0, 6.0]
+        });
+        gx::init_light_attn_a(&mut light, 7.0, 8.0, 9.0);
+        gx::init_light_attn_k(&mut light, 10.0, 11.0, 12.0);
+        logger.record(
+            "GX light object fields and attenuation",
+            initial
+                && gx::light_obj_snapshot(&light).is_some_and(|s| {
+                    s.position == [1.0, -2.0, 3.5]
+                        && s.direction == [-4.0, 5.0, -6.0]
+                        && s.attenuation == [7.0, 8.0, 9.0]
+                        && s.attenuation_coeff == [10.0, 11.0, 12.0]
+                }),
+        );
+    }
 }
 
 fn probe_texture_regions(logger: &mut ProbeLogger) {

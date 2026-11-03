@@ -1,4 +1,11 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function
+ogc-gx,src/lib.rs,init_light_attn,7750,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_light_object
+ogc-gx,src/lib.rs,init_light_attn_a,7770,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_light_object
+ogc-gx,src/lib.rs,init_light_attn_k,7779,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_light_object
+ogc-gx,src/lib.rs,init_light_color,7697,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_light_object
+ogc-gx,src/lib.rs,init_light_dir,7706,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_light_object
+ogc-gx,src/lib.rs,init_light_pos,7687,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_light_object
+ogc-gx,src/lib.rs,light_obj_snapshot,5935,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_light_object
 ogc-gx,src/lib.rs,init_tex_cache_region,5581,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_regions
 ogc-gx,src/lib.rs,init_tex_preload_region,5605,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_regions
 ogc-gx,src/lib.rs,init_tlut_region,5629,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_regions
