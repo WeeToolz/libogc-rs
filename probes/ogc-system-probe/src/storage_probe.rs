@@ -3172,6 +3172,15 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     );
 }
 
+fn cleanup_format_marker(logger: &mut ProbeLogger, slot: card::CardSlot) {
+    // SAFETY: the name is static and refers only to the marker created by this run.
+    let status = unsafe { card::sys::delete(slot.channel(), c"FORMATMARK".as_ptr().cast()) };
+    logger.record(
+        "card format marker setup cleanup",
+        status == card::CARD_ERROR_READY,
+    );
+}
+
 fn probe_card_format(logger: &mut ProbeLogger) {
     logger.section("CARD DESTRUCTIVE FORMAT");
     logger.note("WARNING: formatting memory card in slot A; all card data will be erased");
@@ -3182,12 +3191,58 @@ fn probe_card_format(logger: &mut ProbeLogger) {
     };
     logger.record("card destructive format mount", true);
     let block_count = card::block_count(slot).ok();
+    let sector_size = card::sector_size(slot).ok();
+    let mut marker = card::CardFile::default();
+    // SAFETY: the static name and unique output are valid for the call.
+    let created = sector_size.is_some_and(|size| unsafe {
+        card::sys::create(
+            slot.channel(),
+            c"FORMATMARK".as_ptr().cast(),
+            size.max(0x2000),
+            &mut marker,
+        ) == card::CARD_ERROR_READY
+    });
+    logger.record("card format marker created", created);
+    if !created {
+        record_card_unmount(logger, "card format setup unmount", mounted);
+        return;
+    }
+    // SAFETY: the marker handle is live and uniquely borrowed.
+    let closed = unsafe { card::sys::close(&mut marker) } == card::CARD_ERROR_READY;
+    logger.record("card format marker closed", closed);
+    if !closed {
+        cleanup_format_marker(logger, slot);
+        record_card_unmount(logger, "card format setup unmount", mounted);
+        return;
+    }
+    let mut verified_marker = card::CardFile::default();
+    // SAFETY: the static name and unique output are valid for the call.
+    let opened = unsafe {
+        card::sys::open(
+            slot.channel(),
+            c"FORMATMARK".as_ptr().cast(),
+            &mut verified_marker,
+        )
+    } == card::CARD_ERROR_READY;
+    logger.record("card format marker exists before format", opened);
+    let verified_closed = opened
+        // SAFETY: a successful open produced this uniquely borrowed handle.
+        && unsafe { card::sys::close(&mut verified_marker) } == card::CARD_ERROR_READY;
+    logger.record("card format marker verification closed", verified_closed);
+    if !verified_closed {
+        cleanup_format_marker(logger, slot);
+        record_card_unmount(logger, "card format setup unmount", mounted);
+        return;
+    }
     let format_result = card::sys::format(slot.channel());
     logger.note_i32("card destructive format result", format_result);
     logger.record(
         "card destructive format completed",
         format_result == card::CARD_ERROR_READY,
     );
+    if format_result != card::CARD_ERROR_READY {
+        cleanup_format_marker(logger, slot);
+    }
     let unmount_result = mounted.unmount();
     logger.record(
         "card destructive format unmount",
@@ -3201,6 +3256,25 @@ fn probe_card_format(logger: &mut ProbeLogger) {
         return;
     };
     logger.record("card destructive format remount", true);
+    let mut removed_marker = card::CardFile::default();
+    // SAFETY: the static name and unique output are valid for the call.
+    let marker_status = unsafe {
+        card::sys::open(
+            slot.channel(),
+            c"FORMATMARK".as_ptr().cast(),
+            &mut removed_marker,
+        )
+    };
+    logger.record(
+        "card format marker removed after remount",
+        marker_status == card::CARD_ERROR_NOFILE,
+    );
+    if marker_status == card::CARD_ERROR_READY {
+        // SAFETY: the unexpected successful open produced a live handle.
+        logger.record("card format unexpected marker close", unsafe {
+            card::sys::close(&mut removed_marker) == card::CARD_ERROR_READY
+        });
+    }
     let expected_free = block_count.and_then(|count| u16::try_from(count.checked_sub(5)?).ok());
     logger.record(
         "card destructive format free blocks",

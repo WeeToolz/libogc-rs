@@ -253,6 +253,15 @@ fn format_card_boot_arguments(address: u32) -> ([u8; 12], &'static [u8]) {
     (header, command)
 }
 
+fn card_format_evidence_complete(log: &str) -> bool {
+    [
+        "PASS card format marker removed after remount",
+        "PASS card destructive format final unmount",
+    ]
+    .iter()
+    .all(|expected| log.lines().any(|line| line == *expected))
+}
+
 #[derive(Serialize)]
 struct SuiteReport {
     schema_version: u32,
@@ -1025,13 +1034,9 @@ fn run_probe(
             summary_count: summaries.len(),
         },
     );
-    if media.format_private_card
-        && !probe_log
-            .lines()
-            .any(|line| line == "PASS card destructive format final unmount")
-    {
+    if media.format_private_card && !card_format_evidence_complete(&probe_log) {
         status = "fail";
-        detail = "card format did not reach its final unmount assertion".to_string();
+        detail = "card format did not verify marker removal and final unmount".to_string();
     }
     let result = ProbeResult {
         schema_version: 1,
@@ -2124,6 +2129,15 @@ fn unix_seconds() -> u64 {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn card_format_evidence_requires_marker_removal_and_cleanup() {
+        let old_log = "PASS card destructive format final unmount\n";
+        assert!(!super::card_format_evidence_complete(old_log));
+        let incomplete = "PASS card format marker removed after remount\n";
+        assert!(!super::card_format_evidence_complete(incomplete));
+        let complete = "PASS card format marker removed after remount\nPASS card destructive format final unmount\n";
+        assert!(super::card_format_evidence_complete(complete));
+    }
     #[test]
     fn private_card_format_requires_explicit_isolated_probe() {
         let options = super::parse_options(&[

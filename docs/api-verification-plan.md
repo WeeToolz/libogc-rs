@@ -294,6 +294,9 @@ for DOL hashes, logs, and limits.
 A later [private-card format run](dolphin-runs/2026-11-03-card-format-private/README.md)
 passed in Dolphin Wii mode. It checked format, remount, free blocks, and final
 unmount. It did not check removal of a save created immediately before format.
+A [later marker run](dolphin-runs/2026-11-03-card-format-marker/README.md)
+created and reopened a save before format, then verified that it was absent
+after remount. GameCube-mode format and card removal remain open.
 
 A repeat at revision `43b800a` mounted the verified card copy and completed
 the save and remount checks in both GameCube and Wii modes. The probes reported
