@@ -1160,6 +1160,13 @@ pages and the blank-page check enabled. Its first page contains readable
 startup text. See the [run report](docs/dolphin-runs/2026-11-03-console-scroll/README.md).
 Physical Wii video behavior remains unverified.
 
+## 2026-11-03: Storage probes with readable page captures
+
+After the console scroll fix, five Dolphin storage probes passed with the
+blank-page check enabled. Their first and summary captures were inspected and
+contain readable text. See the [run report](docs/dolphin-runs/2026-11-03-storage-readable-pages/README.md)
+for counts, logs, captures, and limits. Physical storage remains unverified.
+
 ## 2026-11-03: ISFS async format callback
 
 With a longer bounded wait, Dolphin received the async format callback with
