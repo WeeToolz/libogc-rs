@@ -72,6 +72,10 @@ Wii SD card. It covered FAT directory, path, file, metadata, attribute,
 timestamp, remount, and cleanup behavior. This is not physical Wii evidence
 and does not prove every FAT and filesystem entry. See the
 [FAT run report](dolphin-runs/2026-11-03-wii-std-fs-storage/README.md).
+The Wii SD interface probe also passed 12 checks. It wrote a pattern to sector
+zero on Dolphin's private virtual SD card, checked the read-back bytes, restored
+the saved sector, and verified restoration. This does not prove physical Wii
+SD writes. See the [write round-trip report](dolphin-runs/2026-11-03-wiisd-write-roundtrip/README.md).
 Earlier failed launch attempts remain in their own run directories. The
 hardware register still records physical CARD and DI behavior as not tested.
 Do not treat the zero `unverified` source count as completed storage

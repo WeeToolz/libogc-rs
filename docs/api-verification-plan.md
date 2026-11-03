@@ -311,10 +311,13 @@ checks. It checked invalid drive errors for C and Rust APIs, no-card backend
 results, speed and page-size state restoration, buffer-pool exhaustion and
 reuse, and interface callback cleanup. It did not exercise an EXI SD Gecko. See the
 [SD Gecko invalid-drive run](dolphin-runs/2026-11-03-gcsd-invalid-drive/README.md).
-The Wii SD probe passed in Dolphin with its private virtual SD card. It
-checks startup, insertion, sector-zero read, a zero-sector write that sends no
-data command, shutdown, and restart. It does not test non-zero writes or a
-physical Wii. See [development results](../DEVELOPMENT_RESULTS.md).
+The Wii SD probe passed in Dolphin with its private virtual SD card. It checks
+startup, insertion, sector-zero read, a one-sector write/read-back round trip,
+restoration of the original sector bytes, the zero-sector no-data path,
+shutdown, and restart. The non-zero write test is enabled only for Dolphin; it
+does not test writes or transport behavior on a physical Wii. See
+[the write round-trip report](dolphin-runs/2026-11-03-wiisd-write-roundtrip/README.md)
+and [development results](../DEVELOPMENT_RESULTS.md).
 
 The 2026-11-03 storage probe run passed 62 checks and failed 3 because it had
 no Wiiload arguments and no USB storage device. The run configured a private
