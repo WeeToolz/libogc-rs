@@ -83,6 +83,14 @@ PASS C SD Gecko callbacks and invalid speed setter preserve drive state
 PASS C SD Gecko default initialization restores the original speed
 PASS C SD Gecko getters use documented invalid-drive defaults
 PASS C SD Gecko buffer pool allocates, exhausts, frees, and reuses buffers
+
+== GAMECUBE SD BACKEND WITHOUT AN ADAPTER ==
+PASS SD Gecko init and metadata APIs report no card in slot A
+PASS slot A interface callbacks report no card and clean up
+PASS SD Gecko unmount succeeds when slot A has no card
+PASS SD Gecko backend getters return slot A state
+PASS SD Gecko page-size setter restores slot state after no-card errors
+PASS SD Gecko sector result APIs preserve no-card errors
 PASS FAT SD mount
 INFO FAT SD lookup immediately after mount=4
 PASS FAT SD insertion query
@@ -94,6 +102,7 @@ PASS FAT truncate persists the requested length
 PASS C FAT attribute exports set read back and restore the hidden bit
 PASS FAT temporary file closes and is removed
 INFO C fatInit result=1
+-- page 4 --
 INFO devoptab FindDevice sd path=4
 INFO devoptab FindDevice sd file path=4
 INFO FAT SD mounted after fatInit=1
@@ -102,7 +111,6 @@ INFO FAT SD mounted after fatInitDefault=1
 PASS FAT init exports retain the mounted SD volume
 PASS C FAT simple mount registers and unregisters an alias
 PASS C FAT configured mount registers and unregisters an alias
--- page 4 --
 PASS FAT directory repair rejects duplicate and missing paths without changes
 PASS FAT media generation stays stable during mounted access
 PASS FAT GameCube SD A reports unavailable without an EXI adapter
@@ -110,5 +118,5 @@ PASS FAT GameCube SD B reports unavailable without an EXI adapter
 PASS FAT SD cleanup unmounts the volume
 PASS probe VI retraces complete within 100 ms
 PASS Dolphin screen-data transport completed
-INFO summary_candidate passes=30 fails=0
-PASS summary passes=30 fails=0
+INFO summary_candidate passes=36 fails=0
+PASS summary passes=36 fails=0
