@@ -1611,9 +1611,9 @@ ogc-card-sys,src/lib.rs,get_status_ex,647,hardware,hardware-probe,probes/ogc-sys
 ogc-card-sys,src/lib.rs,set_status_async,658,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis,card::sys::set_status_async
 ogc-card-sys,src/lib.rs,set_status,673,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis,card::sys::set_status
 ogc-card-sys,src/lib.rs,set_status_ex,683,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis,card::sys::set_status_ex
-ogc-card-sys,src/lib.rs,get_attributes,693,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis,card::sys::get_attributes
+ogc-card-sys,src/lib.rs,get_attributes,693,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::sys::get_attributes
 ogc-card-sys,src/lib.rs,set_attributes_async,697,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis,card::sys::set_attributes_async
-ogc-card-sys,src/lib.rs,set_attributes,701,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis,card::sys::set_attributes
+ogc-card-sys,src/lib.rs,set_attributes,701,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::sys::set_attributes
 ogc-card-sys,src/lib.rs,format_async,705,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis,card::sys::format_async
 ogc-card-sys,src/lib.rs,get_serial_no,720,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis,card::sys::get_serial_no
 ogc-card-sys,src/wii_backend.rs,probe_ex,1627,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
@@ -1626,7 +1626,7 @@ ogc-card-sys,src/wii_backend.rs,find_next,1997,hardware,hardware-probe,probes/og
 ogc-card-sys,src/wii_backend.rs,get_directory,2037,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data
 ogc-card-sys,src/wii_backend.rs,get_status,2073,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
 ogc-card-sys,src/wii_backend.rs,get_status_ex,2093,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
-ogc-card-sys,src/wii_backend.rs,get_attributes,2118,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
+ogc-card-sys,src/wii_backend.rs,get_attributes,2118,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data
 ogc-card-sys,src/wii_backend.rs,create_async,3126,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
 ogc-card-sys,src/wii_backend.rs,create_entry_async,3229,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
 ogc-card-sys,src/wii_backend.rs,delete_async,3270,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
@@ -1636,7 +1636,7 @@ ogc-card-sys,src/wii_backend.rs,set_status_async,3515,hardware,hardware-probe,pr
 ogc-card-sys,src/wii_backend.rs,set_status,3559,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
 ogc-card-sys,src/wii_backend.rs,set_status_ex,3593,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
 ogc-card-sys,src/wii_backend.rs,set_attributes_async,3641,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
-ogc-card-sys,src/wii_backend.rs,set_attributes,3660,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
+ogc-card-sys,src/wii_backend.rs,set_attributes,3660,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data
 ogc-card-sys,src/wii_backend.rs,get_serial_no,3686,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
 ogc-card-sys,src/lib.rs,create_entry,453,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis,card::sys::create_entry
 ogc-card-sys,src/wii_backend.rs,create_entry,3258,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
