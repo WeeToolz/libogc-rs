@@ -1,5 +1,7 @@
 # CARD API by API runtime audit
 
+**New run:** The [202-check GameCube CARD log](2026-11-03-storage-unrestricted/card_probe/probe.log) passed on Dolphin 2609a after the environment restriction was removed. It includes the new mounted-media, allocation, synchronous lifecycle, and raw asynchronous checks. The older pending descriptions below predate this run; use the named PASS lines in the new log for the current result. Format and hotplug were skipped.
+
 ## Scope and evidence
 
 The generated inventory has 209 entries across `ogc-card` (63), `ogc-card-sys` (90), and `ogc-card-metadata` (56). This audit records the exact implementation entry, direct probe or test function, and the strongest result found for each row. An inventory mapping does not prove a runtime pass.

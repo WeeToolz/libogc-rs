@@ -1,5 +1,7 @@
 # `ogc-usbstorage` API runtime audit
 
+**New run:** The [USB log](2026-11-03-storage-unrestricted/usbstorage_capacity_probe/probe.log) passed 58 checks with no USB device, including the closed-handle and null-handle buffer checks. The older pending descriptions below predate this run. Device-backed I/O remains open.
+
 ## Scope and result
 
 The generated implementation inventory contains 30 `ogc-usbstorage` rows,

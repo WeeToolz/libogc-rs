@@ -1,5 +1,7 @@
 # `ogc-gcsd` API by API Dolphin audit
 
+**New run:** The [FAT and SD log](2026-11-03-storage-unrestricted/fat_sd_probe/probe.log) passed 45 checks, including the invalid drive bounds and null buffer free checks. It used no EXI SD Gecko adapter; successful adapter I/O remains open. The older pending descriptions below predate this run.
+
 ## Scope and run
 
 The generated inventory contains 44 `ogc-gcsd` rows: five Rust wrapper APIs,

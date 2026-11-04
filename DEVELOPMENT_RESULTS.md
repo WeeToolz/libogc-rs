@@ -1326,3 +1326,16 @@ the earlier checks described in the individual [DVD](docs/dolphin-runs/2026-11-0
 [CARD](docs/dolphin-runs/2026-11-03-ogc-card-api-audit.md) API audits. Real
 USB media, SD Gecko protocol and media I/O, physical CARD behavior, valid Wii
 partition operations, and direct DI media reads remain open.
+
+## 2026-11-03: Storage probes run in Dolphin
+
+The existing `cargo xtask dolphin-validate` runner completed the GameCube
+CARD, Wii storage, FAT/SD, no-disc DVD, and no-device USB probes with 811
+passes and no failures. The CARD, SD Gecko invalid-drive, and USB closed-handle
+checks added after the earlier preflight failure now have Dolphin results.
+The previous preflight failure occurred in a restricted environment; the
+installed Dolphin 2609a executable launched when that restriction was removed.
+The run used private profile, NAND, and card copies. Disc reads, USB media,
+SD Gecko media, card format, and hotplug were not tested in this run. See the
+[run report](docs/dolphin-runs/2026-11-03-storage-unrestricted/README.md) and
+its individual probe logs.
