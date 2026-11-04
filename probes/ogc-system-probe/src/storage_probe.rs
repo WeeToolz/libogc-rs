@@ -3290,6 +3290,14 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         );
         return;
     }
+    if !probe_card_sync_file_lifecycle(logger, slot, sector_size) {
+        record_card_unmount(
+            logger,
+            "card unmount after facade file cleanup failure",
+            mounted,
+        );
+        return;
+    }
     let create_request = card::create_async_owned(slot, b"SAVE", sector_size.max(0x2000));
     let create_request_slot = create_request.as_ref().ok().map(|request| request.slot());
     logger.record(
@@ -4379,7 +4387,7 @@ fn probe_card_allocation_boundary(
                 )
             }
         }
-        None => (false, false, false),
+        None => (false, submit != card::CARD_ERROR_READY, false),
     };
     if created_unexpectedly && !cleanup_ok {
         logger.record(
@@ -4539,6 +4547,186 @@ fn probe_card_sync_entry_lifecycle(
         free_before.is_ok() && card::free_blocks(slot) == free_before,
     );
     cleanup_ok && reopen == card::CARD_ERROR_NOFILE
+}
+
+fn probe_card_sync_file_lifecycle(
+    logger: &mut ProbeLogger,
+    slot: card::CardSlot,
+    sector_size: u32,
+) -> bool {
+    const NAME: &[u8] = b"SYNCFILE";
+    let mut existing = card::CardFile::default();
+    // SAFETY: The static name and unique output remain valid for this call.
+    let preflight =
+        unsafe { card::open(slot.channel(), c"SYNCFILE".as_ptr().cast(), &mut existing) };
+    if preflight == card::CARD_ERROR_READY {
+        // SAFETY: The successful lookup returned a unique live file handle.
+        let close = unsafe { card::sys::close(&mut existing) };
+        logger.record(
+            "CARD existing SYNCFILE preflight handle cleanup",
+            close == card::CARD_ERROR_READY,
+        );
+        logger.note("card facade file lifecycle skipped: SYNCFILE already exists");
+        return close == card::CARD_ERROR_READY;
+    }
+    if preflight != card::CARD_ERROR_NOFILE {
+        logger.note_i32("card SYNCFILE preflight status", preflight);
+        logger.note("card facade file lifecycle skipped: name preflight was inconclusive");
+        return true;
+    }
+
+    let free_before = match card::free_blocks(slot) {
+        Ok(value) if value > 0 => value,
+        Ok(_) => {
+            logger.note("card facade file lifecycle skipped: card has no free blocks");
+            return true;
+        }
+        Err(status) => {
+            logger.note_i32("card free-block query before facade create", status);
+            logger.note("card facade file lifecycle skipped: free-space query failed");
+            return true;
+        }
+    };
+    let sentinel = card::CardFile {
+        chn: 0x1234,
+        filenum: 0x2345,
+        offset: 0x3456,
+        len: 0x4567,
+        iblock: 0x5678,
+    };
+    let mut file = sentinel;
+    // SAFETY: The static filename and unique file output stay live for the call.
+    let create = unsafe {
+        card::create(
+            slot.channel(),
+            c"SYNCFILE".as_ptr().cast(),
+            sector_size,
+            &mut file,
+        )
+    };
+    let create_valid = create == card::CARD_ERROR_READY
+        && file.chn == slot.channel()
+        && (0..card::CARD_MAXFILES as i32).contains(&file.filenum)
+        && file.offset == 0
+        && file.len == sentinel.len
+        && file.iblock >= 5;
+    logger.record("CARD facade create initializes a file handle", create_valid);
+    if create != card::CARD_ERROR_READY {
+        let output_unchanged = file.chn == sentinel.chn
+            && file.filenum == sentinel.filenum
+            && file.offset == sentinel.offset
+            && file.len == sentinel.len
+            && file.iblock == sentinel.iblock;
+        let mut unexpected = card::CardFile::default();
+        // SAFETY: The name and unique output remain live for this lookup.
+        let lookup =
+            unsafe { card::open(slot.channel(), c"SYNCFILE".as_ptr().cast(), &mut unexpected) };
+        let cleanup = if lookup == card::CARD_ERROR_READY {
+            // SAFETY: Preflight proved this name was free, so this probe owns it.
+            let close = unsafe { card::sys::close(&mut unexpected) };
+            close == card::CARD_ERROR_READY
+                && unsafe { card::sys::delete(slot.channel(), c"SYNCFILE".as_ptr().cast()) }
+                    == card::CARD_ERROR_READY
+        } else {
+            lookup == card::CARD_ERROR_NOFILE
+        };
+        logger.record(
+            "CARD failed facade create preserves its output handle",
+            output_unchanged,
+        );
+        logger.record("CARD facade delete removes its created file", false);
+        logger.record("CARD facade file cleanup succeeds", cleanup);
+        logger.record(
+            "CARD facade file lifecycle restores free blocks",
+            card::free_blocks(slot) == Ok(free_before),
+        );
+        return cleanup;
+    }
+
+    if !(0..card::CARD_MAXFILES as i32).contains(&file.filenum) {
+        let cleanup = unsafe { card::delete(slot.channel(), c"SYNCFILE".as_ptr().cast()) };
+        logger.record("CARD facade delete removes its created file", false);
+        logger.record(
+            "CARD facade file cleanup succeeds",
+            cleanup == card::CARD_ERROR_READY,
+        );
+        return cleanup == card::CARD_ERROR_READY;
+    }
+
+    // SAFETY: `file` is the unique handle returned by `create`.
+    let close = unsafe { card::sys::close(&mut file) };
+    logger.record(
+        "CARD facade create file handle closes",
+        close == card::CARD_ERROR_READY,
+    );
+    if close != card::CARD_ERROR_READY {
+        logger.record("CARD facade delete removes its created file", false);
+        logger.record("CARD facade file cleanup succeeds", false);
+        return false;
+    }
+
+    let mut reopened = card::CardFile::default();
+    // SAFETY: The name and unique output remain live for the lookup.
+    let reopen = unsafe { card::open(slot.channel(), c"SYNCFILE".as_ptr().cast(), &mut reopened) };
+    let reopened_status =
+        (reopen == card::CARD_ERROR_READY).then(|| card::file_status(slot, reopened.filenum));
+    let status_matches = reopened_status.is_some_and(|status| {
+        status.is_ok_and(|status| {
+            &status.filename[..NAME.len()] == NAME
+                && status.gamecode == *b"TST1"
+                && status.company == *b"TS"
+                && status.len == sector_size
+        })
+    });
+    logger.record(
+        "CARD facade create reopens with expected status",
+        status_matches,
+    );
+    let reopened_close = if reopen == card::CARD_ERROR_READY {
+        // SAFETY: The successful lookup returned the unique live file handle.
+        unsafe { card::sys::close(&mut reopened) }
+    } else {
+        card::CARD_ERROR_FATAL_ERROR
+    };
+    logger.record(
+        "CARD facade reopened file handle closes",
+        reopened_close == card::CARD_ERROR_READY,
+    );
+    if reopened_close != card::CARD_ERROR_READY {
+        logger.record("CARD facade delete removes its created file", false);
+        logger.record("CARD facade file cleanup succeeds", false);
+        logger.record(
+            "CARD facade file lifecycle restores free blocks",
+            card::free_blocks(slot) == Ok(free_before),
+        );
+        return false;
+    }
+
+    let delete = unsafe { card::delete(slot.channel(), c"SYNCFILE".as_ptr().cast()) };
+    logger.record(
+        "CARD facade delete removes its created file",
+        delete == card::CARD_ERROR_READY,
+    );
+    let mut leftover = card::CardFile::default();
+    // SAFETY: The static name and unique output remain valid for this call.
+    let after_delete =
+        unsafe { card::open(slot.channel(), c"SYNCFILE".as_ptr().cast(), &mut leftover) };
+    let cleanup_ok = if after_delete == card::CARD_ERROR_READY {
+        // SAFETY: The successful lookup returned a unique live handle. The
+        // private name was absent before this probe created the file.
+        let close = unsafe { card::sys::close(&mut leftover) };
+        close == card::CARD_ERROR_READY
+            && unsafe { card::sys::delete(slot.channel(), c"SYNCFILE".as_ptr().cast()) }
+                == card::CARD_ERROR_READY
+    } else {
+        after_delete == card::CARD_ERROR_NOFILE
+    };
+    logger.record("CARD facade file cleanup succeeds", cleanup_ok);
+    logger.record(
+        "CARD facade file lifecycle restores free blocks",
+        card::free_blocks(slot) == Ok(free_before),
+    );
+    cleanup_ok && after_delete == card::CARD_ERROR_NOFILE
 }
 
 fn cleanup_format_marker(logger: &mut ProbeLogger, slot: card::CardSlot) {

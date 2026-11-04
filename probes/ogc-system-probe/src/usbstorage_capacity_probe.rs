@@ -13,6 +13,7 @@ fn probe_public_facade(logger: &mut ProbeLogger) {
 
     logger.section("USB STORAGE SAFE FACADE WITHOUT A DEVICE");
     let mut handle = storage::UsbStorageHandle::default();
+    handle.usb_fd = -1;
     let mut sector = AlignedSector([0xa5; 512]);
 
     let initialized = storage::try_initialize();
@@ -248,6 +249,7 @@ fn probe_c_abi_without_device(logger: &mut ProbeLogger) {
     );
 
     let mut closed_handle = storage::UsbStorageHandle::default();
+    closed_handle.usb_fd = -1;
     let absent_open = unsafe { storage::c_open(&mut closed_handle, 0, u16::MAX, u16::MAX) };
     if absent_open >= 0 {
         let close = unsafe { storage::c_close(&mut closed_handle) };
