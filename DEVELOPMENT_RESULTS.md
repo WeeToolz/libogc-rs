@@ -1180,3 +1180,20 @@ With a longer bounded wait, Dolphin received the async format callback with
 status 0 and verified marker removal after restarting the ISFS service. The
 runtime probe passed 88 checks. The prior timeout and physical Wii limit remain
 documented in the [run report](docs/dolphin-runs/2026-11-03-isfs-format-async-bounded/README.md).
+
+## 2026-11-03: SD Gecko setter API audit
+
+The SD Gecko probe now calls the C speed and page-size setters on valid slot A,
+checks the saved settings through the getters, and restores the original
+settings. The final Dolphin run passed 45 checks with no failures. The first
+run had one failed assertion because the page-size setter returns a negative
+CMD16 result for the absent adapter, not the invalid-drive sentinel. The probe
+now checks the negative backend result and passes. The audit maps all 44
+`ogc-gcsd` inventory APIs to probe checks. Dolphin has no EXI SD Gecko adapter,
+so card metadata, successful CMD16, sector transfers, and physical callback
+delivery remain unverified. A fresh post-build rerun stopped at Dolphin's
+version preflight with a Qt `neon` processor error, before the DOL ran; the
+cause is unknown. See the [per-API audit](docs/dolphin-runs/2026-11-03-ogc-gcsd-api-audit.md),
+[final run report](docs/dolphin-runs/2026-11-03-gcsd-setter-api-final/suite.json),
+[initial assertion failure](docs/dolphin-runs/2026-11-03-gcsd-setter-api/suite.json),
+and [preflight failure record](docs/dolphin-runs/2026-11-03-gcsd-setter-api-reviewed/README.md).
