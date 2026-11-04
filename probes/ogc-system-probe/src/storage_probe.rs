@@ -164,6 +164,14 @@ fn wait_async_probe(timeout_seconds: u32) -> bool {
 }
 
 unsafe extern "C" fn dvd_async_callback(result: i32, _block: *mut dvd::DvdCmdBlk) {
+    finish_async_probe(result);
+}
+
+unsafe extern "C" fn card_async_callback(_channel: i32, result: i32) {
+    finish_async_probe(result);
+}
+
+fn finish_async_probe(result: i32) {
     ASYNC_AFTER_RETURN.store(ASYNC_RETURNED.load(Ordering::Acquire), Ordering::Release);
     ASYNC_RESULT.store(result, Ordering::Release);
     OGC_STORAGE_PROBE_LAST_RESULT.store(result, Ordering::Release);
@@ -3399,6 +3407,92 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
             && entries_seen > 0
             && found_save
             && search_status == card::CARD_ERROR_NOFILE,
+    );
+
+    raw_buffer.iter_mut().for_each(|line| line.0.fill(0));
+    raw_buffer[0].0[..2].copy_from_slice(&[0x5a, 0xa5]);
+    // SAFETY: `raw_ptr` is a live, aligned sector buffer with no pending DMA.
+    unsafe { ogc_cache::dc_flush_range(raw_ptr.cast_const(), sector_size) };
+    prepare_async_probe();
+    // SAFETY: the file, aligned sector buffer, and callback stay live until
+    // the async request completes. The buffer covers one card sector.
+    let raw_async_write_submit = unsafe {
+        card::sys::write_async(
+            &mut reopened,
+            raw_ptr,
+            sector_size,
+            0,
+            Some(card_async_callback),
+        )
+    };
+    let raw_async_write_ok = record_async(
+        logger,
+        "CARD sys write_async",
+        raw_async_write_submit,
+        card::CARD_ERROR_READY,
+        15,
+    );
+
+    raw_buffer.iter_mut().for_each(|line| line.0.fill(0));
+    // SAFETY: `raw_ptr` is a live, aligned sector buffer with no pending DMA.
+    unsafe { ogc_cache::dc_flush_range(raw_ptr.cast_const(), sector_size) };
+    prepare_async_probe();
+    // SAFETY: the same file and aligned buffer remain live until the callback
+    // reports completion. The buffer covers one card sector.
+    let raw_async_read_submit = unsafe {
+        card::sys::read_async(
+            &mut reopened,
+            raw_ptr,
+            sector_size,
+            0,
+            Some(card_async_callback),
+        )
+    };
+    let raw_async_read_ok = record_async(
+        logger,
+        "CARD sys read_async",
+        raw_async_read_submit,
+        card::CARD_ERROR_READY,
+        15,
+    );
+    // SAFETY: the async read completed, so `raw_ptr` has no pending DMA.
+    unsafe { ogc_cache::dc_invalidate_range(raw_ptr.cast_const(), sector_size) };
+    logger.record(
+        "CARD sys read_async returns raw write data",
+        raw_buffer[0].0[..2] == [0x5a, 0xa5]
+            && raw_buffer
+                .iter()
+                .flat_map(|line| line.0.iter())
+                .skip(2)
+                .all(|byte| *byte == 0),
+    );
+
+    raw_buffer.iter_mut().for_each(|line| line.0.fill(0));
+    raw_buffer[0].0[..2].copy_from_slice(&[0x96, 0x69]);
+    // SAFETY: `raw_ptr` is a live, aligned sector buffer with no pending DMA.
+    unsafe { ogc_cache::dc_flush_range(raw_ptr.cast_const(), sector_size) };
+    prepare_async_probe();
+    // SAFETY: restore the known save bytes before cleanup. The file, aligned
+    // buffer, and callback stay live until async completion.
+    let raw_async_restore_submit = unsafe {
+        card::sys::write_async(
+            &mut reopened,
+            raw_ptr,
+            sector_size,
+            0,
+            Some(card_async_callback),
+        )
+    };
+    let raw_async_restore_ok = record_async(
+        logger,
+        "CARD sys write_async restore",
+        raw_async_restore_submit,
+        card::CARD_ERROR_READY,
+        15,
+    );
+    logger.record(
+        "CARD raw async read and write complete with restored data",
+        raw_async_write_ok && raw_async_read_ok && raw_async_restore_ok,
     );
 
     logger.record(

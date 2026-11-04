@@ -1208,6 +1208,17 @@ It has no new Dolphin result: the installed Dolphin executable exits with
 [DI API audit](docs/dolphin-runs/2026-11-03-ogc-di-api-audit.md), which records
 the direct checks and the current emulator limit.
 
+## 2026-11-03: CARD raw async transfer checks
+
+The GameCube CARD probe now submits raw sys `write_async` and `read_async`
+calls on the test save. It checks submission, callback completion after
+return, callback status, readback bytes, and restoration of the original save
+data before cleanup. The updated `card_probe` DOL built with SHA-256
+`987a0dbc6c967fd4962092a2f1e9e01686e8d66976c4e1df9a208e5c69e815a4`. The
+checks await Dolphin because the installed executable aborts on its version
+preflight. The [CARD API audit](docs/dolphin-runs/2026-11-03-ogc-card-api-audit.md)
+maps the direct checks to the Rust sys wrappers and Wii backend entries.
+
 ## 2026-11-03: CARD API evidence audit
 
 The CARD audit maps all 209 inventory rows for `ogc-card`, `ogc-card-sys`,
