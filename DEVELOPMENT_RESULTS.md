@@ -1291,12 +1291,15 @@ transfer lengths, and every byte. USB checks live closed handles in the safe
 facade and C ABI after absent-device opens. It checks LUN rejection, output
 preservation, close, flush, reset, suspend, and start-stop behavior. SD Gecko
 checks that a documented null buffer free does not damage the buffer pool.
-CARD requests one block
-beyond reported free space, checks
+CARD requests one block beyond reported free space, checks
 `CARD_ERROR_INSSPACE`, confirms output and free-space preservation, and checks
 that no directory entry remains. It also checks synchronous `create_entry`
-and `delete_entry`, handle close, entry absence, and free-space restoration.
-Both CARD checks use private names and skip if a name already exists.
+and `delete_entry`, plus facade `create` and `delete`. The checks cover handle
+close, reopen, status, entry absence, and free-space restoration. CARD checks
+use private names and skip a lifecycle if its name already exists.
+The inventory checker now accepts an exact public facade call as evidence for
+its internal backend entry. This supports SD Gecko mappings where the backend
+function name differs from the public API name.
 
 `cargo fmt --all --check`, `git diff --check`, and the full
 `cargo xtask build-dolphin-probes` passed. The build used the configured MP3
@@ -1304,10 +1307,10 @@ probe and reference fixtures. A separate build with the prepared PowerPC
 sysroot and `gamecube` cfg built and converted the GameCube `card_probe` DOL.
 The fresh DOL SHA-256 values are:
 
-- Wii `dvd_probe`: `c95d7207a63245bddf7f27d4abbbebe966344781b75af2f0434e663773931fb2`
-- `usbstorage_capacity_probe`: `891ab2fdd3ed13cccdb14e77cb8937089ffdaa7f78451214332ae16a99af031b`
-- `fat_sd_probe`: `a62694609acb759f9737203edb9687de2307b30d46d0617d157788f1cc61aa9b`
-- GameCube `card_probe`: `6b14169ef764cfb9169988bf567ba7d688ba246c5a4513922183236118f71425`
+- Wii `dvd_probe`: `0e1a9a9402061c06b88e658cbfcae5375aeefa270f97837313fe6e0c5215f8a1`
+- `usbstorage_capacity_probe`: `0f93450de1a3ebf41859edb27b50437fdd9fcb864cb1b3337962a01537185e03`
+- `fat_sd_probe`: `abe913eb82618b6753377b8d5dd4c85e3e134a602c36b6974d7436058ea0161a`
+- GameCube `card_probe`: `403627113ccebcd9b82de79ba12511eddde4a34c99cfb65242ea069cfd294187`
 
 These changed probe checks have source and build evidence only. They do not
 have new Dolphin results because the installed Dolphin executable fails its

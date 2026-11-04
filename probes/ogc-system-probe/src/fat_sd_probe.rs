@@ -29,7 +29,8 @@ fn probe_gcsd_invalid_drive(logger: &mut ProbeLogger) {
         !gcsd::sdgecko_set_speed(-1, 12_345_678) && gcsd::sdgecko_set_page_size(-1, 512).is_none(),
     );
 
-    let init = gcsd::sdgecko_initIO(-1);
+    let init_io = gcsd::sdgecko_initIO;
+    let init = init_io(-1);
     let pre_io = gcsd::sdgecko_preIO(-1);
     let cid = gcsd::sdgecko_readCID(-1);
     let csd = gcsd::sdgecko_readCSD(-1);
@@ -116,16 +117,11 @@ fn probe_gcsd_without_adapter(logger: &mut ProbeLogger) {
     use ogc_gcsd as gcsd;
 
     logger.section("GAMECUBE SD BACKEND WITHOUT AN ADAPTER");
-    let init_io = gcsd::sdgecko_initIO;
-    let pre_io = gcsd::sdgecko_preIO;
-    let read_cid_api = gcsd::sdgecko_readCID;
-    let read_csd_api = gcsd::sdgecko_readCSD;
-    let read_status_api = gcsd::sdgecko_readStatus;
-    let init = init_io(0);
-    let pre_io = pre_io(0);
-    let cid = read_cid_api(0);
-    let csd = read_csd_api(0);
-    let status = read_status_api(0);
+    let init = gcsd::sdgecko_initIO(0);
+    let pre_io = gcsd::sdgecko_preIO(0);
+    let cid = gcsd::sdgecko_readCID(0);
+    let csd = gcsd::sdgecko_readCSD(0);
+    let status = gcsd::sdgecko_readStatus(0);
     logger.record(
         "SD Gecko init and metadata APIs report no card in slot A",
         [init, pre_io, cid, csd, status]
@@ -166,8 +162,7 @@ fn probe_gcsd_without_adapter(logger: &mut ProbeLogger) {
         !started && !present && !read && !write && !cleared && stopped,
     );
 
-    let do_unmount = gcsd::sdgecko_doUnmount;
-    let do_unmount = do_unmount(0);
+    let do_unmount = gcsd::sdgecko_doUnmount(0);
     logger.record(
         "SD Gecko unmount succeeds when slot A has no card",
         do_unmount == 0,

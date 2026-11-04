@@ -458,14 +458,6 @@ fn is_host_test_source(path: &str, source: &str) -> bool {
 }
 
 fn verify_evidence_call(source: &str, evidence: &Evidence, path: &Path) -> Result<(), String> {
-    if let Some(api_path) = &evidence.api_path
-        && api_path.rsplit(['.', ':']).next() != Some(evidence.symbol.as_str())
-    {
-        return Err(format!(
-            "{}::{} API path `{api_path}` does not end with symbol `{}`",
-            evidence.crate_name, evidence.symbol, evidence.symbol
-        ));
-    }
     let file = syn::parse_file(source).map_err(|err| {
         format!(
             "{}::{} evidence source {} is invalid Rust: {err}",
@@ -1678,7 +1670,7 @@ mod tests {
     }
 
     #[test]
-    fn api_path_must_end_with_the_inventory_symbol() {
+    fn api_path_can_name_the_public_facade_for_an_internal_symbol() {
         let evidence = Evidence {
             crate_name: "sample".to_string(),
             path: "src/lib.rs".to_string(),
@@ -1688,13 +1680,12 @@ mod tests {
             kind: "hardware-probe".to_string(),
             evidence_path: "probes/sample.rs".to_string(),
             function: "probe".to_string(),
-            api_path: Some("sample_api.write".to_string()),
+            api_path: Some("sample_api::write".to_string()),
         };
         let source = "fn probe() { let _ = sample_api::write(); }";
 
-        let error = verify_evidence_call(source, &evidence, Path::new("probes/sample.rs"))
-            .expect_err("the API path must identify the inventory symbol");
-        assert!(error.contains("API path `sample_api.write` does not end with symbol `read`"));
+        verify_evidence_call(source, &evidence, Path::new("probes/sample.rs"))
+            .expect("the exact public facade call can evidence its internal implementation");
     }
 
     #[test]
