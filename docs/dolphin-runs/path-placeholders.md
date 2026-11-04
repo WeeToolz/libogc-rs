@@ -8,11 +8,14 @@ DOL hashes, fixture hashes, and source revisions retain their recorded values.
 - `${WIIDEV_ROOT}`: external Wii development workspace.
 - `${USER_HOME}`: home directory used for the run.
 - `${TMPDIR}`: temporary directory used for the run.
+- `${DOLPHIN_BIN}`: Dolphin executable selected for the run.
+- `${DEVKITPRO}`: devkitPro installation root.
+- `${LLVM_NM}`: LLVM symbol reader executable.
 
 In JSON and saved log text these placeholders are descriptive; a reader does
 not need to expand them to inspect the results. Set the corresponding variables
 before using them in a shell command. Keep actual machine-specific paths in
 the untracked `DOLPHIN.local.md` guide.
 
-This cleanup affects the current files. Earlier Git commits can still contain
-the original path text; no repository history was rewritten.
+The reachable history was also rewritten to remove the original path text.
+See the [history cleanup record](../history-rewrite.md) and its commit map.
