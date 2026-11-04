@@ -447,7 +447,7 @@ ogc-card,src/lib.rs,into_result,1024,compatibility-forwarder,hardware-probe,prob
 ogc-card,src/lib.rs,mount,1648,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_mount_lifecycles,card::mount
 ogc-card,src/lib.rs,mount_async_owned,325,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,mount_card_owned,card::mount_async_owned
 ogc-card,src/lib.rs,open,1748,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::open
-ogc-card,src/lib.rs,probe,1609,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis,card::probe
+ogc-card,src/lib.rs,probe,1609,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::probe
 ogc-card,src/lib.rs,probe_slot,1548,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::probe_slot
 ogc-card,src/lib.rs,read_async_owned,738,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::read_async_owned
 ogc-card,src/lib.rs,read_slice,1688,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::read_slice
@@ -485,8 +485,8 @@ ogc-card-sys,src/lib.rs,mount,302,hardware,hardware-probe,probes/ogc-system-prob
 ogc-card-sys,src/wii_backend.rs,mount,1819,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_mount_lifecycles
 ogc-card-sys,src/lib.rs,open,375,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::sys::open
 ogc-card-sys,src/wii_backend.rs,open,1835,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data
-ogc-card-sys,src/lib.rs,probe,240,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_media_hotplug,card::sys::probe
-ogc-card-sys,src/wii_backend.rs,probe,1620,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_media_hotplug
+ogc-card-sys,src/lib.rs,probe,240,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::sys::probe
+ogc-card-sys,src/wii_backend.rs,probe,1620,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::sys::probe
 ogc-card-sys,src/lib.rs,shutdown,724,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,run,card::sys::shutdown
 ogc-card-sys,src/wii_backend.rs,shutdown,3704,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,run
 ogc-card-sys,src/lib.rs,unmount,306,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_mount_lifecycles,card::sys::unmount
@@ -1140,7 +1140,7 @@ ogc-card,src/metadata_submit_error.rs,value,22,compatibility-forwarder,host-test
 ogc-card,src/metadata_submit_error.rs,into_value,26,compatibility-forwarder,host-test,crates/compatibility/ogc-card/src/metadata_submit_error.rs,taking_error_value_transfers_ownership_once,error.into_value
 ogc-card,src/lib.rs,probe_info,1553,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis,card::probe_info
 ogc-card,src/lib.rs,serial_number,1601,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::serial_number
-ogc-card,src/lib.rs,probe_ex,1616,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis,card::probe_ex
+ogc-card,src/lib.rs,probe_ex,1616,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::probe_ex
 ogc-card,src/lib.rs,get_error_code,1620,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis,card::get_error_code
 ogc-card,src/lib.rs,get_block_count,1634,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::get_block_count
 ogc-card,src/lib.rs,get_free_blocks,1641,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::get_free_blocks
@@ -1594,7 +1594,7 @@ ogc-card-sys,src/lib.rs,get_icon_speed,598,hardware,hardware-probe,probes/ogc-sy
 ogc-card-sys,src/lib.rs,set_icon_speed,610,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_card_metadata_bits,card::sys::set_icon_speed
 ogc-card-sys,src/lib.rs,set_icon_addr,625,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_card_metadata_bits,card::sys::set_icon_addr
 ogc-card-sys,src/lib.rs,set_comment_addr,635,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_card_metadata_bits,card::sys::set_comment_addr
-ogc-card-sys,src/lib.rs,probe_ex,248,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis,card::sys::probe_ex
+ogc-card-sys,src/lib.rs,probe_ex,248,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::sys::probe_ex
 ogc-card-sys,src/lib.rs,get_error_code,252,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis,card::sys::get_error_code
 ogc-card-sys,src/lib.rs,get_block_count,268,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::sys::get_block_count
 ogc-card-sys,src/lib.rs,get_free_blocks,276,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::sys::get_free_blocks
@@ -1616,7 +1616,7 @@ ogc-card-sys,src/lib.rs,set_attributes_async,697,hardware,hardware-probe,probes/
 ogc-card-sys,src/lib.rs,set_attributes,701,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::sys::set_attributes
 ogc-card-sys,src/lib.rs,format_async,705,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_format,card::sys::format_async
 ogc-card-sys,src/lib.rs,get_serial_no,720,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::sys::get_serial_no
-ogc-card-sys,src/wii_backend.rs,probe_ex,1627,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
+ogc-card-sys,src/wii_backend.rs,probe_ex,1627,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::sys::probe_ex
 ogc-card-sys,src/wii_backend.rs,get_error_code,1669,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
 ogc-card-sys,src/wii_backend.rs,get_block_count,1692,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data
 ogc-card-sys,src/wii_backend.rs,get_free_blocks,1708,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data

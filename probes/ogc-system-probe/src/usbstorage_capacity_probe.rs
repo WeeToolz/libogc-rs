@@ -370,7 +370,9 @@ fn probe_c_abi_without_device(logger: &mut ProbeLogger) {
     let write = unsafe { storage::c_write(core::ptr::null_mut(), 0, 0, 1, sector.0.as_ptr()) };
     logger.record(
         "C USB read and write reject null storage handles",
-        read == storage::USBSTORAGE_EINVAL && write == storage::USBSTORAGE_EINVAL,
+        read == storage::USBSTORAGE_EINVAL
+            && write == storage::USBSTORAGE_EINVAL
+            && sector.0 == [0xa5; 512],
     );
 
     let dvd = storage::c_is_dvd();
