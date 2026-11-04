@@ -84,6 +84,13 @@ reads, destructive card format, and media hotplug. This result adds no physical
 device evidence. See the
 [current full-suite report](dolphin-runs/2026-11-03-storage-api-full-current/README.md)
 for DOL hashes, logs, inspected summary pages, and limits.
+
+A later focused run used a synthetic Wii-format disc image. The DVD wrapper
+read the disc ID, sector zero, an asynchronous sector, and known bytes at a
+nonzero offset. `dvd::mount()` failed, and direct DI still reported no disc.
+The image has no valid partition, so it adds read evidence only. See the
+[synthetic DVD run](dolphin-runs/2026-11-03-dvd-wii-header-synthetic/README.md)
+and the updated [`ogc-dvd` API audit](dolphin-runs/2026-11-03-ogc-dvd-api-audit.md).
 An earlier no-disc DVD probe passed 119 checks and compared C and Rust DI
 wrapper results for the calls listed in its
 [run report](dolphin-runs/2026-11-03-di-wrapper-parity-final/README.md).
