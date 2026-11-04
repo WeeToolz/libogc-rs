@@ -195,6 +195,37 @@ fn probe_gcsd_without_adapter(logger: &mut ProbeLogger) {
             && get_page_size(0) == Some(original_page_size),
     );
 
+    let changed_c_page_size = gcsd::sdgecko_setPageSize(0, 1024);
+    let c_page_size_after = gcsd::sdgecko_getPageSize(0);
+    let restored_c_page_size = set_page_size(0, original_page_size);
+    logger.record(
+        "C SD Gecko page-size setter reports no card and restores slot state",
+        changed_c_page_size < 0
+            && c_page_size_after == 1024
+            && restored_c_page_size.is_some_and(|result| result < 0)
+            && gcsd::sdgecko_getPageSize(0) == original_page_size,
+    );
+
+    let original_speed = speed.unwrap_or(0);
+    let changed_c_speed = original_speed ^ 1;
+    gcsd::sdgecko_setSpeed(0, changed_c_speed);
+    let c_speed_after = gcsd::sdgecko_getSpeed(0);
+    let restored_c_speed = gcsd::sdgecko_set_speed(0, original_speed);
+    logger.record(
+        "C SD Gecko speed setter updates and restores slot state",
+        c_speed_after == changed_c_speed
+            && restored_c_speed
+            && gcsd::sdgecko_getSpeed(0) == original_speed,
+    );
+
+    logger.record(
+        "C SD Gecko getters expose valid slot configuration",
+        gcsd::sdgecko_getSpeed(0) == get_speed(0).unwrap_or(0)
+            && gcsd::sdgecko_getPageSize(0) == get_page_size(0).unwrap_or(0)
+            && gcsd::sdgecko_getAddressingType(0)
+                == get_addressing_type(0).unwrap_or(gcsd::CARD_IO_SECTOR_ADDRESSING),
+    );
+
     let read_sectors_result = gcsd::sdgecko_readSectors;
     let read_result = unsafe { read_sectors_result(0, 0, 1, sector.0.as_mut_ptr().cast()) };
     let write_sectors_result = gcsd::sdgecko_writeSectors;

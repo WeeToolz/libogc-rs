@@ -428,15 +428,17 @@ timestamps, read-only access, remount persistence, and cleanup. This verifies
 many FAT operations on Dolphin; it does not verify each FAT inventory entry or
 physical Wii media. See the
 [Wii FAT run](dolphin-runs/2026-11-03-wii-std-fs-storage/README.md).
-The `fat_sd_probe` also checks that GameCube SD Gecko mounts report the
-expected no-adapter error. Its earlier 2026-11-03 Dolphin run passed 36
-GameCube SD API checks. The storage audit rerun passed 40 `fat_sd_probe`
-checks, including the SD Gecko checks. These checks cover invalid-drive
-results for C and Rust APIs, no-card results, speed and page-size state
-restoration, buffer-pool exhaustion and reuse, and interface callback cleanup.
-They do not exercise an EXI SD Gecko. See the
-[earlier SD Gecko run](dolphin-runs/2026-11-03-gcsd-invalid-drive/README.md)
-and the [storage audit rerun](dolphin-runs/2026-11-03-storage-api-audit-rerun/README.md).
+The latest successful `fat_sd_probe` run passed 45 checks in Dolphin. It adds direct C
+speed and page-size setter checks for slot A, reads back the stored settings,
+and restores the original settings. The run also covers invalid-drive results,
+no-card errors, buffer-pool exhaustion and reuse, and interface cleanup. A
+per-API audit maps all 44 `ogc-gcsd` inventory rows to direct probe calls and
+checks. Dolphin has no EXI SD Gecko adapter, so card metadata, successful
+CMD16, sector transfers, and physical callback delivery remain open. See the
+[SD Gecko API audit](dolphin-runs/2026-11-03-ogc-gcsd-api-audit.md),
+[latest run report](dolphin-runs/2026-11-03-gcsd-setter-api-final/suite.json),
+[earlier SD Gecko run](dolphin-runs/2026-11-03-gcsd-invalid-drive/README.md),
+and [storage audit rerun](dolphin-runs/2026-11-03-storage-api-audit-rerun/README.md).
 The Wii SD probe passed 15 checks in Dolphin with its private virtual SD card.
 It checks startup, insertion, sector-zero read, a one-sector write/read-back
 round trip, a nine-sector unaligned write across the bounce-buffer boundary,
