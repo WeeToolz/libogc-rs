@@ -2814,6 +2814,14 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         "card mounted owner has no detach result before removal",
         mounted.detach_result().is_none(),
     );
+    logger.record(
+        "CARD owned duplicate mount returns busy",
+        matches!(card::mount_async_owned(slot), Err(card::CARD_ERROR_BUSY)),
+    );
+    logger.record(
+        "CARD owned mount remains attached after duplicate request",
+        mounted.is_attached(),
+    );
 
     let (sector_rc, sector_size) = match card::sector_size(slot) {
         Ok(value) => (card::CARD_ERROR_READY, value),
