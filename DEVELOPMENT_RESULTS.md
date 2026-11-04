@@ -1339,3 +1339,14 @@ The run used private profile, NAND, and card copies. Disc reads, USB media,
 SD Gecko media, card format, and hotplug were not tested in this run. See the
 [run report](docs/dolphin-runs/2026-11-03-storage-unrestricted/README.md) and
 its individual probe logs.
+
+## 2026-11-03: Confirm the virtual Wii SD setup
+
+The existing Dolphin runner passed `wiisd_probe` with 15 checks and no
+failures. The probe detected the virtual card and verified one-sector and
+nine-sector write, readback, and restoration. The prior FAT SD run also
+mounted the virtual card and passed file operations. The HBC setup uses Wii SD
+folder sync; the probe runner uses its own private virtual SD profile. See the
+[setup confirmation](docs/dolphin-runs/2026-11-03-wiisd-setup-confirm/README.md).
+USB storage, EXI SD Gecko, and optical media each need their own device or
+fixture for positive I/O checks.
