@@ -412,3 +412,15 @@ The runner does not yet trigger a live Dolphin slot change. If no removal
 occurs, the probe reports a failed detach check and performs timeout cleanup;
 that result is not a hotplug pass. The current probe does not check file data
 after remount or establish physical hardware behavior.
+
+### Development DOL in Dolphin
+
+Build the DOL with `cargo xtask build-dol <package> --bin <probe> --dev
+--probe-features dolphin-automation`. Set `LIBOGC_DOLPHIN_DEV_DOL` and
+`LIBOGC_DOLPHIN_DEV_ELF` to the matching DOL and ELF paths from its manifest,
+then run `cargo xtask dolphin-validate --no-build --probe <probe>`. Select one
+probe only. The runner supplies the development wrapper's required arguments
+and uses the DOL SHA-256 as its build ID. It supplies a loopback report endpoint
+for startup; the runner does not collect or verify UDP development reports.
+The Dolphin USB Gecko transcript and page captures remain the probe evidence.
+A mismatched DOL and ELF can invalidate symbol and page capture results.
