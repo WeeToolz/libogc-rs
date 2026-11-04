@@ -1208,6 +1208,19 @@ It has no new Dolphin result: the installed Dolphin executable exits with
 [DI API audit](docs/dolphin-runs/2026-11-03-ogc-di-api-audit.md), which records
 the direct checks and the current emulator limit.
 
+## 2026-11-03: DI asynchronous media reads
+
+The direct-media probe now submits Rust `read_dvd_async` and C
+`DI_ReadDVDAsync` requests when it verifies the `TST1TS` ID and sector payload.
+It checks callback completion, callback user-data identity, and returned
+bytes. The saved synthetic-disc run did not expose that image through `/dev/di`,
+so it does not prove this path. The updated Wii `dvd_probe` DOL built from the
+prepared PowerPC sysroot with SHA-256
+`a90c41cdcc835cf9564dd4b278d6a23b3a36a6dfbb4f65ddc34217a936118d25`. It has
+not run: Dolphin still fails during its version preflight, and a supported
+direct-DI media setup is needed. See the [DI API audit](docs/dolphin-runs/2026-11-03-ogc-di-api-audit.md)
+and [synthetic-media report](docs/dolphin-runs/2026-11-03-di-synthetic-media/README.md).
+
 ## 2026-11-03: CARD raw async transfer checks
 
 The GameCube CARD probe submits raw sys `write_async` and `read_async` calls

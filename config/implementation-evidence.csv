@@ -1551,7 +1551,7 @@ ogc-di,src/lib.rs,DI_Mount,1412,ios,hardware-probe,probes/ogc-system-probe/src/s
 ogc-di,src/lib.rs,DI_OpenPartition,1591,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc,di::DI_OpenPartition
 ogc-di,src/lib.rs,DI_Read,1525,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc,di::DI_Read
 ogc-di,src/lib.rs,DI_ReadDVD,1506,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc,di::DI_ReadDVD
-ogc-di,src/lib.rs,DI_ReadDVDAsync,1513,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc,di::DI_ReadDVDAsync
+ogc-di,src/lib.rs,DI_ReadDVDAsync,1513,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_media,di::DI_ReadDVDAsync
 ogc-di,src/lib.rs,DI_ReadDVDConfig,1539,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc,di::DI_ReadDVDConfig
 ogc-di,src/lib.rs,DI_ReadDVDCopyright,1552,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc,di::DI_ReadDVDCopyright
 ogc-di,src/lib.rs,DI_ReadDVDDiscKey,1565,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc,di::DI_ReadDVDDiscKey
@@ -1575,7 +1575,7 @@ ogc-di,src/lib.rs,kill_drive,1026,ios,hardware-probe,probes/ogc-system-probe/src
 ogc-di,src/lib.rs,read_disc_id,960,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc,di::read_disc_id
 ogc-di,src/lib.rs,read_disc_id_bytes,971,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc,di::read_disc_id_bytes
 ogc-di,src/lib.rs,read_dvd,1037,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc,di::read_dvd
-ogc-di,src/lib.rs,read_dvd_async,1115,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc,di::read_dvd_async
+ogc-di,src/lib.rs,read_dvd_async,1115,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_media,di::read_dvd_async
 ogc-di,src/lib.rs,read_dvd_config,1177,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc,di::read_dvd_config
 ogc-di,src/lib.rs,read_dvd_copyright,1184,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc,di::read_dvd_copyright
 ogc-di,src/lib.rs,reset,995,ios,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_di_no_disc,di::reset

@@ -23,6 +23,16 @@ Rust and C initialization and after close. These checks are not in the saved
 178-check Dolphin log. The current Dolphin executable aborts during its version
 preflight, so the new assertions still need a runtime result.
 
+The media probe source now submits both Rust `read_dvd_async` and C
+`DI_ReadDVDAsync` calls when the direct DI path returns the known `TST1TS`
+fixture ID and sector payload. It checks callback result, callback buffer
+identity, and returned sector bytes. The saved synthetic-disc run did not
+provide a verified direct DI fixture, so this path did not run there. The new
+Wii `dvd_probe` DOL built with SHA-256
+`a90c41cdcc835cf9564dd4b278d6a23b3a36a6dfbb4f65ddc34217a936118d25`. This DOL
+has not run. Dolphin still fails during its version preflight, and a valid
+direct-DI media setup is needed to reach the success checks.
+
 The inventory also names 27 C exports:
 
 `DI_Init`, `DI_LoadDVDX`, `DI_UseCache`, `DI_SetInitCallback`, `DI_Mount`,
@@ -48,7 +58,7 @@ The log has passing assertions for these named behaviors:
 | `di cover result reports no inserted disc`, `C DI cover status matches Rust result and output` | `get_cover_register`, `DI_GetCoverRegister` | No-disc cover state and C/Rust parity. |
 | `di config output is valid or preserved`, `C DI configuration matches Rust result and output` | `read_dvd_config`, `DI_ReadDVDConfig` | Output validity or preservation; C/Rust parity. |
 | `di copyright output is valid or preserved`, `C DI copyright matches Rust result and output` | `read_dvd_copyright`, `DI_ReadDVDCopyright` | Output validity or preservation; C/Rust parity. |
-| `di direct sector read reports no-media error`, `DI_ReadDVD reports no-media error`, `DI_ReadDVDAsync reports no mounted media` | `read_dvd`, `read_dvd_async`, `DI_ReadDVD`, `DI_ReadDVDAsync` | No-disc errors only. Async callback success is not tested. |
+| `di direct sector read reports no-media error`, `DI_ReadDVD reports no-media error`, `DI_ReadDVDAsync reports no mounted media` | `read_dvd`, `read_dvd_async`, `DI_ReadDVD`, `DI_ReadDVDAsync` | Saved Dolphin runs prove no-disc errors. The source now also checks Rust and C async callbacks and known sector bytes when the direct-DI fixture is valid; this success path has no Dolphin result yet. |
 | `di raw read rejects null buffer`, `di raw read rejects unaligned buffer and preserves bytes`, `DI_Read rejects null buffer` | `read`, `DI_Read` | Argument validation before media I/O. |
 | `di unencrypted read rejects null buffer`, `DI_UnencryptedRead rejects null buffer` | `unencrypted_read`, `DI_UnencryptedRead` | Null argument errors; no successful read. |
 | `DI_ReadDVDDiscKey rejects null buffer`, `DI_ReadDVDPhysical rejects null buffer`, `DI_Read_BCA rejects null buffer`, `DI_ReportKey rejects null buffer` | `read_dvd_disc_key`, `read_dvd_physical`, `read_bca`, `report_key` and C exports | Null argument validation. Valid-buffer media results are not established. |
