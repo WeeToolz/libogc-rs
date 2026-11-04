@@ -1197,3 +1197,18 @@ cause is unknown. See the [per-API audit](docs/dolphin-runs/2026-11-03-ogc-gcsd-
 [final run report](docs/dolphin-runs/2026-11-03-gcsd-setter-api-final/suite.json),
 [initial assertion failure](docs/dolphin-runs/2026-11-03-gcsd-setter-api/suite.json),
 and [preflight failure record](docs/dolphin-runs/2026-11-03-gcsd-setter-api-reviewed/README.md).
+
+## 2026-11-03: CARD API evidence audit
+
+The CARD audit maps all 209 inventory rows for `ogc-card`, `ogc-card-sys`,
+and `ogc-card-metadata` to their probe or test source. Saved Dolphin runs cover
+invalid-channel checks, save persistence and transfers, mount and unmount,
+format, and metadata bit helpers. The audit marks raw sys success paths and
+media hotplug paths that remain open. The probe adds a valid directory scan
+with `find_first` and `find_next`; the GameCube DOL built with SHA-256
+`59cdbe31cc7c35eaa6fe97853bdf694dc51cbb219f2a7c0742a9f9028f2f6925`. This
+check awaits a Dolphin run. `cargo test -p ogc-card-metadata` passed 18 tests.
+`cargo test -p ogc-card --lib` could not build because its dependencies require
+the PowerPC target. A fresh Dolphin preflight failed in both arm64 and x86_64
+modes before any DOL ran. See the [CARD API audit](docs/dolphin-runs/2026-11-03-ogc-card-api-audit.md)
+and [Dolphin preflight record](docs/dolphin-runs/2026-11-03-card-api-audit-preflight.md).

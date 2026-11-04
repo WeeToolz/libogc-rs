@@ -1514,18 +1514,10 @@ fn probe_usb_interface_without_media(
     let inserted_before_io = unsafe { is_inserted() };
     let mut read_buffer = UsbInterfaceSector([0xa5; 512]);
     // SAFETY: The buffer is aligned and holds one complete sector.
-    let read_result = unsafe {
-        read_sectors(
-            0,
-            1,
-            read_buffer.0.as_mut_ptr().cast::<c_void>(),
-        )
-    };
+    let read_result = unsafe { read_sectors(0, 1, read_buffer.0.as_mut_ptr().cast::<c_void>()) };
     let write_buffer = UsbInterfaceSector([0x5a; 512]);
     // SAFETY: The buffer is aligned and holds one complete sector.
-    let write_result = unsafe {
-        write_sectors(0, 1, write_buffer.0.as_ptr().cast::<c_void>())
-    };
+    let write_result = unsafe { write_sectors(0, 1, write_buffer.0.as_ptr().cast::<c_void>()) };
     // SAFETY: The static callback has no pointer inputs.
     let clear_result = unsafe { clear_status() };
     // SAFETY: The static callback has no pointer inputs.
@@ -3304,6 +3296,30 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         "CARD game and company setters select the created save",
         save_has_expected_identifiers,
     );
+
+    let mut search = card::CardDir::default();
+    // SAFETY: `search` is live, aligned, and writable for the full search.
+    let first_search = unsafe { card::sys::find_first(slot.channel(), &mut search, 1) };
+    let mut search_status = first_search;
+    let mut found_save = false;
+    let mut entries_seen = 0usize;
+    for _ in 0..card::CARD_MAXFILES {
+        if search_status != card::CARD_ERROR_READY {
+            break;
+        }
+        entries_seen += 1;
+        found_save |= search.filename[..4] == *b"SAVE";
+        // SAFETY: `search` remains a live cursor initialized by find_first.
+        search_status = unsafe { card::sys::find_next(&mut search) };
+    }
+    logger.record(
+        "CARD sys find_first and find_next enumerate the created save",
+        first_search == card::CARD_ERROR_READY
+            && entries_seen > 0
+            && found_save
+            && search_status == card::CARD_ERROR_NOFILE,
+    );
+
     logger.record(
         "card close remounted save",
         // SAFETY: the reopened file is uniquely borrowed and has no pending request.
