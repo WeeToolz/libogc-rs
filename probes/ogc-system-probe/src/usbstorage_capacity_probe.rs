@@ -35,6 +35,42 @@ fn probe_public_facade(logger: &mut ProbeLogger) {
             && handle.sector_size.is_null(),
     );
 
+    // A failed open leaves a live, closed handle. These calls exercise the
+    // non-null handle validation paths without sending a USB command.
+    let closed_max_lun = unsafe { storage::try_get_max_lun(&mut handle) };
+    let closed_inquiry = unsafe { sys::inquiry(&mut handle, 0) };
+    let closed_mount = unsafe { storage::try_mount_lun(&mut handle, 0) };
+    let mut closed_sector_size = 0x1234_5678;
+    let mut closed_sectors = 0x8765_4321;
+    let closed_capacity = unsafe {
+        storage::read_capacity(&mut handle, 0, &mut closed_sector_size, &mut closed_sectors)
+    };
+    let closed_read = unsafe { storage::try_read(&mut handle, 0, 0, 1, sector.0.as_mut_ptr()) };
+    let closed_write = unsafe { storage::try_write(&mut handle, 0, 0, 1, sector.0.as_ptr()) };
+    logger.record(
+        "closed USB handle reports zero LUNs and rejects LUN zero before transport",
+        closed_max_lun == Ok(0)
+            && closed_inquiry == storage::USBSTORAGE_EINVAL
+            && has_error(closed_mount, storage::USBSTORAGE_EINVAL)
+            && closed_capacity == storage::USBSTORAGE_EINVAL
+            && closed_sector_size == 0x1234_5678
+            && closed_sectors == 0x8765_4321
+            && has_error(closed_read, storage::USBSTORAGE_EINVAL)
+            && has_error(closed_write, storage::USBSTORAGE_EINVAL)
+            && sector.0 == [0xa5; 512]
+            && handle.usb_fd < 0
+            && handle.buffer.is_null()
+            && handle.sector_size.is_null(),
+    );
+    let closed_close = unsafe { storage::try_close(&mut handle) };
+    logger.record(
+        "closing an unopened USB handle reports no interface and stays closed",
+        has_error(closed_close, storage::USBSTORAGE_ENOINTERFACE)
+            && handle.usb_fd < 0
+            && handle.buffer.is_null()
+            && handle.sector_size.is_null(),
+    );
+
     // SAFETY: A null handle is an accepted error input. The second handle is
     // live and uniquely borrowed; its zero LUN count rejects the request.
     let null_inquiry = unsafe { sys::inquiry(core::ptr::null_mut(), 0) };

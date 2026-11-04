@@ -84,6 +84,8 @@ fn probe_gcsd_invalid_drive(logger: &mut ProbeLogger) {
     );
 
     gcsd::sdgecko_initBufferPool();
+    // SAFETY: The allocator contract permits null as a no-op free request.
+    unsafe { gcsd::sdgecko_freeBuffer(core::ptr::null_mut()) };
     let first = gcsd::sdgecko_allocBuffer();
     let second = gcsd::sdgecko_allocBuffer();
     let third = gcsd::sdgecko_allocBuffer();
@@ -103,7 +105,7 @@ fn probe_gcsd_invalid_drive(logger: &mut ProbeLogger) {
     }
     let reusable = gcsd::sdgecko_allocBuffer();
     logger.record(
-        "C SD Gecko buffer pool allocates, exhausts, frees, and reuses buffers",
+        "C SD Gecko buffer pool ignores null free and allocates, exhausts, frees, and reuses buffers",
         buffers_are_distinct && !reusable.is_null(),
     );
     // SAFETY: Free the live buffer returned by the matching SD Gecko pool.

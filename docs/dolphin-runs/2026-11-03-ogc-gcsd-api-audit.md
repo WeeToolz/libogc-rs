@@ -51,7 +51,7 @@ version preflight before it started the DOL. See the
 | `sdgecko_getAddressingType` | Invalid drive returns sector-addressing default; valid slot is compared with the Rust getter. | `C SD Gecko getters use documented invalid-drive defaults`; `C SD Gecko getters expose valid slot configuration`. |
 | `sdgecko_initBufferPool` | Initializes the fixed pool before allocation. | `C SD Gecko buffer pool allocates, exhausts, frees, and reuses buffers`. |
 | `sdgecko_allocBuffer` | Gets three distinct buffers, observes exhaustion, frees them, then observes reuse. | `C SD Gecko buffer pool allocates, exhausts, frees, and reuses buffers`. |
-| `sdgecko_freeBuffer` | Frees only buffers returned by this pool, then confirms a freed slot can be reused. | `C SD Gecko buffer pool allocates, exhausts, frees, and reuses buffers`. |
+| `sdgecko_freeBuffer` | Calls with null, then frees buffers returned by this pool and confirms a freed slot can be reused. | `C SD Gecko buffer pool ignores null free and allocates, exhausts, frees, and reuses buffers`. The null argument is allowed by the function's safety contract. |
 
 ## Wii backend functions
 
@@ -87,3 +87,8 @@ CMD16 success, sector reads and writes, insertion events, and physical callback
 timing remain unverified. Dolphin's Wii virtual SD tests exercise `ogc-wiisd`,
 not this EXI/GameCube SD Gecko backend. A physical SD Gecko probe is required
 for those paths.
+
+The probe source now also checks that the documented null `freeBuffer` input
+does not damage the pool before allocation, exhaustion, and reuse checks. This
+check was added after the saved 45-pass run above. It needs a fresh probe build
+and Dolphin run before it has runtime evidence.

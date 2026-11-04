@@ -399,6 +399,42 @@ pub fn probe_dvd(logger: &mut ProbeLogger) -> bool {
             && sector.0[..4] == [11, 48, 85, 122]
             && sector.0[sector.0.len() - 1] == 230,
     );
+
+    sector.0.fill(0);
+    let mut offset_async_block = dvd::DvdCmdBlk::default();
+    prepare_async_probe();
+    // SAFETY: the command block and full aligned sector buffer stay live until
+    // the completion callback returns.
+    let offset_async_submit = unsafe {
+        dvd::read_abs_async_prio(
+            &mut offset_async_block,
+            sector.0.as_mut_ptr().cast(),
+            sector.0.len() as u32,
+            0x2000,
+            Some(dvd_async_callback),
+            2,
+        )
+    };
+    let offset_async_ok = record_async(
+        logger,
+        "dvd offset sector async",
+        offset_async_submit,
+        sector.0.len() as i32,
+        10,
+    );
+    let offset_async_bytes_match = sector
+        .0
+        .iter()
+        .enumerate()
+        .all(|(index, byte)| *byte == (11u32.wrapping_add(37 * index as u32) & 0xff) as u8);
+    logger.record(
+        "dvd offset sector async transfer count",
+        offset_async_ok && offset_async_block.txdsize == sector.0.len() as u32,
+    );
+    logger.record(
+        "dvd offset sector async matches synthetic payload",
+        offset_async_ok && offset_async_bytes_match,
+    );
     logger.note_u32("dvd last drive error", dvd::get_last_error());
     false
 }
@@ -3197,6 +3233,18 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         wrapper_freeblocks_status == card::CARD_ERROR_READY && wrapper_freeblocks == raw_freeblocks,
     );
     logger.note_u32("card free block count before create", freeblocks as u32);
+    if let Some(freeblocks) = freeblocks_result.ok() {
+        if !probe_card_allocation_boundary(logger, slot, sector_size, freeblocks) {
+            record_card_unmount(
+                logger,
+                "card unmount after allocation probe timeout",
+                mounted,
+            );
+            return;
+        }
+    } else {
+        logger.note("card allocation-boundary check skipped: free-block query failed");
+    }
     let create_request = card::create_async_owned(slot, b"SAVE", sector_size.max(0x2000));
     let create_request_slot = create_request.as_ref().ok().map(|request| request.slot());
     logger.record(
@@ -4178,6 +4226,156 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         "card final unmount",
         final_mount.unmount() == card::CARD_ERROR_READY,
     );
+}
+
+fn delete_card_owned_filename(slot: card::CardSlot, filename: &[u8]) -> bool {
+    let request = card::delete_async_owned(slot, filename);
+    let result = request
+        .as_ref()
+        .ok()
+        .and_then(|request| wait_card_owned_status(|| request.status(), 15));
+    match (request, result) {
+        (Ok(request), Some(_)) => request
+            .try_complete()
+            .ok()
+            .is_some_and(|completion| completion.into_result().is_ok()),
+        _ => false,
+    }
+}
+
+fn probe_card_allocation_boundary(
+    logger: &mut ProbeLogger,
+    slot: card::CardSlot,
+    sector_size: u32,
+    freeblocks: u16,
+) -> bool {
+    let mut existing_file = card::CardFile::default();
+    // SAFETY: The filename is static and the output is a unique live value.
+    let preflight = unsafe {
+        card::open(
+            slot.channel(),
+            c"TOOBIG".as_ptr().cast(),
+            &mut existing_file,
+        )
+    };
+    if preflight == card::CARD_ERROR_READY {
+        // SAFETY: The successful lookup returned a unique live file handle.
+        let close = unsafe { card::sys::close(&mut existing_file) };
+        logger.record(
+            "CARD existing TOOBIG preflight handle cleanup",
+            close == card::CARD_ERROR_READY,
+        );
+        logger.note("card allocation-boundary check skipped: TOOBIG already exists");
+        return true;
+    }
+    if preflight != card::CARD_ERROR_NOFILE {
+        logger.note_i32("card TOOBIG preflight status", preflight);
+        logger.note("card allocation-boundary check skipped: TOOBIG preflight was inconclusive");
+        return true;
+    }
+    let Some(size) = u32::from(freeblocks)
+        .checked_add(1)
+        .and_then(|blocks| blocks.checked_mul(sector_size))
+    else {
+        logger.record("CARD oversized create size is representable", false);
+        return true;
+    };
+
+    let request = card::create_async_owned(slot, b"TOOBIG", size);
+    let submit = request
+        .as_ref()
+        .map_or_else(|status| *status, |_| card::CARD_ERROR_READY);
+    let result = request
+        .as_ref()
+        .ok()
+        .and_then(|request| wait_card_owned_status(|| request.status(), 15));
+    let completion = match (request, result) {
+        (Ok(request), Some(_)) => request.try_complete().ok(),
+        _ => None,
+    };
+    if submit == card::CARD_ERROR_READY && result.is_none() {
+        logger.record(
+            "CARD create beyond available blocks returns insufficient space",
+            false,
+        );
+        logger.record(
+            "CARD failed oversized create preserves output handle and free space",
+            false,
+        );
+        logger.record("CARD unexpected oversized create cleanup", false);
+        logger.record(
+            "CARD failed oversized create leaves no directory entry",
+            false,
+        );
+        return false;
+    }
+    let (failed_output_is_empty, mut cleanup_ok, created_unexpectedly) = match completion {
+        Some(completion) => {
+            let (status, mut file) = completion.into_parts();
+            if status == card::CARD_ERROR_READY {
+                // SAFETY: A successful completion returns the unique live file handle.
+                let close = unsafe { card::sys::close(&mut file) };
+                (
+                    false,
+                    close == card::CARD_ERROR_READY && delete_card_owned_filename(slot, b"TOOBIG"),
+                    true,
+                )
+            } else {
+                let empty_file = card::CardFile::default();
+                (
+                    status == card::CARD_ERROR_INSSPACE
+                        && file.chn == empty_file.chn
+                        && file.filenum == empty_file.filenum
+                        && file.offset == empty_file.offset
+                        && file.len == empty_file.len
+                        && file.iblock == empty_file.iblock,
+                    true,
+                    false,
+                )
+            }
+        }
+        None => (false, false, false),
+    };
+    if created_unexpectedly && !cleanup_ok {
+        logger.record(
+            "CARD create beyond available blocks returns insufficient space",
+            false,
+        );
+        logger.record(
+            "CARD failed oversized create preserves output handle and free space",
+            false,
+        );
+        logger.record("CARD unexpected oversized create cleanup", false);
+        logger.record(
+            "CARD failed oversized create leaves no directory entry",
+            false,
+        );
+        return false;
+    }
+    let freeblocks_after = card::free_blocks(slot);
+    logger.record(
+        "CARD create beyond available blocks returns insufficient space",
+        submit == card::CARD_ERROR_READY && result == Some(card::CARD_ERROR_INSSPACE),
+    );
+    logger.record(
+        "CARD failed oversized create preserves output handle and free space",
+        failed_output_is_empty && freeblocks_after == Ok(freeblocks),
+    );
+
+    let mut output = card::CardFile::default();
+    // SAFETY: The filename is static and the output is a unique live value.
+    let lookup = unsafe { card::open(slot.channel(), c"TOOBIG".as_ptr().cast(), &mut output) };
+    if lookup == card::CARD_ERROR_READY {
+        // SAFETY: The successful lookup returned a unique live file handle.
+        let close = unsafe { card::sys::close(&mut output) };
+        cleanup_ok &= close == card::CARD_ERROR_READY;
+    }
+    logger.record("CARD unexpected oversized create cleanup", cleanup_ok);
+    logger.record(
+        "CARD failed oversized create leaves no directory entry",
+        lookup == card::CARD_ERROR_NOFILE,
+    );
+    true
 }
 
 fn cleanup_format_marker(logger: &mut ProbeLogger, slot: card::CardSlot) {
