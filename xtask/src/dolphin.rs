@@ -237,6 +237,16 @@ struct Options {
 }
 
 fn validate_format_selection(options: &Options, has_card: bool) -> Result<(), String> {
+    if std::env::var_os("LIBOGC_DOLPHIN_DEV_DOL").is_some()
+        && (options.probes.len() != 1
+            || options.format_private_card
+            || std::env::var_os("LIBOGC_DOLPHIN_CARD_HOTPLUG").is_some())
+    {
+        return Err(
+            "development DOL requires one explicit probe and no card format or hotplug mode"
+                .to_string(),
+        );
+    }
     if std::env::var_os("LIBOGC_DOLPHIN_CARD_HOTPLUG").is_some()
         && (!matches!(options.probes.as_slice(), [probe] if probe == "card_probe")
             || !has_card
@@ -813,14 +823,23 @@ fn run_probe(
     copy_nand(nand_source, &nand_copy.path)?;
     let isfs_tmp = user_dir.join("Wii/tmp");
     fs::create_dir_all(&isfs_tmp).map_err(|err| format!("{}: {err}", isfs_tmp.display()))?;
-    let dol_path = dolphin_probe_dol_path(root, spec);
+    let dev_dol = std::env::var_os("LIBOGC_DOLPHIN_DEV_DOL").map(PathBuf::from);
+    let dol_path = dev_dol
+        .clone()
+        .unwrap_or_else(|| dolphin_probe_dol_path(root, spec));
     if !dol_path.is_file() {
         return Err(format!(
             "Dolphin probe DOL is missing: {}",
             dol_path.display()
         ));
     }
-    let symbol_elf = dolphin_probe_elf_path(root, spec);
+    let symbol_elf = if dev_dol.is_some() {
+        std::env::var_os("LIBOGC_DOLPHIN_DEV_ELF")
+            .map(PathBuf::from)
+            .ok_or("LIBOGC_DOLPHIN_DEV_ELF is required with LIBOGC_DOLPHIN_DEV_DOL")?
+    } else {
+        dolphin_probe_elf_path(root, spec)
+    };
     let symbols = fs::read(&symbol_elf)
         .map_err(|err| format!("{}: {err}", symbol_elf.display()))
         .and_then(|bytes| parse_elf32_symbols(&bytes));
@@ -876,7 +895,10 @@ fn run_probe(
     );
     let mut gdb = GdbClient::connect(gdb_port, Duration::from_secs(10))?;
     gdb.initialise()?;
-    if media.format_private_card || std::env::var_os("LIBOGC_DOLPHIN_CARD_HOTPLUG").is_some() {
+    if media.format_private_card
+        || std::env::var_os("LIBOGC_DOLPHIN_CARD_HOTPLUG").is_some()
+        || dev_dol.is_some()
+    {
         let symbols = symbols
             .as_ref()
             .map_err(|error| format!("card format needs ELF symbols: {error}"))?;
@@ -892,7 +914,18 @@ fn run_probe(
             .checked_add(0x10000)
             .filter(|address| *address < 0x817e0000)
             .ok_or_else(|| "no safe startup argument space".to_string())?;
-        let (header, command) = if media.format_private_card {
+        let dev_command = if dev_dol.is_some() {
+            format!("{}.dol\0--report=127.0.0.1:4298\0--run-id=dolphin-debug\0--build-id={}\0--recovery-reset-ms=180000\0", spec.name, sha256_file(&dol_path)?).into_bytes()
+        } else {
+            Vec::new()
+        };
+        let (header, command) = if dev_dol.is_some() {
+            let mut header = [0u8; 12];
+            header[..4].copy_from_slice(&0x5f61_7267u32.to_be_bytes());
+            header[4..8].copy_from_slice(&buffer_address.to_be_bytes());
+            header[8..].copy_from_slice(&(dev_command.len() as u32).to_be_bytes());
+            (header, dev_command.as_slice())
+        } else if media.format_private_card {
             format_card_boot_arguments(buffer_address, spec.name)
         } else {
             hotplug_card_boot_arguments(buffer_address)
