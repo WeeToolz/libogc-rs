@@ -237,6 +237,13 @@ struct Options {
 }
 
 fn validate_format_selection(options: &Options, has_card: bool) -> Result<(), String> {
+    if std::env::var_os("LIBOGC_DOLPHIN_CARD_HOTPLUG").is_some()
+        && (!matches!(options.probes.as_slice(), [probe] if probe == "card_probe")
+            || !has_card
+            || options.format_private_card)
+    {
+        return Err("LIBOGC_DOLPHIN_CARD_HOTPLUG requires only --probe card_probe, a card image, and no format option".to_string());
+    }
     if options.format_private_card
         && (!matches!(options.probes.as_slice(), [probe] if probe == "storage_probe" || probe == "card_probe")
             || !has_card)
@@ -254,6 +261,15 @@ fn format_card_boot_arguments(address: u32, probe: &str) -> ([u8; 12], &'static 
         "card_probe" => b"card_probe.dol\0--destructive-card-format=ERASE-SLOT-A\0".as_slice(),
         _ => unreachable!("format probe selection is validated"),
     };
+    let mut header = [0; 12];
+    header[..4].copy_from_slice(&0x5f61_7267u32.to_be_bytes());
+    header[4..8].copy_from_slice(&address.to_be_bytes());
+    header[8..].copy_from_slice(&(command.len() as u32).to_be_bytes());
+    (header, command)
+}
+
+fn hotplug_card_boot_arguments(address: u32) -> ([u8; 12], &'static [u8]) {
+    let command = b"card_probe.dol\0--card-hotplug\0".as_slice();
     let mut header = [0; 12];
     header[..4].copy_from_slice(&0x5f61_7267u32.to_be_bytes());
     header[4..8].copy_from_slice(&address.to_be_bytes());
@@ -860,7 +876,7 @@ fn run_probe(
     );
     let mut gdb = GdbClient::connect(gdb_port, Duration::from_secs(10))?;
     gdb.initialise()?;
-    if media.format_private_card {
+    if media.format_private_card || std::env::var_os("LIBOGC_DOLPHIN_CARD_HOTPLUG").is_some() {
         let symbols = symbols
             .as_ref()
             .map_err(|error| format!("card format needs ELF symbols: {error}"))?;
@@ -876,7 +892,11 @@ fn run_probe(
             .checked_add(0x10000)
             .filter(|address| *address < 0x817e0000)
             .ok_or_else(|| "no safe startup argument space".to_string())?;
-        let (header, command) = format_card_boot_arguments(buffer_address, spec.name);
+        let (header, command) = if media.format_private_card {
+            format_card_boot_arguments(buffer_address, spec.name)
+        } else {
+            hotplug_card_boot_arguments(buffer_address)
+        };
         gdb.write_memory(buffer_address, command)?;
         gdb.write_memory(header_address, &header)?;
     }
@@ -2240,6 +2260,20 @@ mod tests {
         );
     }
     use super::*;
+
+    #[test]
+    fn card_hotplug_boot_arguments_select_the_opt_in_probe() {
+        let (header, command) = hotplug_card_boot_arguments(0x8132_fc00);
+        assert_eq!(
+            &header[..8],
+            &[0x5f, 0x61, 0x72, 0x67, 0x81, 0x32, 0xfc, 0x00]
+        );
+        assert_eq!(
+            u32::from_be_bytes(header[8..].try_into().unwrap()) as usize,
+            command.len()
+        );
+        assert_eq!(command, b"card_probe.dol\0--card-hotplug\0");
+    }
 
     #[test]
     fn rejects_blank_green_pages_but_accepts_visible_content() {
