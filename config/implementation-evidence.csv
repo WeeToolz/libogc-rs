@@ -1714,3 +1714,5 @@ ogc-card-sys,src/lib.rs,write,364,hardware,hardware-probe,probes/ogc-system-prob
 ogc-card-sys,src/wii_backend.rs,write,2446,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data
 ogc-usbstorage-sys,src/lib.rs,inquiry,440,hardware,hardware-probe,probes/ogc-system-probe/src/usbstorage_capacity_probe.rs,probe_public_facade,sys::inquiry
 ogc-usbstorage-sys,src/wii_backend.rs,inquiry,1929,hardware,hardware-probe,probes/ogc-system-probe/src/usbstorage_capacity_probe.rs,probe_public_facade,sys::inquiry
+ogc-network,src/lib.rs,send_to_slice,706,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,exercise_udp_pair,network::send_to_slice
+ogc-network,src/lib.rs,recv_from_slice,740,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,exercise_udp_pair,network::recv_from_slice

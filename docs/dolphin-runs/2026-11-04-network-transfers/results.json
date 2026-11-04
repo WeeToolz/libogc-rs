@@ -1,0 +1,35 @@
+{
+  "standard": {
+    "dol_sha256": "00afa6bc0bda578b170ce5ba17a40ed3b3f78dff9136f7811e42d3091b27fd60",
+    "status": "pass",
+    "passes": 66,
+    "fails": 0,
+    "summary_line": "PASS summary passes=66 fails=0",
+    "page_capture_count": 6,
+    "pages_valid": true
+  },
+  "development": {
+    "dol_sha256": "32e93aeaf79f6f9de0f15a884b3691b83e75aff10bc6e246248337818302ae9e",
+    "status": "pass",
+    "passes": 66,
+    "fails": 0,
+    "summary_line": "PASS summary passes=66 fails=0",
+    "page_capture_count": 6,
+    "pages_valid": true
+  },
+  "hbc_input": {
+    "dol_sha256": "320e6fa9bb43ea55b82005b32d986f511eff2179f70c7169c97471b4e321d8d1",
+    "success": true,
+    "transport": "HBC TCP input protocol",
+    "control": false
+  },
+  "hbc_control": {
+    "state": "failed",
+    "operation": 7,
+    "id": 102,
+    "session": 1003277424,
+    "message": "Screenshot failed: NoStorage",
+    "success": true
+  },
+  "hbc_test_tools_revision": "cff30a0"
+}

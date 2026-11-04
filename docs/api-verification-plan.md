@@ -16,6 +16,12 @@ existing test or probe before selecting cases.
 
 ## Current network probe result
 
+The [network transfer batch](dolphin-runs/2026-11-04-network-transfers/README.md)
+adds UDP loopback byte and sender checks. Standard and development DOLs each
+pass 66 checks; the HBC TCP integration test also passes with its recorded DOL.
+These results do not establish current-SDK TCP peer coverage or physical Wii
+behavior.
+
 The [2026-11-04 fixed network run](dolphin-runs/2026-11-04-network-fixed/README.md)
 passed 52 checks with both standard and development DOLs. It requires the
 saved macOS Dolphin socket-option patch. The report separates the controlled
