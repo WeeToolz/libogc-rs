@@ -184,49 +184,49 @@ lwbt-sys,shutdown,rust-function,crates/compatibility/lwbt-sys/src/lib.rs,356,unv
 lwbt-sys,try_init,rust-function,crates/compatibility/lwbt-sys/src/lib.rs,310,unverified,ios,none,bluetooth-probe,declared `ios` without exact API test or probe evidence
 lwbt-sys,try_shutdown,rust-function,crates/compatibility/lwbt-sys/src/lib.rs,331,unverified,ios,none,bluetooth-probe,declared `ios` without exact API test or probe evidence
 lwbt-sys,write_stored_link_key,rust-function,crates/compatibility/lwbt-sys/src/lib.rs,667,unverified,ios,none,bluetooth-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,accept,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,988,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,accept,rust-function,crates/services/lwip-sys/src/lib.rs,1562,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,bind,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,806,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::probe_short_wii_sockaddr calls bind,network-probe,See crate contract for socket-compatibility role and hardware validation status
-lwip-sys,bind,rust-function,crates/services/lwip-sys/src/lib.rs,1474,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::probe_short_wii_sockaddr calls bind,network-probe,See crate contract for socket-compatibility role and hardware validation status
-lwip-sys,close,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,791,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::run calls close,network-probe,See crate contract for socket-compatibility role and hardware validation status
-lwip-sys,close,rust-function,crates/services/lwip-sys/src/lib.rs,1463,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::run calls close,network-probe,See crate contract for socket-compatibility role and hardware validation status
-lwip-sys,connect,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,937,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::probe_short_wii_sockaddr calls connect,network-probe,See crate contract for socket-compatibility role and hardware validation status
-lwip-sys,connect,rust-function,crates/services/lwip-sys/src/lib.rs,1546,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::probe_short_wii_sockaddr calls connect,network-probe,See crate contract for socket-compatibility role and hardware validation status
-lwip-sys,get_peer_name,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,858,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,get_peer_name,rust-function,crates/services/lwip-sys/src/lib.rs,1490,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,get_socket_name,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,877,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,get_socket_name,rust-function,crates/services/lwip-sys/src/lib.rs,1501,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,get_socket_option,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,896,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,get_socket_option,rust-function,crates/services/lwip-sys/src/lib.rs,1512,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,ioctl,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,1320,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,ioctl,rust-function,crates/services/lwip-sys/src/lib.rs,1683,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,listen,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,974,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,listen,rust-function,crates/services/lwip-sys/src/lib.rs,1551,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,accept,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,1027,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,accept,rust-function,crates/services/lwip-sys/src/lib.rs,1601,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,bind,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,808,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::probe_short_wii_sockaddr calls bind,network-probe,See crate contract for socket-compatibility role and hardware validation status
+lwip-sys,bind,rust-function,crates/services/lwip-sys/src/lib.rs,1513,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::probe_short_wii_sockaddr calls bind,network-probe,See crate contract for socket-compatibility role and hardware validation status
+lwip-sys,close,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,793,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::run calls close,network-probe,See crate contract for socket-compatibility role and hardware validation status
+lwip-sys,close,rust-function,crates/services/lwip-sys/src/lib.rs,1502,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::run calls close,network-probe,See crate contract for socket-compatibility role and hardware validation status
+lwip-sys,connect,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,976,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::probe_short_wii_sockaddr calls connect,network-probe,See crate contract for socket-compatibility role and hardware validation status
+lwip-sys,connect,rust-function,crates/services/lwip-sys/src/lib.rs,1585,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::probe_short_wii_sockaddr calls connect,network-probe,See crate contract for socket-compatibility role and hardware validation status
+lwip-sys,get_peer_name,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,860,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,get_peer_name,rust-function,crates/services/lwip-sys/src/lib.rs,1529,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,get_socket_name,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,879,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,get_socket_name,rust-function,crates/services/lwip-sys/src/lib.rs,1540,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,get_socket_option,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,898,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,get_socket_option,rust-function,crates/services/lwip-sys/src/lib.rs,1551,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,ioctl,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,1359,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,ioctl,rust-function,crates/services/lwip-sys/src/lib.rs,1722,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,listen,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,1013,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,listen,rust-function,crates/services/lwip-sys/src/lib.rs,1590,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 lwip-sys,option_to_ios,rust-function,crates/services/lwip-sys/src/ios_socket_flags.rs,23,pure,pure,host-test:crates/services/lwip-sys/src/ios_socket_flags.rs::tcp_option_number_changes_only_at_tcp_level calls option_to_ios,network-probe,Maps the public TCP option number to the IOS ABI value without performing I/O
-lwip-sys,poll,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,1264,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,poll,rust-function,crates/services/lwip-sys/src/lib.rs,1672,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,read,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,1045,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,read,rust-function,crates/services/lwip-sys/src/lib.rs,1584,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,receive_from,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,1052,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,receive_from,rust-function,crates/services/lwip-sys/src/lib.rs,1595,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,recv,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,1029,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,recv,rust-function,crates/services/lwip-sys/src/lib.rs,1573,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,select,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,1180,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,select,rust-function,crates/services/lwip-sys/src/lib.rs,1653,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,send,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,1130,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,send,rust-function,crates/services/lwip-sys/src/lib.rs,1613,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,send_to,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,1137,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,send_to,rust-function,crates/services/lwip-sys/src/lib.rs,1624,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,set_network_top_fd,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,528,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,set_network_top_fd,rust-function,crates/services/lwip-sys/src/lib.rs,1454,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,set_socket_option,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,910,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,set_socket_option,rust-function,crates/services/lwip-sys/src/lib.rs,1529,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,shutdown,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,843,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::run calls shutdown,network-probe,See crate contract for socket-compatibility role and hardware validation status
-lwip-sys,shutdown,rust-function,crates/services/lwip-sys/src/lib.rs,1479,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::run calls shutdown,network-probe,See crate contract for socket-compatibility role and hardware validation status
-lwip-sys,socket,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,752,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::run calls socket,network-probe,See crate contract for socket-compatibility role and hardware validation status; source review: discards 1 operation result(s) with a wildcard binding
-lwip-sys,socket,rust-function,crates/services/lwip-sys/src/lib.rs,1458,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::run calls socket,network-probe,See crate contract for socket-compatibility role and hardware validation status
-lwip-sys,write,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,1173,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-lwip-sys,write,rust-function,crates/services/lwip-sys/src/lib.rs,1642,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,poll,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,1303,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,poll,rust-function,crates/services/lwip-sys/src/lib.rs,1711,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,read,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,1084,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,read,rust-function,crates/services/lwip-sys/src/lib.rs,1623,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,receive_from,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,1091,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,receive_from,rust-function,crates/services/lwip-sys/src/lib.rs,1634,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,recv,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,1068,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,recv,rust-function,crates/services/lwip-sys/src/lib.rs,1612,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,select,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,1219,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,select,rust-function,crates/services/lwip-sys/src/lib.rs,1692,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,send,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,1169,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,send,rust-function,crates/services/lwip-sys/src/lib.rs,1652,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,send_to,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,1176,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,send_to,rust-function,crates/services/lwip-sys/src/lib.rs,1663,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,set_network_top_fd,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,530,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,set_network_top_fd,rust-function,crates/services/lwip-sys/src/lib.rs,1493,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,set_socket_option,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,949,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,set_socket_option,rust-function,crates/services/lwip-sys/src/lib.rs,1568,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,shutdown,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,845,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::run calls shutdown,network-probe,See crate contract for socket-compatibility role and hardware validation status
+lwip-sys,shutdown,rust-function,crates/services/lwip-sys/src/lib.rs,1518,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::run calls shutdown,network-probe,See crate contract for socket-compatibility role and hardware validation status
+lwip-sys,socket,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,754,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::run calls socket,network-probe,See crate contract for socket-compatibility role and hardware validation status; source review: discards 1 operation result(s) with a wildcard binding
+lwip-sys,socket,rust-function,crates/services/lwip-sys/src/lib.rs,1497,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::run calls socket,network-probe,See crate contract for socket-compatibility role and hardware validation status
+lwip-sys,write,rust-method-or-module-function,crates/services/lwip-sys/src/lib.rs,1212,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+lwip-sys,write,rust-function,crates/services/lwip-sys/src/lib.rs,1681,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 mad-sys,bit_crc,rust-function,crates/media/mad-sys/src/imp/bit.rs,118,pure,pure,host-test:crates/media/mad-sys/src/imp/bit.rs::bit_cursor_and_crc_match_reference_examples calls bit_crc,audio-probe,See crate contract for mp3-decoder role and hardware validation status
 mad-sys,bit_init,rust-function,crates/media/mad-sys/src/imp/bit.rs,12,pure,pure,host-test:crates/media/mad-sys/src/imp/bit.rs::bit_cursor_and_crc_match_reference_examples calls bit_init,audio-probe,See crate contract for mp3-decoder role and hardware validation status
 mad-sys,bit_length,rust-function,crates/media/mad-sys/src/imp/bit.rs,27,pure,pure,host-test:crates/media/mad-sys/src/imp/bit.rs::bit_cursor_and_crc_match_reference_examples calls bit_length,audio-probe,See crate contract for mp3-decoder role and hardware validation status
@@ -2185,7 +2185,7 @@ ogc-network,wc24_cleanup,rust-function,crates/services/ogc-network/src/lib.rs,91
 ogc-network,write,rust-function,crates/services/ogc-network/src/lib.rs,553,unverified,compatibility-forwarder,none,network-probe,declared `compatibility-forwarder` without exact API test or probe evidence
 ogc-network,write_slice,rust-function,crates/services/ogc-network/src/lib.rs,686,unverified,compatibility-forwarder,none,network-probe,declared `compatibility-forwarder` without exact API test or probe evidence
 ogc-network-sys,_net_convert_error,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1154,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,_net_convert_error,rust-function,crates/services/ogc-network-sys/src/lib.rs,1988,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,_net_convert_error,rust-function,crates/services/ogc-network-sys/src/lib.rs,1991,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 ogc-network-sys,accept,rust-method-or-module-function,crates/services/ogc-network-sys/src/std_net.rs,368,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 ogc-network-sys,address,rust-method-or-module-function,crates/services/ogc-network-sys/src/std_net.rs,381,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 ogc-network-sys,bind,rust-method-or-module-function,crates/services/ogc-network-sys/src/std_net.rs,309,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
@@ -2194,82 +2194,82 @@ ogc-network-sys,connect,rust-method-or-module-function,crates/services/ogc-netwo
 ogc-network-sys,decode,rust-method-or-module-function,crates/services/ogc-network-sys/src/socket_error.rs,22,protocol,protocol,host-test:tests/wii-std-errors/mappings.rs::ipc_and_ios_codes_remain_distinct_and_keep_original_details calls decode,wii-std-error-cleanup-probe,Allocation-free error translation or diagnostic state; hardware transport acceptance remains separate
 ogc-network-sys,encoded,rust-method-or-module-function,crates/services/ogc-network-sys/src/socket_error.rs,19,protocol,protocol,host-test:tests/wii-std-errors/mappings.rs::ipc_and_ios_codes_remain_distinct_and_keep_original_details calls encoded,wii-std-error-cleanup-probe,Allocation-free error translation or diagnostic state; hardware transport acceptance remains separate
 ogc-network-sys,errno,rust-method-or-module-function,crates/services/ogc-network-sys/src/socket_error.rs,28,protocol,protocol,host-test:tests/wii-std-errors/mappings.rs::ipc_and_ios_codes_remain_distinct_and_keep_original_details calls errno,wii-std-error-cleanup-probe,Allocation-free error translation or diagnostic state; hardware transport acceptance remains separate
-ogc-network-sys,if_config,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1668,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,if_config,rust-function,crates/services/ogc-network-sys/src/lib.rs,2284,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::run calls if_config,network-probe,See crate contract for network-driver-abi role and hardware validation status
-ogc-network-sys,if_configex,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1704,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,if_configex,rust-function,crates/services/ogc-network-sys/src/lib.rs,2306,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,if_config,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1671,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,if_config,rust-function,crates/services/ogc-network-sys/src/lib.rs,2287,ios,ios,hardware-probe:probes/ogc-system-probe/src/network_probe.rs::run calls if_config,network-probe,See crate contract for network-driver-abi role and hardware validation status
+ogc-network-sys,if_configex,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1707,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,if_configex,rust-function,crates/services/ogc-network-sys/src/lib.rs,2309,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 ogc-network-sys,inet_addr,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1317,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,inet_addr,rust-function,crates/services/ogc-network-sys/src/lib.rs,2014,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,inet_addr,rust-function,crates/services/ogc-network-sys/src/lib.rs,2017,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 ogc-network-sys,initialization_close_failures,rust-function,crates/services/ogc-network-sys/src/ipc_cleanup.rs,6,pure,pure,host-test:tests/wii-std-errors/mappings.rs::initialization_reports_close_failure_and_retains_secondary_errors calls initialization_close_failures,wii-std-error-cleanup-probe,Allocation-free error translation or diagnostic state; hardware transport acceptance remains separate
 ogc-network-sys,initialize,rust-function,crates/services/ogc-network-sys/src/std_net.rs,66,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,ip4_addr,rust-function,crates/services/ogc-network-sys/src/lib.rs,1923,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,ip4_addr1,rust-function,crates/services/ogc-network-sys/src/lib.rs,1927,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,ip4_addr2,rust-function,crates/services/ogc-network-sys/src/lib.rs,1931,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,ip4_addr3,rust-function,crates/services/ogc-network-sys/src/lib.rs,1935,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,ip4_addr4,rust-function,crates/services/ogc-network-sys/src/lib.rs,1939,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,iptos_prec,rust-function,crates/services/ogc-network-sys/src/lib.rs,1919,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,iptost,rust-function,crates/services/ogc-network-sys/src/lib.rs,1915,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,ip4_addr,rust-function,crates/services/ogc-network-sys/src/lib.rs,1926,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,ip4_addr1,rust-function,crates/services/ogc-network-sys/src/lib.rs,1930,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,ip4_addr2,rust-function,crates/services/ogc-network-sys/src/lib.rs,1934,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,ip4_addr3,rust-function,crates/services/ogc-network-sys/src/lib.rs,1938,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,ip4_addr4,rust-function,crates/services/ogc-network-sys/src/lib.rs,1942,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,iptos_prec,rust-function,crates/services/ogc-network-sys/src/lib.rs,1922,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,iptost,rust-function,crates/services/ogc-network-sys/src/lib.rs,1918,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 ogc-network-sys,last_initialization_close_error,rust-function,crates/services/ogc-network-sys/src/ipc_cleanup.rs,10,pure,pure,host-test:tests/wii-std-errors/mappings.rs::initialization_reports_close_failure_and_retains_secondary_errors calls last_initialization_close_error,wii-std-error-cleanup-probe,Allocation-free error translation or diagnostic state; hardware transport acceptance remains separate
 ogc-network-sys,local,rust-method-or-module-function,crates/services/ogc-network-sys/src/socket_error.rs,9,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 ogc-network-sys,lookup,rust-function,crates/services/ogc-network-sys/src/std_net.rs,575,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_accept,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1342,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_accept,rust-function,crates/services/ogc-network-sys/src/lib.rs,2046,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_accept,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1345,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_accept,rust-function,crates/services/ogc-network-sys/src/lib.rs,2049,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 ogc-network-sys,net_attach_active,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,685,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_attach_active,rust-function,crates/services/ogc-network-sys/src/lib.rs,1948,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_attach_active,rust-function,crates/services/ogc-network-sys/src/lib.rs,1951,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 ogc-network-sys,net_bind,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1327,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_bind,rust-function,crates/services/ogc-network-sys/src/lib.rs,2027,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_close,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1504,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_close,rust-function,crates/services/ogc-network-sys/src/lib.rs,2246,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_connect,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1352,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_connect,rust-function,crates/services/ogc-network-sys/src/lib.rs,2059,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_bind,rust-function,crates/services/ogc-network-sys/src/lib.rs,2030,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_close,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1507,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_close,rust-function,crates/services/ogc-network-sys/src/lib.rs,2249,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_connect,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1355,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_connect,rust-function,crates/services/ogc-network-sys/src/lib.rs,2062,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 ogc-network-sys,net_deinit,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1131,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_deinit,rust-function,crates/services/ogc-network-sys/src/lib.rs,1983,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_fcntl,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1830,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_fcntl,rust-function,crates/services/ogc-network-sys/src/lib.rs,2231,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_deinit,rust-function,crates/services/ogc-network-sys/src/lib.rs,1986,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_fcntl,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1833,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_fcntl,rust-function,crates/services/ogc-network-sys/src/lib.rs,2234,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 ogc-network-sys,net_get_mac_address,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1096,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_get_mac_address,rust-function,crates/services/ogc-network-sys/src/lib.rs,1976,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_get_mac_address,rust-function,crates/services/ogc-network-sys/src/lib.rs,1979,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 ogc-network-sys,net_get_status,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1063,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_get_status,rust-function,crates/services/ogc-network-sys/src/lib.rs,1963,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_get_status,rust-function,crates/services/ogc-network-sys/src/lib.rs,1966,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 ogc-network-sys,net_gethostbyname,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1198,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_gethostbyname,rust-function,crates/services/ogc-network-sys/src/lib.rs,2001,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_gethostbyname,rust-function,crates/services/ogc-network-sys/src/lib.rs,2004,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 ogc-network-sys,net_gethostip,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1183,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_gethostip,rust-function,crates/services/ogc-network-sys/src/lib.rs,1993,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_getsockname,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1481,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_getsockname,rust-function,crates/services/ogc-network-sys/src/lib.rs,2211,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_getsockopt,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1440,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_getsockopt,rust-function,crates/services/ogc-network-sys/src/lib.rs,2168,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_gethostip,rust-function,crates/services/ogc-network-sys/src/lib.rs,1996,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_getsockname,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1484,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_getsockname,rust-function,crates/services/ogc-network-sys/src/lib.rs,2214,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_getsockopt,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1443,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_getsockopt,rust-function,crates/services/ogc-network-sys/src/lib.rs,2171,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 ogc-network-sys,net_init,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,659,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_init,rust-function,crates/services/ogc-network-sys/src/lib.rs,1943,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_init,rust-function,crates/services/ogc-network-sys/src/lib.rs,1946,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 ogc-network-sys,net_init_async,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1025,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_init_async,rust-function,crates/services/ogc-network-sys/src/lib.rs,1956,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_ioctl,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1492,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_ioctl,rust-function,crates/services/ogc-network-sys/src/lib.rs,2224,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_listen,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1331,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_listen,rust-function,crates/services/ogc-network-sys/src/lib.rs,2034,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_poll,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1615,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_poll,rust-function,crates/services/ogc-network-sys/src/lib.rs,2274,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_read,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1429,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_read,rust-function,crates/services/ogc-network-sys/src/lib.rs,2154,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_recv,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1400,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_recv,rust-function,crates/services/ogc-network-sys/src/lib.rs,2119,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_recvfrom,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1412,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_recvfrom,rust-function,crates/services/ogc-network-sys/src/lib.rs,2134,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_select,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1520,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_select,rust-function,crates/services/ogc-network-sys/src/lib.rs,2255,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_send,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1372,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_send,rust-function,crates/services/ogc-network-sys/src/lib.rs,2085,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_sendto,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1383,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_sendto,rust-function,crates/services/ogc-network-sys/src/lib.rs,2099,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_setsockopt,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1464,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_setsockopt,rust-function,crates/services/ogc-network-sys/src/lib.rs,2189,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_shutdown,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1496,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_shutdown,rust-function,crates/services/ogc-network-sys/src/lib.rs,2236,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_socket,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1500,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_socket,rust-function,crates/services/ogc-network-sys/src/lib.rs,2241,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_init_async,rust-function,crates/services/ogc-network-sys/src/lib.rs,1959,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_ioctl,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1495,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_ioctl,rust-function,crates/services/ogc-network-sys/src/lib.rs,2227,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_listen,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1334,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_listen,rust-function,crates/services/ogc-network-sys/src/lib.rs,2037,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_poll,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1618,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_poll,rust-function,crates/services/ogc-network-sys/src/lib.rs,2277,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_read,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1432,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_read,rust-function,crates/services/ogc-network-sys/src/lib.rs,2157,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_recv,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1403,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_recv,rust-function,crates/services/ogc-network-sys/src/lib.rs,2122,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_recvfrom,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1415,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_recvfrom,rust-function,crates/services/ogc-network-sys/src/lib.rs,2137,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_select,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1523,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_select,rust-function,crates/services/ogc-network-sys/src/lib.rs,2258,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_send,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1375,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_send,rust-function,crates/services/ogc-network-sys/src/lib.rs,2088,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_sendto,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1386,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_sendto,rust-function,crates/services/ogc-network-sys/src/lib.rs,2102,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_setsockopt,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1467,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_setsockopt,rust-function,crates/services/ogc-network-sys/src/lib.rs,2192,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_shutdown,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1499,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_shutdown,rust-function,crates/services/ogc-network-sys/src/lib.rs,2239,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_socket,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1503,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_socket,rust-function,crates/services/ogc-network-sys/src/lib.rs,2244,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 ogc-network-sys,net_wc24cleanup,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1067,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_wc24cleanup,rust-function,crates/services/ogc-network-sys/src/lib.rs,1968,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_write,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1362,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
-ogc-network-sys,net_write,rust-function,crates/services/ogc-network-sys/src/lib.rs,2072,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_wc24cleanup,rust-function,crates/services/ogc-network-sys/src/lib.rs,1971,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_write,rust-method-or-module-function,crates/services/ogc-network-sys/src/lib.rs,1365,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
+ogc-network-sys,net_write,rust-function,crates/services/ogc-network-sys/src/lib.rs,2075,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 ogc-network-sys,new,rust-method-or-module-function,crates/services/ogc-network-sys/src/socket_abi.rs,18,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 ogc-network-sys,receive,rust-method-or-module-function,crates/services/ogc-network-sys/src/std_net.rs,401,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence
 ogc-network-sys,release,rust-method-or-module-function,crates/services/ogc-network-sys/src/std_net.rs,551,unverified,ios,none,network-probe,declared `ios` without exact API test or probe evidence

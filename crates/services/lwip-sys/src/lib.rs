@@ -13,6 +13,7 @@ use core::ptr;
 use core::sync::atomic::{AtomicBool, AtomicI32, Ordering};
 
 mod ios_socket_flags;
+mod socket_option_reply;
 pub use ios_socket_flags::option_to_ios;
 
 macro_rules! powerpc_return {
@@ -283,6 +284,7 @@ mod wii_backend {
     const IOCTL_SO_CONNECT: i32 = 4;
     const IOCTL_SO_FCNTL: i32 = 5;
     const IOCTL_SO_GETSOCKNAME: i32 = 7;
+    const IOCTL_SO_GETSOCKOPT: i32 = 8;
     const IOCTL_SO_SETSOCKOPT: i32 = 9;
     const IOCTL_SO_LISTEN: i32 = 10;
     const IOCTL_SO_POLL: i32 = 11;
@@ -894,14 +896,51 @@ mod wii_backend {
     ///
     /// Every non-null raw pointer must satisfy the size, alignment, initialization, mutability, aliasing, and lifetime requirements implied by the other arguments and the underlying Wii/libogc operation.
     pub unsafe fn get_socket_option(
-        _s: i32,
-        _level: i32,
-        _optname: i32,
-        _optval: *mut c_void,
-        _optlen: *mut SockLenT,
+        s: i32,
+        level: i32,
+        optname: i32,
+        optval: *mut c_void,
+        optlen: *mut SockLenT,
     ) -> i32 {
-        // Wii libogc leaves net_getsockopt unimplemented and always reports EINVAL.
-        -EINVAL
+        if optval.is_null() || optlen.is_null() {
+            return -EINVAL;
+        }
+        let capacity = unsafe { *optlen } as usize;
+        if capacity == 0 {
+            return -EINVAL;
+        }
+        let fd = match top_fd() {
+            Ok(fd) => fd,
+            Err(error) => return error,
+        };
+        let mut output = Aligned([0u32; 9]);
+        output.0[0] = s as u32;
+        output.0[1] = level as u32;
+        output.0[2] = crate::option_to_ios(level as u32, optname as u32);
+        output.0[3] = capacity.min(20) as u32;
+        // SAFETY: This aligned request contains nine initialized words.
+        let bytes =
+            unsafe { core::slice::from_raw_parts_mut(output.0.as_mut_ptr().cast::<u8>(), 36) };
+        let result = fd.ioctl(
+            IOCTL_SO_GETSOCKOPT,
+            IoctlBuffers::from_slices(None, Some(bytes)),
+        );
+        if result < 0 {
+            return result;
+        }
+        // SAFETY: The aligned response contains exactly 36 initialized bytes.
+        let reply = unsafe { &*output.0.as_ptr().cast::<[u8; 36]>() };
+        let payload = match crate::socket_option_reply::payload(reply, capacity) {
+            Ok(payload) => payload,
+            Err(error) => return error,
+        };
+        let returned = payload.len();
+        // SAFETY: The caller provides capacity bytes; IOS returned at most that amount.
+        unsafe {
+            core::ptr::copy_nonoverlapping(payload.as_ptr(), optval.cast::<u8>(), returned);
+            *optlen = returned as SockLenT;
+        }
+        result
     }
 
     /// # Safety
@@ -1801,7 +1840,7 @@ mod tests {
     }
 
     #[test]
-    fn getsockopt_matches_wii_unimplemented_result() {
+    fn getsockopt_rejects_null_output() {
         assert_eq!(
             unsafe { get_socket_option(7, SOL_SOCKET, SO_TYPE, ptr::null_mut(), ptr::null_mut()) },
             -EINVAL

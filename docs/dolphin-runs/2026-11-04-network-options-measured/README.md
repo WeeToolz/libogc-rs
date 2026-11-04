@@ -1,5 +1,7 @@
 # Network socket option diagnostics
 
+Current results for these checks are in the [fixed network run](../2026-11-04-network-fixed/README.md). This report is historical evidence.
+
 An experimental IOS getsockopt implementation and temporary option logging
 ran on Dolphin. The [log](probe.log) records 44 passes and seven failures. The
 local IP is redacted. The experiment was reverted; the committed baseline has
