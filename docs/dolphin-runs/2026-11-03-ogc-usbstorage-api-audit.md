@@ -31,17 +31,17 @@ call. Some assertions combine calls; none proves device-backed success.
 | `deinitialize`, `try_deinitialize` | `safe USB deinitialize completes after the no-device probe`; `usb storage deinitialize` | No-device teardown result. |
 | `open`, `try_open` | `safe USB open preserves the raw no-device error and cleans its handle`; pending `closed USB handle reports zero LUNs and rejects LUN zero before transport` | Failed-open cleanup is covered by saved runtime evidence; non-null closed-handle behavior is pending a Dolphin run. |
 | `close`, `try_close` | `raw and safe USB close reject null handles`; pending `closing an unopened USB handle reports no interface and stays closed` | Null-handle behavior has saved runtime evidence; non-null closed-handle behavior is pending a Dolphin run. |
-| `flush`, `try_flush` | `raw and safe USB flush map null handle to interface error` | Null-handle error mapping. |
+| `flush`, `try_flush` | `raw and safe USB flush map null handle to interface error`; pending `closed USB handle rejects flush reset suspend and start-stop` | Null and closed-handle errors; the closed-handle check is pending Dolphin. |
 | `flush_default`, `try_flush_default` | `default USB flush reports no mounted storage` | No-mounted-drive result. |
-| `reset`, `try_reset` | `safe USB reset maps null handle to interface error` | Null-handle error mapping. |
+| `reset`, `try_reset` | `safe USB reset maps null handle to interface error`; pending `closed USB handle rejects flush reset suspend and start-stop` | Null and closed-handle errors; the closed-handle check is pending Dolphin. |
 | `get_max_lun`, `try_get_max_lun` | `safe USB GetMaxLUN maps null handle to interface error`; pending `closed USB handle reports zero LUNs and rejects LUN zero before transport` | Null-handle behavior has saved runtime evidence; non-null closed-handle behavior is pending a Dolphin run. |
 | `mount_lun`, `try_mount_lun` | `safe USB mount maps null handle to interface error`; pending `closed USB handle reports zero LUNs and rejects LUN zero before transport` | Null-handle behavior has saved runtime evidence; non-null closed-handle behavior is pending a Dolphin run. |
-| `suspend`, `try_suspend` | `safe USB suspend maps null handle to interface error` | Null-handle error mapping. |
+| `suspend`, `try_suspend` | `safe USB suspend maps null handle to interface error`; pending `closed USB handle rejects flush reset suspend and start-stop` | Null and closed-handle errors; the closed-handle check is pending Dolphin. |
 | `is_dvd`, `try_is_dvd` | `safe USB DVD query maps the raw no-device result` | No-device result and typed bool conversion. |
 | `read_capacity`, `try_read_capacity` | `safe USB capacity maps null handle to interface error`; `raw safe USB capacity rejects a null handle and preserves outputs`; pending `closed USB handle reports zero LUNs and rejects LUN zero before transport` | Null-handle behavior has saved runtime evidence; non-null closed-handle errors and output preservation are pending a Dolphin run. |
 | `read`, `try_read` | `raw and safe USB reads reject null handles and preserve output`; pending `closed USB handle reports zero LUNs and rejects LUN zero before transport` | Null-handle behavior has saved runtime evidence; non-null closed-handle errors and buffer preservation are pending a Dolphin run. |
 | `write`, `try_write` | `raw and safe USB writes reject null handles`; pending `closed USB handle reports zero LUNs and rejects LUN zero before transport` | Null-handle behavior has saved runtime evidence; non-null closed-handle behavior is pending a Dolphin run. |
-| `start_stop`, `try_start_stop` | `safe USB start-stop reports a missing storage interface` | Missing-interface result and typed error conversion. |
+| `start_stop`, `try_start_stop` | `safe USB start-stop reports a missing storage interface`; pending `closed USB handle rejects flush reset suspend and start-stop` | Missing-interface and closed-handle errors; the closed-handle check is pending Dolphin. |
 
 ## Sys wrappers and C ABI
 
