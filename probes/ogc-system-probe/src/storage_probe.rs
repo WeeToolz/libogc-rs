@@ -93,6 +93,7 @@ pub fn run(logger: &mut ProbeLogger, destructive_card_format: bool) {
     probe_sd_interface(logger);
     OGC_STORAGE_PROBE_STAGE.store(4, Ordering::Release);
     probe_card_save_data(logger);
+    probe_card_mount_lifecycles(logger);
     if destructive_card_format {
         probe_card_format(logger);
     } else {
@@ -121,6 +122,7 @@ pub fn run(logger: &mut ProbeLogger, destructive_card_format: bool) {
 pub fn run_card_probe(logger: &mut ProbeLogger, destructive_card_format: bool) {
     logger.section("GAMECUBE CARD PROBE");
     probe_card_save_data(logger);
+    probe_card_mount_lifecycles(logger);
     if destructive_card_format {
         probe_card_format(logger);
     } else {
@@ -3271,6 +3273,73 @@ fn cleanup_format_marker(logger: &mut ProbeLogger, slot: card::CardSlot) {
     logger.record(
         "card format marker setup cleanup",
         status == card::CARD_ERROR_READY,
+    );
+}
+
+fn probe_card_mount_lifecycles(logger: &mut ProbeLogger) {
+    logger.section("CARD SYNC MOUNT LIFECYCLES");
+    let slot = card::CardSlot::A;
+    let mut workarea = Workarea([0; card::CARD_WORKAREA_SIZE as usize]);
+    let workarea_ptr = workarea.0.as_mut_ptr().cast();
+
+    // SAFETY: `workarea` is aligned and remains live through unmount.
+    let wrapper_mount = unsafe { card::mount(slot.channel(), workarea_ptr, None) };
+    logger.note_i32("CARD wrapper sync mount result", wrapper_mount);
+    logger.record(
+        "CARD wrapper sync mount succeeds",
+        wrapper_mount == card::CARD_ERROR_READY,
+    );
+    if wrapper_mount != card::CARD_ERROR_READY {
+        logger.note("CARD direct sys mount checks skipped: wrapper mount failed");
+        return;
+    }
+    logger.record(
+        "CARD wrapper mount exposes sector size",
+        card::sector_size(slot).is_ok_and(|size| size >= card::CARD_READSIZE),
+    );
+    let wrapper_unmount = card::unmount(slot.channel());
+    logger.note_i32("CARD wrapper sync unmount result", wrapper_unmount);
+    logger.record(
+        "CARD wrapper sync unmount succeeds",
+        wrapper_unmount == card::CARD_ERROR_READY,
+    );
+    let wrapper_unmounted = card::free_blocks(slot) == Err(card::CARD_ERROR_NOCARD);
+    logger.record(
+        "CARD wrapper unmount clears mounted state",
+        wrapper_unmounted,
+    );
+    if wrapper_unmount != card::CARD_ERROR_READY || !wrapper_unmounted {
+        let cleanup = card::sys::unmount(slot.channel());
+        logger.record(
+            "CARD wrapper unmount cleanup",
+            cleanup == card::CARD_ERROR_READY,
+        );
+        return;
+    }
+
+    // SAFETY: the same aligned workarea remains live through the direct sys unmount.
+    let sys_mount = unsafe { card::sys::mount(slot.channel(), workarea_ptr, None) };
+    logger.note_i32("CARD sys sync mount result", sys_mount);
+    logger.record(
+        "CARD sys sync mount succeeds",
+        sys_mount == card::CARD_ERROR_READY,
+    );
+    if sys_mount != card::CARD_ERROR_READY {
+        return;
+    }
+    logger.record(
+        "CARD sys mount exposes sector size",
+        card::sector_size(slot).is_ok_and(|size| size >= card::CARD_READSIZE),
+    );
+    let sys_unmount = card::sys::unmount(slot.channel());
+    logger.note_i32("CARD sys unmount result", sys_unmount);
+    logger.record(
+        "CARD sys unmount succeeds",
+        sys_unmount == card::CARD_ERROR_READY,
+    );
+    logger.record(
+        "CARD sys unmount clears mounted state",
+        card::free_blocks(slot) == Err(card::CARD_ERROR_NOCARD),
     );
 }
 

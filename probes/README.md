@@ -216,6 +216,10 @@ first mount remains active. See the [Dolphin run record](../docs/dolphin-runs/20
 for the Wii and GameCube results. Physical card removal and detach callbacks
 remain untested.
 
+The CARD probe also checks synchronous mount and unmount through both the
+wrapper and sys APIs. It checks the no-card result after each unmount. See the
+[mount lifecycle results](../docs/dolphin-runs/2026-11-03-card-sync-mount-lifecycle/README.md).
+
 The USB storage probe writes and synchronizes a dedicated close-persistence file, unmounts and deinitializes the transport, remounts it, and verifies the file before cleanup. A failed unmount retains retryable transport state and stops that probe path.
 
 ## PAD recalibration coverage

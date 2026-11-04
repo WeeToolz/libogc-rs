@@ -164,6 +164,12 @@ also confirms in both Dolphin modes that a second `mount_async_owned` request
 returns `CARD_ERROR_BUSY` while the existing mount owner remains attached. This
 does not test physical removal or invoke the detach callback.
 
+The [sync mount lifecycle run](dolphin-runs/2026-11-03-card-sync-mount-lifecycle/README.md)
+adds successful wrapper and direct sys mount and unmount checks in both modes.
+After each unmount, `free_blocks` returns `CARD_ERROR_NOCARD`. The inventory
+now maps these APIs to the active lifecycle probe. Physical removal and the
+detach callback remain open.
+
 Before the `CARD_Probe` parity correction, an early run expected typed queries
 to return the raw slot-probe error. Its
 four assertions failed because the APIs return different errors. The corrected
