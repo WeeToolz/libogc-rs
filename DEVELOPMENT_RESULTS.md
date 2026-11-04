@@ -1366,3 +1366,12 @@ generated image, wrote a test file, detached it, and read the file after a
 reattach. The image has not been attached to Dolphin as a Wii USB mass-storage
 device. The current runner has no disk-image-backed USB option; USB probe
 success paths remain open.
+
+## 2026-11-04: Dolphin USB passthrough read attempt
+
+The dedicated USB probe enumerated the selected `14cd:1212` device through
+Dolphin 2609a. Opening it returned `-5`; Dolphin logged an interface-claim
+failure and `LIBUSB_ERROR_NOT_FOUND`. The sector read was not reached. The
+probe's explicit reset and suspend cycles were disabled for the automation
+run. The Mac volume was unmounted for the attempts and remounted afterward.
+See the [USB read report](docs/dolphin-runs/2026-11-04-usb-passthrough-read/README.md).

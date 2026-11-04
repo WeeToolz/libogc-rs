@@ -399,6 +399,8 @@ impl Drop for NandProfileCopy {
 
 pub fn validate(root: &Path, args: &[String]) -> Result<(), String> {
     let options = parse_options(args)?;
+    let usb_device = std::env::var("LIBOGC_DOLPHIN_USB_READ_DEVICE").ok();
+    validate_usb_read_selection(&options.probes, usb_device.as_deref())?;
     validate_format_selection(&options, std::env::var_os(DOLPHIN_CARD_IMAGE_ENV).is_some())?;
     if options.disc_image.is_some() && options.probes.is_empty() {
         return Err("--disc-image requires an explicit --probe selection".to_string());
@@ -620,6 +622,13 @@ fn select_probes(names: &[String]) -> Result<Vec<ProbeSpec>, String> {
     names
         .iter()
         .map(|name| {
+            if name == "usbstorage_transport_probe" {
+                return Ok(ProbeSpec {
+                    name: "usbstorage_transport_probe",
+                    timeout_seconds: 120,
+                    input_pipe: false,
+                });
+            }
             PROBES
                 .iter()
                 .find(|spec| spec.name == name)
@@ -627,6 +636,29 @@ fn select_probes(names: &[String]) -> Result<Vec<ProbeSpec>, String> {
                 .ok_or_else(|| format!("unknown Dolphin probe: {name}"))
         })
         .collect()
+}
+
+fn validate_usb_read_selection(names: &[String], device: Option<&str>) -> Result<(), String> {
+    let read_probe = matches!(names, [name] if name == "usbstorage_transport_probe");
+    match (read_probe, device) {
+        (false, None) => Ok(()),
+        (true, Some(value)) if value.len() == 9 && value.as_bytes()[4] == b':'
+            && value.bytes().enumerate().all(|(i, b)| i == 4 || b.is_ascii_hexdigit()) => Ok(()),
+        _ => Err("USB passthrough requires only --probe usbstorage_transport_probe and LIBOGC_DOLPHIN_USB_READ_DEVICE=vvvv:pppp".to_string()),
+    }
+}
+
+#[cfg(test)]
+mod usb_read_selection_tests {
+    #[test]
+    fn passthrough_requires_explicit_read_probe_and_valid_identifier() {
+        let selected = vec!["usbstorage_transport_probe".to_string()];
+        assert!(super::select_probes(&selected).is_ok());
+        assert!(super::validate_usb_read_selection(&selected, Some("14cd:1212")).is_ok());
+        assert!(super::validate_usb_read_selection(&[], Some("14cd:1212")).is_err());
+        assert!(super::validate_usb_read_selection(&selected, Some("bad")).is_err());
+        assert!(super::validate_usb_read_selection(&selected, None).is_err());
+    }
 }
 
 fn default_nand_path() -> PathBuf {
@@ -798,7 +830,7 @@ fn run_probe(
     let mut transport_bytes = File::create(&transport_bytes_path)
         .map_err(|err| format!("{}: {err}", transport_bytes_path.display()))?;
     let gdb_port = unused_tcp_port()?;
-    let arguments = dolphin_arguments(
+    let mut arguments = dolphin_arguments(
         &user_dir,
         &dol_path,
         gdb_port,
@@ -806,6 +838,16 @@ fn run_probe(
         media.wii_sd_card_enabled,
         media.disc_image,
     );
+    if spec.name == "usbstorage_transport_probe" {
+        let device = std::env::var("LIBOGC_DOLPHIN_USB_READ_DEVICE")
+            .map_err(|_| "USB read device was not set".to_string())?;
+        arguments.extend([
+            "-C".to_string(),
+            format!("Dolphin.USBPassthrough.Devices={device}"),
+            "-C".to_string(),
+            "Logger.Logs.IOS_USB=True".to_string(),
+        ]);
+    }
     let started = Instant::now();
     let mut child = ChildGuard::new(
         Command::new(dolphin)
