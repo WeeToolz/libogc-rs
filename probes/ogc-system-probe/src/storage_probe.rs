@@ -5240,6 +5240,144 @@ fn open_or_create_hotplug_card(file: &mut card::CardFile, created: &mut bool) ->
     }
 }
 
+/// Checks a real removal and reinsertion of the emulated card in slot A.
+pub fn run_card_hotplug_probe(logger: &mut ProbeLogger) {
+    logger.section("CARD HOTPLUG");
+    let game = card::CardGameCode::new(*b"TST1").unwrap();
+    let company = card::CardCompanyCode::new(*b"TS").unwrap();
+    let init = card::sys::init(Some(game), Some(company));
+    logger.record("card hotplug init", init == card::CARD_ERROR_READY);
+    if init != card::CARD_ERROR_READY {
+        return;
+    }
+    let mut area = Workarea([0; card::CARD_WORKAREA_SIZE as usize]);
+    CARD_DETACHED.store(false, Ordering::Release);
+    let sleep = (lwp::TICKS_PER_SECOND / 10).max(1);
+    let mut present = card::sys::probe(card::CARD_SLOTA);
+    for _ in 0..50 {
+        if present == 1 {
+            break;
+        }
+        lwp::sleep_ticks(sleep);
+        present = card::sys::probe(card::CARD_SLOTA);
+    }
+    logger.note_i32("card hotplug initial probe", present);
+    logger.record("card hotplug initial card detected", present == 1);
+    if present != 1 {
+        return;
+    }
+    // SAFETY: The aligned work area remains live until unmount.
+    let mount = unsafe {
+        card::mount(
+            card::CARD_SLOTA,
+            area.0.as_mut_ptr().cast(),
+            Some(card_detach_callback),
+        )
+    };
+    logger.note_i32("card hotplug initial mount status", mount);
+    logger.record(
+        "card hotplug initial mount",
+        mount == card::CARD_ERROR_READY,
+    );
+    if mount != card::CARD_ERROR_READY {
+        return;
+    }
+    let mut file = card::CardFile::default();
+    let mut created = false;
+    let opened = open_or_create_hotplug_card(&mut file, &mut created);
+    logger.record("card hotplug initial file open", opened);
+    if !opened {
+        logger.record(
+            "card hotplug setup unmount",
+            card::unmount(card::CARD_SLOTA) == card::CARD_ERROR_READY,
+        );
+        return;
+    }
+    logger.note("CARD HOTPLUG READY: remove slot A, then reinsert the same card");
+    let mut detached = false;
+    for _ in 0..600 {
+        if CARD_DETACHED.swap(false, Ordering::AcqRel) {
+            detached = true;
+            break;
+        }
+        lwp::sleep_ticks(sleep);
+    }
+    logger.record("card hotplug detach callback", detached);
+    if !detached {
+        // SAFETY: No operation is pending on the live handle.
+        logger.record(
+            "card hotplug timeout close",
+            unsafe { card::sys::close(&mut file) } == card::CARD_ERROR_READY,
+        );
+        if created {
+            // SAFETY: Only delete a file created by this probe.
+            logger.record(
+                "card hotplug timeout cleanup",
+                unsafe { card::delete(card::CARD_SLOTA, c"HOTPLUG".as_ptr().cast()) }
+                    == card::CARD_ERROR_READY,
+            );
+        }
+        logger.record(
+            "card hotplug timeout unmount",
+            card::unmount(card::CARD_SLOTA) == card::CARD_ERROR_READY,
+        );
+        return;
+    }
+    let mut bytes = [0u8; card::CARD_READSIZE as usize];
+    logger.record(
+        "card hotplug stale handle rejected",
+        card::read_slice(&mut file, &mut bytes, 0) == card::CARD_ERROR_NOCARD,
+    );
+    logger.note("CARD HOTPLUG: waiting for reinsertion");
+    let mut inserted = false;
+    for _ in 0..600 {
+        if card::sys::probe(card::CARD_SLOTA) == 1 {
+            inserted = true;
+            break;
+        }
+        lwp::sleep_ticks(sleep);
+    }
+    logger.record("card hotplug reinsertion detected", inserted);
+    if !inserted {
+        return;
+    }
+    // SAFETY: The work area remains live through the remount.
+    let remount = unsafe {
+        card::mount(
+            card::CARD_SLOTA,
+            area.0.as_mut_ptr().cast(),
+            Some(card_detach_callback),
+        )
+    };
+    logger.record("card hotplug remount", remount == card::CARD_ERROR_READY);
+    if remount != card::CARD_ERROR_READY {
+        return;
+    }
+    let mut reopened = card::CardFile::default();
+    // SAFETY: The filename is static and the output is valid.
+    let open = unsafe { card::open(card::CARD_SLOTA, c"HOTPLUG".as_ptr().cast(), &mut reopened) };
+    logger.record("card hotplug reopen", open == card::CARD_ERROR_READY);
+    if open == card::CARD_ERROR_READY {
+        // SAFETY: The handle is live and no asynchronous request is pending.
+        logger.record(
+            "card hotplug close",
+            unsafe { card::sys::close(&mut reopened) } == card::CARD_ERROR_READY,
+        );
+    }
+    if created {
+        // SAFETY: Only delete a file created by this probe.
+        logger.record(
+            "card hotplug file cleanup",
+            unsafe { card::delete(card::CARD_SLOTA, c"HOTPLUG".as_ptr().cast()) }
+                == card::CARD_ERROR_READY,
+        );
+    }
+    logger.record(
+        "card hotplug final unmount",
+        card::unmount(card::CARD_SLOTA) == card::CARD_ERROR_READY,
+    );
+}
+
 fn usb_device_has_interface_class(fd: i32, interface_class: u8) -> bool {
     let Ok(mut descriptor) = usb_core::descriptors(fd) else {
         return false;

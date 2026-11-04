@@ -1,0 +1,22 @@
+
+
+PASS GameCube system initialization
+
+== CARD HOTPLUG ==
+PASS card hotplug init
+INFO card hotplug initial probe=1
+PASS card hotplug initial card detected
+INFO card hotplug initial mount status=0
+PASS card hotplug initial mount
+PASS card hotplug initial file open
+INFO CARD HOTPLUG READY: remove slot A, then reinsert the same card
+FAIL card hotplug detach callback
+PASS card hotplug timeout close
+PASS card hotplug timeout cleanup
+PASS card hotplug timeout unmount
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+INFO summary_candidate passes=10 fails=1
+FAILED CHECKS (retained from all pages)
+FAIL card hotplug detach callback
+FAIL summary passes=10 fails=1

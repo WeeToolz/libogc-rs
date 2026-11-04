@@ -814,7 +814,7 @@ pub fn run_storage_probe_bin(destructive_card_format: bool) -> i32 {
 }
 
 #[cfg(all(target_arch = "powerpc", feature = "gamecube-card-probe"))]
-pub fn run_gamecube_card_probe_bin(destructive_card_format: bool) -> ! {
+pub fn run_gamecube_card_probe_bin(destructive_card_format: bool, hotplug: bool) -> ! {
     let startup = ogc_system::init_checked();
     let display = probe_support::ProbeDisplay::init();
     let mut logger = probe_support::ProbeLogger::with_options(
@@ -822,7 +822,11 @@ pub fn run_gamecube_card_probe_bin(destructive_card_format: bool) -> ! {
         probe_support::ProbeLoggerOptions::disabled(),
     );
     logger.record("GameCube system initialization", startup.is_ok());
-    storage_probe::run_card_probe(&mut logger, destructive_card_format);
+    if hotplug {
+        storage_probe::run_card_hotplug_probe(&mut logger);
+    } else {
+        storage_probe::run_card_probe(&mut logger, destructive_card_format);
+    }
     logger.summary();
     loop {
         probe_support::wait_vsync();

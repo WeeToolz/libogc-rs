@@ -396,3 +396,19 @@ filesystem. Production open and LUN initialization may issue recovery resets,
 and close may issue a cache flush. The device must be available to Dolphin's
 USB passthrough. Check each named result and Dolphin's USB log: enumeration
 alone does not prove a sector read.
+
+### GameCube card hotplug probe
+
+To select the card-only hotplug probe, set `LIBOGC_DOLPHIN_CARD_HOTPLUG=1`
+and `LIBOGC_DOLPHIN_CARD_IMAGE` to a raw card image, then run
+`cargo xtask dolphin-validate --no-build --probe card_probe --artifact-dir
+/path/to/new-results`. The runner copies the card to a private profile. Do not
+combine this mode with `--format-private-card`. The probe waits up to 60 seconds
+for a detach callback and another 60 seconds for reinsertion. It checks that a
+stale handle is rejected and that the same file can be reopened after remount.
+It removes its test file only if it created that file.
+
+The runner does not yet trigger a live Dolphin slot change. If no removal
+occurs, the probe reports a failed detach check and performs timeout cleanup;
+that result is not a hotplug pass. The current probe does not check file data
+after remount or establish physical hardware behavior.

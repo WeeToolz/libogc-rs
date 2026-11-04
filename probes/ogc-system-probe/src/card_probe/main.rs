@@ -20,7 +20,10 @@ pub unsafe extern "C" fn main(argc: i32, argv: *mut *mut u8) -> i32 {
             ogc_system_probe::probe_support::CARD_FORMAT_CONFIRMATION,
         )
     };
-    ogc_system_probe::run_gamecube_card_probe_bin(destructive_card_format)
+    let hotplug = unsafe {
+        ogc_system_probe::probe_support::startup_arguments_contain(argc, argv, b"--card-hotplug")
+    };
+    ogc_system_probe::run_gamecube_card_probe_bin(destructive_card_format, hotplug)
 }
 
 #[cfg(target_arch = "powerpc")]
