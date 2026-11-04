@@ -1384,3 +1384,10 @@ the same best-effort resume policy. Host USB capture requires additional
 macOS privilege or authorization and re-enumerates the device; no capture
 or driver detach was attempted. The volume was remounted. See the USB read
 report's follow-up isolation section.
+
+An authorized USB capture diagnostic for the confirmed CAPTURES drive was
+blocked before helper entry by macOS code-signing validation: an ad-hoc binary
+with the restricted capture entitlement was rejected. The exit handler
+remounted the drive. No detach or storage command was observed. `sudo -n`
+requires a password. The host capture and Dolphin sector read remain open; see
+the USB passthrough read report.
