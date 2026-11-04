@@ -1,0 +1,25 @@
+diff --git a/Source/Core/Core/IOS/USB/LibusbDevice.cpp b/Source/Core/Core/IOS/USB/LibusbDevice.cpp
+index 6f31f6d..f2bac8d 100644
+--- a/Source/Core/Core/IOS/USB/LibusbDevice.cpp
++++ b/Source/Core/Core/IOS/USB/LibusbDevice.cpp
+@@ -7,0 +8 @@
++#include <cstdlib>
+@@ -16,0 +18 @@
++#include <fmt/format.h>
+@@ -157,0 +160,16 @@ bool LibusbDevice::Attach()
++#if defined(__APPLE__)
++  // Explicitly opt in for one VID:PID. libusb restores the macOS driver on
++  // interface release. No other passthrough device is affected.
++  const char* capture = std::getenv("DOLPHIN_MACOS_CAPTURE_USB");
++  if (capture && fmt::format("{:04x}:{:04x}", m_vid, m_pid) == capture)
++  {
++    const int ret = libusb_set_auto_detach_kernel_driver(m_handle, 1);
++    if (ret != LIBUSB_SUCCESS)
++    {
++      ERROR_LOG_FMT(IOS_USB, "[{:04x}:{:04x}] Cannot enable USB capture: {}", m_vid, m_pid,
++                    LibusbUtils::ErrorWrap(ret));
++      return false;
++    }
++    NOTICE_LOG_FMT(IOS_USB, "[{:04x}:{:04x}] Enabled opt-in macOS USB capture", m_vid, m_pid);
++  }
++#endif

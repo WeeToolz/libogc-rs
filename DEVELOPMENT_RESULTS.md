@@ -1391,3 +1391,12 @@ with the restricted capture entitlement was rejected. The exit handler
 remounted the drive. No detach or storage command was observed. `sudo -n`
 requires a password. The host capture and Dolphin sector read remain open; see
 the USB passthrough read report.
+
+## 2026-11-04: Custom Dolphin USB capture build
+
+A separate Dolphin build now has an opt-in macOS libusb auto-detach change for
+one selected VID/PID. The build completed and started; a non-administrator
+Dolphin probe confirmed that the opt-in path was enabled but still could not
+claim the flash drive. No sector read was reached. The volume was remounted.
+The patch, build identity, logs, and privilege and recovery limits are recorded
+in the [custom Dolphin report](docs/dolphin-runs/2026-11-04-usb-custom-dolphin/README.md).
