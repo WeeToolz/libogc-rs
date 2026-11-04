@@ -1278,3 +1278,34 @@ checks await a Dolphin run. `cargo test -p ogc-card-metadata` passed 18 tests.
 the PowerPC target. A fresh Dolphin preflight failed in both arm64 and x86_64
 modes before any DOL ran. See the [CARD API audit](docs/dolphin-runs/2026-11-03-ogc-card-api-audit.md)
 and [Dolphin preflight record](docs/dolphin-runs/2026-11-03-card-api-audit-preflight.md).
+
+## 2026-11-03: Storage probe extensions
+
+Four more checks now cover storage edge paths. DVD reads a full known sector
+asynchronously from offset `0x2000`; the probe checks callback completion, the
+transfer length, and every byte. USB checks a live closed handle after a
+no-device open, including LUN rejection, output preservation, and close
+behavior. SD Gecko checks that a documented null buffer free does not damage
+the buffer pool. CARD requests one block beyond reported free space, checks
+`CARD_ERROR_INSSPACE`, confirms output and free-space preservation, and checks
+that no directory entry remains. The CARD probe first skips if its temporary
+name already exists.
+
+`cargo fmt --all --check`, `git diff --check`, and the full
+`cargo xtask build-dolphin-probes` passed. The build used the configured MP3
+probe and reference fixtures. The fresh DOL SHA-256 values are:
+
+- Wii `dvd_probe`: `471d19c0201d4abb13ced62bdaf5066f9a23b64cd4bd4132abcf8cf7ced79f87`
+- `usbstorage_capacity_probe`: `f76aeb455ebb22e8ffaacc7e074ca818148141db56d3feaac164cea996096e4d`
+- `fat_sd_probe`: `52954d67f5b4fc754428d99c95f1cf2c6e4d2db60809902fb0cff297df0358a5`
+- GameCube `card_probe`: `5acc5cadc91c89ac6a27b9792ca030c980709688fbee6d54d36dfd7dfffbab2e`
+
+These changed probe checks have source and build evidence only. They do not
+have new Dolphin results because the installed Dolphin executable fails its
+version preflight before a DOL starts. Existing saved Dolphin logs still prove
+the earlier checks described in the individual [DVD](docs/dolphin-runs/2026-11-03-ogc-dvd-api-audit.md),
+[USB](docs/dolphin-runs/2026-11-03-ogc-usbstorage-api-audit.md),
+[SD Gecko](docs/dolphin-runs/2026-11-03-ogc-gcsd-api-audit.md), and
+[CARD](docs/dolphin-runs/2026-11-03-ogc-card-api-audit.md) API audits. Real
+USB media, SD Gecko protocol and media I/O, physical CARD behavior, valid Wii
+partition operations, and direct DI media reads remain open.

@@ -21,6 +21,15 @@ known data at offset `0x2000` used byte pattern `(11 + 37 * index) mod 256`.
 The probe DOL SHA-256 was
 `a17a944a3edd8974a1b79ff7ffdeadd83554f5c5d836fd343c5e1ef02479ece8`.
 
+The current probe source also checks an asynchronous read of the full sector at
+offset `0x2000`. It checks the completion callback, transferred byte count, and
+all 2,048 bytes against the pattern above. This source change was not part of
+the saved run above. It needs a new Dolphin run before it counts as runtime
+evidence.
+The current Wii `dvd_probe` DOL built by `cargo xtask build-dolphin-probes`
+has SHA-256
+`471d19c0201d4abb13ced62bdaf5066f9a23b64cd4bd4132abcf8cf7ced79f87`.
+
 The command used the existing runner:
 
 ```sh
