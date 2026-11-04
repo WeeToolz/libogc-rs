@@ -1539,7 +1539,7 @@ pub fn probe_di_media(logger: &mut ProbeLogger) {
     logger.note_i32("di media C read result", c_read);
     logger.record(
         "di media C sector read matches fixture",
-        c_read == rust_read && c_sector.0 == rust_sector.0,
+        c_read == 0 && c_sector.0[..8] == *b"TST1TS\0\0",
     );
 }
 
@@ -3752,6 +3752,68 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
             && restored_attributes_status == card::CARD_ERROR_READY
             && restored_attributes == original_attributes,
     );
+
+    if let Ok(original) = card::file_status(slot, reopened.filenum) {
+        let mut changed = original;
+        changed.banner_fmt = original.banner_fmt ^ 1;
+        // SAFETY: Both status values are valid for the duration of each call.
+        let update =
+            unsafe { card::sys::set_status(slot.channel(), reopened.filenum, &mut changed) };
+        let readback = card::file_status(slot, reopened.filenum);
+        let mut restore = original;
+        // SAFETY: The original status is valid and remains live during the call.
+        let restored =
+            unsafe { card::sys::set_status(slot.channel(), reopened.filenum, &mut restore) };
+        let final_status = card::file_status(slot, reopened.filenum);
+        logger.record(
+            "CARD sys set_status updates and restores metadata",
+            update == card::CARD_ERROR_READY
+                && readback.is_ok_and(|status| status.banner_fmt == changed.banner_fmt)
+                && restored == card::CARD_ERROR_READY
+                && final_status
+                    .is_ok_and(|status| card_status_matches_except_time(&status, &original)),
+        );
+    } else {
+        logger.record("CARD sys set_status updates and restores metadata", false);
+    }
+
+    let mut original_entry = card::CardDirEntry::default();
+    // SAFETY: The entry output is valid and writable.
+    let entry_status =
+        unsafe { card::sys::get_status_ex(slot.channel(), reopened.filenum, &mut original_entry) };
+    if entry_status == card::CARD_ERROR_READY {
+        let mut changed = original_entry;
+        changed.copy_times ^= 1;
+        // SAFETY: The entries are valid and remain live during each call.
+        let update =
+            unsafe { card::sys::set_status_ex(slot.channel(), reopened.filenum, &mut changed) };
+        let mut readback = card::CardDirEntry::default();
+        let read =
+            unsafe { card::sys::get_status_ex(slot.channel(), reopened.filenum, &mut readback) };
+        let mut restore = original_entry;
+        let restored =
+            unsafe { card::sys::set_status_ex(slot.channel(), reopened.filenum, &mut restore) };
+        let mut final_entry = card::CardDirEntry::default();
+        let final_read =
+            unsafe { card::sys::get_status_ex(slot.channel(), reopened.filenum, &mut final_entry) };
+        logger.record(
+            "CARD sys set_status_ex updates and restores metadata",
+            update == card::CARD_ERROR_READY
+                && read == card::CARD_ERROR_READY
+                && readback.copy_times == changed.copy_times
+                && restored == card::CARD_ERROR_READY
+                && final_read == card::CARD_ERROR_READY
+                && final_entry.copy_times == original_entry.copy_times
+                && final_entry.filename == original_entry.filename
+                && final_entry.block == original_entry.block
+                && final_entry.length == original_entry.length,
+        );
+    } else {
+        logger.record(
+            "CARD sys set_status_ex updates and restores metadata",
+            false,
+        );
+    }
 
     let mut raw_status_restore_ok = false;
     if let Ok(original_status) = card::file_status(slot, reopened.filenum) {

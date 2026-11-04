@@ -4,6 +4,8 @@
 
 **Synthetic media run:** The later [fixture log](2026-11-03-synthetic-dvd-fixture/probe.log) passed the offset and two-sector sync/async read checks. Its full probe result was 35 passes and four failures: mount and three direct DI media checks. The image is not a valid signed Wii partition.
 
+**Corrected direct read check:** The [later run](2026-11-04-dvd-c-read-check/README.md) found five failures. The old C direct-read pass was invalid because it compared two failed reads. The corrected check requires successful fixture bytes.
+
 This audit covers the 27 Rust functions listed for `ogc-dvd` in the generated
 implementation inventory. The no-disc evidence is the
 [fresh DVD probe run](ogc-dvd-api-audit-current/README.md). Dolphin 2609a

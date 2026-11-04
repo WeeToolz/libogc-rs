@@ -16,6 +16,12 @@ path. This image has no signed Wii partition or filesystem and does not prove
 successful mount or partition handling. The runner's [suite report](suite.json)
 records the result and page captures.
 
+The logged `di media C sector read matches fixture` pass is invalid: the old
+check only compared the C and Rust results, and both returned an error and
+identical buffers. The probe now requires a successful C read and the expected
+header bytes. The old total remains here as the original runner output; it
+must not be used as evidence of a successful C read.
+
 The run used revision `27fe84f771bda42fe348085d894dc6724d7be710` with an
 untracked fixture generator in the worktree. Reproduce with new paths:
 
