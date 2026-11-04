@@ -246,6 +246,10 @@ checks have source evidence. A later storage probe passed in Dolphin 2609a with
 97 checks and 0 failures, including the available no-disc checks. Partition
 success with media and init-callback delivery on a successful mount remain
 untested. The hardware register remains `not-tested` for DI.
+The current [API audit](dolphin-runs/2026-11-03-ogc-di-api-audit.md) lists all
+59 inventory rows and separates source call mappings from named runtime
+assertions. The most recent no-disc run passed 178 checks. Direct DI reads with
+the synthetic GC image are still unsuccessful in Dolphin Wii mode.
 
 The original `ogc-di` split grouped the APIs as follows:
 
