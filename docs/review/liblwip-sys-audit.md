@@ -1,5 +1,7 @@
 # `lwip-sys` independent findings audit
 
+This is a historical review. The current [network probe result](../dolphin-runs/2026-11-04-network-fixed/README.md) records the later socket-option, bind-error, and probe fixes. It does not close unrelated findings in this review.
+
 ## 2026-10-11 Accept output address initialization
 
 C `net_accept` writes the eight-byte Wii address length and IPv4 family before

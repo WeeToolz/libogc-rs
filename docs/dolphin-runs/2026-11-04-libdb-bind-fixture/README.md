@@ -1,5 +1,7 @@
 # Debugger bind fixture
 
+This is a historical run. See the [current network result](../2026-11-04-network-fixed/README.md) for the final standard and development DOL results.
+
 The probe now allocates two handles with `tcpip_socket`, binds the first, and
 checks that the second bind to the same port returns `ERR_USE` (-10). The
 [Dolphin log](probe.log) records those checks as passes. The complete network

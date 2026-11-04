@@ -1,5 +1,7 @@
 # Development DOL startup in Dolphin
 
+This is a historical run. See the [current network result](../2026-11-04-network-fixed/README.md) for the final standard and development DOL results.
+
 The prior development DOL was launched without the arguments required by its
 wrapper. The same DOL entered the probe when the runner supplied a report
 endpoint, run ID, DOL SHA-256 build ID, and recovery deadline. The [log](probe.log)
