@@ -231,6 +231,25 @@ fn record_async(
     completed && after_return && result == success_result
 }
 
+fn card_status_matches_except_time(left: &card::CardStat, right: &card::CardStat) -> bool {
+    left.filename == right.filename
+        && left.len == right.len
+        && left.gamecode == right.gamecode
+        && left.company == right.company
+        && left.banner_fmt == right.banner_fmt
+        && left.icon_addr == right.icon_addr
+        && left.icon_fmt == right.icon_fmt
+        && left.iconfmt == right.iconfmt
+        && left.icon_speed == right.icon_speed
+        && left.iconspeed == right.iconspeed
+        && left.comment_addr == right.comment_addr
+        && left.offset_banner == right.offset_banner
+        && left.offset_banner_tlut == right.offset_banner_tlut
+        && left.offset_icon == right.offset_icon
+        && left.offset_icon_tlut == right.offset_icon_tlut
+        && left.offset_data == right.offset_data
+}
+
 pub fn probe_dvd(logger: &mut ProbeLogger) -> bool {
     logger.section("DVD /DEV/DI");
     dvd::init();
@@ -3357,6 +3376,149 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
             && restore_attributes_status == card::CARD_ERROR_READY
             && restored_attributes_status == card::CARD_ERROR_READY
             && restored_attributes == original_attributes,
+    );
+
+    let mut raw_status_restore_ok = false;
+    if let Ok(original_status) = card::file_status(slot, reopened.filenum) {
+        let mut changed_status = original_status;
+        changed_status.banner_fmt = if original_status.banner_fmt == card::CARD_BANNER_RGB {
+            0x01
+        } else {
+            card::CARD_BANNER_RGB
+        };
+        prepare_async_probe();
+        // SAFETY: `changed_status` remains live until the async callback
+        // reports completion. The request copies the status fields.
+        let status_update_submit = unsafe {
+            card::sys::set_status_async(
+                slot.channel(),
+                reopened.filenum,
+                &mut changed_status,
+                Some(card_async_callback),
+            )
+        };
+        let status_update_callback = record_async(
+            logger,
+            "CARD sys set_status_async",
+            status_update_submit,
+            card::CARD_ERROR_READY,
+            15,
+        );
+        let changed_status_readback = card::file_status(slot, reopened.filenum);
+        let raw_status_update_ok = status_update_callback
+            && changed_status_readback.as_ref().is_ok_and(|readback| {
+                readback.banner_fmt == changed_status.banner_fmt
+                    && readback.filename == original_status.filename
+                    && readback.gamecode == original_status.gamecode
+                    && readback.company == original_status.company
+            });
+        logger.record(
+            "CARD sys set_status_async updates the banner format",
+            raw_status_update_ok,
+        );
+
+        if ASYNC_DONE.load(Ordering::Acquire) {
+            prepare_async_probe();
+            let mut restore_status = original_status;
+            // SAFETY: `restore_status` remains live until this async restore
+            // callback completes. Its original metadata fields are preserved.
+            let status_restore_submit = unsafe {
+                card::sys::set_status_async(
+                    slot.channel(),
+                    reopened.filenum,
+                    &mut restore_status,
+                    Some(card_async_callback),
+                )
+            };
+            let status_restore_callback = record_async(
+                logger,
+                "CARD sys set_status_async restore",
+                status_restore_submit,
+                card::CARD_ERROR_READY,
+                15,
+            );
+            let restored_status_readback = card::file_status(slot, reopened.filenum);
+            raw_status_restore_ok = status_restore_callback
+                && restored_status_readback.as_ref().is_ok_and(|readback| {
+                    card_status_matches_except_time(readback, &original_status)
+                });
+        }
+    } else {
+        logger.record("CARD sys set_status_async updates the banner format", false);
+    }
+    logger.record(
+        "CARD sys set_status_async restores original metadata",
+        raw_status_restore_ok,
+    );
+
+    let async_changed_attributes = original_attributes ^ card::CARD_ATTRIB_PUBLIC;
+    prepare_async_probe();
+    let async_set_attributes_submit = if original_attributes_status == card::CARD_ERROR_READY {
+        card::sys::set_attributes_async(
+            slot.channel(),
+            reopened.filenum,
+            async_changed_attributes,
+            Some(card_async_callback),
+        )
+    } else {
+        original_attributes_status
+    };
+    let async_set_attributes_callback = record_async(
+        logger,
+        "CARD sys set_attributes_async",
+        async_set_attributes_submit,
+        card::CARD_ERROR_READY,
+        15,
+    );
+    let mut async_changed_attributes_readback = 0;
+    // SAFETY: the output pointer refers to a live writable attribute byte.
+    let async_changed_attributes_status = unsafe {
+        card::sys::get_attributes(
+            slot.channel(),
+            reopened.filenum,
+            &mut async_changed_attributes_readback,
+        )
+    };
+    let async_attributes_update_ok = async_set_attributes_callback
+        && async_changed_attributes_status == card::CARD_ERROR_READY
+        && async_changed_attributes_readback == async_changed_attributes;
+    logger.record(
+        "CARD sys set_attributes_async updates the flags",
+        async_attributes_update_ok,
+    );
+
+    let mut async_attributes_restore_ok = false;
+    if ASYNC_DONE.load(Ordering::Acquire) {
+        prepare_async_probe();
+        let async_restore_submit = card::sys::set_attributes_async(
+            slot.channel(),
+            reopened.filenum,
+            original_attributes,
+            Some(card_async_callback),
+        );
+        let async_restore_callback = record_async(
+            logger,
+            "CARD sys set_attributes_async restore",
+            async_restore_submit,
+            card::CARD_ERROR_READY,
+            15,
+        );
+        let mut async_restored_attributes = 0;
+        // SAFETY: the output pointer refers to a live writable attribute byte.
+        let async_restored_status = unsafe {
+            card::sys::get_attributes(
+                slot.channel(),
+                reopened.filenum,
+                &mut async_restored_attributes,
+            )
+        };
+        async_attributes_restore_ok = async_restore_callback
+            && async_restored_status == card::CARD_ERROR_READY
+            && async_restored_attributes == original_attributes;
+    }
+    logger.record(
+        "CARD sys set_attributes_async restores the flags",
+        async_attributes_restore_ok,
     );
 
     let mut directory = alloc::vec![card::CardDir::default(); card::CARD_MAXFILES];

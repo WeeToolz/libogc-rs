@@ -1212,12 +1212,13 @@ the direct checks and the current emulator limit.
 
 The GameCube CARD probe submits raw sys `write_async` and `read_async` calls
 on the test save. It checks callback completion, status, readback bytes, and
-restoration before cleanup. It also creates and deletes separate temporary
-files through raw sys file and directory-entry async calls. It also reopens
-the new directory entry through raw `open_entry` and checks that it returns the
-created file. The probe checks callback, handle, close, and removal results.
-The updated `card_probe` DOL built with SHA-256
-`7c38444fa8a8d5f4e1a61afb0ce4ad74f48afe02fc41bb497b54c57bdbc6dc2c`. These
+restoration before cleanup. It also updates and restores file status and
+attributes through raw sys async APIs. The probe creates and deletes separate
+temporary files through raw sys file and directory-entry async calls. It
+reopens the directory entry through raw `open_entry` and checks that it
+resolves to the created file. The probe checks callback, handle, close, and
+removal results. The updated `card_probe` DOL built with SHA-256
+`b2dfc0a68d69651c7c6dba4323d2ddb70cf17a1afe8661e3fa7f95fec8aa8e72`. These
 checks await Dolphin because the installed executable aborts on its version
 preflight. The [CARD API audit](docs/dolphin-runs/2026-11-03-ogc-card-api-audit.md)
 maps the direct checks to the Rust sys wrappers and Wii backend entries.
