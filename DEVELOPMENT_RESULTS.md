@@ -1250,6 +1250,19 @@ aborts during its version preflight, before a DOL can run. The
 [CARD API audit](docs/dolphin-runs/2026-11-03-ogc-card-api-audit.md) records
 these limits and the previous synchronous format runs.
 
+## 2026-11-03: CARD mounted query checks
+
+The GameCube CARD probe now checks the raw sys and facade geometry queries,
+free-block count, and serial number against each other on mounted media. It
+also checks raw `get_status` and `get_status_ex` results for the created `SAVE`
+file and compares the file name, IDs, and length. The GameCube `card_probe` DOL
+built with the prepared PowerPC sysroot and `gamecube` cfg. Its SHA-256 is
+`adf14800b143535d14cbc99452060111e2482e7f060f8560e91e737a31e6de9b`. The
+target build and DOL conversion passed. The DOL has not run: Dolphin still
+aborts during its version preflight. The current saved CARD run predates these
+checks, so the new assertions have no runtime result. See the [CARD API
+audit](docs/dolphin-runs/2026-11-03-ogc-card-api-audit.md).
+
 ## 2026-11-03: CARD API evidence audit
 
 The CARD audit maps all 209 inventory rows for `ogc-card`, `ogc-card-sys`,
