@@ -208,7 +208,7 @@ fn record_async(
     timeout_seconds: u32,
 ) -> bool {
     mark_async_returned();
-    let completed = wait_async_probe(timeout_seconds);
+    let completed = submit_result >= 0 && wait_async_probe(timeout_seconds);
     let after_return = ASYNC_AFTER_RETURN.load(Ordering::Acquire);
     let result = ASYNC_RESULT.load(Ordering::Acquire);
     let mut line = LineBuf::new();
@@ -3536,6 +3536,108 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         "card delete async owned completion",
         delete_ok && delete_completion.is_some_and(|completion| completion.into_result().is_ok()),
     );
+
+    let mut raw_name_file = card::CardFile::default();
+    // SAFETY: the static name and unique output handle remain valid for the
+    // preflight open. The probe closes the handle if the name already exists.
+    let raw_name_status = unsafe {
+        card::sys::open(
+            slot.channel(),
+            c"RASYNC".as_ptr().cast(),
+            &mut raw_name_file,
+        )
+    };
+    if raw_name_status == card::CARD_ERROR_READY {
+        // SAFETY: `raw_name_file` is a live handle opened by the preflight.
+        let _ = unsafe { card::sys::close(&mut raw_name_file) };
+        logger.record("CARD raw async test name is unused", false);
+    } else {
+        let raw_name_unused = raw_name_status == card::CARD_ERROR_NOFILE;
+        logger.record("CARD raw async test name is unused", raw_name_unused);
+        if raw_name_unused {
+            let mut raw_created_file = card::CardFile {
+                filenum: -1,
+                ..card::CardFile::default()
+            };
+            prepare_async_probe();
+            // SAFETY: the filename and output handle stay live until the
+            // callback completes. The requested file fits one card sector.
+            let raw_create_submit = unsafe {
+                card::sys::create_async(
+                    slot.channel(),
+                    c"RASYNC".as_ptr().cast(),
+                    sector_size,
+                    &mut raw_created_file,
+                    Some(card_async_callback),
+                )
+            };
+            let raw_create_completed = record_async(
+                logger,
+                "CARD sys create_async",
+                raw_create_submit,
+                card::CARD_ERROR_READY,
+                15,
+            );
+            let raw_created_valid = raw_create_completed
+                && raw_created_file.filenum >= 0
+                && raw_created_file.filenum < card::CARD_MAXFILES as i32;
+            logger.record(
+                "CARD sys create_async returns a valid file",
+                raw_created_valid,
+            );
+
+            if raw_created_file.filenum >= 0
+                && raw_created_file.filenum < card::CARD_MAXFILES as i32
+            {
+                // SAFETY: the async create callback completed, and this is the
+                // only live handle for the temporary file.
+                let raw_close = unsafe { card::sys::close(&mut raw_created_file) };
+                logger.record(
+                    "CARD raw async create closes its file",
+                    raw_close == card::CARD_ERROR_READY,
+                );
+                if raw_close == card::CARD_ERROR_READY {
+                    prepare_async_probe();
+                    // SAFETY: the static name remains readable until the
+                    // async delete callback completes.
+                    let raw_delete_submit = unsafe {
+                        card::sys::delete_async(
+                            slot.channel(),
+                            c"RASYNC".as_ptr().cast(),
+                            Some(card_async_callback),
+                        )
+                    };
+                    let raw_delete_completed = record_async(
+                        logger,
+                        "CARD sys delete_async",
+                        raw_delete_submit,
+                        card::CARD_ERROR_READY,
+                        15,
+                    );
+                    let mut deleted_raw_file = card::CardFile::default();
+                    // SAFETY: the static name and unique output remain valid
+                    // for the post-delete check.
+                    let raw_reopen = unsafe {
+                        card::sys::open(
+                            slot.channel(),
+                            c"RASYNC".as_ptr().cast(),
+                            &mut deleted_raw_file,
+                        )
+                    };
+                    if raw_reopen == card::CARD_ERROR_READY {
+                        // SAFETY: the unexpected successful open produced a
+                        // live handle. Close it before leaving the probe.
+                        let _ = unsafe { card::sys::close(&mut deleted_raw_file) };
+                    }
+                    logger.record(
+                        "CARD sys delete_async removes the temporary file",
+                        raw_delete_completed && raw_reopen == card::CARD_ERROR_NOFILE,
+                    );
+                }
+            }
+        }
+    }
+
     let delete_unmount = remounted.unmount();
     logger.record(
         "card unmount after delete",
