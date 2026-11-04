@@ -149,6 +149,11 @@ FAT presence query reports no media and the FAT mount returns
 `DeviceUnavailable`. The same run passed the GameCube SD no-adapter and USB
 no-device checks. It does not cover successful transfers for these devices.
 See the [absent-media report](dolphin-runs/2026-11-03-wii-sd-absent/README.md).
+The latest USB no-device run passed 229 `storage_probe` checks. It called the
+public USB disc-interface callbacks for both slots and checked absent-media
+read and write errors, read-buffer preservation, status clear, shutdown, and
+restart. The checks are grouped by slot. They do not prove successful USB
+media operations. See the [USB interface report](dolphin-runs/2026-11-03-usb-interface-no-device/README.md).
 Earlier failed launch attempts remain in their own run directories. The
 hardware register still records physical CARD and DI behavior as not tested.
 Do not treat the source count as completed storage verification.
