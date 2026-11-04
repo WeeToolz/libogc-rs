@@ -40,6 +40,9 @@ impl Drop for CardIdentifierReset {
 struct SectorBuf([u8; RAW_USB_SECTOR_BUFFER_SIZE]);
 
 #[repr(align(32))]
+struct UsbInterfaceSector([u8; 512]);
+
+#[repr(align(32))]
 struct DvdSector([u8; 0x800]);
 
 const USB_CLASS_MASS_STORAGE: u8 = 0x08;
@@ -1345,6 +1348,22 @@ fn probe_usb_storage(logger: &mut ProbeLogger) {
         (inserted && device_count > 0) || no_usb_device,
     );
 
+    if no_usb_device {
+        logger.section("USB INTERFACE WITHOUT A DEVICE");
+        probe_usb_interface_without_media(
+            logger,
+            "USB slot A callbacks reject reads and writes and restart cleanly",
+            &usb_storage_sys::USB_STORAGE_INTERFACE,
+        );
+        probe_usb_interface_without_media(
+            logger,
+            "USB slot B callbacks reject reads and writes and restart cleanly",
+            &usb_storage_sys::USB_STORAGE2_INTERFACE,
+        );
+    } else {
+        logger.note("USB interface callback checks skipped: storage media is present");
+    }
+
     if inserted {
         let mut sector0 = SectorBuf([0; RAW_USB_SECTOR_BUFFER_SIZE]);
         let read_sector0 = unsafe {
@@ -1456,6 +1475,81 @@ fn probe_usb_storage(logger: &mut ProbeLogger) {
         logger.note_i32("usb storage deinitialize", deinitialize_result);
         logger.record("usb storage deinitialize", deinitialize_result >= 0);
     }
+}
+
+fn probe_usb_interface_without_media(
+    logger: &mut ProbeLogger,
+    label: &str,
+    interface: &usb_storage_sys::DiscInterface,
+) {
+    let Some(startup) = interface.startup else {
+        logger.record(label, false);
+        return;
+    };
+    let Some(is_inserted) = interface.is_inserted else {
+        logger.record(label, false);
+        return;
+    };
+    let Some(read_sectors) = interface.read_sectors else {
+        logger.record(label, false);
+        return;
+    };
+    let Some(write_sectors) = interface.write_sectors else {
+        logger.record(label, false);
+        return;
+    };
+    let Some(clear_status) = interface.clear_status else {
+        logger.record(label, false);
+        return;
+    };
+    let Some(shutdown) = interface.shutdown else {
+        logger.record(label, false);
+        return;
+    };
+
+    // SAFETY: The interface callbacks are static and the sector buffers are
+    // aligned, writable or readable, and large enough for one sector.
+    let first_startup = unsafe { startup() };
+    // SAFETY: The static callback has no pointer inputs.
+    let inserted_before_io = unsafe { is_inserted() };
+    let mut read_buffer = UsbInterfaceSector([0xa5; 512]);
+    // SAFETY: The buffer is aligned and holds one complete sector.
+    let read_result = unsafe {
+        read_sectors(
+            0,
+            1,
+            read_buffer.0.as_mut_ptr().cast::<c_void>(),
+        )
+    };
+    let write_buffer = UsbInterfaceSector([0x5a; 512]);
+    // SAFETY: The buffer is aligned and holds one complete sector.
+    let write_result = unsafe {
+        write_sectors(0, 1, write_buffer.0.as_ptr().cast::<c_void>())
+    };
+    // SAFETY: The static callback has no pointer inputs.
+    let clear_result = unsafe { clear_status() };
+    // SAFETY: The static callback has no pointer inputs.
+    let shutdown_result = unsafe { shutdown() };
+    // SAFETY: The static callback has no pointer inputs.
+    let restarted = unsafe { startup() };
+    // SAFETY: The static callback has no pointer inputs.
+    let inserted_after_restart = unsafe { is_inserted() };
+    // SAFETY: The static callback has no pointer inputs.
+    let final_shutdown = unsafe { shutdown() };
+
+    logger.record(
+        label,
+        first_startup
+            && !inserted_before_io
+            && !read_result
+            && read_buffer.0 == [0xa5; 512]
+            && !write_result
+            && clear_result
+            && shutdown_result
+            && restarted
+            && !inserted_after_restart
+            && final_shutdown,
+    );
 }
 
 fn write_usb_close_probe(logger: &mut ProbeLogger) -> bool {
