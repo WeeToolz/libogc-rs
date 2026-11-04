@@ -1,0 +1,6 @@
+51:26:836 Core/IOS/USB/Host.cpp:129 I[IOS_USB]: /dev/usb/ven - New device: 14cd:1212
+51:28:478 Core/IOS/USB/USBV5.cpp:190 I[IOS_USB]: [14cd:1212 0] Received resume command
+51:28:479 Core/IOS/USB/LibusbDevice.cpp:150 N[IOS_USB]: [14cd:1212] Opening device
+51:28:479 Core/IOS/USB/LibusbDevice.cpp:173 N[IOS_USB]: [14cd:1212] Enabled opt-in macOS USB capture
+51:28:480 Core/IOS/USB/LibusbDevice.cpp:586 E[IOS_USB]: [14cd:1212] Failed to claim all interfaces (configuration 0)
+51:28:480 Core/IOS/USB/Host.cpp:153 E[IOS_USB]: [14cd:1212] Failed to submit transfer (request 18): LIBUSB_ERROR_NOT_FOUND
