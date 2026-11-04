@@ -22,3 +22,35 @@ It was built from revision `06a197e` with the uncommitted USB read-only probe
 and runner changes subsequently committed with this report. The runner used
 its own private Dolphin profile and USB Gecko log transport. Both attempts
 ended with the Mac volume remounted.
+
+## Follow-up isolation: macOS interface ownership
+
+A direct call to the installed libusb 1.0.30 C API, with the volume unmounted,
+returned these results for the same device:
+
+```text
+libusb_init 0
+open True
+kernel_driver_active 1
+claim_interface -3 LIBUSB_ERROR_ACCESS
+```
+
+No detach, reset, data transfer, or sector write was requested by this host
+check. The volume was remounted after the check. This reproduces the host
+interface-access problem independently of the Rust guest.
+
+The C reference `C-sources/libogc/libogc/usb.c` (`USB_OpenDevice`) and Rust
+`ogc-usb-sys::open_device` both treat vendor-device resume as best effort and
+then expose the device handle. This source comparison does not identify a
+Rust port gap in that preflight. The storage-open failure happens before its
+mass-storage descriptor and SCSI paths can run.
+
+Dolphin's upstream `LibusbDevice::ClaimAllInterfaces` explicitly skips kernel
+driver detach on macOS. libusb's Darwin backend requires root privilege or
+`com.apple.vm.device-access` authorization to capture a driver-owned device;
+that capture re-enumerates the USB device. A valid code fix must address the
+host capture path and restore the host driver afterward. It has not yet been
+implemented or verified. References:
+
+- https://github.com/dolphin-emu/dolphin/blob/master/Source/Core/Core/IOS/USB/LibusbDevice.cpp
+- https://github.com/libusb/libusb/blob/master/libusb/os/darwin_usb.c
