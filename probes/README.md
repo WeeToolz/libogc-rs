@@ -369,3 +369,19 @@ cases are UNTESTED. Controlled transport failure injection remains host-test
 coverage. These probes do not simulate USB failure or intentionally disconnect
 a device during a request. All new hardware acceptance rows remain `not-tested`
 in `docs/hardware-api-validation.csv` until a real run is recorded.
+
+## Synthetic storage fixture images
+
+`scripts/make-dolphin-dvd-fixture.py` creates a synthetic Wii-format image for
+`dvd_probe`. Pass its output to `dolphin-validate --disc-image`. The image
+contains the `TST1TS` header and the known payload used by the read checks. It
+has no signed partition or filesystem, so it is suitable for raw read checks,
+not a successful Wii partition mount. Its logical size is about 4.4 GiB; the
+host filesystem may allocate all of that space.
+
+On macOS, `scripts/make-dolphin-usb-fixture.py` creates a new 64 MB raw image
+with an MBR and FAT16 volume. It refuses to replace an existing file. This is
+only a disk image: `dolphin-validate` does not attach it as a Wii USB device.
+A suitable USB emulation or passthrough setup is required before a probe can
+exercise `ogc-usbstorage` against it. Do not count host mounting of the image
+as a Dolphin USB test.

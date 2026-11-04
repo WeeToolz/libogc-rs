@@ -1,6 +1,8 @@
 # `ogc-dvd` API runtime audit
 
-**New run:** The [DVD log](2026-11-03-storage-unrestricted/dvd_probe/probe.log) passed 183 no-disc checks. It had no disc, so the new media-read checks remain open.
+**No-disc run:** The [DVD log](2026-11-03-storage-unrestricted/dvd_probe/probe.log) passed 183 no-disc checks. It had no disc and did not exercise media reads.
+
+**Synthetic media run:** The later [fixture log](2026-11-03-synthetic-dvd-fixture/probe.log) passed the offset and two-sector sync/async read checks. Its full probe result was 35 passes and four failures: mount and three direct DI media checks. The image is not a valid signed Wii partition.
 
 This audit covers the 27 Rust functions listed for `ogc-dvd` in the generated
 implementation inventory. The no-disc evidence is the
