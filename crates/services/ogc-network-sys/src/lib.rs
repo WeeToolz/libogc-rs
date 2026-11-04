@@ -1325,7 +1325,10 @@ mod wii_backend {
     /// and the referenced memory must obey Rust's aliasing requirements.
     /// The pointers must remain valid for the duration of the call.
     pub unsafe fn net_bind(s: i32, name: *mut Sockaddr, namelen: SockLenT) -> i32 {
-        unsafe { lwip::bind(s, name.cast(), namelen) }
+        let result = unsafe { lwip::bind(s, name.cast(), namelen) };
+        // lwip's IOS transport returns SO_EADDRINUSE (3). No local bind
+        // validation returns -3. Expose the PowerPC newlib errno, as C does.
+        if result == -3 { -112 } else { result }
     }
 
     pub fn net_listen(s: i32, backlog: u32) -> i32 {

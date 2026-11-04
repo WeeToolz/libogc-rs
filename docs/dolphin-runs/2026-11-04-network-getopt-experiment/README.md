@@ -1,5 +1,7 @@
 # Network getsockopt experiment
 
+Current results for these checks are in the [fixed network run](../2026-11-04-network-fixed/README.md). This report is historical evidence.
+
 The previous standard and development DOL runs both reported the same eight
 network failures, so the development wrapper is not shown to cause them.
 

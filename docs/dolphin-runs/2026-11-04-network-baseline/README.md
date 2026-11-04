@@ -1,5 +1,7 @@
 # Network probe baseline
 
+Current results for these checks are in the [fixed network run](../2026-11-04-network-fixed/README.md). This report is historical evidence.
+
 Dolphin 2609a ran `network_probe` with the existing runner and a private NAND
 copy. The [explicit-protocol log](explicit-protocol.log) records 14 passes and
 six failures. TCP and UDP socket creation each returned `-68`. Dolphin's IOS

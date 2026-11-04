@@ -204,6 +204,24 @@ fn probe_socket_edges(logger: &mut ProbeLogger) {
         } == network::SOCKET_ERROR,
     );
     let readonly = 1_i32;
+    let mut failed_output = 0x1234_5678i32;
+    let mut failed_length = size_of::<i32>() as network::SockLenT;
+    // SAFETY: The failed query still has valid, live output storage.
+    let failed_get = unsafe {
+        network::getsockopt(
+            socket,
+            network::SOL_SOCKET,
+            0x7fff_ffff,
+            (&mut failed_output as *mut i32).cast(),
+            &mut failed_length,
+        )
+    };
+    logger.record(
+        "network failed getsockopt preserves caller output",
+        failed_get == network::SOCKET_ERROR
+            && failed_output == 0x1234_5678
+            && failed_length == size_of::<i32>() as network::SockLenT,
+    );
     logger.record(
         "network readonly sockopt rejected",
         unsafe {
@@ -261,7 +279,10 @@ fn probe_bind_error_parity(logger: &mut ProbeLogger) {
         if network::bind_addr(first, &addr) == 0 {
             let result = network::bind_addr(second, &addr);
             logger.note_i32("network bind conflict raw rc", result);
-            logger.record("network bind preserves address-in-use error", result == -98);
+            logger.record(
+                "network bind preserves address-in-use error",
+                result == -112,
+            );
             conflict_found = true;
             break;
         }
@@ -375,8 +396,8 @@ fn probe_short_wii_sockaddr(logger: &mut ProbeLogger) {
         )
     };
     logger.record(
-        "network connect reaches Wii port-zero validation",
-        connect_result == -22 && connect_addr.0[0] == 8,
+        "network connect accepts eight-byte address and rejects port zero",
+        connect_result == network::SOCKET_ERROR && connect_addr.0[0] == 8,
     );
     logger.note_i32("network short sockaddr connect rc", connect_result);
 
@@ -446,7 +467,11 @@ fn roundtrip_i32_sockopt(socket: i32, level: u32, optname: u32, value: i32) -> b
                 (&mut out as *mut i32).cast::<c_void>(),
                 &mut out_len,
             ) == 0
-            && out == value
+            // BSD Boolean socket options return zero or nonzero, not a required 1.
+            && if (level == network::SOL_SOCKET && optname == network::SO_REUSEADDR)
+                || (level == network::IPPROTO_TCP && optname == network::TCP_NODELAY) {
+                (out != 0) == (value != 0)
+            } else { out == value }
             && out_len == size_of::<i32>() as network::SockLenT
     }
 }

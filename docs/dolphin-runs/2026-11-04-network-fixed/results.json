@@ -1,0 +1,67 @@
+{
+  "standard": {
+    "dol_sha256": "edc0b72ddd5762aa7c8daecf0ae931d970d727d9401833ad01d83bc4d1a1d640",
+    "status": "pass",
+    "passes": 52,
+    "fails": 0,
+    "summary_line": "PASS summary passes=52 fails=0",
+    "failure_lines": [],
+    "page_capture_count": 5,
+    "pages_valid": true
+  },
+  "development": {
+    "dol_sha256": "d3a0ef9d0f96baa1fad0edbb9ab85ac0f8fe36a03f311689a89b873a91b58401",
+    "status": "pass",
+    "passes": 52,
+    "fails": 0,
+    "summary_line": "PASS summary passes=52 fails=0",
+    "failure_lines": [],
+    "page_capture_count": 5,
+    "pages_valid": true
+  },
+  "control-unpatched": {
+    "dol_sha256": "4d49510925840113baa90b29e019035479c029f1c25064aa7134124b5e933d9b",
+    "status": "probe_fail",
+    "passes": 44,
+    "fails": 7,
+    "summary_line": "FAIL summary passes=44 fails=7",
+    "failure_lines": [
+      "FAIL network SO_REUSEADDR roundtrip",
+      "FAIL network SO_RCVTIMEO roundtrip",
+      "FAIL network IP_TTL roundtrip",
+      "FAIL network TCP_NODELAY roundtrip",
+      "FAIL network TCP_KEEPALIVE roundtrip",
+      "FAIL network connect reaches Wii port-zero validation",
+      "FAIL network bind preserves address-in-use error",
+      "FAIL network SO_REUSEADDR roundtrip",
+      "FAIL network SO_RCVTIMEO roundtrip",
+      "FAIL network IP_TTL roundtrip",
+      "FAIL network TCP_NODELAY roundtrip",
+      "FAIL network TCP_KEEPALIVE roundtrip",
+      "FAIL network connect reaches Wii port-zero validation",
+      "FAIL network bind preserves address-in-use error"
+    ],
+    "page_capture_count": 6,
+    "pages_valid": true
+  },
+  "control-patched": {
+    "dol_sha256": "4d49510925840113baa90b29e019035479c029f1c25064aa7134124b5e933d9b",
+    "status": "probe_fail",
+    "passes": 47,
+    "fails": 4,
+    "summary_line": "FAIL summary passes=47 fails=4",
+    "failure_lines": [
+      "FAIL network SO_REUSEADDR roundtrip",
+      "FAIL network TCP_NODELAY roundtrip",
+      "FAIL network connect reaches Wii port-zero validation",
+      "FAIL network bind preserves address-in-use error",
+      "FAIL network SO_REUSEADDR roundtrip",
+      "FAIL network TCP_NODELAY roundtrip",
+      "FAIL network connect reaches Wii port-zero validation",
+      "FAIL network bind preserves address-in-use error"
+    ],
+    "page_capture_count": 6,
+    "pages_valid": true
+  },
+  "dolphin_source_revision": "df4bd441dec5d6f3cff606eea76f183963e97a44"
+}

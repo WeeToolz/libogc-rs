@@ -14,6 +14,15 @@ point for selecting a test, not proof that the operation is complete or safe.
 Review the API contract, C reference where applicable, implementation, and
 existing test or probe before selecting cases.
 
+## Current network probe result
+
+The [2026-11-04 fixed network run](dolphin-runs/2026-11-04-network-fixed/README.md)
+passed 52 checks with both standard and development DOLs. It requires the
+saved macOS Dolphin socket-option patch. The report separates the controlled
+emulator comparison, SDK getsockopt and bind changes, and corrected probe
+expectations. This is evidence for the named checks, not full network API or
+physical Wii coverage.
+
 ## Work order
 
 1. **Establish the test environment.** Review the runtime probe's
