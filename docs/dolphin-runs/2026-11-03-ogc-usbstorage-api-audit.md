@@ -12,7 +12,8 @@ The saved [`usbstorage_capacity_probe` run](usb-capacity-api-current/README.md)
 passed 52 checks in Dolphin 2609a with no USB mass-storage device. The probe
 source now adds non-null closed-handle checks through the safe facade and C
 ABI after unsuccessful opens, including output preservation. These added
-checks are pending a Dolphin run and are not included in the 52.
+checks are pending a Dolphin run and are not included in the 52. The null-handle
+C ABI read check also verifies that the 512-byte caller buffer stays unchanged.
 The
 [interface callback run](usb-interface-no-device/README.md) passed separate
 checks for both public drive slots. These runs prove the listed no-device,
@@ -61,7 +62,7 @@ invalid-input behavior.
 | `c_suspend`, `c_start_stop` | `C USB suspend and start-stop reject null handles`; pending `C USB ABI rejects closed-handle control and media calls` | Null-handle errors have saved runtime evidence; closed-handle checks are pending Dolphin. |
 | `c_inquiry` | `C USB inquiry rejects a null storage handle`; pending `C USB ABI rejects closed-handle control and media calls` | Null-handle error has saved runtime evidence; closed-handle result is pending Dolphin. |
 | `c_read_capacity` | `C USB capacity rejects null handle and preserves outputs`; pending `C USB ABI rejects closed-handle control and media calls` | Null-handle error and output preservation have saved runtime evidence; closed-handle check is pending Dolphin. |
-| `c_read`, `c_write` | `C USB read and write reject null storage handles`; pending `C USB ABI rejects closed-handle control and media calls` | Null-handle errors have saved runtime evidence; closed-handle results are pending Dolphin. |
+| `c_read`, `c_write` | `C USB read and write reject null storage handles` and preserve the read buffer; pending `C USB ABI rejects closed-handle control and media calls` | Null-handle errors and read-buffer preservation have saved runtime evidence; closed-handle results are pending Dolphin. |
 | `c_is_dvd`, `is_dvd` | `C USB DVD query reports no mounted DVD`; `raw USB DVD query reports no mounted DVD` | No-mounted-DVD result. |
 | `ioctl`, `__ogc_usbstorage_ioctl_bridge` | `USB ioctl and C bridge reject an unmounted request` | Unmounted request rejection. |
 | `flush_drive` | `USB drive flush reports absent media and rejects invalid slots` | Both valid slots return no-interface; slot 2 returns invalid-argument. No mounted-drive flush is tested. |

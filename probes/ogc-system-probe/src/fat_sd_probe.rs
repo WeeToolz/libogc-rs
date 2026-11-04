@@ -17,40 +17,53 @@ fn probe_gcsd_invalid_drive(logger: &mut ProbeLogger) {
     let init_io_default = gcsd::sdgecko_initIODefault;
     gcsd::sdgecko_initIODefault();
 
-    let speed = gcsd::sdgecko_get_speed(-1);
-    let page_size = gcsd::sdgecko_get_page_size(-1);
-    let addressing = gcsd::sdgecko_get_addressing_type(-1);
+    let invalid_drives = [i32::MIN, -1, 3, i32::MAX];
+    let rust_getters_reject_invalid_drives = invalid_drives.iter().copied().all(|drive| {
+        gcsd::sdgecko_get_speed(drive).is_none()
+            && gcsd::sdgecko_get_page_size(drive).is_none()
+            && gcsd::sdgecko_get_addressing_type(drive).is_none()
+    });
     logger.record(
-        "Rust SD Gecko getters reject an invalid drive",
-        speed.is_none() && page_size.is_none() && addressing.is_none(),
+        "Rust SD Gecko getters reject negative and out-of-range drives",
+        rust_getters_reject_invalid_drives,
     );
+    let rust_setters_reject_invalid_drives = invalid_drives.iter().copied().all(|drive| {
+        !gcsd::sdgecko_set_speed(drive, 12_345_678)
+            && gcsd::sdgecko_set_page_size(drive, 512).is_none()
+    });
     logger.record(
-        "Rust SD Gecko setters reject an invalid drive",
-        !gcsd::sdgecko_set_speed(-1, 12_345_678) && gcsd::sdgecko_set_page_size(-1, 512).is_none(),
+        "Rust SD Gecko setters reject negative and out-of-range drives",
+        rust_setters_reject_invalid_drives,
     );
 
-    let init_io = gcsd::sdgecko_initIO;
-    let init = init_io(-1);
-    let pre_io = gcsd::sdgecko_preIO(-1);
-    let cid = gcsd::sdgecko_readCID(-1);
-    let csd = gcsd::sdgecko_readCSD(-1);
-    let status = gcsd::sdgecko_readStatus(-1);
-    let unmount = gcsd::sdgecko_doUnmount(-1);
+    let lifecycle_rejects_invalid_drives = invalid_drives.iter().copied().all(|drive| {
+        [
+            gcsd::sdgecko_initIO(drive),
+            gcsd::sdgecko_preIO(drive),
+            gcsd::sdgecko_readCID(drive),
+            gcsd::sdgecko_readCSD(drive),
+            gcsd::sdgecko_readStatus(drive),
+            gcsd::sdgecko_doUnmount(drive),
+        ]
+        .into_iter()
+        .all(|result| result == GCSD_ERROR_NOCARD)
+    });
     logger.record(
-        "C SD Gecko lifecycle and metadata APIs reject an invalid drive",
-        [init, pre_io, cid, csd, status, unmount]
-            .into_iter()
-            .all(|result| result == GCSD_ERROR_NOCARD),
+        "C SD Gecko lifecycle and metadata APIs reject negative and out-of-range drives",
+        lifecycle_rejects_invalid_drives,
     );
 
     let mut sector = CardSector([0xa5; 512]);
-    // SAFETY: The sector buffer is aligned and large enough for one sector.
-    let read = unsafe { gcsd::sdgecko_readSectors(-1, 0, 1, sector.0.as_mut_ptr().cast()) };
-    // SAFETY: The sector buffer is aligned and large enough for one sector.
-    let write = unsafe { gcsd::sdgecko_writeSectors(-1, 0, 1, sector.0.as_ptr().cast()) };
+    let sector_apis_reject_invalid_drives = invalid_drives.iter().copied().all(|drive| {
+        // SAFETY: The sector buffer is aligned and large enough for one sector.
+        let read = unsafe { gcsd::sdgecko_readSectors(drive, 0, 1, sector.0.as_mut_ptr().cast()) };
+        // SAFETY: The sector buffer is aligned and large enough for one sector.
+        let write = unsafe { gcsd::sdgecko_writeSectors(drive, 0, 1, sector.0.as_ptr().cast()) };
+        read == GCSD_ERROR_NOCARD && write == GCSD_ERROR_NOCARD && sector.0 == [0xa5; 512]
+    });
     logger.record(
-        "C SD Gecko sector APIs reject an invalid drive",
-        read == GCSD_ERROR_NOCARD && write == GCSD_ERROR_NOCARD,
+        "C SD Gecko sector APIs reject invalid drives and preserve buffers",
+        sector_apis_reject_invalid_drives,
     );
 
     let speed_before = gcsd::sdgecko_get_speed(0).unwrap_or(0);
@@ -58,16 +71,18 @@ fn probe_gcsd_invalid_drive(logger: &mut ProbeLogger) {
     let set_speed = gcsd::sdgecko_set_speed;
     let speed_set = set_speed(0, speed_changed_to);
     let speed_after_set = gcsd::sdgecko_get_speed(0);
-    gcsd::sdgecko_insertedCB(0);
-    gcsd::sdgecko_ejectedCB(0);
-    gcsd::sdgecko_setSpeed(-1, 12_345_678);
+    for drive in invalid_drives {
+        gcsd::sdgecko_insertedCB(drive);
+        gcsd::sdgecko_ejectedCB(drive);
+        gcsd::sdgecko_setSpeed(drive, 12_345_678);
+    }
     let speed_after_callbacks = gcsd::sdgecko_get_speed(0);
     logger.record(
         "Rust SD Gecko speed setter changes drive state",
         speed_set && speed_after_set == Some(speed_changed_to),
     );
     logger.record(
-        "C SD Gecko callbacks and invalid speed setter preserve drive state",
+        "C SD Gecko invalid callbacks and speed setters preserve drive state",
         speed_after_set == speed_after_callbacks,
     );
     init_io_default();
@@ -77,11 +92,13 @@ fn probe_gcsd_invalid_drive(logger: &mut ProbeLogger) {
     );
 
     logger.record(
-        "C SD Gecko getters use documented invalid-drive defaults",
-        gcsd::sdgecko_getSpeed(-1) == 0
-            && gcsd::sdgecko_getPageSize(-1) == 0
-            && gcsd::sdgecko_getAddressingType(-1) == gcsd::CARD_IO_SECTOR_ADDRESSING
-            && gcsd::sdgecko_setPageSize(-1, 512) == GCSD_ERROR_NOCARD,
+        "C SD Gecko getters and setters handle invalid drive bounds",
+        invalid_drives.iter().copied().all(|drive| {
+            gcsd::sdgecko_getSpeed(drive) == 0
+                && gcsd::sdgecko_getPageSize(drive) == 0
+                && gcsd::sdgecko_getAddressingType(drive) == gcsd::CARD_IO_SECTOR_ADDRESSING
+                && gcsd::sdgecko_setPageSize(drive, 512) == GCSD_ERROR_NOCARD
+        }),
     );
 
     gcsd::sdgecko_initBufferPool();

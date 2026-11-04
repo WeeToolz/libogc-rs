@@ -261,6 +261,15 @@ fn card_status_matches_except_time(left: &card::CardStat, right: &card::CardStat
         && left.offset_data == right.offset_data
 }
 
+fn dvd_two_sector_payload_matches(bytes: &[u8]) -> bool {
+    bytes.len() == 0x1000
+        && bytes[..0x800]
+            .iter()
+            .enumerate()
+            .all(|(index, byte)| *byte == (11u32.wrapping_add(37 * index as u32) & 0xff) as u8)
+        && bytes[0x800..].iter().all(|byte| *byte == 0)
+}
+
 pub fn probe_dvd(logger: &mut ProbeLogger) -> bool {
     logger.section("DVD /DEV/DI");
     dvd::init();
@@ -440,6 +449,25 @@ pub fn probe_dvd(logger: &mut ProbeLogger) -> bool {
     );
 
     let mut two_sectors = DvdTwoSectors([0xa5; 0x1000]);
+    let mut sync_two_sector_block = dvd::DvdCmdBlk::default();
+    // SAFETY: The command block and both aligned sectors stay live for the read.
+    let sync_two_sector_bytes = unsafe {
+        dvd::read_prio(
+            &mut sync_two_sector_block,
+            two_sectors.0.as_mut_ptr().cast(),
+            two_sectors.0.len() as u32,
+            0x2000,
+            2,
+        )
+    };
+    logger.note_i32("dvd two-sector sync bytes", sync_two_sector_bytes);
+    logger.record(
+        "dvd two-sector sync matches payload and zero-filled boundary",
+        sync_two_sector_bytes == two_sectors.0.len() as i32
+            && dvd_two_sector_payload_matches(&two_sectors.0),
+    );
+
+    two_sectors.0.fill(0xa5);
     let mut two_sector_block = dvd::DvdCmdBlk::default();
     prepare_async_probe();
     // SAFETY: The command block and both aligned sectors remain live until
@@ -461,11 +489,7 @@ pub fn probe_dvd(logger: &mut ProbeLogger) -> bool {
         two_sectors.0.len() as i32,
         10,
     );
-    let two_sector_bytes_match = two_sectors.0[..0x800]
-        .iter()
-        .enumerate()
-        .all(|(index, byte)| *byte == (11u32.wrapping_add(37 * index as u32) & 0xff) as u8)
-        && two_sectors.0[0x800..].iter().all(|byte| *byte == 0);
+    let two_sector_bytes_match = dvd_two_sector_payload_matches(&two_sectors.0);
     logger.record(
         "dvd two-sector async crosses payload boundary",
         two_sector_ok
@@ -3127,6 +3151,49 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         "card mounted owner has no detach result before removal",
         mounted.detach_result().is_none(),
     );
+    let sys_probe = card::sys::probe(slot.channel());
+    logger.record("CARD sys probe detects the mounted slot", sys_probe == 1);
+    let wrapper_probe = card::probe(slot.channel());
+    logger.record(
+        "CARD facade probe detects the mounted slot",
+        wrapper_probe == 1,
+    );
+
+    let mut sys_memory_size = 0x1234_5678;
+    let mut sys_sector_size = 0x2345_6789;
+    // SAFETY: both output pointers refer to live, aligned, writable values.
+    let sys_probe_ex =
+        unsafe { card::sys::probe_ex(slot.channel(), &mut sys_memory_size, &mut sys_sector_size) };
+    let sys_probe_ex_matches_geometry = geometry.as_ref().is_ok_and(|info| {
+        sys_probe_ex == card::CARD_ERROR_READY
+            && sys_memory_size == info.memory_size
+            && sys_sector_size == info.sector_size
+    });
+    logger.record(
+        "CARD sys probe_ex reports mounted media geometry",
+        sys_probe_ex_matches_geometry,
+    );
+
+    let mut wrapper_memory_size = 0x3456_789a;
+    let mut wrapper_sector_size = 0x4567_89ab;
+    // SAFETY: both output pointers refer to live, aligned, writable values.
+    let wrapper_probe_ex = unsafe {
+        card::probe_ex(
+            slot.channel(),
+            &mut wrapper_memory_size,
+            &mut wrapper_sector_size,
+        )
+    };
+    let wrapper_probe_ex_matches_geometry = geometry.as_ref().is_ok_and(|info| {
+        wrapper_probe_ex == card::CARD_ERROR_READY
+            && wrapper_memory_size == info.memory_size
+            && wrapper_sector_size == info.sector_size
+    });
+    logger.record(
+        "CARD facade probe_ex reports mounted media geometry",
+        wrapper_probe_ex_matches_geometry,
+    );
+
     logger.record(
         "CARD owned duplicate mount returns busy",
         matches!(card::mount_async_owned(slot), Err(card::CARD_ERROR_BUSY)),

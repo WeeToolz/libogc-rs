@@ -1285,13 +1285,18 @@ and [Dolphin preflight record](docs/dolphin-runs/2026-11-03-card-api-audit-prefl
 ## 2026-11-03: Storage probe extensions
 
 New checks now cover storage edge paths. DVD reads a full known sector
-asynchronously from offset `0x2000`; it also reads that payload sector and the
-following zero-filled sector in one request. The probe checks callbacks,
-transfer lengths, and every byte. USB checks live closed handles in the safe
-facade and C ABI after absent-device opens. It checks LUN rejection, output
-preservation, close, flush, reset, suspend, and start-stop behavior. SD Gecko
-checks that a documented null buffer free does not damage the buffer pool.
-CARD requests one block beyond reported free space, checks
+asynchronously from offset `0x2000`; it also reads the payload sector and the
+following zero-filled sector with both synchronous and asynchronous two-sector
+requests. The probe checks callbacks, transfer lengths, and every byte. USB
+checks live closed handles in the safe facade and C ABI after absent-device
+opens. It checks LUN rejection, output preservation, close, flush, reset,
+suspend, and start-stop behavior. A null-handle C ABI read also checks that the
+caller buffer stays unchanged. SD Gecko checks that a documented null buffer
+free does not damage the buffer pool, and that Rust and C APIs reject drive
+numbers below and above the valid range while preserving invalid-transfer
+buffers. CARD checks positive raw and facade media probes and compares both
+`probe_ex` outputs to detected geometry. It also requests one block beyond
+reported free space, checks
 `CARD_ERROR_INSSPACE`, confirms output and free-space preservation, and checks
 that no directory entry remains. It also checks synchronous `create_entry`
 and `delete_entry`, plus facade `create` and `delete`. The checks cover handle
@@ -1307,10 +1312,10 @@ probe and reference fixtures. A separate build with the prepared PowerPC
 sysroot and `gamecube` cfg built and converted the GameCube `card_probe` DOL.
 The fresh DOL SHA-256 values are:
 
-- Wii `dvd_probe`: `0e1a9a9402061c06b88e658cbfcae5375aeefa270f97837313fe6e0c5215f8a1`
-- `usbstorage_capacity_probe`: `0f93450de1a3ebf41859edb27b50437fdd9fcb864cb1b3337962a01537185e03`
-- `fat_sd_probe`: `abe913eb82618b6753377b8d5dd4c85e3e134a602c36b6974d7436058ea0161a`
-- GameCube `card_probe`: `403627113ccebcd9b82de79ba12511eddde4a34c99cfb65242ea069cfd294187`
+- Wii `dvd_probe`: `f2e9d6838a54021cd2fefc61639d01fdb5e6a99859e0acfbcd5e2c98953b1eee`
+- `usbstorage_capacity_probe`: `62187ea1bb7f87c243e51db3fa9ef97cafb1af2ff6be1e6dd7e9b60bfdd87817`
+- `fat_sd_probe`: `74d5b711abac355a06a8be396ef53fb0bf4fa758b44576553ed9c89dcd4ccb4c`
+- GameCube `card_probe`: `d851aa51879ed77ab7efcd36eec89eb0cd77e17914abf265ae6c4c9f30a3a526`
 
 These changed probe checks have source and build evidence only. They do not
 have new Dolphin results because the installed Dolphin executable fails its
