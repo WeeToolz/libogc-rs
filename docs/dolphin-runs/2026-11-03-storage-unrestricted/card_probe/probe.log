@@ -1,0 +1,267 @@
+
+
+PASS GameCube system initialization
+
+== GAMECUBE CARD PROBE ==
+
+== CARD ASYNC + DETACH ==
+PASS card identifier validation
+PASS CARD slot conversion validates both slots and preserves invalid input
+INFO card init=0
+
+== CARD INVALID CHANNEL APIs ==
+PASS CARD sys probe_ex rejects an invalid channel and preserves outputs
+PASS CARD wrapper probe_ex forwards the invalid-channel error
+PASS CARD sys get_error_code rejects an invalid channel
+PASS CARD wrapper get_error_code forwards the invalid-channel result
+PASS CARD sys get_sector_size preserves output on invalid channel
+PASS CARD sys create rejects invalid channel and preserves output
+PASS CARD sys and wrapper delete reject an invalid channel
+PASS CARD sys get_block_count preserves output on invalid channel
+PASS CARD wrapper get_block_count forwards error and preserves output
+PASS CARD sys get_free_blocks preserves output on invalid channel
+PASS CARD wrapper get_free_blocks forwards error and preserves output
+-- page 2 --
+PASS CARD sys get_serial_no preserves outputs on invalid channel
+PASS CARD wrapper get_serial_no forwards error and preserves outputs
+PASS CARD sys get_status rejects an invalid channel and preserves output
+PASS CARD wrapper get_status forwards the error and preserves output
+PASS CARD sys get_status_ex rejects an invalid channel and preserves output
+PASS CARD sys get_attributes rejects an invalid channel and preserves output
+PASS CARD sys set_status rejects an invalid channel without changing input
+PASS CARD sys set_status_ex rejects an invalid channel without changing input
+PASS CARD sys set_attributes rejects an invalid channel
+PASS CARD sys get_directory rejects an invalid channel and preserves outputs
+PASS CARD sys find_first initializes its cursor before an invalid-channel error
+PASS CARD sys find_next advances its cursor before an invalid-channel error
+PASS CARD sys and wrapper mount_async reject invalid channels without callbacks
+PASS CARD sys create_async rejects an invalid channel without callback or output changes
+-- page 3 --
+PASS CARD sys create_entry and delete_entry reject invalid channels
+PASS CARD sys open_entry rejects an invalid channel and preserves output
+PASS CARD sys read_async and write_async reject invalid channels without callbacks
+PASS CARD sys metadata async submissions reject invalid channels without callbacks
+INFO CARD EXI channel 0 status before probe=0x00001008
+INFO CARD raw slot probe result=0
+INFO CARD typed probe_info result=-1
+PASS CARD probe returns an EXI presence value and rejects an invalid channel
+PASS CARD probe_info returns valid geometry or a device error
+PASS CARD probe_info preserves the operation status
+PASS CARD serial_number rejects an unmounted slot
+INFO CARD sector_size status=-3
+PASS CARD sector_size returns no-card for unavailable media
+INFO CARD block_count status=-3
+PASS CARD block_count returns no-card for unavailable media
+INFO CARD free_blocks status=-3
+PASS CARD free_blocks returns no-card for unavailable media
+INFO CARD file_status status=-3
+PASS CARD file_status returns no-card for unavailable media
+PASS CARD slice transfers reject empty, short, misaligned, and overflowing requests before I/O
+-- page 4 --
+PASS CARD read_async_owned rejects an invalid channel and returns its file
+PASS CARD write_async_owned rejects an invalid channel and returns file and bytes
+PASS CARD read_async_owned rejects invalid transfer shapes and preserves files
+PASS CARD write_async_owned rejects invalid transfer shapes and returns payloads
+PASS CARD owned create and delete reject embedded NUL and oversized filenames
+PASS CARD owned entry operations reject unterminated names and return entries
+PASS CARD set_status_async_owned rejects out-of-range file numbers and returns stat
+INFO CARD slot probe after bounded retries=1
+INFO CARD probe_info after bounded retries=0
+PASS card mount request retains its slot
+INFO card mount async owned submit=0 complete=1 result=0
+PASS card mount async owned accepted
+PASS card mount async owned completion
+PASS card mount async owned result
+PASS card mounted owner retains its slot
+PASS card mounted owner reports attached
+-- page 5 --
+PASS card mounted owner has no detach result before removal
+PASS CARD sys probe detects the mounted slot
+PASS CARD facade probe detects the mounted slot
+PASS CARD sys probe_ex reports mounted media geometry
+PASS CARD facade probe_ex reports mounted media geometry
+PASS CARD owned duplicate mount returns busy
+PASS CARD owned mount remains attached after duplicate request
+PASS CARD sys get_sector_size matches mounted geometry
+PASS CARD get_sector_size wrapper matches mounted geometry
+PASS CARD sys get_block_count matches mounted geometry
+PASS CARD get_block_count wrapper matches mounted geometry
+PASS CARD sys get_serial_no matches mounted serial number
+PASS CARD get_serial_no wrapper matches mounted serial number
+INFO card sector size rc=0
+INFO card sector size=8192
+PASS card SAVE preflight found no existing file
+PASS card free blocks before create
+PASS CARD sys get_free_blocks matches mounted free space
+PASS CARD get_free_blocks wrapper matches mounted free space
+INFO card free block count before create=2043
+PASS CARD create beyond available blocks returns insufficient space
+PASS CARD failed oversized create preserves output handle and free space
+PASS CARD unexpected oversized create cleanup
+-- page 6 --
+PASS CARD failed oversized create leaves no directory entry
+PASS CARD sys create_entry creates a valid file handle
+PASS CARD sys create_entry file handle closes
+PASS CARD sys delete_entry removes the created entry
+PASS CARD synchronous entry deletion leaves no directory entry
+PASS CARD synchronous entry cleanup succeeds
+PASS CARD synchronous entry lifecycle restores free blocks
+PASS CARD facade create initializes a file handle
+PASS CARD facade create file handle closes
+PASS CARD facade create reopens with expected status
+PASS CARD facade reopened file handle closes
+PASS CARD facade delete removes its created file
+PASS CARD facade file cleanup succeeds
+PASS CARD facade file lifecycle restores free blocks
+PASS card create request retains its slot
+INFO card create async owned submit=0 complete=1 result=0
+PASS card create async owned accepted
+PASS card create async owned completion
+PASS card create async owned result
+INFO card SAVE file channel after create=0
+INFO card SAVE file number after create=0
+PASS CARD sys get_status reads the created SAVE entry
+PASS CARD get_status wrapper matches the created SAVE entry
+-- page 7 --
+PASS CARD sys get_status_ex reads the created SAVE directory entry
+PASS card set status async owned
+PASS card create entry async owned
+PASS card close created entry
+INFO card delete entry completion status=0
+PASS card delete entry async owned
+INFO card write async owned submit=0 complete=1 result=0
+PASS card write async owned accepted
+PASS card write async owned completion
+PASS card write async owned result
+INFO card read async owned submit=0 complete=1 result=0
+PASS card read async owned accepted
+PASS card read async owned completion
+PASS card read async owned result
+PASS card async owned roundtrip
+PASS card safe sync roundtrip
+PASS card raw sync roundtrip
+PASS card raw wrapper sync roundtrip
+PASS card close save
+PASS card unmount after create
+PASS card mount request retains its slot
+PASS card remount after create
+PASS card create persisted after remount
+-- page 8 --
+PASS card data persisted after remount
+PASS card status persisted after remount
+INFO CARD get attributes before update=0
+INFO CARD set attributes update=0
+INFO CARD set attributes restore=0
+PASS CARD sys get_attributes and set_attributes read back and restore flags
+INFO CARD sys set_status_async submit=0 complete=1 result=0 after_return=1
+PASS CARD sys set_status_async accepted
+PASS CARD sys set_status_async callback
+PASS CARD sys set_status_async callback after return
+PASS CARD sys set_status_async result
+PASS CARD sys set_status_async updates the banner format
+INFO CARD sys set_status_async restore submit=0 complete=1 result=0 after_return=1
+PASS CARD sys set_status_async restore accepted
+PASS CARD sys set_status_async restore callback
+PASS CARD sys set_status_async restore callback after return
+PASS CARD sys set_status_async restore result
+PASS CARD sys set_status_async restores original metadata
+INFO CARD sys set_attributes_async submit=0 complete=1 result=0 after_return=1
+-- page 9 --
+PASS CARD sys set_attributes_async accepted
+PASS CARD sys set_attributes_async callback
+PASS CARD sys set_attributes_async callback after return
+PASS CARD sys set_attributes_async result
+PASS CARD sys set_attributes_async updates the flags
+INFO CARD sys set_attributes_async restore submit=0 complete=1 result=0 after_return=1
+PASS CARD sys set_attributes_async restore accepted
+PASS CARD sys set_attributes_async restore callback
+PASS CARD sys set_attributes_async restore callback after return
+PASS CARD sys set_attributes_async restore result
+PASS CARD sys set_attributes_async restores the flags
+PASS CARD game and company setters select the created save
+PASS CARD sys find_first and find_next enumerate the created save
+INFO CARD sys write_async submit=0 complete=1 result=0 after_return=1
+PASS CARD sys write_async accepted
+PASS CARD sys write_async callback
+PASS CARD sys write_async callback after return
+PASS CARD sys write_async result
+INFO CARD sys read_async submit=0 complete=1 result=0 after_return=1
+PASS CARD sys read_async accepted
+PASS CARD sys read_async callback
+PASS CARD sys read_async callback after return
+-- page 10 --
+PASS CARD sys read_async result
+PASS CARD sys read_async returns raw write data
+INFO CARD sys write_async restore submit=0 complete=1 result=0 after_return=1
+PASS CARD sys write_async restore accepted
+PASS CARD sys write_async restore callback
+PASS CARD sys write_async restore callback after return
+PASS CARD sys write_async restore result
+PASS CARD raw async read and write complete with restored data
+PASS card close remounted save
+PASS card delete request retains its slot
+PASS card delete completion preserves operation status
+INFO card delete async owned submit=0 complete=1 result=0
+PASS card delete async owned accepted
+PASS card delete async owned completion
+PASS card delete async owned result
+PASS card delete async owned completion
+PASS CARD raw async test name is unused
+INFO CARD sys create_async submit=0 complete=1 result=0 after_return=1
+PASS CARD sys create_async accepted
+PASS CARD sys create_async callback
+PASS CARD sys create_async callback after return
+PASS CARD sys create_async result
+-- page 11 --
+PASS CARD sys create_async returns a valid file
+PASS CARD raw async create closes its file
+INFO CARD sys delete_async submit=0 complete=1 result=0 after_return=1
+PASS CARD sys delete_async accepted
+PASS CARD sys delete_async callback
+PASS CARD sys delete_async callback after return
+PASS CARD sys delete_async result
+PASS CARD sys delete_async removes the temporary file
+PASS CARD raw async entry name is unused
+INFO CARD sys create_entry_async submit=0 complete=1 result=0 after_return=1
+PASS CARD sys create_entry_async accepted
+PASS CARD sys create_entry_async callback
+PASS CARD sys create_entry_async callback after return
+PASS CARD sys create_entry_async result
+PASS CARD sys create_entry_async creates the requested entry
+PASS CARD sys open_entry finds the created entry
+PASS CARD sys open_entry handle closes
+PASS CARD raw async entry create closes its file
+INFO CARD sys delete_entry_async submit=0 complete=1 result=0 after_return=1
+PASS CARD sys delete_entry_async accepted
+PASS CARD sys delete_entry_async callback
+-- page 12 --
+PASS CARD sys delete_entry_async callback after return
+PASS CARD sys delete_entry_async result
+PASS CARD sys delete_entry_async removes the temporary entry
+PASS card unmount after delete
+PASS card mount request retains its slot
+PASS card remount after delete
+PASS card delete persisted after remount
+PASS card free blocks restored after delete
+PASS card final unmount
+
+== CARD SYNC MOUNT LIFECYCLES ==
+INFO CARD wrapper sync mount result=0
+PASS CARD wrapper sync mount succeeds
+PASS CARD wrapper mount exposes sector size
+INFO CARD wrapper sync unmount result=0
+PASS CARD wrapper sync unmount succeeds
+PASS CARD wrapper unmount clears mounted state
+INFO CARD sys sync mount result=0
+PASS CARD sys sync mount succeeds
+PASS CARD sys mount exposes sector size
+INFO CARD sys unmount result=0
+PASS CARD sys unmount succeeds
+PASS CARD sys unmount clears mounted state
+-- page 13 --
+INFO card format skipped: pass --destructive-card-format=ERASE-SLOT-A to erase slot A
+INFO card shutdown=0
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+INFO summary_candidate passes=202 fails=0
+PASS summary passes=202 fails=0

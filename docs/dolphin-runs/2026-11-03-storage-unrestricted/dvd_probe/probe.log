@@ -1,0 +1,332 @@
+
+
+BOOT 1/3: system and video initialized
+INFO Wiiload arguments source=entry count=0
+PASS SYS_Init completed
+INFO startup stage=0 completed_mask=0x7ff failed_stage=0
+BOOT watchdog arm starting
+INFO recovery reset watchdog not armed
+BOOT watchdog arm complete
+BOOT Wiiload report argument check
+INFO Wiiload report check disabled for this probe build
+BOOT before first vsync
+BOOT 2/3: entering IOS pre-main
+PRE 0/7: closing inherited IOS descriptors
+IPC: sync state ready
+IPC: command=0x00000002 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000002 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 1/7: IOS startup
+PRE 2/7: IOS subsystems
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 3/7: STM handler
+PRE 4/7: STM devices
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+PRE 5/7: configuration
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 6/7: Wii launch state
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 7/7: complete
+-- page 2 --
+BOOT 3/3: IOS pre-main completed
+PASS display initialized
+INFO boot stage: system/video initialized
+INFO boot stage: IOS pre-main completed
+INFO log backend disabled
+INFO argv0 unavailable
+INFO argv raw magic=0x00000000 len=0 argc=0 cmd=0x00000000 argv=0x00000000 end=0x00000000
+PASS power button callback installed
+INFO stm init deferred until shutdown
+INFO fat mount sd=not-selected usb=not-selected
+INFO previous stm handler chained=0
+INFO previous power callback replaced
+
+== DVD /DEV/DI ==
+INFO dvd initial status=4
+INFO dvd cover status=4
+INFO dvd disc present=0
+INFO dvd tests skipped: insert a readable Wii/GameCube disc
+PASS dvd init and drive status report no disc
+PASS dvd cover status reports no disc
+PASS dvd presence reports no disc
+PASS dvd no fake success without media
+-- page 3 --
+PASS dvd idle command block status
+PASS dvd auto invalidation update and restore
+PASS dvd pause updates drive state
+PASS dvd cancel all pauses without pending requests
+PASS dvd reset none restores no-disc state
+PASS dvd static information pointers remain stable
+INFO dvd mount async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd mount async without media accepted
+PASS dvd mount async without media callback
+PASS dvd mount async without media callback after return
+PASS dvd mount async without media result
+INFO dvd inquiry async without media submit=1 complete=1 result=0 after_return=1
+PASS dvd inquiry async without media accepted
+PASS dvd inquiry async without media callback
+PASS dvd inquiry async without media callback after return
+PASS dvd inquiry async without media result
+INFO dvd bs read async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd bs read async without media accepted
+PASS dvd bs read async without media callback
+PASS dvd bs read async without media callback after return
+-- page 4 --
+PASS dvd bs read async without media result
+INFO dvd control check async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd control check async without media accepted
+PASS dvd control check async without media callback
+PASS dvd control check async without media callback after return
+PASS dvd control check async without media result
+INFO dvd set zero gcm offset async submit=1 complete=1 result=0 after_return=1
+PASS dvd set zero gcm offset async accepted
+PASS dvd set zero gcm offset async callback
+PASS dvd set zero gcm offset async callback after return
+PASS dvd set zero gcm offset async result
+INFO dvd set zero gcm offset sync result=1
+PASS dvd set zero gcm offset sync
+INFO dvd control check sync result=-1
+PASS dvd control check sync reports no media
+INFO dvd zero offset seek rejects invalid offset submit=1 complete=1 result=-4 after_return=1
+PASS dvd zero offset seek rejects invalid offset accepted
+PASS dvd zero offset seek rejects invalid offset callback
+PASS dvd zero offset seek rejects invalid offset callback after return
+PASS dvd zero offset seek rejects invalid offset result
+-- page 5 --
+INFO dvd zero offset sync seek result=-1
+PASS dvd zero offset sync seek reports invalid state
+INFO dvd stop stream async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd stop stream async without media accepted
+PASS dvd stop stream async without media callback
+PASS dvd stop stream async without media callback after return
+PASS dvd stop stream async without media result
+INFO dvd stop stream sync result=-1
+PASS dvd stop stream sync without media
+INFO dvd spin up async without media submit=1 complete=1 result=0 after_return=1
+PASS dvd spin up async without media accepted
+PASS dvd spin up async without media callback
+PASS dvd spin up async without media callback after return
+PASS dvd spin up async without media result
+INFO dvd spin up sync result=1
+PASS dvd spin up sync without media
+INFO dvd stop motor without media result=0
+PASS dvd stop motor call completes
+
+== DVD SYS DIRECT NO MEDIA ==
+PASS dvd sys status APIs report no disc
+-- page 6 --
+PASS dvd sys static output pointers remain stable
+PASS dvd sys idle command status is readable
+PASS dvd sys sync mount rejects no disc
+INFO dvd sys mount async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd sys mount async without media accepted
+PASS dvd sys mount async without media callback
+PASS dvd sys mount async without media callback after return
+PASS dvd sys mount async without media result
+PASS dvd sys mount async updates its command block
+INFO dvd sys control async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd sys control async without media accepted
+PASS dvd sys control async without media callback
+PASS dvd sys control async without media callback after return
+PASS dvd sys control async without media result
+PASS dvd sys control sync reports no disc
+INFO dvd sys zero offset async submit=1 complete=1 result=0 after_return=1
+PASS dvd sys zero offset async accepted
+PASS dvd sys zero offset async callback
+PASS dvd sys zero offset async callback after return
+PASS dvd sys zero offset async result
+-- page 7 --
+PASS dvd sys zero offset sync completes
+INFO dvd sys spin up async without media submit=1 complete=1 result=0 after_return=1
+PASS dvd sys spin up async without media accepted
+PASS dvd sys spin up async without media callback
+PASS dvd sys spin up async without media callback after return
+PASS dvd sys spin up async without media result
+PASS dvd sys spin up sync completes without media
+INFO dvd sys inquiry async without media submit=1 complete=1 result=0 after_return=1
+PASS dvd sys inquiry async without media accepted
+PASS dvd sys inquiry async without media callback
+PASS dvd sys inquiry async without media callback after return
+PASS dvd sys inquiry async without media result
+PASS dvd sys inquiry sync returns drive information
+INFO dvd sys read disk ID async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd sys read disk ID async without media accepted
+PASS dvd sys read disk ID async without media callback
+PASS dvd sys read disk ID async without media callback after return
+PASS dvd sys read disk ID async without media result
+PASS dvd sys disk ID failure preserves transfer count
+INFO dvd sys absolute read async without media submit=1 complete=1 result=-4 after_return=1
+-- page 8 --
+PASS dvd sys absolute read async without media accepted
+PASS dvd sys absolute read async without media callback
+PASS dvd sys absolute read async without media callback after return
+PASS dvd sys absolute read async without media result
+PASS dvd sys reads preserve output and report no disc
+INFO dvd sys BS read async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd sys BS read async without media accepted
+PASS dvd sys BS read async without media callback
+PASS dvd sys BS read async without media callback after return
+PASS dvd sys BS read async without media result
+PASS dvd sys BS read preserves output and byte count
+INFO dvd sys seek async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd sys seek async without media accepted
+PASS dvd sys seek async without media callback
+PASS dvd sys seek async without media callback after return
+PASS dvd sys seek async without media result
+PASS dvd sys seek sync reports no disc
+INFO dvd sys stop stream async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd sys stop stream async without media accepted
+PASS dvd sys stop stream async without media callback
+-- page 9 --
+PASS dvd sys stop stream async without media callback after return
+PASS dvd sys stop stream async without media result
+PASS dvd sys stop stream sync reports no disc
+PASS dvd sys auto invalidation changes and restores state
+PASS dvd sys pause cancel and reset update drive state
+INFO dvd sys last error after no-disc calls=16923136
+PASS dvd sys last error read is stable
+PASS dvd sys stop motor completes
+INFO dvd shutdown=0
+PASS dvd shutdown
+
+== OGC DI DIRECT NO-DISC ==
+INFO di init result=0
+PASS di init opens transport
+PASS di legacy descriptor is open after init
+PASS di init state has no disc
+PASS di no-disc mount callback
+PASS di mount leaves no-disc state
+PASS DI_Mount delivers no-disc callback
+INFO di identify result=0
+INFO di drive revision=0
+INFO di drive code=2
+INFO di drive release date=537265446
+-- page 10 --
+PASS di identify returns a drive record
+PASS C DI identify matches Rust output
+INFO di dvd support=1
+PASS di dvd support reports Dolphin drive
+PASS C DI support matches Rust result
+PASS di disc id errors preserve output
+PASS C DI disc ID matches Rust result and output
+PASS di disc id bytes errors preserve output
+INFO di get-error result=0
+INFO di get-error output=16923136
+INFO C DI get-error result=0
+INFO C DI get-error output=16777216
+PASS di error output is valid or preserved
+PASS Rust and C DI error calls return data and preserve success
+PASS di cover result reports no inserted disc
+PASS C DI cover status matches Rust result and output
+PASS di config output is valid or preserved
+PASS C DI configuration matches Rust result and output
+PASS di copyright output is valid or preserved
+PASS C DI copyright matches Rust result and output
+INFO di sector read result=1
+INFO di sector read first word=0
+PASS di direct sector read reports no-media error
+-- page 11 --
+PASS di raw read rejects null buffer
+PASS di raw read rejects unaligned buffer and preserves bytes
+PASS di unencrypted read rejects null buffer
+
+== OGC DI C ABI ARGUMENTS ==
+PASS DI_GetStatus reports no-disc state
+PASS DI_Identify rejects null output
+PASS DI_CheckDVDSupport reports Dolphin drive
+PASS DI_ReadDiscID rejects null output
+PASS DI_GetError rejects null output
+PASS DI_GetCoverRegister rejects null output
+PASS DI_Reset completes
+PASS DI_StopMotor completes
+PASS DI_Eject completes
+PASS DI_KillDrive completes
+PASS DI_ReadDVD reports no-media error
+PASS DI_ReadDVDAsync reports no mounted media
+PASS DI_Read rejects null buffer
+PASS DI_UnencryptedRead rejects null buffer
+PASS DI_ReadDVDConfig rejects null output
+PASS DI_ReadDVDCopyright rejects null output
+PASS DI_ReadDVDDiscKey rejects null buffer
+PASS DI_ReadDVDPhysical rejects null buffer
+-- page 12 --
+PASS DI_Read_BCA rejects null buffer
+PASS DI_ReportKey rejects null buffer
+INFO di disc key result=-5
+INFO DI_ReadDVDDiscKey result=-5
+INFO di physical data result=-5
+INFO DI_ReadDVDPhysical result=-5
+PASS Rust and C DI disc key results and bytes match
+PASS Rust and C DI physical data results and bytes match
+INFO di BCA result=0
+INFO DI_Read_BCA result=0
+INFO di report key result=-5
+INFO DI_ReportKey result=-5
+PASS Rust and C DI BCA results and bytes match
+PASS Rust and C DI report-key results and bytes match
+PASS Rust DI configuration setters preserve drive status
+PASS C DI configuration setters preserve drive status
+PASS Rust DI init callback is not called for no-disc mount
+PASS C DI init callback is not called for no-disc mount
+INFO di reset result=0
+PASS di reset completes in Dolphin
+INFO di stop motor result=0
+INFO di eject result=0
+INFO di kill drive result=0
+-- page 13 --
+PASS di stop motor command completes
+PASS di eject command completes
+PASS di kill drive command completes
+PASS di audio stream without media reports an error
+INFO di close result=0
+PASS di close succeeds
+PASS di raw read after close rejects missing descriptor
+PASS di close restores initial status
+PASS di closed async read rejects missing descriptor
+INFO DI_Init after close result=0
+PASS DI_Init reopens transport
+PASS DI_Init sets the legacy descriptor
+PASS DI_Close clears the legacy descriptor
+PASS DI_Close restores initial status
+INFO di reopen result=0
+PASS di reinitializes after close
+PASS di legacy descriptor reopens after init
+INFO di final close result=0
+PASS di final close succeeds
+PASS di close clears the legacy descriptor
+PASS Rust DI partition APIs reject a closed descriptor
+PASS C DI partition APIs reject a closed descriptor
+PASS probe VI retraces complete within 100 ms
+-- page 14 --
+PASS Dolphin screen-data transport completed
+INFO summary_candidate passes=183 fails=0
+PASS summary passes=183 fails=0

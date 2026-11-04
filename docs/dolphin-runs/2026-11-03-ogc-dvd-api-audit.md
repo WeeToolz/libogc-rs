@@ -1,5 +1,7 @@
 # `ogc-dvd` API runtime audit
 
+**New run:** The [DVD log](2026-11-03-storage-unrestricted/dvd_probe/probe.log) passed 183 no-disc checks. It had no disc, so the new media-read checks remain open.
+
 This audit covers the 27 Rust functions listed for `ogc-dvd` in the generated
 implementation inventory. The no-disc evidence is the
 [fresh DVD probe run](ogc-dvd-api-audit-current/README.md). Dolphin 2609a
