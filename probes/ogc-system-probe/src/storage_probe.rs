@@ -4148,9 +4148,117 @@ fn probe_card_format(logger: &mut ProbeLogger) {
         "card destructive format free blocks",
         expected_free.is_some() && card::free_blocks(slot).ok() == expected_free,
     );
+
+    let mut async_marker = card::CardFile::default();
+    let async_marker_created = sector_size.is_some_and(|size| {
+        // SAFETY: the static name and unique output remain valid for the call.
+        (unsafe {
+            card::sys::create(
+                slot.channel(),
+                c"FORMATASYNC".as_ptr().cast(),
+                size.max(0x2000),
+                &mut async_marker,
+            )
+        }) == card::CARD_ERROR_READY
+    });
+    logger.record("card async format marker created", async_marker_created);
+    let async_marker_closed = if async_marker_created {
+        // SAFETY: the successful create returned a live marker handle.
+        unsafe { card::sys::close(&mut async_marker) == card::CARD_ERROR_READY }
+    } else {
+        false
+    };
+    logger.record("card async format marker closed", async_marker_closed);
+
+    prepare_async_probe();
+    let async_format_submit = if async_marker_closed {
+        card::sys::format_async(slot.channel(), Some(card_async_callback))
+    } else {
+        card::CARD_ERROR_FATAL_ERROR
+    };
+    let async_format_checks_passed = record_async(
+        logger,
+        "CARD sys format_async",
+        async_format_submit,
+        card::CARD_ERROR_READY,
+        45,
+    );
+    let async_format_completed = async_format_submit >= 0
+        && ASYNC_DONE.load(Ordering::Acquire)
+        && ASYNC_RESULT.load(Ordering::Acquire) == card::CARD_ERROR_READY;
+    logger.record(
+        "CARD sys format_async completes on the private card",
+        async_format_checks_passed,
+    );
+    if async_marker_created
+        && !async_format_completed
+        && (async_format_submit < 0 || ASYNC_DONE.load(Ordering::Acquire))
+    {
+        let mut leftover = card::CardFile::default();
+        // SAFETY: the marker name is static and the output is unique.
+        let leftover_open = unsafe {
+            card::sys::open(
+                slot.channel(),
+                c"FORMATASYNC".as_ptr().cast(),
+                &mut leftover,
+            )
+        };
+        let cleanup_status = if leftover_open == card::CARD_ERROR_READY {
+            // SAFETY: `leftover` is a live handle opened by the cleanup check.
+            let close_status = unsafe { card::sys::close(&mut leftover) };
+            if close_status == card::CARD_ERROR_READY {
+                // SAFETY: the marker name is static and points to this probe's file.
+                unsafe { card::sys::delete(slot.channel(), c"FORMATASYNC".as_ptr().cast()) }
+            } else {
+                close_status
+            }
+        } else {
+            leftover_open
+        };
+        logger.record(
+            "card async format failure cleanup",
+            cleanup_status == card::CARD_ERROR_READY || cleanup_status == card::CARD_ERROR_NOFILE,
+        );
+    }
+    let async_unmount = remounted.unmount();
+    logger.record(
+        "card async format unmount",
+        async_unmount == card::CARD_ERROR_READY,
+    );
+    if !async_format_completed || async_unmount != card::CARD_ERROR_READY {
+        return;
+    }
+    let Some(async_remounted) = mount_card_owned(logger, slot, 15) else {
+        logger.record("card async format remount", false);
+        return;
+    };
+    logger.record("card async format remount", true);
+    let mut removed_async_marker = card::CardFile::default();
+    // SAFETY: the static name and unique output remain valid for the call.
+    let async_marker_status = unsafe {
+        card::sys::open(
+            slot.channel(),
+            c"FORMATASYNC".as_ptr().cast(),
+            &mut removed_async_marker,
+        )
+    };
+    logger.record(
+        "card async format marker removed after remount",
+        async_marker_status == card::CARD_ERROR_NOFILE,
+    );
+    if async_marker_status == card::CARD_ERROR_READY {
+        // SAFETY: the unexpected successful open produced a live handle.
+        logger.record("card async format unexpected marker close", unsafe {
+            card::sys::close(&mut removed_async_marker) == card::CARD_ERROR_READY
+        });
+    }
+    logger.record(
+        "card async format free blocks",
+        expected_free.is_some() && card::free_blocks(slot).ok() == expected_free,
+    );
     logger.record(
         "card destructive format final unmount",
-        remounted.unmount() == card::CARD_ERROR_READY,
+        async_remounted.unmount() == card::CARD_ERROR_READY,
     );
 }
 

@@ -1223,6 +1223,20 @@ checks await Dolphin because the installed executable aborts on its version
 preflight. The [CARD API audit](docs/dolphin-runs/2026-11-03-ogc-card-api-audit.md)
 maps the direct checks to the Rust sys wrappers and Wii backend entries.
 
+## 2026-11-03: CARD async format probe
+
+The private-card format probe now runs a second cycle through raw sys
+`format_async`. It creates and closes a marker file, submits the format call,
+checks callback completion and status, then unmounts and remounts the card to
+check marker removal and free space. Failure paths try to remove the marker
+when the asynchronous operation did not complete. The changed source has not
+produced a new DOL: the aggregate build needs the external reference MP3
+fixture, and the direct target build needs an uncached Rust source dependency
+while network access is unavailable. The installed Dolphin executable also
+aborts during its version preflight, before a DOL can run. The
+[CARD API audit](docs/dolphin-runs/2026-11-03-ogc-card-api-audit.md) records
+these limits and the previous synchronous format runs.
+
 ## 2026-11-03: CARD API evidence audit
 
 The CARD audit maps all 209 inventory rows for `ogc-card`, `ogc-card-sys`,
