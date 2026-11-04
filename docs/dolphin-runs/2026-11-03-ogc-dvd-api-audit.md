@@ -13,6 +13,9 @@ covers error handling and callbacks. Both used Dolphin 2609a.
 | `mount_async`, `inquiry_async`, `read_abs_async_for_bs`, `control_drive_async`, `set_gcm_offset_async`, `set_gcm_offset`, `seek_abs_async_prio`, `seek_prio`, `stop_stream_at_end_async`, `stop_stream_at_end`, `spin_up_drive_async`, `spin_up_drive` | `probe_dvd_no_media_async` | The no-disc log records submissions, callbacks, and final results. |
 | `get_cmd_block_status`, `set_auto_invalidation`, `pause`, `cancel_all_async`, `reset`, `get_current_disk_id`, `get_drive_info` | `probe_dvd_no_media_helpers` | The no-disc log records grouped state and helper checks. |
 
+A game disc image is planned for a later partition and filesystem test. A Wii
+NAND backup does not contain the game disc partition.
+
 The synthetic disc has no signed Wii partition or filesystem. These runs do
 not establish partition opening, filesystem access, or physical drive behavior.
 The C ABI checks call Rust-owned exports; they are not an independent C control.
