@@ -1,4 +1,5 @@
 use alloc::alloc::{alloc_zeroed, dealloc};
+use alloc::boxed::Box;
 use core::alloc::Layout;
 use core::ffi::{CStr, c_char, c_void};
 use core::fmt::{self, Write};
@@ -75,6 +76,7 @@ pub static OGC_STORAGE_PROBE_USB_V5_LAST_RESULT: AtomicI32 = AtomicI32::new(i32:
 pub static OGC_STORAGE_PROBE_USB_V5_LAST_USERDATA: AtomicU32 = AtomicU32::new(0);
 static DI_MOUNT_CALLBACK_STATUS: AtomicU32 = AtomicU32::new(u32::MAX);
 static DI_MOUNT_CALLBACK_ERROR: AtomicU32 = AtomicU32::new(u32::MAX);
+static DI_READ_ASYNC_USER_DATA: AtomicU32 = AtomicU32::new(0);
 
 static ASYNC_RETURNED: AtomicBool = AtomicBool::new(false);
 static ASYNC_DONE: AtomicBool = AtomicBool::new(false);
@@ -181,6 +183,12 @@ fn finish_async_probe(result: i32) {
 unsafe extern "C" fn di_mount_callback(status: u32, error: u32) -> i32 {
     DI_MOUNT_CALLBACK_STATUS.store(status, Ordering::Release);
     DI_MOUNT_CALLBACK_ERROR.store(error, Ordering::Release);
+    0
+}
+
+unsafe extern "C" fn di_read_async_callback(result: i32, user_data: *mut c_void) -> i32 {
+    DI_READ_ASYNC_USER_DATA.store(user_data as usize as u32, Ordering::Release);
+    finish_async_probe(result);
     0
 }
 
@@ -1351,6 +1359,82 @@ pub fn probe_di_media(logger: &mut ProbeLogger) {
         "di media Rust sector read matches fixture",
         rust_read == 0 && rust_sector.0[..8] == *b"TST1TS\0\0",
     );
+
+    let verified_fixture = id_result == 0
+        && id_bytes[..6] == *b"TST1TS"
+        && rust_read == 0
+        && rust_sector.0[..8] == *b"TST1TS\0\0";
+    if verified_fixture {
+        let mut rust_async_sector = Box::new(DvdSector([0; 0x800]));
+        let rust_async_sector_ptr = rust_async_sector.0.as_mut_ptr();
+        DI_READ_ASYNC_USER_DATA.store(0, Ordering::Release);
+        prepare_async_probe();
+        // SAFETY: The sector buffer is aligned, writable, and remains live
+        // until the callback completes.
+        let rust_async_submit = unsafe {
+            di::read_dvd_async(
+                rust_async_sector.0.as_mut_ptr().cast(),
+                1,
+                0,
+                Some(di_read_async_callback),
+            )
+        };
+        let rust_async_completed =
+            record_async(logger, "di media Rust async read", rust_async_submit, 0, 15);
+        logger.record(
+            "di media Rust async callback receives its buffer",
+            rust_async_completed
+                && DI_READ_ASYNC_USER_DATA.load(Ordering::Acquire)
+                    == rust_async_sector_ptr as usize as u32,
+        );
+        logger.record(
+            "di media Rust async read matches fixture",
+            rust_async_completed && rust_async_sector.0[..8] == *b"TST1TS\0\0",
+        );
+        if rust_async_submit >= 0 && !ASYNC_DONE.load(Ordering::Acquire) {
+            // Keep the submitted buffer alive if the IOS callback times out.
+            let _ = Box::into_raw(rust_async_sector);
+            logger.note("di media C async read skipped: the Rust request did not complete");
+            return;
+        }
+
+        let mut c_async_sector = Box::new(DvdSector([0; 0x800]));
+        let c_async_sector_ptr = c_async_sector.0.as_mut_ptr();
+        DI_READ_ASYNC_USER_DATA.store(0, Ordering::Release);
+        prepare_async_probe();
+        // SAFETY: The sector buffer is aligned, writable, and remains live
+        // until the callback completes.
+        let c_async_submit = unsafe {
+            di::DI_ReadDVDAsync(
+                c_async_sector.0.as_mut_ptr().cast(),
+                1,
+                0,
+                Some(di_read_async_callback),
+            )
+        };
+        let c_async_completed =
+            record_async(logger, "di media C async read", c_async_submit, 0, 15);
+        logger.record(
+            "di media C async callback receives its buffer",
+            c_async_completed
+                && DI_READ_ASYNC_USER_DATA.load(Ordering::Acquire)
+                    == c_async_sector_ptr as usize as u32,
+        );
+        logger.record(
+            "di media C async read matches fixture",
+            c_async_completed && c_async_sector.0[..8] == *b"TST1TS\0\0",
+        );
+        if c_async_submit >= 0 && !ASYNC_DONE.load(Ordering::Acquire) {
+            // Keep the submitted buffer alive if the IOS callback times out.
+            let _ = Box::into_raw(c_async_sector);
+            logger.note("di media C sync read skipped: the async request did not complete");
+            return;
+        }
+    } else {
+        logger.note(
+            "di media async read checks skipped: no verified TST1TS direct DI fixture is available",
+        );
+    }
 
     let mut c_sector = DvdSector([0; 0x800]);
     // SAFETY: the buffer is writable, 32-byte aligned, and one complete DI sector.

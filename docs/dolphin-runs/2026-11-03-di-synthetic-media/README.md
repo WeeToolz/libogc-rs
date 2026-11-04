@@ -12,6 +12,13 @@ The DVD wrapper can read known data from the image, but that does not establish
 that the lower `/dev/di` path can read it. A valid Wii image or a supported
 Dolphin media setup is still needed for direct DI and partition success.
 
+The probe source now adds Rust and C asynchronous DI read checks. They run only
+when direct DI returns the expected `TST1TS` ID and sector data. This saved run
+did not meet that condition, so it provides no result for the new callback
+checks. The updated Wii `dvd_probe` DOL has SHA-256
+`a90c41cdcc835cf9564dd4b278d6a23b3a36a6dfbb4f65ddc34217a936118d25`; it has
+not run in Dolphin.
+
 Image SHA-256:
 `6546ce0e4ca90e037ea961e6c13fd10ad24a83ade3be91d79003dba716ba4848`.
 DOL SHA-256:
