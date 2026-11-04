@@ -3638,6 +3638,147 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         }
     }
 
+    let mut raw_entry_preflight = card::CardFile {
+        filenum: -1,
+        ..card::CardFile::default()
+    };
+    // SAFETY: the static name and unique output remain valid for the check.
+    let raw_entry_name_status = unsafe {
+        card::sys::open(
+            slot.channel(),
+            c"RENTRY".as_ptr().cast(),
+            &mut raw_entry_preflight,
+        )
+    };
+    if raw_entry_name_status == card::CARD_ERROR_READY {
+        // SAFETY: the preflight open produced a live handle.
+        let _ = unsafe { card::sys::close(&mut raw_entry_preflight) };
+        logger.record("CARD raw async entry name is unused", false);
+    } else {
+        let raw_entry_name_unused = raw_entry_name_status == card::CARD_ERROR_NOFILE;
+        logger.record("CARD raw async entry name is unused", raw_entry_name_unused);
+        if raw_entry_name_unused {
+            let mut raw_entry = card::CardDir {
+                chn: slot.channel(),
+                filelen: sector_size,
+                gamecode: *b"TST1",
+                company: *b"TS",
+                ..card::CardDir::default()
+            };
+            raw_entry.filename[..6].copy_from_slice(b"RENTRY");
+            let mut raw_entry_file = card::CardFile {
+                filenum: -1,
+                ..card::CardFile::default()
+            };
+            prepare_async_probe();
+            // SAFETY: both output structures and the callback remain live
+            // until the create-entry request completes.
+            let raw_entry_create_submit = unsafe {
+                card::sys::create_entry_async(
+                    slot.channel(),
+                    &mut raw_entry,
+                    &mut raw_entry_file,
+                    Some(card_async_callback),
+                )
+            };
+            let raw_entry_create_completed = record_async(
+                logger,
+                "CARD sys create_entry_async",
+                raw_entry_create_submit,
+                card::CARD_ERROR_READY,
+                15,
+            );
+            let raw_entry_file_valid = raw_entry_create_completed
+                && raw_entry_file.filenum >= 0
+                && raw_entry_file.filenum < card::CARD_MAXFILES as i32
+                && raw_entry.filename[..6] == *b"RENTRY";
+            logger.record(
+                "CARD sys create_entry_async creates the requested entry",
+                raw_entry_file_valid,
+            );
+
+            let mut opened_raw_entry = card::CardFile {
+                filenum: -1,
+                ..card::CardFile::default()
+            };
+            // SAFETY: both the directory entry and unique file output remain
+            // live through the synchronous open call.
+            let raw_entry_open = unsafe {
+                card::sys::open_entry(slot.channel(), &mut raw_entry, &mut opened_raw_entry)
+            };
+            logger.record(
+                "CARD sys open_entry finds the created entry",
+                raw_entry_file_valid
+                    && raw_entry_open == card::CARD_ERROR_READY
+                    && opened_raw_entry.filenum == raw_entry_file.filenum,
+            );
+            let raw_entry_open_close = if raw_entry_open == card::CARD_ERROR_READY {
+                // SAFETY: `open_entry` produced a live, unique file handle.
+                unsafe { card::sys::close(&mut opened_raw_entry) }
+            } else {
+                card::CARD_ERROR_READY
+            };
+            if raw_entry_open == card::CARD_ERROR_READY {
+                logger.record(
+                    "CARD sys open_entry handle closes",
+                    raw_entry_open_close == card::CARD_ERROR_READY,
+                );
+            }
+
+            if raw_entry_file.filenum >= 0 && raw_entry_file.filenum < card::CARD_MAXFILES as i32 {
+                // SAFETY: create-entry completion finished and this is the
+                // only open handle for the temporary entry.
+                let raw_entry_close = unsafe { card::sys::close(&mut raw_entry_file) };
+                logger.record(
+                    "CARD raw async entry create closes its file",
+                    raw_entry_close == card::CARD_ERROR_READY,
+                );
+                if raw_entry_close == card::CARD_ERROR_READY
+                    && raw_entry_open_close == card::CARD_ERROR_READY
+                {
+                    prepare_async_probe();
+                    // SAFETY: `raw_entry` remains live until the async delete
+                    // callback completes.
+                    let raw_entry_delete_submit = unsafe {
+                        card::sys::delete_entry_async(
+                            slot.channel(),
+                            &mut raw_entry,
+                            Some(card_async_callback),
+                        )
+                    };
+                    let raw_entry_delete_completed = record_async(
+                        logger,
+                        "CARD sys delete_entry_async",
+                        raw_entry_delete_submit,
+                        card::CARD_ERROR_READY,
+                        15,
+                    );
+                    let mut deleted_raw_entry = card::CardFile {
+                        filenum: -1,
+                        ..card::CardFile::default()
+                    };
+                    // SAFETY: the static name and unique output remain valid
+                    // for the post-delete check.
+                    let raw_entry_reopen = unsafe {
+                        card::sys::open(
+                            slot.channel(),
+                            c"RENTRY".as_ptr().cast(),
+                            &mut deleted_raw_entry,
+                        )
+                    };
+                    if raw_entry_reopen == card::CARD_ERROR_READY {
+                        // SAFETY: the unexpected open produced a live handle.
+                        let _ = unsafe { card::sys::close(&mut deleted_raw_entry) };
+                    }
+                    logger.record(
+                        "CARD sys delete_entry_async removes the temporary entry",
+                        raw_entry_delete_completed && raw_entry_reopen == card::CARD_ERROR_NOFILE,
+                    );
+                }
+            }
+        }
+    }
+
     let delete_unmount = remounted.unmount();
     logger.record(
         "card unmount after delete",

@@ -6,14 +6,14 @@ The generated inventory has 209 entries across `ogc-card` (63), `ogc-card-sys` (
 
 Dolphin has saved passing runs for invalid-channel behavior, saved-card transfers, synchronous mount lifecycle, format, and metadata bit helpers. The runs used private copies of a verified 16 MiB virtual card. They do not prove physical card behavior. See the [CARD accessor run](2026-11-03-card-accessor-update/README.md), [full-buffer run](2026-11-03-card-full-buffer/README.md), [sync mount lifecycle run](2026-11-03-card-sync-mount-lifecycle/README.md), [GameCube format run](2026-11-03-card-format-gamecube/README.md), [Wii format marker run](2026-11-03-card-format-marker/README.md), and [metadata helper log](2026-11-02-card-metadata/bus_probe/probe.log).
 
-The current probe source adds a valid-card `find_first` and `find_next` scan. It also reads, changes, verifies, and restores the created save's attributes, submits raw async read and write operations with callback and data checks, and creates and deletes a temporary file through raw async sys calls. The updated GameCube `card_probe` DOL built with SHA-256 `a8b8f9f06890de2e3737041d4f32635c3ea8afa293eb4f8c9fe13aa1e4e6462e`. These new success checks need a Dolphin run. The current Dolphin executable does not pass its version preflight in this environment, so no new CARD DOL ran. See the [preflight record](2026-11-03-card-api-audit-preflight.md). For `ogc-card-sys` backend entries, a probe call to the public sys wrapper also enters the backend. The backend row is not a separate call or test.
+The current probe source adds a valid-card `find_first` and `find_next` scan. It also reads, changes, verifies, and restores the created save's attributes; submits raw async read and write operations with callback and data checks; and creates and deletes temporary files through raw async file and directory-entry calls. The updated GameCube `card_probe` DOL built with SHA-256 `7c38444fa8a8d5f4e1a61afb0ce4ad74f48afe02fc41bb497b54c57bdbc6dc2c`. These new success checks need a Dolphin run. The current Dolphin executable does not pass its version preflight in this environment, so no new CARD DOL ran. See the [preflight record](2026-11-03-card-api-audit-preflight.md). For `ogc-card-sys` backend entries, a probe call to the public sys wrapper also enters the backend. The backend row is not a separate call or test.
 
 ## Runtime check groups
 
 | Probe or test function | Inventory rows | Saved result | What it proves |
 | --- | ---: | --- | --- |
-| `probe_card_invalid_channel_apis` | 51 | Pass: the saved GameCube CARD run contains all 33 named invalid-channel assertions. | Rejects invalid channels; checks outputs, cursors, inputs, and callback state. |
-| `probe_card_save_data` | 69 | Saved run: 98 checks passed before these source updates. The directory scan, attribute update, raw async transfers, and raw async file lifecycle await Dolphin. | Covers owned and raw async calls, sync/raw transfer round trips, persistence, attributes, delete, cleanup, and directory search. Some failure-only labels have no saved PASS result. |
+| `probe_card_invalid_channel_apis` | 45 | Pass: the saved GameCube CARD run contains all 33 named invalid-channel assertions. | Rejects invalid channels; checks outputs, cursors, inputs, and callback state. |
+| `probe_card_save_data` | 75 | Saved run: 98 checks passed before these source updates. The directory scan, attribute update, raw async transfers, and raw async file and entry lifecycles await Dolphin. | Covers owned and raw async calls, sync/raw transfer round trips, persistence, attributes, delete, cleanup, and directory search. Some failure-only labels have no saved PASS result. |
 | `mount_card_owned` | 4 | Pass: owned mount request and completion checks appear in successful CARD runs. | Checks request slot, status, completion, and attached state. |
 | `probe_card_mount_lifecycles` | 6 | Pass: Wii storage run 227 checks; GameCube CARD run 108 checks. | Checks wrapper and sys mount/unmount, sector size, and no-card state after unmount. |
 | `probe_card_format` | 3 | Pass: 111 GameCube checks and 231 Wii checks. | Checks format, unmount/remount, free blocks, marker removal, and cleanup. |
@@ -34,7 +34,7 @@ The current probe source adds a valid-card `find_first` and `find_next` scan. It
 | `owned_completion_accessors_preserve_status_and_payloads` | 18 | Pass: `cargo test -p ogc-card-metadata` ran 18 tests with no failures. | Host logic only; this is not a Dolphin or card-device result. |
 | `protocol_apis_are_exercised_directly` | 16 | Pass: `cargo test -p ogc-card-metadata` ran 18 tests with no failures. | Host logic only; this is not a Dolphin or card-device result. |
 
-The current `probe_card_save_data` source contains 65 literal `logger.record` calls. The async helper also generates outcome labels for each raw call. Across the saved run logs, 43 distinct labels have a PASS result. The following source checks have no saved PASS result:
+The current `probe_card_save_data` source contains 72 literal `logger.record` calls. The async helper also generates outcome labels for each raw call. Across the saved run logs, 43 distinct labels have a PASS result. The following source checks have no saved PASS result:
 
 - `card game identifier validation` and `card company identifier validation` are error-only records. The passing `card identifier validation` check covers the successful `RUST` and `RS` constructors.
 - `card probe game identifier validation` and `card probe company identifier validation` are error-only records. The second identifier pair has no separate PASS label; later successful probe calls give only indirect evidence that construction succeeded.
@@ -45,6 +45,7 @@ The current `probe_card_save_data` source contains 65 literal `logger.record` ca
 - The equivalent `CARD sys read_async` outcome labels and `CARD sys read_async returns raw write data` are new checks in the current source. They have no Dolphin result because the current Dolphin preflight fails.
 - The `CARD sys write_async restore` outcome labels and `CARD raw async read and write complete with restored data` are new checks in the current source. They have no Dolphin result because the current Dolphin preflight fails.
 - `CARD sys create_async` and `CARD sys delete_async` each have accepted, callback, callback-after-return, and result labels. The probe also checks the created file handle, close result, unused test name, and deletion after callback. These new checks have no Dolphin result because the current Dolphin preflight fails.
+- `CARD sys create_entry_async` and `CARD sys delete_entry_async` each have accepted, callback, callback-after-return, and result labels. The probe checks the returned file and directory entry, closes the file, and verifies that deletion removes the entry. These new checks have no Dolphin result because the current Dolphin preflight fails.
 
 ## API inventory rows
 
@@ -130,16 +131,16 @@ Each row below has a separate inventory entry. The `source entry` column separat
 | `create_async` | `crates/services/ogc-card-sys/src/wii_backend.rs:3126` | `probe_card_save_data` → `create_async` | Invalid-channel check passed in the saved run; raw async create and callback checks await Dolphin |
 | `create_entry` | `crates/services/ogc-card-sys/src/lib.rs:453` | `probe_card_invalid_channel_apis` → `card::sys::create_entry` | Invalid-channel checks passed in the saved 98-check CARD run |
 | `create_entry` | `crates/services/ogc-card-sys/src/wii_backend.rs:3258` | `probe_card_invalid_channel_apis` → `create_entry` | Invalid-channel checks passed in the saved 98-check CARD run |
-| `create_entry_async` | `crates/services/ogc-card-sys/src/lib.rs:437` | `probe_card_invalid_channel_apis` → `card::sys::create_entry_async` | Invalid-channel checks passed in the saved 98-check CARD run |
-| `create_entry_async` | `crates/services/ogc-card-sys/src/wii_backend.rs:3229` | `probe_card_invalid_channel_apis` → `create_entry_async` | Invalid-channel checks passed in the saved 98-check CARD run |
+| `create_entry_async` | `crates/services/ogc-card-sys/src/lib.rs:437` | `probe_card_save_data` → `card::sys::create_entry_async` | Invalid-channel check passed in the saved run; raw async entry creation and callback checks await Dolphin |
+| `create_entry_async` | `crates/services/ogc-card-sys/src/wii_backend.rs:3229` | `probe_card_save_data` → `create_entry_async` | Invalid-channel check passed in the saved run; raw async entry creation and callback checks await Dolphin |
 | `delete` | `crates/services/ogc-card-sys/src/lib.rs:474` | `probe_card_invalid_channel_apis` → `card::sys::delete` | Invalid-channel checks passed in the saved 98-check CARD run |
 | `delete` | `crates/services/ogc-card-sys/src/wii_backend.rs:3289` | `probe_card_invalid_channel_apis` → `delete` | Invalid-channel checks passed in the saved 98-check CARD run |
 | `delete_async` | `crates/services/ogc-card-sys/src/lib.rs:464` | `probe_card_save_data` → `card::sys::delete_async` | Invalid-channel check passed in the saved run; raw async delete and callback checks await Dolphin |
 | `delete_async` | `crates/services/ogc-card-sys/src/wii_backend.rs:3270` | `probe_card_save_data` → `delete_async` | Invalid-channel check passed in the saved run; raw async delete and callback checks await Dolphin |
 | `delete_entry` | `crates/services/ogc-card-sys/src/lib.rs:495` | `probe_card_invalid_channel_apis` → `card::sys::delete_entry` | Invalid-channel checks passed in the saved 98-check CARD run |
 | `delete_entry` | `crates/services/ogc-card-sys/src/wii_backend.rs:3355` | `probe_card_invalid_channel_apis` → `delete_entry` | Invalid-channel checks passed in the saved 98-check CARD run |
-| `delete_entry_async` | `crates/services/ogc-card-sys/src/lib.rs:485` | `probe_card_invalid_channel_apis` → `card::sys::delete_entry_async` | Invalid-channel checks passed in the saved 98-check CARD run |
-| `delete_entry_async` | `crates/services/ogc-card-sys/src/wii_backend.rs:3336` | `probe_card_invalid_channel_apis` → `delete_entry_async` | Invalid-channel checks passed in the saved 98-check CARD run |
+| `delete_entry_async` | `crates/services/ogc-card-sys/src/lib.rs:485` | `probe_card_save_data` → `card::sys::delete_entry_async` | Invalid-channel check passed in the saved run; raw async entry deletion and callback checks await Dolphin |
+| `delete_entry_async` | `crates/services/ogc-card-sys/src/wii_backend.rs:3336` | `probe_card_save_data` → `delete_entry_async` | Invalid-channel check passed in the saved run; raw async entry deletion and callback checks await Dolphin |
 | `find_first` | `crates/services/ogc-card-sys/src/lib.rs:505` | `probe_card_save_data` → `card::sys::find_first` | New positive directory check in source; pending Dolphin run |
 | `find_first` | `crates/services/ogc-card-sys/src/wii_backend.rs:1975` | `probe_card_save_data` → `find_first` | New positive directory check in source; pending Dolphin run |
 | `find_next` | `crates/services/ogc-card-sys/src/lib.rs:515` | `probe_card_save_data` → `card::sys::find_next` | New positive directory check in source; pending Dolphin run |
@@ -177,8 +178,8 @@ Each row below has a separate inventory entry. The `source entry` column separat
 | `mount_async` | `crates/services/ogc-card-sys/src/wii_backend.rs:1797` | `probe_card_invalid_channel_apis` → `mount_async` | Invalid-channel checks passed in the saved 98-check CARD run |
 | `open` | `crates/services/ogc-card-sys/src/lib.rs:375` | `probe_card_save_data` → `card::sys::open` | Saved CARD runs pass; see the named-check gaps below |
 | `open` | `crates/services/ogc-card-sys/src/wii_backend.rs:1835` | `probe_card_save_data` → `open` | Saved CARD runs pass; see the named-check gaps below |
-| `open_entry` | `crates/services/ogc-card-sys/src/lib.rs:386` | `probe_card_invalid_channel_apis` → `card::sys::open_entry` | Invalid-channel checks passed in the saved 98-check CARD run |
-| `open_entry` | `crates/services/ogc-card-sys/src/wii_backend.rs:1869` | `probe_card_invalid_channel_apis` → `open_entry` | Invalid-channel checks passed in the saved 98-check CARD run |
+| `open_entry` | `crates/services/ogc-card-sys/src/lib.rs:386` | `probe_card_save_data` → `card::sys::open_entry` | Invalid-channel check passed in the saved run; open and close of the created raw entry await Dolphin |
+| `open_entry` | `crates/services/ogc-card-sys/src/wii_backend.rs:1869` | `probe_card_save_data` → `open_entry` | Invalid-channel check passed in the saved run; open and close of the created raw entry await Dolphin |
 | `probe` | `crates/services/ogc-card-sys/src/lib.rs:240` | `probe_media_hotplug` → `card::sys::probe` | Not run: automated Dolphin mode skips media hotplug |
 | `probe` | `crates/services/ogc-card-sys/src/wii_backend.rs:1620` | `probe_media_hotplug` → `probe` | Not run: automated Dolphin mode skips media hotplug |
 | `probe_ex` | `crates/services/ogc-card-sys/src/lib.rs:248` | `probe_card_invalid_channel_apis` → `card::sys::probe_ex` | Invalid-channel checks passed in the saved 98-check CARD run |
@@ -278,7 +279,7 @@ Each row below has a separate inventory entry. The `source entry` column separat
 
 - `find_first` and `find_next` now have a direct positive scan check in the probe source. It must pass in Dolphin before it counts as runtime evidence. Their invalid-channel checks already pass.
 - A valid `get_directory` call is covered by `CARD game and company setters select the created save`, which verifies the created file identifiers. Other directory APIs do not all have valid-media results.
-- Raw sys `create_async`, `read_async`, `write_async`, and `delete_async` now have direct success-path callback checks in the probe source. The transfer checks verify data; the file lifecycle checks verify creation and removal. These checks await Dolphin. Raw sys `create_entry_async`, `delete_entry_async`, and metadata async APIs still have invalid-channel checks only; owned wrappers have successful async checks.
+- Raw sys `create_async`, `read_async`, `write_async`, `delete_async`, `create_entry_async`, and `delete_entry_async` now have direct success-path callback checks in the probe source. The transfer checks verify data; the file and entry lifecycle checks verify creation and removal. `open_entry` also has a valid entry open and close check. These checks await Dolphin. Raw sys metadata async APIs still have invalid-channel checks only; owned wrappers have successful async checks.
 - `get_attributes` and `set_attributes` now have a valid-media read, update, and restore assertion in the probe source. It needs a Dolphin run. Several status APIs still have invalid-channel checks only.
 - `format_async` has an invalid-channel check. Saved format runs exercise synchronous `format`, not successful async format completion.
 - CARD removal, detach callback delivery, stale CARD handles, and reinsert/remount behavior are skipped in Dolphin automation. Physical card behavior remains unverified.
