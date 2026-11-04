@@ -866,6 +866,11 @@ pub fn probe_di_no_disc(logger: &mut ProbeLogger) {
     let init_result = di::init();
     logger.note_i32("di init result", init_result);
     logger.record("di init opens transport", init_result == 0);
+    // SAFETY: this probe owns DI init/close calls on its main thread. No
+    // other thread can change the legacy descriptor during this read.
+    logger.record("di legacy descriptor is open after init", unsafe {
+        di::di_fd >= 0
+    });
     logger.record(
         "di init state has no disc",
         di::get_status() == (di::DVD_INIT | di::DVD_NO_DISC) as i32,
@@ -1248,7 +1253,17 @@ pub fn probe_di_no_disc(logger: &mut ProbeLogger) {
     let c_reopen_result = di::DI_Init();
     logger.note_i32("DI_Init after close result", c_reopen_result);
     logger.record("DI_Init reopens transport", c_reopen_result == 0);
+    // SAFETY: DI_Init completed on this probe thread. No other thread uses
+    // the legacy descriptor before this read.
+    logger.record("DI_Init sets the legacy descriptor", unsafe {
+        di::di_fd >= 0
+    });
     di::DI_Close();
+    // SAFETY: DI_Close completed on this probe thread. No other thread uses
+    // the legacy descriptor before this read.
+    logger.record("DI_Close clears the legacy descriptor", unsafe {
+        di::di_fd == -1
+    });
     logger.record(
         "DI_Close restores initial status",
         di::DI_GetStatus() == (di::DVD_INIT | di::DVD_NO_DISC) as i32,
@@ -1256,9 +1271,19 @@ pub fn probe_di_no_disc(logger: &mut ProbeLogger) {
     let reopen_result = di::init();
     logger.note_i32("di reopen result", reopen_result);
     logger.record("di reinitializes after close", reopen_result == 0);
+    // SAFETY: init completed on this probe thread. No other thread uses the
+    // legacy descriptor before this read.
+    logger.record("di legacy descriptor reopens after init", unsafe {
+        di::di_fd >= 0
+    });
     let final_close_result = di::close();
     logger.note_i32("di final close result", final_close_result);
     logger.record("di final close succeeds", final_close_result == 0);
+    // SAFETY: close completed on this probe thread. No other thread uses the
+    // legacy descriptor before this read.
+    logger.record("di close clears the legacy descriptor", unsafe {
+        di::di_fd == -1
+    });
     let rust_open_partition_closed = di::open_partition(0) == -6;
     let rust_close_partition_closed = di::close_partition() == -6;
     logger.record(

@@ -18,6 +18,11 @@ The inventory rows name 32 Rust functions:
 `report_key`, `open_partition`, `close_partition`, and the public `di_fd`
 static.
 
+The current probe source adds direct checks for the legacy `di_fd` value after
+Rust and C initialization and after close. These checks are not in the saved
+178-check Dolphin log. The current Dolphin executable aborts during its version
+preflight, so the new assertions still need a runtime result.
+
 The inventory also names 27 C exports:
 
 `DI_Init`, `DI_LoadDVDX`, `DI_UseCache`, `DI_SetInitCallback`, `DI_Mount`,
@@ -53,10 +58,11 @@ The log has passing assertions for these named behaviors:
 | `C DI partition APIs reject a closed descriptor` | `DI_OpenPartition`, `DI_ClosePartition` | C calls reject a closed descriptor. The log does not provide separate assertions for each result. Rust partition calls and successful partition operations are not established. |
 
 The source calls `load_dvdx`, `use_cache`, and `set_init_callback`, but the
-saved log does not give each function its own named result. The global
-`di_fd` has no independent runtime assertion. The inventory maps the other
-listed calls to `probe_di_no_disc`; that mapping is source evidence and does
-not replace an isolated assertion for each API.
+saved log does not give each function its own named result. The source now
+checks the legacy `di_fd` open and closed states, but the saved log predates
+those assertions. The inventory maps the other listed calls to
+`probe_di_no_disc`; that mapping is source evidence and does not replace an
+isolated assertion for each API.
 
 The newer synthetic-disc run is recorded in
 [`di-synthetic-media`](di-synthetic-media/README.md). It shows that this
