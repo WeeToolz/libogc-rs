@@ -547,8 +547,9 @@ fn wait_for_mount(
     }
 }
 
-fn mount_expected_result(stage: u8) -> i32 {
-    if stage == MOUNT_RESET { 4 } else { 1 }
+fn mount_result_succeeded(stage: u8, result: i32) -> bool {
+    // libdi expects 4 for reset; Dolphin IOS also reports the usual success 1.
+    result == 1 || (stage == MOUNT_RESET && result == 4)
 }
 
 fn submit_mount_ioctl() -> i32 {
@@ -596,7 +597,7 @@ unsafe extern "C" fn mount_ioctl_callback(result: i32, _userdata: *mut c_void) -
         if stage == MOUNT_GET_COVER || stage == MOUNT_WAIT_FOR_COVER {
             state.mount_inserted = output_word & DVD_COVER_DISC_INSERTED != 0;
         }
-        if result == mount_expected_result(stage) {
+        if mount_result_succeeded(stage, result) {
             state.mount_retries = 16;
             state.mount_stage = mount_next_stage(stage, state.mount_inserted);
         } else if state.mount_retries > 0 {
@@ -1751,8 +1752,11 @@ mod tests {
         assert_eq!(mount_next_stage(MOUNT_RESET, false), MOUNT_IDENTIFY);
         assert_eq!(mount_next_stage(MOUNT_IDENTIFY, false), MOUNT_READ_DISC_ID);
         assert_eq!(mount_next_stage(MOUNT_READ_DISC_ID, false), 5);
-        assert_eq!(mount_expected_result(MOUNT_RESET), 4);
-        assert_eq!(mount_expected_result(MOUNT_IDENTIFY), 1);
+        assert!(mount_result_succeeded(MOUNT_RESET, 4));
+        assert!(mount_result_succeeded(MOUNT_RESET, 1));
+        assert!(mount_result_succeeded(MOUNT_IDENTIFY, 1));
+        assert!(!mount_result_succeeded(MOUNT_IDENTIFY, 4));
+        assert!(!mount_result_succeeded(MOUNT_RESET, -5));
     }
 
     #[test]
