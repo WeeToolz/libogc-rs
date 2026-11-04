@@ -10,8 +10,9 @@ it does not prove that a runtime assertion passed.
 
 The saved [`usbstorage_capacity_probe` run](usb-capacity-api-current/README.md)
 passed 52 checks in Dolphin 2609a with no USB mass-storage device. The probe
-source now adds two checks on a non-null handle after an unsuccessful open.
-These added checks are pending a Dolphin run and are not included in the 52.
+source now adds non-null closed-handle checks through the safe facade and C
+ABI after unsuccessful opens, including output preservation. These added
+checks are pending a Dolphin run and are not included in the 52.
 The
 [interface callback run](usb-interface-no-device/README.md) passed separate
 checks for both public drive slots. These runs prove the listed no-device,
@@ -54,18 +55,18 @@ invalid-input behavior.
 | --- | --- | --- |
 | `c_initialize` | `C USB initialize reports success or no-Wii error` | No-device initialization result. |
 | `c_deinitialize`, `c_last_deinitialize_status`, `last_deinitialize_status` | `C USB deinitialize records its result for C callers` | C and Rust status handoff. |
-| `c_open` | `C USB open rejects a null storage handle` | Null-handle error. |
-| `c_close`, `c_reset` | `C USB close and reset reject null storage handles` | Null-handle errors. |
-| `c_get_max_lun`, `c_mount_lun` | `C USB GetMaxLUN and mount reject null storage handles` | Null-handle errors. |
-| `c_suspend`, `c_start_stop` | `C USB suspend and start-stop reject null handles` | Null-handle errors. |
-| `c_inquiry` | `C USB inquiry rejects a null storage handle` | Null-handle error. |
-| `c_read_capacity` | `C USB capacity rejects null handle and preserves outputs` | Error and preservation of both output values. |
-| `c_read`, `c_write` | `C USB read and write reject null storage handles` | Null-handle errors. |
+| `c_open` | `C USB open rejects a null storage handle`; pending `C USB absent VID/PID open leaves a closed handle` | Null-handle error has saved runtime evidence; absent-device handle state is pending Dolphin. |
+| `c_close`, `c_reset` | `C USB close and reset reject null storage handles`; pending `C USB ABI rejects closed-handle control and media calls`, `C USB close keeps an unopened handle closed` | Null-handle errors have saved runtime evidence; closed-handle checks are pending Dolphin. |
+| `c_get_max_lun`, `c_mount_lun` | `C USB GetMaxLUN and mount reject null storage handles`; pending `C USB ABI rejects closed-handle control and media calls` | Null-handle errors have saved runtime evidence; closed-handle checks are pending Dolphin. |
+| `c_suspend`, `c_start_stop` | `C USB suspend and start-stop reject null handles`; pending `C USB ABI rejects closed-handle control and media calls` | Null-handle errors have saved runtime evidence; closed-handle checks are pending Dolphin. |
+| `c_inquiry` | `C USB inquiry rejects a null storage handle`; pending `C USB ABI rejects closed-handle control and media calls` | Null-handle error has saved runtime evidence; closed-handle result is pending Dolphin. |
+| `c_read_capacity` | `C USB capacity rejects null handle and preserves outputs`; pending `C USB ABI rejects closed-handle control and media calls` | Null-handle error and output preservation have saved runtime evidence; closed-handle check is pending Dolphin. |
+| `c_read`, `c_write` | `C USB read and write reject null storage handles`; pending `C USB ABI rejects closed-handle control and media calls` | Null-handle errors have saved runtime evidence; closed-handle results are pending Dolphin. |
 | `c_is_dvd`, `is_dvd` | `C USB DVD query reports no mounted DVD`; `raw USB DVD query reports no mounted DVD` | No-mounted-DVD result. |
 | `ioctl`, `__ogc_usbstorage_ioctl_bridge` | `USB ioctl and C bridge reject an unmounted request` | Unmounted request rejection. |
 | `flush_drive` | `USB drive flush reports absent media and rejects invalid slots` | Both valid slots return no-interface; slot 2 returns invalid-argument. No mounted-drive flush is tested. |
 | `clear_status` and the public interface callbacks | `USB disc-interface clear-status callback succeeds`; see the [slot A and B run](usb-interface-no-device/README.md) | Clear-status on the no-device path; each slot checks startup, insertion, reads, writes, shutdown, and restart. |
-| `open`, `close`, `flush`, `flush_default`, `reset`, `get_max_lun`, `mount_lun`, `suspend`, `inquiry`, `read_capacity`, `read`, `write`, `start_stop` | Matching `raw and safe`, `raw USB`, and `USB inquiry` checks in both no-device sections; pending `closed USB handle reports zero LUNs and rejects LUN zero before transport` | Wrapper/backend error paths only; no valid handle reaches BOT/SCSI media I/O. The added non-null closed-handle assertion is pending Dolphin runtime evidence. |
+| `open`, `close`, `flush`, `flush_default`, `reset`, `get_max_lun`, `mount_lun`, `suspend`, `inquiry`, `read_capacity`, `read`, `write`, `start_stop` | Matching `raw and safe`, `raw USB`, and `USB inquiry` checks in both no-device sections; pending closed-handle facade and C ABI checks | Wrapper/backend error paths only; no valid handle reaches BOT/SCSI media I/O. The new non-null closed-handle assertions are pending Dolphin runtime evidence. |
 
 ## Shared USB policy functions
 

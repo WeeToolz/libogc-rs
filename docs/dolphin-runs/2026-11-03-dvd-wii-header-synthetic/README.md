@@ -26,9 +26,14 @@ offset `0x2000`. It checks the completion callback, transferred byte count, and
 all 2,048 bytes against the pattern above. This source change was not part of
 the saved run above. It needs a new Dolphin run before it counts as runtime
 evidence.
+
+The source now also reads two sectors from `0x2000` in one asynchronous call.
+It checks the full payload sector, the following sparse zero-filled sector,
+and the reported 4,096-byte transfer length. This is also pending a Dolphin
+run.
 The current Wii `dvd_probe` DOL built by `cargo xtask build-dolphin-probes`
 has SHA-256
-`471d19c0201d4abb13ced62bdaf5066f9a23b64cd4bd4132abcf8cf7ced79f87`.
+`c95d7207a63245bddf7f27d4abbbebe966344781b75af2f0434e663773931fb2`.
 
 The command used the existing runner:
 

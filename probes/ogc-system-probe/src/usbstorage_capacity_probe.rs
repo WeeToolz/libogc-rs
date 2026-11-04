@@ -247,6 +247,80 @@ fn probe_c_abi_without_device(logger: &mut ProbeLogger) {
         init == storage::USBSTORAGE_OK || init == storage::USBSTORAGE_EINIT,
     );
 
+    let mut closed_handle = storage::UsbStorageHandle::default();
+    let absent_open = unsafe { storage::c_open(&mut closed_handle, 0, u16::MAX, u16::MAX) };
+    if absent_open >= 0 {
+        let close = unsafe { storage::c_close(&mut closed_handle) };
+        logger.note_i32("unexpected C USB open for absent VID/PID", absent_open);
+        logger.record("C USB absent VID/PID open fails safely", false);
+        logger.record(
+            "C USB unexpected absent-device open cleanup",
+            close == storage::USBSTORAGE_OK || closed_handle.usb_fd < 0,
+        );
+        return;
+    }
+    logger.record(
+        "C USB absent VID/PID open leaves a closed handle",
+        closed_handle.usb_fd < 0
+            && closed_handle.buffer.is_null()
+            && closed_handle.sector_size.is_null(),
+    );
+    let closed_error = |status| {
+        matches!(
+            status,
+            storage::USBSTORAGE_ENOINTERFACE
+                | storage::USBSTORAGE_EINIT
+                | storage::USBSTORAGE_EINVAL
+        )
+    };
+    let c_closed_max_lun = unsafe { storage::c_get_max_lun(&mut closed_handle) };
+    let c_closed_inquiry = unsafe { storage::c_inquiry(&mut closed_handle, 0) };
+    let c_closed_mount = unsafe { storage::c_mount_lun(&mut closed_handle, 0) };
+    let c_closed_reset = unsafe { storage::c_reset(&mut closed_handle) };
+    let c_closed_suspend = unsafe { storage::c_suspend(&mut closed_handle) };
+    let c_closed_start_stop = unsafe { storage::c_start_stop(&mut closed_handle, 0, 0, 0, 0) };
+    let mut closed_sector_size = 0x1234_5678;
+    let mut closed_sector_count = 0x8765_4321;
+    let c_closed_capacity = unsafe {
+        storage::c_read_capacity(
+            &mut closed_handle,
+            0,
+            &mut closed_sector_size,
+            &mut closed_sector_count,
+        )
+    };
+    let mut closed_sector = AlignedSector([0xa5; 512]);
+    let c_closed_read =
+        unsafe { storage::c_read(&mut closed_handle, 0, 0, 1, closed_sector.0.as_mut_ptr()) };
+    let c_closed_write =
+        unsafe { storage::c_write(&mut closed_handle, 0, 0, 1, closed_sector.0.as_ptr()) };
+    logger.record(
+        "C USB ABI rejects closed-handle control and media calls",
+        (c_closed_max_lun == 0 || c_closed_max_lun == storage::USBSTORAGE_ENOINTERFACE)
+            && closed_error(c_closed_inquiry)
+            && closed_error(c_closed_mount)
+            && closed_error(c_closed_reset)
+            && closed_error(c_closed_suspend)
+            && closed_error(c_closed_start_stop)
+            && closed_error(c_closed_capacity)
+            && closed_sector_size == 0x1234_5678
+            && closed_sector_count == 0x8765_4321
+            && closed_error(c_closed_read)
+            && closed_error(c_closed_write)
+            && closed_sector.0 == [0xa5; 512]
+            && closed_handle.usb_fd < 0
+            && closed_handle.buffer.is_null()
+            && closed_handle.sector_size.is_null(),
+    );
+    let c_closed_close = unsafe { storage::c_close(&mut closed_handle) };
+    logger.record(
+        "C USB close keeps an unopened handle closed",
+        c_closed_close == storage::USBSTORAGE_ENOINTERFACE
+            && closed_handle.usb_fd < 0
+            && closed_handle.buffer.is_null()
+            && closed_handle.sector_size.is_null(),
+    );
+
     let open = unsafe { storage::c_open(core::ptr::null_mut(), 0, 0x1234, 0x5678) };
     let close = unsafe { storage::c_close(core::ptr::null_mut()) };
     let reset = unsafe { storage::c_reset(core::ptr::null_mut()) };
