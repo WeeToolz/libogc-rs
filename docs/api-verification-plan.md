@@ -359,6 +359,9 @@ See the [synthetic sector-read report](dolphin-runs/2026-11-03-dvd-synthetic-rea
 An additional [offset-read run](dolphin-runs/2026-11-03-dvd-synthetic-read-offset/README.md)
 checks a known payload at byte offset `0x2000`. It has the same mount and
 no-disc-check failures and does not close disc mount or partition coverage.
+The [direct DI synthetic-media run](dolphin-runs/2026-11-03-di-synthetic-media/README.md)
+also failed to read through `/dev/di`, even though the DVD wrapper read the
+synthetic GC header. This setup does not prove direct DI media behavior.
 The current [media-branch run](dolphin-runs/2026-11-03-dvd-media-branch/README.md)
 passes 178 checks in no-disc mode. With the synthetic disc, it skips no-disc DI
 checks and leaves only the DVD mount check failing. This separates the two

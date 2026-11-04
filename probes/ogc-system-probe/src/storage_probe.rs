@@ -1261,6 +1261,43 @@ pub fn probe_di_no_disc(logger: &mut ProbeLogger) {
     );
 }
 
+pub fn probe_di_media(logger: &mut ProbeLogger) {
+    logger.section("OGC DI INSERTED MEDIA");
+    let init_result = di::init();
+    logger.note_i32("di media init", init_result);
+    logger.record("di media init opens transport", init_result == 0);
+    logger.record(
+        "di media state reports inserted disc",
+        di::get_status() & di::DVD_NO_DISC as i32 == 0,
+    );
+
+    let mut id_bytes = [0u8; 0x20];
+    let id_result = di::read_disc_id_bytes(&mut id_bytes);
+    logger.note_i32("di media disc id bytes result", id_result);
+    logger.record(
+        "di media disc id bytes match fixture",
+        id_result == 0 && id_bytes[..6] == *b"TST1TS",
+    );
+
+    let mut rust_sector = DvdSector([0; 0x800]);
+    // SAFETY: the buffer is writable, 32-byte aligned, and one complete DI sector.
+    let rust_read = unsafe { di::read_dvd(rust_sector.0.as_mut_ptr().cast(), 1, 0) };
+    logger.note_i32("di media Rust read result", rust_read);
+    logger.record(
+        "di media Rust sector read matches fixture",
+        rust_read == 0 && rust_sector.0[..8] == *b"TST1TS\0\0",
+    );
+
+    let mut c_sector = DvdSector([0; 0x800]);
+    // SAFETY: the buffer is writable, 32-byte aligned, and one complete DI sector.
+    let c_read = unsafe { di::DI_ReadDVD(c_sector.0.as_mut_ptr().cast(), 1, 0) };
+    logger.note_i32("di media C read result", c_read);
+    logger.record(
+        "di media C sector read matches fixture",
+        c_read == rust_read && c_sector.0 == rust_sector.0,
+    );
+}
+
 fn probe_usb_storage(logger: &mut ProbeLogger) {
     logger.section("USB ARGV");
     probe_usb_argv(logger);
