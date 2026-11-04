@@ -210,6 +210,27 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_gcsd_invalid_drive(logger);
     probe_gcsd_without_adapter(logger);
 
+    let presence_result = fat::device_is_inserted(fat::MountSource::Sd);
+    if !matches!(presence_result, Ok(true)) {
+        let no_media = matches!(
+            presence_result,
+            Ok(false) | Err(fat::FatError::DeviceUnavailable)
+        );
+        logger.record("FAT SD presence reports no inserted media", no_media);
+        let mount_result = fat::mount_sd();
+        logger.record(
+            "FAT SD mount reports unavailable without media",
+            matches!(mount_result, Err(fat::FatError::DeviceUnavailable)),
+        );
+        if !no_media {
+            logger.note("FAT API checks skipped after an unexpected SD presence result");
+        } else {
+            logger.note("FAT file checks skipped because no Wii SD media is present");
+        }
+        return;
+    }
+
+    logger.record("FAT SD presence reports inserted media", true);
     let mount_result = fat::mount_sd();
     logger.record("FAT SD mount", mount_result.is_ok());
     if mount_result.is_err() {

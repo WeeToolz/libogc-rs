@@ -143,6 +143,12 @@ and the earlier [one-sector report](dolphin-runs/2026-11-03-wiisd-write-roundtri
 With Dolphin's virtual SD card disabled, the same probe passed 10 no-card
 checks for startup, insertion, reads, writes, zero-sector requests, shutdown,
 and restart. See the [no-card report](dolphin-runs/2026-11-03-wiisd-no-card/README.md).
+The latest absent-media run also passed `storage_probe` (223 checks) and
+`fat_sd_probe` (21 checks) with virtual Wii SD disabled. It confirms that the
+FAT presence query reports no media and the FAT mount returns
+`DeviceUnavailable`. The same run passed the GameCube SD no-adapter and USB
+no-device checks. It does not cover successful transfers for these devices.
+See the [absent-media report](dolphin-runs/2026-11-03-wii-sd-absent/README.md).
 Earlier failed launch attempts remain in their own run directories. The
 hardware register still records physical CARD and DI behavior as not tested.
 Do not treat the source count as completed storage verification.

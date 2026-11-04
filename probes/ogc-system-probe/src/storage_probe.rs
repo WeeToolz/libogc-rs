@@ -1858,11 +1858,27 @@ fn probe_sd_interface(logger: &mut ProbeLogger) {
     logger.note("GameCube SD interfaces skipped: no emulated EXI SD adapter configured");
 
     logger.section("FAT SD MOUNT");
+    let sd_presence = fat::device_is_inserted(fat::MountSource::Sd);
     let mount_result = fat::mount_sd();
     let mounted = matches!(mount_result, Ok(()) | Err(fat::FatError::AlreadyMounted));
     let owned_mount = mount_result.is_ok();
     log_fat_result(logger, "fat mount sd", &mount_result);
-    logger.record("sd fat mount", mounted);
+    if sd_presence == Ok(true) {
+        logger.record("sd fat mount", mounted);
+    } else {
+        let no_media = matches!(
+            sd_presence,
+            Ok(false) | Err(fat::FatError::DeviceUnavailable)
+        );
+        logger.record("sd FAT presence reports no inserted media", no_media);
+        logger.record(
+            "sd FAT mount reports unavailable without media",
+            matches!(mount_result, Err(fat::FatError::DeviceUnavailable)),
+        );
+        if no_media {
+            logger.note("SD file operations skipped: no Wii SD media is present");
+        }
+    }
 
     if owned_mount {
         let file_io = probe_sd_file_io();
