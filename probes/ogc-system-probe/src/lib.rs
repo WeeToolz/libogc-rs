@@ -834,11 +834,15 @@ pub fn run_gamecube_card_probe_bin() -> ! {
 pub fn run_dvd_probe_bin() -> i32 {
     configure_probe_app_dir("dvd-probe");
     let mut logger = init_probe_logger();
-    storage_probe::probe_dvd(&mut logger);
+    let no_disc = storage_probe::probe_dvd(&mut logger);
     let shutdown = ogc_dvd::shutdown();
     logger.note_i32("dvd shutdown", shutdown);
     logger.record("dvd shutdown", shutdown == 0);
-    storage_probe::probe_di_no_disc(&mut logger);
+    if no_disc {
+        storage_probe::probe_di_no_disc(&mut logger);
+    } else {
+        logger.note("DI no-disc checks skipped: a disc is present");
+    }
     logger.summary();
     finish_probe()
 }

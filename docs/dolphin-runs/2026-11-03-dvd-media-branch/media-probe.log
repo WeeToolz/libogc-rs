@@ -1,0 +1,114 @@
+
+
+BOOT 1/3: system and video initialized
+INFO Wiiload arguments source=entry count=0
+PASS SYS_Init completed
+INFO startup stage=0 completed_mask=0x7ff failed_stage=0
+BOOT watchdog arm starting
+INFO recovery reset watchdog not armed
+BOOT watchdog arm complete
+BOOT Wiiload report argument check
+INFO Wiiload report check disabled for this probe build
+BOOT before first vsync
+BOOT 2/3: entering IOS pre-main
+PRE 0/7: closing inherited IOS descriptors
+IPC: sync state ready
+IPC: command=0x00000002 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000002 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 1/7: IOS startup
+PRE 2/7: IOS subsystems
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 3/7: STM handler
+PRE 4/7: STM devices
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+PRE 5/7: configuration
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 6/7: Wii launch state
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 7/7: complete
+-- page 2 --
+BOOT 3/3: IOS pre-main completed
+PASS display initialized
+INFO boot stage: system/video initialized
+INFO boot stage: IOS pre-main completed
+INFO log backend disabled
+INFO argv0 unavailable
+INFO argv raw magic=0x00000000 len=0 argc=0 cmd=0x00000000 argv=0x00000000 end=0x00000000
+PASS power button callback installed
+INFO stm init deferred until shutdown
+INFO fat mount sd=not-selected usb=not-selected
+INFO previous stm handler chained=0
+INFO previous power callback replaced
+
+== DVD /DEV/DI ==
+INFO dvd initial status=0
+INFO dvd cover status=0
+INFO dvd disc present=1
+INFO dvd mount=-1
+FAIL dvd mount
+INFO dvd inquiry=32
+INFO dvd revision=0
+INFO dvd device code=2
+-- page 3 --
+PASS dvd inquiry
+INFO dvd disk id async submit=1 complete=1 result=32 after_return=1
+PASS dvd disk id async accepted
+PASS dvd disk id async callback
+PASS dvd disk id async callback after return
+PASS dvd disk id async result
+PASS dvd disk id transferred
+INFO dvd id=TST1
+PASS dvd disk id matches synthetic disc header
+INFO dvd sector0 sync bytes=2048
+PASS dvd sector0 sync read
+PASS dvd sector0 sync matches synthetic disc header
+INFO dvd sector0 async submit=1 complete=1 result=2048 after_return=1
+PASS dvd sector0 async accepted
+PASS dvd sector0 async callback
+PASS dvd sector0 async callback after return
+PASS dvd sector0 async result
+PASS dvd async byte count
+PASS dvd sector0 async matches synthetic disc header
+INFO dvd offset sector sync bytes=2048
+PASS dvd offset sector sync matches synthetic payload
+INFO dvd last drive error=0
+INFO dvd shutdown=0
+-- page 4 --
+PASS dvd shutdown
+INFO DI no-disc checks skipped: a disc is present
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+INFO summary_candidate passes=21 fails=1
+FAILED CHECKS (retained from all pages)
+FAIL dvd mount
+FAIL summary passes=21 fails=1
