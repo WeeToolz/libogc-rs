@@ -1350,3 +1350,19 @@ folder sync; the probe runner uses its own private virtual SD profile. See the
 [setup confirmation](docs/dolphin-runs/2026-11-03-wiisd-setup-confirm/README.md).
 USB storage, EXI SD Gecko, and optical media each need their own device or
 fixture for positive I/O checks.
+
+## 2026-11-03: Synthetic DVD and USB fixture images
+
+The new DVD fixture generator creates the `TST1TS` header and deterministic
+payload expected by `dvd_probe`. The existing Dolphin runner detected it and
+passed the sector-zero, offset-sector, and synchronous/asynchronous two-sector
+read checks. The full probe reported 35 passes and four failures: DVD mount and
+three direct DI media checks. The image has no signed partition. The
+[fixture run](docs/dolphin-runs/2026-11-03-synthetic-dvd-fixture/README.md)
+retains the full result and log.
+
+The macOS USB fixture generator creates a raw MBR/FAT16 image. macOS mounted a
+generated image, wrote a test file, detached it, and read the file after a
+reattach. The image has not been attached to Dolphin as a Wii USB mass-storage
+device. The current runner has no disk-image-backed USB option; USB probe
+success paths remain open.
