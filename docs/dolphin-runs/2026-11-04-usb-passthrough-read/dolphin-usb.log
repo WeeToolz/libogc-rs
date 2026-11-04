@@ -1,0 +1,5 @@
+28:32:971 Core/IOS/USB/Host.cpp:129 I[IOS_USB]: /dev/usb/ven - New device: 14cd:1212
+28:34:607 Core/IOS/USB/USBV5.cpp:190 I[IOS_USB]: [14cd:1212 0] Received resume command
+28:34:608 Core/IOS/USB/LibusbDevice.cpp:148 N[IOS_USB]: [14cd:1212] Opening device
+28:34:609 Core/IOS/USB/LibusbDevice.cpp:568 E[IOS_USB]: [14cd:1212] Failed to claim all interfaces (configuration 0)
+28:34:609 Core/IOS/USB/Host.cpp:153 E[IOS_USB]: [14cd:1212] Failed to submit transfer (request 18): LIBUSB_ERROR_NOT_FOUND

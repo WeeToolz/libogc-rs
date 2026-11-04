@@ -101,6 +101,10 @@ fn exercise(
     {
         return None;
     }
+    if cfg!(feature = "dolphin-automation") {
+        logger.note("Dolphin USB read-only run skips reset and suspend cycles");
+        return Some((lun, size, sectors, baseline));
+    }
     for cycle in 0..3 {
         logger.note_u32("USB recovery cycle", cycle + 1);
         logger.note("STEP USB BOT reset and both endpoint halt clears");
@@ -236,6 +240,10 @@ pub fn run(logger: &mut ProbeLogger) {
     let mut selected = None;
     for entry in entries.iter().take(count) {
         logger.note_i32("STEP USB open candidate", entry.device_id);
+        logger.note_hex32(
+            "USB candidate VID/PID",
+            ((entry.vid as u32) << 16) | entry.pid as u32,
+        );
         let rc = unsafe { storage::open(handle, entry.device_id, entry.vid, entry.pid) };
         logger.note_i32("USB candidate open result", rc);
         if rc >= 0 {

@@ -385,3 +385,14 @@ only a disk image: `dolphin-validate` does not attach it as a Wii USB device.
 A suitable USB emulation or passthrough setup is required before a probe can
 exercise `ogc-usbstorage` against it. Do not count host mounting of the image
 as a Dolphin USB test.
+
+The Dolphin runner can opt in to the USB transport probe for a single
+passthrough device. Set `LIBOGC_DOLPHIN_USB_READ_DEVICE` to its four-digit
+hexadecimal VID and PID, separated by a colon, and select only
+`--probe usbstorage_transport_probe`. This selection is excluded from the
+default suite. In the Dolphin automation build, the probe skips its explicit
+reset and suspend cycles; it does not issue sector writes or mount a
+filesystem. Production open and LUN initialization may issue recovery resets,
+and close may issue a cache flush. The device must be available to Dolphin's
+USB passthrough. Check each named result and Dolphin's USB log: enumeration
+alone does not prove a sector read.
