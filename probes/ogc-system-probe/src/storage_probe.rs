@@ -3063,10 +3063,75 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         mounted.is_attached(),
     );
 
-    let (sector_rc, sector_size) = match card::sector_size(slot) {
+    let sector_size_result = card::sector_size(slot);
+    let (sector_rc, sector_size) = match sector_size_result {
         Ok(value) => (card::CARD_ERROR_READY, value),
         Err(status) => (status, 0),
     };
+    let mut raw_sector_size = u32::MAX;
+    // SAFETY: The output points to one live, aligned value.
+    let raw_sector_status =
+        unsafe { card::sys::get_sector_size(slot.channel(), &mut raw_sector_size) };
+    logger.record(
+        "CARD sys get_sector_size matches mounted geometry",
+        raw_sector_status == card::CARD_ERROR_READY
+            && sector_size_result == Ok(raw_sector_size)
+            && raw_sector_size >= card::CARD_READSIZE,
+    );
+    let mut wrapper_sector_size = 0;
+    // SAFETY: The output points to one live, aligned value.
+    let wrapper_sector_status =
+        unsafe { card::get_sector_size(slot.channel(), &mut wrapper_sector_size) };
+    logger.record(
+        "CARD get_sector_size wrapper matches mounted geometry",
+        wrapper_sector_status == card::CARD_ERROR_READY && wrapper_sector_size == raw_sector_size,
+    );
+    let block_count_result = card::block_count(slot);
+    let mut raw_block_count = 0;
+    // SAFETY: The output points to one live, aligned value.
+    let raw_block_count_status =
+        unsafe { card::sys::get_block_count(slot.channel(), &mut raw_block_count) };
+    logger.record(
+        "CARD sys get_block_count matches mounted geometry",
+        raw_block_count_status == card::CARD_ERROR_READY
+            && block_count_result == Ok(raw_block_count)
+            && raw_block_count > 0,
+    );
+    let mut wrapper_block_count = 0;
+    // SAFETY: The output points to one live, aligned value.
+    let wrapper_block_count_status =
+        unsafe { card::get_block_count(slot.channel(), &mut wrapper_block_count) };
+    logger.record(
+        "CARD get_block_count wrapper matches mounted geometry",
+        wrapper_block_count_status == card::CARD_ERROR_READY
+            && wrapper_block_count == raw_block_count,
+    );
+    let serial_result = card::serial_number(slot);
+    let mut serial_first = u32::MAX;
+    let mut serial_second = u32::MAX;
+    // SAFETY: Both outputs point to live, aligned values.
+    let serial_status =
+        unsafe { card::sys::get_serial_no(slot.channel(), &mut serial_first, &mut serial_second) };
+    logger.record(
+        "CARD sys get_serial_no matches mounted serial number",
+        serial_status == card::CARD_ERROR_READY
+            && serial_result == Ok((serial_first, serial_second)),
+    );
+    let mut wrapper_serial_first = u32::MAX;
+    let mut wrapper_serial_second = u32::MAX;
+    // SAFETY: Both outputs point to live, aligned values.
+    let wrapper_serial_status = unsafe {
+        card::get_serial_no(
+            slot.channel(),
+            &mut wrapper_serial_first,
+            &mut wrapper_serial_second,
+        )
+    };
+    logger.record(
+        "CARD get_serial_no wrapper matches mounted serial number",
+        wrapper_serial_status == card::CARD_ERROR_READY
+            && (wrapper_serial_first, wrapper_serial_second) == (serial_first, serial_second),
+    );
     logger.note_i32("card sector size rc", sector_rc);
     logger.note_u32("card sector size", sector_size);
     if sector_rc != card::CARD_ERROR_READY || sector_size < card::CARD_READSIZE {
@@ -3107,11 +3172,30 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         return;
     }
     logger.record("card SAVE preflight found no existing file", true);
-    let (freeblocks_ok, freeblocks) = match card::free_blocks(slot) {
+    let freeblocks_result = card::free_blocks(slot);
+    let (freeblocks_ok, freeblocks) = match freeblocks_result {
         Ok(value) => (true, value),
         Err(_) => (false, 0),
     };
+    let mut raw_freeblocks = u16::MAX;
+    // SAFETY: The output points to one live, aligned value.
+    let raw_freeblocks_status =
+        unsafe { card::sys::get_free_blocks(slot.channel(), &mut raw_freeblocks) };
     logger.record("card free blocks before create", freeblocks_ok);
+    logger.record(
+        "CARD sys get_free_blocks matches mounted free space",
+        raw_freeblocks_status == card::CARD_ERROR_READY
+            && freeblocks_result == Ok(raw_freeblocks)
+            && freeblocks == raw_freeblocks,
+    );
+    let mut wrapper_freeblocks = u16::MAX;
+    // SAFETY: The output points to one live, aligned value.
+    let wrapper_freeblocks_status =
+        unsafe { card::get_free_blocks(slot.channel(), &mut wrapper_freeblocks) };
+    logger.record(
+        "CARD get_free_blocks wrapper matches mounted free space",
+        wrapper_freeblocks_status == card::CARD_ERROR_READY && wrapper_freeblocks == raw_freeblocks,
+    );
     logger.note_u32("card free block count before create", freeblocks as u32);
     let create_request = card::create_async_owned(slot, b"SAVE", sector_size.max(0x2000));
     let create_request_slot = create_request.as_ref().ok().map(|request| request.slot());
@@ -3158,6 +3242,45 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     }
     logger.note_i32("card SAVE file channel after create", file.chn);
     logger.note_i32("card SAVE file number after create", file.filenum);
+
+    let mut raw_save_status = card::CardStat::default();
+    // SAFETY: The status output is aligned, writable, and live for the call.
+    let raw_save_status_result =
+        unsafe { card::sys::get_status(slot.channel(), file.filenum, &mut raw_save_status) };
+    let save_status_result = card::file_status(slot, file.filenum);
+    logger.record(
+        "CARD sys get_status reads the created SAVE entry",
+        raw_save_status_result == card::CARD_ERROR_READY
+            && save_status_result
+                .as_ref()
+                .is_ok_and(|status| card_status_matches_except_time(status, &raw_save_status))
+            && raw_save_status.filename[..5] == *b"SAVE\0"
+            && raw_save_status.gamecode == *b"TST1"
+            && raw_save_status.company == *b"TS"
+            && raw_save_status.len >= sector_size.max(0x2000),
+    );
+    let mut wrapper_save_status = card::CardStat::default();
+    // SAFETY: The status output is aligned, writable, and live for the call.
+    let wrapper_save_status_result =
+        unsafe { card::get_status(slot.channel(), file.filenum, &mut wrapper_save_status) };
+    logger.record(
+        "CARD get_status wrapper matches the created SAVE entry",
+        wrapper_save_status_result == card::CARD_ERROR_READY
+            && card_status_matches_except_time(&wrapper_save_status, &raw_save_status),
+    );
+    let mut raw_save_entry = card::CardDirEntry::default();
+    // SAFETY: The directory-entry output is aligned, writable, and live for the call.
+    let raw_save_entry_result =
+        unsafe { card::sys::get_status_ex(slot.channel(), file.filenum, &mut raw_save_entry) };
+    logger.record(
+        "CARD sys get_status_ex reads the created SAVE directory entry",
+        raw_save_entry_result == card::CARD_ERROR_READY
+            && raw_save_entry.filename[..5] == *b"SAVE\0"
+            && raw_save_entry.gamecode == *b"TST1"
+            && raw_save_entry.company == *b"TS"
+            && raw_save_entry.length > 0
+            && u32::from(raw_save_entry.length) * sector_size == raw_save_status.len,
+    );
 
     let status_marker = card::CARD_BANNER_RGB;
     let status_request = card::file_status(slot, file.filenum)
