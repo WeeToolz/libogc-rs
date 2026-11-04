@@ -276,6 +276,9 @@ GameCube card. The CARD hardware register remains `not-tested` for physical
 hardware. The metadata invalid-count change has host test evidence. Earlier
 sandboxed Dolphin attempts stopped before launch. The CARD accessor run used
 host access and passed. That result does not cover APIs in the other probe DOLs.
+The [CARD API audit](dolphin-runs/2026-11-03-ogc-card-api-audit.md) maps all
+209 CARD, CARD sys, and CARD metadata inventory entries to their source calls
+and separates Dolphin checks, host tests, skipped hotplug work, and open paths.
 
 The Dolphin runner can copy a raw card image from `LIBOGC_DOLPHIN_CARD_IMAGE`
 into its isolated profile. An earlier attachment diagnostic used this option,
