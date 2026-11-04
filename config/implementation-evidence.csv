@@ -1644,10 +1644,10 @@ ogc-card-sys,src/lib.rs,delete_entry,495,hardware,hardware-probe,probes/ogc-syst
 ogc-card-sys,src/wii_backend.rs,delete_entry,3355,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
 ogc-card-sys,src/lib.rs,open_entry,386,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis,card::sys::open_entry
 ogc-card-sys,src/wii_backend.rs,open_entry,1869,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
-ogc-card-sys,src/lib.rs,read_async,318,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis,card::sys::read_async
-ogc-card-sys,src/wii_backend.rs,read_async,1909,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
-ogc-card-sys,src/lib.rs,write_async,347,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis,card::sys::write_async
-ogc-card-sys,src/wii_backend.rs,write_async,3084,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_invalid_channel_apis
+ogc-card-sys,src/lib.rs,read_async,318,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::sys::read_async
+ogc-card-sys,src/wii_backend.rs,read_async,1909,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data
+ogc-card-sys,src/lib.rs,write_async,347,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::sys::write_async
+ogc-card-sys,src/wii_backend.rs,write_async,3084,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data
 ogc-card-sys,src/lib.rs,set_company,235,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::sys::set_company
 ogc-card-sys,src/lib.rs,set_gamecode,228,hardware,hardware-probe,probes/ogc-system-probe/src/storage_probe.rs,probe_card_save_data,card::sys::set_gamecode
 ogc-card-metadata,src/card_types.rs,from_parts,208,protocol,host-test,crates/services/ogc-card-metadata/src/card_types.rs,owned_completion_accessors_preserve_status_and_payloads,CardReadSubmitError::from_parts
