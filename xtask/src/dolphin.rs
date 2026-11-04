@@ -237,15 +237,23 @@ struct Options {
 }
 
 fn validate_format_selection(options: &Options, has_card: bool) -> Result<(), String> {
-    if options.format_private_card && (options.probes.as_slice() != ["storage_probe"] || !has_card)
+    if options.format_private_card
+        && (!matches!(options.probes.as_slice(), [probe] if probe == "storage_probe" || probe == "card_probe")
+            || !has_card)
     {
-        return Err("--format-private-card requires only --probe storage_probe and LIBOGC_DOLPHIN_CARD_IMAGE".to_string());
+        return Err("--format-private-card requires only --probe storage_probe or card_probe and LIBOGC_DOLPHIN_CARD_IMAGE".to_string());
     }
     Ok(())
 }
 
-fn format_card_boot_arguments(address: u32) -> ([u8; 12], &'static [u8]) {
-    let command = b"storage_probe.dol\0--destructive-card-format=ERASE-SLOT-A\0";
+fn format_card_boot_arguments(address: u32, probe: &str) -> ([u8; 12], &'static [u8]) {
+    let command = match probe {
+        "storage_probe" => {
+            b"storage_probe.dol\0--destructive-card-format=ERASE-SLOT-A\0".as_slice()
+        }
+        "card_probe" => b"card_probe.dol\0--destructive-card-format=ERASE-SLOT-A\0".as_slice(),
+        _ => unreachable!("format probe selection is validated"),
+    };
     let mut header = [0; 12];
     header[..4].copy_from_slice(&0x5f61_7267u32.to_be_bytes());
     header[4..8].copy_from_slice(&address.to_be_bytes());
@@ -560,11 +568,15 @@ pub fn print_help() {
     eprintln!("  --dolphin PATH          Dolphin executable");
     eprintln!("  --nand-dir PATH         source Wii NAND (default: Dolphin user NAND)");
     eprintln!("  --disc-image PATH       attach a disc image; requires explicit --probe");
-    eprintln!("  --format-private-card   format a private card copy with storage_probe only");
+    eprintln!(
+        "  --format-private-card   format a private card copy with storage_probe or card_probe"
+    );
     eprintln!("  --artifact-dir PATH     result directory");
     eprintln!("  --timeout-seconds N     override every probe timeout");
     eprintln!("  --disable-wii-sd-card   run probes without Dolphin's virtual Wii SD card");
-    eprintln!("  {DOLPHIN_CARD_IMAGE_ENV}=PATH attaches a copied raw card image to storage_probe");
+    eprintln!(
+        "  {DOLPHIN_CARD_IMAGE_ENV}=PATH attaches a copied raw card image to storage_probe or card_probe"
+    );
 }
 
 fn copy_card_image_to_profile(template: &Path, profile: &Path) -> Result<PathBuf, String> {
@@ -822,7 +834,7 @@ fn run_probe(
             .checked_add(0x10000)
             .filter(|address| *address < 0x817e0000)
             .ok_or_else(|| "no safe startup argument space".to_string())?;
-        let (header, command) = format_card_boot_arguments(buffer_address);
+        let (header, command) = format_card_boot_arguments(buffer_address, spec.name);
         gdb.write_memory(buffer_address, command)?;
         gdb.write_memory(header_address, &header)?;
     }
@@ -2148,17 +2160,24 @@ mod tests {
         .unwrap();
         assert!(options.format_private_card);
         assert!(super::validate_format_selection(&options, true).is_ok());
+        let gamecube_options = super::parse_options(&[
+            "--format-private-card".into(),
+            "--probe".into(),
+            "card_probe".into(),
+        ])
+        .unwrap();
+        assert!(super::validate_format_selection(&gamecube_options, true).is_ok());
         assert!(super::validate_format_selection(&options, false).is_err());
         let default_suite = super::parse_options(&["--format-private-card".into()]).unwrap();
         assert!(super::validate_format_selection(&default_suite, true).is_err());
         let wrong_probe = super::parse_options(&[
             "--format-private-card".into(),
             "--probe".into(),
-            "card_probe".into(),
+            "dvd_probe".into(),
         ])
         .unwrap();
         assert!(super::validate_format_selection(&wrong_probe, true).is_err());
-        let (header, command) = super::format_card_boot_arguments(0x8132_fc00);
+        let (header, command) = super::format_card_boot_arguments(0x8132_fc00, "storage_probe");
         assert_eq!(
             header,
             [0x5f, 0x61, 0x72, 0x67, 0x81, 0x32, 0xfc, 0x00, 0, 0, 0, 57]
@@ -2166,6 +2185,16 @@ mod tests {
         assert_eq!(
             command,
             b"storage_probe.dol\0--destructive-card-format=ERASE-SLOT-A\0"
+        );
+        let (gamecube_header, gamecube_command) =
+            super::format_card_boot_arguments(0x8132_fc00, "card_probe");
+        assert_eq!(
+            gamecube_command,
+            b"card_probe.dol\0--destructive-card-format=ERASE-SLOT-A\0"
+        );
+        assert_eq!(
+            u32::from_be_bytes(gamecube_header[8..].try_into().unwrap()) as usize,
+            gamecube_command.len()
         );
     }
     use super::*;

@@ -9,8 +9,18 @@ fn main() {}
 /// # Safety
 ///
 /// The caller must provide the argument array promised by the libogc loader.
-pub unsafe extern "C" fn main(_argc: i32, _argv: *mut *mut u8) -> i32 {
-    ogc_system_probe::run_gamecube_card_probe_bin()
+pub unsafe extern "C" fn main(argc: i32, argv: *mut *mut u8) -> i32 {
+    // SAFETY: libogc calls this entrypoint with its live argc/argv.
+    unsafe { ogc_system_probe::probe_support::set_agent_arguments(argc, argv) };
+    // SAFETY: libogc supplies the live argument vector to this entrypoint.
+    let destructive_card_format = unsafe {
+        ogc_system_probe::probe_support::startup_arguments_contain(
+            argc,
+            argv,
+            ogc_system_probe::probe_support::CARD_FORMAT_CONFIRMATION,
+        )
+    };
+    ogc_system_probe::run_gamecube_card_probe_bin(destructive_card_format)
 }
 
 #[cfg(target_arch = "powerpc")]
