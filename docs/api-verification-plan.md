@@ -359,6 +359,10 @@ See the [synthetic sector-read report](dolphin-runs/2026-11-03-dvd-synthetic-rea
 An additional [offset-read run](dolphin-runs/2026-11-03-dvd-synthetic-read-offset/README.md)
 checks a known payload at byte offset `0x2000`. It has the same mount and
 no-disc-check failures and does not close disc mount or partition coverage.
+The current [media-branch run](dolphin-runs/2026-11-03-dvd-media-branch/README.md)
+passes 178 checks in no-disc mode. With the synthetic disc, it skips no-disc DI
+checks and leaves only the DVD mount check failing. This separates the two
+test paths; it does not establish successful DVD mount or partition reads.
 See the
 [current storage-suite report](dolphin-runs/2026-11-03-storage-api-full-current/README.md).
 The Dolphin runner accepts `--disc-image <path>` with an explicit `--probe`

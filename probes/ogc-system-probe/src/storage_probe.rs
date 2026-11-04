@@ -211,7 +211,7 @@ fn record_async(
     completed && after_return && result == success_result
 }
 
-pub fn probe_dvd(logger: &mut ProbeLogger) {
+pub fn probe_dvd(logger: &mut ProbeLogger) -> bool {
     logger.section("DVD /DEV/DI");
     dvd::init();
     let initial_status = dvd::get_drive_status();
@@ -235,7 +235,7 @@ pub fn probe_dvd(logger: &mut ProbeLogger) {
         probe_dvd_no_media_helpers(logger);
         probe_dvd_no_media_async(logger);
         probe_dvd_sys_no_media(logger);
-        return;
+        return true;
     }
 
     let mount_result = dvd::mount();
@@ -353,6 +353,7 @@ pub fn probe_dvd(logger: &mut ProbeLogger) {
             && sector.0[sector.0.len() - 1] == 230,
     );
     logger.note_u32("dvd last drive error", dvd::get_last_error());
+    false
 }
 
 fn probe_dvd_no_media_async(logger: &mut ProbeLogger) {
