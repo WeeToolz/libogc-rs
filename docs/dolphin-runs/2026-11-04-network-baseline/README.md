@@ -35,3 +35,20 @@ dolphin-validate --no-build --probe network_probe --dolphin /path/to/Dolphin
 SHA-256 values were `f455080a68988ef5ab8473c66df81189b23ce1105b3d16bb5a916ee894a31d8e`
 and `9b8034512843076a1e361bdb6b50b851aea5ce49f0f8f79bee637753106f431b`.
 The runs do not establish physical Wii behavior or credential persistence.
+
+## Follow-up diagnosis
+
+The C reference returns the converted backend result from `net_connect` and
+leaves `net_getsockopt` unimplemented. Dolphin implements an IOS getsockopt
+request whose header is read from the output buffer; the existing std network
+service has a separate request implementation. It is not yet established
+that all six requested options have portable round-trip semantics.
+
+A diagnostic build changed the public connect wrapper to preserve its backend
+error. The [run](connect-diagnostic.log) still returned `-1` and failed the
+same nine checks. The change was reverted. The log redacts the local IP.
+The bind probe also passes an `ogc-network` socket handle to `libdb`'s
+independent `tcpip_bind` API. That API validates handles from `tcpip_socket`,
+so the existing check does not establish a valid libdb bind conflict. A new
+fixture must use the matching API's own sockets. Neither bind error conversion
+nor the six option failures are fixed by this diagnostic.
