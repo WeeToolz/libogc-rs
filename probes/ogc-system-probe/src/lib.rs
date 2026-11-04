@@ -841,7 +841,7 @@ pub fn run_dvd_probe_bin() -> i32 {
     if no_disc {
         storage_probe::probe_di_no_disc(&mut logger);
     } else {
-        logger.note("DI no-disc checks skipped: a disc is present");
+        storage_probe::probe_di_media(&mut logger);
     }
     logger.summary();
     finish_probe()
