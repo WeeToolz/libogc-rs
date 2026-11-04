@@ -48,17 +48,28 @@ checkout, then configure and build Dolphin with CMake. The tested build used
 macOS, Release, and `-DENABLE_VULKAN=OFF`. The unrelated opt-in USB capture
 patch was present in both control builds, but no USB device was selected.
 
-Build the standard DOL with `cargo xtask build-dolphin-probes` and run
-`cargo xtask dolphin-validate --no-build --probe network_probe --dolphin
-/path/to/patched/Dolphin --artifact-dir /path/to/new-results`.
+Build the standard DOL and run it with the patched emulator:
 
-Build the development DOL with `cargo xtask build-dol ogc-system-probe --bin
-network_probe --dev --probe-features dolphin-automation`. Set
-`LIBOGC_DOLPHIN_DEV_DOL` and `LIBOGC_DOLPHIN_DEV_ELF` to the matching files from
-its manifest and run the same validation command. Required external MP3
-fixtures must be supplied through the build environment, as documented in
-`docs/dependencies.md`.
+```sh
+cargo xtask build-dolphin-probes
+cargo xtask dolphin-validate --no-build --probe network_probe \
+  --dolphin /path/to/patched/Dolphin --artifact-dir /path/to/new-results
+```
 
-Run the shared reply decoder host checks with `rustc --edition=2024 --test
-crates/services/lwip-sys/src/socket_option_reply.rs -o /path/to/test-binary`,
-then execute that binary.
+Build the development DOL:
+
+```sh
+cargo xtask build-dol ogc-system-probe --bin network_probe --dev --probe-features dolphin-automation
+```
+
+Set `LIBOGC_DOLPHIN_DEV_DOL` and `LIBOGC_DOLPHIN_DEV_ELF` to the matching
+files from its manifest and run the same validation command with a new result
+directory. Supply the required external MP3 fixtures through the build
+environment, as documented in [dependencies](../../dependencies.md).
+
+Run the shared reply decoder host checks:
+
+```sh
+rustc --edition=2024 --test crates/services/lwip-sys/src/socket_option_reply.rs -o /path/to/test-binary
+/path/to/test-binary
+```

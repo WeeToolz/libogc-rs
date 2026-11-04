@@ -157,15 +157,20 @@ can pass through allow-listed host USB devices, but this runner does not attach
 host hardware. It does not opt a real mass-storage device into a test that can
 write to media.
 
-The focused `dvd_probe` checks the no-disc status, mount error, and shutdown
-path. Inserted-disc inquiry, asynchronous reads, sector reads, and physical
-drive behavior remain open until a supported disc is available.
+The focused `dvd_probe` has passing no-disc checks and synthetic-disc mount,
+inquiry, and synchronous and asynchronous reads. See the
+[DVD result](../docs/dolphin-runs/2026-11-04-dvd-mount-fix/README.md).
+A Wii disc partition, its filesystem, and physical drive behavior remain open.
 
 Dolphin's current `/dev/net/ip/top` model accepts protocol zero for stream and
 datagram sockets, but rejects explicit TCP and UDP protocol values. The runtime
 uses protocol zero where only the default protocol is required. The network
 probe keeps its explicit-protocol tests so this Dolphin limitation stays
-visible. Other completed failures, such as SRAM snapshot parity, audio timing,
+visible. The [current network result](../docs/dolphin-runs/2026-11-04-network-fixed/README.md)
+records 52 passes for both standard and development DOLs with the saved macOS
+Dolphin option patch. The installed official Dolphin application still has
+option-handling limits. Use the patched executable explicitly with `--dolphin`.
+Other recorded failures, such as SRAM snapshot parity, audio timing,
 font ROM decoding, debugger listen setup, FAT file operations, or missing
 media, remain probe or emulator coverage evidence. They are not reported as
 host setup failures.
@@ -415,12 +420,23 @@ after remount or establish physical hardware behavior.
 
 ### Development DOL in Dolphin
 
-Build the DOL with `cargo xtask build-dol <package> --bin <probe> --dev
---probe-features dolphin-automation`. Set `LIBOGC_DOLPHIN_DEV_DOL` and
-`LIBOGC_DOLPHIN_DEV_ELF` to the matching DOL and ELF paths from its manifest,
-then run `cargo xtask dolphin-validate --no-build --probe <probe>`. Select one
-probe only. The runner supplies the development wrapper's required arguments
-and uses the DOL SHA-256 as its build ID. It supplies a loopback report endpoint
-for startup; the runner does not collect or verify UDP development reports.
-The Dolphin USB Gecko transcript and page captures remain the probe evidence.
-A mismatched DOL and ELF can invalidate symbol and page capture results.
+Build the DOL with the development wrapper and Dolphin transport enabled:
+
+```sh
+cargo xtask build-dol <package> --bin <probe> --dev --probe-features dolphin-automation
+```
+
+Set `LIBOGC_DOLPHIN_DEV_DOL` and `LIBOGC_DOLPHIN_DEV_ELF` to the matching
+DOL and ELF paths from its manifest, then run:
+
+```sh
+cargo xtask dolphin-validate --no-build --probe <probe> --dolphin /path/to/Dolphin
+```
+
+Select one probe only. The runner supplies the development wrapper's required
+arguments and uses the DOL SHA-256 as its build ID. It supplies a loopback
+report endpoint for startup; the runner does not collect or verify UDP
+development reports. The Dolphin USB Gecko transcript and page captures
+remain the probe evidence. A mismatched DOL and ELF can invalidate symbol and
+page capture results. The [current network result](../docs/dolphin-runs/2026-11-04-network-fixed/README.md)
+verifies the standard and development builds against the patched emulator.

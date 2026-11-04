@@ -1,5 +1,7 @@
 # libnetwork Review
 
+This is a historical review. The current [network probe result](../dolphin-runs/2026-11-04-network-fixed/README.md) records the later socket-option, bind-error, and probe fixes. It does not close unrelated findings in this review.
+
 ## 2026-10-21 signed IPv4 host-ID result
 
 The physical Wii startup display recorded error `-1062731261` in run
