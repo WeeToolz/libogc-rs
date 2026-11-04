@@ -227,12 +227,11 @@ fn probe_socket_edges(logger: &mut ProbeLogger) {
 fn probe_bind_error_parity(logger: &mut ProbeLogger) {
     let first = network::socket(network::PF_INET, network::SOCK_STREAM, network::IPPROTO_IP);
     let second = network::socket(network::PF_INET, network::SOCK_STREAM, network::IPPROTO_IP);
-    let libdb_socket = network::socket(network::PF_INET, network::SOCK_STREAM, network::IPPROTO_IP);
     logger.record(
         "network bind conflict sockets open",
-        first >= 0 && second >= 0 && libdb_socket >= 0,
+        first >= 0 && second >= 0,
     );
-    if first < 0 || second < 0 || libdb_socket < 0 {
+    if first < 0 || second < 0 {
         if first >= 0 {
             logger.record(
                 "network bind conflict first socket close",
@@ -243,12 +242,6 @@ fn probe_bind_error_parity(logger: &mut ProbeLogger) {
             logger.record(
                 "network bind conflict second socket close",
                 network::close(second) == 0,
-            );
-        }
-        if libdb_socket >= 0 {
-            logger.record(
-                "libdb bind conflict socket close",
-                network::close(libdb_socket) == 0,
             );
         }
         return;
@@ -269,20 +262,6 @@ fn probe_bind_error_parity(logger: &mut ProbeLogger) {
             let result = network::bind_addr(second, &addr);
             logger.note_i32("network bind conflict raw rc", result);
             logger.record("network bind preserves address-in-use error", result == -98);
-            let mut libdb_addr = addr;
-            let mut libdb_len = size_of::<network::SockaddrIn>() as u32;
-            let libdb_result = unsafe {
-                libdb_sys::tcpip_bind(
-                    libdb_socket,
-                    (&mut libdb_addr as *mut network::SockaddrIn).cast(),
-                    &mut libdb_len,
-                )
-            };
-            logger.note_i32("libdb bind conflict rc", libdb_result);
-            logger.record(
-                "libdb bind maps address conflict to ERR_USE",
-                libdb_result == -10,
-            );
             conflict_found = true;
             break;
         }
@@ -296,10 +275,54 @@ fn probe_bind_error_parity(logger: &mut ProbeLogger) {
         "network bind conflict second socket close",
         network::close(second) == 0,
     );
+    probe_libdb_bind_conflict(logger);
+}
+
+fn probe_libdb_bind_conflict(logger: &mut ProbeLogger) {
+    let first = libdb_sys::tcpip_socket();
+    let second = libdb_sys::tcpip_socket();
     logger.record(
-        "libdb bind conflict socket close",
-        network::close(libdb_socket) == 0,
+        "libdb bind fixture sockets allocated",
+        first >= 0 && second >= 0 && first != second,
     );
+    if first >= 0 && second >= 0 && first != second {
+        let mut addr = network::SockaddrIn {
+            sin_len: size_of::<network::SockaddrIn>() as u8,
+            sin_family: network::AF_INET as u8,
+            sin_port: 40500u16.to_be(),
+            sin_addr: network::InAddr {
+                s_addr: network::INADDR_ANY,
+            },
+            sin_zero: [0; 8],
+        };
+        let mut len = size_of::<network::SockaddrIn>() as u32;
+        // SAFETY: Both handles belong to libdb and the address remains live.
+        let initial = unsafe {
+            libdb_sys::tcpip_bind(
+                first,
+                (&mut addr as *mut network::SockaddrIn).cast(),
+                &mut len,
+            )
+        };
+        let conflict = unsafe {
+            libdb_sys::tcpip_bind(
+                second,
+                (&mut addr as *mut network::SockaddrIn).cast(),
+                &mut len,
+            )
+        };
+        logger.note_i32("libdb initial bind rc", initial);
+        logger.note_i32("libdb duplicate bind rc", conflict);
+        logger.record("libdb first socket binds", initial == 0);
+        logger.record("libdb duplicate bind returns ERR_USE", conflict == -10);
+    }
+    if second >= 0 {
+        libdb_sys::tcpip_close(second);
+    }
+    if first >= 0 {
+        libdb_sys::tcpip_close(first);
+    }
+    logger.note("libdb close has no return value; bound-state cleanup is not verified");
 }
 
 #[repr(C, align(4))]
