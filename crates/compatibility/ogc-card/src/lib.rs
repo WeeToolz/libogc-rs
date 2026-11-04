@@ -1565,7 +1565,7 @@ pub fn probe_info(slot: CardSlot) -> Result<CardProbeInfo, i32> {
     )
 }
 
-/// Returns the mounted card's sector size.
+/// Returns the detected card's sector size.
 pub fn sector_size(slot: CardSlot) -> Result<u32, i32> {
     let mut value = 0;
     // SAFETY: `value` is a live, aligned, uniquely borrowed output object.
@@ -1573,7 +1573,7 @@ pub fn sector_size(slot: CardSlot) -> Result<u32, i32> {
     status_value(status, value)
 }
 
-/// Returns the mounted card's block count.
+/// Returns the detected card's block count.
 pub fn block_count(slot: CardSlot) -> Result<u32, i32> {
     let mut value = 0;
     // SAFETY: `value` is a live, aligned, uniquely borrowed output object.
