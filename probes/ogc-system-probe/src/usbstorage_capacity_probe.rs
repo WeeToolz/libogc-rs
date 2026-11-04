@@ -62,6 +62,24 @@ fn probe_public_facade(logger: &mut ProbeLogger) {
             && handle.buffer.is_null()
             && handle.sector_size.is_null(),
     );
+    let closed_flush = unsafe { storage::try_flush(&mut handle, 0) };
+    let closed_reset = unsafe { storage::try_reset(&mut handle) };
+    let closed_suspend = unsafe { storage::try_suspend(&mut handle) };
+    let closed_start_stop = unsafe { storage::try_start_stop(&mut handle, 0, 0, 0, 0) };
+    let rejects_closed_handle = |result: storage::Result<()>| {
+        has_error(result, storage::USBSTORAGE_ENOINTERFACE)
+            || has_error(result, storage::USBSTORAGE_EINIT)
+    };
+    logger.record(
+        "closed USB handle rejects flush reset suspend and start-stop",
+        has_error(closed_flush, storage::USBSTORAGE_ENOINTERFACE)
+            && rejects_closed_handle(closed_reset)
+            && rejects_closed_handle(closed_suspend)
+            && rejects_closed_handle(closed_start_stop)
+            && handle.usb_fd < 0
+            && handle.buffer.is_null()
+            && handle.sector_size.is_null(),
+    );
     let closed_close = unsafe { storage::try_close(&mut handle) };
     logger.record(
         "closing an unopened USB handle reports no interface and stays closed",
