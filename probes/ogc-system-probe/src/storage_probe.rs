@@ -3270,6 +3270,62 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     let status_persisted = card::file_status(slot, reopened.filenum)
         .is_ok_and(|status| status.banner_fmt == status_marker);
     logger.record("card status persisted after remount", status_persisted);
+
+    let mut original_attributes = 0xa5;
+    // SAFETY: the output pointer refers to a live writable attribute byte.
+    let original_attributes_status = unsafe {
+        card::sys::get_attributes(slot.channel(), reopened.filenum, &mut original_attributes)
+    };
+    let changed_attributes = original_attributes ^ card::CARD_ATTRIB_PUBLIC;
+    let set_attributes_status = if original_attributes_status == card::CARD_ERROR_READY {
+        card::sys::set_attributes(slot.channel(), reopened.filenum, changed_attributes)
+    } else {
+        original_attributes_status
+    };
+    let mut changed_attributes_readback = 0;
+    // SAFETY: the output pointer refers to a live writable attribute byte.
+    let changed_attributes_status = if set_attributes_status == card::CARD_ERROR_READY {
+        unsafe {
+            card::sys::get_attributes(
+                slot.channel(),
+                reopened.filenum,
+                &mut changed_attributes_readback,
+            )
+        }
+    } else {
+        set_attributes_status
+    };
+    let restore_attributes_status = if original_attributes_status == card::CARD_ERROR_READY {
+        card::sys::set_attributes(slot.channel(), reopened.filenum, original_attributes)
+    } else {
+        original_attributes_status
+    };
+    let mut restored_attributes = 0;
+    // SAFETY: the output pointer refers to a live writable attribute byte.
+    let restored_attributes_status = if restore_attributes_status == card::CARD_ERROR_READY {
+        unsafe {
+            card::sys::get_attributes(slot.channel(), reopened.filenum, &mut restored_attributes)
+        }
+    } else {
+        restore_attributes_status
+    };
+    logger.note_i32(
+        "CARD get attributes before update",
+        original_attributes_status,
+    );
+    logger.note_i32("CARD set attributes update", set_attributes_status);
+    logger.note_i32("CARD set attributes restore", restore_attributes_status);
+    logger.record(
+        "CARD sys get_attributes and set_attributes read back and restore flags",
+        original_attributes_status == card::CARD_ERROR_READY
+            && set_attributes_status == card::CARD_ERROR_READY
+            && changed_attributes_status == card::CARD_ERROR_READY
+            && changed_attributes_readback == changed_attributes
+            && restore_attributes_status == card::CARD_ERROR_READY
+            && restored_attributes_status == card::CARD_ERROR_READY
+            && restored_attributes == original_attributes,
+    );
+
     let mut directory = alloc::vec![card::CardDir::default(); card::CARD_MAXFILES];
     let mut directory_count = 0;
     // SAFETY: the directory allocation can hold every entry returned by the
