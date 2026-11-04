@@ -1375,3 +1375,12 @@ failure and `LIBUSB_ERROR_NOT_FOUND`. The sector read was not reached. The
 probe's explicit reset and suspend cycles were disabled for the automation
 run. The Mac volume was unmounted for the attempts and remounted afterward.
 See the [USB read report](docs/dolphin-runs/2026-11-04-usb-passthrough-read/README.md).
+
+The USB interface-claim failure was reproduced directly with the host libusb
+C API after unmounting the volume: the kernel driver remained active and
+claim returned `LIBUSB_ERROR_ACCESS`. This isolates the failure before Rust
+storage commands. The compared C and Rust vendor-device open preflights use
+the same best-effort resume policy. Host USB capture requires additional
+macOS privilege or authorization and re-enumerates the device; no capture
+or driver detach was attempted. The volume was remounted. See the USB read
+report's follow-up isolation section.
