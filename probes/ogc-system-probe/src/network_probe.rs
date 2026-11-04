@@ -47,13 +47,27 @@ pub fn run(logger: &mut ProbeLogger) {
         } >= 0,
     );
 
-    let socket = network::socket(network::PF_INET, network::SOCK_STREAM, network::IPPROTO_TCP);
+    let explicit_tcp =
+        network::socket(network::PF_INET, network::SOCK_STREAM, network::IPPROTO_TCP);
+    logger.note_i32("network explicit TCP protocol socket result", explicit_tcp);
+    if explicit_tcp >= 0 {
+        logger.record(
+            "network explicit TCP protocol socket close",
+            network::close(explicit_tcp) == 0,
+        );
+    } else {
+        logger.note("network explicit TCP protocol socket did not open; inspect the result for platform support");
+    }
+
+    let socket = network::socket(network::PF_INET, network::SOCK_STREAM, network::IPPROTO_IP);
+    logger.note_i32("network socket result", socket);
     logger.record("network socket open", socket >= 0);
     if socket >= 0 {
         logger.record("network socket close", network::close(socket) == 0);
     }
 
-    let udp = network::socket(network::PF_INET, network::SOCK_DGRAM, network::IPPROTO_UDP);
+    let udp = network::socket(network::PF_INET, network::SOCK_DGRAM, network::IPPROTO_IP);
+    logger.note_i32("network udp socket result", udp);
     logger.record("network udp socket open", udp >= 0);
     if udp >= 0 {
         logger.record("network shutdown accepted", network::shutdown(udp, 0) >= 0);
@@ -106,7 +120,7 @@ fn probe_wireless_scan(logger: &mut ProbeLogger) {
 }
 
 fn probe_socket_edges(logger: &mut ProbeLogger) {
-    let socket = network::socket(network::PF_INET, network::SOCK_STREAM, network::IPPROTO_TCP);
+    let socket = network::socket(network::PF_INET, network::SOCK_STREAM, network::IPPROTO_IP);
     logger.record("network edge socket open", socket >= 0);
     if socket < 0 {
         return;
@@ -211,10 +225,9 @@ fn probe_socket_edges(logger: &mut ProbeLogger) {
 }
 
 fn probe_bind_error_parity(logger: &mut ProbeLogger) {
-    let first = network::socket(network::PF_INET, network::SOCK_STREAM, network::IPPROTO_TCP);
-    let second = network::socket(network::PF_INET, network::SOCK_STREAM, network::IPPROTO_TCP);
-    let libdb_socket =
-        network::socket(network::PF_INET, network::SOCK_STREAM, network::IPPROTO_TCP);
+    let first = network::socket(network::PF_INET, network::SOCK_STREAM, network::IPPROTO_IP);
+    let second = network::socket(network::PF_INET, network::SOCK_STREAM, network::IPPROTO_IP);
+    let libdb_socket = network::socket(network::PF_INET, network::SOCK_STREAM, network::IPPROTO_IP);
     logger.record(
         "network bind conflict sockets open",
         first >= 0 && second >= 0 && libdb_socket >= 0,
@@ -293,9 +306,9 @@ fn probe_bind_error_parity(logger: &mut ProbeLogger) {
 struct WiiSockaddr8([u8; 8]);
 
 fn probe_short_wii_sockaddr(logger: &mut ProbeLogger) {
-    let bind_socket = network::socket(network::PF_INET, network::SOCK_STREAM, network::IPPROTO_TCP);
+    let bind_socket = network::socket(network::PF_INET, network::SOCK_STREAM, network::IPPROTO_IP);
     let connect_socket =
-        network::socket(network::PF_INET, network::SOCK_STREAM, network::IPPROTO_TCP);
+        network::socket(network::PF_INET, network::SOCK_STREAM, network::IPPROTO_IP);
     logger.record(
         "network short sockaddr sockets open",
         bind_socket >= 0 && connect_socket >= 0,
@@ -361,7 +374,7 @@ fn probe_cleanup_before_init(logger: &mut ProbeLogger) {
 }
 
 fn probe_cleanup_cycle(logger: &mut ProbeLogger) {
-    let socket = network::socket(network::PF_INET, network::SOCK_STREAM, network::IPPROTO_TCP);
+    let socket = network::socket(network::PF_INET, network::SOCK_STREAM, network::IPPROTO_IP);
     logger.record("network cleanup socket open", socket >= 0);
     if socket < 0 {
         return;
@@ -379,7 +392,7 @@ fn probe_cleanup_cycle(logger: &mut ProbeLogger) {
     logger.record("network reinit after cleanup", reinit_rc >= 0);
     logger.note_i32("network reinit rc", reinit_rc);
     if reinit_rc >= 0 {
-        let reopened = network::socket(network::PF_INET, network::SOCK_DGRAM, network::IPPROTO_UDP);
+        let reopened = network::socket(network::PF_INET, network::SOCK_DGRAM, network::IPPROTO_IP);
         logger.record("network cleanup reinit socket open", reopened >= 0);
         if reopened >= 0 {
             logger.record(
