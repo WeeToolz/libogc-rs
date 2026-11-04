@@ -154,6 +154,10 @@ public USB disc-interface callbacks for both slots and checked absent-media
 read and write errors, read-buffer preservation, status clear, shutdown, and
 restart. The checks are grouped by slot. They do not prove successful USB
 media operations. See the [USB interface report](dolphin-runs/2026-11-03-usb-interface-no-device/README.md).
+The focused USB capacity probe then passed 52 checks. It covers safe Rust,
+raw Rust, C ABI, and shared BOT/SCSI policy paths without a device. The
+[USB API audit](dolphin-runs/2026-11-03-ogc-usbstorage-api-audit.md) maps those
+assertions to the inventory and lists the device-backed gaps.
 Earlier failed launch attempts remain in their own run directories. The
 hardware register still records physical CARD and DI behavior as not tested.
 Do not treat the source count as completed storage verification.

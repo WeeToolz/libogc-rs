@@ -118,6 +118,24 @@ fn probe_public_facade(logger: &mut ProbeLogger) {
         "safe USB capacity maps null handle to interface error",
         has_error(capacity, storage::USBSTORAGE_ENOINTERFACE),
     );
+    let mut raw_sector_size = 0x1234_5678;
+    let mut raw_sectors = 0x8765_4321;
+    // SAFETY: The null handle is a documented error input. Both output
+    // pointers refer to live writable values.
+    let raw_capacity = unsafe {
+        storage::read_capacity(
+            core::ptr::null_mut(),
+            0,
+            &mut raw_sector_size,
+            &mut raw_sectors,
+        )
+    };
+    logger.record(
+        "raw safe USB capacity rejects a null handle and preserves outputs",
+        raw_capacity == storage::USBSTORAGE_ENOINTERFACE
+            && raw_sector_size == 0x1234_5678
+            && raw_sectors == 0x8765_4321,
+    );
     logger.record(
         "raw and safe USB reads reject null handles and preserve output",
         raw_read == storage::USBSTORAGE_EINVAL
@@ -248,6 +266,12 @@ fn probe_c_abi_without_device(logger: &mut ProbeLogger) {
         "raw USB flush and default flush report no interface",
         raw_flush == storage::USBSTORAGE_ENOINTERFACE
             && raw_flush_default == storage::USBSTORAGE_ENOINTERFACE,
+    );
+    logger.record(
+        "USB drive flush reports absent media and rejects invalid slots",
+        storage::flush_drive(0) == storage::USBSTORAGE_ENOINTERFACE
+            && storage::flush_drive(1) == storage::USBSTORAGE_ENOINTERFACE
+            && storage::flush_drive(2) == storage::USBSTORAGE_EINVAL,
     );
     logger.record(
         "raw USB reset, mount, suspend, and start-stop reject null handles",
