@@ -362,6 +362,8 @@ no-disc-check failures and does not close disc mount or partition coverage.
 The [direct DI synthetic-media run](dolphin-runs/2026-11-03-di-synthetic-media/README.md)
 also failed to read through `/dev/di`, even though the DVD wrapper read the
 synthetic GC header. This setup does not prove direct DI media behavior.
+After adding that branch, a fresh [no-disc regression run](dolphin-runs/2026-11-03-dvd-di-no-disc-after-media/README.md)
+passed 178 checks, including the direct DI no-disc checks.
 The current [media-branch run](dolphin-runs/2026-11-03-dvd-media-branch/README.md)
 passes 178 checks in no-disc mode. With the synthetic disc, it skips no-disc DI
 checks and leaves only the DVD mount check failing. This separates the two
