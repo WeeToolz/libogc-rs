@@ -6,6 +6,8 @@
 
 **Corrected direct read check:** The [later run](2026-11-04-dvd-c-read-check/README.md) found five failures. The old C direct-read pass was invalid because it compared two failed reads. The corrected check requires successful fixture bytes.
 
+**Mount fix:** The [new media run](2026-11-04-dvd-mount-fix/README.md) passed all 52 checks, including DVD and direct DI mount, disc ID, and direct synchronous and asynchronous reads. The no-disc run passed 183 checks. The older failure and pending descriptions below record the state before this fix. The synthetic disc still does not test a signed partition or filesystem.
+
 This audit covers the 27 Rust functions listed for `ogc-dvd` in the generated
 implementation inventory. The no-disc evidence is the
 [fresh DVD probe run](ogc-dvd-api-audit-current/README.md). Dolphin 2609a

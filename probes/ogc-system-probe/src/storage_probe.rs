@@ -1435,9 +1435,29 @@ pub fn probe_di_media(logger: &mut ProbeLogger) {
     let init_result = di::init();
     logger.note_i32("di media init", init_result);
     logger.record("di media init opens transport", init_result == 0);
+    DI_MOUNT_CALLBACK_STATUS.store(u32::MAX, Ordering::Release);
+    DI_MOUNT_CALLBACK_ERROR.store(u32::MAX, Ordering::Release);
+    di::set_mount_callback(Some(di_mount_callback));
+    di::mount();
+    for _ in 0..1500 {
+        if DI_MOUNT_CALLBACK_STATUS.load(Ordering::Acquire) != u32::MAX {
+            break;
+        }
+        lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 100).max(1));
+    }
+    let mount_status = DI_MOUNT_CALLBACK_STATUS.load(Ordering::Acquire);
+    let mount_error = DI_MOUNT_CALLBACK_ERROR.load(Ordering::Acquire);
+    logger.note_u32("di media mount callback status", mount_status);
+    logger.note_u32("di media mount callback error", mount_error);
+    logger.record(
+        "di media mount completes",
+        mount_status == di::DVD_READY && mount_error == 0,
+    );
+    di::set_mount_callback(None);
     logger.record(
         "di media state reports inserted disc",
-        di::get_status() & di::DVD_NO_DISC as i32 == 0,
+        di::get_status() & di::DVD_READY as i32 != 0
+            && di::get_status() & di::DVD_NO_DISC as i32 == 0,
     );
 
     let mut id_bytes = [0u8; 0x20];
@@ -1477,7 +1497,7 @@ pub fn probe_di_media(logger: &mut ProbeLogger) {
             )
         };
         let rust_async_completed =
-            record_async(logger, "di media Rust async read", rust_async_submit, 0, 15);
+            record_async(logger, "di media Rust async read", rust_async_submit, 1, 15);
         logger.record(
             "di media Rust async callback receives its buffer",
             rust_async_completed
@@ -1510,7 +1530,7 @@ pub fn probe_di_media(logger: &mut ProbeLogger) {
             )
         };
         let c_async_completed =
-            record_async(logger, "di media C async read", c_async_submit, 0, 15);
+            record_async(logger, "di media C async read", c_async_submit, 1, 15);
         logger.record(
             "di media C async callback receives its buffer",
             c_async_completed
