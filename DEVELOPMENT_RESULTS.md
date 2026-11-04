@@ -186,6 +186,9 @@ writes failed, read data stayed unchanged, and shutdown/restart kept the
 interface closed. These runs verify Dolphin behavior only. See the
 [multi-sector report](docs/dolphin-runs/2026-11-03-wiisd-multisector/README.md)
 and [no-card report](docs/dolphin-runs/2026-11-03-wiisd-no-card/README.md).
+The [Wii SD API audit](docs/dolphin-runs/2026-11-03-ogc-wiisd-api-audit.md)
+maps all five public APIs to the saved runs and records that the no-card
+summary has no raw per-check log.
 
 ## 2026-11-03: ISO9660 C ABI probe update
 
@@ -1281,25 +1284,30 @@ and [Dolphin preflight record](docs/dolphin-runs/2026-11-03-card-api-audit-prefl
 
 ## 2026-11-03: Storage probe extensions
 
-Four more checks now cover storage edge paths. DVD reads a full known sector
-asynchronously from offset `0x2000`; the probe checks callback completion, the
-transfer length, and every byte. USB checks a live closed handle after a
-no-device open, including LUN rejection, output preservation, close, flush,
-reset, suspend, and start-stop behavior. SD Gecko checks that a documented
-null buffer free does not damage the buffer pool. CARD requests one block
+New checks now cover storage edge paths. DVD reads a full known sector
+asynchronously from offset `0x2000`; it also reads that payload sector and the
+following zero-filled sector in one request. The probe checks callbacks,
+transfer lengths, and every byte. USB checks live closed handles in the safe
+facade and C ABI after absent-device opens. It checks LUN rejection, output
+preservation, close, flush, reset, suspend, and start-stop behavior. SD Gecko
+checks that a documented null buffer free does not damage the buffer pool.
+CARD requests one block
 beyond reported free space, checks
 `CARD_ERROR_INSSPACE`, confirms output and free-space preservation, and checks
-that no directory entry remains. The CARD probe first skips if its temporary
-name already exists.
+that no directory entry remains. It also checks synchronous `create_entry`
+and `delete_entry`, handle close, entry absence, and free-space restoration.
+Both CARD checks use private names and skip if a name already exists.
 
 `cargo fmt --all --check`, `git diff --check`, and the full
 `cargo xtask build-dolphin-probes` passed. The build used the configured MP3
-probe and reference fixtures. The fresh DOL SHA-256 values are:
+probe and reference fixtures. A separate build with the prepared PowerPC
+sysroot and `gamecube` cfg built and converted the GameCube `card_probe` DOL.
+The fresh DOL SHA-256 values are:
 
-- Wii `dvd_probe`: `471d19c0201d4abb13ced62bdaf5066f9a23b64cd4bd4132abcf8cf7ced79f87`
-- `usbstorage_capacity_probe`: `94d1367cb122ca2c841ba600e56b5c704b9db91973db21518b642284fbb654e7`
-- `fat_sd_probe`: `52954d67f5b4fc754428d99c95f1cf2c6e4d2db60809902fb0cff297df0358a5`
-- GameCube `card_probe`: `5acc5cadc91c89ac6a27b9792ca030c980709688fbee6d54d36dfd7dfffbab2e`
+- Wii `dvd_probe`: `c95d7207a63245bddf7f27d4abbbebe966344781b75af2f0434e663773931fb2`
+- `usbstorage_capacity_probe`: `891ab2fdd3ed13cccdb14e77cb8937089ffdaa7f78451214332ae16a99af031b`
+- `fat_sd_probe`: `a62694609acb759f9737203edb9687de2307b30d46d0617d157788f1cc61aa9b`
+- GameCube `card_probe`: `6b14169ef764cfb9169988bf567ba7d688ba246c5a4513922183236118f71425`
 
 These changed probe checks have source and build evidence only. They do not
 have new Dolphin results because the installed Dolphin executable fails its

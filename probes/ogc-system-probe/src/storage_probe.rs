@@ -46,6 +46,9 @@ struct UsbInterfaceSector([u8; 512]);
 #[repr(align(32))]
 struct DvdSector([u8; 0x800]);
 
+#[repr(align(32))]
+struct DvdTwoSectors([u8; 0x1000]);
+
 const USB_CLASS_MASS_STORAGE: u8 = 0x08;
 const USB_CLASS_ANY: u8 = 0x00;
 // USB mass-storage logical sectors are not universally 512 bytes. This
@@ -434,6 +437,40 @@ pub fn probe_dvd(logger: &mut ProbeLogger) -> bool {
     logger.record(
         "dvd offset sector async matches synthetic payload",
         offset_async_ok && offset_async_bytes_match,
+    );
+
+    let mut two_sectors = DvdTwoSectors([0xa5; 0x1000]);
+    let mut two_sector_block = dvd::DvdCmdBlk::default();
+    prepare_async_probe();
+    // SAFETY: The command block and both aligned sectors remain live until
+    // callback completion is observed below.
+    let two_sector_submit = unsafe {
+        dvd::read_abs_async_prio(
+            &mut two_sector_block,
+            two_sectors.0.as_mut_ptr().cast(),
+            two_sectors.0.len() as u32,
+            0x2000,
+            Some(dvd_async_callback),
+            2,
+        )
+    };
+    let two_sector_ok = record_async(
+        logger,
+        "dvd two-sector async",
+        two_sector_submit,
+        two_sectors.0.len() as i32,
+        10,
+    );
+    let two_sector_bytes_match = two_sectors.0[..0x800]
+        .iter()
+        .enumerate()
+        .all(|(index, byte)| *byte == (11u32.wrapping_add(37 * index as u32) & 0xff) as u8)
+        && two_sectors.0[0x800..].iter().all(|byte| *byte == 0);
+    logger.record(
+        "dvd two-sector async crosses payload boundary",
+        two_sector_ok
+            && two_sector_block.txdsize == two_sectors.0.len() as u32
+            && two_sector_bytes_match,
     );
     logger.note_u32("dvd last drive error", dvd::get_last_error());
     false
@@ -3245,6 +3282,14 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
     } else {
         logger.note("card allocation-boundary check skipped: free-block query failed");
     }
+    if !probe_card_sync_entry_lifecycle(logger, slot, sector_size) {
+        record_card_unmount(
+            logger,
+            "card unmount after sync-entry cleanup failure",
+            mounted,
+        );
+        return;
+    }
     let create_request = card::create_async_owned(slot, b"SAVE", sector_size.max(0x2000));
     let create_request_slot = create_request.as_ref().ok().map(|request| request.slot());
     logger.record(
@@ -4376,6 +4421,124 @@ fn probe_card_allocation_boundary(
         lookup == card::CARD_ERROR_NOFILE,
     );
     true
+}
+
+fn probe_card_sync_entry_lifecycle(
+    logger: &mut ProbeLogger,
+    slot: card::CardSlot,
+    sector_size: u32,
+) -> bool {
+    const NAME: &[u8] = b"SYNCENTR";
+    let mut existing = card::CardFile::default();
+    // SAFETY: The static name and unique output remain valid for this call.
+    let preflight =
+        unsafe { card::open(slot.channel(), c"SYNCENTR".as_ptr().cast(), &mut existing) };
+    if preflight == card::CARD_ERROR_READY {
+        // SAFETY: The successful lookup returned a unique live file handle.
+        let close = unsafe { card::sys::close(&mut existing) };
+        logger.record(
+            "CARD existing SYNCENTR preflight handle cleanup",
+            close == card::CARD_ERROR_READY,
+        );
+        logger.note("card synchronous entry lifecycle skipped: SYNCENTR already exists");
+        return close == card::CARD_ERROR_READY;
+    }
+    if preflight != card::CARD_ERROR_NOFILE {
+        logger.note_i32("card SYNCENTR preflight status", preflight);
+        logger.note("card synchronous entry lifecycle skipped: name preflight was inconclusive");
+        return true;
+    }
+    let free_before = card::free_blocks(slot);
+    let mut entry = card::CardDir {
+        chn: slot.channel(),
+        filelen: sector_size,
+        gamecode: *b"TST1",
+        company: *b"TS",
+        ..card::CardDir::default()
+    };
+    entry.filename[..NAME.len()].copy_from_slice(NAME);
+    let mut file = card::CardFile {
+        chn: 0x1234,
+        filenum: 0x2345,
+        offset: 0x3456,
+        len: 0x4567,
+        iblock: 0x5678,
+    };
+    // SAFETY: Both inputs and the unique output remain live for the call.
+    let create = unsafe { card::sys::create_entry(slot.channel(), &mut entry, &mut file) };
+    let file_valid = create == card::CARD_ERROR_READY
+        && file.chn == slot.channel()
+        && (0..card::CARD_MAXFILES as i32).contains(&file.filenum)
+        && file.offset == 0
+        && file.len == 0x4567
+        && file.iblock >= 5;
+    logger.record(
+        "CARD sys create_entry creates a valid file handle",
+        file_valid,
+    );
+
+    let mut cleanup_ok = true;
+    let mut delete_entry_status = card::CARD_ERROR_FATAL_ERROR;
+    if create == card::CARD_ERROR_READY && (0..card::CARD_MAXFILES as i32).contains(&file.filenum) {
+        // SAFETY: The synchronous create returned this unique live handle.
+        let close = unsafe { card::sys::close(&mut file) };
+        logger.record(
+            "CARD sys create_entry file handle closes",
+            close == card::CARD_ERROR_READY,
+        );
+        if close == card::CARD_ERROR_READY {
+            // SAFETY: `entry` still identifies the file created above.
+            delete_entry_status = unsafe { card::sys::delete_entry(slot.channel(), &mut entry) };
+            if delete_entry_status != card::CARD_ERROR_READY {
+                // SAFETY: Preflight proved this unique name was free, and this
+                // probe created it, so fallback cleanup only removes our file.
+                cleanup_ok = unsafe {
+                    card::sys::delete(slot.channel(), c"SYNCENTR".as_ptr().cast())
+                        == card::CARD_ERROR_READY
+                };
+            }
+        } else {
+            cleanup_ok = false;
+        }
+    } else if create == card::CARD_ERROR_READY {
+        // SAFETY: Preflight proved the name was free, and this probe created it.
+        cleanup_ok = unsafe {
+            card::sys::delete(slot.channel(), c"SYNCENTR".as_ptr().cast()) == card::CARD_ERROR_READY
+        };
+    } else if file.chn == slot.channel()
+        && (0..card::CARD_MAXFILES as i32).contains(&file.filenum)
+        && file.filenum != 0x2345
+    {
+        // SAFETY: A failed call changed the unique output to a valid handle.
+        cleanup_ok = unsafe { card::sys::close(&mut file) } == card::CARD_ERROR_READY;
+    }
+    logger.record(
+        "CARD sys delete_entry removes the created entry",
+        file_valid && delete_entry_status == card::CARD_ERROR_READY,
+    );
+
+    let mut reopened = card::CardFile::default();
+    // SAFETY: The name and unique output remain live for the lookup.
+    let reopen = unsafe { card::open(slot.channel(), c"SYNCENTR".as_ptr().cast(), &mut reopened) };
+    if reopen == card::CARD_ERROR_READY {
+        // SAFETY: The unexpected lookup returned a unique live file handle.
+        let close = unsafe { card::sys::close(&mut reopened) };
+        let deleted = close == card::CARD_ERROR_READY
+            // SAFETY: The name was free before this probe created the entry.
+            && unsafe { card::sys::delete(slot.channel(), c"SYNCENTR".as_ptr().cast()) }
+                == card::CARD_ERROR_READY;
+        cleanup_ok &= deleted;
+    }
+    logger.record(
+        "CARD synchronous entry deletion leaves no directory entry",
+        reopen == card::CARD_ERROR_NOFILE,
+    );
+    logger.record("CARD synchronous entry cleanup succeeds", cleanup_ok);
+    logger.record(
+        "CARD synchronous entry lifecycle restores free blocks",
+        free_before.is_ok() && card::free_blocks(slot) == free_before,
+    );
+    cleanup_ok && reopen == card::CARD_ERROR_NOFILE
 }
 
 fn cleanup_format_marker(logger: &mut ProbeLogger, slot: card::CardSlot) {
