@@ -19,6 +19,8 @@ use core::sync::atomic::AtomicI32;
 use core::sync::atomic::AtomicUsize;
 use core::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 
+pub const CARD_FORMAT_CONFIRMATION: &[u8] = b"--destructive-card-format=ERASE-SLOT-A";
+
 use ogc_filesystem as filesystem;
 #[cfg(not(gamecube))]
 use ogc_stm as stm;
@@ -210,6 +212,24 @@ pub unsafe fn set_agent_arguments(argc: i32, argv: *mut *mut u8) {
     }
     #[cfg(not(feature = "agent-report"))]
     let _ = (argc, argv);
+}
+
+/// Checks whether the DOL startup arguments contain an exact argument.
+///
+/// # Safety
+/// `argv` must point to at least `argc` readable pointer entries, and every
+/// non-null entry must point to a readable NUL-terminated byte string.
+pub unsafe fn startup_arguments_contain(argc: i32, argv: *mut *mut u8, expected: &[u8]) -> bool {
+    if argc <= 0 || argv.is_null() {
+        return false;
+    }
+    (0..argc as usize).any(|index| {
+        // SAFETY: the caller guarantees a live `argc`-sized argument array.
+        let argument = unsafe { *argv.add(index) };
+        !argument.is_null()
+            // SAFETY: the caller guarantees each non-null entry is NUL-terminated.
+            && unsafe { core::ffi::CStr::from_ptr(argument.cast()) }.to_bytes() == expected
+    })
 }
 
 /// Refreshes the agent argument vector after `system::check_argv` builds it.

@@ -176,9 +176,11 @@ Normal probe builds keep their live dashboards. The input automation uses a
 Dolphin pipe controller and does not use a host controller. Dolphin validation
 does not enable host USB passthrough. Card format is off by default. To format
 an isolated copy, supply `LIBOGC_DOLPHIN_CARD_IMAGE` and run
-`cargo xtask dolphin-validate --probe storage_probe --format-private-card`.
-The option requires that probe alone and a card-image source. It erases the
-copy in the private Dolphin profile.
+`cargo xtask dolphin-validate --probe storage_probe --format-private-card` or
+use `--probe card_probe` for GameCube mode. The option requires that probe
+alone and a card-image source. It erases the copy in the private Dolphin
+profile. See the [GameCube format run](../docs/dolphin-runs/2026-11-03-card-format-gamecube/README.md)
+for a successful marker removal check.
 
 Input JSON Lines are formatted by the same bounded, allocation-free formatter
 used by `input_probe`. A record that exceeds its buffer or cannot reach the

@@ -146,7 +146,10 @@ The later [CARD save roundtrip](dolphin-runs/2026-11-03-card-save-roundtrip/READ
 passed 151 checks in Wii mode and 91 checks in GameCube mode. Both used copies
 of the same virtual card. They checked save creation, data and status after
 remount, deletion after remount, and free block recovery. Physical card
-behavior, card formatting, and removal remain unverified.
+behavior and removal remain unverified. The later
+[GameCube format run](dolphin-runs/2026-11-03-card-format-gamecube/README.md)
+passed 111 checks on a private copy. It verified that formatting removes a
+marker save after remount.
 
 The [raw CARD roundtrip](dolphin-runs/2026-11-03-card-raw-roundtrip/README.md)
 also calls the raw read and write APIs and checks returned bytes in both modes.

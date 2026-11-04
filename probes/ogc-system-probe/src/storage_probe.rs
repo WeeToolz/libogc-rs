@@ -118,9 +118,16 @@ pub fn run(logger: &mut ProbeLogger, destructive_card_format: bool) {
 }
 
 /// Runs the CARD transfer and metadata checks without Wii IOS storage probes.
-pub fn run_card_probe(logger: &mut ProbeLogger) {
+pub fn run_card_probe(logger: &mut ProbeLogger, destructive_card_format: bool) {
     logger.section("GAMECUBE CARD PROBE");
     probe_card_save_data(logger);
+    if destructive_card_format {
+        probe_card_format(logger);
+    } else {
+        logger.note(
+            "card format skipped: pass --destructive-card-format=ERASE-SLOT-A to erase slot A",
+        );
+    }
     logger.note_i32("card shutdown", card::sys::shutdown());
 }
 

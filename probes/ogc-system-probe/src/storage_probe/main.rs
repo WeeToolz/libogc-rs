@@ -12,21 +12,14 @@ fn main() {}
 pub unsafe extern "C" fn main(argc: i32, argv: *mut *mut u8) -> i32 {
     // SAFETY: libogc calls this exported entrypoint with its live argc/argv.
     unsafe { ogc_system_probe::probe_support::set_agent_arguments(argc, argv) };
-    const CONFIRMATION: &[u8] = b"--destructive-card-format=ERASE-SLOT-A";
-    let mut destructive_card_format = false;
-    if argc > 0 && !argv.is_null() {
-        for index in 0..argc as usize {
-            // SAFETY: the loader supplies `argc` live pointers to NUL-terminated arguments.
-            let argument = unsafe { *argv.add(index) };
-            if !argument.is_null()
-                // SAFETY: each non-null loader argument is NUL-terminated.
-                && unsafe { core::ffi::CStr::from_ptr(argument.cast()) }.to_bytes()
-                    == CONFIRMATION
-            {
-                destructive_card_format = true;
-            }
-        }
-    }
+    // SAFETY: libogc supplies the live argument vector to this entrypoint.
+    let destructive_card_format = unsafe {
+        ogc_system_probe::probe_support::startup_arguments_contain(
+            argc,
+            argv,
+            ogc_system_probe::probe_support::CARD_FORMAT_CONFIRMATION,
+        )
+    };
     ogc_system_probe::run_storage_probe_bin(destructive_card_format)
 }
 
