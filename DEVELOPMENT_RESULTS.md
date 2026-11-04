@@ -1198,6 +1198,16 @@ cause is unknown. See the [per-API audit](docs/dolphin-runs/2026-11-03-ogc-gcsd-
 [initial assertion failure](docs/dolphin-runs/2026-11-03-gcsd-setter-api/suite.json),
 and [preflight failure record](docs/dolphin-runs/2026-11-03-gcsd-setter-api-reviewed/README.md).
 
+## 2026-11-03: DI legacy descriptor checks
+
+The DI no-disc probe now checks the exported `di_fd` value after Rust and C
+initialization and after close. The updated Wii `dvd_probe` DOL built with
+SHA-256 `e8ad73da79f591faec307d6afcff4b2a415ef68f45fc9e889f8a733a1e6f6ea3`.
+It has no new Dolphin result: the installed Dolphin executable exits with
+`SIGABRT` on its `--version` preflight before any probe starts. See the
+[DI API audit](docs/dolphin-runs/2026-11-03-ogc-di-api-audit.md), which records
+the direct checks and the current emulator limit.
+
 ## 2026-11-03: CARD API evidence audit
 
 The CARD audit maps all 209 inventory rows for `ogc-card`, `ogc-card-sys`,
