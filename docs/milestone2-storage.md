@@ -159,6 +159,11 @@ adds a current GameCube-mode result for direct sys and wrapper transfers,
 invalid-channel checks, owned asynchronous requests, and persistence after
 remount. Physical card behavior remains untested.
 
+The [duplicate mount run](dolphin-runs/2026-11-03-card-duplicate-mount/README.md)
+also confirms in both Dolphin modes that a second `mount_async_owned` request
+returns `CARD_ERROR_BUSY` while the existing mount owner remains attached. This
+does not test physical removal or invoke the detach callback.
+
 Before the `CARD_Probe` parity correction, an early run expected typed queries
 to return the raw slot-probe error. Its
 four assertions failed because the APIs return different errors. The corrected

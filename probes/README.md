@@ -211,6 +211,11 @@ inspect its `result.json`, `probe.log`, `dolphin.log`, and final PNG together.
 
 The normal storage probe does not format memory cards. To run its destructive slot-A format check, use a sacrificial card and pass the exact DOL argument `--destructive-card-format=ERASE-SLOT-A`. This erases all data on that card.
 
+The CARD save check also submits a second owned asynchronous mount while its
+first mount remains active. See the [Dolphin run record](../docs/dolphin-runs/2026-11-03-card-duplicate-mount/README.md)
+for the Wii and GameCube results. Physical card removal and detach callbacks
+remain untested.
+
 The USB storage probe writes and synchronizes a dedicated close-persistence file, unmounts and deinitializes the transport, remounts it, and verifies the file before cleanup. A failed unmount retains retryable transport state and stops that probe path.
 
 ## PAD recalibration coverage
