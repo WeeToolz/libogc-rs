@@ -54,3 +54,20 @@ implemented or verified. References:
 
 - https://github.com/dolphin-emu/dolphin/blob/master/Source/Core/Core/IOS/USB/LibusbDevice.cpp
 - https://github.com/libusb/libusb/blob/master/libusb/os/darwin_usb.c
+
+## Authorized macOS capture check
+
+With the user's permission to temporarily capture the device and preserve its
+contents, a small host libusb helper was built with the macOS USB capture
+entitlement. It was designed to detach and reclaim interface 0, then restore
+the kernel driver, without sending storage commands. The private check
+unmounted the confirmed CAPTURES volume first and remounted it in an exit
+handler. The helper was terminated with exit status 137 before it printed any
+libusb results. The macOS security log reports that its ad-hoc signature could
+not validate the restricted entitlement and the kernel rejected execution.
+Thus no detach, USB capture, or Dolphin read was established by this check.
+
+`sudo -n true` also reported that a password is required. The remaining host
+capture path needs an authorized administrator session or a valid signed
+capture entitlement, and a verified recovery procedure for the device. Do not
+format or erase the drive.
