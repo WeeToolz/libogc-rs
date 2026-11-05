@@ -253,6 +253,9 @@ pub const fn vi_control_register_for_mode(mode: u32) -> Option<u16> {
         return None;
     }
     let format = ((mode >> 2) & 0x7) as u16;
+    // EURGB60 uses NTSC's VI control-register format; its filter is selected
+    // separately. The control register has only two format bits.
+    let format = if format == 5 { 0 } else { format & 3 };
     if vi_mode_is_progressive(mode) {
         Some((format << 8) | 0x0005)
     } else {
@@ -266,7 +269,7 @@ pub const fn vi_mode_is_progressive(mode: u32) -> bool {
 }
 
 pub const fn vi_scan_mode_for_mode(mode: u32) -> u32 {
-    if mode & 0x3 != 0 { 1 } else { 0 }
+    if mode & 0x2 != 0 { 2 } else { mode & 1 }
 }
 
 pub const fn timer_clock_hz(platform: PlatformClock) -> u64 {
@@ -377,9 +380,9 @@ mod tests {
         assert_eq!(vi_control_register_for_mode(2), Some(0x0005));
         assert_eq!(vi_control_register_for_mode(10), Some(0x0205));
         assert_eq!(vi_control_register_for_mode(14), Some(0x0305));
-        assert_eq!(vi_control_register_for_mode(20), Some(0x0501));
-        assert_eq!(vi_control_register_for_mode(21), Some(0x0505));
-        assert_eq!(vi_control_register_for_mode(22), Some(0x0505));
+        assert_eq!(vi_control_register_for_mode(20), Some(0x0001));
+        assert_eq!(vi_control_register_for_mode(21), Some(0x0005));
+        assert_eq!(vi_control_register_for_mode(22), Some(0x0005));
         assert_eq!(vi_control_register_for_mode(3), None);
         assert!(vi_mode_is_progressive(2));
         assert!(vi_mode_is_progressive(6));
@@ -388,8 +391,9 @@ mod tests {
         assert_eq!(vi_scan_mode_for_mode(1), 1);
         assert_eq!(vi_scan_mode_for_mode(4), 0);
         assert_eq!(vi_scan_mode_for_mode(5), 1);
-        assert_eq!(vi_scan_mode_for_mode(2), 1);
-        assert_eq!(vi_scan_mode_for_mode(6), 1);
+        assert_eq!(vi_scan_mode_for_mode(2), 2);
+        assert_eq!(vi_scan_mode_for_mode(6), 2);
+        assert_eq!(vi_scan_mode_for_mode(22), 2);
     }
 
     #[test]
