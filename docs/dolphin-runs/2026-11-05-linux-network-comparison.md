@@ -32,8 +32,22 @@ was `991e6b0735f99f282d9ba547332c28731338b08d86e1081528d6a65afa102311`.
 The host kernel returned SO_RCVBUF 32768 after a 16384 request and returned a
 receive timeout of 2 seconds, 28000 microseconds after a request for 2 seconds,
 25000 microseconds. The probe requires exact values for both. These observations
-are consistent with the remaining failures, but do not independently establish
-the values returned through the complete emulated path. Do not treat native
+are consistent with the remaining failures. A subsequent diagnostic run
+instrumented the experimental emulator immediately after the native socket
+calls, logging the Wii-format words sent to and returned from emulated IOS:
+
+| Option | Set request | Successful get reply |
+| --- | --- | --- |
+| SO_RCVBUF | 16384 bytes | 32768 bytes |
+| SO_RCVTIMEO | 2 seconds, 25000 microseconds | 2 seconds, 28000 microseconds |
+
+That run used the same DOL hash, captured six valid pages, and again reported
+50 passes and two failures. The diagnostic executable's SHA-256 was
+`c511c2a6baa03c762e7ae7f054c055944e6cbf7b436eca51f474b57085a7287f`.
+The trace was added after successful `setsockopt` or `getsockopt` in the
+experimental helper and read the emulated request or reply words; it did not
+change the socket values or assertions. The matched Linux values explain these
+two failures at the emulator boundary. Do not treat native
 Linux return values as proof of Wii behavior or change the assertions solely to
 make this run pass. Wii behavior and the appropriate emulation of buffer sizes
 and timeout precision remain to be verified.
