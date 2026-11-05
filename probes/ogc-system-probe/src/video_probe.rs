@@ -77,7 +77,7 @@ pub fn run(logger: &mut ProbeLogger) {
         "video framebuffer register readback",
         initial_proof.next_framebuffer_registers_match,
     );
-    let expected_scan_mode = unsafe { u32::from((*rmode).vi_tv_mode & 0x3 != 0) };
+    let expected_scan_mode = unsafe { (*rmode).vi_tv_mode & 0x3 };
     logger.record(
         "video scan mode matches selected VI mode",
         video::get_video_scan_mode() == expected_scan_mode,
