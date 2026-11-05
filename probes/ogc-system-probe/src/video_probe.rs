@@ -33,6 +33,7 @@ const RETRACE_WAIT_TIMEOUT_US: u64 = 100_000;
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("VIDEO PROBE");
     probe_texture_descriptors(logger);
+    probe_tpl_memory(logger);
     probe_texture_queries(logger);
     probe_texture_indexed_lod(logger);
     probe_texture_regions(logger);
@@ -156,6 +157,72 @@ pub fn run(logger: &mut ProbeLogger) {
     let _ = video::set_post_retrace_callback(previous_post);
     PREVIOUS_PRE_CALLBACK.store(0, Ordering::Release);
     PREVIOUS_POST_CALLBACK.store(0, Ordering::Release);
+}
+
+fn probe_tpl_memory(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    // One 8x8 I4 image: 12-byte header, 8-byte descriptor, 36-byte image
+    // header, padding to a 32-byte boundary, and one 32-byte texture tile.
+    #[repr(align(32))]
+    struct TplBytes([u8; 96]);
+    let mut bytes = TplBytes([0; 96]);
+    bytes.0[0..4].copy_from_slice(&0x0020_af30u32.to_be_bytes());
+    bytes.0[4..8].copy_from_slice(&1u32.to_be_bytes());
+    bytes.0[8..12].copy_from_slice(&12u32.to_be_bytes());
+    bytes.0[12..16].copy_from_slice(&20u32.to_be_bytes());
+    bytes.0[20..22].copy_from_slice(&8u16.to_be_bytes());
+    bytes.0[22..24].copy_from_slice(&8u16.to_be_bytes());
+    bytes.0[28..32].copy_from_slice(&64u32.to_be_bytes());
+    let mut file = gx::TplFile {
+        type_: 0,
+        ntextures: 0,
+        texdesc: null_mut(),
+        tpl_file: null_mut(),
+    };
+    // SAFETY: The aligned, writable fixture and descriptor remain live until
+    // close; the returned texture object is inspected only and not submitted.
+    unsafe {
+        logger.record(
+            "GX TPL memory rejects null input",
+            gx::tpl_open_tpl_from_memory(&mut file, null_mut(), 96) < 0,
+        );
+        let opened = gx::tpl_open_tpl_from_memory(&mut file, bytes.0.as_mut_ptr().cast(), 96);
+        logger.record(
+            "GX TPL memory image opens",
+            opened == 1 && file.ntextures == 1,
+        );
+        if opened != 1 {
+            return;
+        }
+        let (mut format, mut width, mut height) = (u32::MAX, 0, 0);
+        let info = gx::tpl_get_texture_info(&mut file, 0, &mut format, &mut width, &mut height);
+        logger.record(
+            "GX TPL image metadata and invalid index",
+            info == 0
+                && (format, width, height) == (u32::from(gx::GX_TF_I4), 8, 8)
+                && gx::tpl_get_texture_info(&mut file, 1, null_mut(), null_mut(), null_mut()) < 0,
+        );
+        let mut texture = gx::GxTexObj::default();
+        let result = gx::tpl_get_texture(&mut file, 0, &mut texture);
+        let expected_data = ((bytes.0.as_mut_ptr().add(64) as usize) & 0x1fff_ffe0) as *mut c_void;
+        logger.record(
+            "GX TPL creates texture descriptor",
+            result == 0
+                && gx::tex_obj_snapshot(&texture).is_some_and(|s| {
+                    s.width == 8
+                        && s.height == 8
+                        && s.format == gx::GX_TF_I4
+                        && s.image_ptr == expected_data
+                })
+                && gx::tpl_get_texture(&mut file, -1, &mut texture) < 0,
+        );
+        gx::tpl_close_tpl_file(&mut file);
+        logger.record(
+            "GX TPL close invalidates descriptor",
+            file.ntextures == 0 && file.texdesc.is_null() && file.tpl_file.is_null(),
+        );
+    }
 }
 
 fn probe_texture_conversion(logger: &mut ProbeLogger) {
