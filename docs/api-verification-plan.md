@@ -23,6 +23,22 @@ emulator comparison, SDK getsockopt and bind changes, and corrected probe
 expectations. This is evidence for the named checks, not full network API or
 physical Wii coverage.
 
+The Linux Dolphin 2503 baseline reported 46 passes and six socket-option
+failures. A separate experimental Linux build using the same DOL reported
+50 passes and two failures. A diagnostic run traced those two replies to
+Linux buffer-size and timeout adjustments. See the [Linux comparison](dolphin-runs/2026-11-05-linux-network-comparison.md)
+for the patch, DOL identity, differing emulator settings, and limitations.
+The network probe has not passed in this Linux environment; the two remaining
+failures must not be counted as passes.
+
+## Current Dolphin evidence batch
+
+The next focused batch is GX graphics. Select existing GX probe checks and
+retain their reports and screenshots with the DOL hash and emulator settings.
+Evaluate the named checks as Dolphin evidence; the present batch does not
+require physical Wii testing. Existing hardware evidence requirements remain
+applicable to any later hardware acceptance claims.
+
 ## Work order
 
 1. **Establish the test environment.** Review the runtime probe's
