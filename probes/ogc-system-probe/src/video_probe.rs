@@ -795,11 +795,25 @@ fn probe_texture_queries(logger: &mut ProbeLogger) {
 }
 
 fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrModeObj) {
-    use ogc_gx::GxFifo;
+    use ogc_gx::{GxFifo, GxFifoError};
+
+    let arena_before = system::get_arena2_lo() as usize;
+    // SAFETY: Invalid sizes are rejected before any FIFO or arena mutation.
+    let invalid_sizes = unsafe {
+        matches!(GxFifo::initialize_mem2(0), Err(GxFifoError::InvalidSize))
+            && matches!(
+                GxFifo::initialize_mem2(65537),
+                Err(GxFifoError::InvalidSize)
+            )
+    };
+    logger.record(
+        "GX MEM2 FIFO rejects invalid sizes without allocation",
+        invalid_sizes && system::get_arena2_lo() as usize == arena_before,
+    );
 
     // SAFETY: This video probe owns GX for this run and keeps the FIFO alive
     // while GxCanvas configures the production GX backend.
-    let _fifo = match unsafe { GxFifo::initialize_default_mem2() } {
+    let fifo = match unsafe { GxFifo::initialize_default_mem2() } {
         Ok(fifo) => fifo,
         Err(error) => {
             logger.report_step("GX canvas FIFO initialization");
@@ -808,6 +822,16 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
             return;
         }
     };
+
+    let address = GxFifo::address(&fifo) as usize;
+    let size = GxFifo::size(&fifo);
+    let expected_base = (arena_before + 31) & !31;
+    logger.record(
+        "GX default MEM2 FIFO address size and arena advancement",
+        address == expected_base
+            && size == 256 * 1024
+            && system::get_arena2_lo() as usize == expected_base + size as usize,
+    );
 
     // SAFETY: `rmode` is the live preferred mode initialized above, and this
     // probe owns the GX FIFO for the duration of the canvas check.

@@ -1,0 +1,70 @@
+PASS SYS_Init completed
+-- page 2 --
+PASS display initialized
+PASS power button callback installed
+PASS GX texture descriptor dimensions and format
+PASS GX texture descriptor wrap and user data
+PASS GX display copy scale ratio
+PASS GX display copy scale rejects unsupported dimensions
+-- page 3 --
+PASS GX TPL memory rejects null input
+PASS GX TPL memory image opens
+PASS GX TPL image metadata and invalid index
+PASS GX TPL creates texture descriptor
+PASS GX TPL close invalidates descriptor
+PASS GX indexed TPL texture and palette
+PASS GX frame configuration validates input
+PASS GX frame filter and field settings retained
+PASS GX texture image and user pointers
+PASS GX texture filter and LOD queries
+PASS GX texture grouped queries
+PASS GX indexed texture descriptors and palette
+PASS GX texture LOD fields and clamps
+PASS GX texture cache region C layout
+PASS GX texture preload region C layout
+PASS GX palette region preserves cached fields
+PASS GX palette object masks format
+PASS GX texture buffer tile and mip sizes
+PASS GX RGB565 tiled conversion and partial dimensions
+PASS GX light object fields and attenuation
+PASS GX light distance attenuation modes
+PASS GX light spotlight cutoff
+PASS GX light spotlight modes
+-- page 4 --
+PASS GX specular directions
+PASS GX overscan modes and in-place output
+PASS GX fog adjustment table and zero width
+PASS GX perspective fog table and null inputs
+PASS GX FIFO base size and initial count
+PASS GX FIFO watermarks and adjacent fields
+PASS GX FIFO short initialization preserves object
+PASS GX FIFO wrap flag readback
+PASS GX wrapped FIFO keeps real pointer addresses and distance
+PASS GX invalid FIFO pointer leaves prior metadata unchanged
+PASS XFB A survives cached alias flush
+PASS XFB B survives cached alias flush
+PASS VI retrace interrupt arrives after flush
+-- page 5 --
+PASS video init display
+PASS GX MEM2 FIFO rejects invalid sizes without allocation
+PASS GX default MEM2 FIFO address size and arena advancement
+PASS GX canvas dimensions and validation
+PASS video control register readback
+PASS video framebuffer register readback
+PASS video scan mode matches selected VI mode
+PASS VI wait matches selected mode timing
+PASS VI retrace interrupt advances counter
+PASS pre retrace callback fired
+PASS post retrace callback fired
+PASS retrace callback order
+PASS video next framebuffer observable
+PASS component cable state sane
+PASS framebuffer draw memory readback
+PASS framebuffer swap register readback
+-- page 6 --
+PASS console write video banner
+PASS console write video footer
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+INFO summary_candidate passes=62 fails=0
+PASS summary passes=62 fails=0
