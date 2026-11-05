@@ -1,0 +1,105 @@
+diff --git a/Source/Core/Core/IOS/Network/IP/Top.cpp b/Source/Core/Core/IOS/Network/IP/Top.cpp
+index 41a8442..aa78a5a 100644
+--- a/Source/Core/Core/IOS/Network/IP/Top.cpp
++++ b/Source/Core/Core/IOS/Network/IP/Top.cpp
+@@ -60,0 +61 @@
++#include <netinet/tcp.h>
+@@ -169,0 +171,88 @@ static s32 MapWiiSockOptNameToNative(u32 optname)
++#ifdef __linux__
++// IOS option payloads use big-endian 32-bit words, including timeval fields.
++static std::optional<IPCReply> LinuxSocketOption(Core::System& system, WiiSockMan& sockets,
++                                              const IOCtlRequest& request, bool set)
++{
++  auto& memory = system.GetMemory();
++  const u32 address = set ? request.buffer_in : request.buffer_out;
++  const u32 size = set ? request.buffer_in_size : request.buffer_out_size;
++  if (size < 16)
++    return IPCReply(-28);
++  const u32 fd = memory.Read_U32(address);
++  const u32 level = memory.Read_U32(address + 4);
++  const u32 name = memory.Read_U32(address + 8);
++  const u32 length = memory.Read_U32(address + 12);
++  int native_level = 0;
++  int native_name = 0;
++  bool timeout = false;
++  if (level == 0xffff)
++  {
++    native_level = SOL_SOCKET;
++    switch (name)
++    {
++    case 4: native_name = SO_REUSEADDR; break;
++    case 8: native_name = SO_KEEPALIVE; break;
++    case 0x20: native_name = SO_BROADCAST; break;
++    case 0x1001: native_name = SO_SNDBUF; break;
++    case 0x1002: native_name = SO_RCVBUF; break;
++    case 0x1005: native_name = SO_SNDTIMEO; timeout = true; break;
++    case 0x1006: native_name = SO_RCVTIMEO; timeout = true; break;
++    default: return std::nullopt;
++    }
++  }
++  else if (level == 0 && name == 2)
++  {
++    native_level = IPPROTO_IP;
++    native_name = IP_TTL;
++  }
++  else if (level == 6 && (name == 0x2001 || name == 2))
++  {
++    native_level = IPPROTO_TCP;
++    native_name = name == 0x2001 ? TCP_NODELAY : TCP_KEEPIDLE;
++  }
++  else
++    return std::nullopt;
++  const u32 required = timeout ? 8 : 4;
++  if (length < required || size < 16 + required)
++    return IPCReply(-28);
++  const int socket = sockets.GetHostSocket(fd);
++  int result;
++  if (timeout)
++  {
++    timeval value{};
++    socklen_t native_size = sizeof(value);
++    if (set)
++    {
++      value.tv_sec = static_cast<s32>(memory.Read_U32(address + 16));
++      value.tv_usec = static_cast<s32>(memory.Read_U32(address + 20));
++      if (value.tv_sec < 0 || value.tv_usec < 0 || value.tv_usec >= 1000000)
++        return IPCReply(-28);
++      result = setsockopt(socket, native_level, native_name, &value, native_size);
++    }
++    else
++    {
++      result = getsockopt(socket, native_level, native_name, &value, &native_size);
++      if (result == 0)
++      {
++        memory.Write_U32(8, address + 12);
++        memory.Write_U32(static_cast<u32>(value.tv_sec), address + 16);
++        memory.Write_U32(static_cast<u32>(value.tv_usec), address + 20);
++      }
++    }
++  }
++  else
++  {
++    int value = set ? static_cast<s32>(memory.Read_U32(address + 16)) : 0;
++    socklen_t native_size = sizeof(value);
++    result = set ? setsockopt(socket, native_level, native_name, &value, native_size) :
++                   getsockopt(socket, native_level, native_name, &value, &native_size);
++    if (!set && result == 0)
++    {
++      memory.Write_U32(4, address + 12);
++      memory.Write_U32(static_cast<u32>(value), address + 16);
++    }
++  }
++  return IPCReply(sockets.GetNetErrorCode(result, set ? "SO_SETSOCKOPT" : "SO_GETSOCKOPT", false));
++}
++#endif
++
+@@ -652,0 +742,4 @@ IPCReply NetIPTopDevice::HandleGetSockOptRequest(const IOCtlRequest& request)
++#ifdef __linux__
++  if (auto result = LinuxSocketOption(GetSystem(), *GetEmulationKernel().GetSocketManager(), request, false))
++    return *result;
++#endif
+@@ -689,0 +783,4 @@ IPCReply NetIPTopDevice::HandleSetSockOptRequest(const IOCtlRequest& request)
++#ifdef __linux__
++  if (auto result = LinuxSocketOption(GetSystem(), *GetEmulationKernel().GetSocketManager(), request, true))
++    return *result;
++#endif
