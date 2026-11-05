@@ -34,6 +34,8 @@ pub fn run(logger: &mut ProbeLogger) {
     logger.section("VIDEO PROBE");
     probe_texture_descriptors(logger);
     probe_tpl_memory(logger);
+    probe_tpl_indexed(logger);
+    probe_frame_config(logger);
     probe_texture_queries(logger);
     probe_texture_indexed_lod(logger);
     probe_texture_regions(logger);
@@ -222,6 +224,115 @@ fn probe_tpl_memory(logger: &mut ProbeLogger) {
             "GX TPL close invalidates descriptor",
             file.ntextures == 0 && file.texdesc.is_null() && file.tpl_file.is_null(),
         );
+    }
+}
+
+fn probe_tpl_indexed(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    // A CI8 8x4 tile and a 16-entry RGB565 palette, both 32-byte aligned.
+    #[repr(align(32))]
+    struct TplBytes([u8; 160]);
+    let mut bytes = TplBytes([0; 160]);
+    bytes.0[0..4].copy_from_slice(&0x0020_af30u32.to_be_bytes());
+    bytes.0[4..8].copy_from_slice(&1u32.to_be_bytes());
+    bytes.0[8..12].copy_from_slice(&12u32.to_be_bytes());
+    bytes.0[12..16].copy_from_slice(&20u32.to_be_bytes());
+    bytes.0[16..20].copy_from_slice(&96u32.to_be_bytes());
+    bytes.0[20..22].copy_from_slice(&4u16.to_be_bytes());
+    bytes.0[22..24].copy_from_slice(&8u16.to_be_bytes());
+    bytes.0[24..28].copy_from_slice(&u32::from(gx::GX_TF_CI8).to_be_bytes());
+    bytes.0[28..32].copy_from_slice(&64u32.to_be_bytes());
+    bytes.0[96..98].copy_from_slice(&16u16.to_be_bytes());
+    bytes.0[100..104].copy_from_slice(&u32::from(gx::GX_TL_RGB565).to_be_bytes());
+    bytes.0[104..108].copy_from_slice(&128u32.to_be_bytes());
+    let mut file = gx::TplFile {
+        type_: 0,
+        ntextures: 0,
+        texdesc: null_mut(),
+        tpl_file: null_mut(),
+    };
+    // SAFETY: The fixture is writable, aligned, and remains live until close.
+    unsafe {
+        let opened = gx::tpl_open_tpl_from_memory(&mut file, bytes.0.as_mut_ptr().cast(), 160);
+        if opened != 1 {
+            logger.record("GX indexed TPL fixture opens", false);
+            return;
+        }
+        let mut texture = gx::GxTexObj::default();
+        let mut palette = gx::GxTlutObj::default();
+        let rejected = gx::tpl_get_texture_ci(&mut file, 1, &mut texture, &mut palette, 3) < 0
+            && gx::tpl_get_texture_ci(&mut file, 0, &mut texture, null_mut(), 3) < 0;
+        let result = gx::tpl_get_texture_ci(&mut file, 0, &mut texture, &mut palette, 3);
+        let image = ((bytes.0.as_mut_ptr().add(64) as usize) & 0x1fff_ffe0) as *mut c_void;
+        let colors = ((bytes.0.as_mut_ptr().add(128) as usize) & 0x1fff_ffe0) as *mut c_void;
+        logger.record(
+            "GX indexed TPL texture and palette",
+            rejected
+                && result == 0
+                && gx::tex_obj_snapshot(&texture).is_some_and(|s| {
+                    s.width == 8
+                        && s.height == 4
+                        && s.format == gx::GX_TF_CI8
+                        && s.tex_tlut == 3
+                        && s.image_ptr == image
+                })
+                && gx::tlut_obj_snapshot(&palette).is_some_and(|s| {
+                    s.format == u32::from(gx::GX_TL_RGB565)
+                        && s.nentries == 16
+                        && s.image_ptr == colors
+                }),
+        );
+        gx::tpl_close_tpl_file(&mut file);
+    }
+}
+
+fn probe_frame_config(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    #[repr(align(32))]
+    struct Aligned([u8; 32]);
+    // Only descriptor fields are inspected; no framebuffer copy is submitted.
+    let mut storage = Aligned([0; 32]);
+    let framebuffer = storage.0.as_mut_ptr().cast::<c_void>();
+    let initial = gx::FrameConfig::new(framebuffer, 640, 480, 480);
+    let rejected = gx::FrameConfig::new(null_mut(), 640, 480, 480).is_none()
+        && gx::FrameConfig::new(
+            unsafe { storage.0.as_mut_ptr().add(1) }.cast(),
+            640,
+            480,
+            480,
+        )
+        .is_none()
+        && gx::FrameConfig::new(framebuffer, 0, 480, 480).is_none();
+    logger.record(
+        "GX frame configuration validates input",
+        rejected
+            && initial.is_some_and(|c| {
+                c.xfb == framebuffer
+                    && c.width == 640
+                    && c.efb_height == 480
+                    && c.xfb_height == 480
+                    && !c.field_rendering
+                    && !c.half_aspect_ratio
+            }),
+    );
+    if let Some(config) = initial {
+        let filter = gx::GxCopyFilter {
+            antialias: true,
+            sample_pattern: [[3, 4]; 12],
+            vertical_enabled: true,
+            vertical_coefficients: [1, 2, 3, 4, 5, 6, 7],
+        };
+        let config = gx::FrameConfig::with_copy_filter(config, filter);
+        let config = gx::FrameConfig::with_field_mode(config, true, false);
+        logger.record(
+            "GX frame filter and field settings retained",
+            config.copy_filter == filter
+                && config.field_rendering
+                && !config.half_aspect_ratio
+                && config.xfb == framebuffer,
+        );
+    } else {
+        logger.record("GX frame filter and field settings retained", false);
     }
 }
 
