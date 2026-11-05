@@ -47,6 +47,10 @@ ogc-ui,src/gx.rs,from_video_mode,37,pure,hardware-probe,probes/ogc-system-probe/
 ogc-ui,src/gx.rs,new,16,pure,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_canvas_dimensions
 ogc-ui,src/gx.rs,size,41,pure,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_canvas_dimensions
 ogc-gx,src/lib.rs,make_texture565,8951,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_conversion
+ogc-gx,src/lib.rs,tpl_open_tpl_from_memory,9293,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tpl_memory
+ogc-gx,src/lib.rs,tpl_get_texture_info,9555,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tpl_memory
+ogc-gx,src/lib.rs,tpl_get_texture,9595,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tpl_memory
+ogc-gx,src/lib.rs,tpl_close_tpl_file,9787,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tpl_memory
 ogc-gx,src/lib.rs,init_fog_adj_table,6596,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_fog_table
 ogc-gx,src/lib.rs,adjust_for_overscan,6081,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_overscan
 ogc-gx,src/lib.rs,init_specular_dir_ha,7824,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_specular_light
