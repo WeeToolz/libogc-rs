@@ -1,4 +1,10 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,begin_disp_list,4852,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_display_lists
+ogc-gx,src/lib.rs,end_disp_list,4889,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_display_lists
+ogc-gx,src/lib.rs,call_disp_list,1914,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_display_lists
+ogc-gx,src/lib.rs,set_draw_sync,1849,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_display_lists
+ogc-gx,src/lib.rs,get_draw_sync,1855,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_display_lists
+ogc-gx,src/lib.rs,tex_mode_sync,1859,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_display_lists
 ogc-fat,src/lib.rs,FAT_getAttr,1991,protocol,hardware-probe,probes/ogc-system-probe/src/fat_sd_probe.rs,run,fat::FAT_getAttr
 ogc-fat,src/lib.rs,FAT_setAttr,2004,protocol,hardware-probe,probes/ogc-system-probe/src/fat_sd_probe.rs,run,fat::FAT_setAttr
 ogc-fat,src/lib.rs,device_is_inserted,1632,protocol,hardware-probe,probes/ogc-system-probe/src/fat_sd_probe.rs,run,fat::device_is_inserted

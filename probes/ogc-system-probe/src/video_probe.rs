@@ -848,6 +848,94 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
         }),
     );
     probe_efb_access(logger);
+    probe_display_lists(logger);
+}
+
+fn probe_display_lists(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    #[repr(align(32))]
+    struct ListBytes([u8; 96]);
+
+    logger.report_step("GX display-list capture and GPU replay");
+    gx::set_draw_sync(0x1357);
+    // SAFETY: The probe owns the initialized GX FIFO.
+    let ready = unsafe { gx::finish_frame_and_wait() };
+    logger.record(
+        "GX direct draw token reaches pixel engine",
+        ready && gx::get_draw_sync() == 0x1357,
+    );
+    if !ready {
+        return;
+    }
+
+    let mut previous_token = 0x1357;
+    for token in [0x2468u16, 0xace1] {
+        let mut bytes = ListBytes([0xa5; 96]);
+        // SAFETY: The aligned buffer has 64 writable bytes and stays live
+        // through capture, cache flush, replay, and GPU completion.
+        unsafe { gx::begin_disp_list(bytes.0.as_mut_ptr().cast(), 64) };
+        gx::tex_mode_sync();
+        gx::set_draw_sync(token);
+        let size = gx::end_disp_list();
+        let [high, low] = token.to_be_bytes();
+        // BP opcode 0x61, texture sync register 0x63, then token registers
+        // 0x48 and 0x47. GX_Flush adds 32 zero bytes; padding ends at 64.
+        let expected = [
+            0x61, 0x63, 0, 0, 0, 0x61, 0x48, 0, high, low, 0x61, 0x47, 0, high, low,
+        ];
+        logger.record(
+            "GX display list has exact BP bytes padding and guard",
+            size == 64
+                && bytes.0[..15] == expected
+                && bytes.0[15..64] == [0; 49]
+                && bytes.0[64..] == [0xa5; 32],
+        );
+        logger.record(
+            "GX capture does not execute token commands",
+            gx::get_draw_sync() == previous_token,
+        );
+        if size != 64 {
+            return;
+        }
+        // SAFETY: The captured list is complete, aligned, flushed, and live.
+        // Finish keeps the buffer live until the GPU has consumed the list.
+        let completed = unsafe {
+            ogc_cache::dc_flush_range(bytes.0.as_ptr().cast(), size);
+            gx::call_disp_list(bytes.0.as_mut_ptr().cast(), size);
+            gx::finish_frame_and_wait()
+        };
+        logger.record(
+            "GX replay executes captured token on pixel engine",
+            completed && gx::get_draw_sync() == token,
+        );
+        if !completed {
+            return;
+        }
+        previous_token = token;
+    }
+
+    let mut bytes = ListBytes([0xa5; 96]);
+    // SAFETY: Only the first 32 bytes are offered for this overflow check.
+    unsafe { gx::begin_disp_list(bytes.0.as_mut_ptr().cast(), 32) };
+    gx::set_draw_sync(0xdead);
+    let overflow_size = gx::end_disp_list();
+    logger.record(
+        "GX display-list overflow preserves guard and GPU token",
+        overflow_size == 0 && bytes.0[32..] == [0xa5; 64] && gx::get_draw_sync() == previous_token,
+    );
+    logger.record(
+        "GX inactive display-list end returns zero",
+        gx::end_disp_list() == 0,
+    );
+    // Check FIFO restoration after the overflow; an ordinary token command
+    // must still reach the pixel engine rather than the capture buffer.
+    gx::set_draw_sync(0x3579);
+    let completed = unsafe { gx::finish_frame_and_wait() };
+    logger.record(
+        "GX FIFO executes commands after capture overflow",
+        completed && gx::get_draw_sync() == 0x3579,
+    );
 }
 
 fn probe_efb_access(logger: &mut ProbeLogger) {

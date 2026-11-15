@@ -1414,3 +1414,16 @@ Dolphin probe confirmed that the opt-in path was enabled but still could not
 claim the flash drive. No sector read was reached. The volume was remounted.
 The patch, build identity, logs, and privilege and recovery limits are recorded
 in the [custom Dolphin report](docs/dolphin-runs/2026-11-04-usb-custom-dolphin/README.md).
+
+## 2026-11-15: GX display-list API validation
+
+The Metal Dolphin 2609a `video_probe` run passed 77 checks with zero failures
+and seven valid captured pages. Ten new checks cover six production APIs:
+`begin_disp_list`, `end_disp_list`, `call_disp_list`, `set_draw_sync`,
+`get_draw_sync`, and `tex_mode_sync`. The checks verify exact command bytes,
+zero padding, buffer guards, two GPU replay tokens, capture without execution,
+overflow rejection, and FIFO use after overflow. No production GX code changed.
+This is Dolphin evidence. Texture sync is checked for command encoding only;
+rendered geometry and physical Wii behavior remain open. See the
+[display-list report](docs/dolphin-runs/2026-11-15-gx-display-list/README.md)
+for run identity, logs, screenshots, commands, and limits.

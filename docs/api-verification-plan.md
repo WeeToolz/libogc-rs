@@ -39,6 +39,12 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [2026-11-15 display-list batch](dolphin-runs/2026-11-15-gx-display-list/README.md)
+adds exact command bytes, padding, overflow guards, GPU token replay, and FIFO
+restoration checks for six GX APIs. Metal passes 77 checks. The texture sync
+check covers encoding only; rendered geometry and physical Wii behavior remain
+open.
+
 The [2026-11-15 EFB batch](dolphin-runs/2026-11-15-gx-efb-metal/README.md)
 adds color, depth, coordinate, replacement, and alpha read checks for five GX
 APIs. Metal passes 67 checks. OpenGL with CPU EFB access enabled passes 65
