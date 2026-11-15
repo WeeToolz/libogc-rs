@@ -1427,3 +1427,19 @@ This is Dolphin evidence. Texture sync is checked for command encoding only;
 rendered geometry and physical Wii behavior remain open. See the
 [display-list report](docs/dolphin-runs/2026-11-15-gx-display-list/README.md)
 for run identity, logs, screenshots, commands, and limits.
+
+## 2026-11-15: GX viewport, scissor, and projection command validation
+
+The Metal Dolphin 2609a `video_probe` run passed 89 checks with zero failures
+and eight valid captured pages. Twelve new checks call `set_viewport`,
+`set_viewport_jitter`, `set_scissor`, `set_scissor_box_offset`, and
+`load_projection_mtx`. Fixed command bytes check nonzero origins, reversed
+depth, both jitter fields, scissor boundary cases, signed offsets, and both
+projection types. The shared check verifies padded size, zero padding,
+untouched storage, and an unchanged GPU token. The initial run failed all
+12 new checks because the helper incorrectly expected extra flush bytes;
+that run is retained. The corrected helper passed the same cases. No
+production GX code changed. These results cover Dolphin command encoding;
+rendered clipping, projected geometry, and physical Wii behavior remain
+open. See the [transform command report](docs/dolphin-runs/2026-11-15-gx-transform-commands/README.md)
+for commands, source and DOL identities, logs, screenshots, and limits.

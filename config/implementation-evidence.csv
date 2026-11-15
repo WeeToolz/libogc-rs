@@ -1,4 +1,9 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,set_viewport,4174,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_viewport_commands,ogc_gx::set_viewport
+ogc-gx,src/lib.rs,set_viewport_jitter,4141,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_viewport_jitter_commands,ogc_gx::set_viewport_jitter
+ogc-gx,src/lib.rs,set_scissor,4205,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_scissor_commands,ogc_gx::set_scissor
+ogc-gx,src/lib.rs,set_scissor_box_offset,4215,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_scissor_offset_commands,ogc_gx::set_scissor_box_offset
+ogc-gx,src/lib.rs,load_projection_mtx,4224,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_projection_commands,gx::load_projection_mtx
 ogc-gx,src/lib.rs,begin_disp_list,4852,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_display_lists
 ogc-gx,src/lib.rs,end_disp_list,4889,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_display_lists
 ogc-gx,src/lib.rs,call_disp_list,1914,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_display_lists

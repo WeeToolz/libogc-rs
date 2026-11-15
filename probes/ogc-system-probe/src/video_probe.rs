@@ -849,6 +849,158 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     );
     probe_efb_access(logger);
     probe_display_lists(logger);
+    probe_viewport_commands(logger);
+    probe_viewport_jitter_commands(logger);
+    probe_scissor_commands(logger);
+    probe_scissor_offset_commands(logger);
+    probe_projection_commands(logger);
+}
+
+fn check_gx_command_bytes(expected: &[u8], emit: impl FnOnce()) -> bool {
+    use ogc_gx as gx;
+
+    #[repr(align(32))]
+    struct CommandBytes([u8; 128]);
+    let mut bytes = CommandBytes([0xa5; 128]);
+    let token_before = gx::get_draw_sync();
+    // SAFETY: GX is initialized and exclusively owned by this probe. Only the
+    // first 96 aligned bytes are offered; the last 32 bytes form a guard.
+    unsafe { gx::begin_disp_list(bytes.0.as_mut_ptr().cast(), 96) };
+    emit();
+    let size = gx::end_disp_list() as usize;
+    // These APIs do not append GX_Flush. End pads only the emitted bytes.
+    let expected_size = (expected.len() + 31) & !31;
+    size == expected_size
+        && size <= 96
+        && bytes.0[..expected.len()] == *expected
+        && bytes.0[expected.len()..size].iter().all(|byte| *byte == 0)
+        && bytes.0[size..].iter().all(|byte| *byte == 0xa5)
+        && gx::get_draw_sync() == token_before
+}
+
+fn probe_viewport_commands(logger: &mut ProbeLogger) {
+    logger.report_step("GX viewport command bytes");
+    // XF header: six registers starting at 0x101a. Fixed IEEE-754 words are
+    // 160, -120, 16777215, 512, 482, 16777215, in C reference order.
+    let expected = [
+        0x10, 0, 5, 0x10, 0x1a, 0x43, 0x20, 0, 0, 0xc2, 0xf0, 0, 0, 0x4b, 0x7f, 0xff, 0xff, 0x44,
+        0, 0, 0, 0x43, 0xf1, 0, 0, 0x4b, 0x7f, 0xff, 0xff,
+    ];
+    let matches = check_gx_command_bytes(&expected, || unsafe {
+        ogc_gx::set_viewport(10.0, 20.0, 320.0, 240.0, 0.0, 1.0);
+    });
+    logger.record(
+        "GX viewport emits exact nonzero-origin XF transform",
+        matches,
+    );
+    // Reversed depth range and different geometry: 32, -16, -16777215,
+    // 370, 364, 0. This also detects ignored near/far parameters.
+    let expected = [
+        0x10, 0, 5, 0x10, 0x1a, 0x42, 0, 0, 0, 0xc1, 0x80, 0, 0, 0xcb, 0x7f, 0xff, 0xff, 0x43,
+        0xb9, 0, 0, 0x43, 0xb6, 0, 0, 0, 0, 0, 0,
+    ];
+    logger.record(
+        "GX viewport encodes changed geometry and reversed depth",
+        check_gx_command_bytes(&expected, || unsafe {
+            ogc_gx::set_viewport(-4.0, 6.0, 64.0, 32.0, 1.0, 0.0);
+        }),
+    );
+}
+
+fn probe_viewport_jitter_commands(logger: &mut ProbeLogger) {
+    logger.report_step("GX viewport field jitter command bytes");
+    for field in [0, 1] {
+        let mut expected = [
+            0x10, 0, 5, 0x10, 0x1a, 0x43, 0x20, 0, 0, 0xc2, 0xf0, 0, 0, 0x4b, 0x7f, 0xff, 0xff,
+            0x44, 0, 0, 0, 0x43, 0xf1, 0, 0, 0x4b, 0x7f, 0xff, 0xff,
+        ];
+        if field == 0 {
+            // Y origin is 481.5 (0x43f0c000), rather than 482 (0x43f10000).
+            expected[22..25].copy_from_slice(&[0xf0, 0xc0, 0]);
+        }
+        logger.note_u32("GX viewport jitter field", field);
+        logger.record(
+            "GX viewport jitter emits exact field-dependent Y origin",
+            check_gx_command_bytes(&expected, || unsafe {
+                ogc_gx::set_viewport_jitter(10.0, 20.0, 320.0, 240.0, 0.0, 1.0, field);
+            }),
+        );
+    }
+}
+
+fn probe_scissor_commands(logger: &mut ProbeLogger) {
+    logger.report_step("GX scissor command bytes");
+    for (args, expected) in [
+        (
+            (17, 29, 64, 32),
+            [0x61, 0x20, 0x16, 0x71, 0x73, 0x61, 0x21, 0x1a, 0x61, 0x92],
+        ),
+        (
+            (0, 0, 0, 0),
+            [0x61, 0x20, 0x15, 0x61, 0x56, 0x61, 0x21, 0x15, 0x51, 0x55],
+        ),
+        (
+            (u32::MAX, u32::MAX, 1, 1),
+            [0x61, 0x20, 0x15, 0x51, 0x55, 0x61, 0x21, 0x15, 0x51, 0x55],
+        ),
+    ] {
+        logger.note_u32("GX scissor input width", args.2);
+        logger.record(
+            "GX scissor encodes bias inclusive bounds and unsigned wrap",
+            check_gx_command_bytes(&expected, || unsafe {
+                ogc_gx::set_scissor(args.0, args.1, args.2, args.3);
+            }),
+        );
+    }
+}
+
+fn probe_scissor_offset_commands(logger: &mut ProbeLogger) {
+    logger.report_step("GX scissor offset command bytes");
+    for ((x, y), expected) in [
+        ((0, 0), [0x61, 0x59, 0x02, 0xac, 0xab]),
+        ((4, -2), [0x61, 0x59, 0x02, 0xa8, 0xad]),
+        ((-344, -346), [0x61, 0x59, 0x0f, 0xfb, 0xff]),
+    ] {
+        logger.record(
+            "GX scissor offset encodes bias half units and negative wrap",
+            check_gx_command_bytes(&expected, || unsafe {
+                ogc_gx::set_scissor_box_offset(x, y);
+            }),
+        );
+    }
+}
+
+fn probe_projection_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX projection matrix command bytes");
+    // Distinct unused elements expose transposition and incorrect column reads.
+    let matrix = [
+        [2.0, 91.0, 3.0, 5.0],
+        [92.0, 7.0, 11.0, 13.0],
+        [93.0, 94.0, 17.0, 19.0],
+        [95.0, 96.0, 97.0, 98.0],
+    ];
+    for projection in [gx::GX_PERSPECTIVE, gx::GX_ORTHOGRAPHIC] {
+        // XF header: seven registers at 0x1020, followed by 2, 3, 7, 11,
+        // 17, 19 and integer type 0. Orthographic selects 5 and 13 instead.
+        let mut expected = [
+            0x10, 0, 6, 0x10, 0x20, 0x40, 0, 0, 0, 0x40, 0x40, 0, 0, 0x40, 0xe0, 0, 0, 0x41, 0x30,
+            0, 0, 0x41, 0x88, 0, 0, 0x41, 0x98, 0, 0, 0, 0, 0, 0,
+        ];
+        if projection == gx::GX_ORTHOGRAPHIC {
+            expected[10] = 0xa0;
+            expected[18] = 0x50;
+            expected[32] = 1;
+        }
+        logger.note_u32("GX projection type", u32::from(projection));
+        logger.record(
+            "GX projection emits exact selected columns and integer type",
+            check_gx_command_bytes(&expected, || unsafe {
+                gx::load_projection_mtx(&matrix, projection);
+            }),
+        );
+    }
 }
 
 fn probe_display_lists(logger: &mut ProbeLogger) {

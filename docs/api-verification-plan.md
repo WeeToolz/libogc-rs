@@ -39,6 +39,12 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [2026-11-15 transform command batch](dolphin-runs/2026-11-15-gx-transform-commands/README.md)
+adds 12 exact command-byte checks for five GX viewport, scissor, and projection
+APIs. Metal passes 89 checks. These checks cover target command encoding;
+rendered clipping, projected geometry, and physical Wii behavior remain open.
+The initial test-helper size failure is retained with its corrected rerun.
+
 The [2026-11-15 display-list batch](dolphin-runs/2026-11-15-gx-display-list/README.md)
 adds exact command bytes, padding, overflow guards, GPU token replay, and FIFO
 restoration checks for six GX APIs. Metal passes 77 checks. The texture sync
