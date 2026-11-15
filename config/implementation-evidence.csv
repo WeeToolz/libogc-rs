@@ -46,6 +46,11 @@ ogc-ui,src/canvas.rs,draw_text,118,pure,host-test,crates/services/ogc-ui/src/can
 ogc-ui,src/gx.rs,from_video_mode,37,pure,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_canvas_dimensions
 ogc-ui,src/gx.rs,new,16,pure,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_canvas_dimensions
 ogc-ui,src/gx.rs,size,41,pure,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_canvas_dimensions
+ogc-gx,src/lib.rs,poke_argb,7571,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_efb_access
+ogc-gx,src/lib.rs,peek_argb,7581,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_efb_access
+ogc-gx,src/lib.rs,poke_z,7596,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_efb_access
+ogc-gx,src/lib.rs,peek_z,7602,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_efb_access
+ogc-gx,src/lib.rs,poke_alpha_read,7531,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_efb_access
 ogc-gx,src/lib.rs,make_texture565,8951,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_conversion
 ogc-gx,src/lib.rs,tpl_open_tpl_from_memory,9293,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tpl_memory
 ogc-gx,src/lib.rs,tpl_get_texture_info,9555,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tpl_memory

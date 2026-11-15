@@ -39,6 +39,12 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [2026-11-15 EFB batch](dolphin-runs/2026-11-15-gx-efb-metal/README.md)
+adds color, depth, coordinate, replacement, and alpha read checks for five GX
+APIs. Metal passes 67 checks. OpenGL with CPU EFB access enabled passes 65
+checks and fails two depth-related checks with the same DOL. Keep those
+backend limits separate from physical Wii acceptance.
+
 The next focused batch is GX graphics. Select existing GX probe checks and
 retain their reports and screenshots with the DOL hash and emulator settings.
 Evaluate the named checks as Dolphin evidence; the present batch does not

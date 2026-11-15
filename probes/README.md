@@ -1,5 +1,10 @@
 # Wii runtime probes
 
+The [GX EFB batch](../docs/dolphin-runs/2026-11-15-gx-efb-metal/README.md)
+records five additional GX API checks. The runner enables CPU EFB access.
+Metal passes; OpenGL has two depth-related failures with the same DOL.
+Use the saved Metal wrapper for that comparison and retain failed results.
+
 Runnable target diagnostics live outside production crates under `probes/`.
 
 Probe packages and focused DOLs:

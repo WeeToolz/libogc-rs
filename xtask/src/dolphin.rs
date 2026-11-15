@@ -1326,6 +1326,9 @@ fn dolphin_arguments(
         user_dir.display().to_string(),
         "--batch".to_string(),
         "--video_backend=OGL".to_string(),
+        // EFB reads return zero when CPU access is disabled in Dolphin.
+        "-C".to_string(),
+        "Graphics.Hacks.EFBAccessEnable=True".to_string(),
         "-C".to_string(),
         "Dolphin.Analytics.PermissionAsked=True".to_string(),
         "-C".to_string(),
@@ -2698,6 +2701,23 @@ mod tests {
             !args_without_card
                 .iter()
                 .any(|argument| argument.starts_with("Dolphin.Core.MemcardAPath="))
+        );
+    }
+
+    #[test]
+    fn dolphin_args_enable_cpu_efb_access_for_readback_probes() {
+        let args = dolphin_arguments(
+            Path::new("profile"),
+            Path::new("video_probe.dol"),
+            1234,
+            None,
+            true,
+            None,
+        );
+        assert!(
+            args.windows(2).any(|pair| {
+                pair[0] == "-C" && pair[1] == "Graphics.Hacks.EFBAccessEnable=True"
+            })
         );
     }
 

@@ -1,5 +1,19 @@
 # Development results
 
+## 2026-11-15: GX EFB color and depth checks
+
+The rebuilt `video_probe` passed 67 checks with zero failures in Dolphin
+2609a on macOS with Metal. Six captured pages were valid. New checks cover
+`poke_argb`, `peek_argb`, `poke_z`, `peek_z`, and `poke_alpha_read` with fixed
+color and depth values at distinct X/Y coordinates, replacement, and alpha
+read mode changes. The runner now enables CPU EFB access explicitly.
+
+With the same DOL and CPU access enabled, OpenGL passed 65 checks and failed
+two depth-related checks. Those failures remain open. Earlier failed runs are
+retained. See the [EFB report](docs/dolphin-runs/2026-11-15-gx-efb-metal/README.md)
+for commands, hashes, logs, screenshots, and the controlled backend comparison.
+This is Dolphin evidence only; physical Wii behavior remains untested.
+
 ## 2026-11-03: Wii FAT file and path probe
 
 `wii_std_fs_probe` passed 99 checks in Dolphin 2609a on the private virtual

@@ -847,6 +847,124 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
                 && unsafe { GxCanvas::new(width, 1025).is_err() }
         }),
     );
+    probe_efb_access(logger);
+}
+
+fn probe_efb_access(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX EFB color and depth access");
+    // SAFETY: The probe owns the initialized GX FIFO. Complete its format
+    // command before CPU access to the EFB. No rendering runs during this test.
+    let ready = unsafe {
+        gx::set_pixel_fmt(gx::GX_PF_RGB8_Z24, gx::GX_ZC_LINEAR);
+        gx::finish_frame_and_wait()
+    };
+    logger.record("GX EFB format command completes", ready);
+    if !ready {
+        return;
+    }
+
+    gx::poke_alpha_read(gx::GX_READ_FF);
+    // Distinct X and Y coordinates detect address-field errors. RGB8 has no
+    // stored alpha; GX_READ_FF must return 255 for each color read.
+    let points = [(8, 8), (9, 8), (8, 9)];
+    let colors = [
+        gx::GxColor {
+            r: 0x12,
+            g: 0x34,
+            b: 0x56,
+            a: 0xff,
+        },
+        gx::GxColor {
+            r: 0xab,
+            g: 0xcd,
+            b: 0xef,
+            a: 0xff,
+        },
+        gx::GxColor {
+            r: 0x65,
+            g: 0x43,
+            b: 0x21,
+            a: 0xff,
+        },
+    ];
+    let depths = [0x12_3456, 0xab_cdef, 0x65_4321];
+    for ((x, y), color) in points.into_iter().zip(colors) {
+        gx::poke_argb(x, y, color);
+    }
+    for ((x, y), depth) in points.into_iter().zip(depths) {
+        gx::poke_z(x, y, depth);
+    }
+
+    let read_pixel = |x, y| {
+        let mut color = gx::GxColor::default();
+        let mut depth = 0xffff_ffff;
+        // SAFETY: Each output points to live writable storage.
+        unsafe {
+            gx::peek_argb(x, y, &mut color);
+            gx::peek_z(x, y, &mut depth);
+        }
+        (color, depth)
+    };
+    let mut colors_match = true;
+    let mut depths_match = true;
+    for (index, (x, y)) in points.into_iter().enumerate() {
+        let (color, depth) = read_pixel(x, y);
+        colors_match &= color == colors[index];
+        depths_match &= depth == depths[index];
+        logger.note_hex32(
+            "GX EFB observed ARGB",
+            u32::from_be_bytes([color.a, color.r, color.g, color.b]),
+        );
+        logger.note_hex32("GX EFB observed depth", depth);
+    }
+    logger.record(
+        "GX EFB RGB8 colors preserve X and Y coordinates",
+        colors_match,
+    );
+    logger.record(
+        "GX EFB Z24 depths preserve X and Y coordinates",
+        depths_match,
+    );
+
+    let replacement = gx::GxColor {
+        r: 0xfe,
+        g: 0x80,
+        b: 0x07,
+        a: 0xff,
+    };
+    gx::poke_argb(8, 8, replacement);
+    gx::poke_z(8, 8, 0x00_fedc);
+    let mut replacement_matches = true;
+    for (index, (x, y)) in points.into_iter().enumerate() {
+        let (color, depth) = read_pixel(x, y);
+        let expected_color = if index == 0 {
+            replacement
+        } else {
+            colors[index]
+        };
+        let expected_depth = if index == 0 { 0x00_fedc } else { depths[index] };
+        replacement_matches &= color == expected_color && depth == expected_depth;
+    }
+    logger.record(
+        "GX EFB replacement preserves adjacent color and depth",
+        replacement_matches,
+    );
+
+    gx::poke_alpha_read(gx::GX_READ_00);
+    let mut color = gx::GxColor::default();
+    // SAFETY: The output is writable and remains live for this call.
+    unsafe { gx::peek_argb(8, 8, &mut color) };
+    logger.record(
+        "GX EFB alpha read mode changes only returned alpha",
+        color
+            == gx::GxColor {
+                a: 0,
+                ..replacement
+            },
+    );
+    gx::poke_alpha_read(gx::GX_READ_FF);
 }
 
 fn probe_fifo_pointers(logger: &mut ProbeLogger) {
