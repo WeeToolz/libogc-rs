@@ -39,6 +39,12 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [2026-11-15 signed vertex batch](dolphin-runs/2026-11-15-gx-signed-vertices/README.md)
+fixes ten signed writers that bypassed display-list capture. The same probe
+reports 107 passes and ten failures before the fix, then 127 passes and no
+failures after it. Checks cover zero capture and fixed signed bytes; rendered
+signed geometry and physical Wii behavior remain open.
+
 The [2026-11-15 matrix-loading batch](dolphin-runs/2026-11-15-gx-matrix-loads/README.md)
 adds 18 exact command checks for seven immediate and indexed GX matrix APIs.
 Metal passes 107 checks. Both texture matrix formats and memory banks are

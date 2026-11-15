@@ -5051,11 +5051,9 @@ pub unsafe fn position3u16(x: u16, y: u16, z: u16) {
 /// The caller must ensure every raw pointer is valid for the required reads and writes.
 /// Any in-place aliasing must only be used where the routine explicitly handles it.
 pub unsafe fn position3s16(x: i16, y: i16, z: i16) {
-    unsafe {
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, x);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, y);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, z);
-    }
+    pipe_u16(x as u16);
+    pipe_u16(y as u16);
+    pipe_u16(z as u16);
 }
 
 /// # Safety
@@ -5071,11 +5069,9 @@ pub unsafe fn position3u8(x: u8, y: u8, z: u8) {
 /// The caller must ensure every raw pointer is valid for the required reads and writes.
 /// Any in-place aliasing must only be used where the routine explicitly handles it.
 pub unsafe fn position3s8(x: i8, y: i8, z: i8) {
-    unsafe {
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, x);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, y);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, z);
-    }
+    pipe_u8(x as u8);
+    pipe_u8(y as u8);
+    pipe_u8(z as u8);
 }
 
 /// # Safety
@@ -5098,10 +5094,8 @@ pub unsafe fn position2u16(x: u16, y: u16) {
 /// The caller must ensure every raw pointer is valid for the required reads and writes.
 /// Any in-place aliasing must only be used where the routine explicitly handles it.
 pub unsafe fn position2s16(x: i16, y: i16) {
-    unsafe {
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, x);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, y);
-    }
+    pipe_u16(x as u16);
+    pipe_u16(y as u16);
 }
 
 /// # Safety
@@ -5116,10 +5110,8 @@ pub unsafe fn position2u8(x: u8, y: u8) {
 /// The caller must ensure every raw pointer is valid for the required reads and writes.
 /// Any in-place aliasing must only be used where the routine explicitly handles it.
 pub unsafe fn position2s8(x: i8, y: i8) {
-    unsafe {
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, x);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, y);
-    }
+    pipe_u8(x as u8);
+    pipe_u8(y as u8);
 }
 
 /// # Safety
@@ -5149,22 +5141,18 @@ pub unsafe fn normal3f32(nx: f32, ny: f32, nz: f32) {
 /// The caller must ensure every raw pointer is valid for the required reads and writes.
 /// Any in-place aliasing must only be used where the routine explicitly handles it.
 pub unsafe fn normal3s16(nx: i16, ny: i16, nz: i16) {
-    unsafe {
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, nx);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, ny);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, nz);
-    }
+    pipe_u16(nx as u16);
+    pipe_u16(ny as u16);
+    pipe_u16(nz as u16);
 }
 
 /// # Safety
 /// The caller must ensure every raw pointer is valid for the required reads and writes.
 /// Any in-place aliasing must only be used where the routine explicitly handles it.
 pub unsafe fn normal3s8(nx: i8, ny: i8, nz: i8) {
-    unsafe {
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, nx);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, ny);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, nz);
-    }
+    pipe_u8(nx as u8);
+    pipe_u8(ny as u8);
+    pipe_u8(nz as u8);
 }
 
 /// # Safety
@@ -5257,10 +5245,8 @@ pub unsafe fn tex_coord2u16(s: u16, t: u16) {
 /// The caller must ensure every raw pointer is valid for the required reads and writes.
 /// Any in-place aliasing must only be used where the routine explicitly handles it.
 pub unsafe fn tex_coord2s16(s: i16, t: i16) {
-    unsafe {
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, s);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, t);
-    }
+    pipe_u16(s as u16);
+    pipe_u16(t as u16);
 }
 
 /// # Safety
@@ -5275,10 +5261,8 @@ pub unsafe fn tex_coord2u8(s: u8, t: u8) {
 /// The caller must ensure every raw pointer is valid for the required reads and writes.
 /// Any in-place aliasing must only be used where the routine explicitly handles it.
 pub unsafe fn tex_coord2s8(s: i8, t: i8) {
-    unsafe {
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, s);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, t);
-    }
+    pipe_u8(s as u8);
+    pipe_u8(t as u8);
 }
 
 /// # Safety
@@ -5299,9 +5283,7 @@ pub unsafe fn tex_coord1u16(s: u16) {
 /// The caller must ensure every raw pointer is valid for the required reads and writes.
 /// Any in-place aliasing must only be used where the routine explicitly handles it.
 pub unsafe fn tex_coord1s16(s: i16) {
-    unsafe {
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, s);
-    }
+    pipe_u16(s as u16);
 }
 
 /// # Safety
@@ -5315,9 +5297,7 @@ pub unsafe fn tex_coord1u8(s: u8) {
 /// The caller must ensure every raw pointer is valid for the required reads and writes.
 /// Any in-place aliasing must only be used where the routine explicitly handles it.
 pub unsafe fn tex_coord1s8(s: i8) {
-    unsafe {
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, s);
-    }
+    pipe_u8(s as u8);
 }
 
 /// # Safety

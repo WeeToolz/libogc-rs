@@ -1,0 +1,38 @@
+{
+  "source_revision": "d6d7f120cfbb72203f141ab3b60acc019bae7917",
+  "source_note": "Before: this revision plus the new signed-vertex probe. Final: the same probe plus the signed writer fix. No runner change.",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "c_header_sha256": "3684a372389896dc35a24f7c5ebd1fef9728ec372458462d4d0bac041fe20904",
+  "fixtures": {
+    "layer3-stereo.mp3": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a",
+    "libmad-stereo-mpeg1.mp3": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+  },
+  "runs": {
+    "before": {
+      "source_sha256": {
+        "probes/ogc-system-probe/src/video_probe.rs": "af2b6af1cacfaec799fe02a1020a49f79aa91d31ee9baf745c1b3211d5be9a1b",
+        "crates/hardware/ogc-gx/src/lib.rs": "65cad4ecb0a9b844fe4b6f2201557c03cf6cdf5363496c41fb1096fa468ef06b",
+        "xtask/src/dolphin.rs": "b9810935de2b2ce8ce36fd928533fd253736a10ab0e5cdb26b793e766b3e13b9",
+        "docs/dolphin-runs/2026-11-15-gx-efb-metal/dolphin-metal.sh": "1f14a0cadbe0c50b27b419c411eaa1fee33d4933397e7fe3e26610671d07316a"
+      },
+      "dol_sha256": "41844c52a2ac6ef216837569f2daa4f969f1da79e7bc3ec163f2da9126003341",
+      "elf_sha256": "789bb5151fd056b10c5aed90cb9143d6fd6021211a582ddfd3a94a1e959509de"
+    },
+    "final": {
+      "source_sha256": {
+        "probes/ogc-system-probe/src/video_probe.rs": "af2b6af1cacfaec799fe02a1020a49f79aa91d31ee9baf745c1b3211d5be9a1b",
+        "crates/hardware/ogc-gx/src/lib.rs": "d74e907b4fefc25a92ddaf7680a076b856b9ab0f71fa288e948c17665b66f82e",
+        "xtask/src/dolphin.rs": "b9810935de2b2ce8ce36fd928533fd253736a10ab0e5cdb26b793e766b3e13b9",
+        "docs/dolphin-runs/2026-11-15-gx-efb-metal/dolphin-metal.sh": "1f14a0cadbe0c50b27b419c411eaa1fee33d4933397e7fe3e26610671d07316a"
+      },
+      "dol_sha256": "6b8b96628ac03b28729c634ae3524081f05896b0b0e1e5fdfa9cef0dd8d4d32b",
+      "elf_sha256": "527c0df268a0cb9ec7f81af26d3cb8e263456cc4d809652cd352756ea8e7cefd"
+    }
+  },
+  "nand_fixture": {
+    "file_count": 587,
+    "tree_sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc",
+    "method": "sorted relative POSIX paths; u64 big-endian UTF-8 path length, path bytes, raw SHA-256 file digest"
+  }
+}

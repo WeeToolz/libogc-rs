@@ -1457,3 +1457,17 @@ evidence. The captured indexed commands are not replayed, so indexed fetches,
 rendered transforms, and physical Wii behavior remain open. See the
 [matrix-loading report](docs/dolphin-runs/2026-11-15-gx-matrix-loads/README.md)
 for commands, source and DOL identities, logs, screenshots, and limits.
+
+## 2026-11-15: Signed GX vertex capture defect and fix
+
+Dolphin confirmed that ten signed position, normal, and texture-coordinate
+writers bypassed display-list capture. A new probe reported 107 prior passes
+and ten zero-capture failures; ten signed-value cases did not run after those
+failures. The fix reuses the existing byte/halfword pipe writers with
+same-width unsigned casts. With identical probe source, the corrected DOL
+passed 127 checks with zero failures and eleven valid captured pages. Checks
+cover zero capture, signed limits or minus one, exact byte order and width,
+padding, guards, and an unchanged GPU token. The failed and final runs are
+retained. Rendered signed geometry and physical Wii behavior remain open.
+See the [signed vertex report](docs/dolphin-runs/2026-11-15-gx-signed-vertices/README.md)
+for commands, identities, logs, screenshots, and limits.

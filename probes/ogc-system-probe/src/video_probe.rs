@@ -861,6 +861,9 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_indexed_normal_matrix_commands(logger);
     probe_texture_matrix_commands(logger);
     probe_indexed_texture_matrix_commands(logger);
+    probe_signed_position_commands(logger);
+    probe_signed_normal_commands(logger);
+    probe_signed_texture_commands(logger);
 }
 
 fn check_gx_command_bytes(expected: &[u8], emit: impl FnOnce()) -> bool {
@@ -1173,6 +1176,117 @@ fn probe_indexed_texture_matrix_commands(logger: &mut ProbeLogger) {
             }),
         );
     }
+}
+
+fn check_signed_vertex_capture(
+    logger: &mut ProbeLogger,
+    label: &str,
+    expected: &[u8],
+    emit_zero: impl FnOnce(),
+    emit_signed: impl FnOnce(),
+) {
+    // If a writer bypasses capture, zero data reaches the GPU as NOP bytes.
+    // Do not submit signed test patterns until the zero capture succeeds.
+    let zeros = [0; 6];
+    let captured_zero = check_gx_command_bytes(&zeros[..expected.len()], emit_zero);
+    logger.record(label, captured_zero);
+    if captured_zero {
+        logger.record(label, check_gx_command_bytes(expected, emit_signed));
+    } else {
+        logger.report_step("Signed boundary case not run: zero capture failed");
+    }
+}
+
+fn probe_signed_position_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX signed position capture and boundary bytes");
+    // SAFETY: GX is owned by this probe. Each writer runs in display-list
+    // capture; the zero case detects bypass before any signed pattern is used.
+    check_signed_vertex_capture(
+        logger,
+        "GX position3s16 captures zeros and exact signed boundary bytes",
+        &[0x80, 0, 0x7f, 0xff, 0xff, 0xff],
+        || unsafe { gx::position3s16(0, 0, 0) },
+        || unsafe { gx::position3s16(i16::MIN, i16::MAX, -1) },
+    );
+    check_signed_vertex_capture(
+        logger,
+        "GX position3s8 captures zeros and exact signed boundary bytes",
+        &[0x80, 0x7f, 0xff],
+        || unsafe { gx::position3s8(0, 0, 0) },
+        || unsafe { gx::position3s8(i8::MIN, i8::MAX, -1) },
+    );
+    check_signed_vertex_capture(
+        logger,
+        "GX position2s16 captures zeros and exact signed boundary bytes",
+        &[0x80, 0, 0x7f, 0xff],
+        || unsafe { gx::position2s16(0, 0) },
+        || unsafe { gx::position2s16(i16::MIN, i16::MAX) },
+    );
+    check_signed_vertex_capture(
+        logger,
+        "GX position2s8 captures zeros and exact signed boundary bytes",
+        &[0x80, 0x7f],
+        || unsafe { gx::position2s8(0, 0) },
+        || unsafe { gx::position2s8(i8::MIN, i8::MAX) },
+    );
+}
+
+fn probe_signed_normal_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX signed normal capture and boundary bytes");
+    // SAFETY: The probe owns GX and checks zero capture before signed data.
+    check_signed_vertex_capture(
+        logger,
+        "GX normal3s16 captures zeros and exact signed boundary bytes",
+        &[0x7f, 0xff, 0xff, 0xff, 0x80, 0],
+        || unsafe { gx::normal3s16(0, 0, 0) },
+        || unsafe { gx::normal3s16(i16::MAX, -1, i16::MIN) },
+    );
+    check_signed_vertex_capture(
+        logger,
+        "GX normal3s8 captures zeros and exact signed boundary bytes",
+        &[0x7f, 0xff, 0x80],
+        || unsafe { gx::normal3s8(0, 0, 0) },
+        || unsafe { gx::normal3s8(i8::MAX, -1, i8::MIN) },
+    );
+}
+
+fn probe_signed_texture_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX signed texture coordinate capture and bytes");
+    // SAFETY: The probe owns GX and checks zero capture before signed data.
+    check_signed_vertex_capture(
+        logger,
+        "GX tex_coord2s16 captures zeros and exact signed boundary bytes",
+        &[0x7f, 0xff, 0x80, 0],
+        || unsafe { gx::tex_coord2s16(0, 0) },
+        || unsafe { gx::tex_coord2s16(i16::MAX, i16::MIN) },
+    );
+    check_signed_vertex_capture(
+        logger,
+        "GX tex_coord2s8 captures zeros and exact signed boundary bytes",
+        &[0x7f, 0x80],
+        || unsafe { gx::tex_coord2s8(0, 0) },
+        || unsafe { gx::tex_coord2s8(i8::MAX, i8::MIN) },
+    );
+    check_signed_vertex_capture(
+        logger,
+        "GX tex_coord1s16 captures zeros and exact signed boundary bytes",
+        &[0xff, 0xff],
+        || unsafe { gx::tex_coord1s16(0) },
+        || unsafe { gx::tex_coord1s16(-1) },
+    );
+    check_signed_vertex_capture(
+        logger,
+        "GX tex_coord1s8 captures zeros and exact signed boundary bytes",
+        &[0xff],
+        || unsafe { gx::tex_coord1s8(0) },
+        || unsafe { gx::tex_coord1s8(-1) },
+    );
 }
 
 fn probe_display_lists(logger: &mut ProbeLogger) {
