@@ -33,6 +33,9 @@ const RETRACE_WAIT_TIMEOUT_US: u64 = 100_000;
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("VIDEO PROBE");
     probe_texture_descriptors(logger);
+    probe_tpl_memory(logger);
+    probe_tpl_indexed(logger);
+    probe_frame_config(logger);
     probe_texture_queries(logger);
     probe_texture_indexed_lod(logger);
     probe_texture_regions(logger);
@@ -77,7 +80,7 @@ pub fn run(logger: &mut ProbeLogger) {
         "video framebuffer register readback",
         initial_proof.next_framebuffer_registers_match,
     );
-    let expected_scan_mode = unsafe { u32::from((*rmode).vi_tv_mode & 0x3 != 0) };
+    let expected_scan_mode = unsafe { (*rmode).vi_tv_mode & 0x3 };
     logger.record(
         "video scan mode matches selected VI mode",
         video::get_video_scan_mode() == expected_scan_mode,
@@ -156,6 +159,181 @@ pub fn run(logger: &mut ProbeLogger) {
     let _ = video::set_post_retrace_callback(previous_post);
     PREVIOUS_PRE_CALLBACK.store(0, Ordering::Release);
     PREVIOUS_POST_CALLBACK.store(0, Ordering::Release);
+}
+
+fn probe_tpl_memory(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    // One 8x8 I4 image: 12-byte header, 8-byte descriptor, 36-byte image
+    // header, padding to a 32-byte boundary, and one 32-byte texture tile.
+    #[repr(align(32))]
+    struct TplBytes([u8; 96]);
+    let mut bytes = TplBytes([0; 96]);
+    bytes.0[0..4].copy_from_slice(&0x0020_af30u32.to_be_bytes());
+    bytes.0[4..8].copy_from_slice(&1u32.to_be_bytes());
+    bytes.0[8..12].copy_from_slice(&12u32.to_be_bytes());
+    bytes.0[12..16].copy_from_slice(&20u32.to_be_bytes());
+    bytes.0[20..22].copy_from_slice(&8u16.to_be_bytes());
+    bytes.0[22..24].copy_from_slice(&8u16.to_be_bytes());
+    bytes.0[28..32].copy_from_slice(&64u32.to_be_bytes());
+    let mut file = gx::TplFile {
+        type_: 0,
+        ntextures: 0,
+        texdesc: null_mut(),
+        tpl_file: null_mut(),
+    };
+    // SAFETY: The aligned, writable fixture and descriptor remain live until
+    // close; the returned texture object is inspected only and not submitted.
+    unsafe {
+        logger.record(
+            "GX TPL memory rejects null input",
+            gx::tpl_open_tpl_from_memory(&mut file, null_mut(), 96) < 0,
+        );
+        let opened = gx::tpl_open_tpl_from_memory(&mut file, bytes.0.as_mut_ptr().cast(), 96);
+        logger.record(
+            "GX TPL memory image opens",
+            opened == 1 && file.ntextures == 1,
+        );
+        if opened != 1 {
+            return;
+        }
+        let (mut format, mut width, mut height) = (u32::MAX, 0, 0);
+        let info = gx::tpl_get_texture_info(&mut file, 0, &mut format, &mut width, &mut height);
+        logger.record(
+            "GX TPL image metadata and invalid index",
+            info == 0
+                && (format, width, height) == (u32::from(gx::GX_TF_I4), 8, 8)
+                && gx::tpl_get_texture_info(&mut file, 1, null_mut(), null_mut(), null_mut()) < 0,
+        );
+        let mut texture = gx::GxTexObj::default();
+        let result = gx::tpl_get_texture(&mut file, 0, &mut texture);
+        let expected_data = ((bytes.0.as_mut_ptr().add(64) as usize) & 0x1fff_ffe0) as *mut c_void;
+        logger.record(
+            "GX TPL creates texture descriptor",
+            result == 0
+                && gx::tex_obj_snapshot(&texture).is_some_and(|s| {
+                    s.width == 8
+                        && s.height == 8
+                        && s.format == gx::GX_TF_I4
+                        && s.image_ptr == expected_data
+                })
+                && gx::tpl_get_texture(&mut file, -1, &mut texture) < 0,
+        );
+        gx::tpl_close_tpl_file(&mut file);
+        logger.record(
+            "GX TPL close invalidates descriptor",
+            file.ntextures == 0 && file.texdesc.is_null() && file.tpl_file.is_null(),
+        );
+    }
+}
+
+fn probe_tpl_indexed(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    // A CI8 8x4 tile and a 16-entry RGB565 palette, both 32-byte aligned.
+    #[repr(align(32))]
+    struct TplBytes([u8; 160]);
+    let mut bytes = TplBytes([0; 160]);
+    bytes.0[0..4].copy_from_slice(&0x0020_af30u32.to_be_bytes());
+    bytes.0[4..8].copy_from_slice(&1u32.to_be_bytes());
+    bytes.0[8..12].copy_from_slice(&12u32.to_be_bytes());
+    bytes.0[12..16].copy_from_slice(&20u32.to_be_bytes());
+    bytes.0[16..20].copy_from_slice(&96u32.to_be_bytes());
+    bytes.0[20..22].copy_from_slice(&4u16.to_be_bytes());
+    bytes.0[22..24].copy_from_slice(&8u16.to_be_bytes());
+    bytes.0[24..28].copy_from_slice(&u32::from(gx::GX_TF_CI8).to_be_bytes());
+    bytes.0[28..32].copy_from_slice(&64u32.to_be_bytes());
+    bytes.0[96..98].copy_from_slice(&16u16.to_be_bytes());
+    bytes.0[100..104].copy_from_slice(&u32::from(gx::GX_TL_RGB565).to_be_bytes());
+    bytes.0[104..108].copy_from_slice(&128u32.to_be_bytes());
+    let mut file = gx::TplFile {
+        type_: 0,
+        ntextures: 0,
+        texdesc: null_mut(),
+        tpl_file: null_mut(),
+    };
+    // SAFETY: The fixture is writable, aligned, and remains live until close.
+    unsafe {
+        let opened = gx::tpl_open_tpl_from_memory(&mut file, bytes.0.as_mut_ptr().cast(), 160);
+        if opened != 1 {
+            logger.record("GX indexed TPL fixture opens", false);
+            return;
+        }
+        let mut texture = gx::GxTexObj::default();
+        let mut palette = gx::GxTlutObj::default();
+        let rejected = gx::tpl_get_texture_ci(&mut file, 1, &mut texture, &mut palette, 3) < 0
+            && gx::tpl_get_texture_ci(&mut file, 0, &mut texture, null_mut(), 3) < 0;
+        let result = gx::tpl_get_texture_ci(&mut file, 0, &mut texture, &mut palette, 3);
+        let image = ((bytes.0.as_mut_ptr().add(64) as usize) & 0x1fff_ffe0) as *mut c_void;
+        let colors = ((bytes.0.as_mut_ptr().add(128) as usize) & 0x1fff_ffe0) as *mut c_void;
+        logger.record(
+            "GX indexed TPL texture and palette",
+            rejected
+                && result == 0
+                && gx::tex_obj_snapshot(&texture).is_some_and(|s| {
+                    s.width == 8
+                        && s.height == 4
+                        && s.format == gx::GX_TF_CI8
+                        && s.tex_tlut == 3
+                        && s.image_ptr == image
+                })
+                && gx::tlut_obj_snapshot(&palette).is_some_and(|s| {
+                    s.format == u32::from(gx::GX_TL_RGB565)
+                        && s.nentries == 16
+                        && s.image_ptr == colors
+                }),
+        );
+        gx::tpl_close_tpl_file(&mut file);
+    }
+}
+
+fn probe_frame_config(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    #[repr(align(32))]
+    struct Aligned([u8; 32]);
+    // Only descriptor fields are inspected; no framebuffer copy is submitted.
+    let mut storage = Aligned([0; 32]);
+    let framebuffer = storage.0.as_mut_ptr().cast::<c_void>();
+    let initial = gx::FrameConfig::new(framebuffer, 640, 480, 480);
+    let rejected = gx::FrameConfig::new(null_mut(), 640, 480, 480).is_none()
+        && gx::FrameConfig::new(
+            unsafe { storage.0.as_mut_ptr().add(1) }.cast(),
+            640,
+            480,
+            480,
+        )
+        .is_none()
+        && gx::FrameConfig::new(framebuffer, 0, 480, 480).is_none();
+    logger.record(
+        "GX frame configuration validates input",
+        rejected
+            && initial.is_some_and(|c| {
+                c.xfb == framebuffer
+                    && c.width == 640
+                    && c.efb_height == 480
+                    && c.xfb_height == 480
+                    && !c.field_rendering
+                    && !c.half_aspect_ratio
+            }),
+    );
+    if let Some(config) = initial {
+        let filter = gx::GxCopyFilter {
+            antialias: true,
+            sample_pattern: [[3, 4]; 12],
+            vertical_enabled: true,
+            vertical_coefficients: [1, 2, 3, 4, 5, 6, 7],
+        };
+        let config = gx::FrameConfig::with_copy_filter(config, filter);
+        let config = gx::FrameConfig::with_field_mode(config, true, false);
+        logger.record(
+            "GX frame filter and field settings retained",
+            config.copy_filter == filter
+                && config.field_rendering
+                && !config.half_aspect_ratio
+                && config.xfb == framebuffer,
+        );
+    } else {
+        logger.record("GX frame filter and field settings retained", false);
+    }
 }
 
 fn probe_texture_conversion(logger: &mut ProbeLogger) {
@@ -617,11 +795,25 @@ fn probe_texture_queries(logger: &mut ProbeLogger) {
 }
 
 fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrModeObj) {
-    use ogc_gx::GxFifo;
+    use ogc_gx::{GxFifo, GxFifoError};
+
+    let arena_before = system::get_arena2_lo() as usize;
+    // SAFETY: Invalid sizes are rejected before any FIFO or arena mutation.
+    let invalid_sizes = unsafe {
+        matches!(GxFifo::initialize_mem2(0), Err(GxFifoError::InvalidSize))
+            && matches!(
+                GxFifo::initialize_mem2(65537),
+                Err(GxFifoError::InvalidSize)
+            )
+    };
+    logger.record(
+        "GX MEM2 FIFO rejects invalid sizes without allocation",
+        invalid_sizes && system::get_arena2_lo() as usize == arena_before,
+    );
 
     // SAFETY: This video probe owns GX for this run and keeps the FIFO alive
     // while GxCanvas configures the production GX backend.
-    let _fifo = match unsafe { GxFifo::initialize_default_mem2() } {
+    let fifo = match unsafe { GxFifo::initialize_default_mem2() } {
         Ok(fifo) => fifo,
         Err(error) => {
             logger.report_step("GX canvas FIFO initialization");
@@ -630,6 +822,16 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
             return;
         }
     };
+
+    let address = GxFifo::address(&fifo) as usize;
+    let size = GxFifo::size(&fifo);
+    let expected_base = (arena_before + 31) & !31;
+    logger.record(
+        "GX default MEM2 FIFO address size and arena advancement",
+        address == expected_base
+            && size == 256 * 1024
+            && system::get_arena2_lo() as usize == expected_base + size as usize,
+    );
 
     // SAFETY: `rmode` is the live preferred mode initialized above, and this
     // probe owns the GX FIFO for the duration of the canvas check.
