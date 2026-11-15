@@ -854,6 +854,13 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_scissor_commands(logger);
     probe_scissor_offset_commands(logger);
     probe_projection_commands(logger);
+    probe_position_matrix_commands(logger);
+    probe_indexed_position_matrix_commands(logger);
+    probe_normal_matrix_commands(logger);
+    probe_normal_matrix_3x3_commands(logger);
+    probe_indexed_normal_matrix_commands(logger);
+    probe_texture_matrix_commands(logger);
+    probe_indexed_texture_matrix_commands(logger);
 }
 
 fn check_gx_command_bytes(expected: &[u8], emit: impl FnOnce()) -> bool {
@@ -998,6 +1005,171 @@ fn probe_projection_commands(logger: &mut ProbeLogger) {
             "GX projection emits exact selected columns and integer type",
             check_gx_command_bytes(&expected, || unsafe {
                 gx::load_projection_mtx(&matrix, projection);
+            }),
+        );
+    }
+}
+
+// Fixed row-major inputs and independent IEEE-754 expectations. The fourth
+// column must be omitted by normal-matrix loads; texture 2x4 omits row three.
+const MATRIX_INPUT_3X4: [[f32; 4]; 3] = [
+    [1.0, -2.0, 3.0, 4.0],
+    [5.0, -6.0, 7.0, 8.0],
+    [9.0, -10.0, 11.0, 12.0],
+];
+const MATRIX_WORDS_3X4: [u32; 12] = [
+    0x3f80_0000,
+    0xc000_0000,
+    0x4040_0000,
+    0x4080_0000,
+    0x40a0_0000,
+    0xc0c0_0000,
+    0x40e0_0000,
+    0x4100_0000,
+    0x4110_0000,
+    0xc120_0000,
+    0x4130_0000,
+    0x4140_0000,
+];
+const MATRIX_WORDS_3X3: [u32; 9] = [
+    0x3f80_0000,
+    0xc000_0000,
+    0x4040_0000,
+    0x40a0_0000,
+    0xc0c0_0000,
+    0x40e0_0000,
+    0x4110_0000,
+    0xc120_0000,
+    0x4130_0000,
+];
+
+fn check_gx_matrix_command(header: [u8; 5], words: &[u32], emit: impl FnOnce()) -> bool {
+    let mut expected = [0; 53];
+    if words.len() > 12 {
+        return false;
+    }
+    let size = 5 + words.len() * 4;
+    expected[..5].copy_from_slice(&header);
+    for (bytes, word) in expected[5..size].chunks_exact_mut(4).zip(words) {
+        bytes.copy_from_slice(&word.to_be_bytes());
+    }
+    check_gx_command_bytes(&expected[..size], emit)
+}
+
+fn probe_position_matrix_commands(logger: &mut ProbeLogger) {
+    logger.report_step("GX immediate position matrix commands");
+    // Twelve XF words, destination pnidx * 4: slots 3 and 9 give 0x0c/0x24.
+    for (slot, header) in [(3, [0x10, 0, 0x0b, 0, 0x0c]), (9, [0x10, 0, 0x0b, 0, 0x24])] {
+        logger.note_u32("GX position matrix slot", slot);
+        logger.record(
+            "GX position matrix emits exact row order and destination",
+            check_gx_matrix_command(header, &MATRIX_WORDS_3X4, || unsafe {
+                // SAFETY: Capture owns GX and the complete matrix stays live.
+                ogc_gx::load_pos_mtx_imm(&MATRIX_INPUT_3X4, slot);
+            }),
+        );
+    }
+}
+
+fn probe_indexed_position_matrix_commands(logger: &mut ProbeLogger) {
+    logger.report_step("GX indexed position matrix commands");
+    for ((index, slot), expected) in [
+        ((0x1234, 3), [0x20, 0x12, 0x34, 0xb0, 0x0c]),
+        ((0xabcd, 9), [0x20, 0xab, 0xcd, 0xb0, 0x24]),
+    ] {
+        logger.record(
+            "GX indexed position encodes source index length and slot",
+            check_gx_command_bytes(&expected, || unsafe {
+                // SAFETY: Capture does not submit this indexed memory read.
+                ogc_gx::load_pos_mtx_idx(index, slot);
+            }),
+        );
+    }
+}
+
+fn probe_normal_matrix_commands(logger: &mut ProbeLogger) {
+    logger.report_step("GX normal matrix from 3x4 commands");
+    // Nine XF words at normal memory 0x400 + pnidx * 3.
+    for (slot, header) in [(3, [0x10, 0, 8, 4, 9]), (9, [0x10, 0, 8, 4, 0x1b])] {
+        logger.record(
+            "GX normal matrix omits translation and selects normal memory",
+            check_gx_matrix_command(header, &MATRIX_WORDS_3X3, || unsafe {
+                // SAFETY: Capture owns GX and the complete matrix stays live.
+                ogc_gx::load_nrm_mtx_imm(&MATRIX_INPUT_3X4, slot);
+            }),
+        );
+    }
+}
+
+fn probe_normal_matrix_3x3_commands(logger: &mut ProbeLogger) {
+    logger.report_step("GX immediate 3x3 normal matrix commands");
+    let matrix = [[1.0, -2.0, 3.0], [5.0, -6.0, 7.0], [9.0, -10.0, 11.0]];
+    for (slot, header) in [(3, [0x10, 0, 8, 4, 9]), (9, [0x10, 0, 8, 4, 0x1b])] {
+        logger.record(
+            "GX 3x3 normal matrix emits all nine words in row order",
+            check_gx_matrix_command(header, &MATRIX_WORDS_3X3, || unsafe {
+                // SAFETY: Capture owns GX and the complete matrix stays live.
+                ogc_gx::load_nrm_mtx_imm3x3(&matrix, slot);
+            }),
+        );
+    }
+}
+
+fn probe_indexed_normal_matrix_commands(logger: &mut ProbeLogger) {
+    logger.report_step("GX indexed normal matrix commands");
+    for ((index, slot), expected) in [
+        ((0x1234, 3), [0x28, 0x12, 0x34, 0x84, 9]),
+        ((0xabcd, 9), [0x28, 0xab, 0xcd, 0x84, 0x1b]),
+    ] {
+        logger.record(
+            "GX indexed normal encodes source index length and address",
+            check_gx_command_bytes(&expected, || unsafe {
+                // SAFETY: Capture does not submit this indexed memory read.
+                ogc_gx::load_nrm_mtx_idx3x3(index, slot);
+            }),
+        );
+    }
+}
+
+fn probe_texture_matrix_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX immediate texture matrix commands");
+    // Texture slot 30 maps to 0x78; post-transform slot 67 maps to 0x50c.
+    // The fixed header distinguishes eight-word and twelve-word transfers.
+    for (slot, kind, header, words) in [
+        (30, gx::GX_MTX2X4, [0x10, 0, 7, 0, 0x78], 8),
+        (30, gx::GX_MTX3X4, [0x10, 0, 0x0b, 0, 0x78], 12),
+        (67, gx::GX_MTX2X4, [0x10, 0, 7, 5, 0x0c], 8),
+        (67, gx::GX_MTX3X4, [0x10, 0, 0x0b, 5, 0x0c], 12),
+    ] {
+        logger.note_u32("GX texture matrix slot", slot);
+        logger.note_u32("GX texture matrix word count", words as u32);
+        logger.record(
+            "GX texture matrix emits exact format rows and memory bank",
+            check_gx_matrix_command(header, &MATRIX_WORDS_3X4[..words], || unsafe {
+                // SAFETY: Capture owns GX and the complete matrix stays live.
+                gx::load_tex_mtx_imm(&MATRIX_INPUT_3X4, slot, kind);
+            }),
+        );
+    }
+}
+
+fn probe_indexed_texture_matrix_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX indexed texture matrix commands");
+    for ((index, slot, kind), expected) in [
+        ((0x1234, 30, gx::GX_MTX2X4), [0x30, 0x12, 0x34, 0x70, 0x78]),
+        ((0x1234, 30, gx::GX_MTX3X4), [0x30, 0x12, 0x34, 0xb0, 0x78]),
+        ((0xabcd, 67, gx::GX_MTX2X4), [0x30, 0xab, 0xcd, 0x75, 0x0c]),
+        ((0xabcd, 67, gx::GX_MTX3X4), [0x30, 0xab, 0xcd, 0xb5, 0x0c]),
+    ] {
+        logger.record(
+            "GX indexed texture encodes source format length and bank",
+            check_gx_command_bytes(&expected, || unsafe {
+                // SAFETY: Capture does not submit this indexed memory read.
+                gx::load_tex_mtx_idx(index, slot, kind);
             }),
         );
     }

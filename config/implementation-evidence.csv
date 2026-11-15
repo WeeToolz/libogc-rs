@@ -1,4 +1,11 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,load_pos_mtx_imm,6121,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_position_matrix_commands,ogc_gx::load_pos_mtx_imm
+ogc-gx,src/lib.rs,load_pos_mtx_idx,6127,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_indexed_position_matrix_commands,ogc_gx::load_pos_mtx_idx
+ogc-gx,src/lib.rs,load_nrm_mtx_imm,6134,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_normal_matrix_commands,ogc_gx::load_nrm_mtx_imm
+ogc-gx,src/lib.rs,load_nrm_mtx_imm3x3,6143,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_normal_matrix_3x3_commands,ogc_gx::load_nrm_mtx_imm3x3
+ogc-gx,src/lib.rs,load_nrm_mtx_idx3x3,6152,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_indexed_normal_matrix_commands,ogc_gx::load_nrm_mtx_idx3x3
+ogc-gx,src/lib.rs,load_tex_mtx_imm,6159,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_matrix_commands,gx::load_tex_mtx_imm
+ogc-gx,src/lib.rs,load_tex_mtx_idx,6175,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_indexed_texture_matrix_commands,gx::load_tex_mtx_idx
 ogc-gx,src/lib.rs,set_viewport,4174,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_viewport_commands,ogc_gx::set_viewport
 ogc-gx,src/lib.rs,set_viewport_jitter,4141,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_viewport_jitter_commands,ogc_gx::set_viewport_jitter
 ogc-gx,src/lib.rs,set_scissor,4205,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_scissor_commands,ogc_gx::set_scissor

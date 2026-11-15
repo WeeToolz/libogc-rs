@@ -1443,3 +1443,17 @@ production GX code changed. These results cover Dolphin command encoding;
 rendered clipping, projected geometry, and physical Wii behavior remain
 open. See the [transform command report](docs/dolphin-runs/2026-11-15-gx-transform-commands/README.md)
 for commands, source and DOL identities, logs, screenshots, and limits.
+
+## 2026-11-15: GX matrix-loading API validation
+
+The Metal Dolphin 2609a `video_probe` run passed 107 checks with zero failures
+and ten valid captured pages. Eighteen new checks call seven position, normal,
+and texture matrix APIs, including immediate and indexed forms. Fixed headers
+and IEEE-754 words check source indices, destination slots, memory banks,
+transfer counts, row order, omitted normal translation, and both texture
+matrix formats. The shared capture check also verifies padding and guards.
+No production GX or runner code changed. This is Dolphin command-encoding
+evidence. The captured indexed commands are not replayed, so indexed fetches,
+rendered transforms, and physical Wii behavior remain open. See the
+[matrix-loading report](docs/dolphin-runs/2026-11-15-gx-matrix-loads/README.md)
+for commands, source and DOL identities, logs, screenshots, and limits.

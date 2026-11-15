@@ -39,6 +39,11 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [2026-11-15 matrix-loading batch](dolphin-runs/2026-11-15-gx-matrix-loads/README.md)
+adds 18 exact command checks for seven immediate and indexed GX matrix APIs.
+Metal passes 107 checks. Both texture matrix formats and memory banks are
+covered for encoding. Indexed fetches and rendered transforms remain open.
+
 The [2026-11-15 transform command batch](dolphin-runs/2026-11-15-gx-transform-commands/README.md)
 adds 12 exact command-byte checks for five GX viewport, scissor, and projection
 APIs. Metal passes 89 checks. These checks cover target command encoding;
