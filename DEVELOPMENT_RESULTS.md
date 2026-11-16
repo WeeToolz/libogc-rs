@@ -1,5 +1,11 @@
 # Development results
 
+## 2026-11-16: GX indirect TEV commands
+
+Dolphin 2609a with Metal passed 285 checks with zero failures. The probe
+checks indirect and direct TEV command words. See the [report](docs/dolphin-runs/2026-11-16-gx-indirect-tev/README.md)
+for evidence and limits. Physical Wii remains untested.
+
 ## 2026-11-16: System SRAM getters
 
 Dolphin 2609a with OpenGL passed 149 checks with zero failures. The probe

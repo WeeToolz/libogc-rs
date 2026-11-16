@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [indirect TEV batch](dolphin-runs/2026-11-16-gx-indirect-tev/README.md)
+checks indirect and direct command encoding. Metal passes 285 checks.
+Rendered indirect texturing and physical Wii remain open.
+
 The [system SRAM getter batch](dolphin-runs/2026-11-16-sram-getters/README.md)
 checks seven getters against fixed buffer values. OpenGL passes 149 checks.
 Physical SRAM and Wii behavior remain open.

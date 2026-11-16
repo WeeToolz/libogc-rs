@@ -889,6 +889,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_tev_k_signed_color_commands(logger);
     probe_tev_combiner_commands(logger);
     probe_tev_selector_commands(logger);
+    probe_tev_indirect_commands(logger);
     probe_tex_coord_scale_commands(logger);
     probe_alpha_compare_commands(logger);
     probe_fog_color_commands(logger);
@@ -1745,6 +1746,46 @@ fn check_gx_bp_words(words: &[u32], emit: impl FnOnce()) -> bool {
         bytes[1..].copy_from_slice(&word.to_be_bytes());
     }
     check_gx_command_bytes(&expected[..size], emit)
+}
+
+fn probe_tev_indirect_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    logger.report_step("GX indirect TEV command bytes");
+    let params = gx::GxTevIndirect {
+        indtexid: 3,
+        format: 2,
+        bias: 5,
+        mtxid: 9,
+        wrap_s: 3,
+        wrap_t: 4,
+        addprev: 1,
+        utclod: 1,
+        alpha: 2,
+    };
+    logger.record(
+        "GX indirect TEV packs all fields and direct resets them",
+        check_gx_bp_words(&[0x151c_735b, 0x1500_0000], || unsafe {
+            gx::set_tev_indirect(5, params);
+            gx::set_tev_direct(5);
+        }),
+    );
+    let masked = gx::GxTevIndirect {
+        indtexid: 0xff,
+        format: 0xff,
+        bias: 0xff,
+        mtxid: 0xff,
+        wrap_s: 0xff,
+        wrap_t: 0xff,
+        addprev: 0xff,
+        utclod: 0xff,
+        alpha: 0xff,
+    };
+    logger.record(
+        "GX indirect TEV masks stage and input fields",
+        check_gx_bp_words(&[0x1f1f_ffff], || unsafe {
+            gx::set_tev_indirect(0xff, masked)
+        }),
+    );
 }
 
 fn probe_tev_color_commands(logger: &mut ProbeLogger) {
