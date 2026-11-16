@@ -1,5 +1,11 @@
 # Development results
 
+## 2026-11-16: GX indirect texture matrix and tile
+
+Dolphin 2609a with Metal passed 294 checks with zero failures. The probe
+checks matrix and tile command words. See the [report](docs/dolphin-runs/2026-11-16-gx-indirect-matrix/README.md)
+for evidence and limits. Physical Wii remains untested.
+
 ## 2026-11-16: GX indirect TEV helpers
 
 Dolphin 2609a with Metal passed 291 checks with zero failures. The probe

@@ -892,6 +892,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_tev_indirect_commands(logger);
     probe_indirect_texture_commands(logger);
     probe_indirect_helper_commands(logger);
+    probe_indirect_matrix_commands(logger);
     probe_tex_coord_scale_commands(logger);
     probe_alpha_compare_commands(logger);
     probe_fog_color_commands(logger);
@@ -1853,6 +1854,44 @@ fn probe_indirect_helper_commands(logger: &mut ProbeLogger) {
             gx::set_tev_ind_warp(9, 2, 1, 1, gx::GX_ITM_1);
             gx::set_tev_ind_warp(10, 2, 0, 0, gx::GX_ITM_1);
         }),
+    );
+}
+
+fn probe_indirect_matrix_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    logger.report_step("GX indirect texture matrix and tile bytes");
+    let matrix = [[0.5, -0.25, 0.0], [0.25, 0.5, -0.5]];
+    logger.record(
+        "GX indirect matrix packs signed coefficients and exponent",
+        check_gx_bp_words(&[0x0908_0200, 0x0a10_0700, 0x0b70_0000], || unsafe {
+            gx::set_ind_tex_matrix(gx::GX_ITM_1, &matrix, -1);
+        }),
+    );
+    logger.record(
+        "GX indirect matrix rejects null input",
+        check_gx_command_bytes(&[], || unsafe {
+            gx::set_ind_tex_matrix(gx::GX_ITM_1, core::ptr::null(), 0);
+        }),
+    );
+    let tile = gx::GxTevIndirectTile {
+        indtexid: 2,
+        tilesize_x: 32,
+        tilesize_y: 64,
+        tilespacing_x: 32,
+        tilespacing_y: 64,
+        indtexfmt: 1,
+        indtexmtx: gx::GX_ITM_0,
+        bias_sel: 3,
+        alpha_sel: 1,
+    };
+    logger.record(
+        "GX indirect tile emits spacing matrix and wrap fields",
+        check_gx_bp_words(
+            &[0x06c0_0020, 0x0782_0000, 0x0840_0000, 0x150b_82b6],
+            || unsafe {
+                gx::set_tev_ind_tile(5, tile);
+            },
+        ),
     );
 }
 
