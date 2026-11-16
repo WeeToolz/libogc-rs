@@ -891,6 +891,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_tev_selector_commands(logger);
     probe_tev_indirect_commands(logger);
     probe_indirect_texture_commands(logger);
+    probe_indirect_helper_commands(logger);
     probe_tex_coord_scale_commands(logger);
     probe_alpha_compare_commands(logger);
     probe_fog_color_commands(logger);
@@ -1824,6 +1825,34 @@ fn probe_indirect_texture_commands(logger: &mut ProbeLogger) {
                 gx::set_ind_tex_order(3, 7, 3);
             },
         ),
+    );
+}
+
+fn probe_indirect_helper_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    logger.report_step("GX indirect TEV helper command bytes");
+    logger.record(
+        "GX indirect bump ST emits three stage commands",
+        check_gx_bp_words(&[0x1406_ca32, 0x1516_d232, 0x1610_0002], || unsafe {
+            gx::set_tev_ind_bump_st(4, 2, gx::GX_ITM_0);
+        }),
+    );
+    logger.record(
+        "GX indirect bump XYZ emits bias and matrix",
+        check_gx_bp_words(&[0x1700_0671], || unsafe {
+            gx::set_tev_ind_bump_xyz(7, 1, gx::GX_ITM_2);
+        }),
+    );
+    logger.record(
+        "GX indirect repeat emits wrap and previous offset",
+        check_gx_bp_words(&[0x1816_c000], || unsafe { gx::set_tev_ind_repeat(8) }),
+    );
+    logger.record(
+        "GX indirect warp emits selected bias and wrap",
+        check_gx_bp_words(&[0x1906_c472, 0x1a00_0402], || unsafe {
+            gx::set_tev_ind_warp(9, 2, 1, 1, gx::GX_ITM_1);
+            gx::set_tev_ind_warp(10, 2, 0, 0, gx::GX_ITM_1);
+        }),
     );
 }
 

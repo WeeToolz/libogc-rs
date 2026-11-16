@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [indirect TEV helper batch](dolphin-runs/2026-11-16-gx-indirect-helpers/README.md)
+checks bump, repeat, and warp command encoding. Metal passes 291 checks.
+Rendered effects and physical Wii remain open.
+
 The [indirect texture scale batch](dolphin-runs/2026-11-16-gx-indirect-scale/README.md)
 checks scale and order command encoding. Metal passes 287 checks. Rendered
 indirect texturing and physical Wii remain open.
