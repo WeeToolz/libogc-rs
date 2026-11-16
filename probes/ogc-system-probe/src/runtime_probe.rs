@@ -32,6 +32,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_conf_typed_values(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_conf_pad_records(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_conf_text_settings(logger);
     probe_es(logger);
     probe_crypto(logger);
     probe_iso9660(logger);
@@ -683,6 +685,87 @@ fn probe_conf_pad_records(logger: &mut ProbeLogger) {
         && conf::get_pad_guest_devices(&mut actual_guests) == 0
         && actual_guests == original_guests;
     logger.record("CONF guest controller record is restored", restored);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_conf_text_settings(logger: &mut ProbeLogger) {
+    logger.report_step("Wii configuration text settings");
+    #[repr(align(32))]
+    struct Settings([u8; 256]);
+    let Ok(file) = conf::ipc::open_file(
+        c"/title/00000001/00000002/data/setting.txt",
+        conf::ipc::IPC_OPEN_READ,
+    ) else {
+        logger.record("CONF text settings file opens", false);
+        return;
+    };
+    let mut bytes = Settings([0; 256]);
+    let read = file.read(&mut bytes.0) == Ok(256);
+    let closed = file.close().is_ok();
+    logger.record("CONF text settings file reads and closes", read && closed);
+    if !read || !closed {
+        return;
+    }
+
+    // Decode an independent IOS read, rather than using the cached parser.
+    let mut key = 0x73b5_dbfau32;
+    for byte in &mut bytes.0 {
+        *byte ^= key as u8;
+        key = key.rotate_left(1);
+    }
+    let field = |prefix: &[u8]| {
+        bytes.0.split(|byte| *byte == b'\n').find_map(|line| {
+            let value = line.strip_prefix(prefix)?;
+            Some(
+                value
+                    .split(|byte| *byte == b'\r' || *byte == 0)
+                    .next()
+                    .unwrap_or(&[]),
+            )
+        })
+    };
+    let region = match field(b"GAME=") {
+        Some(b"JP") => Some(0),
+        Some(b"US") => Some(1),
+        Some(b"EU") => Some(2),
+        Some(b"KR") => Some(4),
+        Some(b"CN") => Some(5),
+        _ => None,
+    };
+    let area = match field(b"AREA=") {
+        Some(b"JPN") => Some(0),
+        Some(b"USA") => Some(1),
+        Some(b"EUR") => Some(2),
+        Some(b"AUS") => Some(3),
+        Some(b"BRA") => Some(4),
+        Some(b"TWN") => Some(5),
+        Some(b"ROC") => Some(6),
+        Some(b"KOR") => Some(7),
+        Some(b"HKG") => Some(8),
+        Some(b"ASI") => Some(9),
+        Some(b"LTN") => Some(10),
+        Some(b"SAF") => Some(11),
+        Some(b"CHN") => Some(12),
+        _ => None,
+    };
+    let video = match field(b"VIDEO=") {
+        Some(b"NTSC") => Some(0),
+        Some(b"PAL") => Some(1),
+        Some(b"MPAL") => Some(2),
+        _ => None,
+    };
+    logger.record(
+        "CONF region matches decoded GAME field",
+        region == Some(conf::get_region()),
+    );
+    logger.record(
+        "CONF area matches decoded AREA field",
+        area == Some(conf::get_area()),
+    );
+    logger.record(
+        "CONF video matches decoded VIDEO field",
+        video == Some(conf::get_video()),
+    );
 }
 
 fn probe_es(logger: &mut ProbeLogger) {

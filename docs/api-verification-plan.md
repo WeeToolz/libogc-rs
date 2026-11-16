@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [text configuration batch](dolphin-runs/2026-11-16-conf-text/README.md)
+checks region, area, and video against an independent IOS file read. OpenGL
+passes 141 checks. Other profiles and physical Wii remain open.
+
 The [controller configuration batch](dolphin-runs/2026-11-16-conf-pads/README.md)
 checks registered and guest records, limits, and restoration. OpenGL passes
 137 checks. Persistent writes, pairing, and physical Wii remain open.

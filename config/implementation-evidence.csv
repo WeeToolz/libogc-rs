@@ -1,4 +1,7 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-conf,src/lib.rs,get_video,716,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_text_settings,conf::get_video
+ogc-conf,src/lib.rs,get_area,707,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_text_settings,conf::get_area
+ogc-conf,src/lib.rs,get_region,698,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_text_settings,conf::get_region
 ogc-conf,src/lib.rs,set_pad_guest_devices,593,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_pad_records,conf::set_pad_guest_devices
 ogc-conf,src/lib.rs,get_pad_guest_devices,577,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_pad_records,conf::get_pad_guest_devices
 ogc-conf,src/lib.rs,set_pad_devices,568,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_pad_records,conf::set_pad_devices

@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-16: Wii text configuration values
+
+Dolphin 2609a with OpenGL passed 141 checks with zero failures. The probe
+checks region, area, and video against an independent IOS file read. See the
+[report](docs/dolphin-runs/2026-11-16-conf-text/README.md) for evidence and
+limits. Physical Wii remains untested.
+
 ## 2026-11-16: Controller configuration records
 
 Dolphin 2609a with OpenGL passed 137 checks with zero failures. The probe
