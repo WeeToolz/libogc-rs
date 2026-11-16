@@ -26,6 +26,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_system(logger);
     probe_ios_stm(logger);
     probe_conf(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_conf_fixture(logger);
     probe_es(logger);
     probe_crypto(logger);
     probe_iso9660(logger);
@@ -441,6 +443,95 @@ fn probe_conf(logger: &mut ProbeLogger) {
     let pads_rc = conf::get_pad_devices(&mut pads);
     logger.note_i32("conf pad devices rc", pads_rc);
     logger.note_u32("conf registered pads", pads.num_registered as u32);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_conf_fixture(logger: &mut ProbeLogger) {
+    logger.report_step("Wii configuration fixture values and mutation");
+    let initialized = conf::init() == conf::CONF_ERR_OK;
+    logger.record("CONF initialization is repeatable", initialized);
+    if !initialized {
+        return;
+    }
+
+    let keys = [
+        "IPL.LNG", "IPL.SND", "IPL.AR", "IPL.PGS", "IPL.E60", "BT.BAR", "BT.SPKV", "BT.MOT",
+        "IPL.SSV",
+    ];
+    let expected = [4u8, 2, 0, 1, 1, 0, 42, 0, 0];
+    let mut original = [0u8; 9];
+    let mut readable = true;
+    for (index, key) in keys.iter().enumerate() {
+        readable &= conf::get(key, &mut original[index..index + 1]) == 1;
+    }
+    logger.record("CONF byte settings are readable", readable);
+    if !readable {
+        return;
+    }
+    let mut value = [0xa5; 1];
+    let metadata = conf::get_length("IPL.LNG") == 1
+        && conf::get_type("IPL.LNG") == i32::from(conf::CONF_BYTE)
+        && conf::get("IPL.LNG", &mut value) == 1
+        && value[0] == original[0];
+    logger.record("CONF generic length type and value", metadata);
+    let mut empty = [];
+    let missing = conf::get_length("NO.SUCH.KEY") == conf::CONF_ENOENT
+        && conf::get_type("NO.SUCH.KEY") == conf::CONF_ENOENT
+        && conf::get("NO.SUCH.KEY", &mut value) == conf::CONF_ENOENT
+        && conf::get("IPL.LNG", &mut empty) == conf::CONF_ETOOBIG
+        && conf::set("IPL.LNG", &[]) == conf::CONF_EBADVALUE;
+    logger.record("CONF missing and wrong length inputs fail", missing);
+
+    let mut changed = true;
+    for (key, byte) in keys.iter().zip(expected) {
+        changed &= conf::set(key, &[byte]) == 1;
+    }
+    logger.record("CONF known byte values are set in memory", changed);
+    logger.record(
+        "CONF language reads selected value",
+        conf::get_language() == 4,
+    );
+    logger.record(
+        "CONF sound mode reads selected value",
+        conf::get_sound_mode() == 2,
+    );
+    logger.record(
+        "CONF aspect ratio reads selected value",
+        conf::get_aspect_ratio() == 0,
+    );
+    logger.record(
+        "CONF progressive mode reads selected value",
+        conf::get_progressive_scan() == 1,
+    );
+    logger.record(
+        "CONF RGB60 mode reads selected value",
+        conf::get_eu_rgb60() == 1,
+    );
+    logger.record(
+        "CONF sensor bar reads selected value",
+        conf::get_sensor_bar_position() == 0,
+    );
+    logger.record(
+        "CONF speaker volume reads selected value",
+        conf::get_pad_speaker_volume() == 42,
+    );
+    logger.record(
+        "CONF motor mode reads selected value",
+        conf::get_pad_motor_mode() == 0,
+    );
+    logger.record(
+        "CONF screen saver reads selected value",
+        conf::get_screen_saver_mode() == 0,
+    );
+
+    // Restore every value, including after a failed check. Do not save changes.
+    let mut restored = true;
+    for (key, byte) in keys.iter().zip(original) {
+        restored &= conf::set(key, &[byte]) == 1;
+        let mut current = [0];
+        restored &= conf::get(key, &mut current) == 1 && current == [byte];
+    }
+    logger.record("CONF in-memory settings are restored", restored);
 }
 
 fn probe_es(logger: &mut ProbeLogger) {

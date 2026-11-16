@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-16: Wii configuration values
+
+Dolphin 2609a with OpenGL passed 120 checks with zero failures. The probe
+checks configuration byte access, errors, nine getters, and in-memory
+restoration. See the [report](docs/dolphin-runs/2026-11-16-conf-values/README.md)
+for the earlier failed run and limits. Physical Wii remains untested.
+
 ## 2026-11-16: GX TEV selectors
 
 Dolphin 2609a with Metal passed 283 checks with zero failures. The probe
