@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [typed configuration batch](dolphin-runs/2026-11-16-conf-typed/README.md)
+checks arrays, signed and big-endian values, and parental error paths. OpenGL
+passes 129 checks. Successful parental retrieval and physical Wii remain open.
+
 The [configuration batch](dolphin-runs/2026-11-16-conf-values/README.md)
 checks generic byte settings and nine selected getters. OpenGL passes 120 checks.
 Persistent writes and physical Wii remain open.

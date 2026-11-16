@@ -1,4 +1,14 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-conf,src/lib.rs,get_parental_answer,664,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_typed_values,conf::get_parental_answer
+ogc-conf,src/lib.rs,get_parental_password,648,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_typed_values,conf::get_parental_password
+ogc-conf,src/lib.rs,get_nick_name,607,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_typed_values,conf::get_nick_name
+ogc-conf,src/lib.rs,get_eula,636,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_typed_values,conf::get_eula
+ogc-conf,src/lib.rs,get_display_offset_h,542,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_typed_values,conf::get_display_offset_h
+ogc-conf,src/lib.rs,get_wii_connect24,680,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_typed_values,conf::get_wii_connect24
+ogc-conf,src/lib.rs,get_ir_sensitivity,445,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_typed_values,conf::get_ir_sensitivity
+ogc-conf,src/lib.rs,get_counter_bias,517,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_typed_values,conf::get_counter_bias
+ogc-conf,src/lib.rs,get_idle_led_mode,409,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_typed_values,conf::get_idle_led_mode
+ogc-conf,src/lib.rs,get_shutdown_mode,397,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_typed_values,conf::get_shutdown_mode
 ogc-conf,src/lib.rs,get_screen_saver_mode,530,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_fixture,conf::get_screen_saver_mode
 ogc-conf,src/lib.rs,get_pad_motor_mode,481,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_fixture,conf::get_pad_motor_mode
 ogc-conf,src/lib.rs,get_pad_speaker_volume,469,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_fixture,conf::get_pad_speaker_volume

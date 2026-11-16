@@ -28,6 +28,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_conf(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_conf_fixture(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_conf_typed_values(logger);
     probe_es(logger);
     probe_crypto(logger);
     probe_iso9660(logger);
@@ -532,6 +534,78 @@ fn probe_conf_fixture(logger: &mut ProbeLogger) {
         restored &= conf::get(key, &mut current) == 1 && current == [byte];
     }
     logger.record("CONF in-memory settings are restored", restored);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn check_conf_temporary(key: &str, value: &[u8], check: impl FnOnce() -> bool) -> bool {
+    let mut original = [0u8; 74];
+    if value.len() > original.len()
+        || conf::get(key, &mut original[..value.len()]) != value.len() as i32
+    {
+        return false;
+    }
+    let changed = conf::set(key, value) == value.len() as i32;
+    let checked = check();
+    let restored = conf::set(key, &original[..value.len()]) == value.len() as i32;
+    let mut actual = [0u8; 74];
+    let verified = conf::get(key, &mut actual[..value.len()]) == value.len() as i32
+        && actual[..value.len()] == original[..value.len()];
+    changed && checked && restored && verified
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_conf_typed_values(logger: &mut ProbeLogger) {
+    logger.report_step("Wii configuration typed values");
+    let idle = check_conf_temporary("IPL.IDL", &[1, 2], || {
+        conf::get_shutdown_mode() == 1 && conf::get_idle_led_mode() == 2
+    });
+    logger.record("CONF shutdown and LED decode two-byte setting", idle);
+    let bias = check_conf_temporary("IPL.CB", &[0x12, 0x34, 0x56, 0x78], || {
+        let mut value = 0;
+        conf::get_counter_bias(&mut value) == 0 && value == 0x1234_5678
+    });
+    logger.record("CONF counter bias decodes big endian word", bias);
+    let sensitivity = check_conf_temporary("BT.SENS", &[1, 2, 3, 4], || {
+        conf::get_ir_sensitivity() == 0x0102_0304
+    });
+    logger.record("CONF IR sensitivity decodes big endian word", sensitivity);
+    let network = check_conf_temporary("NET.WCFG", &[0x12, 0x34, 0x56, 0x78], || {
+        conf::get_wii_connect24() == 0x1234_5678
+    });
+    logger.record("CONF WiiConnect24 decodes big endian word", network);
+    let offset = check_conf_temporary("IPL.DH", &[0xfb], || {
+        let mut value = 0;
+        conf::get_display_offset_h(&mut value) == 0 && value == -5
+    });
+    logger.record("CONF horizontal display offset is signed", offset);
+    let eula = check_conf_temporary("IPL.EULA", &[1], || conf::get_eula() == 1);
+    logger.record("CONF EULA decodes boolean", eula);
+    let nickname = [
+        0, b'A', 0, b'B', 0, b'C', 0, b'D', 0, b'E', 0, b'F', 0, b'G', 0, b'H', 0, b'I', 0, b'J',
+        0, 0,
+    ];
+    let named = check_conf_temporary("IPL.NIK", &nickname, || {
+        let mut value = [0xa5; 11];
+        conf::get_nick_name(&mut value) == 22 && value == *b"ABCDEFGHIJ\0"
+    });
+    logger.record("CONF nickname decodes ten big endian characters", named);
+    let empty = check_conf_temporary("IPL.NIK", &[0; 22], || {
+        let mut value = [0x5a; 11];
+        conf::get_nick_name(&mut value) == conf::CONF_EBADVALUE && value == [0x5a; 11]
+    });
+    logger.record(
+        "CONF rejects an empty nickname without output changes",
+        empty,
+    );
+    let parental = check_conf_temporary("IPL.PC", &[0x41; 74], || {
+        let mut password = [7; 5];
+        let mut answer = [7; 33];
+        conf::get_parental_password(&mut password) == conf::CONF_EBADVALUE
+            && conf::get_parental_answer(&mut answer) == conf::CONF_EBADVALUE
+            && password == [7; 5]
+            && answer == [7; 33]
+    });
+    logger.record("CONF parental length error preserves outputs", parental);
 }
 
 fn probe_es(logger: &mut ProbeLogger) {

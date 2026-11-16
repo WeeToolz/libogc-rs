@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-16: Typed Wii configuration values
+
+Dolphin 2609a with OpenGL passed 129 checks with zero failures. The probe
+checks typed in-memory settings, nickname behavior, and parental error paths.
+See the [report](docs/dolphin-runs/2026-11-16-conf-typed/README.md) for
+evidence and limits. Physical Wii remains untested.
+
 ## 2026-11-16: Wii configuration values
 
 Dolphin 2609a with OpenGL passed 120 checks with zero failures. The probe
