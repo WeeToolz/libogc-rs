@@ -885,6 +885,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_z_mode_commands(logger);
     probe_vertex_cache_commands(logger);
     probe_texture_cache_commands(logger);
+    probe_line_point_field_commands(logger);
 }
 
 fn check_gx_command_bytes(expected: &[u8], emit: impl FnOnce()) -> bool {
@@ -2066,6 +2067,111 @@ fn probe_texture_cache_commands(logger: &mut ProbeLogger) {
         "GX executes cache commands and subsequent token",
         completed && gx::get_draw_sync() == 0x7531,
     );
+}
+
+fn probe_line_point_field_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX line point and field shared state");
+    // SAFETY: The probe owns GX. Establish a known baseline and wait for it.
+    let ready = unsafe {
+        gx::set_line_width(6, 0);
+        gx::set_point_size(6, 0);
+        gx::set_field_mode(0, 0);
+        gx::finish_frame_and_wait()
+    };
+    logger.record("GX line point field baseline completes", ready);
+    if !ready {
+        return;
+    }
+    // Keep the shadow changes between captures for this shared-register test.
+    gx::set_misc(u32::from(gx::GX_MT_DL_SAVE_CTX), 0);
+    logger.record(
+        "GX line width preserves point fields",
+        check_gx_bp_words(&[0x2203_060c], || unsafe { gx::set_line_width(12, 3) }),
+    );
+    logger.record(
+        "GX point size preserves line fields",
+        check_gx_bp_words(&[0x222b_220c], || unsafe { gx::set_point_size(34, 5) }),
+    );
+    // GX initialization sets the indirect texture mask to zero. The C
+    // reference flushes that current mask on both sides of register 0x68.
+    logger.record(
+        "GX field mode preserves dimensions and flushes current mask",
+        check_gx_bp_words(
+            &[0x226b_220c, 0x0f00_0000, 0x6800_0001, 0x0f00_0000],
+            || unsafe {
+                gx::set_field_mode(1, 1);
+            },
+        ),
+    );
+    logger.record(
+        "GX field mode clears its bits and retains line point state",
+        check_gx_bp_words(
+            &[0x222b_220c, 0x0f00_0000, 0x6800_0000, 0x0f00_0000],
+            || unsafe {
+                gx::set_field_mode(0, 0);
+            },
+        ),
+    );
+    // Establish a distinct current indirect mask through the production GX
+    // state path. This case detects an implementation that always writes zero.
+    // SAFETY: The probe owns GX and flushes the changed state before capture.
+    let mask_ready = unsafe {
+        gx::set_ind_tex_order(gx::GX_INDTEXSTAGE0, 0, 3);
+        gx::set_num_ind_stages(1);
+        gx::flush();
+        gx::finish_frame_and_wait()
+    };
+    logger.record("GX nonzero indirect mask setup completes", mask_ready);
+    if mask_ready {
+        logger.record(
+            "GX field mode preserves a nonzero indirect mask",
+            check_gx_bp_words(
+                &[0x226b_220c, 0x0f00_0008, 0x6800_0001, 0x0f00_0008],
+                || unsafe {
+                    gx::set_field_mode(1, 1);
+                },
+            ),
+        );
+    }
+    // SAFETY: Restore the original no-indirect-stage setup before tracing.
+    let mask_restored = unsafe {
+        gx::set_ind_tex_order(gx::GX_INDTEXSTAGE0, 0, 0);
+        gx::set_num_ind_stages(0);
+        gx::flush();
+        gx::finish_frame_and_wait()
+    };
+    logger.record("GX indirect mask restoration completes", mask_restored);
+    #[repr(align(32))]
+    struct FieldTrace([u8; 64]);
+    let mut trace = FieldTrace([0xa5; 64]);
+    // SAFETY: GX is owned by the probe and the capture buffer remains live.
+    unsafe {
+        gx::begin_disp_list(trace.0.as_mut_ptr().cast(), 64);
+        gx::set_field_mode(1, 1);
+    }
+    let size = gx::end_disp_list();
+    logger.note_u32("GX field trace size", size);
+    if size >= 20 {
+        for (index, command) in trace.0[..20].chunks_exact(5).enumerate() {
+            logger.note_hex32_index(
+                "GX field trace word",
+                index as i32,
+                u32::from_be_bytes([command[1], command[2], command[3], command[4]]),
+            );
+            logger.note_u32("GX field trace opcode", u32::from(command[0]));
+        }
+    }
+    gx::set_misc(u32::from(gx::GX_MT_DL_SAVE_CTX), 1);
+    // SAFETY: Restore the baseline GX settings before leaving this probe.
+    let restored = unsafe {
+        gx::set_line_width(6, 0);
+        gx::set_point_size(6, 0);
+        gx::set_field_mode(0, 0);
+        gx::finish_frame_and_wait()
+    };
+    logger.record("GX line point field restoration completes", restored);
 }
 
 fn probe_display_lists(logger: &mut ProbeLogger) {

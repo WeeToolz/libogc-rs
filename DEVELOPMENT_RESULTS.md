@@ -1543,3 +1543,14 @@ before initialization. A trace captured the actual words, and the expected
 post-initialization mask was corrected against the C initialization. Those
 runs remain saved. Rendered cache effects and physical Wii behavior remain
 open. See the [cache report](docs/dolphin-runs/2026-11-15-gx-cache-commands/README.md).
+
+## 2026-11-15/16: GX line, point, and field-mode validation
+
+Dolphin 2609a on Metal passed 232 checks with zero failures. New checks cover
+`set_line_width`, `set_point_size`, and `set_field_mode`. Two earlier runs
+failed the field checks: trace showed `0x0f0000ff` where the initialized
+current mask was `0x0f000000`. The fix uses the current mask at both flush
+points. The final run checks both zero and nonzero masks, restores test state,
+and passes. The failed and passing runs remain saved. Rendered effects and
+physical Wii behavior remain open. See the [field-mode report](docs/dolphin-runs/2026-11-15-gx-line-point-field/README.md)
+for commands, hashes, logs, and limits.

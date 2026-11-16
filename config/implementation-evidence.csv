@@ -1,4 +1,7 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,set_line_width,6414,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_line_point_field_commands,gx::set_line_width
+ogc-gx,src/lib.rs,set_point_size,6425,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_line_point_field_commands,gx::set_point_size
+ogc-gx,src/lib.rs,set_field_mode,3881,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_line_point_field_commands,gx::set_field_mode
 ogc-gx,src/lib.rs,inv_vtx_cache,4711,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_vertex_cache_commands,ogc_gx::inv_vtx_cache
 ogc-gx,src/lib.rs,invalidate_tex_all,2847,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_cache_commands,gx::invalidate_tex_all
 ogc-gx,src/lib.rs,invalidate_texture_cache,2839,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_cache_commands,gx::invalidate_texture_cache

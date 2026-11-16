@@ -39,6 +39,11 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [line, point, and field batch](dolphin-runs/2026-11-15-gx-line-point-field/README.md)
+adds command checks for three APIs and fixes `set_field_mode` to write the
+current texture mask. Metal passes 232 checks, including zero and nonzero
+mask cases. Rendered effects and physical Wii behavior remain open.
+
 The [cache command batch](dolphin-runs/2026-11-15-gx-cache-commands/README.md)
 adds checks for three vertex and texture cache APIs. Metal passes 223 checks.
 Exact command encoding and a subsequent GPU token are checked; cache effects

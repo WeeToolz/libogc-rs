@@ -3883,9 +3883,9 @@ pub unsafe fn set_field_mode(field_mode: u8, half_aspect_ratio: u8) {
     let word = update_bits(current, 0x0040_0000, u32::from(half_aspect_ratio & 1) << 22);
     GX_LP_WIDTH.store(word, Ordering::Relaxed);
     load_bp_reg((word >> 24) as u8, word & 0x00ff_ffff);
-    load_bp_reg(0x0f, 0x00ff);
+    write_bp_word(GX_TEV_IND_MASK.load(Ordering::Relaxed));
     load_bp_reg(0x68, u32::from(field_mode & 1));
-    load_bp_reg(0x0f, 0x00ff);
+    write_bp_word(GX_TEV_IND_MASK.load(Ordering::Relaxed));
 }
 
 /// Copy the EFB to the configured XFB. When `clear` is true, clear the EFB after the copy.
