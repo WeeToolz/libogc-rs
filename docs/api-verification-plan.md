@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [system alarm batch](dolphin-runs/2026-11-16-system-alarms/README.md)
+checks one-shot and periodic callbacks, cancellation, and removal. OpenGL
+passes 154 checks. Other timing cases and physical Wii remain open.
+
 The [indirect matrix batch](dolphin-runs/2026-11-16-gx-indirect-matrix/README.md)
 checks matrix and tile command encoding. Metal passes 294 checks. Rendered
 indirect texturing and physical Wii remain open.

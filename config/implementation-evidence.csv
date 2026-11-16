@@ -1,4 +1,9 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-system,src/lib.rs,cancel_alarm,569,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_alarms,system::cancel_alarm
+ogc-system,src/lib.rs,remove_alarm,564,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_alarms,system::remove_alarm
+ogc-system,src/lib.rs,set_periodic_alarm,550,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_alarms,system::set_periodic_alarm
+ogc-system,src/lib.rs,set_alarm,533,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_alarms,system::set_alarm
+ogc-system,src/lib.rs,create_alarm,522,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_alarms,system::create_alarm
 ogc-gx,src/lib.rs,set_tev_ind_tile,7243,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_indirect_matrix_commands,gx::set_tev_ind_tile
 ogc-gx,src/lib.rs,set_ind_tex_matrix,7076,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_indirect_matrix_commands,gx::set_ind_tex_matrix
 ogc-gx,src/lib.rs,set_tev_ind_warp,7206,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_indirect_helper_commands,gx::set_tev_ind_warp

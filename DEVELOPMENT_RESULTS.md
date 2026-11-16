@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-16: System alarm callbacks
+
+Dolphin 2609a with OpenGL passed 154 checks with zero failures. The probe
+checks one-shot and periodic alarms, cancellation, and removal. See the
+[report](docs/dolphin-runs/2026-11-16-system-alarms/README.md) for evidence
+and limits. Physical Wii remains untested.
+
 ## 2026-11-16: GX indirect texture matrix and tile
 
 Dolphin 2609a with Metal passed 294 checks with zero failures. The probe

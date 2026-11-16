@@ -12,6 +12,20 @@ use ogc_system as system;
 
 use crate::probe_support::ProbeLogger;
 
+#[cfg(feature = "dolphin-automation")]
+static ALARM_COUNT: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+#[cfg(feature = "dolphin-automation")]
+static ALARM_ID: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+#[cfg(feature = "dolphin-automation")]
+static ALARM_ARG: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn probe_alarm_callback(id: system::SysWd, arg: *mut core::ffi::c_void) {
+    ALARM_ID.store(id, Ordering::Relaxed);
+    ALARM_ARG.store(arg as usize as u32, Ordering::Relaxed);
+    ALARM_COUNT.fetch_add(1, Ordering::Release);
+}
+
 #[repr(align(16))]
 struct Align16([u8; 16]);
 
@@ -24,6 +38,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_hci_events(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_system_alarms(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_system_sram_getters(logger);
     probe_ios_stm(logger);
@@ -426,6 +442,69 @@ fn probe_system_sram_getters(logger: &mut ProbeLogger) {
         }
     };
     logger.record("System SRAM buffer is restored", restored);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_alarms(logger: &mut ProbeLogger) {
+    logger.report_step("System alarm callbacks and cancellation");
+    ALARM_COUNT.store(0, Ordering::Relaxed);
+    let mut alarm = 0;
+    let created = system::create_alarm(&mut alarm) == 0 && alarm != 0;
+    logger.record("System alarm creation returns a handle", created);
+    if !created {
+        return;
+    }
+    let delay = system::TimeSpec {
+        tv_sec: 0,
+        tv_nsec: 30_000_000,
+    };
+    let arg = core::ptr::without_provenance_mut::<core::ffi::c_void>(0x1234);
+    // SAFETY: The callback treats its argument only as an opaque token.
+    let scheduled =
+        unsafe { system::set_alarm(alarm, &delay, Some(probe_alarm_callback), arg) } == 0;
+    for _ in 0..30 {
+        if ALARM_COUNT.load(Ordering::Acquire) >= 1 {
+            break;
+        }
+        if !ogc_video::wait_vsync_timeout_us(100_000) {
+            break;
+        }
+    }
+    let fired = scheduled
+        && ALARM_COUNT.load(Ordering::Acquire) == 1
+        && ALARM_ID.load(Ordering::Relaxed) == alarm
+        && ALARM_ARG.load(Ordering::Relaxed) == 0x1234;
+    logger.record("System one-shot alarm delivers handle and argument", fired);
+    let periodic = unsafe {
+        system::set_periodic_alarm(alarm, &delay, &delay, Some(probe_alarm_callback), arg)
+    } == 0;
+    for _ in 0..30 {
+        if ALARM_COUNT.load(Ordering::Acquire) >= 4 {
+            break;
+        }
+        if !ogc_video::wait_vsync_timeout_us(100_000) {
+            break;
+        }
+    }
+    let repeated = periodic && ALARM_COUNT.load(Ordering::Acquire) >= 4;
+    logger.record(
+        "System periodic alarm delivers repeated callbacks",
+        repeated,
+    );
+    let canceled = system::cancel_alarm(alarm) == 0;
+    let after_cancel = ALARM_COUNT.load(Ordering::Acquire);
+    let mut waited = true;
+    for _ in 0..8 {
+        waited &= ogc_video::wait_vsync_timeout_us(100_000);
+    }
+    logger.record(
+        "System alarm cancellation stops callbacks",
+        canceled && waited && ALARM_COUNT.load(Ordering::Acquire) == after_cancel,
+    );
+    logger.record(
+        "System alarm removal succeeds",
+        system::remove_alarm(alarm) == 0,
+    );
 }
 
 fn probe_system(logger: &mut ProbeLogger) {
