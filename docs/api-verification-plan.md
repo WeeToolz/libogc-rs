@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [indirect texture scale batch](dolphin-runs/2026-11-16-gx-indirect-scale/README.md)
+checks scale and order command encoding. Metal passes 287 checks. Rendered
+indirect texturing and physical Wii remain open.
+
 The [indirect TEV batch](dolphin-runs/2026-11-16-gx-indirect-tev/README.md)
 checks indirect and direct command encoding. Metal passes 285 checks.
 Rendered indirect texturing and physical Wii remain open.

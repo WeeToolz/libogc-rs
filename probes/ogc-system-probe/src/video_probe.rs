@@ -890,6 +890,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_tev_combiner_commands(logger);
     probe_tev_selector_commands(logger);
     probe_tev_indirect_commands(logger);
+    probe_indirect_texture_commands(logger);
     probe_tex_coord_scale_commands(logger);
     probe_alpha_compare_commands(logger);
     probe_fog_color_commands(logger);
@@ -1785,6 +1786,44 @@ fn probe_tev_indirect_commands(logger: &mut ProbeLogger) {
         check_gx_bp_words(&[0x1f1f_ffff], || unsafe {
             gx::set_tev_indirect(0xff, masked)
         }),
+    );
+}
+
+fn probe_indirect_texture_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    logger.report_step("GX indirect texture scale and order bytes");
+    // SAFETY: GX is owned by this probe. Reset all fields shared by the
+    // registers before capturing independently calculated words.
+    unsafe {
+        for stage in 0..4 {
+            gx::set_ind_tex_coord_scale(stage, 0, 0);
+            gx::set_ind_tex_order(stage, 0, 0);
+        }
+    }
+    logger.record(
+        "GX indirect scale packs four stages and preserves neighbors",
+        check_gx_bp_words(
+            &[0x2500_0021, 0x2500_4321, 0x2600_0065, 0x2600_8765],
+            || unsafe {
+                gx::set_ind_tex_coord_scale(0, 1, 2);
+                gx::set_ind_tex_coord_scale(1, 3, 4);
+                gx::set_ind_tex_coord_scale(2, 5, 6);
+                gx::set_ind_tex_coord_scale(3, 7, 8);
+                gx::set_ind_tex_coord_scale(4, 1, 1);
+            },
+        ),
+    );
+    logger.record(
+        "GX indirect order packs four coordinate and map pairs",
+        check_gx_bp_words(
+            &[0x2700_0011, 0x2700_0d11, 0x2702_8d11, 0x27ee_8d11],
+            || unsafe {
+                gx::set_ind_tex_order(0, 2, 1);
+                gx::set_ind_tex_order(1, 6, 4);
+                gx::set_ind_tex_order(2, 5, 0);
+                gx::set_ind_tex_order(3, 7, 3);
+            },
+        ),
     );
 }
 
