@@ -1,5 +1,11 @@
 # Development results
 
+## 2026-11-16: GX vertex descriptors
+
+Dolphin 2609a with Metal passed 270 checks with zero failures. The new
+checks cover descriptor state and list behavior. See the [report](docs/dolphin-runs/2026-11-16-gx-vertex-descriptors/README.md)
+for evidence and limits. Physical Wii remains untested.
+
 ## 2026-11-16: GX textured rectangle
 
 Dolphin 2609a with Metal passed 266 checks with zero failures. The new

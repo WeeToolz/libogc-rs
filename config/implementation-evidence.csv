@@ -1,4 +1,8 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,set_vtx_descv,4749,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_vertex_descriptors,gx::set_vtx_descv
+ogc-gx,src/lib.rs,set_vtx_desc,4741,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_vertex_descriptors,gx::set_vtx_desc
+ogc-gx,src/lib.rs,get_vtx_descv,4765,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_vertex_descriptors,gx::get_vtx_descv
+ogc-gx,src/lib.rs,clear_vtx_desc,4716,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_vertex_descriptors,gx::clear_vtx_desc
 ogc-gx,src/lib.rs,load_tex_obj,3057,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_textured_rect_render,gx::load_tex_obj
 ogc-gx,src/lib.rs,draw_textured_rect,3099,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_textured_rect_render,gx::draw_textured_rect
 ogc-gx,src/lib.rs,configure_textured_2d,2709,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_textured_rect_render,gx::configure_textured_2d

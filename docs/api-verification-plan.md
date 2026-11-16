@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [vertex descriptor batch](dolphin-runs/2026-11-16-gx-vertex-descriptors/README.md)
+checks descriptor state, list termination, ordering, replacement, and restoration.
+Metal passes 270 checks. CP/XF output and physical Wii remain open.
+
 The [textured-render batch](dolphin-runs/2026-11-16-gx-textured-render/README.md)
 checks texture setup, loading, and rectangle drawing through rendered EFB
 pixels. Metal passes 266 checks. Other texture formats and physical Wii remain open.

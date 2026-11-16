@@ -887,8 +887,98 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_vertex_cache_commands(logger);
     probe_texture_cache_commands(logger);
     probe_line_point_field_commands(logger);
+    probe_vertex_descriptors(logger);
     probe_solid_rect_render(logger, width, height);
     probe_textured_rect_render(logger, width, height);
+}
+
+fn probe_vertex_descriptors(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    const N: usize = gx::GX_MAX_VTXDESC_LISTSIZE;
+    const EMPTY: gx::GxVtxDesc = gx::GxVtxDesc {
+        attr: gx::GX_VA_NULL,
+        ty: 0,
+    };
+    let mut saved = [EMPTY; N];
+    let mut actual = [gx::GxVtxDesc {
+        attr: 0x55,
+        ty: 0x55,
+    }; N];
+    // SAFETY: Both arrays have the required capacity, and GX is owned by the probe.
+    unsafe { gx::get_vtx_descv(saved.as_mut_ptr()) };
+    gx::clear_vtx_desc();
+    unsafe { gx::get_vtx_descv(actual.as_mut_ptr()) };
+    logger.record(
+        "GX cleared vertex descriptor is fully empty",
+        actual == [EMPTY; N],
+    );
+
+    let input = [
+        gx::GxVtxDesc {
+            attr: gx::GX_VA_TEX7,
+            ty: gx::GX_INDEX16,
+        },
+        gx::GxVtxDesc {
+            attr: gx::GX_VA_CLR0,
+            ty: gx::GX_DIRECT,
+        },
+        gx::GxVtxDesc {
+            attr: gx::GX_VA_POS,
+            ty: gx::GX_INDEX8,
+        },
+        gx::GxVtxDesc {
+            attr: gx::GX_VA_PTNMTXIDX,
+            ty: gx::GX_DIRECT,
+        },
+        gx::GxVtxDesc {
+            attr: gx::GX_VA_NBT,
+            ty: gx::GX_INDEX16,
+        },
+        EMPTY,
+        gx::GxVtxDesc {
+            attr: gx::GX_VA_TEX0,
+            ty: gx::GX_DIRECT,
+        },
+    ];
+    // SAFETY: The input terminates at EMPTY and the output has full capacity.
+    unsafe { gx::set_vtx_descv(input.as_ptr()) };
+    unsafe { gx::get_vtx_descv(actual.as_mut_ptr()) };
+    let expected = [input[3], input[2], input[4], input[1], input[0]];
+    logger.record(
+        "GX descriptor list orders attributes and stops at sentinel",
+        actual[..expected.len()] == expected
+            && actual[expected.len()..].iter().all(|x| *x == EMPTY),
+    );
+
+    gx::set_vtx_desc(gx::GX_VA_NRM, gx::GX_INDEX8);
+    gx::set_vtx_desc(gx::GX_VA_CLR0, gx::GX_NONE);
+    unsafe { gx::get_vtx_descv(actual.as_mut_ptr()) };
+    let expected = [
+        input[3],
+        input[2],
+        gx::GxVtxDesc {
+            attr: gx::GX_VA_NRM,
+            ty: gx::GX_INDEX8,
+        },
+        input[0],
+    ];
+    logger.record(
+        "GX single descriptor switches normal and removes color",
+        actual[..expected.len()] == expected
+            && actual[expected.len()..].iter().all(|x| *x == EMPTY),
+    );
+    // SAFETY: Null lists are explicitly accepted; restore the saved list afterward.
+    unsafe {
+        gx::set_vtx_descv(core::ptr::null());
+        gx::get_vtx_descv(core::ptr::null_mut());
+    }
+    gx::clear_vtx_desc();
+    unsafe {
+        gx::set_vtx_descv(saved.as_ptr());
+        gx::get_vtx_descv(actual.as_mut_ptr());
+    }
+    logger.record("GX vertex descriptor restoration", actual == saved);
 }
 
 fn check_gx_command_bytes(expected: &[u8], emit: impl FnOnce()) -> bool {
