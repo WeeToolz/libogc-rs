@@ -867,6 +867,9 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_vertex_color_commands(logger);
     probe_vertex_indices_8(logger);
     probe_vertex_indices_16(logger);
+    probe_float_vertex_commands(logger);
+    probe_unsigned_position_commands(logger);
+    probe_unsigned_texture_commands(logger);
 }
 
 fn check_gx_command_bytes(expected: &[u8], emit: impl FnOnce()) -> bool {
@@ -1395,6 +1398,154 @@ fn probe_vertex_indices_16(logger: &mut ProbeLogger) {
         for (index, expected) in [(0x1234, [0x12, 0x34]), (0xffff, [0xff, 0xff])] {
             logger.record(label, check_gx_command_bytes(&expected, || write(index)));
         }
+    }
+}
+
+fn probe_float_vertex_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX floating-point vertex data bytes");
+    // SAFETY: Every writer below runs only in the probe-owned capture.
+    // Expectations are fixed IEEE-754 bytes, including the sign of zero.
+    for (input, expected) in [
+        (
+            [1.5, -2.25, 0.125],
+            [0x3f, 0xc0, 0, 0, 0xc0, 0x10, 0, 0, 0x3e, 0, 0, 0],
+        ),
+        (
+            [-0.0, 0.5, -0.75],
+            [0x80, 0, 0, 0, 0x3f, 0, 0, 0, 0xbf, 0x40, 0, 0],
+        ),
+    ] {
+        logger.record(
+            "GX position3f32 exact XYZ float bits and width",
+            check_gx_command_bytes(&expected, || unsafe {
+                gx::position3f32(input[0], input[1], input[2]);
+            }),
+        );
+    }
+    for (input, expected) in [
+        ([1.5, -2.25], [0x3f, 0xc0, 0, 0, 0xc0, 0x10, 0, 0]),
+        ([-0.0, 0.5], [0x80, 0, 0, 0, 0x3f, 0, 0, 0]),
+    ] {
+        logger.record(
+            "GX position2f32 exact XY float bits and width",
+            check_gx_command_bytes(&expected, || unsafe {
+                gx::position2f32(input[0], input[1]);
+            }),
+        );
+        logger.record(
+            "GX tex_coord2f32 exact ST float bits and width",
+            check_gx_command_bytes(&expected, || unsafe {
+                gx::tex_coord2f32(input[0], input[1]);
+            }),
+        );
+    }
+    for (input, expected) in [
+        (
+            [-0.5, 0.25, -1.0],
+            [0xbf, 0, 0, 0, 0x3e, 0x80, 0, 0, 0xbf, 0x80, 0, 0],
+        ),
+        (
+            [0.0, 1.0, 0.5],
+            [0, 0, 0, 0, 0x3f, 0x80, 0, 0, 0x3f, 0, 0, 0],
+        ),
+    ] {
+        logger.record(
+            "GX normal3f32 exact XYZ float bits and width",
+            check_gx_command_bytes(&expected, || unsafe {
+                gx::normal3f32(input[0], input[1], input[2]);
+            }),
+        );
+    }
+    for (input, expected) in [(1.5, [0x3f, 0xc0, 0, 0]), (-0.0, [0x80, 0, 0, 0])] {
+        logger.record(
+            "GX tex_coord1f32 exact single float bits and width",
+            check_gx_command_bytes(&expected, || unsafe { gx::tex_coord1f32(input) }),
+        );
+    }
+}
+
+fn probe_unsigned_position_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX unsigned position data bytes");
+    // SAFETY: Each writer runs only in the probe-owned display-list capture.
+    for (input, expected) in [
+        ([0x1234, 0x8000, 0xffff], [0x12, 0x34, 0x80, 0, 0xff, 0xff]),
+        ([0, 1, 0xabcd], [0, 0, 0, 1, 0xab, 0xcd]),
+    ] {
+        logger.record(
+            "GX position3u16 exact unsigned XYZ big-endian bytes",
+            check_gx_command_bytes(&expected, || unsafe {
+                gx::position3u16(input[0], input[1], input[2]);
+            }),
+        );
+    }
+    for input in [[0x12, 0x80, 0xff], [0, 1, 0xab]] {
+        logger.record(
+            "GX position3u8 exact unsigned XYZ bytes",
+            check_gx_command_bytes(&input, || unsafe {
+                gx::position3u8(input[0], input[1], input[2]);
+            }),
+        );
+    }
+    for (input, expected) in [
+        ([0x1234, 0xffff], [0x12, 0x34, 0xff, 0xff]),
+        ([0, 0x8000], [0, 0, 0x80, 0]),
+    ] {
+        logger.record(
+            "GX position2u16 exact unsigned XY big-endian bytes",
+            check_gx_command_bytes(&expected, || unsafe {
+                gx::position2u16(input[0], input[1]);
+            }),
+        );
+    }
+    for input in [[0x12, 0xff], [0, 0x80]] {
+        logger.record(
+            "GX position2u8 exact unsigned XY bytes",
+            check_gx_command_bytes(&input, || unsafe {
+                gx::position2u8(input[0], input[1]);
+            }),
+        );
+    }
+}
+
+fn probe_unsigned_texture_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX unsigned texture coordinate data bytes");
+    // SAFETY: Each writer runs only in the probe-owned display-list capture.
+    for (input, expected) in [
+        ([0x1234, 0xffff], [0x12, 0x34, 0xff, 0xff]),
+        ([0, 0x8000], [0, 0, 0x80, 0]),
+    ] {
+        logger.record(
+            "GX tex_coord2u16 exact unsigned ST big-endian bytes",
+            check_gx_command_bytes(&expected, || unsafe {
+                gx::tex_coord2u16(input[0], input[1]);
+            }),
+        );
+    }
+    for input in [[0x12, 0xff], [0, 0x80]] {
+        logger.record(
+            "GX tex_coord2u8 exact unsigned ST bytes",
+            check_gx_command_bytes(&input, || unsafe {
+                gx::tex_coord2u8(input[0], input[1]);
+            }),
+        );
+    }
+    for (input, expected) in [(0x1234, [0x12, 0x34]), (0xffff, [0xff, 0xff])] {
+        logger.record(
+            "GX tex_coord1u16 exact unsigned single big-endian value",
+            check_gx_command_bytes(&expected, || unsafe { gx::tex_coord1u16(input) }),
+        );
+    }
+    for input in [0, 0xff] {
+        logger.record(
+            "GX tex_coord1u8 exact unsigned single byte",
+            check_gx_command_bytes(&[input], || unsafe { gx::tex_coord1u8(input) }),
+        );
     }
 }
 

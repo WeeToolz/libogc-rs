@@ -39,6 +39,12 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [2026-11-15 float and unsigned vertex batch](dolphin-runs/2026-11-15-gx-float-unsigned-vertices/README.md)
+adds 26 capture checks for thirteen position, normal, and texture-coordinate
+APIs. Metal passes 181 checks. Fixed bytes cover float bit patterns, negative
+zero, unsigned limits, byte order, and widths. Rendered geometry and physical
+Wii behavior remain open.
+
 The [2026-11-15 color and index batch](dolphin-runs/2026-11-15-gx-colors-indices/README.md)
 adds 28 capture checks for fourteen color and vertex-index APIs. Metal passes
 155 checks. Fixed bytes cover channel order, packed colors, normalized float

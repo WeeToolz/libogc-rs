@@ -1,4 +1,17 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,position3f32,5035,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_float_vertex_commands,gx::position3f32
+ogc-gx,src/lib.rs,position2f32,5080,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_float_vertex_commands,gx::position2f32
+ogc-gx,src/lib.rs,normal3f32,5134,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_float_vertex_commands,gx::normal3f32
+ogc-gx,src/lib.rs,tex_coord2f32,5231,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_float_vertex_commands,gx::tex_coord2f32
+ogc-gx,src/lib.rs,tex_coord1f32,5271,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_float_vertex_commands,gx::tex_coord1f32
+ogc-gx,src/lib.rs,position3u16,5044,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_unsigned_position_commands,gx::position3u16
+ogc-gx,src/lib.rs,position3u8,5062,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_unsigned_position_commands,gx::position3u8
+ogc-gx,src/lib.rs,position2u16,5088,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_unsigned_position_commands,gx::position2u16
+ogc-gx,src/lib.rs,position2u8,5104,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_unsigned_position_commands,gx::position2u8
+ogc-gx,src/lib.rs,tex_coord2u16,5239,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_unsigned_texture_commands,gx::tex_coord2u16
+ogc-gx,src/lib.rs,tex_coord2u8,5255,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_unsigned_texture_commands,gx::tex_coord2u8
+ogc-gx,src/lib.rs,tex_coord1u16,5278,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_unsigned_texture_commands,gx::tex_coord1u16
+ogc-gx,src/lib.rs,tex_coord1u8,5292,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_unsigned_texture_commands,gx::tex_coord1u8
 ogc-gx,src/lib.rs,color4u8,5175,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_vertex_color_commands,gx::color4u8
 ogc-gx,src/lib.rs,color3u8,5185,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_vertex_color_commands,gx::color3u8
 ogc-gx,src/lib.rs,color3f32,5194,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_vertex_color_commands,gx::color3f32

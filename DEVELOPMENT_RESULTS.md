@@ -1484,3 +1484,15 @@ passed. No production or runner code changed. These results cover capture
 and encoding; indexed array reads, rendered colors, and physical Wii behavior
 remain open. See the [color and index report](docs/dolphin-runs/2026-11-15-gx-colors-indices/README.md)
 for commands, source and DOL identities, logs, screenshots, and limits.
+
+## 2026-11-15: GX float and unsigned vertex-data API validation
+
+The Metal Dolphin 2609a `video_probe` passed 181 checks with zero failures
+and fourteen valid captured pages. Twenty-six new checks call thirteen
+position, normal, and texture-coordinate APIs. Fixed bytes verify float
+values and negative zero, unsigned high-bit/maximum values, channel order,
+and data width. The shared capture check also verifies padding, guards,
+and an unchanged GPU token. No production or runner code changed. These
+results cover capture and encoding; rendered geometry and physical Wii
+behavior remain open. See the [float and unsigned vertex report](docs/dolphin-runs/2026-11-15-gx-float-unsigned-vertices/README.md)
+for commands, source and DOL identities, logs, screenshots, and limits.
