@@ -1565,3 +1565,15 @@ restoration of all four saved registers. No production GX code changed.
 Effects on rendered pixels and physical Wii behavior remain open. See the
 [pixel-engine report](docs/dolphin-runs/2026-11-16-gx-pe-registers/README.md)
 for commands, hashes, logs, screenshots, and limits.
+
+## 2026-11-16: GX solid rectangle rendered-pixel validation
+
+Dolphin 2609a on Metal passed 260 checks with zero failures. The new probe
+checks EFB pixels after solid pipeline setup and rectangle drawing, with a
+changed-combiner precondition, disabled color writes, disabled and enabled
+blending, and scissor clipping. It adds direct evidence for
+`configure_solid_2d`, `draw_solid_rect`, `set_color_update`, and
+`set_blend_mode`. The sample uses RGB8, three coordinates, and full-alpha
+readback; other formats and physical Wii behavior remain open. No production
+GX code changed. See the [solid-render report](docs/dolphin-runs/2026-11-16-gx-solid-render/README.md)
+for commands, identities, logs, screenshots, and limits.

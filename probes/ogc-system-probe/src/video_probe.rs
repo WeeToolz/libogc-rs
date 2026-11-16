@@ -887,6 +887,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_vertex_cache_commands(logger);
     probe_texture_cache_commands(logger);
     probe_line_point_field_commands(logger);
+    probe_solid_rect_render(logger, width, height);
 }
 
 fn check_gx_command_bytes(expected: &[u8], emit: impl FnOnce()) -> bool {
@@ -2173,6 +2174,199 @@ fn probe_line_point_field_commands(logger: &mut ProbeLogger) {
         gx::finish_frame_and_wait()
     };
     logger.record("GX line point field restoration completes", restored);
+}
+
+fn probe_solid_rect_render(logger: &mut ProbeLogger, width: u16, height: u16) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX solid rectangle rendered pixel checks");
+    let w = f32::from(width);
+    let h = f32::from(height);
+    let projection = [
+        [2.0 / w, 0.0, 0.0, -1.0],
+        [0.0, -2.0 / h, 0.0, 1.0],
+        [0.0, 0.0, -1.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    ];
+    // SAFETY: GX and the FIFO are initialized and owned by this probe. The
+    // display mode supplies the active EFB dimensions and the matrix is live.
+    let ready = unsafe {
+        gx::set_pixel_fmt(gx::GX_PF_RGB8_Z24, gx::GX_ZC_LINEAR);
+        gx::configure_solid_2d(&projection);
+        gx::set_viewport(0.0, 0.0, w, h, 0.0, 1.0);
+        gx::set_scissor(0, 0, u32::from(width), u32::from(height));
+        gx::set_z_mode(0, gx::GX_ALWAYS, 0);
+        gx::set_blend_mode(
+            gx::GX_BM_NONE,
+            gx::GX_BL_ONE,
+            gx::GX_BL_ZERO,
+            gx::GX_LO_CLEAR,
+        );
+        gx::set_color_update(1);
+        gx::finish_frame_and_wait()
+    };
+    logger.record("GX solid rectangle render setup completes", ready);
+    if !ready {
+        return;
+    }
+
+    let black = gx::GxColor {
+        r: 0,
+        g: 0,
+        b: 0,
+        a: 0xff,
+    };
+    let red = gx::GxColor {
+        r: 0xff,
+        g: 0,
+        b: 0,
+        a: 0xff,
+    };
+    let green = gx::GxColor {
+        r: 0,
+        g: 0xff,
+        b: 0,
+        a: 0xff,
+    };
+    let blue = gx::GxColor {
+        r: 0,
+        g: 0,
+        b: 0xff,
+        a: 0xff,
+    };
+    let points = [(40, 40), (60, 40), (110, 20)];
+    gx::poke_alpha_read(gx::GX_READ_FF);
+    for (x, y) in points {
+        gx::poke_argb(x, y, black);
+    }
+    let read = |x, y| {
+        let mut color = gx::GxColor::default();
+        // SAFETY: The output is writable and the EFB coordinates are valid.
+        unsafe { gx::peek_argb(x, y, &mut color) };
+        color
+    };
+    let colors_match = |a, b, c| read(40, 40) == a && read(60, 40) == b && read(110, 20) == c;
+    // Prove that the deliberately changed combiner produces black before
+    // asking configure_solid_2d to restore the solid-color pipeline.
+    gx::poke_argb(40, 40, green);
+    // SAFETY: The probe owns the initialized GX state and waits before reads.
+    let scrambled = unsafe {
+        gx::set_tev_color_in(
+            0,
+            gx::GX_CC_ZERO,
+            gx::GX_CC_ZERO,
+            gx::GX_CC_ZERO,
+            gx::GX_CC_ZERO,
+        );
+        gx::draw_solid_rect(32.0, 32.0, 48.0, 24.0, 0.0, red).is_ok() && gx::finish_frame_and_wait()
+    };
+    logger.record(
+        "GX altered combiner renders black before reconfiguration",
+        scrambled && colors_match(black, black, black),
+    );
+    if !scrambled {
+        return;
+    }
+    // SAFETY: Reconfigure the owned pipeline, then select the no-blend case.
+    let reconfigured = unsafe {
+        gx::configure_solid_2d(&projection);
+        gx::set_blend_mode(
+            gx::GX_BM_NONE,
+            gx::GX_BL_ONE,
+            gx::GX_BL_ZERO,
+            gx::GX_LO_CLEAR,
+        );
+        gx::finish_frame_and_wait()
+    };
+    logger.record("GX solid pipeline reconfiguration completes", reconfigured);
+    if !reconfigured {
+        return;
+    }
+    // SAFETY: The configured GX state remains owned by this probe. Each
+    // finish waits until the GPU completes before pixel reads and reuse.
+    let first = unsafe {
+        gx::draw_solid_rect(32.0, 32.0, 48.0, 24.0, 0.0, red).is_ok() && gx::finish_frame_and_wait()
+    };
+    logger.record(
+        "GX solid rectangle writes inside pixels and preserves outside",
+        first && colors_match(red, red, black),
+    );
+    if !first {
+        return;
+    }
+
+    let blocked = unsafe {
+        gx::set_color_update(0);
+        gx::draw_solid_rect(32.0, 32.0, 48.0, 24.0, 0.0, blue).is_ok()
+            && gx::finish_frame_and_wait()
+    };
+    logger.record(
+        "GX disabled color update preserves rendered pixels",
+        blocked && colors_match(red, red, black),
+    );
+    if !blocked {
+        return;
+    }
+
+    let unblended = unsafe {
+        gx::set_color_update(1);
+        gx::draw_solid_rect(32.0, 32.0, 48.0, 24.0, 0.0, gx::GxColor { a: 0, ..green }).is_ok()
+            && gx::finish_frame_and_wait()
+    };
+    logger.record(
+        "GX disabled blending writes transparent source color",
+        unblended && colors_match(green, green, black),
+    );
+    if !unblended {
+        return;
+    }
+
+    let transparent = unsafe {
+        gx::set_blend_mode(
+            gx::GX_BM_BLEND,
+            gx::GX_BL_SRCALPHA,
+            gx::GX_BL_INVSRCALPHA,
+            gx::GX_LO_CLEAR,
+        );
+        gx::draw_solid_rect(32.0, 32.0, 48.0, 24.0, 0.0, gx::GxColor { a: 0, ..red }).is_ok()
+            && gx::finish_frame_and_wait()
+    };
+    logger.record(
+        "GX zero-alpha blend preserves destination pixels",
+        transparent && colors_match(green, green, black),
+    );
+    if !transparent {
+        return;
+    }
+
+    let reset_red = unsafe {
+        gx::draw_solid_rect(32.0, 32.0, 48.0, 24.0, 0.0, red).is_ok() && gx::finish_frame_and_wait()
+    };
+    logger.record(
+        "GX opaque blend replaces destination pixels",
+        reset_red && colors_match(red, red, black),
+    );
+    if !reset_red {
+        return;
+    }
+
+    let clipped = unsafe {
+        gx::set_scissor(32, 32, 16, 24);
+        gx::draw_solid_rect(32.0, 32.0, 48.0, 24.0, 0.0, green).is_ok()
+            && gx::finish_frame_and_wait()
+    };
+    logger.record(
+        "GX scissor clips opaque blended rectangle",
+        clipped && colors_match(green, red, black),
+    );
+
+    // SAFETY: Restore full-screen scissor and the initialized depth setting.
+    let restored = unsafe {
+        gx::set_scissor(0, 0, u32::from(width), u32::from(height));
+        gx::set_z_mode(1, gx::GX_LEQUAL, 1);
+        gx::finish_frame_and_wait()
+    };
+    logger.record("GX rectangle test state restoration completes", restored);
 }
 
 fn probe_display_lists(logger: &mut ProbeLogger) {

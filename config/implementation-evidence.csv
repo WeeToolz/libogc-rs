@@ -1,4 +1,8 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,configure_solid_2d,2697,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_solid_rect_render,gx::configure_solid_2d
+ogc-gx,src/lib.rs,draw_solid_rect,2807,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_solid_rect_render,gx::draw_solid_rect
+ogc-gx,src/lib.rs,set_color_update,6635,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_solid_rect_render,gx::set_color_update
+ogc-gx,src/lib.rs,set_blend_mode,6436,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_solid_rect_render,gx::set_blend_mode
 ogc-gx,src/lib.rs,poke_alpha_mode,7506,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_efb_pe_registers,gx::poke_alpha_mode
 ogc-gx,src/lib.rs,poke_dst_alpha,7516,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_efb_pe_registers,gx::poke_dst_alpha
 ogc-gx,src/lib.rs,poke_color_update,7527,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_efb_pe_registers,gx::poke_color_update

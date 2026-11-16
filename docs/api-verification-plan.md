@@ -39,6 +39,11 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [solid-render batch](dolphin-runs/2026-11-16-gx-solid-render/README.md)
+adds rendered EFB pixel checks for solid setup, rectangle drawing, color
+updates, blending, and scissor clipping. Metal passes 260 checks. Other
+formats, blend factors, display-copy output, and physical Wii remain open.
+
 The [pixel-engine register batch](dolphin-runs/2026-11-16-gx-pe-registers/README.md)
 adds eighteen readback and restoration checks for seven GX APIs. Metal
 passes 250 checks. Register behavior is checked; effects on pixels and
