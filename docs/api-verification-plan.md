@@ -39,6 +39,12 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [2026-11-15 color and index batch](dolphin-runs/2026-11-15-gx-colors-indices/README.md)
+adds 28 capture checks for fourteen color and vertex-index APIs. Metal passes
+155 checks. Fixed bytes cover channel order, packed colors, normalized float
+conversion, and index widths. Indexed array reads and rendered colors remain
+open.
+
 The [2026-11-15 signed vertex batch](dolphin-runs/2026-11-15-gx-signed-vertices/README.md)
 fixes ten signed writers that bypassed display-list capture. The same probe
 reports 107 passes and ten failures before the fix, then 127 passes and no

@@ -864,6 +864,9 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_signed_position_commands(logger);
     probe_signed_normal_commands(logger);
     probe_signed_texture_commands(logger);
+    probe_vertex_color_commands(logger);
+    probe_vertex_indices_8(logger);
+    probe_vertex_indices_16(logger);
 }
 
 fn check_gx_command_bytes(expected: &[u8], emit: impl FnOnce()) -> bool {
@@ -1287,6 +1290,112 @@ fn probe_signed_texture_commands(logger: &mut ProbeLogger) {
         || unsafe { gx::tex_coord1s8(0) },
         || unsafe { gx::tex_coord1s8(-1) },
     );
+}
+
+fn probe_vertex_color_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX vertex color capture bytes");
+    // SAFETY: Each writer runs in the probe-owned display-list capture.
+    for bytes in [[0x12, 0x34, 0x56, 0x78], [0xff, 0, 0x80, 1]] {
+        logger.record(
+            "GX color4u8 captures exact RGBA channel order",
+            check_gx_command_bytes(&bytes, || unsafe {
+                gx::color4u8(bytes[0], bytes[1], bytes[2], bytes[3]);
+            }),
+        );
+    }
+    for bytes in [[0x12, 0x34, 0x56], [0xff, 0, 0x80]] {
+        logger.record(
+            "GX color3u8 captures exactly three RGB bytes",
+            check_gx_command_bytes(&bytes, || unsafe {
+                gx::color3u8(bytes[0], bytes[1], bytes[2]);
+            }),
+        );
+    }
+    // In-range conversion multiplies by 255 and truncates toward zero.
+    // Fixed expectations are 127/63/191 and 255/0/31.
+    for (input, expected) in [
+        ([0.5, 0.25, 0.75], [0x7f, 0x3f, 0xbf]),
+        ([1.0, 0.0, 0.125], [0xff, 0, 0x1f]),
+    ] {
+        logger.record(
+            "GX color3f32 captures fixed normalized conversion bytes",
+            check_gx_command_bytes(&expected, || unsafe {
+                gx::color3f32(input[0], input[1], input[2]);
+            }),
+        );
+    }
+    for (input, expected) in [
+        (0x1234_5678, [0x12, 0x34, 0x56, 0x78]),
+        (0xff00_8001, [0xff, 0, 0x80, 1]),
+    ] {
+        logger.record(
+            "GX color1u32 captures exact big-endian packed color",
+            check_gx_command_bytes(&expected, || unsafe { gx::color1u32(input) }),
+        );
+    }
+    for (input, expected) in [(0x1234, [0x12, 0x34]), (0x80ff, [0x80, 0xff])] {
+        logger.record(
+            "GX color1u16 captures exactly two packed bytes",
+            check_gx_command_bytes(&expected, || unsafe { gx::color1u16(input) }),
+        );
+    }
+}
+
+fn probe_vertex_indices_8(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX eight-bit vertex index capture");
+    // SAFETY: These writers run only inside capture; no array read is submitted.
+    let writers: [(&str, fn(u8)); 5] = [
+        ("GX position1x8 exact index bytes", |index| unsafe {
+            gx::position1x8(index)
+        }),
+        ("GX normal1x8 exact index bytes", |index| unsafe {
+            gx::normal1x8(index)
+        }),
+        ("GX color1x8 exact index bytes", |index| unsafe {
+            gx::color1x8(index)
+        }),
+        ("GX tex_coord1x8 exact index bytes", |index| unsafe {
+            gx::tex_coord1x8(index)
+        }),
+        ("GX matrix_index1x8 exact index bytes", |index| unsafe {
+            gx::matrix_index1x8(index)
+        }),
+    ];
+    for (label, write) in writers {
+        for index in [0x12, 0xff] {
+            logger.record(label, check_gx_command_bytes(&[index], || write(index)));
+        }
+    }
+}
+
+fn probe_vertex_indices_16(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX sixteen-bit vertex index capture");
+    // SAFETY: These writers run only inside capture; no array read is submitted.
+    let writers: [(&str, fn(u16)); 4] = [
+        ("GX position1x16 exact big-endian index", |index| unsafe {
+            gx::position1x16(index)
+        }),
+        ("GX normal1x16 exact big-endian index", |index| unsafe {
+            gx::normal1x16(index)
+        }),
+        ("GX color1x16 exact big-endian index", |index| unsafe {
+            gx::color1x16(index)
+        }),
+        ("GX tex_coord1x16 exact big-endian index", |index| unsafe {
+            gx::tex_coord1x16(index)
+        }),
+    ];
+    for (label, write) in writers {
+        for (index, expected) in [(0x1234, [0x12, 0x34]), (0xffff, [0xff, 0xff])] {
+            logger.record(label, check_gx_command_bytes(&expected, || write(index)));
+        }
+    }
 }
 
 fn probe_display_lists(logger: &mut ProbeLogger) {

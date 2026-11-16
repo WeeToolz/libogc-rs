@@ -1471,3 +1471,16 @@ padding, guards, and an unchanged GPU token. The failed and final runs are
 retained. Rendered signed geometry and physical Wii behavior remain open.
 See the [signed vertex report](docs/dolphin-runs/2026-11-15-gx-signed-vertices/README.md)
 for commands, identities, logs, screenshots, and limits.
+
+## 2026-11-15: GX color and vertex-index API validation
+
+The Metal Dolphin 2609a `video_probe` passed 155 checks with zero failures
+and twelve valid captured pages. Twenty-eight new checks call fourteen
+color and vertex-index APIs. Fixed bytes verify channel order, packed color
+width/order, normalized float conversion, and 8-/16-bit index values. The
+shared capture check also verifies padding, guards, and an unchanged GPU
+token. Both the initial function-pointer probe and final explicit-call probe
+passed. No production or runner code changed. These results cover capture
+and encoding; indexed array reads, rendered colors, and physical Wii behavior
+remain open. See the [color and index report](docs/dolphin-runs/2026-11-15-gx-colors-indices/README.md)
+for commands, source and DOL identities, logs, screenshots, and limits.
