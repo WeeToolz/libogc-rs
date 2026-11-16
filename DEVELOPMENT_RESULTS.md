@@ -1554,3 +1554,14 @@ points. The final run checks both zero and nonzero masks, restores test state,
 and passes. The failed and passing runs remain saved. Rendered effects and
 physical Wii behavior remain open. See the [field-mode report](docs/dolphin-runs/2026-11-15-gx-line-point-field/README.md)
 for commands, hashes, logs, and limits.
+
+## 2026-11-16: GX pixel-engine register readback
+
+Dolphin 2609a on Metal passed 250 checks with zero failures. Eighteen new
+checks call seven PE configuration APIs and read back their registers. They
+cover alpha mode and destination alpha, color/alpha updates, dithering,
+blend/logic/subtract fields, the C `GX_PokeZMode` update-bit behavior, and
+restoration of all four saved registers. No production GX code changed.
+Effects on rendered pixels and physical Wii behavior remain open. See the
+[pixel-engine report](docs/dolphin-runs/2026-11-16-gx-pe-registers/README.md)
+for commands, hashes, logs, screenshots, and limits.

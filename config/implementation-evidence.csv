@@ -1,4 +1,11 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,poke_alpha_mode,7506,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_efb_pe_registers,gx::poke_alpha_mode
+ogc-gx,src/lib.rs,poke_dst_alpha,7516,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_efb_pe_registers,gx::poke_dst_alpha
+ogc-gx,src/lib.rs,poke_color_update,7527,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_efb_pe_registers,gx::poke_color_update
+ogc-gx,src/lib.rs,poke_alpha_update,7520,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_efb_pe_registers,gx::poke_alpha_update
+ogc-gx,src/lib.rs,poke_dither,7534,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_efb_pe_registers,gx::poke_dither
+ogc-gx,src/lib.rs,poke_blend_mode,7541,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_efb_pe_registers,gx::poke_blend_mode
+ogc-gx,src/lib.rs,poke_z_mode,7591,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_efb_pe_registers,gx::poke_z_mode
 ogc-gx,src/lib.rs,set_line_width,6414,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_line_point_field_commands,gx::set_line_width
 ogc-gx,src/lib.rs,set_point_size,6425,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_line_point_field_commands,gx::set_point_size
 ogc-gx,src/lib.rs,set_field_mode,3881,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_line_point_field_commands,gx::set_field_mode

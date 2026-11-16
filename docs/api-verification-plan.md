@@ -39,6 +39,11 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [pixel-engine register batch](dolphin-runs/2026-11-16-gx-pe-registers/README.md)
+adds eighteen readback and restoration checks for seven GX APIs. Metal
+passes 250 checks. Register behavior is checked; effects on pixels and
+physical Wii behavior remain open.
+
 The [line, point, and field batch](dolphin-runs/2026-11-15-gx-line-point-field/README.md)
 adds command checks for three APIs and fixes `set_field_mode` to write the
 current texture mask. Metal passes 232 checks, including zero and nonzero

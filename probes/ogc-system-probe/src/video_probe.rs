@@ -848,6 +848,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
         }),
     );
     probe_efb_access(logger);
+    probe_efb_pe_registers(logger);
     probe_display_lists(logger);
     probe_viewport_commands(logger);
     probe_viewport_jitter_commands(logger);
@@ -2376,6 +2377,133 @@ fn probe_efb_access(logger: &mut ProbeLogger) {
             },
     );
     gx::poke_alpha_read(gx::GX_READ_FF);
+}
+
+fn pe_test_register(index: usize) -> *mut u16 {
+    // The Wii pixel-engine MMIO block has 16-bit registers at 0xcc001000.
+    (0xcc00_1000usize + index * 2) as *mut u16
+}
+
+fn pe_test_read(index: usize) -> u16 {
+    // SAFETY: Callers use only the four pixel-engine configuration registers.
+    unsafe { core::ptr::read_volatile(pe_test_register(index)) }
+}
+
+fn record_pe_register(logger: &mut ProbeLogger, label: &str, index: usize, expected: u16) {
+    let actual = pe_test_read(index);
+    logger.note_hex32("GX PE register actual", u32::from(actual));
+    logger.note_hex32("GX PE register expected", u32::from(expected));
+    logger.record(label, actual == expected);
+}
+
+fn probe_efb_pe_registers(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX pixel engine configuration register readback");
+    // Save the exact register state so the existing EFB and later checks keep
+    // their original settings. The probe exclusively owns GX during this run.
+    let saved = [
+        pe_test_read(0),
+        pe_test_read(1),
+        pe_test_read(2),
+        pe_test_read(3),
+    ];
+
+    gx::poke_alpha_mode(3, 0xa5);
+    record_pe_register(
+        logger,
+        "GX alpha mode stores function and threshold",
+        3,
+        0x03a5,
+    );
+    gx::poke_alpha_mode(0xff, 0x12);
+    record_pe_register(logger, "GX alpha mode replaces both bytes", 3, 0xff12);
+
+    gx::poke_dst_alpha(2, 0x48);
+    record_pe_register(
+        logger,
+        "GX destination alpha masks disabled enable bit",
+        2,
+        0x0048,
+    );
+    gx::poke_dst_alpha(0xff, 0xa5);
+    record_pe_register(
+        logger,
+        "GX destination alpha stores enabled value",
+        2,
+        0x01a5,
+    );
+
+    for enabled in [0, 1] {
+        let before = pe_test_read(1);
+        gx::poke_color_update(enabled);
+        let expected = (before & !0x0008) | if enabled == 0 { 0 } else { 0x0008 };
+        record_pe_register(logger, "GX color update changes only its bit", 1, expected);
+    }
+    for enabled in [0, 1] {
+        let before = pe_test_read(1);
+        gx::poke_alpha_update(enabled);
+        let expected = (before & !0x0010) | if enabled == 0 { 0 } else { 0x0010 };
+        record_pe_register(logger, "GX alpha update changes only its bit", 1, expected);
+    }
+    for enabled in [0, 1] {
+        let before = pe_test_read(1);
+        gx::poke_dither(enabled);
+        let expected = (before & !0x0004) | if enabled == 0 { 0 } else { 0x0004 };
+        record_pe_register(logger, "GX dither changes only its bit", 1, expected);
+    }
+
+    // Clear the three preserved update bits and all blend fields. This makes
+    // the following complete expected register words independent of startup.
+    gx::poke_alpha_update(0);
+    gx::poke_color_update(0);
+    gx::poke_dither(0);
+    gx::poke_blend_mode(gx::GX_BM_NONE, 0, 0, 0);
+    record_pe_register(logger, "GX blend mode baseline is zero", 1, 0);
+    gx::poke_blend_mode(gx::GX_BM_BLEND, 4, 5, 6);
+    record_pe_register(
+        logger,
+        "GX blend mode encodes factors and logic field",
+        1,
+        0x64a1,
+    );
+    gx::poke_blend_mode(gx::GX_BM_LOGIC, 1, 7, 3);
+    record_pe_register(
+        logger,
+        "GX logic mode replaces prior blend fields",
+        1,
+        0x31e2,
+    );
+    gx::poke_blend_mode(gx::GX_BM_SUBTRACT, 7, 0, 15);
+    record_pe_register(
+        logger,
+        "GX subtract mode sets subtract and blend bits",
+        1,
+        0xff01,
+    );
+
+    // The C reference has a final assignment that leaves only update bit 4.
+    gx::poke_z_mode(0, 0, 0);
+    record_pe_register(logger, "GX poke Z mode clears update", 0, 0);
+    gx::poke_z_mode(1, 7, 1);
+    record_pe_register(
+        logger,
+        "GX poke Z mode follows C update-bit behavior",
+        0,
+        0x0010,
+    );
+    gx::poke_z_mode(1, 3, 0);
+    record_pe_register(logger, "GX poke Z mode clears prior update bit", 0, 0);
+
+    // SAFETY: These are the same writable configuration registers saved above;
+    // no GPU work is submitted between the snapshot and restoration.
+    for (index, value) in saved.into_iter().enumerate() {
+        unsafe { core::ptr::write_volatile(pe_test_register(index), value) };
+    }
+    logger.record(
+        "GX pixel engine configuration registers restore",
+        (0..saved.len()).all(|index| pe_test_read(index) == saved[index]),
+    );
 }
 
 fn probe_fifo_pointers(logger: &mut ProbeLogger) {
