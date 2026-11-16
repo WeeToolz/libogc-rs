@@ -870,6 +870,13 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_float_vertex_commands(logger);
     probe_unsigned_position_commands(logger);
     probe_unsigned_texture_commands(logger);
+    probe_tev_color_commands(logger);
+    probe_tev_signed_color_commands(logger);
+    probe_tev_k_color_commands(logger);
+    probe_tev_k_signed_color_commands(logger);
+    probe_alpha_compare_commands(logger);
+    probe_fog_color_commands(logger);
+    probe_clip_mode_commands(logger);
 }
 
 fn check_gx_command_bytes(expected: &[u8], emit: impl FnOnce()) -> bool {
@@ -1545,6 +1552,237 @@ fn probe_unsigned_texture_commands(logger: &mut ProbeLogger) {
         logger.record(
             "GX tex_coord1u8 exact unsigned single byte",
             check_gx_command_bytes(&[input], || unsafe { gx::tex_coord1u8(input) }),
+        );
+    }
+}
+
+fn check_gx_bp_words(words: &[u32], emit: impl FnOnce()) -> bool {
+    let mut expected = [0; 20];
+    if words.len() > 4 {
+        return false;
+    }
+    let size = words.len() * 5;
+    for (bytes, word) in expected[..size].chunks_exact_mut(5).zip(words) {
+        bytes[0] = 0x61;
+        bytes[1..].copy_from_slice(&word.to_be_bytes());
+    }
+    check_gx_command_bytes(&expected[..size], emit)
+}
+
+fn probe_tev_color_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX TEV color register command bytes");
+    for (id, color, words) in [
+        (
+            0,
+            gx::GxColor {
+                r: 0x12,
+                g: 0x34,
+                b: 0x56,
+                a: 0x78,
+            },
+            [0xe007_8012, 0xe103_4056, 0xe103_4056, 0xe103_4056],
+        ),
+        (
+            3,
+            gx::GxColor {
+                r: 0xff,
+                g: 0,
+                b: 0x80,
+                a: 1,
+            },
+            [0xe600_10ff, 0xe700_0080, 0xe700_0080, 0xe700_0080],
+        ),
+    ] {
+        logger.record(
+            "GX TEV color encodes RA BG slots and three BG writes",
+            check_gx_bp_words(&words, || unsafe {
+                // SAFETY: This probe owns GX and captures the commands.
+                gx::set_tev_color(id, color);
+            }),
+        );
+    }
+}
+
+fn probe_tev_signed_color_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX signed TEV color register bytes");
+    for (id, color, words) in [
+        (
+            0,
+            gx::GxColorS10 {
+                r: -1024,
+                g: 1023,
+                b: -1,
+                a: -17,
+            },
+            [0xe07e_f400, 0xe13f_f7ff, 0xe13f_f7ff, 0xe13f_f7ff],
+        ),
+        (
+            3,
+            gx::GxColorS10 {
+                r: 1023,
+                g: -1024,
+                b: -17,
+                a: -1,
+            },
+            [0xe67f_f3ff, 0xe740_07ef, 0xe740_07ef, 0xe740_07ef],
+        ),
+    ] {
+        logger.record(
+            "GX signed TEV color preserves exact eleven-bit fields",
+            check_gx_bp_words(&words, || unsafe {
+                // SAFETY: This probe owns GX and captures the commands.
+                gx::set_tev_color_s10(id, color);
+            }),
+        );
+    }
+}
+
+fn probe_tev_k_color_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX constant TEV color register bytes");
+    for (id, color, words) in [
+        (
+            0,
+            gx::GxColor {
+                r: 0x12,
+                g: 0x34,
+                b: 0x56,
+                a: 0x78,
+            },
+            [0xe087_8012, 0xe183_4056, 0xe183_4056, 0xe183_4056],
+        ),
+        (
+            3,
+            gx::GxColor {
+                r: 0xff,
+                g: 0,
+                b: 0x80,
+                a: 1,
+            },
+            [0xe680_10ff, 0xe780_0080, 0xe780_0080, 0xe780_0080],
+        ),
+    ] {
+        logger.record(
+            "GX constant TEV color sets bank bit and exact channel fields",
+            check_gx_bp_words(&words, || unsafe {
+                // SAFETY: This probe owns GX and captures the commands.
+                gx::set_tev_k_color(id, color);
+            }),
+        );
+    }
+}
+
+fn probe_tev_k_signed_color_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX signed constant TEV color register bytes");
+    for (id, color, words) in [
+        (
+            0,
+            gx::GxColorS10 {
+                r: -1024,
+                g: 1023,
+                b: -1,
+                a: -17,
+            },
+            [0xe0fe_f400, 0xe1bf_f7ff, 0xe1bf_f7ff, 0xe1bf_f7ff],
+        ),
+        (
+            3,
+            gx::GxColorS10 {
+                r: 1023,
+                g: -1024,
+                b: -17,
+                a: -1,
+            },
+            [0xe6ff_f3ff, 0xe7c0_07ef, 0xe7c0_07ef, 0xe7c0_07ef],
+        ),
+    ] {
+        logger.record(
+            "GX signed constant TEV color encodes bank and signed fields",
+            check_gx_bp_words(&words, || unsafe {
+                // SAFETY: This probe owns GX and captures the commands.
+                gx::set_tev_k_color_s10(id, color);
+            }),
+        );
+    }
+}
+
+fn probe_alpha_compare_commands(logger: &mut ProbeLogger) {
+    logger.report_step("GX alpha comparison command bytes");
+    for ((comp0, ref0, operation, comp1, ref1), word) in [
+        ((1, 0x12, 2, 6, 0xab), 0xf3b1_ab12),
+        ((7, 0xff, 3, 0, 0), 0xf3c7_00ff),
+    ] {
+        logger.record(
+            "GX alpha comparison encodes both references and operations",
+            check_gx_bp_words(&[word], || unsafe {
+                // SAFETY: This probe owns GX and captures the commands.
+                ogc_gx::set_alpha_compare(comp0, ref0, operation, comp1, ref1);
+            }),
+        );
+    }
+}
+
+fn probe_fog_color_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX fog color command bytes");
+    for (color, word) in [
+        (
+            gx::GxColor {
+                r: 0x12,
+                g: 0x34,
+                b: 0x56,
+                a: 0,
+            },
+            0xf212_3456,
+        ),
+        (
+            gx::GxColor {
+                r: 0x12,
+                g: 0x34,
+                b: 0x56,
+                a: 0xff,
+            },
+            0xf212_3456,
+        ),
+        (
+            gx::GxColor {
+                r: 0xff,
+                g: 0,
+                b: 0x80,
+                a: 1,
+            },
+            0xf2ff_0080,
+        ),
+    ] {
+        logger.record(
+            "GX fog color encodes RGB and ignores alpha",
+            check_gx_bp_words(&[word], || unsafe {
+                // SAFETY: This probe owns GX and captures the commands.
+                gx::set_fog_color(color);
+            }),
+        );
+    }
+}
+
+fn probe_clip_mode_commands(logger: &mut ProbeLogger) {
+    logger.report_step("GX clip mode command bytes");
+    for mode in [0, 1] {
+        // One XF register at address 0x1005; the final word is the mode.
+        let expected = [0x10, 0, 0, 0x10, 5, 0, 0, 0, mode];
+        logger.record(
+            "GX clip mode emits exact XF enable and disable values",
+            check_gx_command_bytes(&expected, || unsafe {
+                // SAFETY: This probe owns GX and captures the commands.
+                ogc_gx::set_clip_mode(mode);
+            }),
         );
     }
 }

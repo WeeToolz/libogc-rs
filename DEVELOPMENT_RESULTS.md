@@ -1496,3 +1496,16 @@ and an unchanged GPU token. No production or runner code changed. These
 results cover capture and encoding; rendered geometry and physical Wii
 behavior remain open. See the [float and unsigned vertex report](docs/dolphin-runs/2026-11-15-gx-float-unsigned-vertices/README.md)
 for commands, source and DOL identities, logs, screenshots, and limits.
+
+## 2026-11-15: GX TEV color, alpha, fog, and clip commands
+
+The Metal Dolphin 2609a `video_probe` passed 196 checks with zero failures
+and fifteen valid captured pages. Fifteen new checks call seven production
+APIs: the four TEV color setters, `set_alpha_compare`, `set_fog_color`, and
+`set_clip_mode`. Fixed command words check register IDs, signed eleven-bit
+fields, constant-color bank selection, three repeated BG writes, alpha
+comparison fields, RGB-only fog color, and XF clip values. The shared capture
+check verifies padding, guards, and an unchanged GPU token. No production or
+runner code changed. Rendered TEV/alpha/fog/clip effects and physical Wii
+behavior remain open. See the [TEV command report](docs/dolphin-runs/2026-11-15-gx-tev-colors/README.md)
+for commands, identities, logs, screenshots, and limits.

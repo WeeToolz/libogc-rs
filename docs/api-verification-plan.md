@@ -39,6 +39,12 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [2026-11-15 TEV color batch](dolphin-runs/2026-11-15-gx-tev-colors/README.md)
+adds fifteen command checks for seven TEV color, alpha comparison, fog color,
+and clip-mode APIs. Metal passes 196 checks. Fixed words cover signed color
+fields, constant-color bank selection, repeated writes, references, and clip
+values. Rendered effects and physical Wii behavior remain open.
+
 The [2026-11-15 float and unsigned vertex batch](dolphin-runs/2026-11-15-gx-float-unsigned-vertices/README.md)
 adds 26 capture checks for thirteen position, normal, and texture-coordinate
 APIs. Metal passes 181 checks. Fixed bytes cover float bit patterns, negative

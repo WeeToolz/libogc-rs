@@ -1,4 +1,11 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,set_tev_color,6232,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tev_color_commands,gx::set_tev_color
+ogc-gx,src/lib.rs,set_tev_color_s10,6246,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tev_signed_color_commands,gx::set_tev_color_s10
+ogc-gx,src/lib.rs,set_tev_k_color,6262,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tev_k_color_commands,gx::set_tev_k_color
+ogc-gx,src/lib.rs,set_tev_k_color_s10,6280,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tev_k_signed_color_commands,gx::set_tev_k_color_s10
+ogc-gx,src/lib.rs,set_alpha_compare,6507,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_alpha_compare_commands,ogc_gx::set_alpha_compare
+ogc-gx,src/lib.rs,set_fog_color,6629,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_fog_color_commands,gx::set_fog_color
+ogc-gx,src/lib.rs,set_clip_mode,6500,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_clip_mode_commands,ogc_gx::set_clip_mode
 ogc-gx,src/lib.rs,position3f32,5035,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_float_vertex_commands,gx::position3f32
 ogc-gx,src/lib.rs,position2f32,5080,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_float_vertex_commands,gx::position2f32
 ogc-gx,src/lib.rs,normal3f32,5134,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_float_vertex_commands,gx::normal3f32
