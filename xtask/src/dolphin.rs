@@ -1329,6 +1329,9 @@ fn dolphin_arguments(
         // EFB reads return zero when CPU access is disabled in Dolphin.
         "-C".to_string(),
         "Graphics.Hacks.EFBAccessEnable=True".to_string(),
+        // Texture-copy probes compare the copied bytes in emulated RAM.
+        "-C".to_string(),
+        "Graphics.Hacks.EFBToTextureEnable=False".to_string(),
         "-C".to_string(),
         "Dolphin.Analytics.PermissionAsked=True".to_string(),
         "-C".to_string(),
@@ -2719,6 +2722,21 @@ mod tests {
                 pair[0] == "-C" && pair[1] == "Graphics.Hacks.EFBAccessEnable=True"
             })
         );
+    }
+
+    #[test]
+    fn dolphin_args_enable_efb_copy_to_ram_for_texture_probes() {
+        let args = dolphin_arguments(
+            Path::new("profile"),
+            Path::new("video_probe.dol"),
+            1234,
+            None,
+            true,
+            None,
+        );
+        assert!(args.windows(2).any(|pair| {
+            pair[0] == "-C" && pair[1] == "Graphics.Hacks.EFBToTextureEnable=False"
+        }));
     }
 
     #[test]

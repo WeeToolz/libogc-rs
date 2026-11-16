@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [GX completion batch](dolphin-runs/2026-11-16-gx-completion/README.md)
+checks finish and token callbacks and completed-event waits. Metal passes 281
+checks. Pending-event sleep and physical Wii remain open.
+
 The [EFB texture copy batch](dolphin-runs/2026-11-16-gx-texture-copy-ram/README.md)
 checks copied RGBA8 bytes and rendered pixels. Metal with copies to RAM enabled
 passes 277 checks; the default-mode byte check failed and remains recorded.

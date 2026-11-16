@@ -1,5 +1,13 @@
 # Development results
 
+## 2026-11-16: GX completion callbacks
+
+Dolphin 2609a with Metal passed 281 checks with zero failures. The new
+probe checks finish and token callbacks and completed-event waits. The runner
+now enables EFB copies to RAM; the earlier texture-copy byte check passes with
+the standard wrapper. See the [report](docs/dolphin-runs/2026-11-16-gx-completion/README.md)
+for evidence and limits. Physical Wii remains untested.
+
 ## 2026-11-16: GX EFB texture copy
 
 Dolphin 2609a with Metal and EFB copies to RAM enabled passed 277 checks.

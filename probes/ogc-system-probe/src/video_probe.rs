@@ -12,6 +12,18 @@ use crate::probe_support::ProbeLogger;
 static PRE_COUNT: AtomicU32 = AtomicU32::new(0);
 static POST_COUNT: AtomicU32 = AtomicU32::new(0);
 static CALLBACK_PHASE: AtomicU32 = AtomicU32::new(0);
+static GX_DONE_COUNT: AtomicU32 = AtomicU32::new(0);
+static GX_TOKEN_COUNT: AtomicU32 = AtomicU32::new(0);
+static GX_LAST_TOKEN: AtomicU32 = AtomicU32::new(0);
+
+unsafe extern "C" fn probe_gx_done_callback() {
+    GX_DONE_COUNT.fetch_add(1, Ordering::Release);
+}
+
+unsafe extern "C" fn probe_gx_token_callback(token: u16) {
+    GX_LAST_TOKEN.store(u32::from(token), Ordering::Relaxed);
+    GX_TOKEN_COUNT.fetch_add(1, Ordering::Release);
+}
 static PREVIOUS_PRE_CALLBACK: AtomicUsize = AtomicUsize::new(0);
 static PREVIOUS_POST_CALLBACK: AtomicUsize = AtomicUsize::new(0);
 
@@ -890,9 +902,69 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_texture_cache_commands(logger);
     probe_line_point_field_commands(logger);
     probe_vertex_descriptors(logger);
+    probe_gx_completion_callbacks(logger);
     probe_solid_rect_render(logger, width, height);
     probe_textured_rect_render(logger, width, height);
     probe_texture_copy_render(logger, width, height);
+}
+
+fn probe_gx_completion_callbacks(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX completion and token callbacks");
+    GX_DONE_COUNT.store(0, Ordering::Relaxed);
+    GX_TOKEN_COUNT.store(0, Ordering::Relaxed);
+    GX_LAST_TOKEN.store(0, Ordering::Relaxed);
+    let old_done = gx::set_draw_done_callback(Some(probe_gx_done_callback));
+    let old_token = gx::set_draw_sync_callback(Some(probe_gx_token_callback));
+    gx::set_draw_sync(0x5a39);
+    // SAFETY: GX is initialized and this probe owns its FIFO and callbacks.
+    let completed = unsafe { gx::finish_frame_and_wait() };
+    logger.record(
+        "GX token and finish interrupts invoke callbacks",
+        completed
+            && GX_DONE_COUNT.load(Ordering::Acquire) == 1
+            && GX_TOKEN_COUNT.load(Ordering::Acquire) == 1
+            && GX_LAST_TOKEN.load(Ordering::Relaxed) == 0x5a39,
+    );
+    if completed {
+        gx::set_draw_done();
+        for _ in 0..10 {
+            if GX_DONE_COUNT.load(Ordering::Acquire) >= 2 {
+                break;
+            }
+            if !video::wait_vsync_timeout_us(RETRACE_WAIT_TIMEOUT_US) {
+                break;
+            }
+        }
+        let notified = GX_DONE_COUNT.load(Ordering::Acquire) == 2;
+        if notified {
+            gx::wait_draw_done();
+        }
+        logger.record("GX queued draw done signals before wait", notified);
+        if notified {
+            gx::draw_done();
+            logger.record(
+                "GX draw done waits for next finish callback",
+                GX_DONE_COUNT.load(Ordering::Acquire) == 3,
+            );
+        } else {
+            logger.record("GX draw done waits for next finish callback", false);
+        }
+    } else {
+        logger.record("GX queued draw done signals before wait", false);
+        logger.record("GX draw done waits for next finish callback", false);
+    }
+    let replaced_done = gx::set_draw_done_callback(old_done);
+    let replaced_token = gx::set_draw_sync_callback(old_token);
+    logger.record(
+        "GX callback setters return replaced handlers",
+        replaced_done.is_some_and(|f| {
+            core::ptr::fn_addr_eq(f, probe_gx_done_callback as unsafe extern "C" fn())
+        }) && replaced_token.is_some_and(|f| {
+            core::ptr::fn_addr_eq(f, probe_gx_token_callback as unsafe extern "C" fn(u16))
+        }),
+    );
 }
 
 fn probe_vertex_descriptors(logger: &mut ProbeLogger) {

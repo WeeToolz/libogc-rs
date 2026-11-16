@@ -1,4 +1,10 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,finish_frame_and_wait,3981,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_completion_callbacks,gx::finish_frame_and_wait
+ogc-gx,src/lib.rs,draw_done,3958,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_completion_callbacks,gx::draw_done
+ogc-gx,src/lib.rs,wait_draw_done,3942,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_completion_callbacks,gx::wait_draw_done
+ogc-gx,src/lib.rs,set_draw_done,3936,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_completion_callbacks,gx::set_draw_done
+ogc-gx,src/lib.rs,set_draw_sync_callback,1839,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_completion_callbacks,gx::set_draw_sync_callback
+ogc-gx,src/lib.rs,set_draw_done_callback,1834,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_completion_callbacks,gx::set_draw_done_callback
 ogc-gx,src/lib.rs,copy_tex,3849,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_copy_render,gx::copy_tex
 ogc-gx,src/lib.rs,set_tex_copy_dst,3756,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_copy_render,gx::set_tex_copy_dst
 ogc-gx,src/lib.rs,set_tex_copy_src,3746,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_copy_render,gx::set_tex_copy_src
