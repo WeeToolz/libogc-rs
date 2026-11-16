@@ -1,4 +1,9 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,set_copy_clear,3625,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_copy_clear_commands,gx::set_copy_clear
+ogc-gx,src/lib.rs,set_copy_filter,3662,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_copy_filter_commands,gx::set_copy_filter
+ogc-gx,src/lib.rs,set_field_mask,3872,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_field_mask_commands,ogc_gx::set_field_mask
+ogc-gx,src/lib.rs,clear_bounding_box,3865,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_bounding_box_commands,ogc_gx::clear_bounding_box
+ogc-gx,src/lib.rs,set_z_texture,6216,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_z_texture_commands,gx::set_z_texture
 ogc-gx,src/lib.rs,set_tev_color,6232,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tev_color_commands,gx::set_tev_color
 ogc-gx,src/lib.rs,set_tev_color_s10,6246,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tev_signed_color_commands,gx::set_tev_color_s10
 ogc-gx,src/lib.rs,set_tev_k_color,6262,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tev_k_color_commands,gx::set_tev_k_color

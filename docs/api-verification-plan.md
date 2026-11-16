@@ -39,6 +39,12 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [2026-11-15 copy and depth command batch](dolphin-runs/2026-11-15-gx-copy-depth/README.md)
+adds seventeen checks for five copy-clear, copy-filter, field-mask,
+bounding-box reset, and Z-texture APIs. Metal passes 213 checks. Fixed words
+cover packing, masks, defaults, and null-table rejection. Rendered effects
+and physical Wii behavior remain open.
+
 The [2026-11-15 TEV color batch](dolphin-runs/2026-11-15-gx-tev-colors/README.md)
 adds fifteen command checks for seven TEV color, alpha comparison, fog color,
 and clip-mode APIs. Metal passes 196 checks. Fixed words cover signed color

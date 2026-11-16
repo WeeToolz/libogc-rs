@@ -877,6 +877,11 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_alpha_compare_commands(logger);
     probe_fog_color_commands(logger);
     probe_clip_mode_commands(logger);
+    probe_copy_clear_commands(logger);
+    probe_copy_filter_commands(logger);
+    probe_field_mask_commands(logger);
+    probe_bounding_box_commands(logger);
+    probe_z_texture_commands(logger);
 }
 
 fn check_gx_command_bytes(expected: &[u8], emit: impl FnOnce()) -> bool {
@@ -1557,8 +1562,8 @@ fn probe_unsigned_texture_commands(logger: &mut ProbeLogger) {
 }
 
 fn check_gx_bp_words(words: &[u32], emit: impl FnOnce()) -> bool {
-    let mut expected = [0; 20];
-    if words.len() > 4 {
+    let mut expected = [0; 30];
+    if words.len() > expected.len() / 5 {
         return false;
     }
     let size = words.len() * 5;
@@ -1782,6 +1787,205 @@ fn probe_clip_mode_commands(logger: &mut ProbeLogger) {
             check_gx_command_bytes(&expected, || unsafe {
                 // SAFETY: This probe owns GX and captures the commands.
                 ogc_gx::set_clip_mode(mode);
+            }),
+        );
+    }
+}
+
+fn probe_copy_clear_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX copy clear color and depth command bytes");
+    for (rgba, depth, expected) in [
+        (
+            [0x12, 0x34, 0x56, 0x78],
+            0xab12_3456,
+            [0x4f00_7812, 0x5000_3456, 0x5112_3456],
+        ),
+        (
+            [0xff, 0, 0x80, 1],
+            0xffff_ffff,
+            [0x4f00_01ff, 0x5000_0080, 0x51ff_ffff],
+        ),
+    ] {
+        logger.record(
+            "GX copy clear packs AR GB and masked 24-bit depth",
+            check_gx_bp_words(&expected, || unsafe {
+                // SAFETY: The probe owns initialized GX and captures commands.
+                gx::set_copy_clear(
+                    gx::GxColor {
+                        r: rgba[0],
+                        g: rgba[1],
+                        b: rgba[2],
+                        a: rgba[3],
+                    },
+                    depth,
+                );
+            }),
+        );
+    }
+}
+
+fn probe_copy_filter_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX copy filter sample and coefficient bytes");
+    // Upper bits must be masked to four-bit sample and six-bit coefficient fields.
+    let samples = [
+        [0x10, 0x21],
+        [0x32, 0x43],
+        [0x54, 0x65],
+        [0x76, 0x87],
+        [0x98, 0xa9],
+        [0xba, 0xcb],
+        [0xdc, 0xed],
+        [0xfe, 0x0f],
+        [0x10, 0x21],
+        [0x32, 0x43],
+        [0x54, 0x65],
+        [0x76, 0x87],
+    ];
+    let coefficients = [0x41, 0x82, 0xc3, 4, 0x45, 0x86, 0xc7];
+    for (aa, vf, expected) in [
+        (
+            0,
+            0,
+            [
+                0x0166_6666,
+                0x0266_6666,
+                0x0366_6666,
+                0x0466_6666,
+                0x5359_5000,
+                0x5400_0015,
+            ],
+        ),
+        (
+            1,
+            0,
+            [
+                0x0154_3210,
+                0x02ba_9876,
+                0x0310_fedc,
+                0x0476_5432,
+                0x5359_5000,
+                0x5400_0015,
+            ],
+        ),
+        (
+            0,
+            1,
+            [
+                0x0166_6666,
+                0x0266_6666,
+                0x0366_6666,
+                0x0466_6666,
+                0x5310_3081,
+                0x5400_7185,
+            ],
+        ),
+        (
+            1,
+            1,
+            [
+                0x0154_3210,
+                0x02ba_9876,
+                0x0310_fedc,
+                0x0476_5432,
+                0x5310_3081,
+                0x5400_7185,
+            ],
+        ),
+    ] {
+        logger.note_u32("GX filter AA enabled", aa);
+        logger.note_u32("GX vertical filter enabled", vf);
+        logger.record(
+            "GX copy filter emits six exact default or masked table words",
+            check_gx_bp_words(&expected, || unsafe {
+                // SAFETY: Enabled tables are complete and live. Disabled tables
+                // are null to check that their pointers are not consumed.
+                gx::set_copy_filter(
+                    aa as u8,
+                    if aa == 0 {
+                        core::ptr::null()
+                    } else {
+                        samples.as_ptr()
+                    },
+                    vf as u8,
+                    if vf == 0 {
+                        core::ptr::null()
+                    } else {
+                        coefficients.as_ptr()
+                    },
+                );
+            }),
+        );
+    }
+    for (aa, vf) in [(1, 0), (0, 1)] {
+        logger.record(
+            "GX copy filter rejects enabled null table without commands",
+            check_gx_command_bytes(&[], || unsafe {
+                // SAFETY: Rust explicitly rejects a null enabled table before
+                // reading either pointer or emitting any BP command.
+                gx::set_copy_filter(aa, core::ptr::null(), vf, core::ptr::null());
+            }),
+        );
+    }
+}
+
+fn probe_field_mask_commands(logger: &mut ProbeLogger) {
+    logger.report_step("GX even and odd field mask command bytes");
+    for ((even, odd), expected) in [
+        ((0, 0), 0x4400_0000),
+        ((1, 0), 0x4400_0002),
+        ((0, 1), 0x4400_0001),
+        ((0xff, 0xff), 0x4400_0003),
+    ] {
+        logger.record(
+            "GX field mask encodes independent even odd and masked bits",
+            check_gx_bp_words(&[expected], || unsafe {
+                // SAFETY: The probe owns initialized GX and captures commands.
+                ogc_gx::set_field_mask(even, odd);
+            }),
+        );
+    }
+}
+
+fn probe_bounding_box_commands(logger: &mut ProbeLogger) {
+    logger.report_step("GX bounding box reset command bytes");
+    for _ in 0..2 {
+        logger.record(
+            "GX bounding box reset emits both fixed reset words each time",
+            check_gx_bp_words(&[0x5500_03ff, 0x5600_03ff], || unsafe {
+                // SAFETY: The probe owns initialized GX and captures commands.
+                ogc_gx::clear_bounding_box();
+            }),
+        );
+    }
+}
+
+fn probe_z_texture_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX Z texture bias format and operation command bytes");
+    for ((op, format, bias), expected) in [
+        (
+            (gx::GX_ZT_DISABLE, gx::GX_TF_Z8, 0),
+            [0xf400_0000, 0xf500_0000],
+        ),
+        (
+            (gx::GX_ZT_ADD, gx::GX_TF_Z16, 0xab12_3456),
+            [0xf412_3456, 0xf500_0005],
+        ),
+        (
+            (gx::GX_ZT_REPLACE, gx::GX_TF_Z24X8, 0xffff_ffff),
+            [0xf4ff_ffff, 0xf500_000a],
+        ),
+    ] {
+        logger.record(
+            "GX Z texture emits exact masked bias format and operation",
+            check_gx_bp_words(&expected, || unsafe {
+                // SAFETY: The probe owns initialized GX and captures commands.
+                gx::set_z_texture(op, format, bias);
             }),
         );
     }

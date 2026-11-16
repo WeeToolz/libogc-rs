@@ -1509,3 +1509,17 @@ check verifies padding, guards, and an unchanged GPU token. No production or
 runner code changed. Rendered TEV/alpha/fog/clip effects and physical Wii
 behavior remain open. See the [TEV command report](docs/dolphin-runs/2026-11-15-gx-tev-colors/README.md)
 for commands, identities, logs, screenshots, and limits.
+
+## 2026-11-15: GX copy and depth command API validation
+
+The Metal Dolphin 2609a `video_probe` passed 213 checks with zero failures
+and seventeen valid captured pages. Seventeen new checks call five APIs:
+`set_copy_clear`, `set_copy_filter`, `set_field_mask`, `clear_bounding_box`,
+and `set_z_texture`. Fixed register words check color/depth packing, all
+filter enable combinations, sample/coefficient masks, null-table rejection,
+independent field bits, repeated bounding-box reset, and Z-texture formats
+and operations. The shared BP helper now supports the six-word filter
+sequence. No production or runner code changed. Results cover command
+encoding; rendered copy/depth effects, bounding-box readback, and physical
+Wii behavior remain open. See the [copy and depth report](docs/dolphin-runs/2026-11-15-gx-copy-depth/README.md)
+for commands, source/DOL identities, logs, screenshots, and limits.
