@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-16: GX textured rectangle
+
+Dolphin 2609a with Metal passed 266 checks with zero failures. The new
+probe checks two tiled RGBA8 textures with fixed EFB pixel values and checks
+invalid inputs. See the [report](docs/dolphin-runs/2026-11-16-gx-textured-render/README.md)
+for the run, logs, identities, and limits. Physical Wii remains untested.
+
 ## 2026-11-15: GX EFB color and depth checks
 
 The rebuilt `video_probe` passed 67 checks with zero failures in Dolphin

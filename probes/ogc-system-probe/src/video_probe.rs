@@ -888,6 +888,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_texture_cache_commands(logger);
     probe_line_point_field_commands(logger);
     probe_solid_rect_render(logger, width, height);
+    probe_textured_rect_render(logger, width, height);
 }
 
 fn check_gx_command_bytes(expected: &[u8], emit: impl FnOnce()) -> bool {
@@ -2367,6 +2368,201 @@ fn probe_solid_rect_render(logger: &mut ProbeLogger, width: u16, height: u16) {
         gx::finish_frame_and_wait()
     };
     logger.record("GX rectangle test state restoration completes", restored);
+}
+
+#[repr(align(32))]
+struct ProbeRgbaTile([u8; 64]);
+
+fn fill_probe_rgba_tile(tile: &mut ProbeRgbaTile, quadrants: [[u8; 3]; 4]) {
+    // GX RGBA8 4x4 tiles store 16 AR pairs, then 16 GB pairs.
+    for y in 0..4 {
+        for x in 0..4 {
+            let pixel = y * 4 + x;
+            let [r, g, b] = quadrants[(y / 2) * 2 + x / 2];
+            tile.0[pixel * 2] = 0xff;
+            tile.0[pixel * 2 + 1] = r;
+            tile.0[32 + pixel * 2] = g;
+            tile.0[32 + pixel * 2 + 1] = b;
+        }
+    }
+}
+
+fn check_textured_samples(logger: &mut ProbeLogger, expected: [u32; 5]) -> bool {
+    let points = [(40, 40), (56, 40), (40, 56), (56, 56), (110, 20)];
+    let mut matches = true;
+    for (index, ((x, y), expected)) in points.into_iter().zip(expected).enumerate() {
+        let mut color = ogc_gx::GxColor::default();
+        // SAFETY: Each EFB coordinate is valid and color is writable.
+        unsafe { ogc_gx::peek_argb(x, y, &mut color) };
+        let actual = u32::from_be_bytes([color.a, color.r, color.g, color.b]);
+        logger.note_hex32_index("GX textured sample ARGB", index as i32, actual);
+        matches &= actual == expected;
+    }
+    matches
+}
+
+fn probe_textured_rect_render(logger: &mut ProbeLogger, width: u16, height: u16) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX textured rectangle rendered pixel checks");
+    let w = f32::from(width);
+    let h = f32::from(height);
+    let projection = [
+        [2.0 / w, 0.0, 0.0, -1.0],
+        [0.0, -2.0 / h, 0.0, 1.0],
+        [0.0, 0.0, -1.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    ];
+    let mut first = ProbeRgbaTile([0; 64]);
+    let mut second = ProbeRgbaTile([0; 64]);
+    fill_probe_rgba_tile(
+        &mut first,
+        [[255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 0]],
+    );
+    fill_probe_rgba_tile(
+        &mut second,
+        [
+            [255, 0, 255],
+            [0, 255, 255],
+            [255, 255, 255],
+            [64, 128, 192],
+        ],
+    );
+    let mut texture = gx::GxTexObj::default();
+    // SAFETY: The probe owns GX and both aligned images stay live through
+    // each completion. Flush their cached bytes before GPU access.
+    let ready = unsafe {
+        ogc_cache::dc_flush_range(first.0.as_ptr().cast(), 64);
+        ogc_cache::dc_flush_range(second.0.as_ptr().cast(), 64);
+        gx::init_tex_obj(
+            &mut texture,
+            first.0.as_mut_ptr().cast(),
+            gx::GxTexObjInit {
+                wd: 4,
+                ht: 4,
+                fmt: gx::GX_TF_RGBA8,
+                wrap_s: 0,
+                wrap_t: 0,
+                mipmap: 0,
+            },
+        );
+        gx::init_tex_obj_lod(
+            &mut texture,
+            gx::GxTexObjLod {
+                minfilt: gx::GX_NEAR,
+                magfilt: gx::GX_NEAR,
+                ..Default::default()
+            },
+        );
+        gx::configure_textured_2d(&projection);
+        gx::set_viewport(0.0, 0.0, w, h, 0.0, 1.0);
+        gx::set_scissor(0, 0, u32::from(width), u32::from(height));
+        gx::set_z_mode(0, gx::GX_ALWAYS, 0);
+        gx::set_blend_mode(
+            gx::GX_BM_NONE,
+            gx::GX_BL_ONE,
+            gx::GX_BL_ZERO,
+            gx::GX_LO_CLEAR,
+        );
+        gx::set_color_update(1);
+        gx::invalidate_tex_all();
+        gx::finish_frame_and_wait()
+    };
+    logger.record("GX textured rectangle setup completes", ready);
+    if !ready {
+        return;
+    }
+    let black = gx::GxColor {
+        r: 0,
+        g: 0,
+        b: 0,
+        a: 0xff,
+    };
+    gx::poke_alpha_read(gx::GX_READ_FF);
+    for (x, y) in [(40, 40), (56, 40), (40, 56), (56, 56), (110, 20)] {
+        gx::poke_argb(x, y, black);
+    }
+
+    // SAFETY: Null and invalid map inputs are rejected before use; the valid
+    // texture object remains writable and its aligned image remains live.
+    let invalid = unsafe {
+        matches!(
+            gx::load_tex_obj(core::ptr::null_mut(), 0),
+            Err(gx::GxTextureError::InvalidObject)
+        ) && matches!(
+            gx::load_tex_obj(&mut texture, 8),
+            Err(gx::GxTextureError::UnsupportedObject)
+        ) && matches!(
+            gx::draw_textured_rect(&mut texture, 32.0, 32.0, 0.0, 32.0, 0.0),
+            Err(gx::GxTextureError::InvalidGeometry)
+        ) && matches!(
+            gx::draw_textured_rect(core::ptr::null_mut(), 32.0, 32.0, 32.0, 32.0, 0.0),
+            Err(gx::GxTextureError::InvalidObject)
+        )
+    };
+    logger.record(
+        "GX textured drawing rejects invalid object map and geometry",
+        invalid,
+    );
+
+    // SAFETY: The object and flushed first image remain live through completion.
+    let loaded = unsafe { gx::load_tex_obj(&mut texture, 0) }.is_ok();
+    logger.record("GX texture object loads into map zero", loaded);
+    if !loaded {
+        return;
+    }
+    let drawn = unsafe {
+        gx::draw_textured_rect(&mut texture, 32.0, 32.0, 32.0, 32.0, 0.0).is_ok()
+            && gx::finish_frame_and_wait()
+    };
+    let first_expected = [
+        0xffff_0000,
+        0xff00_ff00,
+        0xff00_00ff,
+        0xffff_ff00,
+        0xff00_0000,
+    ];
+    let first_pixels = drawn && check_textured_samples(logger, first_expected);
+    logger.record(
+        "GX textured rectangle draws first tile quadrants",
+        first_pixels,
+    );
+    if !drawn {
+        return;
+    }
+
+    // SAFETY: The first draw completed; the second aligned and flushed image
+    // stays live through the next load, draw, and GPU completion.
+    let replaced = unsafe {
+        gx::init_tex_obj_data(&mut texture, second.0.as_mut_ptr().cast());
+        gx::invalidate_tex_all();
+        gx::load_tex_obj(&mut texture, 0).is_ok()
+            && gx::draw_textured_rect(&mut texture, 32.0, 32.0, 32.0, 32.0, 0.0).is_ok()
+            && gx::finish_frame_and_wait()
+    };
+    let second_expected = [
+        0xffff_00ff,
+        0xff00_ffff,
+        0xffff_ffff,
+        0xff40_80c0,
+        0xff00_0000,
+    ];
+    let second_pixels = replaced && check_textured_samples(logger, second_expected);
+    logger.record(
+        "GX texture replacement draws new tile quadrants",
+        second_pixels,
+    );
+
+    // SAFETY: Restore full-mode scissor and the initialized depth setting.
+    let restored = unsafe {
+        gx::set_scissor(0, 0, u32::from(width), u32::from(height));
+        gx::set_z_mode(1, gx::GX_LEQUAL, 1);
+        gx::finish_frame_and_wait()
+    };
+    logger.record(
+        "GX textured rectangle state restoration completes",
+        restored,
+    );
 }
 
 fn probe_display_lists(logger: &mut ProbeLogger) {

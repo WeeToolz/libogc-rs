@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [textured-render batch](dolphin-runs/2026-11-16-gx-textured-render/README.md)
+checks texture setup, loading, and rectangle drawing through rendered EFB
+pixels. Metal passes 266 checks. Other texture formats and physical Wii remain open.
+
 The [solid-render batch](dolphin-runs/2026-11-16-gx-solid-render/README.md)
 adds rendered EFB pixel checks for solid setup, rectangle drawing, color
 updates, blending, and scissor clipping. Metal passes 260 checks. Other

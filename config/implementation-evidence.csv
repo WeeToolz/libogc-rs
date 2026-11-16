@@ -1,4 +1,7 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,load_tex_obj,3057,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_textured_rect_render,gx::load_tex_obj
+ogc-gx,src/lib.rs,draw_textured_rect,3099,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_textured_rect_render,gx::draw_textured_rect
+ogc-gx,src/lib.rs,configure_textured_2d,2709,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_textured_rect_render,gx::configure_textured_2d
 ogc-gx,src/lib.rs,configure_solid_2d,2697,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_solid_rect_render,gx::configure_solid_2d
 ogc-gx,src/lib.rs,draw_solid_rect,2807,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_solid_rect_render,gx::draw_solid_rect
 ogc-gx,src/lib.rs,set_color_update,6635,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_solid_rect_render,gx::set_color_update
