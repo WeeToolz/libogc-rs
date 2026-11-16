@@ -1,4 +1,7 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,set_tex_coord_bias,5668,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tex_coord_scale_commands,gx::set_tex_coord_bias
+ogc-gx,src/lib.rs,set_tex_coord_cyl_wrap,5652,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tex_coord_scale_commands,gx::set_tex_coord_cyl_wrap
+ogc-gx,src/lib.rs,set_tex_coord_scale_manually,5631,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tex_coord_scale_commands,gx::set_tex_coord_scale_manually
 ogc-gx,src/lib.rs,set_tev_alpha_op,6367,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tev_combiner_commands,gx::set_tev_alpha_op
 ogc-gx,src/lib.rs,set_tev_color_op,6344,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tev_combiner_commands,gx::set_tev_color_op
 ogc-gx,src/lib.rs,set_tev_alpha_in,6311,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tev_combiner_commands,gx::set_tev_alpha_in

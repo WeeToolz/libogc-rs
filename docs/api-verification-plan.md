@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [texture coordinate batch](dolphin-runs/2026-11-16-gx-texcoord-scale/README.md)
+checks manual scale, wrap, and bias command words. Metal passes 273 checks.
+Rendered texture coordinates and physical Wii remain open.
+
 The [TEV combiner batch](dolphin-runs/2026-11-16-gx-tev-combiner/README.md)
 checks four input and operation command words. Metal passes 271 checks.
 Rendered combiner modes and physical Wii remain open.

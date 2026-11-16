@@ -876,6 +876,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_tev_k_color_commands(logger);
     probe_tev_k_signed_color_commands(logger);
     probe_tev_combiner_commands(logger);
+    probe_tex_coord_scale_commands(logger);
     probe_alpha_compare_commands(logger);
     probe_fog_color_commands(logger);
     probe_clip_mode_commands(logger);
@@ -1734,6 +1735,51 @@ fn probe_tev_combiner_commands(logger: &mut ProbeLogger) {
                 gx::set_tev_alpha_op(5, 9, 2, 3, 0, 1);
             },
         ),
+    );
+}
+
+fn probe_tex_coord_scale_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX texture coordinate scale and flag command bytes");
+    // SAFETY: The probe owns GX. Coordinate 7 is inactive, and these calls
+    // establish a known manual flag, size, wrap, and bias before capture.
+    unsafe {
+        gx::set_tex_coord_scale_manually(7, 0, 1, 1);
+        gx::set_tex_coord_cyl_wrap(7, 0, 0);
+        gx::set_tex_coord_bias(7, 0, 0);
+        gx::set_tex_coord_scale_manually(7, 1, 1, 1);
+        gx::set_tex_coord_scale_manually(7, 0, 1, 1);
+    }
+    // Registers 3e and 3f are coordinate 7 S and T. The C reference puts
+    // size minus one in bits 0..15, bias in bit 16, and wrap in bit 17.
+    logger.record(
+        "GX manual texture scale emits sizes and deferred flags",
+        check_gx_bp_words(
+            &[
+                0x3e02_007f,
+                0x3f01_001f,
+                0x3e00_007f,
+                0x3f03_001f,
+                0x3e01_007f,
+                0x3f02_001f,
+            ],
+            || unsafe {
+                gx::set_tex_coord_cyl_wrap(7, 1, 0);
+                gx::set_tex_coord_bias(7, 0, 1);
+                gx::set_tex_coord_scale_manually(7, 1, 128, 32);
+                gx::set_tex_coord_cyl_wrap(7, 0, 1);
+                gx::set_tex_coord_bias(7, 1, 0);
+                gx::set_tex_coord_scale_manually(7, 0, 12, 13);
+                gx::set_tex_coord_cyl_wrap(7, 0, 0);
+            },
+        ),
+    );
+    logger.record(
+        "GX manual texture scale wraps zero size to sixteen bits",
+        check_gx_bp_words(&[0x3e00_ffff, 0x3f00_0000], || unsafe {
+            gx::set_tex_coord_scale_manually(7, 1, 0, 1);
+        }),
     );
 }
 

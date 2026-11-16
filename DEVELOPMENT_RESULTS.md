@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-16: GX texture coordinate commands
+
+Dolphin 2609a with Metal passed 273 checks with zero failures. The new
+checks cover manual texture scale, wrap, and bias command words. See the
+[report](docs/dolphin-runs/2026-11-16-gx-texcoord-scale/README.md) for evidence
+and limits. Physical Wii remains untested.
+
 ## 2026-11-16: GX TEV combiner commands
 
 Dolphin 2609a with Metal passed 271 checks with zero failures. The new
