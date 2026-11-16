@@ -1,5 +1,11 @@
 # Development results
 
+## 2026-11-16: GX TEV combiner commands
+
+Dolphin 2609a with Metal passed 271 checks with zero failures. The new
+check covers four TEV input and operation command words. See the [report](docs/dolphin-runs/2026-11-16-gx-tev-combiner/README.md)
+for evidence and limits. Physical Wii remains untested.
+
 ## 2026-11-16: GX vertex descriptors
 
 Dolphin 2609a with Metal passed 270 checks with zero failures. The new

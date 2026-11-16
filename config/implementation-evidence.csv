@@ -1,4 +1,8 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,set_tev_alpha_op,6367,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tev_combiner_commands,gx::set_tev_alpha_op
+ogc-gx,src/lib.rs,set_tev_color_op,6344,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tev_combiner_commands,gx::set_tev_color_op
+ogc-gx,src/lib.rs,set_tev_alpha_in,6311,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tev_combiner_commands,gx::set_tev_alpha_in
+ogc-gx,src/lib.rs,set_tev_color_in,6298,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tev_combiner_commands,gx::set_tev_color_in
 ogc-gx,src/lib.rs,set_vtx_descv,4749,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_vertex_descriptors,gx::set_vtx_descv
 ogc-gx,src/lib.rs,set_vtx_desc,4741,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_vertex_descriptors,gx::set_vtx_desc
 ogc-gx,src/lib.rs,get_vtx_descv,4765,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_vertex_descriptors,gx::get_vtx_descv

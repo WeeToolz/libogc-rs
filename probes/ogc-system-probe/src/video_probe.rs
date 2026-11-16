@@ -875,6 +875,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_tev_signed_color_commands(logger);
     probe_tev_k_color_commands(logger);
     probe_tev_k_signed_color_commands(logger);
+    probe_tev_combiner_commands(logger);
     probe_alpha_compare_commands(logger);
     probe_fog_color_commands(logger);
     probe_clip_mode_commands(logger);
@@ -1705,6 +1706,35 @@ fn probe_tev_color_commands(logger: &mut ProbeLogger) {
             }),
         );
     }
+}
+
+fn probe_tev_combiner_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX TEV combiner command bytes");
+    // SAFETY: GX is initialized and the probe owns its state. Stage 5 is
+    // inactive; initialize both words so every expected bit is independent.
+    unsafe {
+        gx::set_tev_swap_mode(5, 0, 0);
+        gx::set_tev_color_op(5, 0, 0, 0, 0, 0);
+        gx::set_tev_alpha_op(5, 0, 0, 0, 0, 0);
+        gx::set_tev_color_in(5, 0, 0, 0, 0);
+        gx::set_tev_alpha_in(5, 0, 0, 0, 0);
+    }
+    // BP register addresses CA and CB belong to stage 5. Values below are
+    // independently packed from the C reference's bit positions.
+    logger.record(
+        "GX TEV input and arithmetic operation preserve other fields",
+        check_gx_bp_words(
+            &[0xca00_1234, 0xcb00_29c0, 0xcaad_1234, 0xcb47_29c0],
+            || unsafe {
+                gx::set_tev_color_in(0x15, 1, 2, 3, 4);
+                gx::set_tev_alpha_in(5, 1, 2, 3, 4);
+                gx::set_tev_color_op(5, 1, 1, 2, 1, 2);
+                gx::set_tev_alpha_op(5, 9, 2, 3, 0, 1);
+            },
+        ),
+    );
 }
 
 fn probe_tev_signed_color_commands(logger: &mut ProbeLogger) {

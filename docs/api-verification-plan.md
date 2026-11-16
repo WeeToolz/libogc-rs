@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [TEV combiner batch](dolphin-runs/2026-11-16-gx-tev-combiner/README.md)
+checks four input and operation command words. Metal passes 271 checks.
+Rendered combiner modes and physical Wii remain open.
+
 The [vertex descriptor batch](dolphin-runs/2026-11-16-gx-vertex-descriptors/README.md)
 checks descriptor state, list termination, ordering, replacement, and restoration.
 Metal passes 270 checks. CP/XF output and physical Wii remain open.
