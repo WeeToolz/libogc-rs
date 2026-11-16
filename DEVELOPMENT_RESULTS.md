@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-16: GX TEV selectors
+
+Dolphin 2609a with Metal passed 283 checks with zero failures. The probe
+checks constant selector and swap command words. The first run failed due to
+uncleared shared selector fields. See the [report](docs/dolphin-runs/2026-11-16-gx-tev-selectors-final/README.md)
+for both runs and their limits. Physical Wii remains untested.
+
 ## 2026-11-16: GX completion callbacks
 
 Dolphin 2609a with Metal passed 281 checks with zero failures. The new

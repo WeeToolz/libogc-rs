@@ -888,6 +888,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_tev_k_color_commands(logger);
     probe_tev_k_signed_color_commands(logger);
     probe_tev_combiner_commands(logger);
+    probe_tev_selector_commands(logger);
     probe_tex_coord_scale_commands(logger);
     probe_alpha_compare_commands(logger);
     probe_fog_color_commands(logger);
@@ -1808,6 +1809,55 @@ fn probe_tev_combiner_commands(logger: &mut ProbeLogger) {
                 gx::set_tev_alpha_op(5, 9, 2, 3, 0, 1);
             },
         ),
+    );
+}
+
+fn probe_tev_selector_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    logger.report_step("GX TEV constant selectors and swap command bytes");
+    // SAFETY: The probe owns GX. These inactive stages and table are set to
+    // known fields before capture so the expected BP words are fixed.
+    unsafe {
+        gx::set_tev_k_color_sel(4, 0);
+        gx::set_tev_k_color_sel(5, 0);
+        gx::set_tev_k_alpha_sel(4, 0);
+        gx::set_tev_k_alpha_sel(5, 0);
+        gx::set_tev_k_color_sel(6, 0);
+        gx::set_tev_k_color_sel(7, 0);
+        gx::set_tev_k_alpha_sel(6, 0);
+        gx::set_tev_k_alpha_sel(7, 0);
+        gx::set_tev_swap_mode_table(1, 0, 0, 0, 0);
+        gx::set_tev_alpha_op(5, 0, 0, 0, 0, 0);
+        gx::set_tev_alpha_in(5, 0, 0, 0, 0);
+        gx::set_tev_swap_mode(5, 0, 0);
+    }
+    // The C reference places the table in F8/F9, followed by the even and
+    // odd stage selectors in F8. Every word includes the unchanged fields.
+    logger.record(
+        "GX TEV swap table and even odd selectors encode exact fields",
+        check_gx_bp_words(
+            &[
+                0xf800_0009,
+                0xf900_000f,
+                0xf800_0129,
+                0xf800_0b29,
+                0xf806_cb29,
+                0xf86e_cb29,
+            ],
+            || unsafe {
+                gx::set_tev_swap_mode_table(1, 1, 2, 3, 3);
+                gx::set_tev_k_color_sel(4, 0x12);
+                gx::set_tev_k_alpha_sel(4, 5);
+                gx::set_tev_k_color_sel(5, 0x1b);
+                gx::set_tev_k_alpha_sel(5, 0x0d);
+            },
+        ),
+    );
+    logger.record(
+        "GX TEV swap mode encodes raster and texture selections",
+        check_gx_bp_words(&[0xcb00_000e], || unsafe {
+            gx::set_tev_swap_mode(5, 2, 3);
+        }),
     );
 }
 

@@ -1,4 +1,8 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,set_tev_swap_mode_table,6966,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tev_selector_commands,gx::set_tev_swap_mode_table
+ogc-gx,src/lib.rs,set_tev_swap_mode,6955,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tev_selector_commands,gx::set_tev_swap_mode
+ogc-gx,src/lib.rs,set_tev_k_alpha_sel,6941,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tev_selector_commands,gx::set_tev_k_alpha_sel
+ogc-gx,src/lib.rs,set_tev_k_color_sel,6927,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tev_selector_commands,gx::set_tev_k_color_sel
 ogc-gx,src/lib.rs,finish_frame_and_wait,3981,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_completion_callbacks,gx::finish_frame_and_wait
 ogc-gx,src/lib.rs,draw_done,3958,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_completion_callbacks,gx::draw_done
 ogc-gx,src/lib.rs,wait_draw_done,3942,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_completion_callbacks,gx::wait_draw_done

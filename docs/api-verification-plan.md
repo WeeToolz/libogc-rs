@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [TEV selector batch](dolphin-runs/2026-11-16-gx-tev-selectors-final/README.md)
+checks constant selection and swap command words. Metal passes 283 checks.
+Rendered selector effects and physical Wii remain open.
+
 The [GX completion batch](dolphin-runs/2026-11-16-gx-completion/README.md)
 checks finish and token callbacks and completed-event waits. Metal passes 281
 checks. Pending-event sleep and physical Wii remain open.
