@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [depth-mode batch](dolphin-runs/2026-11-15-gx-depth-mode/README.md)
+adds three command-encoding checks for `set_z_mode`. Metal passes 216 checks.
+Depth comparison effects and physical Wii behavior remain open.
+
 The [2026-11-15 copy and depth command batch](dolphin-runs/2026-11-15-gx-copy-depth/README.md)
 adds seventeen checks for five copy-clear, copy-filter, field-mask,
 bounding-box reset, and Z-texture APIs. Metal passes 213 checks. Fixed words

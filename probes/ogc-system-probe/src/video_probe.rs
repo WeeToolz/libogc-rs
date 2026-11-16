@@ -882,6 +882,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_field_mask_commands(logger);
     probe_bounding_box_commands(logger);
     probe_z_texture_commands(logger);
+    probe_z_mode_commands(logger);
 }
 
 fn check_gx_command_bytes(expected: &[u8], emit: impl FnOnce()) -> bool {
@@ -1986,6 +1987,23 @@ fn probe_z_texture_commands(logger: &mut ProbeLogger) {
             check_gx_bp_words(&expected, || unsafe {
                 // SAFETY: The probe owns initialized GX and captures commands.
                 gx::set_z_texture(op, format, bias);
+            }),
+        );
+    }
+}
+
+fn probe_z_mode_commands(logger: &mut ProbeLogger) {
+    logger.report_step("GX depth comparison mode command bytes");
+    for ((enable, function, update), expected) in [
+        ((0, 0, 0), 0x4000_0000),
+        ((1, 7, 1), 0x4000_001f),
+        ((1, 3, 1), 0x4000_0017),
+    ] {
+        logger.record(
+            "GX depth mode encodes enable function and update",
+            check_gx_bp_words(&[expected], || unsafe {
+                // SAFETY: The probe owns initialized GX and captures commands.
+                ogc_gx::set_z_mode(enable, function, update);
             }),
         );
     }

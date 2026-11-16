@@ -1,4 +1,5 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,set_z_mode,6392,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_z_mode_commands,ogc_gx::set_z_mode
 ogc-gx,src/lib.rs,set_copy_clear,3625,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_copy_clear_commands,gx::set_copy_clear
 ogc-gx,src/lib.rs,set_copy_filter,3662,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_copy_filter_commands,gx::set_copy_filter
 ogc-gx,src/lib.rs,set_field_mask,3872,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_field_mask_commands,ogc_gx::set_field_mask

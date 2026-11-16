@@ -1523,3 +1523,12 @@ sequence. No production or runner code changed. Results cover command
 encoding; rendered copy/depth effects, bounding-box readback, and physical
 Wii behavior remain open. See the [copy and depth report](docs/dolphin-runs/2026-11-15-gx-copy-depth/README.md)
 for commands, source/DOL identities, logs, screenshots, and limits.
+
+## 2026-11-15: GX depth-mode command validation
+
+Dolphin 2609a on Metal passed 216 checks with zero failures. Three new
+checks call `set_z_mode` and verify the exact disabled, maximum comparison,
+and restored setting command words. This covers command encoding; depth
+comparison effects and physical Wii behavior remain open. See the
+[depth-mode report](docs/dolphin-runs/2026-11-15-gx-depth-mode/README.md)
+for the run and its limits.
