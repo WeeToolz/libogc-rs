@@ -30,6 +30,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_conf_fixture(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_conf_typed_values(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_conf_pad_records(logger);
     probe_es(logger);
     probe_crypto(logger);
     probe_iso9660(logger);
@@ -606,6 +608,81 @@ fn probe_conf_typed_values(logger: &mut ProbeLogger) {
             && answer == [7; 33]
     });
     logger.record("CONF parental length error preserves outputs", parental);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_conf_pad_records(logger: &mut ProbeLogger) {
+    logger.report_step("Wii configuration controller records");
+    let mut original = conf::ConfPads::default();
+    let mut original_guests = conf::ConfPadGuests::default();
+    let ready = conf::get_pad_devices(&mut original) == 0
+        && conf::get_pad_guest_devices(&mut original_guests) == 0;
+    logger.record("CONF controller records are readable", ready);
+    if !ready {
+        return;
+    }
+
+    let mut pads = conf::ConfPads::default();
+    pads.num_registered = conf::CONF_PAD_MAX_REGISTERED as u8;
+    pads.registered[0].bdaddr = [1, 2, 3, 4, 5, 6];
+    pads.registered[0].name[0..4].copy_from_slice(b"TEST");
+    pads.active[3].bdaddr = [9, 8, 7, 6, 5, 4];
+    let mut actual = conf::ConfPads::default();
+    let set = conf::set_pad_devices(&pads) == core::mem::size_of::<conf::ConfPads>() as i32;
+    let read = conf::get_pad_devices(&mut actual) == 0 && actual == pads;
+    let mut raw = [0u8; core::mem::size_of::<conf::ConfPads>()];
+    let bytes = conf::get("BT.DINF", &mut raw) == raw.len() as i32
+        && raw[0] == 10
+        && raw[1..7] == [1, 2, 3, 4, 5, 6]
+        && raw[7..11] == *b"TEST";
+    logger.record(
+        "CONF registered controller records and byte layout",
+        set && read && bytes,
+    );
+    let mut invalid = pads;
+    invalid.num_registered = 11;
+    let rejected = conf::set_pad_devices(&invalid) == conf::CONF_EBADVALUE
+        && conf::get_pad_devices(&mut actual) == 0
+        && actual == pads;
+    logger.record("CONF rejects too many registered controllers", rejected);
+    let restored = conf::set_pad_devices(&original) == raw.len() as i32
+        && conf::get_pad_devices(&mut actual) == 0
+        && actual == original;
+    logger.record("CONF registered controller record is restored", restored);
+
+    let mut guests = conf::ConfPadGuests::default();
+    guests.num_guests = conf::CONF_PAD_MAX_ACTIVE as u8;
+    guests.guests[0].bdaddr = [6, 5, 4, 3, 2, 1];
+    guests.guests[0].name[0..4].copy_from_slice(b"GUES");
+    guests.guests[0].link_key = [0x5a; 16];
+    let mut actual_guests = conf::ConfPadGuests::default();
+    let size = core::mem::size_of::<conf::ConfPadGuests>();
+    let set = conf::set_pad_guest_devices(Some(&guests)) == size as i32;
+    let read = conf::get_pad_guest_devices(&mut actual_guests) == 0 && actual_guests == guests;
+    let mut raw_guests = [0u8; core::mem::size_of::<conf::ConfPadGuests>()];
+    let bytes = conf::get("BT.CDIF", &mut raw_guests) == size as i32
+        && raw_guests[0] == 4
+        && raw_guests[1..7] == [6, 5, 4, 3, 2, 1]
+        && raw_guests[7..11] == *b"GUES"
+        && raw_guests[71..87] == [0x5a; 16];
+    logger.record(
+        "CONF guest controller records and byte layout",
+        set && read && bytes,
+    );
+    let mut invalid_guests = guests;
+    invalid_guests.num_guests = 5;
+    let rejected = conf::set_pad_guest_devices(Some(&invalid_guests)) == conf::CONF_EBADVALUE
+        && conf::get_pad_guest_devices(&mut actual_guests) == 0
+        && actual_guests == guests;
+    logger.record("CONF rejects too many guest controllers", rejected);
+    let cleared = conf::set_pad_guest_devices(None) == size as i32
+        && conf::get_pad_guest_devices(&mut actual_guests) == 0
+        && actual_guests == conf::ConfPadGuests::default();
+    logger.record("CONF null guest input clears guest records", cleared);
+    let restored = conf::set_pad_guest_devices(Some(&original_guests)) == size as i32
+        && conf::get_pad_guest_devices(&mut actual_guests) == 0
+        && actual_guests == original_guests;
+    logger.record("CONF guest controller record is restored", restored);
 }
 
 fn probe_es(logger: &mut ProbeLogger) {

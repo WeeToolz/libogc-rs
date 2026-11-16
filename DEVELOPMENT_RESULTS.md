@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-16: Controller configuration records
+
+Dolphin 2609a with OpenGL passed 137 checks with zero failures. The probe
+checks registered and guest records, count limits, and in-memory restoration.
+See the [report](docs/dolphin-runs/2026-11-16-conf-pads/README.md) for
+evidence and limits. Physical Wii remains untested.
+
 ## 2026-11-16: Typed Wii configuration values
 
 Dolphin 2609a with OpenGL passed 129 checks with zero failures. The probe

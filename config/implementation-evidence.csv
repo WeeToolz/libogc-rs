@@ -1,4 +1,8 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-conf,src/lib.rs,set_pad_guest_devices,593,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_pad_records,conf::set_pad_guest_devices
+ogc-conf,src/lib.rs,get_pad_guest_devices,577,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_pad_records,conf::get_pad_guest_devices
+ogc-conf,src/lib.rs,set_pad_devices,568,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_pad_records,conf::set_pad_devices
+ogc-conf,src/lib.rs,get_pad_devices,555,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_pad_records,conf::get_pad_devices
 ogc-conf,src/lib.rs,get_parental_answer,664,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_typed_values,conf::get_parental_answer
 ogc-conf,src/lib.rs,get_parental_password,648,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_typed_values,conf::get_parental_password
 ogc-conf,src/lib.rs,get_nick_name,607,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_typed_values,conf::get_nick_name
