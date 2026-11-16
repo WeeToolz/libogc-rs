@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-16: GX EFB texture copy
+
+Dolphin 2609a with Metal and EFB copies to RAM enabled passed 277 checks.
+The probe checks copied RGBA8 bytes and rendered pixels. The default-mode run
+failed its byte check. See the [report](docs/dolphin-runs/2026-11-16-gx-texture-copy-ram/README.md)
+for both runs and their limits. Physical Wii remains untested.
+
 ## 2026-11-16: GX texture coordinate commands
 
 Dolphin 2609a with Metal passed 273 checks with zero failures. The new

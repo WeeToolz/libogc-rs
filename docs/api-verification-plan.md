@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [EFB texture copy batch](dolphin-runs/2026-11-16-gx-texture-copy-ram/README.md)
+checks copied RGBA8 bytes and rendered pixels. Metal with copies to RAM enabled
+passes 277 checks; the default-mode byte check failed and remains recorded.
+
 The [texture coordinate batch](dolphin-runs/2026-11-16-gx-texcoord-scale/README.md)
 checks manual scale, wrap, and bias command words. Metal passes 273 checks.
 Rendered texture coordinates and physical Wii remain open.

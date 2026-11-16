@@ -892,6 +892,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_vertex_descriptors(logger);
     probe_solid_rect_render(logger, width, height);
     probe_textured_rect_render(logger, width, height);
+    probe_texture_copy_render(logger, width, height);
 }
 
 fn probe_vertex_descriptors(logger: &mut ProbeLogger) {
@@ -2538,6 +2539,130 @@ fn probe_solid_rect_render(logger: &mut ProbeLogger, width: u16, height: u16) {
 
 #[repr(align(32))]
 struct ProbeRgbaTile([u8; 64]);
+
+fn probe_texture_copy_render(logger: &mut ProbeLogger, width: u16, height: u16) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX EFB texture copy rendered pixel checks");
+    let mut image = ProbeRgbaTile([0; 64]);
+    let colors = [
+        gx::GxColor {
+            r: 255,
+            g: 0,
+            b: 0,
+            a: 255,
+        },
+        gx::GxColor {
+            r: 0,
+            g: 255,
+            b: 0,
+            a: 255,
+        },
+        gx::GxColor {
+            r: 0,
+            g: 0,
+            b: 255,
+            a: 255,
+        },
+        gx::GxColor {
+            r: 255,
+            g: 255,
+            b: 0,
+            a: 255,
+        },
+    ];
+    for y in 0..4u16 {
+        for x in 0..4u16 {
+            gx::poke_argb(100 + x, 100 + y, colors[usize::from((y / 2) * 2 + x / 2)]);
+        }
+    }
+    // SAFETY: The aligned image has one 4x4 RGBA8 tile and remains live until
+    // GX completes the copy and the subsequent texture draw.
+    let copied = unsafe {
+        ogc_cache::dc_flush_range(image.0.as_ptr().cast(), 64);
+        gx::set_tex_copy_src(100, 100, 4, 4);
+        gx::set_tex_copy_dst(4, 4, u32::from(gx::GX_TF_RGBA8), 0);
+        gx::copy_tex(image.0.as_mut_ptr().cast(), 0);
+        gx::finish_frame_and_wait()
+    };
+    logger.record("GX EFB texture copy completes", copied);
+    if !copied {
+        return;
+    }
+    // SAFETY: The GPU copy completed and the entire aligned cache line range
+    // belongs to this image. Invalidate before reading the written bytes.
+    unsafe { ogc_cache::dc_invalidate_range(image.0.as_ptr().cast(), 64) };
+    let mut expected = ProbeRgbaTile([0; 64]);
+    fill_probe_rgba_tile(
+        &mut expected,
+        [[255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 0]],
+    );
+    logger.record(
+        "GX EFB copy writes expected tiled RGBA8 bytes",
+        image.0 == expected.0,
+    );
+
+    let mut texture = gx::GxTexObj::default();
+    let w = f32::from(width);
+    let h = f32::from(height);
+    let projection = [
+        [2.0 / w, 0.0, 0.0, -1.0],
+        [0.0, -2.0 / h, 0.0, 1.0],
+        [0.0, 0.0, -1.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    ];
+    gx::poke_argb(
+        110,
+        20,
+        gx::GxColor {
+            r: 0,
+            g: 0,
+            b: 0,
+            a: 255,
+        },
+    );
+    // SAFETY: The copied image remains live and GX is owned by the probe.
+    let drawn = unsafe {
+        gx::init_tex_obj(
+            &mut texture,
+            image.0.as_mut_ptr().cast(),
+            gx::GxTexObjInit {
+                wd: 4,
+                ht: 4,
+                fmt: gx::GX_TF_RGBA8,
+                wrap_s: 0,
+                wrap_t: 0,
+                mipmap: 0,
+            },
+        );
+        gx::init_tex_obj_lod(
+            &mut texture,
+            gx::GxTexObjLod {
+                minfilt: gx::GX_NEAR,
+                magfilt: gx::GX_NEAR,
+                ..Default::default()
+            },
+        );
+        gx::configure_textured_2d(&projection);
+        gx::set_viewport(0.0, 0.0, w, h, 0.0, 1.0);
+        gx::set_scissor(0, 0, u32::from(width), u32::from(height));
+        gx::set_z_mode(0, gx::GX_ALWAYS, 0);
+        gx::invalidate_tex_all();
+        gx::draw_textured_rect(&mut texture, 32.0, 32.0, 32.0, 32.0, 0.0).is_ok()
+            && gx::finish_frame_and_wait()
+    };
+    let pixels = drawn
+        && check_textured_samples(
+            logger,
+            [0xffff0000, 0xff00ff00, 0xff0000ff, 0xffffff00, 0xff000000],
+        );
+    logger.record("GX copied texture renders expected quadrants", pixels);
+    let restored = unsafe {
+        gx::set_z_mode(1, gx::GX_LEQUAL, 1);
+        gx::finish_frame_and_wait()
+    };
+    logger.record("GX texture copy state restoration completes", restored);
+}
 
 fn fill_probe_rgba_tile(tile: &mut ProbeRgbaTile, quadrants: [[u8; 3]; 4]) {
     // GX RGBA8 4x4 tiles store 16 AR pairs, then 16 GB pairs.

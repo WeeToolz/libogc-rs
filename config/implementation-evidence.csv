@@ -1,4 +1,7 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,copy_tex,3849,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_copy_render,gx::copy_tex
+ogc-gx,src/lib.rs,set_tex_copy_dst,3756,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_copy_render,gx::set_tex_copy_dst
+ogc-gx,src/lib.rs,set_tex_copy_src,3746,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_copy_render,gx::set_tex_copy_src
 ogc-gx,src/lib.rs,set_tex_coord_bias,5668,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tex_coord_scale_commands,gx::set_tex_coord_bias
 ogc-gx,src/lib.rs,set_tex_coord_cyl_wrap,5652,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tex_coord_scale_commands,gx::set_tex_coord_cyl_wrap
 ogc-gx,src/lib.rs,set_tex_coord_scale_manually,5631,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tex_coord_scale_commands,gx::set_tex_coord_scale_manually
