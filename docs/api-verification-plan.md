@@ -39,6 +39,11 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [cache command batch](dolphin-runs/2026-11-15-gx-cache-commands/README.md)
+adds checks for three vertex and texture cache APIs. Metal passes 223 checks.
+Exact command encoding and a subsequent GPU token are checked; cache effects
+on rendered data and physical Wii behavior remain open.
+
 The [depth-mode batch](dolphin-runs/2026-11-15-gx-depth-mode/README.md)
 adds three command-encoding checks for `set_z_mode`. Metal passes 216 checks.
 Depth comparison effects and physical Wii behavior remain open.

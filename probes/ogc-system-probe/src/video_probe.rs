@@ -883,6 +883,8 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_bounding_box_commands(logger);
     probe_z_texture_commands(logger);
     probe_z_mode_commands(logger);
+    probe_vertex_cache_commands(logger);
+    probe_texture_cache_commands(logger);
 }
 
 fn check_gx_command_bytes(expected: &[u8], emit: impl FnOnce()) -> bool {
@@ -2007,6 +2009,63 @@ fn probe_z_mode_commands(logger: &mut ProbeLogger) {
             }),
         );
     }
+}
+
+fn probe_vertex_cache_commands(logger: &mut ProbeLogger) {
+    logger.report_step("GX vertex cache invalidation command");
+    for _ in 0..2 {
+        logger.record(
+            "GX vertex cache invalidation emits opcode each time",
+            check_gx_command_bytes(&[0x48], || ogc_gx::inv_vtx_cache()),
+        );
+    }
+}
+
+fn probe_texture_cache_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX texture cache invalidation commands");
+    #[repr(align(32))]
+    struct CacheTrace([u8; 64]);
+    let mut trace = CacheTrace([0xa5; 64]);
+    unsafe {
+        gx::begin_disp_list(trace.0.as_mut_ptr().cast(), 64);
+        gx::invalidate_tex_all();
+    }
+    let trace_size = gx::end_disp_list();
+    logger.note_u32("GX cache trace size", trace_size);
+    if trace_size >= 20 {
+        for (index, command) in trace.0[..20].chunks_exact(5).enumerate() {
+            logger.note_hex32_index(
+                "GX cache trace word",
+                index as i32,
+                u32::from_be_bytes([command[1], command[2], command[3], command[4]]),
+            );
+            logger.note_u32("GX cache trace opcode", u32::from(command[0]));
+        }
+    }
+    // Initialization sets the indirect mask to zero: BP word 0x0f000000.
+    // The C reference flushes that mask before and after the two cache words.
+    let expected = [0x0f00_0000, 0x6600_1000, 0x6600_1100, 0x0f00_0000];
+    for _ in 0..2 {
+        logger.record(
+            "GX invalidate_tex_all emits both cache words and flushes",
+            check_gx_bp_words(&expected, || unsafe { gx::invalidate_tex_all() }),
+        );
+        logger.record(
+            "GX invalidate_texture_cache emits both cache words and flushes",
+            check_gx_bp_words(&expected, || unsafe { gx::invalidate_texture_cache() }),
+        );
+    }
+    // SAFETY: The initialized FIFO is exclusively owned by this probe.
+    unsafe { gx::invalidate_tex_all() };
+    gx::inv_vtx_cache();
+    gx::set_draw_sync(0x7531);
+    let completed = unsafe { gx::finish_frame_and_wait() };
+    logger.record(
+        "GX executes cache commands and subsequent token",
+        completed && gx::get_draw_sync() == 0x7531,
+    );
 }
 
 fn probe_display_lists(logger: &mut ProbeLogger) {

@@ -1532,3 +1532,14 @@ and restored setting command words. This covers command encoding; depth
 comparison effects and physical Wii behavior remain open. See the
 [depth-mode report](docs/dolphin-runs/2026-11-15-gx-depth-mode/README.md)
 for the run and its limits.
+
+## 2026-11-15: GX cache command validation
+
+Dolphin 2609a on Metal passed 223 checks with zero failures. Seven new checks
+cover `inv_vtx_cache`, `invalidate_tex_all`, and `invalidate_texture_cache`.
+They check exact captured commands and a subsequent GPU completion token.
+The first two runs failed four checks because the probe expected the mask
+before initialization. A trace captured the actual words, and the expected
+post-initialization mask was corrected against the C initialization. Those
+runs remain saved. Rendered cache effects and physical Wii behavior remain
+open. See the [cache report](docs/dolphin-runs/2026-11-15-gx-cache-commands/README.md).
