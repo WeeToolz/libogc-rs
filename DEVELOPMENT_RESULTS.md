@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-16: System SRAM locks
+
+Dolphin 2609a with OpenGL passed 159 checks with zero failures. The probe
+checks standard and extended SRAM lock exclusion and release. See the
+[report](docs/dolphin-runs/2026-11-16-sram-locks/README.md) for evidence and
+limits. Physical Wii remains untested.
+
 ## 2026-11-16: System alarm callbacks
 
 Dolphin 2609a with OpenGL passed 154 checks with zero failures. The probe

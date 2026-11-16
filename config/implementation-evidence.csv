@@ -1,4 +1,8 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-system,src/lib.rs,unlock_sram_ex,1578,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_locks,system::unlock_sram_ex
+ogc-system,src/lib.rs,lock_sram_ex,1562,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_locks,system::lock_sram_ex
+ogc-system,src/lib.rs,unlock_sram,1547,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_locks,system::unlock_sram
+ogc-system,src/lib.rs,lock_sram,1531,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_locks,system::lock_sram
 ogc-system,src/lib.rs,cancel_alarm,569,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_alarms,system::cancel_alarm
 ogc-system,src/lib.rs,remove_alarm,564,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_alarms,system::remove_alarm
 ogc-system,src/lib.rs,set_periodic_alarm,550,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_alarms,system::set_periodic_alarm

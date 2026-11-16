@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [SRAM lock batch](dolphin-runs/2026-11-16-sram-locks/README.md) checks
+standard and extended lock exclusion. OpenGL passes 159 checks. Concurrent
+threads, writeback, and physical Wii remain open.
+
 The [system alarm batch](dolphin-runs/2026-11-16-system-alarms/README.md)
 checks one-shot and periodic callbacks, cancellation, and removal. OpenGL
 passes 154 checks. Other timing cases and physical Wii remain open.

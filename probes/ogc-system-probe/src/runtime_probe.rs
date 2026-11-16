@@ -42,6 +42,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_system_alarms(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_system_sram_getters(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_system_sram_locks(logger);
     probe_ios_stm(logger);
     probe_conf(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -504,6 +506,50 @@ fn probe_system_alarms(logger: &mut ProbeLogger) {
     logger.record(
         "System alarm removal succeeds",
         system::remove_alarm(alarm) == 0,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_sram_locks(logger: &mut ProbeLogger) {
+    logger.report_step("System SRAM lock exclusivity");
+    // SAFETY: The successful lock is paired with one unlock. Competing lock
+    // attempts return null and are not unlocked. No writeback is requested.
+    let first = unsafe { system::lock_sram() };
+    if first.is_null() {
+        logger.record("System standard SRAM lock acquired", false);
+        return;
+    }
+    let standard_busy =
+        unsafe { system::lock_sram().is_null() && system::lock_sram_ex().is_null() };
+    let standard_release = unsafe { system::unlock_sram(false) };
+    logger.record(
+        "System standard SRAM lock excludes both lock types",
+        standard_busy,
+    );
+    logger.record("System standard SRAM unlock completes", standard_release);
+
+    let extended = unsafe { system::lock_sram_ex() };
+    if extended.is_null() {
+        logger.record("System extended SRAM lock acquired after release", false);
+        return;
+    }
+    let extended_busy =
+        unsafe { system::lock_sram().is_null() && system::lock_sram_ex().is_null() };
+    let extended_release = unsafe { system::unlock_sram_ex(false) };
+    logger.record(
+        "System extended SRAM lock excludes both lock types",
+        extended_busy,
+    );
+    logger.record("System extended SRAM unlock completes", extended_release);
+    let reacquired = unsafe { system::lock_sram() };
+    let released = if reacquired.is_null() {
+        false
+    } else {
+        unsafe { system::unlock_sram(false) }
+    };
+    logger.record(
+        "System SRAM lock can be reacquired after release",
+        !reacquired.is_null() && released,
     );
 }
 
