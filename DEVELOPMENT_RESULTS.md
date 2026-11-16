@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-16: System SRAM getters
+
+Dolphin 2609a with OpenGL passed 149 checks with zero failures. The probe
+checks seven getters against fixed SRAM buffer values and restores the buffer.
+See the [report](docs/dolphin-runs/2026-11-16-sram-getters/README.md) for
+evidence and limits. Physical Wii remains untested.
+
 ## 2026-11-16: Wii text configuration values
 
 Dolphin 2609a with OpenGL passed 141 checks with zero failures. The probe

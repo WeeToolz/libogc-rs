@@ -24,6 +24,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_hci_events(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_system_sram_getters(logger);
     probe_ios_stm(logger);
     probe_conf(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -358,6 +360,72 @@ fn probe_ui_adapters(logger: &mut ProbeLogger) {
             && mapped.pointer_activate
             && disconnected == UiInput::default(),
     );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_sram_getters(logger: &mut ProbeLogger) {
+    logger.report_step("System SRAM getter values");
+    // SAFETY: The probe holds the SRAM lock while copying and changing the
+    // shared buffer. Unlock without writeback before calling the getters.
+    let sram = unsafe { system::lock_sram() };
+    if sram.is_null() {
+        logger.record("System SRAM lock acquired", false);
+        return;
+    }
+    let original = unsafe { *sram };
+    unsafe {
+        (*sram).counter_bias = 0x1234_5678;
+        (*sram).display_offset_h = -7;
+        (*sram).ntd = 0x40;
+        (*sram).lang = 4;
+        (*sram).flags = 0x86;
+        system::unlock_sram(false);
+    }
+    logger.record(
+        "System counter bias reads SRAM",
+        system::get_counter_bias() == 0x1234_5678,
+    );
+    logger.record(
+        "System display offset reads signed SRAM",
+        system::get_display_offset_h() == -7,
+    );
+    logger.record("System RGB60 reads SRAM bit", system::get_eu_rgb60() == 1);
+    logger.record("System language reads SRAM", system::get_language() == 4);
+    logger.record(
+        "System progressive scan reads SRAM bit",
+        system::get_progressive_scan() == 1,
+    );
+    logger.record(
+        "System sound mode reads SRAM bit",
+        system::get_sound_mode() == 1,
+    );
+    logger.record(
+        "System video mode reads SRAM bits",
+        system::get_video_mode() == 2,
+    );
+
+    // SAFETY: Reacquire before restoring all original fields. No writeback is
+    // requested; a failed lock is recorded and prevents dereferencing null.
+    let sram = unsafe { system::lock_sram() };
+    let restored = if sram.is_null() {
+        false
+    } else {
+        unsafe {
+            *sram = original;
+            system::unlock_sram(false);
+        }
+        let check = unsafe { system::lock_sram() };
+        if check.is_null() {
+            false
+        } else {
+            let matches = unsafe { *check == original };
+            unsafe {
+                system::unlock_sram(false);
+            }
+            matches
+        }
+    };
+    logger.record("System SRAM buffer is restored", restored);
 }
 
 fn probe_system(logger: &mut ProbeLogger) {

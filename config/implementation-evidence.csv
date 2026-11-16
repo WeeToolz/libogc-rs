@@ -1,4 +1,11 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-system,src/lib.rs,get_video_mode,737,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_getters,system::get_video_mode
+ogc-system,src/lib.rs,get_sound_mode,725,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_getters,system::get_sound_mode
+ogc-system,src/lib.rs,get_progressive_scan,710,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_getters,system::get_progressive_scan
+ogc-system,src/lib.rs,get_language,698,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_getters,system::get_language
+ogc-system,src/lib.rs,get_eu_rgb60,686,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_getters,system::get_eu_rgb60
+ogc-system,src/lib.rs,get_display_offset_h,671,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_getters,system::get_display_offset_h
+ogc-system,src/lib.rs,get_counter_bias,659,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_getters,system::get_counter_bias
 ogc-conf,src/lib.rs,get_video,716,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_text_settings,conf::get_video
 ogc-conf,src/lib.rs,get_area,707,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_text_settings,conf::get_area
 ogc-conf,src/lib.rs,get_region,698,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_text_settings,conf::get_region

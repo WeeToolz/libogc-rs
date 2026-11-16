@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [system SRAM getter batch](dolphin-runs/2026-11-16-sram-getters/README.md)
+checks seven getters against fixed buffer values. OpenGL passes 149 checks.
+Physical SRAM and Wii behavior remain open.
+
 The [text configuration batch](dolphin-runs/2026-11-16-conf-text/README.md)
 checks region, area, and video against an independent IOS file read. OpenGL
 passes 141 checks. Other profiles and physical Wii remain open.
