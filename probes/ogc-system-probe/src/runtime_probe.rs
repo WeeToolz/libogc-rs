@@ -1542,6 +1542,27 @@ fn probe_system_sram_getters(logger: &mut ProbeLogger) {
         (*sram).flags = 0x86;
         system::unlock_sram(false);
     }
+    let fixture = system::SysSram {
+        counter_bias: 0x89ab_cdef,
+        display_offset_h: -120,
+        lang: 0xfe,
+        ..system::SysSram::default()
+    };
+    let other = system::SysSram {
+        counter_bias: 0x1020_3040,
+        display_offset_h: 75,
+        lang: 3,
+        ..system::SysSram::default()
+    };
+    logger.record(
+        "SRAM field getters read supplied signed and unsigned values",
+        system::sram_counter_bias(&fixture) == 0x89ab_cdef
+            && system::sram_display_offset_h(&fixture) == -120
+            && system::sram_language(&fixture) == 0xfe
+            && system::sram_counter_bias(&other) == 0x1020_3040
+            && system::sram_display_offset_h(&other) == 75
+            && system::sram_language(&other) == 3,
+    );
     logger.record(
         "System counter bias reads SRAM",
         system::get_counter_bias() == 0x1234_5678,

@@ -2145,3 +2145,6 @@ ogc-bt-sync,src/hid_host.rs,fail_transport,383,ios,hardware-probe,probes/ogc-sys
 ogc-bt-sync,src/hid_host.rs,load_link_key,349,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_key_requests,host.load_link_key
 ogc-bt-sync,src/hid_host.rs,reset_preserving_keys,343,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_key_requests,host.reset_preserving_keys
 ogc-bt-sync,src/hid_host.rs,receive_event,785,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_key_requests,host.receive_event
+ogc-system,src/lib.rs,sram_counter_bias,1678,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_getters,system::sram_counter_bias
+ogc-system,src/lib.rs,sram_display_offset_h,1690,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_getters,system::sram_display_offset_h
+ogc-system,src/lib.rs,sram_language,1715,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_getters,system::sram_language
