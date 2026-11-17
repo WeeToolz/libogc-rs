@@ -1845,3 +1845,10 @@ Dolphin passed 219 checks. The probe checks 18 network APIs with local TCP
 connections, payloads, socket flags, handle lookup, and cleanup. See the
 [TCP wrapper report](docs/dolphin-runs/2026-11-17-network-tcp-wrappers-final/README.md)
 for evidence and limits.
+
+## 2026-11-17: LWP synchronization ABI
+
+Dolphin passed 172 checks. New checks cover 19 synchronization and queue APIs,
+including a timed wait, semaphore values, and message order. See the
+[LWP report](docs/dolphin-runs/2026-11-17-lwp-sync-abi/README.md) for evidence
+and limits.

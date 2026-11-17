@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [LWP synchronization ABI batch](dolphin-runs/2026-11-17-lwp-sync-abi/README.md)
+checks 19 public APIs. Dolphin passes 172 checks. Physical Wii testing and
+other contention cases remain open.
+
 The [TCP wrapper batch](dolphin-runs/2026-11-17-network-tcp-wrappers-final/README.md)
 checks 18 public network APIs with local stream traffic. Dolphin passes 219
 checks. Physical Wii and external networking remain open.

@@ -718,6 +718,117 @@ mod wii {
         }
     }
 
+    fn run_legacy_sync_abi(logger: &mut ProbeLogger) {
+        logger.section("LWP LEGACY SYNC ABI");
+        let mut mutex = lwp::LWP_MUTEX_NULL;
+        // SAFETY: All output handles and values are valid local storage.
+        let initialized = unsafe { lwp::lwp_mutex_init_abi(&mut mutex, 0) };
+        logger.record("ABI mutex initializes", initialized == 0);
+        if initialized == 0 {
+            let locked = lwp::lwp_mutex_lock_abi(mutex) == 0;
+            logger.record("ABI mutex locks", locked);
+            if locked {
+                let busy = lwp::lwp_mutex_try_lock_abi(mutex);
+                logger.note_i32("ABI mutex held try-lock result", busy);
+                logger.record("ABI mutex held try-lock fails", busy != 0);
+                logger.record("ABI mutex unlocks", lwp::lwp_mutex_unlock_abi(mutex) == 0);
+            }
+            let acquired = lwp::lwp_mutex_try_lock_abi(mutex) == 0;
+            logger.record("ABI mutex try-lock acquires free mutex", acquired);
+            if acquired {
+                logger.record(
+                    "ABI try-lock releases",
+                    lwp::lwp_mutex_unlock_abi(mutex) == 0,
+                );
+            }
+            let mut cond = lwp::LWP_COND_NULL;
+            let cond_init = unsafe { lwp::lwp_cond_init_abi(&mut cond) };
+            logger.record("ABI condition initializes", cond_init == 0);
+            if cond_init == 0 {
+                let locked = lwp::lwp_mutex_lock_abi(mutex) == 0;
+                logger.record("ABI timed wait mutex locks", locked);
+                if locked {
+                    let timeout = lwp::TimeSpec {
+                        tv_sec: 0,
+                        tv_nsec: 25_000_000,
+                    };
+                    let start = driver::now_ticks();
+                    let rc = unsafe { lwp::lwp_cond_timed_wait_abi(cond, mutex, &timeout) };
+                    let elapsed = driver::now_ticks().wrapping_sub(start);
+                    logger.record(
+                        "ABI timed wait returns timeout after delay",
+                        rc == 116 && elapsed >= driver::TICKS_PER_SECOND / 50,
+                    );
+                    logger.record(
+                        "ABI timed wait returns mutex",
+                        lwp::lwp_mutex_unlock_abi(mutex) == 0,
+                    );
+                }
+                logger.record(
+                    "ABI condition destroys",
+                    lwp::lwp_cond_destroy_abi(cond) == 0,
+                );
+            }
+            logger.record("ABI mutex destroys", lwp::lwp_mutex_destroy_abi(mutex) == 0);
+        }
+        let mut sem = lwp::LWP_SEM_NULL;
+        let initialized = unsafe { lwp::lwp_sem_init_abi(&mut sem, 1, 2) };
+        logger.record("ABI semaphore initializes", initialized == 0);
+        if initialized == 0 {
+            let mut value = u32::MAX;
+            logger.record(
+                "ABI semaphore starts at one",
+                unsafe { lwp::lwp_sem_get_value_abi(sem, &mut value) } == 0 && value == 1,
+            );
+            logger.record(
+                "ABI semaphore wait consumes permit",
+                lwp::lwp_sem_wait_abi(sem) == 0,
+            );
+            logger.record(
+                "ABI semaphore reads zero",
+                unsafe { lwp::lwp_sem_get_value_abi(sem, &mut value) } == 0 && value == 0,
+            );
+            logger.record("ABI semaphore posts", lwp::lwp_sem_post_abi(sem) == 0);
+            logger.record(
+                "ABI semaphore reads posted permit",
+                unsafe { lwp::lwp_sem_get_value_abi(sem, &mut value) } == 0 && value == 1,
+            );
+            logger.record("ABI semaphore destroys", lwp::lwp_sem_destroy_abi(sem) == 0);
+        }
+        let mut queue = lwp::MQ_BOX_NULL;
+        let initialized = unsafe { lwp::mq_init_abi(&mut queue, 3) };
+        logger.record("ABI message queue initializes", initialized == 0);
+        if initialized == 0 {
+            let first = 0x1234usize as *mut c_void;
+            let second = 0x5678usize as *mut c_void;
+            let third = 0x9abcusize as *mut c_void;
+            let sent = lwp::mq_send_abi(queue, first, lwp::MQ_MSG_NOBLOCK) != 0;
+            let jammed = lwp::mq_jam_abi(queue, second, lwp::MQ_MSG_NOBLOCK) != 0;
+            let raw_jammed = lwp::mq_jam(queue, third, lwp::MQ_MSG_NOBLOCK) != 0;
+            logger.record(
+                "ABI queue sends and jams messages",
+                sent && jammed && raw_jammed,
+            );
+            let mut out = ptr::null_mut();
+            let a = unsafe { lwp::mq_receive_abi(queue, &mut out, lwp::MQ_MSG_NOBLOCK) } != 0
+                && out == third;
+            let b = unsafe { lwp::mq_receive_abi(queue, &mut out, lwp::MQ_MSG_NOBLOCK) } != 0
+                && out == second;
+            let c = unsafe { lwp::mq_receive_abi(queue, &mut out, lwp::MQ_MSG_NOBLOCK) } != 0
+                && out == first;
+            let empty = unsafe { lwp::mq_receive_abi(queue, &mut out, lwp::MQ_MSG_NOBLOCK) } == 0;
+            logger.record(
+                "ABI queue returns jammed messages first",
+                a && b && c && empty,
+            );
+            lwp::mq_close_abi(queue);
+            logger.record(
+                "ABI queue closes",
+                lwp::mq_send_abi(queue, first, lwp::MQ_MSG_NOBLOCK) == 0,
+            );
+        }
+    }
+
     fn run_timed_wait(logger: &mut ProbeLogger) {
         logger.section("LWP TIMED WAIT");
         let mut mutex = lwp::LWP_MUTEX_NULL;
@@ -1095,6 +1206,7 @@ mod wii {
         run_interrupt_frame_integrity(&mut logger);
         run_switch_and_join(&mut logger);
         run_synchronization(&mut logger);
+        run_legacy_sync_abi(&mut logger);
         run_timed_wait(&mut logger);
         run_message_and_deferred(&mut logger);
         run_tuxedo_compatibility(&mut logger);
