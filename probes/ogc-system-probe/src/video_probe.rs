@@ -907,6 +907,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_texture_cache_commands(logger);
     probe_line_point_field_commands(logger);
     probe_vertex_descriptors(logger);
+    probe_vertex_array_commands(logger);
     probe_gx_completion_callbacks(logger);
     probe_solid_rect_render(logger, width, height);
     probe_textured_rect_render(logger, width, height);
@@ -1081,6 +1082,42 @@ fn check_gx_command_bytes(expected: &[u8], emit: impl FnOnce()) -> bool {
         && bytes.0[expected.len()..size].iter().all(|byte| *byte == 0)
         && bytes.0[size..].iter().all(|byte| *byte == 0xa5)
         && gx::get_draw_sync() == token_before
+}
+
+fn probe_vertex_array_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    logger.report_step("GX vertex array and primitive command bytes");
+    // The address is encoded only into a captured display list; GX never reads it.
+    let address = core::ptr::without_provenance_mut::<core::ffi::c_void>(0x8123_4560);
+    let position = [0x08, 0xa0, 0x01, 0x23, 0x45, 0x60, 0x08, 0xb0, 0, 0, 0, 12];
+    logger.record(
+        "GX position array encodes physical address and stride",
+        check_gx_command_bytes(&position, || {
+            gx::set_array(u32::from(gx::GX_VA_POS), address, 12);
+        }),
+    );
+    let normal = [0x08, 0xa1, 0x01, 0x23, 0x45, 0x60, 0x08, 0xb1, 0, 0, 0, 36];
+    logger.record(
+        "GX NBT array maps to normal array registers",
+        check_gx_command_bytes(&normal, || {
+            gx::set_array(u32::from(gx::GX_VA_NBT), address, 36);
+        }),
+    );
+    logger.record(
+        "GX invalid array attribute emits no command",
+        check_gx_command_bytes(&[], || {
+            gx::set_array(u32::from(gx::GX_VA_NULL), address, 12);
+        }),
+    );
+    // SAFETY: The primitive header is captured, not executed. The display-list
+    // setup flushes pending state before the captured begin call.
+    logger.record(
+        "GX primitive begin and end encode header",
+        check_gx_command_bytes(&[0x95, 0x12, 0x34], || unsafe {
+            gx::begin(gx::GX_TRIANGLES, 13, 0x1234);
+            gx::end();
+        }),
+    );
 }
 
 fn probe_viewport_commands(logger: &mut ProbeLogger) {

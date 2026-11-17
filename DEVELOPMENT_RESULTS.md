@@ -1,5 +1,11 @@
 # Development results
 
+## 2026-11-16: GX vertex array commands
+
+Dolphin 2609a with Metal passed 298 checks with zero failures. The probe
+checks vertex array and primitive command bytes. See the [report](docs/dolphin-runs/2026-11-16-gx-vertex-array/README.md)
+for evidence and limits. Physical Wii remains untested.
+
 ## 2026-11-16: System SRAM locks
 
 Dolphin 2609a with OpenGL passed 159 checks with zero failures. The probe
