@@ -1,5 +1,13 @@
 # Development results
 
+## 2026-11-17: GX texture preload commands
+
+Dolphin 2609a with Metal passed 332 checks with zero failures. The probe checks
+base and mip-level preload command words and null arguments. The
+[report](docs/dolphin-runs/2026-11-17-gx-texture-preload-fixed/README.md)
+records the initial probe error, evidence, and limits. Physical Wii remains
+untested.
+
 ## 2026-11-16: GX texture region invalidation
 
 Dolphin 2609a with Metal passed 329 checks with zero failures after the mipmap

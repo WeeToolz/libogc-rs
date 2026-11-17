@@ -918,6 +918,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_pixel_tev_commands(logger);
     probe_tev_order_scale(logger);
     probe_preloaded_texture_commands(logger);
+    probe_texture_preload_commands(logger);
     probe_gx_completion_callbacks(logger);
     probe_solid_rect_render(logger, width, height);
     probe_textured_rect_render(logger, width, height);
@@ -1166,6 +1167,96 @@ fn probe_vertex_format_commands(logger: &mut ProbeLogger) {
             gx::begin(gx::GX_TRIANGLES, 7, 0);
             gx::end();
         }),
+    );
+}
+
+fn probe_texture_preload_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX texture preload command bytes");
+    // SAFETY: The probe owns GX. Flush indirect state to a known zero mask.
+    unsafe {
+        gx::set_num_ind_stages(0);
+        gx::begin(gx::GX_TRIANGLES, 0, 0);
+        gx::end();
+    }
+    let image = core::ptr::without_provenance_mut::<core::ffi::c_void>(0x8123_4560);
+    let mut region = gx::GxTexRegion {
+        val: [0x400, 0x800, 0, 0],
+    };
+    for (mipmap, words) in [
+        (
+            0,
+            &[
+                0x0f00_0000,
+                0x6009_1a2b,
+                0x6100_0400,
+                0x6200_0800,
+                0x6301_0001,
+                0x0f00_0000,
+            ][..],
+        ),
+        (
+            1,
+            &[
+                0x0f00_0000,
+                0x6009_1a2b,
+                0x6100_0400,
+                0x6200_0800,
+                0x6301_0001,
+                0x6009_1a2d,
+                0x6100_0401,
+                0x6200_0801,
+                0x6301_0004,
+                0x6009_1a35,
+                0x6100_0805,
+                0x6200_0405,
+                0x6301_0001,
+                0x0f00_0000,
+            ][..],
+        ),
+    ] {
+        let mut object = gx::GxTexObj::default();
+        // SAFETY: The image address is encoded only into a captured list.
+        unsafe {
+            gx::init_tex_obj(
+                &mut object,
+                image,
+                gx::GxTexObjInit {
+                    wd: 4,
+                    ht: 4,
+                    fmt: gx::GX_TF_RGBA8,
+                    wrap_s: 0,
+                    wrap_t: 0,
+                    mipmap,
+                },
+            )
+        };
+        let mut expected = [0u8; 70];
+        for (bytes, word) in expected.chunks_exact_mut(5).zip(words) {
+            bytes[0] = 0x61;
+            bytes[1..].copy_from_slice(&u32::to_be_bytes(*word));
+        }
+        let mut loaded = false;
+        let matched = check_gx_command_bytes(&expected[..words.len() * 5], || unsafe {
+            loaded = gx::preload_entire_texture(&mut object, &mut region).is_ok();
+        });
+        logger.record(
+            "GX texture preload emits C base and mip-level commands",
+            loaded && matched,
+        );
+    }
+    let mut rejected = false;
+    let empty = check_gx_command_bytes(&[], || unsafe {
+        let mut object = gx::GxTexObj::default();
+        rejected = gx::preload_entire_texture(core::ptr::null_mut(), &mut region)
+            == Err(gx::GxTextureError::InvalidObject)
+            && gx::preload_entire_texture(&mut object, core::ptr::null_mut())
+                == Err(gx::GxTextureError::InvalidRegion);
+    });
+    logger.record(
+        "GX texture preload rejects null pointers",
+        rejected && empty,
     );
 }
 

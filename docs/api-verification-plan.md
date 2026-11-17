@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [texture preload batch](dolphin-runs/2026-11-17-gx-texture-preload-fixed/README.md)
+checks base and mip-level commands. Metal passes 332 checks. Actual transfers
+and physical Wii remain open.
+
 The [texture region batch](dolphin-runs/2026-11-16-gx-region-fixed/README.md)
 fixes the mipmap flag read and checks region invalidation commands. Metal passes
 329 checks. Cache effects on sampling and physical Wii remain open.
