@@ -1,0 +1,152 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "new",
+      "line": 269,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_host_startup",
+      "api_path": "HidHost::new",
+      "checks": [
+        "Bluetooth host startup and failure lifecycle"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "diagnostics",
+      "line": 318,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_host_startup",
+      "api_path": "host.diagnostics",
+      "checks": [
+        "Bluetooth host startup and failure lifecycle"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "next_event",
+      "line": 330,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_host_startup",
+      "api_path": "host.next_event",
+      "checks": [
+        "Bluetooth host startup and failure lifecycle"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "peek_event",
+      "line": 333,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_host_startup",
+      "api_path": "host.peek_event",
+      "checks": [
+        "Bluetooth host startup and failure lifecycle"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "next_outgoing",
+      "line": 575,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_host_startup",
+      "api_path": "host.next_outgoing",
+      "checks": [
+        "Bluetooth host startup and failure lifecycle"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "search",
+      "line": 613,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_host_startup",
+      "api_path": "host.search",
+      "checks": [
+        "Bluetooth host startup and failure lifecycle"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "switch_calibration",
+      "line": 322,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_host_startup",
+      "api_path": "host.switch_calibration",
+      "checks": [
+        "Bluetooth host startup and failure lifecycle"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "adapter_opening",
+      "line": 367,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_host_startup",
+      "api_path": "host.adapter_opening",
+      "checks": [
+        "Bluetooth host startup and failure lifecycle"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "start",
+      "line": 370,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_host_startup",
+      "api_path": "host.start",
+      "checks": [
+        "Bluetooth host startup and failure lifecycle"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "fail_timeout",
+      "line": 380,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_host_startup",
+      "api_path": "host.fail_timeout",
+      "checks": [
+        "Bluetooth host startup and failure lifecycle"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "fail_transport",
+      "line": 383,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_host_startup",
+      "api_path": "host.fail_transport",
+      "checks": [
+        "Bluetooth host startup and failure lifecycle"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "reset_preserving_keys",
+      "line": 343,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_host_startup",
+      "api_path": "host.reset_preserving_keys",
+      "checks": [
+        "Bluetooth host startup and failure lifecycle"
+      ]
+    }
+  ],
+  "limits": [
+    "Host startup and failure state in Dolphin. Adapter command completion, persistent key retention, and physical Bluetooth require separate checks."
+  ]
+}

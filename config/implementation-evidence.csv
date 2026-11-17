@@ -2133,3 +2133,12 @@ ogc-bt-sync,src/protocol.rs,ready,393,ios,hardware-probe,probes/ogc-system-probe
 ogc-bt-sync,src/protocol.rs,new,410,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_l2cap_state,HidL2capState::new
 ogc-bt-sync,src/protocol.rs,ready,417,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_l2cap_state,HidL2capState::ready
 ogc-bt-sync,src/protocol.rs,observe_signal,438,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_l2cap_state,state.observe_signal
+ogc-bt-sync,src/hid_host.rs,new,269,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_host_startup,HidHost::new
+ogc-bt-sync,src/hid_host.rs,diagnostics,318,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_host_startup,host.diagnostics
+ogc-bt-sync,src/hid_host.rs,next_event,330,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_host_startup,host.next_event
+ogc-bt-sync,src/hid_host.rs,peek_event,333,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_host_startup,host.peek_event
+ogc-bt-sync,src/hid_host.rs,next_outgoing,575,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_host_startup,host.next_outgoing
+ogc-bt-sync,src/hid_host.rs,adapter_opening,367,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_host_startup,host.adapter_opening
+ogc-bt-sync,src/hid_host.rs,start,370,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_host_startup,host.start
+ogc-bt-sync,src/hid_host.rs,fail_timeout,380,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_host_startup,host.fail_timeout
+ogc-bt-sync,src/hid_host.rs,fail_transport,383,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_host_startup,host.fail_transport

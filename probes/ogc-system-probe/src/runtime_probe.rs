@@ -44,6 +44,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_bt_input_queue(logger);
     probe_bt_discovery_values(logger);
     probe_bt_l2cap_state(logger);
+    probe_bt_host_startup(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -77,6 +78,53 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_network_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_udp(logger);
+}
+
+fn probe_bt_host_startup(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::{Failure, HidEvent, HidHost, HostStage, Outgoing};
+
+    let mut host = HidHost::new();
+    let initial = host.diagnostics().stage == HostStage::Disabled
+        && host.peek_event().is_none()
+        && host.next_event().is_none()
+        && host.next_outgoing(0).is_none()
+        && !host.search(0)
+        && host.switch_calibration(0).is_none();
+    host.adapter_opening();
+    let opening = host.diagnostics().stage == HostStage::AdapterOpen;
+    host.start();
+    let reset = host.diagnostics().stage == HostStage::Reset
+        && matches!(host.next_outgoing(1), Some(Outgoing::Hci { opcode, params })
+            if opcode.raw() == 0x0c03 && params.is_empty())
+        && host.next_outgoing(2).is_none();
+    host.fail_timeout();
+    let expected = Some(HidEvent::Failed {
+        slot: None,
+        failure: Failure::Timeout,
+    });
+    let failed = host.diagnostics().stage == HostStage::Failed
+        && host.diagnostics().failed_stage == Some(HostStage::Reset)
+        && host.diagnostics().failure == Some(Failure::Timeout)
+        && host.peek_event() == expected
+        && host.peek_event() == expected
+        && host.next_event() == expected
+        && host.next_event().is_none()
+        && host.next_outgoing(3).is_none();
+    host.reset_preserving_keys();
+    let reset_state = host.diagnostics().stage == HostStage::Disabled
+        && host.diagnostics().failure.is_none()
+        && host.peek_event().is_none();
+    host.fail_transport(-7);
+    let transport = host.diagnostics().failure == Some(Failure::Transport(-7))
+        && host.next_event()
+            == Some(HidEvent::Failed {
+                slot: None,
+                failure: Failure::Transport(-7),
+            });
+    logger.record(
+        "Bluetooth host startup and failure lifecycle",
+        initial && opening && reset && failed && reset_state && transport,
+    );
 }
 
 fn probe_bt_l2cap_state(logger: &mut ProbeLogger) {
