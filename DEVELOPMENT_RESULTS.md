@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-16: GX preloaded texture commands
+
+Dolphin 2609a with Metal passed 325 checks with zero failures. The probe checks
+preloaded texture and region command words and invalid arguments. See the
+[report](docs/dolphin-runs/2026-11-16-gx-preloaded-commands/README.md) for the
+evidence and limits. Physical Wii remains untested.
+
 ## 2026-11-16: GX TEV order and automatic texture scale
 
 Dolphin 2609a with Metal passed 323 checks with zero failures after the TEV

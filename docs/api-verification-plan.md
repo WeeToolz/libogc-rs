@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [preloaded texture batch](dolphin-runs/2026-11-16-gx-preloaded-commands/README.md)
+checks selected texture and region command bytes. Metal passes 325 checks.
+Sampling through this path and physical Wii remain open.
+
 The [pixel format and TEV batch](dolphin-runs/2026-11-16-gx-pixel-tev/README.md)
 checks selected command encoding. Metal passes 317 checks. Rendered effects
 and physical Wii remain open.

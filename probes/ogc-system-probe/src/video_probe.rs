@@ -916,6 +916,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_texgen_commands(logger);
     probe_pixel_tev_commands(logger);
     probe_tev_order_scale(logger);
+    probe_preloaded_texture_commands(logger);
     probe_gx_completion_callbacks(logger);
     probe_solid_rect_render(logger, width, height);
     probe_textured_rect_render(logger, width, height);
@@ -1164,6 +1165,63 @@ fn probe_vertex_format_commands(logger: &mut ProbeLogger) {
             gx::begin(gx::GX_TRIANGLES, 7, 0);
             gx::end();
         }),
+    );
+}
+
+fn probe_preloaded_texture_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX preloaded texture command bytes");
+    let mut object = gx::GxTexObj::default();
+    let mut region = gx::GxTexRegion {
+        val: [0x0001_2345, 0x0002_3456, 0, 0],
+    };
+    // The address is encoded in the captured list only; GX never reads it.
+    let image = core::ptr::without_provenance_mut::<core::ffi::c_void>(0x8123_4560);
+    unsafe {
+        gx::init_tex_obj(
+            &mut object,
+            image,
+            gx::GxTexObjInit {
+                wd: 8,
+                ht: 4,
+                fmt: gx::GX_TF_RGBA8,
+                wrap_s: 1,
+                wrap_t: 2,
+                mipmap: 0,
+            },
+        );
+    }
+    let mut loaded = false;
+    // SAFETY: The object and region are live. The commands are captured,
+    // and the image address is never submitted to the GPU.
+    let bytes_match = check_gx_bp_words(
+        &[
+            0xa100_0099,
+            0xa500_0000,
+            0xa960_0c07,
+            0xad01_2345,
+            0xb102_3456,
+            0xb509_1a2b,
+        ],
+        || unsafe { loaded = gx::load_tex_obj_preloaded(&mut object, &mut region, 5).is_ok() },
+    );
+    logger.record(
+        "GX preloaded texture emits map five object and region registers",
+        loaded && bytes_match && region.val[0] == 0xad01_2345 && region.val[1] == 0xb102_3456,
+    );
+    let mut rejected = false;
+    let no_commands = check_gx_command_bytes(&[], || unsafe {
+        rejected = gx::load_tex_obj_preloaded(core::ptr::null_mut(), &mut region, 0)
+            == Err(gx::GxTextureError::InvalidObject)
+            && gx::load_tex_obj_preloaded(&mut object, core::ptr::null_mut(), 0)
+                == Err(gx::GxTextureError::InvalidRegion)
+            && gx::load_tex_obj_preloaded(&mut object, &mut region, 8)
+                == Err(gx::GxTextureError::UnsupportedObject);
+    });
+    logger.record(
+        "GX preloaded texture rejects invalid arguments without commands",
+        rejected && no_commands,
     );
 }
 
