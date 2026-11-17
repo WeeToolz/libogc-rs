@@ -879,6 +879,9 @@ const GX_CP_FIFO_LINK: u16 = 1 << 4;
 static GX_FIFO_ACTIVE: AtomicBool = AtomicBool::new(false);
 static GX_DRAW_DONE: AtomicBool = AtomicBool::new(false);
 static GX_WAIT_FINISH_QUEUE: AtomicU32 = AtomicU32::new(0);
+static GX_AUTO_TEX_DIRTY: AtomicBool = AtomicBool::new(false);
+static GX_TEX_MAP_SIZE: [AtomicU32; 8] = [const { AtomicU32::new(0) }; 8];
+static GX_TEX_MAP_WRAP: [AtomicU32; 8] = [const { AtomicU32::new(0) }; 8];
 static GX_TEX_DIRTY: AtomicBool = AtomicBool::new(false);
 static GX_TEX_DIRTY_S: AtomicU32 = AtomicU32::new(0);
 static GX_TEX_DIRTY_T: AtomicU32 = AtomicU32::new(0);
@@ -1075,6 +1078,9 @@ static GX_VAT_DIRTY: AtomicU32 = AtomicU32::new(0);
 
 #[derive(Copy, Clone)]
 struct GxShadowSnapshot {
+    auto_tex_dirty: bool,
+    tex_map_size: [u32; 8],
+    tex_map_wrap: [u32; 8],
     tex_dirty: bool,
     tex_dirty_s: u32,
     tex_dirty_t: u32,
@@ -1144,6 +1150,9 @@ fn store_atomic_array<const N: usize>(target: &[AtomicU32; N], values: [u32; N])
 
 fn capture_gx_shadow() -> GxShadowSnapshot {
     GxShadowSnapshot {
+        auto_tex_dirty: GX_AUTO_TEX_DIRTY.load(Ordering::Relaxed),
+        tex_map_size: load_atomic_array(&GX_TEX_MAP_SIZE),
+        tex_map_wrap: load_atomic_array(&GX_TEX_MAP_WRAP),
         tex_dirty: GX_TEX_DIRTY.load(Ordering::Relaxed),
         tex_dirty_s: GX_TEX_DIRTY_S.load(Ordering::Relaxed),
         tex_dirty_t: GX_TEX_DIRTY_T.load(Ordering::Relaxed),
@@ -1203,6 +1212,9 @@ fn capture_gx_shadow() -> GxShadowSnapshot {
 }
 
 fn restore_gx_shadow(saved: GxShadowSnapshot) {
+    GX_AUTO_TEX_DIRTY.store(saved.auto_tex_dirty, Ordering::Relaxed);
+    store_atomic_array(&GX_TEX_MAP_SIZE, saved.tex_map_size);
+    store_atomic_array(&GX_TEX_MAP_WRAP, saved.tex_map_wrap);
     GX_TEX_DIRTY.store(saved.tex_dirty, Ordering::Relaxed);
     GX_TEX_DIRTY_S.store(saved.tex_dirty_s, Ordering::Relaxed);
     GX_TEX_DIRTY_T.store(saved.tex_dirty_t, Ordering::Relaxed);
@@ -2763,7 +2775,12 @@ unsafe fn configure_2d_state(projection: &Mtx44, textured: bool) {
         load_bp_reg(0x00, gen_mode);
 
         let tev_order = tev_order_word();
-        GX_TEV_RAS_ORDER[3].store(tev_order, Ordering::Relaxed);
+        GX_TEV_RAS_ORDER[3].store(
+            (u32::from(GX_BP_TEV_ORDER) << 24) | tev_order,
+            Ordering::Relaxed,
+        );
+        GX_TEV_TEX_MAP[0].store(0, Ordering::Relaxed);
+        GX_TEV_TEX_COORD_ENABLE.fetch_or(1, Ordering::Relaxed);
         load_bp_reg(GX_BP_TEV_ORDER, tev_order);
         load_xf_regs(0x103f, &[TEXTURE_GENERATOR_COUNT]);
         load_xf_regs(POST_IDENTITY_ADDRESS, &position_identity);
@@ -2951,6 +2968,7 @@ pub unsafe fn load_tex_obj_preloaded(
             tlut.val[1] = (tlut.val[1] & 0x00ff_ffff) | (u32::from(tlut_reg) << 24);
             write_bp_word(tlut.val[1]);
         }
+        record_texture_map(map_id, ptr.tex_size, ptr.tex_filt);
         Ok(())
     }
 }
@@ -3080,6 +3098,7 @@ pub unsafe fn load_tex_obj(obj: *mut GxTexObj, map_id: u8) -> Result<(), GxTextu
     for word in words {
         load_bp_reg((word >> 24) as u8, word & 0x00ff_ffff);
     }
+    record_texture_map(map_id, snapshot.tex_size, snapshot.tex_filt);
     Ok(())
 }
 
@@ -4699,6 +4718,7 @@ fn flush_pending_vertex_state() {
 }
 
 fn flush_pending_gx_state() {
+    flush_pending_auto_texture_scale();
     flush_pending_texture_dirty_state();
     flush_pending_gen_mode();
     flush_pending_indirect_texture_mask();
@@ -5009,6 +5029,68 @@ fn flush_pending_texgen_state() {
             load_cp_reg(0x40, hi);
             load_matrix_index(0x1019, hi);
         }
+    }
+}
+
+fn record_texture_map(map: u8, size: u32, wrap: u32) {
+    GX_TEX_MAP_SIZE[usize::from(map)].store(size, Ordering::Relaxed);
+    GX_TEX_MAP_WRAP[usize::from(map)].store(wrap, Ordering::Relaxed);
+    GX_AUTO_TEX_DIRTY.store(true, Ordering::Release);
+}
+
+fn update_automatic_texture_scale(map: usize, coord: usize) {
+    if GX_TEX_COORD_MANUAL.load(Ordering::Relaxed) & (1 << coord) != 0 {
+        return;
+    }
+    let size = GX_TEX_MAP_SIZE[map].load(Ordering::Relaxed);
+    let wrap = GX_TEX_MAP_WRAP[map].load(Ordering::Relaxed);
+    let s = update_bits(
+        GX_SU_SSIZE[coord].load(Ordering::Relaxed),
+        0x1ffff,
+        (size & 0x3ff) | ((wrap & 1) << 16),
+    );
+    let t = update_bits(
+        GX_SU_TSIZE[coord].load(Ordering::Relaxed),
+        0x1ffff,
+        ((size >> 10) & 0x3ff) | (((wrap >> 2) & 1) << 16),
+    );
+    GX_SU_SSIZE[coord].store(s, Ordering::Relaxed);
+    GX_SU_TSIZE[coord].store(t, Ordering::Relaxed);
+    write_bp_word(s);
+    write_bp_word(t);
+}
+
+fn flush_pending_auto_texture_scale() {
+    if !GX_AUTO_TEX_DIRTY.swap(false, Ordering::Acquire) {
+        return;
+    }
+    let generation = GX_GEN_MODE.load(Ordering::Relaxed);
+    let order = GX_TEV_RAS_ORDER[2].load(Ordering::Relaxed);
+    for stage in 0..((generation >> 16) & 7) {
+        let shift = stage * 6;
+        let (map, coord) = if stage < 4 {
+            (
+                ((order >> shift) & 7) as usize,
+                ((order >> (shift + 3)) & 7) as usize,
+            )
+        } else {
+            (0, 0)
+        };
+        update_automatic_texture_scale(map, coord);
+    }
+    let enabled = GX_TEV_TEX_COORD_ENABLE.load(Ordering::Relaxed);
+    for stage in 0..(((generation >> 10) & 15) + 1) as usize {
+        let map = GX_TEV_TEX_MAP[stage].load(Ordering::Relaxed) & 0xff;
+        if map == 0xff || enabled & (1 << stage) == 0 {
+            continue;
+        }
+        // Invalid maps are undefined in C; avoid indexing outside the table.
+        if map >= 8 {
+            continue;
+        }
+        let order = GX_TEV_RAS_ORDER[3 + stage / 2].load(Ordering::Relaxed);
+        let shift = if stage & 1 == 0 { 3 } else { 15 };
+        update_automatic_texture_scale(map as usize, ((order >> shift) & 7) as usize);
     }
 }
 
@@ -6794,6 +6876,7 @@ pub unsafe fn set_tev_order(tevstage: u8, texcoord: u8, texmap: u32, color: u8) 
     }
     GX_TEV_RAS_ORDER[reg].store(word, Ordering::Relaxed);
     write_bp_word(word);
+    GX_AUTO_TEX_DIRTY.store(true, Ordering::Release);
 }
 
 /// # Safety
@@ -7610,6 +7693,7 @@ pub unsafe fn set_ind_tex_order(indtexstage: u8, texcoord: u8, texmap: u8) {
     word = update_bits(word, 0x38 << shift, u32::from(texcoord & 7) << (shift + 3));
     GX_TEV_RAS_ORDER[2].store(word, Ordering::Relaxed);
     write_bp_word(word);
+    GX_AUTO_TEX_DIRTY.store(true, Ordering::Release);
     GX_TEV_IND_MASK_DIRTY.store(true, Ordering::Release);
 }
 

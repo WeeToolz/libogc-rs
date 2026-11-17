@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-16: GX TEV order and automatic texture scale
+
+Dolphin 2609a with Metal passed 323 checks with zero failures after the TEV
+order register and automatic scale fixes. The [report](docs/dolphin-runs/2026-11-16-gx-tev-order-preloaded/README.md)
+links the failed traces and records selected cases and limits. Physical Wii
+remains untested.
+
 ## 2026-11-16: GX pixel format and TEV default commands
 
 Dolphin 2609a with Metal passed 317 checks with zero failures. The probe checks

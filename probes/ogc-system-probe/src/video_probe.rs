@@ -915,6 +915,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_generation_mode_commands(logger);
     probe_texgen_commands(logger);
     probe_pixel_tev_commands(logger);
+    probe_tev_order_scale(logger);
     probe_gx_completion_callbacks(logger);
     probe_solid_rect_render(logger, width, height);
     probe_textured_rect_render(logger, width, height);
@@ -1163,6 +1164,197 @@ fn probe_vertex_format_commands(logger: &mut ProbeLogger) {
             gx::begin(gx::GX_TRIANGLES, 7, 0);
             gx::end();
         }),
+    );
+}
+
+fn probe_tev_order_scale(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX TEV order automatic texture scale");
+    #[repr(align(32))]
+    struct Image([u8; 8 * 4 * 4]);
+    let mut image = Image([0; 8 * 4 * 4]);
+    let mut texture = gx::GxTexObj::default();
+    let projection = [
+        [1.0, 0.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0, 0.0],
+        [0.0, 0.0, 1.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    ];
+    // SAFETY: The probe owns GX and keeps the aligned texture image live.
+    // Zero-vertex primitives flush state without sampling the image.
+    let ready = unsafe {
+        gx::configure_solid_2d(&projection);
+        gx::set_tex_coord_scale_manually(3, 0, 1, 1);
+        gx::set_tex_coord_cyl_wrap(3, 0, 0);
+        gx::set_tex_coord_bias(3, 0, 0);
+        gx::init_tex_obj(
+            &mut texture,
+            image.0.as_mut_ptr().cast(),
+            gx::GxTexObjInit {
+                wd: 8,
+                ht: 4,
+                fmt: gx::GX_TF_RGBA8,
+                wrap_s: 0,
+                wrap_t: 0,
+                mipmap: 0,
+            },
+        );
+        let loaded = gx::load_tex_obj(&mut texture, 0).is_ok();
+        gx::begin(gx::GX_TRIANGLES, 0, 0);
+        gx::end();
+        loaded
+    };
+    #[repr(align(32))]
+    struct Trace([u8; 64]);
+    let mut trace = Trace([0xa5; 64]);
+    // SAFETY: GX is probe-owned; the aligned buffer remains live through capture.
+    let trace_size = unsafe {
+        gx::begin_disp_list(trace.0.as_mut_ptr().cast(), 64);
+        gx::set_tev_order(0, 3, 0, gx::GX_COLOR0A0);
+        gx::begin(gx::GX_TRIANGLES, 0, 0);
+        gx::end();
+        gx::end_disp_list()
+    };
+    logger.note_u32("GX TEV order trace size", trace_size);
+    for chunk in trace.0[..16].chunks_exact(4) {
+        logger.note_u32(
+            "GX TEV order trace bytes",
+            u32::from_be_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]),
+        );
+    }
+    // C GX_SetTevOrder marks SU state dirty. Before the next primitive,
+    // __GX_SetSUTexRegs uses map 0's 8x4 size for coordinate 3.
+    logger.record(
+        "GX TEV order updates automatic texture coordinate scale",
+        ready
+            && check_gx_command_bytes(
+                &[
+                    0x61, 0x28, 0, 0, 0x58, 0x61, 0x36, 0, 0, 7, 0x61, 0x37, 0, 0, 3, 0x90, 0, 0,
+                ],
+                || unsafe {
+                    gx::set_tev_order(0, 3, 0, gx::GX_COLOR0A0);
+                    gx::begin(gx::GX_TRIANGLES, 0, 0);
+                    gx::end();
+                },
+            ),
+    );
+    // SAFETY: The second map uses the same live aligned image. Loading and
+    // flushing it establishes map-specific dimensions and wrap fields.
+    let wrapped_ready = unsafe {
+        let mut wrapped = gx::GxTexObj::default();
+        gx::init_tex_obj(
+            &mut wrapped,
+            image.0.as_mut_ptr().cast(),
+            gx::GxTexObjInit {
+                wd: 8,
+                ht: 4,
+                fmt: gx::GX_TF_RGBA8,
+                wrap_s: 1,
+                wrap_t: 1,
+                mipmap: 0,
+            },
+        );
+        let loaded = gx::load_tex_obj(&mut wrapped, 1).is_ok();
+        gx::begin(gx::GX_TRIANGLES, 0, 0);
+        gx::end();
+        loaded
+    };
+    logger.record(
+        "GX TEV order selects map-specific scale and wrap fields",
+        wrapped_ready
+            && check_gx_command_bytes(
+                &[
+                    0x61, 0x28, 0, 0, 0x59, 0x61, 0x36, 1, 0, 7, 0x61, 0x37, 1, 0, 3, 0x90, 0, 0,
+                ],
+                || unsafe {
+                    gx::set_tev_order(0, 3, 1, gx::GX_COLOR0A0);
+                    gx::begin(gx::GX_TRIANGLES, 0, 0);
+                    gx::end();
+                },
+            ),
+    );
+    // SAFETY: The object, region, and aligned image are live for this load.
+    let preloaded_ready = unsafe {
+        let mut object = gx::GxTexObj::default();
+        let mut region = gx::GxTexRegion::default();
+        gx::init_tex_obj(
+            &mut object,
+            image.0.as_mut_ptr().cast(),
+            gx::GxTexObjInit {
+                wd: 4,
+                ht: 8,
+                fmt: gx::GX_TF_RGBA8,
+                wrap_s: 0,
+                wrap_t: 1,
+                mipmap: 0,
+            },
+        );
+        gx::init_tex_cache_region(&mut region, 0, 0, 3, 0x80000, 3);
+        let loaded = gx::load_tex_obj_preloaded(&mut object, &mut region, 2).is_ok();
+        gx::begin(gx::GX_TRIANGLES, 0, 0);
+        gx::end();
+        loaded
+    };
+    logger.record(
+        "GX preloaded texture supplies map-specific scale",
+        preloaded_ready
+            && check_gx_command_bytes(
+                &[
+                    0x61, 0x28, 0, 0, 0x5a, 0x61, 0x36, 0, 0, 3, 0x61, 0x37, 1, 0, 7, 0x90, 0, 0,
+                ],
+                || unsafe {
+                    gx::set_tev_order(0, 3, 2, gx::GX_COLOR0A0);
+                    gx::begin(gx::GX_TRIANGLES, 0, 0);
+                    gx::end();
+                },
+            ),
+    );
+    // SAFETY: The probe owns GX. Set manual scale before the capture and
+    // disable it afterward so later cases exercise automatic mode.
+    unsafe { gx::set_tex_coord_scale_manually(3, 1, 5, 6) };
+    logger.record(
+        "GX manual texture scale is not overwritten by TEV order",
+        check_gx_command_bytes(&[0x61, 0x28, 0, 0, 0x58, 0x90, 0, 0], || unsafe {
+            gx::set_tev_order(0, 3, 0, gx::GX_COLOR0A0);
+            gx::begin(gx::GX_TRIANGLES, 0, 0);
+            gx::end();
+        }),
+    );
+    unsafe { gx::set_tex_coord_scale_manually(3, 0, 1, 1) };
+    logger.record(
+        "GX null TEV texture does not update automatic scale",
+        check_gx_command_bytes(&[0x61, 0x28, 0, 3, 0x98, 0x90, 0, 0], || unsafe {
+            gx::set_tev_order(0, 3, gx::GX_TEXMAP_NULL, gx::GX_COLORNULL);
+            gx::begin(gx::GX_TRIANGLES, 0, 0);
+            gx::end();
+        }),
+    );
+    // SAFETY: Initialize a single indirect stage and clear all order fields.
+    unsafe {
+        gx::set_tev_order(0, 0, gx::GX_TEXMAP_NULL, gx::GX_COLORNULL);
+        gx::set_tex_coord_scale_manually(2, 0, 1, 1);
+        gx::set_tex_coord_cyl_wrap(2, 0, 0);
+        gx::set_tex_coord_bias(2, 0, 0);
+        for stage in 0..4 {
+            gx::set_ind_tex_order(stage, 0, 0);
+        }
+        gx::set_num_ind_stages(1);
+        gx::begin(gx::GX_TRIANGLES, 0, 0);
+        gx::end();
+    }
+    logger.record(
+        "GX indirect texture order updates automatic scale",
+        check_gx_command_bytes(
+            &[
+                0x61, 0x27, 0, 0, 0x10, 0x61, 0x34, 0, 0, 7, 0x61, 0x35, 0, 0, 3, 0x90, 0, 0,
+            ],
+            || unsafe {
+                gx::set_ind_tex_order(0, 2, 0);
+                gx::begin(gx::GX_TRIANGLES, 0, 0);
+                gx::end();
+            },
+        ),
     );
 }
 
