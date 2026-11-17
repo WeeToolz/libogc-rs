@@ -71,6 +71,7 @@ ogc-sha = { path = "../../crates/core/ogc-sha" }
 ogc-si = { path = "../../crates/hardware/ogc-si" }
 ogc-stm = { path = "../../crates/core/ogc-stm" }
 ogc-system = { path = "../../crates/core/ogc-system" }
+ogc-system-sys = { path = "../../crates/core/ogc-system-sys" }
 ogc-sysbase = { path = "../../crates/core/ogc-sysbase" }
 ogc-usb = { path = "../../crates/services/ogc-usb" }
 ogc-usbgecko = { path = "../../crates/services/ogc-usbgecko" }

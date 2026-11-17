@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [raw arena batch](dolphin-runs/2026-11-17-arena-raw/README.md) checks
+MEM1 and MEM2 bounds and allocation, including MEM2 C ABI calls. OpenGL
+passes 13 checks. Concurrent allocation and physical Wii remain open.
+
 The [texture callback batch](dolphin-runs/2026-11-17-gx-tex-region-callback/README.md)
 checks selected callback handling and load commands. Metal passes 338 checks.
 Actual texture sampling and physical Wii remain open.

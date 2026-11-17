@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-17: Raw and C ABI arena operations
+
+Dolphin 2609a with OpenGL passed 13 checks with zero failures. The probe checks
+raw MEM1 and MEM2 bounds and allocation, and the MEM2 C ABI entry points.
+See the [report](docs/dolphin-runs/2026-11-17-arena-raw/README.md) for the
+evidence and limits. Physical Wii remains untested.
+
 ## 2026-11-17: GX texture region callback
 
 Dolphin 2609a with Metal passed 338 checks with zero failures. The probe checks
