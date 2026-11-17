@@ -2540,7 +2540,8 @@ fn flush_texture_state() {
 }
 
 fn tex_region_ismipmap(region: &GxTexRegion) -> bool {
-    region.val[3] != 0 && (region.val[2] as u8) != 0
+    // The C layout stores ismipmap as the first byte of the fourth word.
+    region.val[3].to_ne_bytes()[0] != 0
 }
 
 fn tex_region_invalidation_words(region: &GxTexRegion) -> (u32, Option<u32>) {
@@ -8607,8 +8608,8 @@ mod tests {
             val: [
                 0x0000_0000 | (4 << 15) | (4 << 18),
                 0x0000_0400 | (3 << 15) | (3 << 18),
-                GX_TRUE as u32,
-                1,
+                0,
+                u32::from_ne_bytes([GX_TRUE, 1, 0, 0]),
             ],
         };
         let (even, odd) = tex_region_invalidation_words(&region);

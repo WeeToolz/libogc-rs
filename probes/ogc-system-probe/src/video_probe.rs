@@ -907,6 +907,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_pe_control_commands(logger);
     probe_vertex_cache_commands(logger);
     probe_texture_cache_commands(logger);
+    probe_texture_region_invalidation(logger);
     probe_line_point_field_commands(logger);
     probe_vertex_descriptors(logger);
     probe_vertex_array_commands(logger);
@@ -3156,6 +3157,58 @@ fn probe_vertex_cache_commands(logger: &mut ProbeLogger) {
             check_gx_command_bytes(&[0x48], || ogc_gx::inv_vtx_cache()),
         );
     }
+}
+
+fn probe_texture_region_invalidation(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX texture region invalidation command bytes");
+    for (mipmap, expected) in [
+        (0, [0x0f00_0000, 0x6600_0c10, 0x6600_0820, 0x0f00_0000]),
+        (1, [0x0f00_0000, 0x6600_1010, 0x6600_1020, 0x0f00_0000]),
+    ] {
+        let mut region = gx::GxTexRegion::default();
+        // SAFETY: The region is live and the probe owns GX. Commands are
+        // captured rather than executed.
+        unsafe {
+            gx::init_tex_cache_region(
+                &mut region,
+                mipmap,
+                0x8000,
+                gx::GX_TEXCACHE_128K,
+                0x10000,
+                gx::GX_TEXCACHE_32K,
+            );
+        }
+        let mut result = false;
+        let matched = check_gx_bp_words(&expected, || unsafe {
+            result = gx::invalidate_tex_region(&mut region).is_ok();
+        });
+        logger.record(
+            "GX region invalidation emits C cache words and flushes",
+            result && matched,
+        );
+    }
+    let mut no_odd = gx::GxTexRegion {
+        val: [(3 << 15) | (3 << 18) | 0x400, 0, 0, 0],
+    };
+    let mut no_odd_ok = false;
+    let no_odd_match = check_gx_bp_words(&[0x0f00_0000, 0x6600_0810, 0x0f00_0000], || unsafe {
+        no_odd_ok = gx::invalidate_tex_region(&mut no_odd).is_ok();
+    });
+    logger.record(
+        "GX region invalidation omits an empty odd bank",
+        no_odd_ok && no_odd_match,
+    );
+    let mut rejected = false;
+    let empty = check_gx_command_bytes(&[], || unsafe {
+        rejected = gx::invalidate_tex_region(core::ptr::null_mut())
+            == Err(gx::GxTextureError::InvalidRegion);
+    });
+    logger.record(
+        "GX region invalidation rejects a null region",
+        rejected && empty,
+    );
 }
 
 fn probe_texture_cache_commands(logger: &mut ProbeLogger) {

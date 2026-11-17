@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-16: GX texture region invalidation
+
+Dolphin 2609a with Metal passed 329 checks with zero failures after the mipmap
+flag fix. The [report](docs/dolphin-runs/2026-11-16-gx-region-fixed/README.md)
+records the failing run, passing command checks, and limits. Physical Wii
+remains untested.
+
 ## 2026-11-16: GX preloaded texture commands
 
 Dolphin 2609a with Metal passed 325 checks with zero failures. The probe checks
