@@ -67,6 +67,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_raw_udp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_raw_tcp(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_network_tcp(logger);
 }
 
 #[cfg(feature = "dolphin-automation")]
@@ -439,6 +441,186 @@ fn probe_raw_tcp(logger: &mut ProbeLogger) {
         logger.record("Raw TCP client closes", net::net_close(client) == 0);
     }
     logger.record("Raw TCP network deinitializes", net::net_deinit() == 0);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_network_tcp(logger: &mut ProbeLogger) {
+    use core::mem::size_of;
+    use ogc_network as net;
+
+    logger.report_step("Network TCP wrapper operations");
+    let initialized = net::init();
+    logger.record("TCP wrapper initializes", initialized >= 0);
+    if initialized < 0 {
+        return;
+    }
+    let listener = net::socket(net::PF_INET, net::SOCK_STREAM, 0);
+    let client = net::socket(net::PF_INET, net::SOCK_STREAM, 0);
+    logger.record("TCP wrapper sockets open", listener >= 0 && client >= 0);
+    if listener >= 0 && client >= 0 {
+        let raw = net::socket_raw_fd(listener);
+        let flags = net::fcntl(listener, raw_network::F_GETFL, 0) == 0
+            && net::fcntl(listener, raw_network::F_SETFL, net::O_NONBLOCK) == 0
+            && net::fcntl(listener, raw_network::F_GETFL, 0) == net::O_NONBLOCK as i32
+            && net::fcntl(listener, raw_network::F_SETFL, 0) == 0;
+        logger.record("TCP wrapper changes socket flags", flags);
+        let mut address = net::SockaddrIn {
+            sin_len: size_of::<net::SockaddrIn>() as u8,
+            sin_family: net::AF_INET as u8,
+            sin_port: 0,
+            sin_addr: net::InAddr {
+                s_addr: 0x7f00_0001,
+            },
+            sin_zero: [0; 8],
+        };
+        let mut len = size_of::<net::SockaddrIn>() as u32;
+        // SAFETY: The address buffers and lengths are valid for these calls.
+        let bound = net::bind_addr(listener, &address) == 0
+            && unsafe {
+                net::getsockname(
+                    listener,
+                    (&mut address as *mut net::SockaddrIn).cast(),
+                    &mut len,
+                )
+            } == 0;
+        let mut raw_address = raw_network::SockaddrIn::default();
+        let mut raw_len = size_of::<raw_network::SockaddrIn>() as u32;
+        let raw_matches = raw.is_some_and(|fd| {
+            // SAFETY: The address and length are writable for this call.
+            unsafe {
+                raw_network::net_getsockname(
+                    fd,
+                    (&mut raw_address as *mut raw_network::SockaddrIn).cast(),
+                    &mut raw_len,
+                ) == 0
+            }
+        });
+        logger.record(
+            "TCP wrapper resolves raw socket",
+            bound
+                && raw_matches
+                && net::soc_get_fd(listener) == raw.unwrap_or(-1)
+                && raw_address.sin_port == address.sin_port
+                && raw_address.sin_addr.s_addr == 0x7f00_0001,
+        );
+        let listening = bound && address.sin_port != 0 && net::listen(listener, 2) == 0;
+        logger.record("TCP wrapper binds and listens", listening);
+        if listening {
+            let connected = net::connect_addr(client, &address) == 0;
+            logger.record("TCP wrapper typed connect", connected);
+            if connected && wrapper_readable(listener) {
+                let mut peer = net::SockaddrIn::default();
+                let accepted = net::accept_addr(listener, &mut peer);
+                logger.record(
+                    "TCP wrapper typed accept",
+                    accepted >= 0 && peer.sin_addr.s_addr == 0x7f00_0001 && peer.sin_port != 0,
+                );
+                if accepted >= 0 {
+                    let a = b"send slice";
+                    let sent = net::send_slice(client, a, 0);
+                    let mut bytes = [0xa5; 32];
+                    let got = if sent == a.len() as i32 && wrapper_readable(accepted) {
+                        net::recv_slice(accepted, &mut bytes, 0)
+                    } else {
+                        -1
+                    };
+                    logger.record(
+                        "TCP wrapper slice send and receive",
+                        got == a.len() as i32
+                            && bytes[..a.len()] == *a
+                            && bytes[a.len()..].iter().all(|b| *b == 0xa5),
+                    );
+                    let b = b"write slice";
+                    let sent = net::write_slice(accepted, b);
+                    let mut bytes = [0xa5; 32];
+                    let got = if sent == b.len() as i32 && wrapper_readable(client) {
+                        net::read_slice(client, &mut bytes)
+                    } else {
+                        -1
+                    };
+                    logger.record(
+                        "TCP wrapper slice write and read",
+                        got == b.len() as i32
+                            && bytes[..b.len()] == *b
+                            && bytes[b.len()..].iter().all(|b| *b == 0xa5),
+                    );
+                    let c = b"raw send";
+                    let sent = unsafe { net::send(client, c.as_ptr().cast(), c.len() as i32, 0) };
+                    let mut bytes = [0xa5; 32];
+                    let got = if sent == c.len() as i32 && wrapper_readable(accepted) {
+                        unsafe {
+                            net::recv(accepted, bytes.as_mut_ptr().cast(), bytes.len() as i32, 0)
+                        }
+                    } else {
+                        -1
+                    };
+                    logger.record(
+                        "TCP wrapper raw send and receive",
+                        got == c.len() as i32
+                            && bytes[..c.len()] == *c
+                            && bytes[c.len()..].iter().all(|b| *b == 0xa5),
+                    );
+                    let d = b"raw write";
+                    let sent = unsafe { net::write(accepted, d.as_ptr().cast(), d.len() as i32) };
+                    let mut bytes = [0xa5; 32];
+                    let got = if sent == d.len() as i32 && wrapper_readable(client) {
+                        unsafe { net::read(client, bytes.as_mut_ptr().cast(), bytes.len() as i32) }
+                    } else {
+                        -1
+                    };
+                    logger.record(
+                        "TCP wrapper raw write and read",
+                        got == d.len() as i32
+                            && bytes[..d.len()] == *d
+                            && bytes[d.len()..].iter().all(|b| *b == 0xa5),
+                    );
+                    logger.record(
+                        "TCP wrapper releases accepted socket",
+                        net::socket_release_fd(accepted) == 0
+                            && net::socket_raw_fd(accepted).is_none(),
+                    );
+                }
+            } else {
+                logger.record("TCP wrapper listener ready", false);
+            }
+            let client2 = net::socket(net::PF_INET, net::SOCK_STREAM, 0);
+            let connected2 = client2 >= 0 && net::connect_addr(client2, &address) == 0;
+            let accepted2 = if connected2 && wrapper_readable(listener) {
+                net::accept_socket(listener)
+            } else {
+                -1
+            };
+            logger.record("TCP wrapper accepts without peer output", accepted2 >= 0);
+            if accepted2 >= 0 {
+                logger.record(
+                    "TCP wrapper second accepted socket closes",
+                    net::close(accepted2) == 0,
+                );
+            }
+            if client2 >= 0 {
+                logger.record("TCP wrapper second client closes", net::close(client2) == 0);
+            }
+        }
+    }
+    if listener >= 0 {
+        logger.record("TCP wrapper listener closes", net::close(listener) == 0);
+    }
+    if client >= 0 {
+        logger.record("TCP wrapper client closes", net::close(client) == 0);
+    }
+    logger.record("TCP wrapper deinitializes", net::deinit() == 0);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn wrapper_readable(socket: i32) -> bool {
+    use ogc_network as net;
+    let mut fd = net::PollFd {
+        fd: socket,
+        events: net::POLLIN,
+        revents: 0,
+    };
+    // SAFETY: The single descriptor remains writable for the duration of the call.
+    (unsafe { net::poll(&mut fd, 1, 3000) == 1 }) && fd.revents & net::POLLIN != 0
 }
 
 fn probe_hci_events(logger: &mut ProbeLogger) {

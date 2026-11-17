@@ -1838,3 +1838,10 @@ TCP connection, including options, flags, accept, and write shutdown. Two
 earlier protocol 6 socket attempts failed; their cause is unknown. The passing
 run uses protocol 0. See the [TCP report](docs/dolphin-runs/2026-11-17-raw-tcp-default/README.md)
 for evidence and limits.
+
+## 2026-11-17: TCP network wrappers
+
+Dolphin passed 219 checks. The probe checks 18 network APIs with local TCP
+connections, payloads, socket flags, handle lookup, and cleanup. See the
+[TCP wrapper report](docs/dolphin-runs/2026-11-17-network-tcp-wrappers-final/README.md)
+for evidence and limits.
