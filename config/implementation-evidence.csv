@@ -2079,3 +2079,8 @@ ogc-es-sys,src/imp.rs,get_title_contents,909,ios,hardware-probe,probes/ogc-syste
 ogc-es-sys,src/imp.rs,get_title_contents_count,876,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_es_catalog,sys::get_title_contents_count
 ogc-es-sys,src/imp.rs,get_titles,678,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_es_catalog,sys::get_titles
 ogc-es-sys,src/imp.rs,init,412,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_es_catalog,sys::init
+ogc-es-sys,src/imp.rs,get_num_ticket_views,525,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_es_catalog,sys::get_num_ticket_views
+ogc-es-sys,src/imp.rs,get_stored_tmd,839,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_es_catalog,sys::get_stored_tmd
+ogc-es-sys,src/imp.rs,get_ticket_views,558,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_es_catalog,sys::get_ticket_views
+ogc-es-sys,src/imp.rs,get_tmd_view,979,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_es_catalog,sys::get_tmd_view
+ogc-es-sys,src/imp.rs,get_tmd_view_size,946,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_es_catalog,sys::get_tmd_view_size

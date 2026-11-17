@@ -39,6 +39,9 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [raw ES view batch](dolphin-runs/2026-11-17-raw-es-views/README.md)
+checks five APIs against a NAND fixture. Dolphin passes 235 checks.
+
 The [raw ES catalog batch](dolphin-runs/2026-11-17-raw-es-catalog-final/README.md)
 checks ten APIs. Dolphin leaves the data-directory terminator untouched;
 that API remains unverified.

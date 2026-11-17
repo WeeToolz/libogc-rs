@@ -1766,6 +1766,67 @@ fn probe_raw_es_catalog(logger: &mut ProbeLogger) {
                 && ids[9] == u32::MAX,
         );
     }
+    #[repr(align(64))]
+    struct TmdBytes([u8; 832]);
+    let mut tmd = TmdBytes([0xa5; 832]);
+    let tmd_rc = unsafe { sys::get_stored_tmd(MENU, tmd.0.as_mut_ptr().cast(), 808) };
+    logger.note_i32("Raw ES stored TMD result", tmd_rc);
+    let mut digest = [0u8; 20];
+    let hash_init = sha::init();
+    let hashed = hash_init == 0 && sha::calculate(&tmd.0[..808], &mut digest) == 0;
+    let hash_close = if hash_init == 0 { sha::close() } else { -1 };
+    logger.record(
+        "Raw ES stored TMD matches fixture digest and guard",
+        tmd_rc == 0
+            && hashed
+            && hash_close == 0
+            && digest
+                == [
+                    0x8f, 0x9e, 0x05, 0xf8, 0xd8, 0xd0, 0xb3, 0x41, 0x9e, 0xa4, 0xb8, 0x7e, 0x37,
+                    0xa4, 0x07, 0x4a, 0x3a, 0x32, 0x9a, 0xeb,
+                ]
+            && tmd.0[808..].iter().all(|b| *b == 0xa5),
+    );
+    let mut views_count = 0u32;
+    let ticket_rc = unsafe { sys::get_num_ticket_views(MENU, &mut views_count) };
+    logger.note_i32("Raw ES ticket count result", ticket_rc);
+    logger.note_u32("Raw ES ticket count", views_count);
+    logger.record(
+        "Raw ES system menu has one ticket view",
+        ticket_rc == 0 && views_count == 1,
+    );
+    if ticket_rc == 0 && views_count == 1 {
+        #[repr(align(32))]
+        struct View(sys::Tikview);
+        let mut view = View(sys::Tikview::default());
+        let rc = unsafe { sys::get_ticket_views(MENU, &mut view.0, 1) };
+        let title = view.0.titleid;
+        logger.record(
+            "Raw ES ticket view identifies system menu",
+            rc == 0 && title == MENU,
+        );
+    }
+    let mut view_size = 0u32;
+    let view_rc = unsafe { sys::get_tmd_view_size(MENU, &mut view_size) };
+    logger.note_i32("Raw ES TMD view size result", view_rc);
+    logger.note_u32("Raw ES TMD view size", view_size);
+    logger.record(
+        "Raw ES TMD view size fits system menu",
+        view_rc == 0 && view_size == 236,
+    );
+    if view_rc == 0 && view_size == 236 {
+        #[repr(align(32))]
+        struct ViewBytes([u8; 256]);
+        let mut view = ViewBytes([0xa5; 256]);
+        let rc = unsafe { sys::get_tmd_view(MENU, view.0.as_mut_ptr().cast(), view_size) };
+        logger.record(
+            "Raw ES TMD view identifies menu and content count",
+            rc == 0
+                && &view.0[12..20] == &MENU.to_be_bytes()
+                && &view.0[90..92] == &[0, 9]
+                && view.0[236..].iter().all(|b| *b == 0xa5),
+        );
+    }
     let mut boot2 = 0u32;
     let rc = unsafe { sys::get_boot2_version(&mut boot2) };
     logger.record(

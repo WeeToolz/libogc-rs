@@ -1884,3 +1884,9 @@ Ten ES API checks passed in Dolphin. Two earlier runs failed a data-directory
 terminator expectation. A revised check records Dolphin’s unterminated bytes;
 that API remains unverified. See the [ES report](docs/dolphin-runs/2026-11-17-raw-es-catalog-final/README.md)
 for evidence and limits.
+
+## 2026-11-17: Raw ES TMD and ticket views
+
+Dolphin passed 235 checks. New checks cover five raw ES APIs with a stored
+TMD and ticket view. See the [ES view report](docs/dolphin-runs/2026-11-17-raw-es-views/README.md)
+for evidence and limits.
