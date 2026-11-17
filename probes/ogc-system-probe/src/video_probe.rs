@@ -15,6 +15,15 @@ static CALLBACK_PHASE: AtomicU32 = AtomicU32::new(0);
 static GX_DONE_COUNT: AtomicU32 = AtomicU32::new(0);
 static GX_TOKEN_COUNT: AtomicU32 = AtomicU32::new(0);
 static GX_LAST_TOKEN: AtomicU32 = AtomicU32::new(0);
+static TLUT_REGION_PTR: AtomicUsize = AtomicUsize::new(0);
+static TLUT_CALLBACK_COUNT: AtomicU32 = AtomicU32::new(0);
+static TLUT_CALLBACK_NAME: AtomicU32 = AtomicU32::new(0);
+
+unsafe extern "C" fn probe_tlut_region_callback(name: u32) -> *mut ogc_gx::GxTlutRegion {
+    TLUT_CALLBACK_COUNT.fetch_add(1, Ordering::Relaxed);
+    TLUT_CALLBACK_NAME.store(name, Ordering::Relaxed);
+    TLUT_REGION_PTR.load(Ordering::Relaxed) as *mut ogc_gx::GxTlutRegion
+}
 
 unsafe extern "C" fn probe_gx_done_callback() {
     GX_DONE_COUNT.fetch_add(1, Ordering::Release);
@@ -919,6 +928,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_tev_order_scale(logger);
     probe_preloaded_texture_commands(logger);
     probe_texture_preload_commands(logger);
+    probe_tlut_load_commands(logger);
     probe_gx_completion_callbacks(logger);
     probe_solid_rect_render(logger, width, height);
     probe_textured_rect_render(logger, width, height);
@@ -1166,6 +1176,67 @@ fn probe_vertex_format_commands(logger: &mut ProbeLogger) {
             gx::set_vtx_attr_fmtv(7, formats.as_ptr());
             gx::begin(gx::GX_TRIANGLES, 7, 0);
             gx::end();
+        }),
+    );
+}
+
+fn probe_tlut_load_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX TLUT callback and load commands");
+    let mut region = gx::GxTlutRegion {
+        val: [0, 0x1122_3344, 0x5566_7788, 0x99aa_1234],
+    };
+    let mut object = gx::GxTlutObj::default();
+    let palette = core::ptr::without_provenance_mut::<core::ffi::c_void>(0x8123_4560);
+    // SAFETY: The probe owns GX and installs the callback only while the
+    // region is live. The fake palette address is captured, not executed.
+    unsafe {
+        gx::init_tlut_region(&mut region, 0x80a00, 3);
+        gx::init_tlut_obj(&mut object, palette, gx::GX_TL_RGB5A3, 128);
+    }
+    TLUT_REGION_PTR.store(
+        (&mut region as *mut gx::GxTlutRegion) as usize,
+        Ordering::Relaxed,
+    );
+    TLUT_CALLBACK_COUNT.store(0, Ordering::Relaxed);
+    TLUT_CALLBACK_NAME.store(0, Ordering::Relaxed);
+    let previous = unsafe { gx::set_tlut_region_callback(Some(probe_tlut_region_callback)) };
+    let mut loaded = false;
+    let matched = check_gx_bp_words(
+        &[0x0f00_0000, 0x6409_1a2b, 0x6500_0c05, 0x0f00_0000],
+        || unsafe {
+            loaded = gx::load_tlut(&mut object, 0x1234).is_ok();
+        },
+    );
+    logger.record(
+        "GX TLUT load calls callback and emits source region and flush words",
+        loaded
+            && matched
+            && TLUT_CALLBACK_COUNT.load(Ordering::Relaxed) == 1
+            && TLUT_CALLBACK_NAME.load(Ordering::Relaxed) == 0x1234
+            && region.val == [0x6500_0c05, 0x0000_0805, 0x6409_1a2b, 0x0080_1234],
+    );
+    TLUT_REGION_PTR.store(0, Ordering::Relaxed);
+    let mut rejected = false;
+    let empty = check_gx_command_bytes(&[], || unsafe {
+        rejected = gx::load_tlut(core::ptr::null_mut(), 0)
+            == Err(gx::GxTextureError::InvalidObject)
+            && gx::load_tlut(&mut object, 0x9999) == Err(gx::GxTextureError::InvalidRegion);
+    });
+    logger.record(
+        "GX TLUT load rejects null object and callback region",
+        rejected && empty,
+    );
+    let installed = unsafe { gx::set_tlut_region_callback(previous) };
+    TLUT_REGION_PTR.store(0, Ordering::Relaxed);
+    logger.record(
+        "GX TLUT callback replacement returns installed callback",
+        installed.is_some_and(|f| {
+            core::ptr::fn_addr_eq(
+                f,
+                probe_tlut_region_callback as unsafe extern "C" fn(u32) -> *mut gx::GxTlutRegion,
+            )
         }),
     );
 }

@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-17: GX TLUT callback and load commands
+
+Dolphin 2609a with Metal passed 335 checks with zero failures. The probe checks
+TLUT callback handling, region updates, and load command words. See the
+[report](docs/dolphin-runs/2026-11-17-gx-tlut-load/README.md) for evidence and
+limits. Physical Wii remains untested.
+
 ## 2026-11-17: GX texture preload commands
 
 Dolphin 2609a with Metal passed 332 checks with zero failures. The probe checks
