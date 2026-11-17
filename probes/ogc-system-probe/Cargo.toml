@@ -67,6 +67,7 @@ ogc-irq = { path = "../../crates/core/ogc-irq" }
 ogc-lwp = { path = "../../crates/core/ogc-lwp" }
 modplay-capi = { path = "../../crates/abi/modplay-capi" }
 ogc-network = { path = "../../crates/services/ogc-network" }
+ogc-network-sys = { path = "../../crates/services/ogc-network-sys" }
 ogc-sha = { path = "../../crates/core/ogc-sha" }
 ogc-si = { path = "../../crates/hardware/ogc-si" }
 ogc-stm = { path = "../../crates/core/ogc-stm" }

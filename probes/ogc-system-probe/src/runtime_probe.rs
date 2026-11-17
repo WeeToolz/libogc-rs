@@ -5,6 +5,7 @@ use ogc_es as es;
 use ogc_filesystem as filesystem;
 use ogc_ios as ios;
 use ogc_lwp::sys as lwp;
+use ogc_network_sys as raw_network;
 use ogc_sha as sha;
 use ogc_stm as stm;
 use ogc_sysbase as sysbase;
@@ -34,6 +35,7 @@ struct Align16([u8; 16]);
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("RUNTIME PROBE");
 
+    probe_ipv4_values(logger);
     probe_owned_audio_buffer(logger);
     probe_l2cap_packets(logger);
     probe_l2cap_parsers(logger);
@@ -448,6 +450,45 @@ fn probe_system_sram_getters(logger: &mut ProbeLogger) {
         }
     };
     logger.record("System SRAM buffer is restored", restored);
+}
+
+fn probe_ipv4_values(logger: &mut ProbeLogger) {
+    logger.report_step("Raw IPv4 address and type-of-service values");
+    for (bytes, word) in [
+        ([1, 2, 3, 4], 0x0102_0304),
+        ([255, 0, 128, 254], 0xff00_80fe),
+        ([0, 0, 0, 0], 0),
+    ] {
+        let packed = raw_network::ip4_addr(bytes[0], bytes[1], bytes[2], bytes[3]);
+        logger.record(
+            "Raw IPv4 packing matches fixed network-order word",
+            packed == word,
+        );
+        logger.record(
+            "Raw IPv4 octet getters match fixed bytes",
+            raw_network::ip4_addr1(word) == u32::from(bytes[0])
+                && raw_network::ip4_addr2(word) == u32::from(bytes[1])
+                && raw_network::ip4_addr3(word) == u32::from(bytes[2])
+                && raw_network::ip4_addr4(word) == u32::from(bytes[3]),
+        );
+    }
+    for (input, tos, precedence) in [(0xff, 0x1e, 0xe0), (0x95, 0x14, 0x80), (0, 0, 0)] {
+        logger.record(
+            "Raw IPv4 TOS and precedence masks",
+            raw_network::iptost(input) == tos && raw_network::iptos_prec(input) == precedence,
+        );
+    }
+    // SAFETY: Each byte string has a terminating NUL and remains live.
+    let parsed = unsafe {
+        raw_network::inet_addr(c"192.0.2.1".as_ptr()) == 0xc000_0201
+            && raw_network::inet_addr(c"127.0.0.1".as_ptr()) == 0x7f00_0001
+            && raw_network::inet_addr(c"256.0.0.1".as_ptr()) == u32::MAX
+            && raw_network::inet_addr(core::ptr::null()) == u32::MAX
+    };
+    logger.record(
+        "Raw IPv4 parser accepts valid and rejects invalid input",
+        parsed,
+    );
 }
 
 #[cfg(feature = "dolphin-automation")]

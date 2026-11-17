@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [IPv4 value batch](dolphin-runs/2026-11-17-ipv4-values/README.md) checks
+packing, octets, masks, and selected parsing on target. OpenGL passes 175
+checks. Packet transport and physical Wii remain open.
+
 The [raw alarm batch](dolphin-runs/2026-11-17-alarms-raw/README.md) checks
 raw callbacks, cancellation, removal, and state. OpenGL passes 165 checks.
 Other timing cases and physical Wii remain open.

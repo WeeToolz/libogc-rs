@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-17: Raw IPv4 values
+
+Dolphin 2609a with OpenGL passed 175 checks with zero failures. The probe checks
+IPv4 packing, octets, masks, and selected parsing. See the
+[report](docs/dolphin-runs/2026-11-17-ipv4-values/README.md) for evidence and
+limits. Packet transport and physical Wii remain untested by these checks.
+
 ## 2026-11-17: Raw system alarms
 
 Dolphin 2609a with OpenGL passed 165 checks with zero failures. The probe checks
