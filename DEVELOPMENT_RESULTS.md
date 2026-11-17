@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-16: GX vertex format commands
+
+Dolphin 2609a with Metal passed 302 checks with zero failures. The probe
+checks deferred vertex-format CP words and list termination. See the
+[report](docs/dolphin-runs/2026-11-16-gx-vertex-format/README.md) for evidence
+and limits. Physical Wii remains untested.
+
 ## 2026-11-16: GX pixel-engine control commands
 
 Dolphin 2609a with Metal passed 301 checks with zero failures. The probe

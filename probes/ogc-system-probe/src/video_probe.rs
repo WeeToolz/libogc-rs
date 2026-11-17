@@ -909,6 +909,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_line_point_field_commands(logger);
     probe_vertex_descriptors(logger);
     probe_vertex_array_commands(logger);
+    probe_vertex_format_commands(logger);
     probe_gx_completion_callbacks(logger);
     probe_solid_rect_render(logger, width, height);
     probe_textured_rect_render(logger, width, height);
@@ -1116,6 +1117,45 @@ fn probe_vertex_array_commands(logger: &mut ProbeLogger) {
         "GX primitive begin and end encode header",
         check_gx_command_bytes(&[0x95, 0x12, 0x34], || unsafe {
             gx::begin(gx::GX_TRIANGLES, 13, 0x1234);
+            gx::end();
+        }),
+    );
+}
+
+fn probe_vertex_format_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    logger.report_step("GX vertex format command bytes");
+    let formats = [
+        gx::GxVtxAttrFmt {
+            vtxattr: u32::from(gx::GX_VA_TEX4),
+            comptype: gx::GX_TEX_ST,
+            compsize: gx::GX_S16,
+            frac: 7,
+        },
+        gx::GxVtxAttrFmt {
+            vtxattr: u32::from(gx::GX_VA_NULL),
+            comptype: 0,
+            compsize: 0,
+            frac: 0,
+        },
+        gx::GxVtxAttrFmt {
+            vtxattr: u32::from(gx::GX_VA_TEX1),
+            comptype: gx::GX_TEX_ST,
+            compsize: gx::GX_S16,
+            frac: 9,
+        },
+    ];
+    let expected = [
+        0x08, 0x77, 0x40, 0, 0, 0x57, 0x08, 0x87, 0x38, 0, 0, 0, 0x08, 0x97, 0, 0, 0, 7, 0x97, 0, 0,
+    ];
+    // SAFETY: The list terminates at GX_VA_NULL. The primitive header is
+    // captured in a display list and is not executed.
+    logger.record(
+        "GX vertex format flushes exact CP words and honors terminator",
+        check_gx_command_bytes(&expected, || unsafe {
+            gx::set_vtx_attr_fmt(7, u32::from(gx::GX_VA_POS), gx::GX_POS_XYZ, gx::GX_S16, 5);
+            gx::set_vtx_attr_fmtv(7, formats.as_ptr());
+            gx::begin(gx::GX_TRIANGLES, 7, 0);
             gx::end();
         }),
     );

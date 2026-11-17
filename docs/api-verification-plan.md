@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [vertex format batch](dolphin-runs/2026-11-16-gx-vertex-format/README.md)
+checks deferred CP register encoding and list termination. Metal passes 302
+checks. Rendered vertex formats and physical Wii remain open.
+
 The [pixel-engine control batch](dolphin-runs/2026-11-16-gx-pe-control/README.md)
 checks alpha, dither, and depth-location commands. Metal passes 301 checks.
 Rendered effects and physical Wii remain open.
