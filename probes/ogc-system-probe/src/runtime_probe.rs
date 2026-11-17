@@ -71,6 +71,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_raw_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_tcp(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_network_udp(logger);
 }
 
 #[cfg(feature = "dolphin-automation")]
@@ -443,6 +445,135 @@ fn probe_raw_tcp(logger: &mut ProbeLogger) {
         logger.record("Raw TCP client closes", net::net_close(client) == 0);
     }
     logger.record("Raw TCP network deinitializes", net::net_deinit() == 0);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_network_udp(logger: &mut ProbeLogger) {
+    use ogc_network as net;
+
+    const LOOPBACK: u32 = 0x7f00_0001;
+    const ADDR_LEN: u32 = 16;
+    const PAYLOAD: &[u8] = &[0x00, 0xff, 0x55, 0x44, 0x50, 0x80];
+
+    logger.report_step("Network UDP wrapper operations");
+    let initialized = net::init() >= 0;
+    logger.record("UDP wrapper initializes", initialized);
+    if !initialized {
+        return;
+    }
+    let sender = net::socket(net::PF_INET, net::SOCK_DGRAM, 0);
+    let receiver = net::socket(net::PF_INET, net::SOCK_DGRAM, 0);
+    logger.record("UDP wrapper sockets open", sender >= 0 && receiver >= 0);
+
+    let bind = net::SockaddrIn {
+        sin_len: ADDR_LEN as u8,
+        sin_family: net::AF_INET as u8,
+        sin_port: 0,
+        sin_addr: net::InAddr { s_addr: LOOPBACK },
+        sin_zero: [0; 8],
+    };
+    let mut socket_name = |fd| {
+        let mut name = net::SockaddrIn::default();
+        let mut len = ADDR_LEN;
+        // SAFETY: The address and length have writable storage for the call.
+        let result =
+            unsafe { net::getsockname(fd, (&mut name as *mut net::SockaddrIn).cast(), &mut len) };
+        logger.note_i32("UDP getsockname result", result);
+        logger.note_u32("UDP getsockname address length", len);
+        logger.note_u32("UDP getsockname address family", u32::from(name.sin_family));
+        logger.note_hex32("UDP getsockname address", name.sin_addr.s_addr);
+        logger.note_u32("UDP getsockname port", u32::from(name.sin_port));
+        (result == 0
+            // getsockname reports the compact IOS IPv4 address length.
+            && len == 8
+            && name.sin_family == bind.sin_family
+            && name.sin_addr.s_addr == LOOPBACK
+            && name.sin_port != 0)
+            .then_some(name)
+    };
+    let bound = sender >= 0
+        && receiver >= 0
+        && net::bind_addr(sender, &bind) == 0
+        && net::bind_addr(receiver, &bind) == 0;
+    let names = if bound {
+        socket_name(sender).zip(socket_name(receiver))
+    } else {
+        None
+    };
+    logger.record("UDP wrapper binds loopback sockets", bound);
+    let mut bytes = [0xa5; 16];
+    let mut peer = net::SockaddrIn::default();
+    let mut peer_len = ADDR_LEN;
+    let send = |fd, to: &mut net::SockaddrIn| {
+        // SAFETY: The payload and address are readable for the supplied lengths.
+        unsafe {
+            net::sendto(
+                fd,
+                PAYLOAD.as_ptr().cast(),
+                PAYLOAD.len() as i32,
+                0,
+                (to as *mut net::SockaddrIn).cast(),
+                ADDR_LEN,
+            )
+        }
+    };
+    let recv = |fd, bytes: &mut [u8], peer: &mut net::SockaddrIn, len: &mut u32| {
+        // SAFETY: The caller supplies writable data and address storage and its length.
+        unsafe {
+            net::recvfrom(
+                fd,
+                bytes.as_mut_ptr().cast(),
+                bytes.len() as i32,
+                0,
+                (peer as *mut net::SockaddrIn).cast(),
+                len,
+            )
+        }
+    };
+    let rejected = recv(-1, &mut bytes, &mut peer, &mut peer_len);
+    logger.record(
+        "UDP recvfrom rejects an invalid handle and preserves output",
+        rejected == net::SOCKET_ERROR
+            && bytes == [0xa5; 16]
+            && peer == net::SockaddrIn::default()
+            && peer_len == ADDR_LEN,
+    );
+
+    let distinct_names = names.is_some_and(|(from, to)| from.sin_port != to.sin_port);
+    logger.record("UDP wrapper binds distinct loopback ports", distinct_names);
+    if let Some((from, mut to)) = names.filter(|_| distinct_names) {
+        logger.record(
+            "UDP sendto rejects an invalid handle",
+            send(-1, &mut to) == net::SOCKET_ERROR,
+        );
+        let sent = send(sender, &mut to);
+        let ready = sent == PAYLOAD.len() as i32 && wrapper_readable(receiver);
+        logger.record("UDP sendto reports byte count and queues datagram", ready);
+        if ready {
+            let received = recv(receiver, &mut bytes, &mut peer, &mut peer_len);
+            logger.note_i32("UDP wrapper received byte count", received);
+            logger.note_u32("UDP wrapper received address length", peer_len);
+            logger.note_u32("UDP wrapper expected source port", u32::from(from.sin_port));
+            logger.note_u32("UDP wrapper received source port", u32::from(peer.sin_port));
+            logger.record(
+                "UDP recvfrom returns the payload and source address",
+                received == PAYLOAD.len() as i32
+                    && bytes[..PAYLOAD.len()] == *PAYLOAD
+                    && bytes[PAYLOAD.len()..] == [0xa5; 16 - PAYLOAD.len()]
+                    && peer_len == ADDR_LEN
+                    && peer.sin_family == bind.sin_family
+                    && peer.sin_addr.s_addr == LOOPBACK
+                    && peer.sin_port == from.sin_port,
+            );
+        }
+    }
+    if sender >= 0 {
+        logger.record("UDP wrapper sender closes", net::close(sender) == 0);
+    }
+    if receiver >= 0 {
+        logger.record("UDP wrapper receiver closes", net::close(receiver) == 0);
+    }
+    logger.record("UDP wrapper deinitializes", net::deinit() == 0);
 }
 
 #[cfg(feature = "dolphin-automation")]
