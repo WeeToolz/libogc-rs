@@ -2142,3 +2142,6 @@ ogc-bt-sync,src/hid_host.rs,adapter_opening,367,ios,hardware-probe,probes/ogc-sy
 ogc-bt-sync,src/hid_host.rs,start,370,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_host_startup,host.start
 ogc-bt-sync,src/hid_host.rs,fail_timeout,380,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_host_startup,host.fail_timeout
 ogc-bt-sync,src/hid_host.rs,fail_transport,383,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_host_startup,host.fail_transport
+ogc-bt-sync,src/hid_host.rs,load_link_key,349,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_key_requests,host.load_link_key
+ogc-bt-sync,src/hid_host.rs,reset_preserving_keys,343,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_key_requests,host.reset_preserving_keys
+ogc-bt-sync,src/hid_host.rs,receive_event,785,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_key_requests,host.receive_event

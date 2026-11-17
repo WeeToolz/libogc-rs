@@ -45,6 +45,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_bt_discovery_values(logger);
     probe_bt_l2cap_state(logger);
     probe_bt_host_startup(logger);
+    probe_bt_key_requests(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -78,6 +79,35 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_network_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_udp(logger);
+}
+
+fn probe_bt_key_requests(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::{BluetoothAddress, HidHost, Outgoing};
+
+    let mut host = HidHost::new();
+    host.load_link_key(BluetoothAddress::new([1, 2, 3, 4, 5, 6]), [0xa5; 16]);
+    host.reset_preserving_keys();
+    host.receive_event(&[0x17, 6, 1, 2, 3, 4, 5, 6], 1);
+    host.start();
+    let matched = matches!(host.next_outgoing(2), Some(Outgoing::Hci { opcode, params })
+        if opcode.raw() == 0x040b && params.len() == 22
+            && params[..6] == [1, 2, 3, 4, 5, 6] && params[6..] == [0xa5; 16])
+        && host.diagnostics().link_key_requests == 1
+        && host.diagnostics().link_key_matches == 1;
+    let mut unknown = HidHost::new();
+    unknown.receive_event(&[0x17, 6, 6, 5, 4, 3, 2, 1], 1);
+    unknown.start();
+    let rejected = matches!(unknown.next_outgoing(2), Some(Outgoing::Hci { opcode, params })
+        if opcode.raw() == 0x040c && params == [6, 5, 4, 3, 2, 1])
+        && unknown.diagnostics().link_key_misses == 1;
+    let before = unknown.diagnostics();
+    unknown.receive_event(&[0x17, 6, 6], 3);
+    let malformed = unknown.diagnostics().malformed == before.malformed + 1
+        && unknown.diagnostics().link_key_requests == before.link_key_requests;
+    logger.record(
+        "Bluetooth link key requests preserve keys and reject unknown peers",
+        matched && rejected && malformed,
+    );
 }
 
 fn probe_bt_host_startup(logger: &mut ProbeLogger) {
