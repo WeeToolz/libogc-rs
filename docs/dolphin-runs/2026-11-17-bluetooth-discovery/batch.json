@@ -1,0 +1,44 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "from_name",
+      "line": 52,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_discovery_values",
+      "api_path": "Family::from_name",
+      "checks": [
+        "Bluetooth discovery classifies controller names"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "is_switch",
+      "line": 71,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_discovery_values",
+      "api_path": "Family::is_switch",
+      "checks": [
+        "Bluetooth discovery classifies controller names"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/protocol.rs",
+      "symbol": "new",
+      "line": 222,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_discovery_values",
+      "api_path": "HciEndpointAddresses::new",
+      "checks": [
+        "Bluetooth HCI endpoints validate direction and distinct inputs"
+      ]
+    }
+  ],
+  "limits": [
+    "Name matching and endpoint address validation in Dolphin. Bluetooth discovery, USB descriptors, and physical devices need separate checks."
+  ]
+}

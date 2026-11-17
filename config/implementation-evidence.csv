@@ -2125,3 +2125,6 @@ ogc-bt-sync,src/report_queue.rs,push_connected,113,ios,hardware-probe,probes/ogc
 ogc-bt-sync,src/report_queue.rs,push_report,156,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_input_queue,queue.push_report
 ogc-bt-sync,src/report_queue.rs,push_disconnected,194,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_input_queue,queue.push_disconnected
 ogc-bt-sync,src/report_queue.rs,pop,226,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_input_queue,queue.pop
+ogc-bt-sync,src/hid_host.rs,from_name,52,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_discovery_values,Family::from_name
+ogc-bt-sync,src/hid_host.rs,is_switch,71,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_discovery_values,Family::is_switch
+ogc-bt-sync,src/protocol.rs,new,222,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_discovery_values,HciEndpointAddresses::new

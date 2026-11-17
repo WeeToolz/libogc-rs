@@ -42,6 +42,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_hci_events(logger);
     probe_bt_device_classes(logger);
     probe_bt_input_queue(logger);
+    probe_bt_discovery_values(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -75,6 +76,55 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_network_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_udp(logger);
+}
+
+fn probe_bt_discovery_values(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::{ControllerFamily as Family, Error, HciEndpointAddresses};
+
+    let names = [
+        (&b"Nintendo RVL-CNT-01-TR"[..], Family::WiiRemote),
+        (&b"Joy-Con (L)\0suffix"[..], Family::JoyConLeft),
+        (&b"Nintendo Joy-Con (R)"[..], Family::JoyConRight),
+        (&b"Nintendo Pro Controller"[..], Family::SwitchPro),
+        (&b"xbox wireless controller"[..], Family::Xbox),
+        (&b"Fake Pro Controller"[..], Family::Generic),
+        (&b""[..], Family::Generic),
+    ];
+    let classified = names
+        .iter()
+        .all(|(name, expected)| Family::from_name(name) == *expected);
+    let switches = Family::is_switch(Family::SwitchPro)
+        && Family::is_switch(Family::JoyConLeft)
+        && Family::is_switch(Family::JoyConRight)
+        && !Family::is_switch(Family::WiiRemote)
+        && !Family::is_switch(Family::Xbox)
+        && !Family::is_switch(Family::Generic);
+    logger.record(
+        "Bluetooth discovery classifies controller names",
+        classified && switches,
+    );
+
+    let expected = HciEndpointAddresses {
+        acl_out: 2,
+        event_in: 0x81,
+        acl_in: 0x82,
+    };
+    let valid = HciEndpointAddresses::new(2, 0x81, 0x82) == Ok(expected);
+    let invalid = [
+        (0, 0x81, 0x82),
+        (0x82, 0x81, 0x82),
+        (2, 1, 0x82),
+        (2, 0x81, 2),
+        (2, 0x81, 0x81),
+        (0x12, 0x81, 0x82),
+    ];
+    logger.record(
+        "Bluetooth HCI endpoints validate direction and distinct inputs",
+        valid
+            && invalid.iter().all(|&(out, event, input)| {
+                HciEndpointAddresses::new(out, event, input) == Err(Error::InvalidEndpoint)
+            }),
+    );
 }
 
 fn probe_bt_input_queue(logger: &mut ProbeLogger) {
