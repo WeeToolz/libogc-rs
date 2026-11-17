@@ -1999,3 +1999,9 @@ ogc-usbstorage-sys,src/lib.rs,inquiry,440,hardware,hardware-probe,probes/ogc-sys
 ogc-usbstorage-sys,src/wii_backend.rs,inquiry,1929,hardware,hardware-probe,probes/ogc-system-probe/src/usbstorage_capacity_probe.rs,probe_public_facade,sys::inquiry
 ogc-network,src/lib.rs,send_to_slice,706,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,exercise_udp_pair,network::send_to_slice
 ogc-network,src/lib.rs,recv_from_slice,740,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,exercise_udp_pair,network::recv_from_slice
+ogc-network-sys,src/lib.rs,net_accept,2049,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_tcp,net::net_accept
+ogc-network-sys,src/lib.rs,net_listen,2037,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_tcp,net::net_listen
+ogc-network-sys,src/lib.rs,net_getsockopt,2171,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_tcp,net::net_getsockopt
+ogc-network-sys,src/lib.rs,net_setsockopt,2192,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_tcp,net::net_setsockopt
+ogc-network-sys,src/lib.rs,net_fcntl,2234,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_tcp,net::net_fcntl
+ogc-network-sys,src/lib.rs,net_shutdown,2239,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_tcp,net::net_shutdown

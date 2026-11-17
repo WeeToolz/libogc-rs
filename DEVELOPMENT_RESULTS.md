@@ -1830,3 +1830,11 @@ blending, and scissor clipping. It adds direct evidence for
 readback; other formats and physical Wii behavior remain open. No production
 GX code changed. See the [solid-render report](docs/dolphin-runs/2026-11-16-gx-solid-render/README.md)
 for commands, identities, logs, screenshots, and limits.
+
+## 2026-11-17: Raw TCP loopback
+
+Dolphin passed 201 checks. The probe checks six raw socket APIs with a local
+TCP connection, including options, flags, accept, and write shutdown. Two
+earlier protocol 6 socket attempts failed; their cause is unknown. The passing
+run uses protocol 0. See the [TCP report](docs/dolphin-runs/2026-11-17-raw-tcp-default/README.md)
+for evidence and limits.

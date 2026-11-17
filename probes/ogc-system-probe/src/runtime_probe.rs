@@ -65,6 +65,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_iso9660(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_raw_udp(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_raw_tcp(logger);
 }
 
 #[cfg(feature = "dolphin-automation")]
@@ -262,6 +264,181 @@ fn probe_raw_udp(logger: &mut ProbeLogger) {
         logger.record("Raw UDP receiver closes", net::net_close(receiver) == 0);
     }
     logger.record("Raw network deinitializes", net::net_deinit() == 0);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_raw_tcp(logger: &mut ProbeLogger) {
+    use core::mem::size_of;
+    use raw_network as net;
+
+    logger.report_step("Raw TCP loopback operations");
+    let initialized = net::net_init();
+    logger.record("Raw TCP network initializes", initialized >= 0);
+    if initialized < 0 {
+        return;
+    }
+    let listener = net::net_socket(net::PF_INET, net::SOCK_STREAM, net::IPPROTO_IP);
+    let client = net::net_socket(net::PF_INET, net::SOCK_STREAM, net::IPPROTO_IP);
+    logger.note_i32("Raw TCP listener descriptor", listener);
+    logger.note_i32("Raw TCP client descriptor", client);
+    logger.record("Raw TCP sockets open", listener >= 0 && client >= 0);
+    if listener >= 0 && client >= 0 {
+        let value: u32 = 1;
+        let mut actual: u32 = 0;
+        let mut length = size_of::<u32>() as u32;
+        // SAFETY: The option buffers and address structures are live and sized for each call.
+        let options = unsafe {
+            net::net_setsockopt(
+                listener,
+                net::SOL_SOCKET,
+                net::SO_REUSEADDR,
+                (&value as *const u32).cast(),
+                length,
+            ) == 0
+                && net::net_getsockopt(
+                    listener,
+                    net::SOL_SOCKET,
+                    net::SO_REUSEADDR,
+                    (&mut actual as *mut u32).cast(),
+                    &mut length,
+                ) == 0
+        };
+        logger.note_u32("Raw TCP reuse option", actual);
+        logger.record(
+            "Raw TCP reuse option is enabled",
+            options && length == 4 && actual != 0,
+        );
+        let flags = net::net_fcntl(listener, net::F_GETFL, 0) == 0
+            && net::net_fcntl(listener, net::F_SETFL, net::O_NONBLOCK) == 0
+            && net::net_fcntl(listener, net::F_GETFL, 0) == net::O_NONBLOCK as i32
+            && net::net_fcntl(listener, net::F_SETFL, 0) == 0
+            && net::net_fcntl(listener, net::F_GETFL, 0) == 0;
+        logger.record("Raw TCP nonblocking flags set and clear", flags);
+        let mut address = net::SockaddrIn {
+            sin_len: size_of::<net::SockaddrIn>() as u8,
+            sin_family: net::AF_INET as u8,
+            sin_port: 0,
+            sin_addr: net::InAddr {
+                s_addr: 0x7f00_0001,
+            },
+            sin_zero: [0; 8],
+        };
+        let mut addrlen = size_of::<net::SockaddrIn>() as u32;
+        let bound = unsafe {
+            net::net_bind(
+                listener,
+                (&mut address as *mut net::SockaddrIn).cast(),
+                addrlen,
+            ) == 0
+                && net::net_getsockname(
+                    listener,
+                    (&mut address as *mut net::SockaddrIn).cast(),
+                    &mut addrlen,
+                ) == 0
+        };
+        let listening = bound && address.sin_port != 0 && net::net_listen(listener, 1) == 0;
+        logger.record("Raw TCP listener binds and listens", listening);
+        if listening {
+            let connected = unsafe {
+                net::net_connect(
+                    client,
+                    (&mut address as *mut net::SockaddrIn).cast(),
+                    addrlen,
+                )
+            } == 0;
+            logger.record("Raw TCP client connects", connected);
+            let mut poll = net::PollSd {
+                socket: listener,
+                events: 3,
+                revents: 0,
+            };
+            let ready = connected
+                && unsafe { net::net_poll(&mut poll, 1, 3000) } == 1
+                && poll.revents & 3 != 0;
+            logger.record("Raw TCP listener becomes ready", ready);
+            if ready {
+                let mut peer = net::SockaddrIn::default();
+                let mut peer_len = size_of::<net::SockaddrIn>() as u32;
+                let accepted = unsafe {
+                    net::net_accept(
+                        listener,
+                        (&mut peer as *mut net::SockaddrIn).cast(),
+                        &mut peer_len,
+                    )
+                };
+                logger.record(
+                    "Raw TCP accept reports loopback peer",
+                    accepted >= 0 && peer.sin_addr.s_addr == 0x7f00_0001 && peer.sin_port != 0,
+                );
+                if accepted >= 0 {
+                    let payload = b"tcp probe";
+                    let sent = unsafe {
+                        net::net_send(client, payload.as_ptr().cast(), payload.len() as i32, 0)
+                    };
+                    let mut poll = net::PollSd {
+                        socket: accepted,
+                        events: 3,
+                        revents: 0,
+                    };
+                    let ready = sent == payload.len() as i32
+                        && unsafe { net::net_poll(&mut poll, 1, 3000) } == 1
+                        && poll.revents & 3 != 0;
+                    let mut bytes = [0xa5; 32];
+                    let got = if ready {
+                        unsafe {
+                            net::net_recv(
+                                accepted,
+                                bytes.as_mut_ptr().cast(),
+                                bytes.len() as i32,
+                                0,
+                            )
+                        }
+                    } else {
+                        -1
+                    };
+                    logger.record(
+                        "Raw TCP accepted socket receives bytes",
+                        got == payload.len() as i32
+                            && bytes[..payload.len()] == *payload
+                            && bytes[payload.len()..].iter().all(|b| *b == 0xa5),
+                    );
+                    let shutdown = net::net_shutdown(client, 1) == 0;
+                    let mut poll = net::PollSd {
+                        socket: accepted,
+                        events: 3,
+                        revents: 0,
+                    };
+                    let ready = shutdown
+                        && unsafe { net::net_poll(&mut poll, 1, 3000) } == 1
+                        && poll.revents & 3 != 0;
+                    let eof = if ready {
+                        unsafe {
+                            net::net_recv(
+                                accepted,
+                                bytes.as_mut_ptr().cast(),
+                                bytes.len() as i32,
+                                0,
+                            )
+                        }
+                    } else {
+                        -1
+                    };
+                    logger.record("Raw TCP write shutdown delivers EOF", shutdown && eof == 0);
+                    logger.record(
+                        "Raw TCP accepted socket closes",
+                        net::net_close(accepted) == 0,
+                    );
+                }
+            }
+        }
+    }
+    if listener >= 0 {
+        logger.record("Raw TCP listener closes", net::net_close(listener) == 0);
+    }
+    if client >= 0 {
+        logger.record("Raw TCP client closes", net::net_close(client) == 0);
+    }
+    logger.record("Raw TCP network deinitializes", net::net_deinit() == 0);
 }
 
 fn probe_hci_events(logger: &mut ProbeLogger) {

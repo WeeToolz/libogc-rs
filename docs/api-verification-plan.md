@@ -39,6 +39,11 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [raw TCP batch](dolphin-runs/2026-11-17-raw-tcp-default/README.md)
+checks six socket APIs with local stream traffic. The default-protocol run
+passes 201 checks. Socket creation with protocol 6 failed for an unknown
+reason; physical Wii and external traffic remain open.
+
 The [raw UDP batch](dolphin-runs/2026-11-17-raw-udp-repeat/README.md) checks
 selected loopback socket operations. Two instrumented OpenGL runs pass 187
 checks. An earlier recvfrom comparison failed for an unknown reason; that API
