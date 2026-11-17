@@ -9,6 +9,8 @@ use ogc_sha as sha;
 use ogc_stm as stm;
 use ogc_sysbase as sysbase;
 use ogc_system as system;
+#[cfg(feature = "dolphin-automation")]
+use ogc_system_sys as raw_system;
 
 use crate::probe_support::ProbeLogger;
 
@@ -40,6 +42,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_system(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_system_alarms(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_raw_system_alarms(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_system_sram_getters(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -506,6 +510,93 @@ fn probe_system_alarms(logger: &mut ProbeLogger) {
     logger.record(
         "System alarm removal succeeds",
         system::remove_alarm(alarm) == 0,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_raw_system_alarms(logger: &mut ProbeLogger) {
+    logger.report_step("Raw system alarm callbacks and state");
+    ALARM_COUNT.store(0, Ordering::Relaxed);
+    let mut alarm = 0;
+    // SAFETY: The output pointer is valid and the callback uses its argument
+    // only as an opaque token. A created alarm is cancelled and removed below.
+    let created = unsafe { raw_system::sys_create_alarm(&mut alarm) } == 0 && alarm != 0;
+    logger.record("Raw system alarm creation returns a handle", created);
+    if !created {
+        return;
+    }
+    let delay = raw_system::TimeSpec {
+        tv_sec: 0,
+        tv_nsec: 30_000_000,
+    };
+    let arg = core::ptr::without_provenance_mut::<core::ffi::c_void>(0x5678);
+    let invalid = unsafe {
+        raw_system::sys_create_alarm(core::ptr::null_mut()) == -1
+            && raw_system::sys_set_alarm(alarm, core::ptr::null(), Some(probe_alarm_callback), arg)
+                == -1
+            && raw_system::sys_set_periodic_alarm(
+                alarm,
+                &delay,
+                core::ptr::null(),
+                Some(probe_alarm_callback),
+                arg,
+            ) == -1
+    };
+    logger.record("Raw system alarms reject invalid inputs", invalid);
+    let scheduled =
+        unsafe { raw_system::sys_set_alarm(alarm, &delay, Some(probe_alarm_callback), arg) } == 0;
+    for _ in 0..30 {
+        if ALARM_COUNT.load(Ordering::Acquire) >= 1 {
+            break;
+        }
+        if !ogc_video::wait_vsync_timeout_us(100_000) {
+            break;
+        }
+    }
+    let once = scheduled
+        && ALARM_COUNT.load(Ordering::Acquire) == 1
+        && ALARM_ID.load(Ordering::Relaxed) == alarm
+        && ALARM_ARG.load(Ordering::Relaxed) == 0x5678;
+    logger.record(
+        "Raw system one-shot alarm delivers handle and argument",
+        once,
+    );
+    let periodic = unsafe {
+        raw_system::sys_set_periodic_alarm(alarm, &delay, &delay, Some(probe_alarm_callback), arg)
+    } == 0;
+    for _ in 0..30 {
+        if ALARM_COUNT.load(Ordering::Acquire) >= 4 {
+            break;
+        }
+        if !ogc_video::wait_vsync_timeout_us(100_000) {
+            break;
+        }
+    }
+    logger.record(
+        "Raw system periodic alarm repeats",
+        periodic && ALARM_COUNT.load(Ordering::Acquire) >= 4,
+    );
+    let canceled = unsafe { raw_system::sys_cancel_alarm(alarm) } == 0;
+    let after_cancel = ALARM_COUNT.load(Ordering::Acquire);
+    let mut waited = true;
+    for _ in 0..8 {
+        waited &= ogc_video::wait_vsync_timeout_us(100_000);
+    }
+    logger.record(
+        "Raw system alarm cancellation stops callbacks",
+        canceled && waited && ALARM_COUNT.load(Ordering::Acquire) == after_cancel,
+    );
+    let removed = unsafe { raw_system::sys_remove_alarm(alarm) } == 0;
+    let state = raw_system::snapshot_alarms();
+    logger.record(
+        "Raw system alarm removal and state snapshot",
+        removed
+            && state.created
+            && state.cancelled
+            && state.removed
+            && state.alarm == alarm
+            && state.callback == probe_alarm_callback as *const () as usize
+            && state.periodic_callback == probe_alarm_callback as *const () as usize,
     );
 }
 

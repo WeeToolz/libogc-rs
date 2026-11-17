@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-17: Raw system alarms
+
+Dolphin 2609a with OpenGL passed 165 checks with zero failures. The probe checks
+raw alarm callbacks, cancellation, removal, and state. See the
+[report](docs/dolphin-runs/2026-11-17-alarms-raw/README.md) for evidence and
+limits. Physical Wii remains untested.
+
 ## 2026-11-17: Raw SRAM getters and setters
 
 Dolphin 2609a with OpenGL passed 18 checks with zero failures. The probe checks

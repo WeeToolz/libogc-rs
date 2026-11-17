@@ -1,4 +1,10 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-system-sys,src/lib.rs,snapshot_alarms,3352,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_system_alarms,raw_system::snapshot_alarms
+ogc-system-sys,src/lib.rs,sys_cancel_alarm,3327,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_system_alarms,raw_system::sys_cancel_alarm
+ogc-system-sys,src/lib.rs,sys_create_alarm,3213,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_system_alarms,raw_system::sys_create_alarm
+ogc-system-sys,src/lib.rs,sys_remove_alarm,3309,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_system_alarms,raw_system::sys_remove_alarm
+ogc-system-sys,src/lib.rs,sys_set_alarm,3254,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_system_alarms,raw_system::sys_set_alarm
+ogc-system-sys,src/lib.rs,sys_set_periodic_alarm,3280,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_system_alarms,raw_system::sys_set_periodic_alarm
 ogc-system-sys,src/lib.rs,sys_get_counter_bias,3366,hardware,hardware-probe,probes/ogc-system-probe/src/sram_probe.rs,raw_standard_values,raw::sys_get_counter_bias
 ogc-system-sys,src/lib.rs,sys_get_display_offset_h,3416,hardware,hardware-probe,probes/ogc-system-probe/src/sram_probe.rs,raw_standard_values,raw::sys_get_display_offset_h
 ogc-system-sys,src/lib.rs,sys_get_eu_rgb60,3466,hardware,hardware-probe,probes/ogc-system-probe/src/sram_probe.rs,raw_standard_values,raw::sys_get_eu_rgb60

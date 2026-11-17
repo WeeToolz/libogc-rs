@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [raw alarm batch](dolphin-runs/2026-11-17-alarms-raw/README.md) checks
+raw callbacks, cancellation, removal, and state. OpenGL passes 165 checks.
+Other timing cases and physical Wii remain open.
+
 The [raw SRAM batch](dolphin-runs/2026-11-17-sram-raw/README.md) checks raw
 getters and setters with saved-value restoration. OpenGL passes 18 checks.
 Concurrent access and physical Wii remain open.
