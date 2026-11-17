@@ -21,8 +21,11 @@ It uses the existing Dolphin runner and inventory checks.
 4. Run `finish` to match the selected entries to the recorded pass lines,
    add the evidence rows, rebuild the inventory, and run formatting,
    Clippy, host tests, and the source and completeness audits. The helper
-   reports outstanding completeness entries and saves the audit output.
-   Review the resulting diff and commit the batch.
+   uses one Rust inventory scan to refresh the inventory and report
+   outstanding entries. It saves the audit log and `completeness-audit.json`.
+   The JSON gives the inventory and remaining counts, plus the location,
+   classification, and reasons for each remaining API. Review the diff
+   and commit the batch.
 
 Run one batch at a time in a worktree. Edits outside the artifact directory
 during or after a run invalidate the source fingerprint. Use a new run for
@@ -51,3 +54,9 @@ For an older run without `batch.json`, add `--manifest PATH`.
 ```sh
 python3 scripts/api-probe-batch.py report docs/dolphin-runs/new-batch --compare docs/dolphin-runs/previous-batch
 ```
+
+To audit an existing inventory without changing it, run
+`cargo xtask audit-stubs --json /tmp/libogc-completeness.json`. Add
+`--refresh-inventory` to regenerate the inventory and audit the same
+snapshot. Both modes exit with status 1 if completeness entries remain.
+The JSON is written after the source audit and inventory step succeed.

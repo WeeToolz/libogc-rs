@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use serde::Serialize;
 use syn::visit::{self, Visit};
 
 use crate::workspace::{CrateRole, load_roles, read_csv};
@@ -69,118 +70,200 @@ struct SourceFinding {
 }
 
 pub fn generate_inventory(root: &Path) -> Result<(), String> {
-    let entries = collect_inventory(root)?;
-    let csv = render_csv(&entries);
-    let csv_path = root.join("docs/generated/implementation-inventory.csv");
-    if let Some(parent) = csv_path.parent() {
-        fs::create_dir_all(parent).map_err(|err| format!("{}: {err}", parent.display()))?;
-    }
-    fs::write(&csv_path, csv).map_err(|err| format!("{}: {err}", csv_path.display()))?;
-
-    let status = render_status(&entries);
-    let status_path = root.join("docs/generated/implementation-status.md");
-    fs::write(&status_path, status).map_err(|err| format!("{}: {err}", status_path.display()))?;
-
-    println!(
-        "wrote {} API entries to {}",
-        entries.len(),
-        csv_path.display()
-    );
-    Ok(())
+    RuntimeInventory::collect(root)?.write(root)
 }
 
 pub fn check_inventory(root: &Path) -> Result<(), String> {
-    let entries = collect_inventory(root)?;
-    let expected = render_csv(&entries);
-    let path = root.join("docs/generated/implementation-inventory.csv");
-    let actual = fs::read_to_string(&path)
-        .map_err(|err| format!("{}: {err}; run cargo xtask inventory", path.display()))?;
-    if actual != expected {
-        return Err(format!(
-            "{} is stale; run cargo xtask inventory",
-            path.display()
-        ));
-    }
-
-    let expected_status = render_status(&entries);
-    let status_path = root.join("docs/generated/implementation-status.md");
-    let actual_status = fs::read_to_string(&status_path).map_err(|err| {
-        format!(
-            "{}: {err}; run cargo xtask inventory",
-            status_path.display()
-        )
-    })?;
-    if actual_status != expected_status {
-        return Err(format!(
-            "{} is stale; run cargo xtask inventory",
-            status_path.display()
-        ));
-    }
-
-    println!(
-        "implementation inventory is current ({} entries)",
-        entries.len()
-    );
-    Ok(())
+    RuntimeInventory::collect(root)?.check(root)
 }
 
-pub fn audit_runtime_completeness(root: &Path) -> Result<(), String> {
-    let entries = collect_inventory(root)?;
-    let mut findings = Vec::new();
-    let probe_sources = load_probe_coverage(root)?;
-    let mut checked_probes = BTreeMap::new();
-    for entry in entries {
-        if entry.probe.trim().is_empty() || entry.probe == "none" {
-            findings.push(format!(
-                "{}::{} [{}] {}:{} — missing focused probe",
-                entry.crate_name,
-                entry.symbol,
-                entry.classification,
-                entry.implementation_file,
-                entry.line
-            ));
-            continue;
+pub struct RuntimeInventory(Vec<ApiEntry>);
+
+impl RuntimeInventory {
+    pub fn collect(root: &Path) -> Result<Self, String> {
+        collect_inventory(root).map(Self)
+    }
+
+    pub fn write(&self, root: &Path) -> Result<(), String> {
+        let entries = &self.0;
+        let csv = render_csv(entries);
+        let csv_path = root.join("docs/generated/implementation-inventory.csv");
+        if let Some(parent) = csv_path.parent() {
+            fs::create_dir_all(parent).map_err(|err| format!("{}: {err}", parent.display()))?;
         }
-        if !checked_probes.contains_key(&entry.probe) {
-            match probe_sources.get(&entry.probe) {
-                Some(source) if root.join(source).is_file() => {
-                    checked_probes.insert(entry.probe.clone(), source.clone());
-                }
-                Some(source) => findings.push(format!(
-                    "{}::{} — focused probe source does not exist: {}",
+        fs::write(&csv_path, csv).map_err(|err| format!("{}: {err}", csv_path.display()))?;
+
+        let status = render_status(entries);
+        let status_path = root.join("docs/generated/implementation-status.md");
+        fs::write(&status_path, status)
+            .map_err(|err| format!("{}: {err}", status_path.display()))?;
+
+        println!(
+            "wrote {} API entries to {}",
+            entries.len(),
+            csv_path.display()
+        );
+        Ok(())
+    }
+
+    pub fn check(&self, root: &Path) -> Result<(), String> {
+        let entries = &self.0;
+        let expected = render_csv(entries);
+        let path = root.join("docs/generated/implementation-inventory.csv");
+        let actual = fs::read_to_string(&path)
+            .map_err(|err| format!("{}: {err}; run cargo xtask inventory", path.display()))?;
+        if actual != expected {
+            return Err(format!(
+                "{} is stale; run cargo xtask inventory",
+                path.display()
+            ));
+        }
+
+        let expected_status = render_status(entries);
+        let status_path = root.join("docs/generated/implementation-status.md");
+        let actual_status = fs::read_to_string(&status_path).map_err(|err| {
+            format!(
+                "{}: {err}; run cargo xtask inventory",
+                status_path.display()
+            )
+        })?;
+        if actual_status != expected_status {
+            return Err(format!(
+                "{} is stale; run cargo xtask inventory",
+                status_path.display()
+            ));
+        }
+
+        println!(
+            "implementation inventory is current ({} entries)",
+            entries.len()
+        );
+        Ok(())
+    }
+
+    pub fn audit(&self, root: &Path, json_path: Option<&Path>) -> Result<(), String> {
+        let probe_sources = load_probe_coverage(root)?;
+        let probes = probe_sources
+            .iter()
+            .map(|(name, source)| {
+                let reason = (!root.join(source).is_file())
+                    .then(|| format!("focused probe source does not exist: {source}"));
+                (name.as_str(), reason)
+            })
+            .collect();
+        let report = completeness_report(&self.0, &probes);
+        if let Some(path) = json_path {
+            let json = serde_json::to_string_pretty(&report).map_err(|err| err.to_string())?;
+            fs::write(path, format!("{json}\n"))
+                .map_err(|err| format!("{}: {err}", path.display()))?;
+        }
+        if report.entries.is_empty() {
+            println!("runtime inventory contains no disallowed implementation classes");
+            return Ok(());
+        }
+        for entry in &report.entries {
+            for reason in &entry.reasons {
+                eprintln!(
+                    "{}::{} [{}] {}:{} — {}",
                     entry.crate_name,
                     entry.symbol,
-                    root.join(source).display()
-                )),
-                None => findings.push(format!(
-                    "{}::{} — probe `{}` is not mapped in config/probe-coverage.csv",
-                    entry.crate_name, entry.symbol, entry.probe
-                )),
+                    entry.classification,
+                    entry.implementation_file,
+                    entry.line,
+                    reason.message
+                );
             }
-        }
-        if DISALLOWED_CLASSES.contains(&entry.classification.as_str()) {
-            findings.push(format!(
-                "{}::{} [{}] {}:{} — {}",
-                entry.crate_name,
-                entry.symbol,
-                entry.classification,
-                entry.implementation_file,
-                entry.line,
-                entry.limitations
-            ));
-        }
-    }
-    if findings.is_empty() {
-        println!("runtime inventory contains no disallowed implementation classes");
-        Ok(())
-    } else {
-        for finding in &findings {
-            eprintln!("{finding}");
         }
         Err(format!(
             "runtime completeness audit found {} disallowed API implementation(s)",
-            findings.len()
+            report.remaining_count
         ))
+    }
+}
+
+#[derive(Serialize)]
+struct CompletenessReport<'a> {
+    schema_version: u32,
+    inventory_count: usize,
+    unverified_count: usize,
+    remaining_count: usize,
+    entries: Vec<RemainingEntry<'a>>,
+}
+
+#[derive(Serialize)]
+struct RemainingEntry<'a> {
+    #[serde(rename = "crate")]
+    crate_name: &'a str,
+    symbol: &'a str,
+    interface_kind: &'a str,
+    implementation_file: &'a str,
+    line: usize,
+    classification: &'a str,
+    probe: &'a str,
+    reasons: Vec<AuditReason>,
+}
+
+#[derive(Serialize)]
+struct AuditReason {
+    code: &'static str,
+    message: String,
+}
+
+fn completeness_report<'a>(
+    inventory: &'a [ApiEntry],
+    probes: &BTreeMap<&str, Option<String>>,
+) -> CompletenessReport<'a> {
+    let mut entries = Vec::new();
+    for entry in inventory {
+        let mut reasons = Vec::new();
+        let probe = entry.probe.as_str();
+        if probe.trim().is_empty() || probe == "none" {
+            reasons.push(AuditReason {
+                code: "missing_probe",
+                message: "missing focused probe".to_string(),
+            });
+        } else {
+            match probes.get(probe) {
+                Some(None) => {}
+                Some(Some(message)) => reasons.push(AuditReason {
+                    code: "missing_probe_source",
+                    message: message.clone(),
+                }),
+                None => reasons.push(AuditReason {
+                    code: "unmapped_probe",
+                    message: format!("probe `{probe}` is not mapped in config/probe-coverage.csv"),
+                }),
+            }
+        }
+        if DISALLOWED_CLASSES.contains(&entry.classification.as_str()) {
+            reasons.push(AuditReason {
+                code: "disallowed_classification",
+                message: entry.limitations.clone(),
+            });
+        }
+        if !reasons.is_empty() {
+            entries.push(RemainingEntry {
+                crate_name: &entry.crate_name,
+                symbol: &entry.symbol,
+                interface_kind: &entry.interface_kind,
+                implementation_file: &entry.implementation_file,
+                line: entry.line,
+                classification: &entry.classification,
+                probe,
+                reasons,
+            });
+        }
+    }
+
+    CompletenessReport {
+        schema_version: 1,
+        inventory_count: inventory.len(),
+        unverified_count: inventory
+            .iter()
+            .filter(|entry| entry.classification == "unverified")
+            .count(),
+        remaining_count: entries.len(),
+        entries,
     }
 }
 
@@ -1406,6 +1489,51 @@ fn csv_escape(value: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn completeness_json_counts_each_api_once_and_keeps_all_reasons() {
+        let entry = ApiEntry {
+            crate_name: "demo".into(),
+            symbol: "read".into(),
+            interface_kind: "rust-function".into(),
+            implementation_file: "crates/demo/src/lib.rs".into(),
+            line: 12,
+            classification: "unverified".into(),
+            declared_classification: "hardware".into(),
+            evidence: "none".into(),
+            probe: "missing".into(),
+            limitations: "no runtime evidence".into(),
+        };
+        let mut verified = entry.clone();
+        verified.symbol = "write".into();
+        verified.classification = "hardware".into();
+        verified.probe = "present".into();
+        let probes = BTreeMap::from([("present", None)]);
+        let entries = [entry, verified];
+        let report = serde_json::to_value(completeness_report(&entries, &probes)).unwrap();
+        assert_eq!(
+            report,
+            serde_json::json!({
+                "schema_version": 1,
+                "inventory_count": 2,
+                "unverified_count": 1,
+                "remaining_count": 1,
+                "entries": [{
+                    "crate": "demo",
+                    "symbol": "read",
+                    "interface_kind": "rust-function",
+                    "implementation_file": "crates/demo/src/lib.rs",
+                    "line": 12,
+                    "classification": "unverified",
+                    "probe": "missing",
+                    "reasons": [
+                        {"code": "unmapped_probe", "message": "probe `missing` is not mapped in config/probe-coverage.csv"},
+                        {"code": "disallowed_classification", "message": "no runtime evidence"}
+                    ]
+                }]
+            })
+        );
+    }
 
     #[test]
     fn accepts_target_gated_unit_tests_as_evidence_sources() {

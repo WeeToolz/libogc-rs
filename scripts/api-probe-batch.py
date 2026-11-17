@@ -389,14 +389,24 @@ def verify_run(directory, manifest, run_info):
 
 
 def audit(directory):
+    report_path = directory / "completeness-audit.json"
+    report_path.unlink(missing_ok=True)
     with (directory / "completeness-audit.log").open("w") as log:
-        result = command("cargo", "xtask", "audit-stubs", stdout=log, stderr=subprocess.STDOUT)
-    output = (directory / "completeness-audit.log").read_text()
-    if result.returncode:
-        match = re.search(r'Error: "runtime completeness audit found (\d+) disallowed API implementation\(s\)"\s*$', output)
-        if result.returncode != 1 or not match:
-            raise ValueError("Audit failed. See completeness-audit.log")
-        print(f"Completeness audit reports {match[1]} remaining entries.")
+        result = command(
+            "cargo", "xtask", "audit-stubs", "--refresh-inventory", "--json", str(report_path),
+            stdout=log, stderr=subprocess.STDOUT,
+        )
+    if not report_path.is_file():
+        raise ValueError("Audit failed. See completeness-audit.log")
+    report = json_file(report_path)
+    if report["schema_version"] != 1:
+        raise ValueError("Unsupported completeness audit schema")
+    count = report["remaining_count"]
+    if count != len(report["entries"]) or result.returncode != int(count != 0):
+        raise ValueError("Audit result disagrees with the exit status. See completeness-audit.log")
+    if count:
+        print(f"Completeness audit reports {count} remaining entries.")
+    return report
 
 
 def finish(args):
@@ -429,7 +439,10 @@ def finish(args):
                     row["declared_classification"], "hardware-probe",
                     case["evidence_path"], case["function"], case["api_path"],
                 ])
-        command("cargo", "xtask", "inventory", check=True)
+        command("cargo", "fmt", "--all", "--check", check=True)
+        command("cargo", "clippy", "--all-targets", check=True)
+        command("cargo", "test", check=True)
+        report = audit(directory)
         updated = read_inventory()
         by_key = {tuple(row[k] for k in KEYS): row for row in updated}
         for case, previous in selected:
@@ -437,13 +450,9 @@ def finish(args):
             expected = f"hardware-probe:{case['evidence_path']}::{case['function']} "
             if row["implementation_class"] == "unverified" or not row["verification_evidence"].startswith(expected):
                 raise ValueError(f"Inventory did not accept evidence for {case['symbol']}")
-        remaining = sum(row["implementation_class"] == "unverified" for row in updated)
+        remaining = report["unverified_count"]
         if uncovered - remaining != len(selected):
             raise ValueError("Inventory delta differs from the selected cases")
-        command("cargo", "fmt", "--all", "--check", check=True)
-        command("cargo", "clippy", "--all-targets", check=True)
-        command("cargo", "test", check=True)
-        audit(directory)
     except (Exception, KeyboardInterrupt):
         for path, content in saved.items():
             (ROOT / path).write_bytes(content)
@@ -453,6 +462,7 @@ def finish(args):
         "unverified_before": uncovered,
         "unverified_after": remaining,
         "cases": len(selected),
+        "remaining_audit_entries": report["remaining_count"],
     })
     print(f"Verified {len(selected)} entries. Unverified: {uncovered} -> {remaining}.")
 

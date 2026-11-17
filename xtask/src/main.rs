@@ -134,7 +134,7 @@ fn main() -> Result<(), String> {
         "check-dependencies" => check_dependencies(),
         "test-host" => host_tests::run(&repo_root()?),
         "audit-source" => audit_source(),
-        "audit-stubs" => audit_stubs(),
+        "audit-stubs" => audit_stubs(args),
         "check-group" => {
             let group = args
                 .next()
@@ -186,7 +186,7 @@ fn print_usage() {
     eprintln!("  cargo xtask check-dependencies");
     eprintln!("  cargo xtask test-host");
     eprintln!("  cargo xtask audit-source");
-    eprintln!("  cargo xtask audit-stubs");
+    eprintln!("  cargo xtask audit-stubs [--refresh-inventory] [--json PATH]");
     eprintln!(
         "  cargo xtask check-group <core|storage|input|network|audio|debug|hardware|ui|abi|probes>"
     );
@@ -1496,11 +1496,35 @@ fn audit_source() -> Result<(), String> {
     audit::audit_source_structure(&repo_root()?)
 }
 
-fn audit_stubs() -> Result<(), String> {
-    let root = repo_root()?;
-    audit::audit_source_structure(&root)?;
-    inventory::check_inventory(&root)?;
-    inventory::audit_runtime_completeness(&root)
+fn audit_stubs(mut args: impl Iterator<Item = String>) -> Result<(), String> {
+    let mut refresh = false;
+    let mut json_path = None;
+    while let Some(arg) = args.next() {
+        match arg.as_str() {
+            "--refresh-inventory" if !refresh => refresh = true,
+            "--json" if json_path.is_none() => {
+                let path = args
+                    .next()
+                    .filter(|path| !path.starts_with("--"))
+                    .ok_or("--json requires an output path")?;
+                json_path = Some(PathBuf::from(path));
+            }
+            _ => return Err(format!("unknown or repeated audit-stubs option: {arg}")),
+        }
+    }
+    audit_inventory(&repo_root()?, refresh, json_path.as_deref())
+}
+
+fn audit_inventory(root: &Path, refresh: bool, json_path: Option<&Path>) -> Result<(), String> {
+    audit::audit_source_structure(root)?;
+    let inventory = inventory::RuntimeInventory::collect(root)?;
+    if refresh {
+        inventory.write(root)?;
+        audit::write_debt_report(root)?;
+    } else {
+        inventory.check(root)?;
+    }
+    inventory.audit(root, json_path)
 }
 
 fn rustup_which(rustup: &str, tool: &str) -> Result<String, String> {
@@ -1655,14 +1679,20 @@ fn phase0_readiness() -> Result<(), String> {
 }
 
 fn milestone0_verify() -> Result<(), String> {
+    milestone0_inventory().map(|_| ())
+}
+
+fn milestone0_inventory() -> Result<inventory::RuntimeInventory, String> {
     let root = repo_root()?;
     workspace::check_role_manifest(&root)?;
     workspace::check_dependency_direction(&root)?;
     audit::audit_source_structure(&root)?;
-    inventory::check_inventory(&root)?;
+    let inventory = inventory::RuntimeInventory::collect(&root)?;
+    inventory.check(&root)?;
     phase0_readiness()?;
     host_tests::run(&root)?;
-    check_all_runtime()
+    check_all_runtime()?;
+    Ok(inventory)
 }
 
 fn milestone1_readiness(root: &Path) -> Result<(), String> {
@@ -1742,11 +1772,11 @@ fn milestone2_verify() -> Result<(), String> {
 
 fn verify() -> Result<(), String> {
     let root = repo_root()?;
-    milestone0_verify()?;
+    let inventory = milestone0_inventory()?;
     hardware_register::audit(&root)?;
     check_abi()?;
     check_abi_rust_target()?;
-    inventory::audit_runtime_completeness(&root)?;
+    inventory.audit(&root, None)?;
     run_command(
         Command::new("git")
             .arg("status")
@@ -1765,9 +1795,7 @@ fn verify_complete() -> Result<(), String> {
     host_tests::run(&root)?;
     check_abi()?;
     check_abi_rust_target()?;
-    inventory::check_inventory(&root)?;
-    audit::audit_source_structure(&root)?;
-    audit_stubs()?;
+    audit_inventory(&root, false, None)?;
     check_all_runtime()?;
     build_dols()?;
     build_probes()
