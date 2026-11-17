@@ -2148,3 +2148,7 @@ ogc-bt-sync,src/hid_host.rs,receive_event,785,ios,hardware-probe,probes/ogc-syst
 ogc-system,src/lib.rs,sram_counter_bias,1678,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_getters,system::sram_counter_bias
 ogc-system,src/lib.rs,sram_display_offset_h,1690,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_getters,system::sram_display_offset_h
 ogc-system,src/lib.rs,sram_language,1715,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_getters,system::sram_language
+ogc-system,src/lib.rs,snapshot_sram,1633,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_locks,system::snapshot_sram
+ogc-system,src/lib.rs,snapshot_sram_ex,1643,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_locks,system::snapshot_sram_ex
+ogc-system,src/lib.rs,snapshot_sram_unlock,1596,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_locks,system::snapshot_sram_unlock
+ogc-system,src/lib.rs,snapshot_sram_sync,1626,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_locks,system::snapshot_sram_sync

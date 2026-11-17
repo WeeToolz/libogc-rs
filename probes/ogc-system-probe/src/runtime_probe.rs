@@ -1865,12 +1865,21 @@ fn probe_system_sram_locks(logger: &mut ProbeLogger) {
     }
     let standard_busy =
         unsafe { system::lock_sram().is_null() && system::lock_sram_ex().is_null() };
+    let expected_standard = unsafe { *first };
+    let snapshots_busy = system::snapshot_sram().is_none() && system::snapshot_sram_ex().is_none();
     let standard_release = unsafe { system::unlock_sram(false) };
     logger.record(
         "System standard SRAM lock excludes both lock types",
         standard_busy,
     );
     logger.record("System standard SRAM unlock completes", standard_release);
+    logger.record("SRAM snapshots reject a held lock", snapshots_busy);
+    let standard_snapshot = system::snapshot_sram();
+    let standard_unlock = system::snapshot_sram_unlock().standard;
+    logger.record(
+        "Standard SRAM snapshot matches locked data",
+        standard_snapshot == Some(expected_standard) && standard_unlock,
+    );
 
     let extended = unsafe { system::lock_sram_ex() };
     if extended.is_null() {
@@ -1879,12 +1888,25 @@ fn probe_system_sram_locks(logger: &mut ProbeLogger) {
     }
     let extended_busy =
         unsafe { system::lock_sram().is_null() && system::lock_sram_ex().is_null() };
+    let expected_extended = unsafe { *extended };
     let extended_release = unsafe { system::unlock_sram_ex(false) };
     logger.record(
         "System extended SRAM lock excludes both lock types",
         extended_busy,
     );
     logger.record("System extended SRAM unlock completes", extended_release);
+    let extended_snapshot = system::snapshot_sram_ex();
+    let extended_unlock = system::snapshot_sram_unlock().extended;
+    logger.record(
+        "Extended SRAM snapshot matches locked data",
+        extended_snapshot == Some(expected_extended) && extended_unlock,
+    );
+    let sync_result = system::sync_sram();
+    let sync_snapshot = system::snapshot_sram_sync();
+    logger.record(
+        "SRAM sync snapshot reports the actual result",
+        sync_snapshot.called && sync_snapshot.last_result == sync_result,
+    );
     let reacquired = unsafe { system::lock_sram() };
     let released = if reacquired.is_null() {
         false

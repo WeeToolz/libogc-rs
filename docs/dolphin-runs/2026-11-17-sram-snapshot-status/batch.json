@@ -1,0 +1,59 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_sram",
+      "line": 1633,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_locks",
+      "api_path": "system::snapshot_sram",
+      "checks": [
+        "SRAM snapshots reject a held lock",
+        "Standard SRAM snapshot matches locked data"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_sram_ex",
+      "line": 1643,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_locks",
+      "api_path": "system::snapshot_sram_ex",
+      "checks": [
+        "SRAM snapshots reject a held lock",
+        "Extended SRAM snapshot matches locked data"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_sram_unlock",
+      "line": 1596,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_locks",
+      "api_path": "system::snapshot_sram_unlock",
+      "checks": [
+        "Standard SRAM snapshot matches locked data",
+        "Extended SRAM snapshot matches locked data"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_sram_sync",
+      "line": 1626,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_locks",
+      "api_path": "system::snapshot_sram_sync",
+      "checks": [
+        "SRAM sync snapshot reports the actual result"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin SRAM buffer snapshots and synchronization status. Physical SRAM persistence and hardware failure paths need separate evidence."
+  ]
+}
