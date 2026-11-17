@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [pixel-engine control batch](dolphin-runs/2026-11-16-gx-pe-control/README.md)
+checks alpha, dither, and depth-location commands. Metal passes 301 checks.
+Rendered effects and physical Wii remain open.
+
 The [vertex array batch](dolphin-runs/2026-11-16-gx-vertex-array/README.md)
 checks array and primitive command encoding. Metal passes 298 checks.
 Indexed vertex rendering and physical Wii remain open.

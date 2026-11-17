@@ -1,4 +1,8 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,set_z_comp_loc,6404,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_pe_control_commands,gx::set_z_comp_loc
+ogc-gx,src/lib.rs,set_dst_alpha,6695,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_pe_control_commands,gx::set_dst_alpha
+ogc-gx,src/lib.rs,set_dither,6685,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_pe_control_commands,gx::set_dither
+ogc-gx,src/lib.rs,set_alpha_update,6645,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_pe_control_commands,gx::set_alpha_update
 ogc-gx,src/lib.rs,end,4928,pure,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_vertex_array_commands,gx::end
 ogc-gx,src/lib.rs,begin,4937,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_vertex_array_commands,gx::begin
 ogc-gx,src/lib.rs,set_array,4726,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_vertex_array_commands,gx::set_array

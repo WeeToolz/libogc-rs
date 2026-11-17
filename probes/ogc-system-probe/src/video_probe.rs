@@ -903,6 +903,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_bounding_box_commands(logger);
     probe_z_texture_commands(logger);
     probe_z_mode_commands(logger);
+    probe_pe_control_commands(logger);
     probe_vertex_cache_commands(logger);
     probe_texture_cache_commands(logger);
     probe_line_point_field_commands(logger);
@@ -1786,6 +1787,53 @@ fn check_gx_bp_words(words: &[u32], emit: impl FnOnce()) -> bool {
         bytes[1..].copy_from_slice(&word.to_be_bytes());
     }
     check_gx_command_bytes(&expected[..size], emit)
+}
+
+fn probe_pe_control_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    logger.report_step("GX pixel engine control command bytes");
+    // SAFETY: GX is initialized and owned by this probe. Establish known
+    // fields before the captured commands; later render probes configure GX.
+    unsafe {
+        gx::set_blend_mode(
+            gx::GX_BM_NONE,
+            gx::GX_BL_ONE,
+            gx::GX_BL_ZERO,
+            gx::GX_LO_CLEAR,
+        );
+        gx::set_color_update(1);
+        gx::set_alpha_update(0);
+        gx::set_dither(0);
+        gx::set_dst_alpha(0, 0);
+        gx::set_pixel_fmt(gx::GX_PF_RGB8_Z24, 0);
+        gx::set_z_comp_loc(0);
+    }
+    logger.record(
+        "GX alpha update and dither preserve neighboring fields",
+        check_gx_bp_words(
+            &[0x4100_0118, 0x4100_011c, 0x4100_010c, 0x4100_0108],
+            || unsafe {
+                gx::set_alpha_update(1);
+                gx::set_dither(1);
+                gx::set_alpha_update(0);
+                gx::set_dither(0);
+            },
+        ),
+    );
+    logger.record(
+        "GX destination alpha encodes enable and value",
+        check_gx_bp_words(&[0x4200_01a5, 0x4200_005a], || unsafe {
+            gx::set_dst_alpha(1, 0xa5);
+            gx::set_dst_alpha(0, 0x5a);
+        }),
+    );
+    logger.record(
+        "GX depth comparison location toggles the expected bit",
+        check_gx_bp_words(&[0x4300_0040, 0x4300_0000], || unsafe {
+            gx::set_z_comp_loc(1);
+            gx::set_z_comp_loc(0);
+        }),
+    );
 }
 
 fn probe_tev_indirect_commands(logger: &mut ProbeLogger) {
