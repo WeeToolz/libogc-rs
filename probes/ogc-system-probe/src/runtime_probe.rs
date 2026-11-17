@@ -1787,6 +1787,56 @@ fn probe_raw_es_catalog(logger: &mut ProbeLogger) {
                 ]
             && tmd.0[808..].iter().all(|b| *b == 0xa5),
     );
+    if tmd_rc == 0 {
+        let mut stored_count = u32::MAX;
+        let rc = unsafe {
+            sys::get_num_stored_tmd_contents(tmd.0.as_ptr().cast(), 808, &mut stored_count)
+        };
+        logger.note_i32("Raw ES stored content count result", rc);
+        logger.note_u32("Raw ES stored content count", stored_count);
+        logger.record(
+            "Raw ES stored content count matches NAND files",
+            rc == 0 && stored_count == 9,
+        );
+        if rc == 0 && stored_count == 9 {
+            let mut ids = [u32::MAX; 10];
+            let listed = unsafe {
+                sys::get_stored_tmd_contents(tmd.0.as_ptr().cast(), 808, ids.as_mut_ptr(), 9)
+            };
+            logger.note_i32("Raw ES stored content list result", listed);
+            for id in ids {
+                logger.note_hex32("Raw ES stored content ID", id);
+            }
+            logger.record(
+                "Raw ES rejected TMD leaves stored ID buffer unchanged",
+                listed == -2011 && ids.iter().all(|id| *id == u32::MAX),
+            );
+        }
+    }
+    let mut shared_count = u32::MAX;
+    let rc = unsafe { sys::get_num_shared_contents(&mut shared_count) };
+    logger.note_i32("Raw ES shared content count result", rc);
+    logger.note_u32("Raw ES shared content count", shared_count);
+    logger.record(
+        "Raw ES shared content count matches NAND files",
+        rc == 0 && shared_count == 120,
+    );
+    if rc == 0 && shared_count == 120 {
+        #[repr(align(32))]
+        struct Hashes([[u8; 20]; 121]);
+        let mut hashes = Hashes([[0xa5; 20]; 121]);
+        let listed = unsafe { sys::get_shared_contents(hashes.0.as_mut_ptr(), 120) };
+        logger.record(
+            "Raw ES shared content list matches fixture and guard",
+            listed == 0
+                && hashes.0[0]
+                    == [
+                        0xfb, 0x30, 0x8a, 0x9a, 0x1d, 0x93, 0x41, 0xdf, 0x95, 0x17, 0xdb, 0x15,
+                        0x5f, 0x43, 0x83, 0x16, 0x23, 0x25, 0xdc, 0xc0,
+                    ]
+                && hashes.0[120] == [0xa5; 20],
+        );
+    }
     let mut views_count = 0u32;
     let ticket_rc = unsafe { sys::get_num_ticket_views(MENU, &mut views_count) };
     logger.note_i32("Raw ES ticket count result", ticket_rc);

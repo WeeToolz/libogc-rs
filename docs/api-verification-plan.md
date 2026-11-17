@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [ES stored and shared content batch](dolphin-runs/2026-11-17-raw-es-stored-final/README.md)
+checks three count and list APIs. Successful listing from a supplied TMD
+remains open.
+
 The [raw ES view batch](dolphin-runs/2026-11-17-raw-es-views/README.md)
 checks five APIs against a NAND fixture. Dolphin passes 235 checks.
 

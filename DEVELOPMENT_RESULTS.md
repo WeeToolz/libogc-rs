@@ -1890,3 +1890,9 @@ for evidence and limits.
 Dolphin passed 235 checks. New checks cover five raw ES APIs with a stored
 TMD and ticket view. See the [ES view report](docs/dolphin-runs/2026-11-17-raw-es-views/README.md)
 for evidence and limits.
+
+## 2026-11-17: ES stored and shared content
+
+The probe checks three ES APIs against the Dolphin NAND fixture. The supplied
+TMD list call returned an error and preserved its output buffer. See the
+[ES content report](docs/dolphin-runs/2026-11-17-raw-es-stored-final/README.md).
