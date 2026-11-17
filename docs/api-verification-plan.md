@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [fog batch](dolphin-runs/2026-11-16-gx-fog/README.md) checks fog and range
+adjustment command encoding. Metal passes 312 checks. Rendered fog and
+physical Wii remain open.
+
 The [generation mode batch](dolphin-runs/2026-11-16-gx-generation-mode/README.md)
 checks cull, co-planar, stage-count, and texture-offset commands. Metal passes
 307 checks. Rendered effects and physical Wii remain open.

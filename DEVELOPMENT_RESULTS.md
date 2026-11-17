@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-16: GX fog commands
+
+Dolphin 2609a with Metal passed 312 checks with zero failures. The probe checks
+fog coefficients and range adjustment command words. See the
+[report](docs/dolphin-runs/2026-11-16-gx-fog/README.md) for evidence and limits.
+Rendered fog and physical Wii remain untested.
+
 ## 2026-11-16: GX generation mode commands
 
 Dolphin 2609a with Metal passed 307 checks with zero failures. The probe checks

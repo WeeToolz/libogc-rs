@@ -1,4 +1,6 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,set_fog,6525,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_fog_commands,gx::set_fog
+ogc-gx,src/lib.rs,set_fog_range_adj,6606,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_fog_commands,gx::set_fog_range_adj
 ogc-gx,src/lib.rs,set_cull_mode,6461,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_generation_mode_commands,gx::set_cull_mode
 ogc-gx,src/lib.rs,set_co_planar,6477,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_generation_mode_commands,gx::set_co_planar
 ogc-gx,src/lib.rs,enable_tex_offsets,6488,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_generation_mode_commands,gx::enable_tex_offsets

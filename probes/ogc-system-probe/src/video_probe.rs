@@ -896,6 +896,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_tex_coord_scale_commands(logger);
     probe_alpha_compare_commands(logger);
     probe_fog_color_commands(logger);
+    probe_fog_commands(logger);
     probe_clip_mode_commands(logger);
     probe_copy_clear_commands(logger);
     probe_copy_filter_commands(logger);
@@ -2441,6 +2442,84 @@ fn probe_alpha_compare_commands(logger: &mut ProbeLogger) {
             }),
         );
     }
+}
+
+fn probe_fog_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX fog and range adjustment command bytes");
+    let color = gx::GxColor {
+        r: 0x12,
+        g: 0x34,
+        b: 0x56,
+        a: 0x78,
+    };
+    // SAFETY: The probe owns GX. These commands are captured in display
+    // lists and are not executed; the table remains live during capture.
+    logger.record(
+        "GX perspective fog emits expected coefficients and color",
+        check_gx_bp_words(
+            &[
+                0xee03_e800,
+                0xef80_001e,
+                0xf000_0002,
+                0xf143_f000,
+                0xf212_3456,
+            ],
+            || unsafe { gx::set_fog(gx::GX_FOG_PERSP_LIN, 1.0, 3.0, 1.0, 2.0, color) },
+        ),
+    );
+    logger.record(
+        "GX orthographic fog emits expected coefficients and color",
+        check_gx_bp_words(
+            &[
+                0xee03_f000,
+                0xef00_0000,
+                0xf000_0000,
+                0xf153_f000,
+                0xf212_3456,
+            ],
+            || unsafe { gx::set_fog(gx::GX_FOG_ORTHO_LIN, 2.0, 4.0, 1.0, 2.0, color) },
+        ),
+    );
+    logger.record(
+        "GX degenerate perspective fog emits zero coefficients",
+        check_gx_bp_words(
+            &[
+                0xee00_0000,
+                0xef40_000f,
+                0xf000_0001,
+                0xf140_0000,
+                0xf212_3456,
+            ],
+            || unsafe { gx::set_fog(gx::GX_FOG_PERSP_LIN, 1.0, 1.0, 1.0, 2.0, color) },
+        ),
+    );
+    let table = gx::GxFogAdjTbl {
+        r: [
+            0x123, 0xabc, 0xfff, 0x1000, 0x2345, 0x5678, 0, 1, 0xfffe, 0xffff,
+        ],
+    };
+    logger.record(
+        "GX fog range adjustment packs table and wraps center",
+        check_gx_bp_words(
+            &[
+                0xe9ab_c123,
+                0xea00_0fff,
+                0xeb67_8345,
+                0xec00_1000,
+                0xedff_fffe,
+                0xe800_04da,
+            ],
+            || unsafe { gx::set_fog_range_adj(1, 900, &table) },
+        ),
+    );
+    logger.record(
+        "GX disabled fog range adjustment does not read a table",
+        check_gx_bp_words(&[0xe800_0156], || unsafe {
+            gx::set_fog_range_adj(0, 0, core::ptr::null());
+        }),
+    );
 }
 
 fn probe_fog_color_commands(logger: &mut ProbeLogger) {
