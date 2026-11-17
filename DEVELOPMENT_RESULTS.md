@@ -1896,3 +1896,8 @@ for evidence and limits.
 The probe checks three ES APIs against the Dolphin NAND fixture. The supplied
 TMD list call returned an error and preserved its output buffer. See the
 [ES content report](docs/dolphin-runs/2026-11-17-raw-es-stored-final/README.md).
+
+## 2026-11-17: IPv4 and descriptor-set helpers
+
+Dolphin passed 249 checks. Twelve network APIs gained direct evidence.
+See the [network report](docs/dolphin-runs/2026-11-17-network-ipv4-fdset/README.md).

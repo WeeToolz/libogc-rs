@@ -1013,12 +1013,22 @@ fn probe_system_sram_getters(logger: &mut ProbeLogger) {
 }
 
 fn probe_ipv4_values(logger: &mut ProbeLogger) {
+    use ogc_network as net;
+
     logger.report_step("Raw IPv4 address and type-of-service values");
     for (bytes, word) in [
         ([1, 2, 3, 4], 0x0102_0304),
         ([255, 0, 128, 254], 0xff00_80fe),
         ([0, 0, 0, 0], 0),
     ] {
+        logger.record(
+            "IPv4 wrapper packs and reads fixed network-order values",
+            net::ip4_addr(bytes[0], bytes[1], bytes[2], bytes[3]) == word
+                && net::ip4_addr1(word) == u32::from(bytes[0])
+                && net::ip4_addr2(word) == u32::from(bytes[1])
+                && net::ip4_addr3(word) == u32::from(bytes[2])
+                && net::ip4_addr4(word) == u32::from(bytes[3]),
+        );
         let packed = raw_network::ip4_addr(bytes[0], bytes[1], bytes[2], bytes[3]);
         logger.record(
             "Raw IPv4 packing matches fixed network-order word",
@@ -1034,6 +1044,10 @@ fn probe_ipv4_values(logger: &mut ProbeLogger) {
     }
     for (input, tos, precedence) in [(0xff, 0x1e, 0xe0), (0x95, 0x14, 0x80), (0, 0, 0)] {
         logger.record(
+            "IPv4 wrapper masks type of service and precedence",
+            net::iptost(input) == tos && net::iptos_prec(input) == precedence,
+        );
+        logger.record(
             "Raw IPv4 TOS and precedence masks",
             raw_network::iptost(input) == tos && raw_network::iptos_prec(input) == precedence,
         );
@@ -1048,6 +1062,32 @@ fn probe_ipv4_values(logger: &mut ProbeLogger) {
     logger.record(
         "Raw IPv4 parser accepts valid and rejects invalid input",
         parsed,
+    );
+    // SAFETY: These C strings remain live and are NUL-terminated.
+    let parsed = unsafe {
+        net::inet_addr(c"192.0.2.1".as_ptr()) == 0xc000_0201
+            && net::inet_addr(c"127.0.0.1".as_ptr()) == 0x7f00_0001
+            && net::inet_addr(c"256.0.0.1".as_ptr()) == u32::MAX
+    };
+    logger.record("IPv4 wrapper parses valid and invalid input", parsed);
+
+    let mut set = net::FdSet { fd_bits: [0xff; 2] };
+    net::fd_zero(&mut set);
+    logger.record("Descriptor set clears both bytes", set.fd_bits == [0, 0]);
+    for fd in [0, 7, 8, 15] {
+        net::fd_set(&mut set, fd);
+    }
+    logger.record(
+        "Descriptor set preserves bits across byte boundaries",
+        set.fd_bits == [0x81, 0x81]
+            && (0..16).all(|fd| net::fd_is_set(&set, fd) == [0, 7, 8, 15].contains(&fd)),
+    );
+    net::fd_clear(&mut set, 7);
+    net::fd_clear(&mut set, 8);
+    logger.record(
+        "Descriptor clear leaves neighboring bits unchanged",
+        set.fd_bits == [1, 0x80]
+            && (0..16).all(|fd| net::fd_is_set(&set, fd) == [0, 15].contains(&fd)),
     );
 }
 

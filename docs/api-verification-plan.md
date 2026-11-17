@@ -39,6 +39,9 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [IPv4 and descriptor-set batch](dolphin-runs/2026-11-17-network-ipv4-fdset/README.md)
+checks 12 network APIs with fixed IPv4 values and descriptor bits.
+
 The [ES stored and shared content batch](dolphin-runs/2026-11-17-raw-es-stored-final/README.md)
 checks three count and list APIs. Successful listing from a supplied TMD
 remains open.

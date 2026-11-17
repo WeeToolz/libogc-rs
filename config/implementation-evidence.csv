@@ -2087,3 +2087,15 @@ ogc-es-sys,src/imp.rs,get_tmd_view_size,946,ios,hardware-probe,probes/ogc-system
 ogc-es-sys,src/imp.rs,get_num_stored_tmd_contents,711,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_es_catalog,sys::get_num_stored_tmd_contents
 ogc-es-sys,src/imp.rs,get_num_shared_contents,1224,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_es_catalog,sys::get_num_shared_contents
 ogc-es-sys,src/imp.rs,get_shared_contents,1249,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_es_catalog,sys::get_shared_contents
+ogc-network,src/lib.rs,fd_clear,199,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipv4_values,net::fd_clear
+ogc-network,src/lib.rs,fd_is_set,203,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipv4_values,net::fd_is_set
+ogc-network,src/lib.rs,fd_set,195,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipv4_values,net::fd_set
+ogc-network,src/lib.rs,fd_zero,191,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipv4_values,net::fd_zero
+ogc-network,src/lib.rs,inet_addr,129,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipv4_values,net::inet_addr
+ogc-network,src/lib.rs,ip4_addr,163,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipv4_values,net::ip4_addr
+ogc-network,src/lib.rs,ip4_addr1,167,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipv4_values,net::ip4_addr1
+ogc-network,src/lib.rs,ip4_addr2,171,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipv4_values,net::ip4_addr2
+ogc-network,src/lib.rs,ip4_addr3,175,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipv4_values,net::ip4_addr3
+ogc-network,src/lib.rs,ip4_addr4,179,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipv4_values,net::ip4_addr4
+ogc-network,src/lib.rs,iptos_prec,187,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipv4_values,net::iptos_prec
+ogc-network,src/lib.rs,iptost,183,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipv4_values,net::iptost
