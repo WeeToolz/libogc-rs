@@ -1877,3 +1877,10 @@ evidence and limits.
 
 The same video DOL passed all 349 checks on Metal. On OpenGL it had three
 GX EFB failures; the cause remains open. See the [comparison](docs/dolphin-runs/2026-11-17-gx-metal-comparison/README.md).
+
+## 2026-11-17: Raw ES catalog
+
+Ten ES API checks passed in Dolphin. Two earlier runs failed a data-directory
+terminator expectation. A revised check records Dolphin’s unterminated bytes;
+that API remains unverified. See the [ES report](docs/dolphin-runs/2026-11-17-raw-es-catalog-final/README.md)
+for evidence and limits.

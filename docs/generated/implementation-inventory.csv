@@ -1163,7 +1163,7 @@ ogc-es-sys,add_title_finish,rust-function,crates/core/ogc-es-sys/src/imp.rs,1933
 ogc-es-sys,add_title_start,rust-function,crates/core/ogc-es-sys/src/imp.rs,1799,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,certificate_size,rust-function,crates/core/ogc-es-sys/src/imp.rs,392,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,check_has_korean_key,rust-function,crates/core/ogc-es-sys/src/imp.rs,2454,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
-ogc-es-sys,close,rust-function,crates/core/ogc-es-sys/src/imp.rs,429,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
+ogc-es-sys,close,rust-function,crates/core/ogc-es-sys/src/imp.rs,429,ios,ios,hardware-probe:probes/ogc-system-probe/src/runtime_probe.rs::probe_raw_es_catalog calls close through `sys::close`,system-probe,See crate contract for es-abi-driver role and hardware validation status
 ogc-es-sys,close_content,rust-function,crates/core/ogc-es-sys/src/imp.rs,2127,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,decrypt,rust-function,crates/core/ogc-es-sys/src/imp.rs,2229,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,delete_ticket,rust-function,crates/core/ogc-es-sys/src/imp.rs,1631,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
@@ -1178,33 +1178,33 @@ ogc-es-sys,export_content_data,rust-function,crates/core/ogc-es-sys/src/imp.rs,1
 ogc-es-sys,export_content_end,rust-function,crates/core/ogc-es-sys/src/imp.rs,1735,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,export_title_done,rust-function,crates/core/ogc-es-sys/src/imp.rs,1753,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,export_title_init,rust-function,crates/core/ogc-es-sys/src/imp.rs,1657,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
-ogc-es-sys,get_boot2_version,rust-function,crates/core/ogc-es-sys/src/imp.rs,2432,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
+ogc-es-sys,get_boot2_version,rust-function,crates/core/ogc-es-sys/src/imp.rs,2432,ios,ios,hardware-probe:probes/ogc-system-probe/src/runtime_probe.rs::probe_raw_es_catalog calls get_boot2_version through `sys::get_boot2_version`,system-probe,See crate contract for es-abi-driver role and hardware validation status
 ogc-es-sys,get_consumption,rust-function,crates/core/ogc-es-sys/src/imp.rs,1048,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,get_consumption_count,rust-function,crates/core/ogc-es-sys/src/imp.rs,1013,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,get_data_dir,rust-function,crates/core/ogc-es-sys/src/imp.rs,498,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,get_device_cert,rust-function,crates/core/ogc-es-sys/src/imp.rs,2381,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,get_device_id,rust-function,crates/core/ogc-es-sys/src/imp.rs,2407,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
-ogc-es-sys,get_num_owned_titles,rust-function,crates/core/ogc-es-sys/src/imp.rs,595,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
+ogc-es-sys,get_num_owned_titles,rust-function,crates/core/ogc-es-sys/src/imp.rs,595,ios,ios,hardware-probe:probes/ogc-system-probe/src/runtime_probe.rs::probe_raw_es_catalog calls get_num_owned_titles through `sys::get_num_owned_titles`,system-probe,See crate contract for es-abi-driver role and hardware validation status
 ogc-es-sys,get_num_shared_contents,rust-function,crates/core/ogc-es-sys/src/imp.rs,1224,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,get_num_stored_tmd_contents,rust-function,crates/core/ogc-es-sys/src/imp.rs,711,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,get_num_ticket_views,rust-function,crates/core/ogc-es-sys/src/imp.rs,525,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
-ogc-es-sys,get_num_titles,rust-function,crates/core/ogc-es-sys/src/imp.rs,653,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
-ogc-es-sys,get_owned_titles,rust-function,crates/core/ogc-es-sys/src/imp.rs,620,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
+ogc-es-sys,get_num_titles,rust-function,crates/core/ogc-es-sys/src/imp.rs,653,ios,ios,hardware-probe:probes/ogc-system-probe/src/runtime_probe.rs::probe_raw_es_catalog calls get_num_titles through `sys::get_num_titles`,system-probe,See crate contract for es-abi-driver role and hardware validation status
+ogc-es-sys,get_owned_titles,rust-function,crates/core/ogc-es-sys/src/imp.rs,620,ios,ios,hardware-probe:probes/ogc-system-probe/src/runtime_probe.rs::probe_raw_es_catalog calls get_owned_titles through `sys::get_owned_titles`,system-probe,See crate contract for es-abi-driver role and hardware validation status
 ogc-es-sys,get_shared_contents,rust-function,crates/core/ogc-es-sys/src/imp.rs,1249,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,get_stored_tmd,rust-function,crates/core/ogc-es-sys/src/imp.rs,839,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,get_stored_tmd_contents,rust-function,crates/core/ogc-es-sys/src/imp.rs,757,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
-ogc-es-sys,get_stored_tmd_size,rust-function,crates/core/ogc-es-sys/src/imp.rs,806,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
+ogc-es-sys,get_stored_tmd_size,rust-function,crates/core/ogc-es-sys/src/imp.rs,806,ios,ios,hardware-probe:probes/ogc-system-probe/src/runtime_probe.rs::probe_raw_es_catalog calls get_stored_tmd_size through `sys::get_stored_tmd_size`,system-probe,See crate contract for es-abi-driver role and hardware validation status
 ogc-es-sys,get_ticket_view,rust-function,crates/core/ogc-es-sys/src/imp.rs,1184,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,get_ticket_views,rust-function,crates/core/ogc-es-sys/src/imp.rs,558,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
-ogc-es-sys,get_title_contents,rust-function,crates/core/ogc-es-sys/src/imp.rs,909,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
-ogc-es-sys,get_title_contents_count,rust-function,crates/core/ogc-es-sys/src/imp.rs,876,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
+ogc-es-sys,get_title_contents,rust-function,crates/core/ogc-es-sys/src/imp.rs,909,ios,ios,hardware-probe:probes/ogc-system-probe/src/runtime_probe.rs::probe_raw_es_catalog calls get_title_contents through `sys::get_title_contents`,system-probe,See crate contract for es-abi-driver role and hardware validation status
+ogc-es-sys,get_title_contents_count,rust-function,crates/core/ogc-es-sys/src/imp.rs,876,ios,ios,hardware-probe:probes/ogc-system-probe/src/runtime_probe.rs::probe_raw_es_catalog calls get_title_contents_count through `sys::get_title_contents_count`,system-probe,See crate contract for es-abi-driver role and hardware validation status
 ogc-es-sys,get_title_id,rust-function,crates/core/ogc-es-sys/src/imp.rs,459,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
-ogc-es-sys,get_titles,rust-function,crates/core/ogc-es-sys/src/imp.rs,678,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
+ogc-es-sys,get_titles,rust-function,crates/core/ogc-es-sys/src/imp.rs,678,ios,ios,hardware-probe:probes/ogc-system-probe/src/runtime_probe.rs::probe_raw_es_catalog calls get_titles through `sys::get_titles`,system-probe,See crate contract for es-abi-driver role and hardware validation status
 ogc-es-sys,get_tmd_view,rust-function,crates/core/ogc-es-sys/src/imp.rs,979,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,get_tmd_view_size,rust-function,crates/core/ogc-es-sys/src/imp.rs,946,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,identify,rust-function,crates/core/ogc-es-sys/src/imp.rs,1349,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,import_boot,rust-function,crates/core/ogc-es-sys/src/imp.rs,1964,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
-ogc-es-sys,init,rust-function,crates/core/ogc-es-sys/src/imp.rs,412,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
+ogc-es-sys,init,rust-function,crates/core/ogc-es-sys/src/imp.rs,412,ios,ios,hardware-probe:probes/ogc-system-probe/src/runtime_probe.rs::probe_raw_es_catalog calls init through `sys::init`,system-probe,See crate contract for es-abi-driver role and hardware validation status
 ogc-es-sys,is_valid_cert,rust-function,crates/core/ogc-es-sys/src/imp.rs,388,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,is_valid_signature,rust-function,crates/core/ogc-es-sys/src/imp.rs,380,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,launch_title,rust-function,crates/core/ogc-es-sys/src/imp.rs,1282,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence

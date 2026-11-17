@@ -61,6 +61,8 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_conf_text_settings(logger);
     probe_es(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_raw_es_catalog(logger);
     probe_crypto(logger);
     probe_iso9660(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -1676,6 +1678,101 @@ fn probe_es(logger: &mut ProbeLogger) {
     logger.note_u32("es boot2", boot2);
     logger.note_i32("es korean key rc", es::check_has_korean_key());
     logger.note_i32("es close rc", es::close());
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_raw_es_catalog(logger: &mut ProbeLogger) {
+    use es::sys;
+    const MENU: u64 = 0x0000_0001_0000_0002;
+    logger.section("RAW ES CATALOG");
+    let initialized = sys::init();
+    logger.record("Raw ES initializes", initialized == 0);
+    if initialized != 0 {
+        return;
+    }
+    let mut count = 0u32;
+    // SAFETY: Each buffer is writable for its stated capacity.
+    let rc = unsafe { sys::get_num_titles(&mut count) };
+    logger.note_u32("Raw ES title count", count);
+    logger.record(
+        "Raw ES title count is bounded and nonzero",
+        rc == 0 && count > 0 && count <= 512,
+    );
+    if rc == 0 && count > 0 && count <= 512 {
+        let mut titles = [u64::MAX; 513];
+        let list = unsafe { sys::get_titles(titles.as_mut_ptr(), count) };
+        logger.record(
+            "Raw ES title list includes system menu",
+            list == 0
+                && titles[..count as usize].contains(&MENU)
+                && titles[count as usize..].iter().all(|x| *x == u64::MAX),
+        );
+    }
+    let mut owned_count = 0u32;
+    let rc = unsafe { sys::get_num_owned_titles(&mut owned_count) };
+    logger.note_u32("Raw ES owned title count", owned_count);
+    logger.record(
+        "Raw ES owned title count is bounded and nonzero",
+        rc == 0 && owned_count > 0 && owned_count <= 512,
+    );
+    if rc == 0 && owned_count > 0 && owned_count <= 512 {
+        let mut titles = [u64::MAX; 513];
+        let list = unsafe { sys::get_owned_titles(titles.as_mut_ptr(), owned_count) };
+        logger.record(
+            "Raw ES owned title list includes system menu",
+            list == 0
+                && titles[..owned_count as usize].contains(&MENU)
+                && titles[owned_count as usize..]
+                    .iter()
+                    .all(|x| *x == u64::MAX),
+        );
+    }
+    let mut path = [0xa5u8; 32];
+    let dir = unsafe { sys::get_data_dir(MENU, path.as_mut_ptr()) };
+    logger.note_i32("Raw ES data path result", dir);
+    for chunk in path.chunks_exact(4) {
+        logger.note_hex32(
+            "Raw ES data path bytes",
+            u32::from_be_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]),
+        );
+    }
+    logger.record(
+        "Raw ES Dolphin writes 29 path bytes without terminator",
+        dir == 0 && &path[..29] == b"/title/00000001/00000002/data" && path[29..] == [0xa5; 3],
+    );
+    let mut size = 0u32;
+    let rc = unsafe { sys::get_stored_tmd_size(MENU, &mut size) };
+    logger.note_i32("Raw ES stored TMD size result", rc);
+    logger.note_u32("Raw ES stored TMD size", size);
+    logger.record(
+        "Raw ES system menu TMD size matches NAND fixture",
+        rc == 0 && size == 808,
+    );
+    let mut content_count = 0u32;
+    let rc = unsafe { sys::get_title_contents_count(MENU, &mut content_count) };
+    logger.note_i32("Raw ES title contents count result", rc);
+    logger.note_u32("Raw ES title contents count", content_count);
+    logger.record(
+        "Raw ES system menu content count matches TMD",
+        rc == 0 && content_count == 9,
+    );
+    if rc == 0 && content_count == 9 {
+        let mut ids = [u32::MAX; 10];
+        let listed = unsafe { sys::get_title_contents(MENU, ids.as_mut_ptr(), 9) };
+        logger.record(
+            "Raw ES system menu content IDs match TMD",
+            listed == 0
+                && ids[..9] == [0x96, 0x97, 9, 10, 11, 12, 0x59, 0x5a, 0x98]
+                && ids[9] == u32::MAX,
+        );
+    }
+    let mut boot2 = 0u32;
+    let rc = unsafe { sys::get_boot2_version(&mut boot2) };
+    logger.record(
+        "Raw ES boot2 version matches Dolphin fixture",
+        rc == 0 && boot2 == 4,
+    );
+    logger.record("Raw ES closes", sys::close() == 0);
 }
 
 fn probe_crypto(logger: &mut ProbeLogger) {
