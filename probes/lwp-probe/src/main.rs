@@ -718,6 +718,128 @@ mod wii {
         }
     }
 
+    static ABI_WORKER_RUN: AtomicU32 = AtomicU32::new(0);
+    static ABI_WORKER_COUNT: AtomicU32 = AtomicU32::new(0);
+    static ABI_WORKER_SELF: AtomicU32 = AtomicU32::new(0);
+    static ABI_WORKER_GATE: AtomicU32 = AtomicU32::new(0);
+
+    unsafe extern "C" fn abi_worker(_: *mut c_void) -> *mut c_void {
+        ABI_WORKER_SELF.store(lwp::lwp_get_self_abi(), Ordering::Release);
+        while lwp::sem_wait(ABI_WORKER_GATE.load(Ordering::Acquire)) == 0 {
+            if ABI_WORKER_RUN.load(Ordering::Acquire) == 0 {
+                break;
+            }
+            ABI_WORKER_COUNT.fetch_add(1, Ordering::Release);
+            lwp::lwp_yield_thread_abi();
+        }
+        0x7155usize as *mut c_void
+    }
+
+    fn run_legacy_thread_abi(logger: &mut ProbeLogger) {
+        logger.section("LWP LEGACY THREAD ABI");
+        ABI_WORKER_COUNT.store(0, Ordering::Relaxed);
+        ABI_WORKER_SELF.store(0, Ordering::Relaxed);
+        ABI_WORKER_RUN.store(1, Ordering::Release);
+        let mut gate = lwp::LWP_SEM_NULL;
+        // SAFETY: The gate is valid writable handle storage.
+        let gate_rc = unsafe { lwp::sem_init(&mut gate, 0, 1) };
+        logger.record("ABI worker gate initializes", gate_rc == 0);
+        if gate_rc != 0 {
+            return;
+        }
+        ABI_WORKER_GATE.store(gate, Ordering::Release);
+        let mut thread = lwp::LWP_THREAD_NULL;
+        // SAFETY: This stack is no longer used by the joined switch workers.
+        let created = unsafe {
+            lwp::lwp_create_thread_abi(
+                &mut thread,
+                Some(abi_worker),
+                ptr::null_mut(),
+                stack_base(core::ptr::addr_of_mut!(STACK_A)),
+                STACK_BYTES as u32,
+                80,
+            )
+        };
+        logger.record("ABI thread creates", created == 0);
+        if created != 0 {
+            logger.record(
+                "unused ABI worker gate destroys",
+                lwp::sem_destroy(gate) == 0,
+            );
+            return;
+        }
+        logger.record("ABI worker starts", lwp::sem_post(gate) == 0);
+        let deadline = driver::now_ticks().wrapping_add(driver::TICKS_PER_SECOND);
+        while ABI_WORKER_COUNT.load(Ordering::Acquire) == 0 && driver::now_ticks() < deadline {
+            driver::sleep_ticks(driver::TICKS_PER_SECOND / 100);
+        }
+        logger.record(
+            "ABI worker runs and reports its handle",
+            ABI_WORKER_COUNT.load(Ordering::Acquire) > 0
+                && ABI_WORKER_SELF.load(Ordering::Acquire) == thread,
+        );
+        let suspended = lwp::lwp_suspend_thread_abi(thread) == 0;
+        logger.record(
+            "ABI thread suspends",
+            suspended
+                && lwp::lwp_thread_is_suspended_abi(thread) != 0
+                && lwp::thread_is_suspended(thread) != 0,
+        );
+        if suspended {
+            let before = ABI_WORKER_COUNT.load(Ordering::Acquire);
+            logger.record(
+                "ABI suspended worker receives permit",
+                lwp::sem_post(gate) == 0,
+            );
+            driver::sleep_ticks(driver::TICKS_PER_SECOND / 50);
+            logger.record(
+                "ABI suspended worker stops",
+                ABI_WORKER_COUNT.load(Ordering::Acquire) == before,
+            );
+            let resumed = lwp::lwp_resume_thread_abi(thread) == 0;
+            driver::sleep_ticks(driver::TICKS_PER_SECOND / 50);
+            logger.record(
+                "ABI resumed worker runs",
+                resumed
+                    && lwp::lwp_thread_is_suspended_abi(thread) == 0
+                    && ABI_WORKER_COUNT.load(Ordering::Acquire) > before,
+            );
+        }
+        let suspended = lwp::suspend_thread(thread) == 0;
+        logger.record(
+            "Raw thread suspends",
+            suspended && lwp::thread_is_suspended(thread) != 0,
+        );
+        if suspended {
+            let before = ABI_WORKER_COUNT.load(Ordering::Acquire);
+            logger.record(
+                "Raw suspended worker receives permit",
+                lwp::sem_post(gate) == 0,
+            );
+            driver::sleep_ticks(driver::TICKS_PER_SECOND / 50);
+            let stopped = ABI_WORKER_COUNT.load(Ordering::Acquire) == before;
+            let resumed = lwp::resume_thread(thread) == 0;
+            driver::sleep_ticks(driver::TICKS_PER_SECOND / 50);
+            logger.record(
+                "Raw thread resumes",
+                stopped
+                    && resumed
+                    && lwp::thread_is_suspended(thread) == 0
+                    && ABI_WORKER_COUNT.load(Ordering::Acquire) > before,
+            );
+        }
+        ABI_WORKER_RUN.store(0, Ordering::Release);
+        logger.record("ABI worker exit permit posts", lwp::sem_post(gate) == 0);
+        let mut result = ptr::null_mut();
+        // SAFETY: `result` is valid writable storage for the join.
+        let joined = unsafe { lwp::lwp_join_thread_abi(thread, &mut result) };
+        logger.record(
+            "ABI thread joins with result",
+            joined == 0 && result as usize == 0x7155,
+        );
+        logger.record("ABI worker gate destroys", lwp::sem_destroy(gate) == 0);
+    }
+
     fn run_legacy_sync_abi(logger: &mut ProbeLogger) {
         logger.section("LWP LEGACY SYNC ABI");
         let mut mutex = lwp::LWP_MUTEX_NULL;
@@ -1207,6 +1329,7 @@ mod wii {
         run_switch_and_join(&mut logger);
         run_synchronization(&mut logger);
         run_legacy_sync_abi(&mut logger);
+        run_legacy_thread_abi(&mut logger);
         run_timed_wait(&mut logger);
         run_message_and_deferred(&mut logger);
         run_tuxedo_compatibility(&mut logger);

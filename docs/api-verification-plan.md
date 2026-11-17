@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [LWP thread batch](dolphin-runs/2026-11-17-lwp-thread-abi-gated/README.md)
+checks nine APIs with a gated worker. Dolphin passes 186 checks. An earlier
+continuously yielding worker timed out for an unknown reason.
+
 The [LWP synchronization ABI batch](dolphin-runs/2026-11-17-lwp-sync-abi/README.md)
 checks 19 public APIs. Dolphin passes 172 checks. Physical Wii testing and
 other contention cases remain open.
