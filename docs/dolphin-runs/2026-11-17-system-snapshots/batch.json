@@ -1,0 +1,32 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_config",
+      "line": 1108,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_getters",
+      "api_path": "system::snapshot_config",
+      "checks": [
+        "System configuration snapshot reflects SRAM fixture"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_arenas",
+      "line": 1159,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system",
+      "api_path": "system::snapshot_arenas",
+      "checks": [
+        "System arena snapshot matches runtime bounds"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin runtime SRAM and arena values. Wireless IDs, setter history, hardware persistence, and physical Wii behavior need separate evidence."
+  ]
+}

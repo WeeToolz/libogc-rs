@@ -2152,3 +2152,5 @@ ogc-system,src/lib.rs,snapshot_sram,1633,compatibility-forwarder,hardware-probe,
 ogc-system,src/lib.rs,snapshot_sram_ex,1643,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_locks,system::snapshot_sram_ex
 ogc-system,src/lib.rs,snapshot_sram_unlock,1596,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_locks,system::snapshot_sram_unlock
 ogc-system,src/lib.rs,snapshot_sram_sync,1626,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_locks,system::snapshot_sram_sync
+ogc-system,src/lib.rs,snapshot_config,1108,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_getters,system::snapshot_config
+ogc-system,src/lib.rs,snapshot_arenas,1159,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system,system::snapshot_arenas

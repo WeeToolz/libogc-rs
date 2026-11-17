@@ -1585,6 +1585,22 @@ fn probe_system_sram_getters(logger: &mut ProbeLogger) {
         "System video mode reads SRAM bits",
         system::get_video_mode() == 2,
     );
+    let config = system::snapshot_config();
+    logger.record(
+        "System configuration snapshot reflects SRAM fixture",
+        config.counter_bias == 0x1234_5678
+            && config.display_offset_h == -7
+            && config.eu_rgb60 == 1
+            && config.language == 4
+            && config.progressive_scan == 1
+            && config.sound_mode == 1
+            && config.video_mode == 2
+            && config.counter_bias_get_called
+            && config.display_offset_get_called
+            && config.eu_rgb60_get_called
+            && config.language_get_called
+            && config.progressive_scan_get_called,
+    );
 
     // SAFETY: Reacquire before restoring all original fields. No writeback is
     // requested; a failed lock is recorded and prevents dereferencing null.
@@ -1920,6 +1936,28 @@ fn probe_system_sram_locks(logger: &mut ProbeLogger) {
 }
 
 fn probe_system(logger: &mut ProbeLogger) {
+    #[cfg(feature = "dolphin-automation")]
+    {
+        let arenas = system::snapshot_arenas();
+        // SAFETY: These calls read the runtime arena bounds.
+        let raw = unsafe {
+            (
+                raw_system::sys_get_arena1_lo(),
+                raw_system::sys_get_arena1_hi(),
+                raw_system::sys_get_arena2_lo(),
+                raw_system::sys_get_arena2_hi(),
+            )
+        };
+        logger.record(
+            "System arena snapshot matches runtime bounds",
+            arenas.arena1_lo == raw.0
+                && arenas.arena1_hi == raw.1
+                && arenas.arena2_lo == raw.2
+                && arenas.arena2_hi == raw.3
+                && (raw.0 as usize) < raw.1 as usize
+                && (raw.2 as usize) < raw.3 as usize,
+        );
+    }
     // The runtime has already initialized IOS. Repeating pre_main closes
     // live descriptors and invalidates the services this probe must test.
     logger.note_hex32("hollywood revision", system::get_hollywood_revision());
