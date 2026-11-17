@@ -914,6 +914,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_lighting_channel_commands(logger);
     probe_generation_mode_commands(logger);
     probe_texgen_commands(logger);
+    probe_pixel_tev_commands(logger);
     probe_gx_completion_callbacks(logger);
     probe_solid_rect_render(logger, width, height);
     probe_textured_rect_render(logger, width, height);
@@ -1162,6 +1163,67 @@ fn probe_vertex_format_commands(logger: &mut ProbeLogger) {
             gx::begin(gx::GX_TRIANGLES, 7, 0);
             gx::end();
         }),
+    );
+}
+
+fn probe_pixel_tev_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX pixel format and TEV default command bytes");
+    let projection = [
+        [1.0, 0.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0, 0.0],
+        [0.0, 0.0, 1.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    ];
+    // SAFETY: The probe owns GX. Set known state before capture. The TEV
+    // stage is inactive and later render checks configure GX again.
+    unsafe {
+        gx::set_z_comp_loc(1);
+        gx::set_dst_alpha(1, 0x5a);
+        gx::set_pixel_fmt(gx::GX_PF_Y8, gx::GX_ZC_LINEAR);
+        gx::configure_solid_2d(&projection);
+        gx::set_tev_swap_mode(5, 0, 0);
+        gx::set_tev_color_op(5, 0, 0, 0, 0, 0);
+        gx::set_tev_alpha_op(5, 0, 0, 0, 0, 0);
+        gx::set_tev_color_in(5, 0, 0, 0, 0);
+        gx::set_tev_alpha_in(5, 0, 0, 0, 0);
+    }
+    logger.record(
+        "GX RGB565 format sets pixel control and deferred multisample bit",
+        check_gx_command_bytes(
+            &[0x61, 0x43, 0, 0, 0x52, 0x61, 0, 0, 2, 0x11, 0x90, 0, 0],
+            || unsafe {
+                gx::set_pixel_fmt(gx::GX_PF_RGB565_Z16, gx::GX_ZC_MID);
+                gx::begin(gx::GX_TRIANGLES, 0, 0);
+                gx::end();
+            },
+        ),
+    );
+    logger.record(
+        "GX V8 format selects YUV field and invalid format emits nothing",
+        check_gx_bp_words(&[0x4300_004c, 0x4200_095a], || unsafe {
+            gx::set_pixel_fmt(gx::GX_PF_V8, gx::GX_ZC_NEAR);
+            gx::set_pixel_fmt(8, 0);
+        }),
+    );
+    logger.record(
+        "GX modulate TEV default uses previous stage and clamp",
+        check_gx_bp_words(
+            &[0xca00_f80f, 0xcb00_f070, 0xca08_f80f, 0xcb08_f070],
+            || unsafe {
+                gx::set_tev_op(5, gx::GX_MODULATE);
+            },
+        ),
+    );
+    logger.record(
+        "GX replace TEV default selects texture and clamps",
+        check_gx_bp_words(
+            &[0xca00_fff8, 0xcb00_ffc0, 0xca08_fff8, 0xcb08_ffc0],
+            || unsafe {
+                gx::set_tev_op(5, gx::GX_REPLACE);
+            },
+        ),
     );
 }
 

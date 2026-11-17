@@ -39,6 +39,15 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [pixel format and TEV batch](dolphin-runs/2026-11-16-gx-pixel-tev/README.md)
+checks selected command encoding. Metal passes 317 checks. Rendered effects
+and physical Wii remain open.
+
+A C source review found that `GX_SetTevOrder` marks texture-coordinate
+scaling dirty, while the Rust `set_tev_order` does not appear to do so. Check
+this with a runtime probe and the surrounding texture-state path before
+classifying it as a defect or recording evidence for that API.
+
 The [texture generator batch](dolphin-runs/2026-11-16-gx-texgen/README.md)
 checks generator and matrix-index command encoding. Metal passes 313 checks.
 Rendered texture coordinates and physical Wii remain open.

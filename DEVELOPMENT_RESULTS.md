@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-16: GX pixel format and TEV default commands
+
+Dolphin 2609a with Metal passed 317 checks with zero failures. The probe checks
+selected pixel format and TEV default command words. See the
+[report](docs/dolphin-runs/2026-11-16-gx-pixel-tev/README.md) for evidence and
+limits. Rendered effects and physical Wii remain untested.
+
 ## 2026-11-16: GX texture generator commands
 
 Dolphin 2609a with Metal passed 313 checks with zero failures. The probe checks

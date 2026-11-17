@@ -1,4 +1,6 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,set_pixel_fmt,6656,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_pixel_tev_commands,gx::set_pixel_fmt
+ogc-gx,src/lib.rs,set_tev_op,6707,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_pixel_tev_commands,gx::set_tev_op
 ogc-gx,src/lib.rs,set_current_mtx,6167,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texgen_commands,gx::set_current_mtx
 ogc-gx,src/lib.rs,set_tex_coord_gen,6041,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texgen_commands,gx::set_tex_coord_gen
 ogc-gx,src/lib.rs,set_tex_coord_gen2,6177,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texgen_commands,gx::set_tex_coord_gen2
