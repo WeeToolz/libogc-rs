@@ -1859,3 +1859,9 @@ Dolphin passed 186 checks. New checks cover nine thread APIs with a gated
 worker. An earlier continuous-yield test timed out for an unknown reason.
 See the [thread report](docs/dolphin-runs/2026-11-17-lwp-thread-abi-gated/README.md)
 for evidence and limits.
+
+## 2026-11-17: LWP condition signal and broadcast
+
+Dolphin passed 214 checks. The probe checks five condition APIs with two
+waiting workers. See the [condition report](docs/dolphin-runs/2026-11-17-lwp-cond-broadcast/README.md)
+for evidence and limits.

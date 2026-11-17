@@ -1,0 +1,23 @@
+{
+  "source_revision": "1765b2169b0950b1dc45ccca1de6a9e9bcd59ec3",
+  "dirty_worktree": true,
+  "source_sha256": {
+    "probes/lwp-probe/src/main.rs": "a0745fc1591721a51c6df55254f97e8fad0eb867fc758cd3633de0c90f3ef1c5",
+    "probes/lwp-probe/Cargo.toml": "4d955111d293b3b58eceaa847423759a062e5a94ec35e239c823652d5b820ec6",
+    "crates/core/ogc-lwp-sys/src/lib.rs": "05b749d8e4fd74d9ff572eae7c9744df55fea7b5d19fd086c224baa25dd36b3f",
+    "xtask/src/dolphin.rs": "1d917d97790a642f5a3e1952af62377a3d6582a221b2d56cfd3e1ab7293da255",
+    "/Volumes/SSD/WiiDev/C-sources/libogc/gc/ogc/lwp.h": "561dc4df6b71dc5a9fc8f5024ba191f5781a21fa72099362afb661e4bf9635f3"
+  },
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "d96c72c16cbacf3800d79f9feb65e98e0e3c0499cc93c8b0172064c94d1b4caf",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "fixture_sha256": {
+    "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73",
+    "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+  },
+  "nand_source_after_run": {
+    "file_count": 587,
+    "tree_sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc",
+    "method": "sorted relative POSIX paths; u64 big-endian UTF-8 path length, path bytes, raw SHA-256 file digest"
+  }
+}

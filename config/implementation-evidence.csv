@@ -2051,3 +2051,8 @@ ogc-lwp-sys,src/lib.rs,lwp_thread_is_suspended_abi,398,compatibility-forwarder,h
 ogc-lwp-sys,src/lib.rs,resume_thread,106,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_legacy_thread_abi,lwp::resume_thread
 ogc-lwp-sys,src/lib.rs,suspend_thread,102,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_legacy_thread_abi,lwp::suspend_thread
 ogc-lwp-sys,src/lib.rs,thread_is_suspended,122,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_legacy_thread_abi,lwp::thread_is_suspended
+ogc-lwp-sys,src/lib.rs,cond_broadcast,225,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_condition_broadcast,lwp::cond_broadcast
+ogc-lwp-sys,src/lib.rs,cond_wait,202,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,broadcast_worker,lwp::cond_wait
+ogc-lwp-sys,src/lib.rs,lwp_cond_broadcast_abi,499,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_condition_broadcast,lwp::lwp_cond_broadcast_abi
+ogc-lwp-sys,src/lib.rs,lwp_cond_signal_abi,495,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_condition_broadcast,lwp::lwp_cond_signal_abi
+ogc-lwp-sys,src/lib.rs,lwp_cond_wait_abi,491,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,broadcast_worker,lwp::lwp_cond_wait_abi

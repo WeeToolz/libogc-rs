@@ -718,6 +718,138 @@ mod wii {
         }
     }
 
+    static BROADCAST_READY: AtomicU32 = AtomicU32::new(0);
+    static BROADCAST_WOKEN: AtomicU32 = AtomicU32::new(0);
+    static BROADCAST_MUTEX: AtomicU32 = AtomicU32::new(0);
+    static BROADCAST_COND: AtomicU32 = AtomicU32::new(0);
+
+    unsafe extern "C" fn broadcast_worker(arg: *mut c_void) -> *mut c_void {
+        let mutex = BROADCAST_MUTEX.load(Ordering::Acquire);
+        let cond = BROADCAST_COND.load(Ordering::Acquire);
+        if lwp::mutex_lock(mutex) != 0 {
+            return ptr::null_mut();
+        }
+        BROADCAST_READY.fetch_add(1, Ordering::Release);
+        let rc = if arg as usize == 0 {
+            lwp::cond_wait(cond, mutex)
+        } else {
+            lwp::lwp_cond_wait_abi(cond, mutex)
+        };
+        if rc == 0 {
+            BROADCAST_WOKEN.fetch_add(1, Ordering::Release);
+        }
+        let unlocked = lwp::mutex_unlock(mutex) == 0;
+        if rc == 0 && unlocked {
+            0xc011usize as *mut c_void
+        } else {
+            ptr::null_mut()
+        }
+    }
+
+    fn wait_for_counter(counter: &AtomicU32, count: u32) -> bool {
+        let deadline = driver::now_ticks().wrapping_add(driver::TICKS_PER_SECOND);
+        while counter.load(Ordering::Acquire) < count && driver::now_ticks() < deadline {
+            driver::sleep_ticks(driver::TICKS_PER_SECOND / 100);
+        }
+        counter.load(Ordering::Acquire) >= count
+    }
+
+    fn run_condition_broadcast(logger: &mut ProbeLogger) {
+        logger.section("LWP CONDITION SIGNAL AND BROADCAST");
+        for raw_broadcast in [false, true] {
+            BROADCAST_READY.store(0, Ordering::Release);
+            BROADCAST_WOKEN.store(0, Ordering::Release);
+            let mut mutex = lwp::LWP_MUTEX_NULL;
+            let mut cond = lwp::LWP_COND_NULL;
+            // SAFETY: Both outputs are valid writable handles.
+            let mutex_rc = unsafe { lwp::mutex_init(&mut mutex, 0) };
+            logger.record("Broadcast mutex initializes", mutex_rc == 0);
+            if mutex_rc != 0 {
+                return;
+            }
+            let cond_rc = unsafe { lwp::cond_init(&mut cond) };
+            logger.record("Broadcast condition initializes", cond_rc == 0);
+            if cond_rc != 0 {
+                logger.record(
+                    "Broadcast unused mutex destroys",
+                    lwp::mutex_destroy(mutex) == 0,
+                );
+                return;
+            }
+            BROADCAST_MUTEX.store(mutex, Ordering::Release);
+            BROADCAST_COND.store(cond, Ordering::Release);
+            let mut a = lwp::LWP_THREAD_NULL;
+            let mut b = lwp::LWP_THREAD_NULL;
+            let ca = create_with_stack(
+                &mut a,
+                Some(broadcast_worker),
+                ptr::null_mut(),
+                core::ptr::addr_of_mut!(STACK_A),
+                80,
+            );
+            let cb = create_with_stack(
+                &mut b,
+                Some(broadcast_worker),
+                core::ptr::dangling_mut::<c_void>(),
+                core::ptr::addr_of_mut!(STACK_B),
+                80,
+            );
+            logger.record("Broadcast waiters create", ca == 0 && cb == 0);
+            if ca != 0 || cb != 0 {
+                return;
+            }
+            let ready = wait_for_counter(&BROADCAST_READY, 2);
+            logger.record("Broadcast waiters reach condition", ready);
+            if !ready {
+                return;
+            }
+            // The worker increments ready under this mutex immediately before it waits.
+            let locked = lwp::mutex_lock(mutex) == 0;
+            logger.record("Broadcast notifier acquires mutex", locked);
+            if !locked {
+                return;
+            }
+            if raw_broadcast {
+                logger.record("Raw condition broadcasts", lwp::cond_broadcast(cond) == 0);
+            } else {
+                logger.record("ABI condition signals", lwp::lwp_cond_signal_abi(cond) == 0);
+            }
+            logger.record("Broadcast notifier unlocks", lwp::mutex_unlock(mutex) == 0);
+            if raw_broadcast {
+                logger.record(
+                    "Raw broadcast wakes both waiters",
+                    wait_for_counter(&BROADCAST_WOKEN, 2),
+                );
+            } else {
+                let first = wait_for_counter(&BROADCAST_WOKEN, 1);
+                logger.record(
+                    "ABI signal wakes exactly one waiter",
+                    first && BROADCAST_WOKEN.load(Ordering::Acquire) == 1,
+                );
+                let locked = lwp::mutex_lock(mutex) == 0;
+                logger.record("ABI broadcast notifier locks", locked);
+                if locked {
+                    logger.record(
+                        "ABI condition broadcasts",
+                        lwp::lwp_cond_broadcast_abi(cond) == 0,
+                    );
+                    logger.record(
+                        "ABI broadcast notifier unlocks",
+                        lwp::mutex_unlock(mutex) == 0,
+                    );
+                }
+                logger.record(
+                    "ABI broadcast wakes remaining waiter",
+                    wait_for_counter(&BROADCAST_WOKEN, 2),
+                );
+            }
+            logger.record("Broadcast first waiter joins", join(a) == Ok(0xc011));
+            logger.record("Broadcast second waiter joins", join(b) == Ok(0xc011));
+            logger.record("Broadcast condition destroys", lwp::cond_destroy(cond) == 0);
+            logger.record("Broadcast mutex destroys", lwp::mutex_destroy(mutex) == 0);
+        }
+    }
+
     static ABI_WORKER_RUN: AtomicU32 = AtomicU32::new(0);
     static ABI_WORKER_COUNT: AtomicU32 = AtomicU32::new(0);
     static ABI_WORKER_SELF: AtomicU32 = AtomicU32::new(0);
@@ -1330,6 +1462,7 @@ mod wii {
         run_synchronization(&mut logger);
         run_legacy_sync_abi(&mut logger);
         run_legacy_thread_abi(&mut logger);
+        run_condition_broadcast(&mut logger);
         run_timed_wait(&mut logger);
         run_message_and_deferred(&mut logger);
         run_tuxedo_compatibility(&mut logger);

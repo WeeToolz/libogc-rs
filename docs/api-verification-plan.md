@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [LWP condition batch](dolphin-runs/2026-11-17-lwp-cond-broadcast/README.md)
+checks five wait, signal, and broadcast APIs. Dolphin passes 214 checks.
+Physical Wii behavior remains open.
+
 The [LWP thread batch](dolphin-runs/2026-11-17-lwp-thread-abi-gated/README.md)
 checks nine APIs with a gated worker. Dolphin passes 186 checks. An earlier
 continuously yielding worker timed out for an unknown reason.
