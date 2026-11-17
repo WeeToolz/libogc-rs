@@ -1,4 +1,7 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,set_chan_ctrl,6825,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_lighting_channel_commands,gx::set_chan_ctrl
+ogc-gx,src/lib.rs,set_chan_mat_color,6894,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_lighting_channel_commands,gx::set_chan_mat_color
+ogc-gx,src/lib.rs,set_chan_amb_color,6887,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_lighting_channel_commands,gx::set_chan_amb_color
 ogc-gx,src/lib.rs,set_vtx_attr_fmtv,4831,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_vertex_format_commands,gx::set_vtx_attr_fmtv
 ogc-gx,src/lib.rs,set_vtx_attr_fmt,4822,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_vertex_format_commands,gx::set_vtx_attr_fmt
 ogc-gx,src/lib.rs,set_z_comp_loc,6404,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_pe_control_commands,gx::set_z_comp_loc

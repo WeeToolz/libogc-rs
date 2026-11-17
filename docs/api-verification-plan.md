@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [lighting channel batch](dolphin-runs/2026-11-16-gx-lighting-channels/README.md)
+checks ambient, material, and control command encoding. Metal passes 303 checks.
+Rendered lighting and physical Wii remain open.
+
 The [vertex format batch](dolphin-runs/2026-11-16-gx-vertex-format/README.md)
 checks deferred CP register encoding and list termination. Metal passes 302
 checks. Rendered vertex formats and physical Wii remain open.

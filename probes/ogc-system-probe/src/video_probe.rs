@@ -910,6 +910,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_vertex_descriptors(logger);
     probe_vertex_array_commands(logger);
     probe_vertex_format_commands(logger);
+    probe_lighting_channel_commands(logger);
     probe_gx_completion_callbacks(logger);
     probe_solid_rect_render(logger, width, height);
     probe_textured_rect_render(logger, width, height);
@@ -1156,6 +1157,62 @@ fn probe_vertex_format_commands(logger: &mut ProbeLogger) {
             gx::set_vtx_attr_fmt(7, u32::from(gx::GX_VA_POS), gx::GX_POS_XYZ, gx::GX_S16, 5);
             gx::set_vtx_attr_fmtv(7, formats.as_ptr());
             gx::begin(gx::GX_TRIANGLES, 7, 0);
+            gx::end();
+        }),
+    );
+}
+
+fn probe_lighting_channel_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    logger.report_step("GX lighting channel command bytes");
+    let ambient = gx::GxColor {
+        r: 0x11,
+        g: 0x22,
+        b: 0x33,
+        a: 0x44,
+    };
+    let alpha = gx::GxColor {
+        r: 0,
+        g: 0,
+        b: 0,
+        a: 0x99,
+    };
+    let material = gx::GxColor {
+        r: 0xaa,
+        g: 0xbb,
+        b: 0xcc,
+        a: 0xdd,
+    };
+    let rgb = gx::GxColor {
+        r: 0x12,
+        g: 0x34,
+        b: 0x56,
+        a: 0x78,
+    };
+    let expected = [
+        0x10, 0, 0, 0x10, 0x0a, 0x11, 0x22, 0x33, 0x99, 0x10, 0, 0, 0x10, 0x0d, 0x12, 0x34, 0x56,
+        0xdd, 0x10, 0, 0, 0x10, 0x0e, 0, 0, 0x57, 0x57, 0x10, 0, 0, 0x10, 0x10, 0, 0, 0x57, 0x57,
+        0x90, 0, 0,
+    ];
+    // SAFETY: The probe owns GX. The primitive header and deferred state
+    // are captured in a display list rather than executed.
+    logger.record(
+        "GX channel colors and lighting control emit expected XF words",
+        check_gx_command_bytes(&expected, || unsafe {
+            gx::set_chan_amb_color(i32::from(gx::GX_COLOR0A0), ambient);
+            gx::set_chan_amb_color(i32::from(gx::GX_ALPHA0), alpha);
+            gx::set_chan_mat_color(i32::from(gx::GX_COLOR1A1), material);
+            gx::set_chan_mat_color(i32::from(gx::GX_COLOR1), rgb);
+            gx::set_chan_ctrl(
+                i32::from(gx::GX_COLOR0A0),
+                1,
+                1,
+                1,
+                0xa5,
+                gx::GX_DF_CLAMP,
+                gx::GX_AF_SPOT,
+            );
+            gx::begin(gx::GX_TRIANGLES, 0, 0);
             gx::end();
         }),
     );

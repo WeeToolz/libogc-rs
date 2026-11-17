@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-16: GX lighting channel commands
+
+Dolphin 2609a with Metal passed 303 checks with zero failures. The probe
+checks ambient color, material color, and lighting control command words.
+See the [report](docs/dolphin-runs/2026-11-16-gx-lighting-channels/README.md)
+for evidence and limits. Physical Wii remains untested.
+
 ## 2026-11-16: GX vertex format commands
 
 Dolphin 2609a with Metal passed 302 checks with zero failures. The probe
