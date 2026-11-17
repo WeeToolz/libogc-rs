@@ -2105,3 +2105,4 @@ ogc-network,src/lib.rs,poll_raw,1082,compatibility-forwarder,hardware-probe,prob
 ogc-network,src/lib.rs,poll_raw_slice,793,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_socket_readiness,net::poll_raw_slice
 ogc-network,src/lib.rs,soc_exit,406,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_tcp,net::soc_exit
 ogc-network,src/lib.rs,soc_init,394,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_tcp,net::soc_init
+ogc-network,src/lib.rs,gai_strerror,135,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipv4_values,net::gai_strerror

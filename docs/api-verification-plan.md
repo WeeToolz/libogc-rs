@@ -7,6 +7,8 @@ The initial 2026-10-29 inventory had 2,400 `unverified` entries in 67 packages. 
 work list: use crate, source path, symbol, and line together to identify an
 entry. An entry is an evidence gap, not a confirmed defect. Counts are a
 snapshot; regenerate and check the inventory after each work batch.
+Use the [Dolphin batch helper](api-probe-batch.md) to run and record an
+explicit selection of APIs.
 
 The declared classes are 917 compatibility forwarders, 651 hardware, 539 IOS,
 133 protocol, 100 pure, and 60 scheduler entries. Classification is a starting

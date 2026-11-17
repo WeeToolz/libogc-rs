@@ -1,0 +1,16 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-network",
+      "path": "src/lib.rs",
+      "symbol": "gai_strerror",
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipv4_values",
+      "api_path": "net::gai_strerror",
+      "checks": [
+        "Network resolver error text matches known and unknown codes"
+      ]
+    }
+  ]
+}

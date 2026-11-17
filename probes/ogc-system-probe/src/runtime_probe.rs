@@ -1176,6 +1176,20 @@ fn probe_ipv4_values(logger: &mut ProbeLogger) {
     };
     logger.record("IPv4 wrapper parses valid and invalid input", parsed);
 
+    logger.record(
+        "Network resolver error text matches known and unknown codes",
+        [
+            (-3, c"temporary failure in name resolution"),
+            (42, c"unknown error"),
+        ]
+        .into_iter()
+        .all(|(code, expected)| {
+            let text = net::gai_strerror(code);
+            // SAFETY: This API returns a pointer to a static NUL-terminated string.
+            !text.is_null() && unsafe { core::ffi::CStr::from_ptr(text) } == expected
+        }),
+    );
+
     let mut set = net::FdSet { fd_bits: [0xff; 2] };
     net::fd_zero(&mut set);
     logger.record("Descriptor set clears both bytes", set.fd_bits == [0, 0]);
