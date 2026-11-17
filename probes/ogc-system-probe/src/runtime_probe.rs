@@ -43,6 +43,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_bt_device_classes(logger);
     probe_bt_input_queue(logger);
     probe_bt_discovery_values(logger);
+    probe_bt_l2cap_state(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -76,6 +77,63 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_network_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_udp(logger);
+}
+
+fn probe_bt_l2cap_state(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::{HidL2capState, L2capHidChannelState, L2capSignal};
+
+    let mut channel = L2capHidChannelState::new(0x11, 0x40);
+    let initial = channel.psm == 0x11
+        && channel.local_cid == 0x40
+        && channel.remote_cid == 0
+        && !L2capHidChannelState::ready(channel);
+    channel.remote_cid = 0x70;
+    channel.active = true;
+    channel.connected = true;
+    channel.local_configured = true;
+    channel.remote_configured = true;
+    let complete = L2capHidChannelState::ready(channel);
+    channel.remote_cid = 0;
+    logger.record(
+        "L2CAP channel readiness requires a remote channel",
+        initial && complete && !L2capHidChannelState::ready(channel),
+    );
+
+    let mut state = HidL2capState::new();
+    let empty = !HidL2capState::ready(state)
+        && state.control.local_cid == 0x40
+        && state.interrupt.local_cid == 0x41;
+    let conn_control = [0x70, 0, 0x40, 0, 0, 0, 0, 0];
+    let continuation = [0x40, 0, 1, 0];
+    let config_control = [0x40, 0, 0, 0];
+    let reply_control = [0x70, 0, 0, 0, 0, 0];
+    let conn_interrupt = [0x71, 0, 0x41, 0, 0, 0, 0, 0];
+    let config_interrupt = [0x41, 0, 0, 0];
+    let reply_interrupt = [0x71, 0, 0, 0, 0, 0];
+    let signal = |code, payload| L2capSignal {
+        code,
+        identifier: 1,
+        payload,
+    };
+    let first = state.observe_signal(signal(3, &conn_control)) == Ok(())
+        && state.control.remote_cid == 0x70
+        && !HidL2capState::ready(state)
+        && state.observe_signal(signal(4, &continuation)) == Ok(())
+        && !state.control.remote_configured;
+    let control = state.observe_signal(signal(4, &config_control)) == Ok(())
+        && state.observe_signal(signal(5, &reply_control)) == Ok(())
+        && L2capHidChannelState::ready(state.control)
+        && !HidL2capState::ready(state);
+    let interrupt = state.observe_signal(signal(3, &conn_interrupt)) == Ok(())
+        && state.observe_signal(signal(4, &config_interrupt)) == Ok(())
+        && state.observe_signal(signal(5, &reply_interrupt)) == Ok(())
+        && HidL2capState::ready(state);
+    let before = state;
+    let malformed = state.observe_signal(signal(3, &[0x70])).is_err() && state == before;
+    logger.record(
+        "L2CAP HID state tracks both configured channels",
+        empty && first && control && interrupt && malformed,
+    );
 }
 
 fn probe_bt_discovery_values(logger: &mut ProbeLogger) {

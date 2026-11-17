@@ -2128,3 +2128,8 @@ ogc-bt-sync,src/report_queue.rs,pop,226,ios,hardware-probe,probes/ogc-system-pro
 ogc-bt-sync,src/hid_host.rs,from_name,52,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_discovery_values,Family::from_name
 ogc-bt-sync,src/hid_host.rs,is_switch,71,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_discovery_values,Family::is_switch
 ogc-bt-sync,src/protocol.rs,new,222,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_discovery_values,HciEndpointAddresses::new
+ogc-bt-sync,src/protocol.rs,new,381,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_l2cap_state,L2capHidChannelState::new
+ogc-bt-sync,src/protocol.rs,ready,393,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_l2cap_state,L2capHidChannelState::ready
+ogc-bt-sync,src/protocol.rs,new,410,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_l2cap_state,HidL2capState::new
+ogc-bt-sync,src/protocol.rs,ready,417,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_l2cap_state,HidL2capState::ready
+ogc-bt-sync,src/protocol.rs,observe_signal,438,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_l2cap_state,state.observe_signal

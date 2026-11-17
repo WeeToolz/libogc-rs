@@ -1,0 +1,68 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/protocol.rs",
+      "symbol": "new",
+      "line": 381,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_l2cap_state",
+      "api_path": "L2capHidChannelState::new",
+      "checks": [
+        "L2CAP channel readiness requires a remote channel"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/protocol.rs",
+      "symbol": "ready",
+      "line": 393,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_l2cap_state",
+      "api_path": "L2capHidChannelState::ready",
+      "checks": [
+        "L2CAP channel readiness requires a remote channel"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/protocol.rs",
+      "symbol": "new",
+      "line": 410,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_l2cap_state",
+      "api_path": "HidL2capState::new",
+      "checks": [
+        "L2CAP HID state tracks both configured channels"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/protocol.rs",
+      "symbol": "ready",
+      "line": 417,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_l2cap_state",
+      "api_path": "HidL2capState::ready",
+      "checks": [
+        "L2CAP HID state tracks both configured channels"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/protocol.rs",
+      "symbol": "observe_signal",
+      "line": 438,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_l2cap_state",
+      "api_path": "state.observe_signal",
+      "checks": [
+        "L2CAP HID state tracks both configured channels"
+      ]
+    }
+  ],
+  "limits": [
+    "L2CAP signaling state checks in Dolphin with fixed packet payloads. Bluetooth transport and physical devices require separate evidence."
+  ]
+}
