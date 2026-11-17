@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [texture callback batch](dolphin-runs/2026-11-17-gx-tex-region-callback/README.md)
+checks selected callback handling and load commands. Metal passes 338 checks.
+Actual texture sampling and physical Wii remain open.
+
 The [TLUT batch](dolphin-runs/2026-11-17-gx-tlut-load/README.md) checks callback
 handling and selected load commands. Metal passes 335 checks. Actual palette
 transfers and physical Wii remain open.

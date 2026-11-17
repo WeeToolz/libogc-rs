@@ -18,6 +18,20 @@ static GX_LAST_TOKEN: AtomicU32 = AtomicU32::new(0);
 static TLUT_REGION_PTR: AtomicUsize = AtomicUsize::new(0);
 static TLUT_CALLBACK_COUNT: AtomicU32 = AtomicU32::new(0);
 static TLUT_CALLBACK_NAME: AtomicU32 = AtomicU32::new(0);
+static TEX_REGION_PTR: AtomicUsize = AtomicUsize::new(0);
+static TEX_CALLBACK_OBJECT: AtomicUsize = AtomicUsize::new(0);
+static TEX_CALLBACK_MAP: AtomicU32 = AtomicU32::new(0);
+static TEX_CALLBACK_COUNT: AtomicU32 = AtomicU32::new(0);
+
+unsafe extern "C" fn probe_tex_region_handler(
+    object: *mut ogc_gx::GxTexObj,
+    map: u8,
+) -> *mut ogc_gx::GxTexRegion {
+    TEX_CALLBACK_OBJECT.store(object as usize, Ordering::Relaxed);
+    TEX_CALLBACK_MAP.store(u32::from(map), Ordering::Relaxed);
+    TEX_CALLBACK_COUNT.fetch_add(1, Ordering::Relaxed);
+    TEX_REGION_PTR.load(Ordering::Relaxed) as *mut ogc_gx::GxTexRegion
+}
 
 unsafe extern "C" fn probe_tlut_region_callback(name: u32) -> *mut ogc_gx::GxTlutRegion {
     TLUT_CALLBACK_COUNT.fetch_add(1, Ordering::Relaxed);
@@ -929,6 +943,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_preloaded_texture_commands(logger);
     probe_texture_preload_commands(logger);
     probe_tlut_load_commands(logger);
+    probe_tex_region_callback(logger);
     probe_gx_completion_callbacks(logger);
     probe_solid_rect_render(logger, width, height);
     probe_textured_rect_render(logger, width, height);
@@ -1176,6 +1191,83 @@ fn probe_vertex_format_commands(logger: &mut ProbeLogger) {
             gx::set_vtx_attr_fmtv(7, formats.as_ptr());
             gx::begin(gx::GX_TRIANGLES, 7, 0);
             gx::end();
+        }),
+    );
+}
+
+fn probe_tex_region_callback(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX texture region callback and load commands");
+    let mut object = gx::GxTexObj::default();
+    let mut region = gx::GxTexRegion {
+        val: [0x0001_2345, 0x0002_3456, 0, 0],
+    };
+    let image = core::ptr::without_provenance_mut::<core::ffi::c_void>(0x8123_4560);
+    // SAFETY: The probe owns GX and keeps the object and region live. The
+    // image address is captured and is never submitted to the GPU.
+    unsafe {
+        gx::init_tex_obj(
+            &mut object,
+            image,
+            gx::GxTexObjInit {
+                wd: 8,
+                ht: 4,
+                fmt: gx::GX_TF_RGBA8,
+                wrap_s: 1,
+                wrap_t: 2,
+                mipmap: 0,
+            },
+        )
+    };
+    let object_addr = (&mut object as *mut gx::GxTexObj) as usize;
+    TEX_REGION_PTR.store(
+        (&mut region as *mut gx::GxTexRegion) as usize,
+        Ordering::Relaxed,
+    );
+    TEX_CALLBACK_OBJECT.store(0, Ordering::Relaxed);
+    TEX_CALLBACK_MAP.store(0, Ordering::Relaxed);
+    TEX_CALLBACK_COUNT.store(0, Ordering::Relaxed);
+    let previous = unsafe { gx::set_tex_region_callback(Some(probe_tex_region_handler)) };
+    let mut loaded = false;
+    let matched = check_gx_bp_words(
+        &[
+            0xa100_0099,
+            0xa500_0000,
+            0xa960_0c07,
+            0xad01_2345,
+            0xb102_3456,
+            0xb509_1a2b,
+        ],
+        || unsafe { loaded = gx::load_tex_obj(&mut object, 5).is_ok() },
+    );
+    logger.record(
+        "GX texture callback receives object map and supplies region words",
+        loaded
+            && matched
+            && TEX_CALLBACK_OBJECT.load(Ordering::Relaxed) == object_addr
+            && TEX_CALLBACK_MAP.load(Ordering::Relaxed) == 5
+            && TEX_CALLBACK_COUNT.load(Ordering::Relaxed) == 1,
+    );
+    TEX_REGION_PTR.store(0, Ordering::Relaxed);
+    let mut rejected = false;
+    let empty = check_gx_command_bytes(&[], || unsafe {
+        rejected = gx::load_tex_obj(&mut object, 5) == Err(gx::GxTextureError::InvalidRegion);
+    });
+    logger.record(
+        "GX texture callback null region is rejected",
+        rejected && empty,
+    );
+    let installed = unsafe { gx::set_tex_region_callback(previous) };
+    TEX_REGION_PTR.store(0, Ordering::Relaxed);
+    logger.record(
+        "GX texture callback replacement returns installed callback",
+        installed.is_some_and(|f| {
+            core::ptr::fn_addr_eq(
+                f,
+                probe_tex_region_handler
+                    as unsafe extern "C" fn(*mut gx::GxTexObj, u8) -> *mut gx::GxTexRegion,
+            )
         }),
     );
 }

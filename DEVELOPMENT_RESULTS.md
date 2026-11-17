@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-17: GX texture region callback
+
+Dolphin 2609a with Metal passed 338 checks with zero failures. The probe checks
+texture callback arguments, region words, and replacement. See the
+[report](docs/dolphin-runs/2026-11-17-gx-tex-region-callback/README.md) for
+evidence and limits. Physical Wii remains untested.
+
 ## 2026-11-17: GX TLUT callback and load commands
 
 Dolphin 2609a with Metal passed 335 checks with zero failures. The probe checks
