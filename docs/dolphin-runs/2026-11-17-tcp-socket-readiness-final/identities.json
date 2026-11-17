@@ -1,0 +1,22 @@
+{
+  "source_revision": "fdc176c48db256e3378e355811876d40fa1eeeb9",
+  "source_sha256": {
+    "probes/ogc-system-probe/src/runtime_probe.rs": "9a426fc8bf1f9ac45f96d0a909f696ed51fbb2a0982a752909ae800a133cf96a",
+    "crates/services/ogc-network/src/lib.rs": "e3b7475d7486c561fa9d7a87e95d9223ec664b5a8c851c2d71bdd4d11fcb92e8",
+    "crates/services/ogc-network-sys/src/lib.rs": "ded6b639d11833a46811c12412bf5b45c436173b7526bed55c0cec4793a35083",
+    "xtask/src/dolphin.rs": "1d917d97790a642f5a3e1952af62377a3d6582a221b2d56cfd3e1ab7293da255",
+    "/Volumes/SSD/WiiDev/C-sources/libogc/libogc/network_wii.c": "69b616eafcdc3d0914d85cbe38e564e4337428ff9e4408206f2ecef28be7e8ed"
+  },
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "dbf259273602d80c3c0d5b70b9f15a6ed3a75a90832c3e3d6681b6f0db78e760",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "fixture_sha256": {
+    "libmad-stereo-mpeg1.mp3": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73",
+    "layer3-stereo.mp3": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+  },
+  "nand_source_after_launch": {
+    "file_count": 587,
+    "tree_sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc",
+    "method": "sorted path length as big-endian u64, UTF-8 relative path, then raw SHA-256 per file"
+  }
+}

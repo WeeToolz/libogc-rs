@@ -39,6 +39,9 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [TCP readiness batch](dolphin-runs/2026-11-17-tcp-socket-readiness-final/README.md)
+checks six network APIs using a loopback stream.
+
 The [IPv4 and descriptor-set batch](dolphin-runs/2026-11-17-network-ipv4-fdset/README.md)
 checks 12 network APIs with fixed IPv4 values and descriptor bits.
 

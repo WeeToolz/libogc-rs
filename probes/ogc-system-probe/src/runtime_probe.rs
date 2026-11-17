@@ -520,6 +520,7 @@ fn probe_network_tcp(logger: &mut ProbeLogger) {
                 if accepted >= 0 {
                     let a = b"send slice";
                     let sent = net::send_slice(client, a, 0);
+                    probe_socket_readiness(logger, accepted);
                     let mut bytes = [0xa5; 32];
                     let got = if sent == a.len() as i32 && wrapper_readable(accepted) {
                         net::recv_slice(accepted, &mut bytes, 0)
@@ -532,6 +533,7 @@ fn probe_network_tcp(logger: &mut ProbeLogger) {
                             && bytes[..a.len()] == *a
                             && bytes[a.len()..].iter().all(|b| *b == 0xa5),
                     );
+                    probe_socket_ioctl(logger, accepted);
                     let b = b"write slice";
                     let sent = net::write_slice(accepted, b);
                     let mut bytes = [0xa5; 32];
@@ -602,15 +604,118 @@ fn probe_network_tcp(logger: &mut ProbeLogger) {
             if client2 >= 0 {
                 logger.record("TCP wrapper second client closes", net::close(client2) == 0);
             }
+
+            let client3 = net::socket(net::PF_INET, net::SOCK_STREAM, 0);
+            let mut peer = net::SockaddrIn::default();
+            let mut peer_len = size_of::<net::SockaddrIn>() as u32;
+            let accepted3 = if client3 >= 0
+                && net::connect_addr(client3, &address) == 0
+                && wrapper_readable(listener)
+            {
+                // SAFETY: The peer storage and length are valid writable outputs.
+                unsafe {
+                    net::accept(
+                        listener,
+                        (&mut peer as *mut net::SockaddrIn).cast(),
+                        &mut peer_len,
+                    )
+                }
+            } else {
+                -1
+            };
+            logger.record(
+                "TCP pointer accept returns loopback peer",
+                accepted3 >= 0 && peer.sin_addr.s_addr == 0x7f00_0001 && peer.sin_port != 0,
+            );
+            if accepted3 >= 0 {
+                logger.record(
+                    "TCP pointer accepted socket closes",
+                    net::close(accepted3) == 0,
+                );
+            }
+            if client3 >= 0 {
+                logger.record("TCP pointer accept client closes", net::close(client3) == 0);
+            }
         }
     }
     if listener >= 0 {
         logger.record("TCP wrapper listener closes", net::close(listener) == 0);
     }
-    if client >= 0 {
-        logger.record("TCP wrapper client closes", net::close(client) == 0);
+    let client_was_open = client >= 0 && net::socket_raw_fd(client).is_some();
+    let exited = net::soc_exit() == 0;
+    logger.record(
+        "Socket table exit closes a live handle",
+        client_was_open && exited && net::socket_raw_fd(client).is_none() && net::close(client) < 0,
+    );
+    let reinitialized = net::soc_init() == 0;
+    let fresh = net::socket(net::PF_INET, net::SOCK_STREAM, 0);
+    logger.record(
+        "Socket table init permits fresh sockets",
+        reinitialized && fresh >= 0,
+    );
+    if fresh >= 0 {
+        logger.record("Fresh socket closes", net::close(fresh) == 0);
     }
     logger.record("TCP wrapper deinitializes", net::deinit() == 0);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_socket_readiness(logger: &mut ProbeLogger, fd: i32) {
+    use ogc_network as net;
+
+    let Some(raw) = net::socket_raw_fd(fd) else {
+        logger.record("Readiness probe maps a live socket", false);
+        return;
+    };
+    let events = net::POLLIN as u32;
+    let mut descriptor = net::PollSd {
+        socket: raw,
+        events,
+        revents: 0,
+    };
+    // SAFETY: The single descriptor remains live and writable.
+    let count = unsafe { net::poll_raw(&mut descriptor, 1, 3000) };
+    logger.record(
+        "Pointer poll reports queued stream data",
+        count == 1 && descriptor.revents & events != 0,
+    );
+    descriptor.revents = 0;
+    let count = net::poll_raw_slice(core::slice::from_mut(&mut descriptor), 0);
+    logger.record(
+        "Slice poll reports queued stream data",
+        count == 1 && descriptor.revents & events != 0,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_socket_ioctl(logger: &mut ProbeLogger, fd: i32) {
+    use ogc_network as net;
+
+    let mut pending = u32::MAX;
+    // SAFETY: This ioctl accepts a pointer to one writable u32.
+    let rc = unsafe { net::ioctl(fd, net::FIONREAD, (&mut pending as *mut u32).cast()) };
+    logger.record(
+        "TCP FIONREAD is rejected without writing output",
+        rc == -1 && pending == u32::MAX,
+    );
+
+    let mut enabled = 1u32;
+    // SAFETY: FIONBIO reads a u32 from live storage.
+    let rc = unsafe { net::ioctl(fd, net::FIONBIO, (&mut enabled as *mut u32).cast()) };
+    logger.record("TCP FIONBIO enables nonblocking mode", rc == 0);
+    if rc == 0 {
+        let mut byte = [0xa5];
+        let empty = net::recv_slice(fd, &mut byte, 0);
+        logger.note_i32("TCP empty nonblocking receive result", empty);
+        logger.record(
+            "TCP nonblocking receive leaves empty buffer unchanged",
+            empty < 0 && byte == [0xa5],
+        );
+        enabled = 0;
+        // SAFETY: FIONBIO reads a u32 from live storage.
+        let restored = unsafe { net::ioctl(fd, net::FIONBIO, (&mut enabled as *mut u32).cast()) };
+        logger.record("TCP FIONBIO restores blocking mode", restored == 0);
+    }
 }
 
 #[cfg(feature = "dolphin-automation")]

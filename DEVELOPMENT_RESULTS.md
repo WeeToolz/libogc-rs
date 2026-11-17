@@ -1901,3 +1901,8 @@ TMD list call returned an error and preserved its output buffer. See the
 
 Dolphin passed 249 checks. Twelve network APIs gained direct evidence.
 See the [network report](docs/dolphin-runs/2026-11-17-network-ipv4-fdset/README.md).
+
+## 2026-11-17: TCP readiness and socket lifecycle
+
+Dolphin passed 260 checks. Six network APIs gained direct evidence.
+See the [TCP report](docs/dolphin-runs/2026-11-17-tcp-socket-readiness-final/README.md).

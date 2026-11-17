@@ -2099,3 +2099,9 @@ ogc-network,src/lib.rs,ip4_addr3,175,compatibility-forwarder,hardware-probe,prob
 ogc-network,src/lib.rs,ip4_addr4,179,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipv4_values,net::ip4_addr4
 ogc-network,src/lib.rs,iptos_prec,187,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipv4_values,net::iptos_prec
 ogc-network,src/lib.rs,iptost,183,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipv4_values,net::iptost
+ogc-network,src/lib.rs,accept,506,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_tcp,net::accept
+ogc-network,src/lib.rs,ioctl,987,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_socket_ioctl,net::ioctl
+ogc-network,src/lib.rs,poll_raw,1082,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_socket_readiness,net::poll_raw
+ogc-network,src/lib.rs,poll_raw_slice,793,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_socket_readiness,net::poll_raw_slice
+ogc-network,src/lib.rs,soc_exit,406,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_tcp,net::soc_exit
+ogc-network,src/lib.rs,soc_init,394,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_tcp,net::soc_init
