@@ -89,6 +89,7 @@ pub fn run(logger: &mut ProbeLogger) {
         return;
     }
 
+    probe_raw_video(logger, rmode);
     probe_gx_canvas_dimensions(logger, rmode);
 
     let initial_proof = unsafe { video::hardware_proof(rmode, DISPLAY_FRAMEBUFFER) };
@@ -194,6 +195,89 @@ pub fn run(logger: &mut ProbeLogger) {
     let _ = video::set_post_retrace_callback(previous_post);
     PREVIOUS_PRE_CALLBACK.store(0, Ordering::Release);
     PREVIOUS_POST_CALLBACK.store(0, Ordering::Release);
+}
+
+fn probe_raw_video(logger: &mut ProbeLogger, rmode: *mut video::GxrModeObj) {
+    use video::sys;
+    logger.section("RAW VIDEO API");
+    // SAFETY: The caller supplies the active, initialized video mode.
+    let mut mode = unsafe { *rmode };
+    mode.fb_width = 17;
+    mode.xfb_height = 2;
+    mode.aa = 0;
+    let size = unsafe { sys::get_frame_buffer_size(&mut mode) };
+    logger.record("Raw video framebuffer size aligns width", size == 128);
+    let mut words = [0xa5a5_a5a5u32; 34];
+    // SAFETY: The 32-word interior is writable and matches the independent expected size.
+    unsafe { sys::clear_frame_buffer(&mut mode, words.as_mut_ptr().add(1).cast(), 0x1234_abcd) };
+    logger.record(
+        "Raw video clear preserves framebuffer guards",
+        words[0] == 0xa5a5_a5a5
+            && words[33] == 0xa5a5_a5a5
+            && words[1..33].iter().all(|word| *word == 0x1234_abcd),
+    );
+    mode.aa = 1;
+    logger.record(
+        "Raw video antialias framebuffer includes four rows",
+        unsafe { sys::get_frame_buffer_size(&mut mode) } == 384,
+    );
+    let active = unsafe { *rmode };
+    logger.record(
+        "Raw video scan mode matches active mode",
+        sys::get_video_scan_mode() == active.vi_tv_mode & 3,
+    );
+    logger.record(
+        "Raw video framebuffer state matches active display",
+        sys::get_current_framebuffer() == unsafe { DISPLAY_FRAMEBUFFER }
+            && sys::get_next_framebuffer() == unsafe { DISPLAY_FRAMEBUFFER },
+    );
+    let snapshot = sys::read_register_snapshot();
+    logger.record(
+        "Raw video snapshot contains active framebuffer",
+        snapshot.current_framebuffer == unsafe { DISPLAY_FRAMEBUFFER as usize }
+            && snapshot.next_framebuffer == unsafe { DISPLAY_FRAMEBUFFER as usize },
+    );
+    logger.record(
+        "Raw video Wii timebase frequency",
+        sys::timer_clock_hz() == 60_750_000,
+    );
+    logger.record(
+        "Raw video fixed timing conversions",
+        sys::retrace_period_ticks(sys::PlatformClock::Wii, sys::VideoStandard::Ntsc) == 1_013_513
+            && sys::retrace_period_ticks(sys::PlatformClock::Wii, sys::VideoStandard::Pal)
+                == 1_215_000
+            && sys::ticks_to_microseconds(60_750, 60_750_000) == 1000
+            && sys::ticks_to_microseconds(1, 0) == 0,
+    );
+    logger.record(
+        "Raw video mode standard mapping",
+        sys::video_standard_for_mode(0) == Some(sys::VideoStandard::Ntsc)
+            && sys::video_standard_for_mode(4) == Some(sys::VideoStandard::Pal)
+            && sys::video_standard_for_mode(3).is_none(),
+    );
+    PRE_COUNT.store(0, Ordering::Release);
+    POST_COUNT.store(0, Ordering::Release);
+    CALLBACK_PHASE.store(0, Ordering::Release);
+    let pre = sys::set_pre_retrace_callback(Some(pre_callback));
+    let post = sys::set_post_retrace_callback(Some(post_callback));
+    let before = sys::retrace_count();
+    let arrived = sys::wait_v_sync_timeout_us(RETRACE_WAIT_TIMEOUT_US);
+    let after = sys::retrace_count();
+    logger.record(
+        "Raw video callbacks fire in retrace order",
+        arrived
+            && after != before
+            && PRE_COUNT.load(Ordering::Acquire) > 0
+            && POST_COUNT.load(Ordering::Acquire) > 0
+            && CALLBACK_PHASE.load(Ordering::Acquire) == 2,
+    );
+    let replaced_pre = sys::set_pre_retrace_callback(pre);
+    let replaced_post = sys::set_post_retrace_callback(post);
+    logger.record(
+        "Raw video restores retrace callbacks",
+        replaced_pre.map(|f| f as usize) == Some(pre_callback as *const () as usize)
+            && replaced_post.map(|f| f as usize) == Some(post_callback as *const () as usize),
+    );
 }
 
 fn probe_tpl_memory(logger: &mut ProbeLogger) {

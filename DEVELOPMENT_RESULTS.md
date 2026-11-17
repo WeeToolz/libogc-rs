@@ -1865,3 +1865,10 @@ for evidence and limits.
 Dolphin passed 214 checks. The probe checks five condition APIs with two
 waiting workers. See the [condition report](docs/dolphin-runs/2026-11-17-lwp-cond-broadcast/README.md)
 for evidence and limits.
+
+## 2026-11-17: Raw video API checks
+
+The new Dolphin checks passed for 13 APIs. The full video suite and the
+unchanged control each failed three GX EFB checks for an unknown reason. See
+the [video report](docs/dolphin-runs/2026-11-17-raw-video/README.md) for
+evidence and limits.

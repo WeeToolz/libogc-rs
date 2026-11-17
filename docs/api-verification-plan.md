@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [raw video batch](dolphin-runs/2026-11-17-raw-video/README.md) checks
+13 APIs. Its new checks passed; the full suite and unchanged control each
+had three GX EFB failures. Their cause remains open.
+
 The [LWP condition batch](dolphin-runs/2026-11-17-lwp-cond-broadcast/README.md)
 checks five wait, signal, and broadcast APIs. Dolphin passes 214 checks.
 Physical Wii behavior remains open.

@@ -2056,3 +2056,16 @@ ogc-lwp-sys,src/lib.rs,cond_wait,202,compatibility-forwarder,hardware-probe,prob
 ogc-lwp-sys,src/lib.rs,lwp_cond_broadcast_abi,499,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_condition_broadcast,lwp::lwp_cond_broadcast_abi
 ogc-lwp-sys,src/lib.rs,lwp_cond_signal_abi,495,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_condition_broadcast,lwp::lwp_cond_signal_abi
 ogc-lwp-sys,src/lib.rs,lwp_cond_wait_abi,491,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,broadcast_worker,lwp::lwp_cond_wait_abi
+ogc-video-sys,src/lib.rs,clear_frame_buffer,966,hardware,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_raw_video,sys::clear_frame_buffer
+ogc-video-sys,src/lib.rs,get_current_framebuffer,704,hardware,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_raw_video,sys::get_current_framebuffer
+ogc-video-sys,src/lib.rs,get_frame_buffer_size,950,hardware,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_raw_video,sys::get_frame_buffer_size
+ogc-video-sys,src/lib.rs,get_next_framebuffer,700,hardware,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_raw_video,sys::get_next_framebuffer
+ogc-video-sys,src/lib.rs,get_video_scan_mode,1190,hardware,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_raw_video,sys::get_video_scan_mode
+ogc-video-sys,src/lib.rs,retrace_count,709,hardware,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_raw_video,sys::retrace_count
+ogc-video-sys,src/platform_timing.rs,retrace_period_ticks,282,hardware,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_raw_video,sys::retrace_period_ticks
+ogc-video-sys,src/lib.rs,set_post_retrace_callback,1110,hardware,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_raw_video,sys::set_post_retrace_callback
+ogc-video-sys,src/lib.rs,set_pre_retrace_callback,1104,hardware,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_raw_video,sys::set_pre_retrace_callback
+ogc-video-sys,src/platform_timing.rs,ticks_to_microseconds,290,hardware,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_raw_video,sys::ticks_to_microseconds
+ogc-video-sys,src/lib.rs,timer_clock_hz,714,hardware,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_raw_video,sys::timer_clock_hz
+ogc-video-sys,src/platform_timing.rs,video_standard_for_mode,243,hardware,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_raw_video,sys::video_standard_for_mode
+ogc-video-sys,src/lib.rs,wait_v_sync_timeout_us,1019,hardware,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_raw_video,sys::wait_v_sync_timeout_us
