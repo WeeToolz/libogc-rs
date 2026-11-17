@@ -10,7 +10,7 @@ See the [probe log](video_probe/probe.log), [check screen](video_probe/pages/pag
 The full run failed: it reported 346 passes and three failures in existing GX
 EFB depth and copy checks. The [unchanged-probe control](../2026-11-17-raw-video-control/video_probe/probe.log)
 reported the same three failures and 335 passes under the same runner and
-Dolphin configuration. Their cause is not established. The results support the
+Dolphin configuration. The [same DOL passes all 349 checks on Metal](../2026-11-17-gx-metal-comparison/README.md); the OpenGL cause is not established. The results support the
 named raw-video checks, not a full video suite pass. The snapshot check only
 covers its framebuffer fields; the snapshot API remains unverified. No
 production code changed. Physical Wii behavior remains open. HBC was not

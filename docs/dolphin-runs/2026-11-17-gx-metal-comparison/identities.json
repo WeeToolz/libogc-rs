@@ -1,0 +1,18 @@
+{
+  "source_revision": "22c1b5cab801bb62ad18b4084003cb9a576cc14f",
+  "video_probe_source_sha256": "4757f081bbe5bd1af0e09b5c57f7127e189833a7b3af66190788eec70493f1ec",
+  "dol_sha256": "8f9324aafacecf0ab4ba2afaf5b1b6abea6129ae46d576151e364db3758ed0e8",
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "runner_base_sha256": "1d917d97790a642f5a3e1952af62377a3d6582a221b2d56cfd3e1ab7293da255",
+  "runner_metal_sha256": "be32f5450dce8e1a053747dca68e1e837eb25e1b099621571c57c7034635b401",
+  "runner_change": "Replace --video_backend=OGL with --video_backend=Metal in dolphin_arguments; restore after run.",
+  "fixture_sha256": {
+    "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73",
+    "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+  },
+  "nand_source_after_prior_run": {
+    "file_count": 587,
+    "tree_sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc",
+    "method": "sorted relative POSIX paths; u64 big-endian UTF-8 path length, path bytes, raw SHA-256 file digest"
+  }
+}
