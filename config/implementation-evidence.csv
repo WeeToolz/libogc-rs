@@ -1,4 +1,11 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,set_cull_mode,6461,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_generation_mode_commands,gx::set_cull_mode
+ogc-gx,src/lib.rs,set_co_planar,6477,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_generation_mode_commands,gx::set_co_planar
+ogc-gx,src/lib.rs,enable_tex_offsets,6488,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_generation_mode_commands,gx::enable_tex_offsets
+ogc-gx,src/lib.rs,set_num_chans,6901,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_generation_mode_commands,gx::set_num_chans
+ogc-gx,src/lib.rs,set_num_tex_gens,5987,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_generation_mode_commands,gx::set_num_tex_gens
+ogc-gx,src/lib.rs,set_num_tev_stages,6914,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_generation_mode_commands,gx::set_num_tev_stages
+ogc-gx,src/lib.rs,set_num_ind_stages,7033,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_generation_mode_commands,gx::set_num_ind_stages
 ogc-gx,src/lib.rs,set_chan_ctrl,6825,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_lighting_channel_commands,gx::set_chan_ctrl
 ogc-gx,src/lib.rs,set_chan_mat_color,6894,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_lighting_channel_commands,gx::set_chan_mat_color
 ogc-gx,src/lib.rs,set_chan_amb_color,6887,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_lighting_channel_commands,gx::set_chan_amb_color

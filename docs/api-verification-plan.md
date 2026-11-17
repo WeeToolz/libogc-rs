@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [generation mode batch](dolphin-runs/2026-11-16-gx-generation-mode/README.md)
+checks cull, co-planar, stage-count, and texture-offset commands. Metal passes
+307 checks. Rendered effects and physical Wii remain open.
+
 The [lighting channel batch](dolphin-runs/2026-11-16-gx-lighting-channels/README.md)
 checks ambient, material, and control command encoding. Metal passes 303 checks.
 Rendered lighting and physical Wii remain open.

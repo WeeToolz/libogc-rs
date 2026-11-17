@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-16: GX generation mode commands
+
+Dolphin 2609a with Metal passed 307 checks with zero failures. The probe checks
+cull, co-planar, stage-count, and texture-offset command words. See the
+[report](docs/dolphin-runs/2026-11-16-gx-generation-mode/README.md) for evidence
+and limits. Physical Wii remains untested.
+
 ## 2026-11-16: GX lighting channel commands
 
 Dolphin 2609a with Metal passed 303 checks with zero failures. The probe

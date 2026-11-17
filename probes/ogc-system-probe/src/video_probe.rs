@@ -911,6 +911,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_vertex_array_commands(logger);
     probe_vertex_format_commands(logger);
     probe_lighting_channel_commands(logger);
+    probe_generation_mode_commands(logger);
     probe_gx_completion_callbacks(logger);
     probe_solid_rect_render(logger, width, height);
     probe_textured_rect_render(logger, width, height);
@@ -1158,6 +1159,88 @@ fn probe_vertex_format_commands(logger: &mut ProbeLogger) {
             gx::set_vtx_attr_fmtv(7, formats.as_ptr());
             gx::begin(gx::GX_TRIANGLES, 7, 0);
             gx::end();
+        }),
+    );
+}
+
+fn probe_generation_mode_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX generation mode and texture offset command bytes");
+    let projection = [
+        [1.0, 0.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0, 0.0],
+        [0.0, 0.0, 1.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    ];
+    // SAFETY: This probe owns GX. Establish a known generation word and
+    // indirect map before capturing commands; later render probes reset GX.
+    unsafe {
+        gx::configure_solid_2d(&projection);
+        gx::set_ind_tex_order(0, 0, 0);
+        gx::set_ind_tex_order(1, 1, 1);
+        gx::set_num_ind_stages(0);
+        gx::begin(gx::GX_TRIANGLES, 0, 0);
+        gx::end();
+        gx::set_tex_coord_scale_manually(7, 0, 1, 1);
+        gx::set_tex_coord_cyl_wrap(7, 0, 0);
+        gx::set_tex_coord_bias(7, 0, 0);
+        gx::enable_tex_offsets(7, 0, 0);
+        gx::set_tex_coord_scale_manually(7, 1, 35, 1);
+        gx::set_tex_coord_scale_manually(7, 0, 1, 1);
+    }
+    logger.record(
+        "GX cull modes map to hardware values and reject invalid input",
+        check_gx_command_bytes(
+            &[
+                0x61, 0, 0, 0x80, 0x11, 0x90, 0, 0, 0x61, 0, 0, 0x40, 0x11, 0x90, 0, 0, 0x90, 0, 0,
+            ],
+            || unsafe {
+                gx::set_cull_mode(gx::GX_CULL_FRONT);
+                gx::begin(gx::GX_TRIANGLES, 0, 0);
+                gx::end();
+                gx::set_cull_mode(gx::GX_CULL_BACK);
+                gx::begin(gx::GX_TRIANGLES, 0, 0);
+                gx::end();
+                gx::set_cull_mode(4);
+                gx::begin(gx::GX_TRIANGLES, 0, 0);
+                gx::end();
+            },
+        ),
+    );
+    logger.record(
+        "GX coplanar mode emits its mask and preserves generation state",
+        check_gx_bp_words(
+            &[0xfe08_0000, 0x0008_0011, 0xfe08_0000, 0x0000_0011],
+            || unsafe {
+                gx::set_co_planar(1);
+                gx::set_co_planar(0);
+            },
+        ),
+    );
+    logger.record(
+        "GX channel texture TEV and indirect counts flush expected state",
+        check_gx_command_bytes(
+            &[
+                0x61, 0, 2, 0x0c, 0x23, 0x61, 0x0f, 0, 0, 3, 0x10, 0, 0, 0x10, 9, 0, 0, 0, 2, 0x10,
+                0, 0, 0x10, 0x3f, 0, 0, 0, 3, 0x90, 0, 0,
+            ],
+            || unsafe {
+                gx::set_num_chans(2);
+                gx::set_num_tex_gens(3);
+                gx::set_num_tev_stages(4);
+                gx::set_num_ind_stages(2);
+                gx::begin(gx::GX_TRIANGLES, 0, 0);
+                gx::end();
+            },
+        ),
+    );
+    logger.record(
+        "GX texture offsets preserve size and mask coordinate and enables",
+        check_gx_bp_words(&[0x3e04_0022, 0x3e08_0022, 0x3e08_0022], || unsafe {
+            gx::enable_tex_offsets(7, 1, 0);
+            gx::enable_tex_offsets(15, 0, 1);
+            gx::enable_tex_offsets(7, 2, 3);
         }),
     );
 }
