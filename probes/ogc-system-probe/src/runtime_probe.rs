@@ -40,6 +40,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_l2cap_packets(logger);
     probe_l2cap_parsers(logger);
     probe_hci_events(logger);
+    probe_bt_device_classes(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -73,6 +74,30 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_network_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_udp(logger);
+}
+
+fn probe_bt_device_classes(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::{BluetoothAddress, ClassOfDevice};
+
+    let address = BluetoothAddress::new([0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc]);
+    logger.record(
+        "Bluetooth address preserves HCI byte order",
+        BluetoothAddress::as_raw(&address) == [0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc],
+    );
+    let controller = ClassOfDevice::new([0x5c, 0xa5, 0xff]);
+    let phone = ClassOfDevice::new([0x94, 0x02, 0x00]);
+    logger.record(
+        "Bluetooth class extracts major and minor fields",
+        ClassOfDevice::major(controller) == 5
+            && ClassOfDevice::minor(controller) == 23
+            && ClassOfDevice::major(phone) == 2
+            && ClassOfDevice::minor(phone) == 37,
+    );
+    logger.record(
+        "Bluetooth class recognizes peripheral devices",
+        ClassOfDevice::likely_game_controller(controller)
+            && !ClassOfDevice::likely_game_controller(phone),
+    );
 }
 
 #[cfg(feature = "dolphin-automation")]

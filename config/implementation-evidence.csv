@@ -2110,3 +2110,9 @@ ogc-network,src/lib.rs,sendto,579,compatibility-forwarder,hardware-probe,probes/
 ogc-network,src/lib.rs,recvfrom,613,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_udp,net::recvfrom
 ogc-network-sys,src/lib.rs,net_recvfrom,2137,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_udp,net::net_recvfrom
 ogc-network,src/lib.rs,select,820,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_socket_readiness,net::select
+ogc-bt-sync,src/protocol.rs,new,104,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_device_classes,BluetoothAddress::new
+ogc-bt-sync,src/protocol.rs,as_raw,108,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_device_classes,BluetoothAddress::as_raw
+ogc-bt-sync,src/protocol.rs,new,120,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_device_classes,ClassOfDevice::new
+ogc-bt-sync,src/protocol.rs,major,124,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_device_classes,ClassOfDevice::major
+ogc-bt-sync,src/protocol.rs,minor,129,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_device_classes,ClassOfDevice::minor
+ogc-bt-sync,src/protocol.rs,likely_game_controller,133,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_device_classes,ClassOfDevice::likely_game_controller
