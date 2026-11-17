@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-17: Raw SRAM getters and setters
+
+Dolphin 2609a with OpenGL passed 18 checks with zero failures. The probe checks
+raw standard and extended SRAM values and restores the saved snapshots. See
+the [report](docs/dolphin-runs/2026-11-17-sram-raw/README.md) for evidence and
+limits. Physical Wii remains untested.
+
 ## 2026-11-17: Raw and C ABI arena operations
 
 Dolphin 2609a with OpenGL passed 13 checks with zero failures. The probe checks
