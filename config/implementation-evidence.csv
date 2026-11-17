@@ -1,4 +1,7 @@
 crate,path,symbol,line,classification,evidence_kind,evidence_path,evidence_function,api_path
+ogc-gx,src/lib.rs,set_current_mtx,6167,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texgen_commands,gx::set_current_mtx
+ogc-gx,src/lib.rs,set_tex_coord_gen,6041,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texgen_commands,gx::set_tex_coord_gen
+ogc-gx,src/lib.rs,set_tex_coord_gen2,6177,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texgen_commands,gx::set_tex_coord_gen2
 ogc-gx,src/lib.rs,set_fog,6525,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_fog_commands,gx::set_fog
 ogc-gx,src/lib.rs,set_fog_range_adj,6606,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_fog_commands,gx::set_fog_range_adj
 ogc-gx,src/lib.rs,set_cull_mode,6461,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_generation_mode_commands,gx::set_cull_mode

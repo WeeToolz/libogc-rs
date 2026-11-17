@@ -39,6 +39,10 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [texture generator batch](dolphin-runs/2026-11-16-gx-texgen/README.md)
+checks generator and matrix-index command encoding. Metal passes 313 checks.
+Rendered texture coordinates and physical Wii remain open.
+
 The [fog batch](dolphin-runs/2026-11-16-gx-fog/README.md) checks fog and range
 adjustment command encoding. Metal passes 312 checks. Rendered fog and
 physical Wii remain open.

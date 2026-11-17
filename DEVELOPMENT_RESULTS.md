@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-16: GX texture generator commands
+
+Dolphin 2609a with Metal passed 313 checks with zero failures. The probe checks
+texture generator and matrix-index command words. See the
+[report](docs/dolphin-runs/2026-11-16-gx-texgen/README.md) for evidence and
+limits. Rendered texture coordinates and physical Wii remain untested.
+
 ## 2026-11-16: GX fog commands
 
 Dolphin 2609a with Metal passed 312 checks with zero failures. The probe checks

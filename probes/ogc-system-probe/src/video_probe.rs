@@ -913,6 +913,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_vertex_format_commands(logger);
     probe_lighting_channel_commands(logger);
     probe_generation_mode_commands(logger);
+    probe_texgen_commands(logger);
     probe_gx_completion_callbacks(logger);
     probe_solid_rect_render(logger, width, height);
     probe_textured_rect_render(logger, width, height);
@@ -1159,6 +1160,45 @@ fn probe_vertex_format_commands(logger: &mut ProbeLogger) {
             gx::set_vtx_attr_fmt(7, u32::from(gx::GX_VA_POS), gx::GX_POS_XYZ, gx::GX_S16, 5);
             gx::set_vtx_attr_fmtv(7, formats.as_ptr());
             gx::begin(gx::GX_TRIANGLES, 7, 0);
+            gx::end();
+        }),
+    );
+}
+
+fn probe_texgen_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX texture generator and current matrix command bytes");
+    let projection = [
+        [1.0, 0.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0, 0.0],
+        [0.0, 0.0, 1.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    ];
+    // SAFETY: The probe owns GX. Set known low and high matrix indices and
+    // flush pending state before capture. Later render probes configure GX.
+    unsafe {
+        gx::configure_solid_2d(&projection);
+        for coord in 4..8 {
+            gx::set_tex_coord_gen(coord, gx::GX_TG_MTX2X4, gx::GX_TG_TEX0, gx::GX_IDENTITY);
+        }
+        gx::begin(gx::GX_TRIANGLES, 0, 0);
+        gx::end();
+    }
+    let expected = [
+        0x10, 0, 0, 0x10, 0x40, 0, 0, 0, 6, 0x10, 0, 0, 0x10, 0x50, 0, 0, 0, 0x3d, 0x10, 0, 0,
+        0x10, 0x47, 0, 0, 1, 0x30, 0x10, 0, 0, 0x10, 0x57, 0, 0, 1, 5, 0x08, 0x30, 0, 0, 3, 7,
+        0x10, 0, 0, 0x10, 0x18, 0, 0, 3, 7, 0x08, 0x40, 0, 0x57, 0xcf, 0x3c, 0x10, 0, 0, 0x10,
+        0x19, 0, 0x57, 0xcf, 0x3c, 0x90, 0, 0,
+    ];
+    logger.record(
+        "GX texture generators and matrix indices emit expected CP and XF words",
+        check_gx_command_bytes(&expected, || unsafe {
+            gx::set_tex_coord_gen(0, gx::GX_TG_MTX3X4, gx::GX_TG_POS, 12);
+            gx::set_tex_coord_gen2(7, gx::GX_TG_SRTG, gx::GX_TG_COLOR1, 21, 1, 69);
+            gx::set_tex_coord_gen2(8, gx::GX_TG_SRTG, gx::GX_TG_COLOR1, 0, 0, 64);
+            gx::set_current_mtx(0x47);
+            gx::begin(gx::GX_TRIANGLES, 0, 0);
             gx::end();
         }),
     );
