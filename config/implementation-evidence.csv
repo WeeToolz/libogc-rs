@@ -2116,3 +2116,12 @@ ogc-bt-sync,src/protocol.rs,new,120,ios,hardware-probe,probes/ogc-system-probe/s
 ogc-bt-sync,src/protocol.rs,major,124,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_device_classes,ClassOfDevice::major
 ogc-bt-sync,src/protocol.rs,minor,129,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_device_classes,ClassOfDevice::minor
 ogc-bt-sync,src/protocol.rs,likely_game_controller,133,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_device_classes,ClassOfDevice::likely_game_controller
+ogc-bt-sync,src/report_queue.rs,new,76,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_input_queue,BluetoothInputQueue::new
+ogc-bt-sync,src/report_queue.rs,len,88,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_input_queue,queue.len
+ogc-bt-sync,src/report_queue.rs,is_empty,92,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_input_queue,queue.is_empty
+ogc-bt-sync,src/report_queue.rs,is_full,96,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_input_queue,queue.is_full
+ogc-bt-sync,src/report_queue.rs,active_generation,101,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_input_queue,queue.active_generation
+ogc-bt-sync,src/report_queue.rs,push_connected,113,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_input_queue,queue.push_connected
+ogc-bt-sync,src/report_queue.rs,push_report,156,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_input_queue,queue.push_report
+ogc-bt-sync,src/report_queue.rs,push_disconnected,194,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_input_queue,queue.push_disconnected
+ogc-bt-sync,src/report_queue.rs,pop,226,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_input_queue,queue.pop

@@ -1,0 +1,125 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/report_queue.rs",
+      "symbol": "new",
+      "line": 76,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_input_queue",
+      "api_path": "BluetoothInputQueue::new",
+      "checks": [
+        "Bluetooth queue preserves connection report and disconnect order",
+        "Bluetooth queue applies backpressure without losing state"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/report_queue.rs",
+      "symbol": "len",
+      "line": 88,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_input_queue",
+      "api_path": "queue.len",
+      "checks": [
+        "Bluetooth queue preserves connection report and disconnect order",
+        "Bluetooth queue applies backpressure without losing state"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/report_queue.rs",
+      "symbol": "is_empty",
+      "line": 92,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_input_queue",
+      "api_path": "queue.is_empty",
+      "checks": [
+        "Bluetooth queue preserves connection report and disconnect order",
+        "Bluetooth queue applies backpressure without losing state"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/report_queue.rs",
+      "symbol": "is_full",
+      "line": 96,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_input_queue",
+      "api_path": "queue.is_full",
+      "checks": [
+        "Bluetooth queue preserves connection report and disconnect order",
+        "Bluetooth queue applies backpressure without losing state"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/report_queue.rs",
+      "symbol": "active_generation",
+      "line": 101,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_input_queue",
+      "api_path": "queue.active_generation",
+      "checks": [
+        "Bluetooth queue preserves connection report and disconnect order",
+        "Bluetooth queue applies backpressure without losing state"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/report_queue.rs",
+      "symbol": "push_connected",
+      "line": 113,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_input_queue",
+      "api_path": "queue.push_connected",
+      "checks": [
+        "Bluetooth queue preserves connection report and disconnect order",
+        "Bluetooth queue applies backpressure without losing state"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/report_queue.rs",
+      "symbol": "push_report",
+      "line": 156,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_input_queue",
+      "api_path": "queue.push_report",
+      "checks": [
+        "Bluetooth queue preserves connection report and disconnect order",
+        "Bluetooth queue applies backpressure without losing state"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/report_queue.rs",
+      "symbol": "push_disconnected",
+      "line": 194,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_input_queue",
+      "api_path": "queue.push_disconnected",
+      "checks": [
+        "Bluetooth queue preserves connection report and disconnect order",
+        "Bluetooth queue applies backpressure without losing state"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/report_queue.rs",
+      "symbol": "pop",
+      "line": 226,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_input_queue",
+      "api_path": "queue.pop",
+      "checks": [
+        "Bluetooth queue preserves connection report and disconnect order",
+        "Bluetooth queue applies backpressure without losing state"
+      ]
+    }
+  ],
+  "limits": [
+    "Queue state and event data in Dolphin. Bluetooth adapter and physical controller behavior require separate evidence."
+  ]
+}

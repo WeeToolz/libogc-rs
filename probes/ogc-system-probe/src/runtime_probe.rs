@@ -41,6 +41,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_l2cap_parsers(logger);
     probe_hci_events(logger);
     probe_bt_device_classes(logger);
+    probe_bt_input_queue(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -74,6 +75,66 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_network_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_udp(logger);
+}
+
+fn probe_bt_input_queue(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::{
+        BLUETOOTH_INPUT_QUEUE_CAPACITY, BluetoothAddress, BluetoothInputKind, BluetoothInputQueue,
+        BluetoothInputQueueError, ControllerFamily,
+    };
+
+    let mut queue = BluetoothInputQueue::new();
+    let initial = queue.is_empty()
+        && !queue.is_full()
+        && queue.len() == 0
+        && queue.active_generation(0).is_none()
+        && queue.pop().is_none();
+    let address = BluetoothAddress::new([1, 2, 3, 4, 5, 6]);
+    let generation = queue.push_connected(0, address, 0x123, ControllerFamily::Generic, None);
+    let connected = generation == Ok(1)
+        && queue.active_generation(0) == Some(1)
+        && queue.len() == 1
+        && queue.push_connected(0, address, 0x123, ControllerFamily::Generic, None)
+            == Err(BluetoothInputQueueError::AlreadyConnected);
+    let report = queue.push_report(0, 1, &[0x30, 0xff, 0x00]) == Ok(())
+        && queue.push_report(0, 2, &[1]) == Err(BluetoothInputQueueError::StaleGeneration)
+        && queue.len() == 2;
+    let first = queue.pop();
+    let second = queue.pop();
+    let ordered = matches!(first, Some(event) if event.slot == 0 && event.generation == 1
+        && matches!(event.kind, BluetoothInputKind::Connected { address: a, handle: 0x123, family: ControllerFamily::Generic, calibration: None } if a == address))
+        && matches!(second, Some(event) if event.slot == 0 && event.generation == 1
+            && event.kind == BluetoothInputKind::Report { len: 3 }
+            && event.bytes[..3] == [0x30, 0xff, 0]
+            && event.bytes[3..].iter().all(|byte| *byte == 0));
+    let disconnected = queue.push_disconnected(0, 1, 0x13) == Ok(())
+        && queue.active_generation(0).is_none()
+        && matches!(queue.pop(), Some(event) if event.generation == 1
+            && event.kind == BluetoothInputKind::Disconnected { reason: 0x13 })
+        && queue.is_empty();
+    logger.record(
+        "Bluetooth queue preserves connection report and disconnect order",
+        initial && connected && report && ordered && disconnected,
+    );
+
+    let next = queue.push_connected(0, address, 0x123, ControllerFamily::Generic, None);
+    let mut filled = next == Ok(2);
+    for value in 0..BLUETOOTH_INPUT_QUEUE_CAPACITY - 1 {
+        filled &= queue.push_report(0, 2, &[value as u8]) == Ok(());
+    }
+    let full = filled
+        && queue.is_full()
+        && queue.len() == BLUETOOTH_INPUT_QUEUE_CAPACITY
+        && queue.push_disconnected(0, 2, 0x13) == Err(BluetoothInputQueueError::Full)
+        && queue.active_generation(0) == Some(2);
+    let released = queue.pop().is_some()
+        && queue.push_disconnected(0, 2, 0x13) == Ok(())
+        && queue.active_generation(0).is_none()
+        && queue.is_full();
+    logger.record(
+        "Bluetooth queue applies backpressure without losing state",
+        full && released,
+    );
 }
 
 fn probe_bt_device_classes(logger: &mut ProbeLogger) {
