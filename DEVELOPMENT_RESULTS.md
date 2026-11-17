@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-17: Raw UDP loopback
+
+Two instrumented Dolphin 2609a OpenGL runs passed 187 checks. An earlier run
+failed a combined recvfrom comparison for an unknown reason. The
+[report](docs/dolphin-runs/2026-11-17-raw-udp-repeat/README.md) records the
+failure, the passing checks, and limits. Physical Wii remains untested.
+
 ## 2026-11-17: Raw IPv4 values
 
 Dolphin 2609a with OpenGL passed 175 checks with zero failures. The probe checks

@@ -63,6 +63,205 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_es(logger);
     probe_crypto(logger);
     probe_iso9660(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_raw_udp(logger);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_raw_udp(logger: &mut ProbeLogger) {
+    use core::mem::size_of;
+    use raw_network as net;
+
+    logger.report_step("Raw UDP loopback operations");
+    let initialized = net::net_init();
+    logger.record(
+        "Raw network initializes and reports status",
+        initialized >= 0 && net::net_get_status() == initialized,
+    );
+    if initialized < 0 {
+        return;
+    }
+    let sender = net::net_socket(net::PF_INET, net::SOCK_DGRAM, net::IPPROTO_IP);
+    let receiver = net::net_socket(net::PF_INET, net::SOCK_DGRAM, net::IPPROTO_IP);
+    logger.record("Raw UDP sockets open", sender >= 0 && receiver >= 0);
+    if sender >= 0 && receiver >= 0 {
+        let mut bind = net::SockaddrIn {
+            sin_len: size_of::<net::SockaddrIn>() as u8,
+            sin_family: net::AF_INET as u8,
+            sin_port: 0,
+            sin_addr: net::InAddr {
+                s_addr: 0x7f00_0001,
+            },
+            sin_zero: [0; 8],
+        };
+        let addrlen = size_of::<net::SockaddrIn>() as u32;
+        // SAFETY: All address and data buffers remain live for each call.
+        let bound = unsafe {
+            net::net_bind(sender, (&mut bind as *mut net::SockaddrIn).cast(), addrlen) == 0
+                && net::net_bind(
+                    receiver,
+                    (&mut bind as *mut net::SockaddrIn).cast(),
+                    addrlen,
+                ) == 0
+        };
+        logger.record("Raw UDP sockets bind loopback", bound);
+        if bound {
+            let mut source = net::SockaddrIn::default();
+            let mut destination = net::SockaddrIn::default();
+            let mut source_len = addrlen;
+            let mut destination_len = addrlen;
+            let names = unsafe {
+                net::net_getsockname(
+                    sender,
+                    (&mut source as *mut net::SockaddrIn).cast(),
+                    &mut source_len,
+                ) == 0
+                    && net::net_getsockname(
+                        receiver,
+                        (&mut destination as *mut net::SockaddrIn).cast(),
+                        &mut destination_len,
+                    ) == 0
+            } && source.sin_addr.s_addr == 0x7f00_0001
+                && destination.sin_addr.s_addr == 0x7f00_0001
+                && source.sin_port != 0
+                && destination.sin_port != 0
+                && source.sin_port != destination.sin_port;
+            logger.record("Raw UDP names report distinct loopback ports", names);
+            if names {
+                let payload = [0, 0xff, 0x52, 0x41, 0x57, 0x80];
+                let sent = unsafe {
+                    net::net_sendto(
+                        sender,
+                        payload.as_ptr().cast(),
+                        payload.len() as i32,
+                        0,
+                        (&mut destination as *mut net::SockaddrIn).cast(),
+                        addrlen,
+                    )
+                };
+                let mut poll = net::PollSd {
+                    socket: receiver,
+                    events: 3,
+                    revents: 0,
+                };
+                let ready = sent == payload.len() as i32
+                    && unsafe { net::net_poll(&mut poll, 1, 3000) } == 1
+                    && poll.revents & 3 != 0;
+                logger.record("Raw UDP sendto and poll deliver readiness", ready);
+                if ready {
+                    let mut bytes = [0xa5; 32];
+                    let mut peer = net::SockaddrIn::default();
+                    let mut peer_len = addrlen;
+                    let got = unsafe {
+                        net::net_recvfrom(
+                            receiver,
+                            bytes.as_mut_ptr().cast(),
+                            bytes.len() as i32,
+                            0,
+                            (&mut peer as *mut net::SockaddrIn).cast(),
+                            &mut peer_len,
+                        )
+                    };
+                    logger.note_i32("Raw UDP recvfrom count", got);
+                    logger.note_u32("Raw UDP recvfrom peer length", peer_len);
+                    logger.note_hex32("Raw UDP expected peer address", source.sin_addr.s_addr);
+                    logger.note_hex32("Raw UDP actual peer address", peer.sin_addr.s_addr);
+                    logger.note_u32("Raw UDP expected peer port", u32::from(source.sin_port));
+                    logger.note_u32("Raw UDP actual peer port", u32::from(peer.sin_port));
+                    logger.note_hex32(
+                        "Raw UDP received first four bytes",
+                        u32::from_be_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]),
+                    );
+                    logger.note_hex32(
+                        "Raw UDP received next four bytes",
+                        u32::from_be_bytes([bytes[4], bytes[5], bytes[6], bytes[7]]),
+                    );
+                    logger.record(
+                        "Raw UDP recvfrom preserves bytes and sender",
+                        got == payload.len() as i32
+                            && bytes[..payload.len()] == payload
+                            && bytes[payload.len()..].iter().all(|b| *b == 0xa5)
+                            && peer.sin_port == source.sin_port
+                            && peer.sin_addr.s_addr == source.sin_addr.s_addr,
+                    );
+                }
+                let connected = unsafe {
+                    net::net_connect(
+                        sender,
+                        (&mut destination as *mut net::SockaddrIn).cast(),
+                        addrlen,
+                    )
+                } == 0;
+                logger.record("Raw UDP connect succeeds", connected);
+                if connected {
+                    let payload = b"raw connected";
+                    let sent = unsafe {
+                        net::net_send(sender, payload.as_ptr().cast(), payload.len() as i32, 0)
+                    };
+                    let mut poll = net::PollSd {
+                        socket: receiver,
+                        events: 3,
+                        revents: 0,
+                    };
+                    let ready = sent == payload.len() as i32
+                        && unsafe { net::net_poll(&mut poll, 1, 3000) } == 1
+                        && poll.revents & 3 != 0;
+                    let mut bytes = [0xa5; 32];
+                    let got = if ready {
+                        unsafe {
+                            net::net_recv(
+                                receiver,
+                                bytes.as_mut_ptr().cast(),
+                                bytes.len() as i32,
+                                0,
+                            )
+                        }
+                    } else {
+                        -1
+                    };
+                    logger.record(
+                        "Raw UDP send and recv preserve connected datagram",
+                        got == payload.len() as i32
+                            && bytes[..payload.len()] == *payload
+                            && bytes[payload.len()..].iter().all(|b| *b == 0xa5),
+                    );
+                    let payload = b"raw write";
+                    let sent = unsafe {
+                        net::net_write(sender, payload.as_ptr().cast(), payload.len() as i32)
+                    };
+                    let mut poll = net::PollSd {
+                        socket: receiver,
+                        events: 3,
+                        revents: 0,
+                    };
+                    let ready = sent == payload.len() as i32
+                        && unsafe { net::net_poll(&mut poll, 1, 3000) } == 1
+                        && poll.revents & 3 != 0;
+                    let mut bytes = [0xa5; 32];
+                    let got = if ready {
+                        unsafe {
+                            net::net_read(receiver, bytes.as_mut_ptr().cast(), bytes.len() as i32)
+                        }
+                    } else {
+                        -1
+                    };
+                    logger.record(
+                        "Raw UDP write and read preserve connected datagram",
+                        got == payload.len() as i32
+                            && bytes[..payload.len()] == *payload
+                            && bytes[payload.len()..].iter().all(|b| *b == 0xa5),
+                    );
+                }
+            }
+        }
+    }
+    if sender >= 0 {
+        logger.record("Raw UDP sender closes", net::net_close(sender) == 0);
+    }
+    if receiver >= 0 {
+        logger.record("Raw UDP receiver closes", net::net_close(receiver) == 0);
+    }
+    logger.record("Raw network deinitializes", net::net_deinit() == 0);
 }
 
 fn probe_hci_events(logger: &mut ProbeLogger) {

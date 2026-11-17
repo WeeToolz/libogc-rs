@@ -39,6 +39,11 @@ failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
 
+The [raw UDP batch](dolphin-runs/2026-11-17-raw-udp-repeat/README.md) checks
+selected loopback socket operations. Two instrumented OpenGL runs pass 187
+checks. An earlier recvfrom comparison failed for an unknown reason; that API
+remains unverified. Physical Wii and external networking remain open.
+
 The [IPv4 value batch](dolphin-runs/2026-11-17-ipv4-values/README.md) checks
 packing, octets, masks, and selected parsing on target. OpenGL passes 175
 checks. Packet transport and physical Wii remain open.
