@@ -2109,3 +2109,4 @@ ogc-network,src/lib.rs,gai_strerror,135,compatibility-forwarder,hardware-probe,p
 ogc-network,src/lib.rs,sendto,579,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_udp,net::sendto
 ogc-network,src/lib.rs,recvfrom,613,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_udp,net::recvfrom
 ogc-network-sys,src/lib.rs,net_recvfrom,2137,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_udp,net::net_recvfrom
+ogc-network,src/lib.rs,select,820,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_socket_readiness,net::select

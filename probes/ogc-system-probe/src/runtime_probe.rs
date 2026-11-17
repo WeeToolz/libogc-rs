@@ -687,6 +687,7 @@ fn probe_network_tcp(logger: &mut ProbeLogger) {
                             && bytes[..a.len()] == *a
                             && bytes[a.len()..].iter().all(|b| *b == 0xa5),
                     );
+                    probe_socket_select_empty(logger, accepted);
                     probe_socket_ioctl(logger, accepted);
                     let b = b"write slice";
                     let sent = net::write_slice(accepted, b);
@@ -822,6 +823,26 @@ fn probe_socket_readiness(logger: &mut ProbeLogger, fd: i32) {
         return;
     };
     let events = net::POLLIN as u32;
+    let mut readset = net::FdSet::default();
+    net::fd_set(&mut readset, fd as usize);
+    let mut timeout = net::Timeval {
+        tv_sec: 0,
+        tv_usec: 0,
+    };
+    // SAFETY: The descriptor set and timeout are writable for the call.
+    let selected = unsafe {
+        net::select(
+            fd + 1,
+            &mut readset,
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            &mut timeout,
+        )
+    };
+    logger.record(
+        "Select reports queued stream data",
+        selected == 1 && net::fd_is_set(&readset, fd as usize),
+    );
     let mut descriptor = net::PollSd {
         socket: raw,
         events,
@@ -838,6 +859,31 @@ fn probe_socket_readiness(logger: &mut ProbeLogger, fd: i32) {
     logger.record(
         "Slice poll reports queued stream data",
         count == 1 && descriptor.revents & events != 0,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_socket_select_empty(logger: &mut ProbeLogger, fd: i32) {
+    use ogc_network as net;
+    let mut readset = net::FdSet::default();
+    net::fd_set(&mut readset, fd as usize);
+    let mut timeout = net::Timeval {
+        tv_sec: 0,
+        tv_usec: 0,
+    };
+    // SAFETY: The descriptor set and timeout are writable for the call.
+    let selected = unsafe {
+        net::select(
+            fd + 1,
+            &mut readset,
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            &mut timeout,
+        )
+    };
+    logger.record(
+        "Select clears an empty stream",
+        selected == 0 && !net::fd_is_set(&readset, fd as usize),
     );
 }
 
