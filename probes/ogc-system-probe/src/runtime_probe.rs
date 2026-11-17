@@ -136,6 +136,29 @@ fn probe_raw_udp(logger: &mut ProbeLogger) {
                 && source.sin_port != destination.sin_port;
             logger.record("Raw UDP names report distinct loopback ports", names);
             if names {
+                let mut empty = [0xa5; 16];
+                let mut empty_peer = net::SockaddrIn::default();
+                let mut empty_len = addrlen;
+                // SAFETY: The data and address buffers are writable for the call.
+                let empty_result = unsafe {
+                    net::net_recvfrom(
+                        receiver,
+                        empty.as_mut_ptr().cast(),
+                        empty.len() as i32,
+                        net::MSG_DONTWAIT,
+                        (&mut empty_peer as *mut net::SockaddrIn).cast(),
+                        &mut empty_len,
+                    )
+                };
+                logger.note_i32("Raw UDP empty recvfrom result", empty_result);
+                logger.note_u32("Raw UDP empty recvfrom address length", empty_len);
+                logger.record(
+                    "Raw UDP recvfrom leaves outputs unchanged on would-block",
+                    empty_result < 0
+                        && empty == [0xa5; 16]
+                        && empty_peer == net::SockaddrIn::default()
+                        && empty_len == addrlen,
+                );
                 let payload = [0, 0xff, 0x52, 0x41, 0x57, 0x80];
                 let sent = unsafe {
                     net::net_sendto(
