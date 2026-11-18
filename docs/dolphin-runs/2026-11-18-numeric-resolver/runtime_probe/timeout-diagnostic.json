@@ -1,0 +1,24 @@
+{
+  "boot_stage_address": 2148360768,
+  "boot_stage": 3,
+  "program_counter": 2148082356,
+  "program_counter_symbol": "_RNvNtCs9DYsuRIGe4j_14ogc_lwp_driver7runtime18select_next_locked+0x114",
+  "program_counter_reply": "800922B4",
+  "debugger_stop": "T0540:80095e30;01:817f1ad0;",
+  "stack_trace": [
+    "sp=817f1b30 lr=292c9e22 __ogc_ps_reg+0x292c9e02",
+    "sp=817f1b40 lr=8008f66c _RNvNtCs9DYsuRIGe4j_14ogc_lwp_driver7runtime13switch_locked+0x38",
+    "sp=817f1b80 lr=8008f208 _RNvNtCs9DYsuRIGe4j_14ogc_lwp_driver7runtime12yield_thread+0x114",
+    "sp=817f1b90 lr=8008cbfc _RNvCskWiLBsblcpk_11ogc_lwp_sys12yield_thread+0x10",
+    "sp=817f1ba0 lr=80089ab8 _RNvMs0_Cs53YDlRXqMEl_7ogc_ipcNtB5_14FileDescriptor12ioctl_result+0x784",
+    "sp=817f1c10 lr=8008b234 _RNvMs0_Cs53YDlRXqMEl_7ogc_ipcNtB5_14FileDescriptor5ioctl+0x10",
+    "sp=817f1c20 lr=80071dc0 _RNvNtCs1aw3YVzkoJX_8lwip_sys11wii_backend4bind+0x10c",
+    "sp=817f1ca0 lr=80070f8c _RNvCs1aw3YVzkoJX_8lwip_sys4bind+0x10",
+    "sp=817f1cb0 lr=8006ce08 _RNvCsgs4jbMpIT8i_15ogc_network_sys8net_bind+0x10",
+    "sp=817f1cc0 lr=8001a248 _RNvNtCsXRptQ3HjvM_16ogc_system_probe13runtime_probe3run+0xb074",
+    "sp=817fca30 lr=80007010 _RNvCsXRptQ3HjvM_16ogc_system_probe21run_runtime_probe_bin+0x44",
+    "sp=817fffc0 lr=80004078 main+0x10",
+    "sp=817fffd0 lr=80098b70 _start_rust+0x2a8"
+  ],
+  "error": null
+}

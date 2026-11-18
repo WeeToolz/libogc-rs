@@ -569,6 +569,7 @@ fn probe_raw_udp(logger: &mut ProbeLogger) {
         return;
     }
     probe_network_interface_addresses(logger);
+    probe_network_numeric_resolver(logger);
     let sender = net::net_socket(net::PF_INET, net::SOCK_DGRAM, net::IPPROTO_IP);
     let receiver = net::net_socket(net::PF_INET, net::SOCK_DGRAM, net::IPPROTO_IP);
     logger.record("Raw UDP sockets open", sender >= 0 && receiver >= 0);
@@ -815,6 +816,60 @@ fn probe_raw_udp(logger: &mut ProbeLogger) {
         "Raw network deinitializes",
         deinitialized == 0 && net::net_get_status() == -100,
     );
+    let closed = unsafe { net::net_gethostbyname(c"127.0.0.1".as_ptr()) };
+    logger.record(
+        "Network resolver requires an active session",
+        deinitialized == 0 && closed.is_null(),
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_network_numeric_resolver(logger: &mut ProbeLogger) {
+    use ogc_network as net;
+    use raw_network as raw;
+    let null_result = unsafe { raw::net_gethostbyname(core::ptr::null()) };
+    let empty_result = unsafe { net::get_host_by_name(c"".as_ptr()) };
+    logger.record(
+        "Network resolver rejects null and empty names",
+        null_result.is_null() && empty_result.is_null(),
+    );
+    let result = unsafe { raw::net_gethostbyname(c"127.0.0.1".as_ptr()) };
+    let matches = if result.is_null() {
+        false
+    } else {
+        unsafe {
+            let entry = &*result;
+            if entry.h_addrtype != 2
+                || entry.h_length != 4
+                || entry.h_addr_list.is_null()
+                || (*entry.h_addr_list).is_null()
+            {
+                false
+            } else {
+                core::slice::from_raw_parts((*entry.h_addr_list).cast::<u8>(), 4) == [127, 0, 0, 1]
+                    && (*entry.h_addr_list.add(1)).is_null()
+            }
+        }
+    };
+    logger.record("Network resolver returns numeric loopback address", matches);
+    let result = unsafe { net::get_host_by_name(c"127.0.0.1".as_ptr()) };
+    let matches = if result.is_null() {
+        false
+    } else {
+        unsafe {
+            let entry = &*result;
+            if entry.h_addrtype != 2
+                || entry.h_length != 4
+                || entry.h_addr_list.is_null()
+                || (*entry.h_addr_list).is_null()
+            {
+                false
+            } else {
+                core::slice::from_raw_parts((*entry.h_addr_list).cast::<u8>(), 4) == [127, 0, 0, 1]
+            }
+        }
+    };
+    logger.record("Network resolver wrapper returns numeric loopback", matches);
 }
 
 #[cfg(feature = "dolphin-automation")]

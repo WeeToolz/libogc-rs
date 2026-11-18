@@ -1,0 +1,50 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_gethostbyname",
+      "line": 1198,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_network_numeric_resolver",
+      "api_path": "raw::net_gethostbyname",
+      "checks": [
+        "Network resolver rejects null and empty names",
+        "Network resolver returns numeric loopback address",
+        "Network resolver wrapper returns numeric loopback"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_gethostbyname",
+      "line": 2012,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_network_numeric_resolver",
+      "api_path": "raw::net_gethostbyname",
+      "checks": [
+        "Network resolver rejects null and empty names",
+        "Network resolver returns numeric loopback address",
+        "Network resolver wrapper returns numeric loopback"
+      ]
+    },
+    {
+      "crate": "ogc-network",
+      "path": "src/lib.rs",
+      "symbol": "get_host_by_name",
+      "line": 122,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_network_numeric_resolver",
+      "api_path": "net::get_host_by_name",
+      "checks": [
+        "Network resolver rejects null and empty names",
+        "Network resolver returns numeric loopback address",
+        "Network resolver wrapper returns numeric loopback"
+      ]
+    }
+  ],
+  "limits": [
+    "Numeric IPv4 loopback and invalid empty input in Dolphin. External DNS, aliases, multiple addresses, malformed IOS replies, concurrency and physical Wii remain unverified."
+  ]
+}

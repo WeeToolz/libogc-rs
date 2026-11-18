@@ -1204,12 +1204,11 @@ mod wii_backend {
             if bytes.is_empty() || bytes.len() + 1 > 256 {
                 return core::ptr::null_mut();
             }
-            let Ok(path) = CStr::from_bytes_with_nul(IP_TOP_PATH) else {
+            let raw_fd = NET_IP_TOP_FD.load(Ordering::Acquire);
+            if raw_fd < 0 {
                 return core::ptr::null_mut();
-            };
-            let Ok(fd) = open_file(path, 0) else {
-                return core::ptr::null_mut();
-            };
+            }
+            let fd = FileDescriptor::new(raw_fd);
             let mut request = [0u8; 256];
             request[..bytes.len()].copy_from_slice(bytes);
             request[bytes.len()] = 0;
@@ -1220,7 +1219,6 @@ mod wii_backend {
                 GETHOSTBYNAME_IOCTL,
                 IoctlBuffers::from_slices(Some(&mut request[..=bytes.len()]), Some(&mut *response)),
             );
-            let rc = finish_file_operation(fd, rc);
             if rc < 0 {
                 return core::ptr::null_mut();
             }
