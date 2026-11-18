@@ -1,0 +1,44 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_pre_main",
+      "line": 1312,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_startup_status",
+      "api_path": "system::snapshot_pre_main",
+      "checks": [
+        "System startup snapshots report completed initialization"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "runtime_fp_disabled_stage",
+      "line": 313,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_startup_status",
+      "api_path": "system::runtime_fp_disabled_stage",
+      "checks": [
+        "System startup snapshots report completed initialization"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/startup.rs",
+      "symbol": "validate",
+      "line": 10,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_startup_status",
+      "api_path": "startup::validate",
+      "checks": [
+        "System startup validation preserves failed stage and incomplete state"
+      ]
+    }
+  ],
+  "limits": [
+    "Successful Dolphin startup and pure validation branches. Startup subsystem failures and physical hardware require separate checks."
+  ]
+}

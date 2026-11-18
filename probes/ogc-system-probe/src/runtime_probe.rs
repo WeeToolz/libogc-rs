@@ -47,6 +47,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_bt_host_startup(logger);
     probe_bt_key_requests(logger);
     probe_system_runtime_state(logger);
+    probe_system_startup_status(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -82,6 +83,30 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_network_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_udp(logger);
+}
+
+fn probe_system_startup_status(logger: &mut ProbeLogger) {
+    use system::startup::{self, InitError};
+    let pre_main = system::snapshot_pre_main();
+    let startup = system::snapshot_startup();
+    logger.record(
+        "System startup snapshots report completed initialization",
+        pre_main.called
+            && pre_main.completed
+            && pre_main.failed_stage == 0
+            && pre_main.result == 0
+            && startup.init_completed
+            && startup.init_failed_stage == 0
+            && startup.init_completed_mask == 0x7ff
+            && system::runtime_fp_disabled_stage() == 0,
+    );
+    logger.record(
+        "System startup validation preserves failed stage and incomplete state",
+        startup::validate(true, 0) == Ok(())
+            && startup::validate(false, 0) == Err(InitError::NotCompleted)
+            && startup::validate(false, 7) == Err(InitError::FailedStage(7))
+            && startup::validate(true, 9) == Err(InitError::FailedStage(9)),
+    );
 }
 
 #[cfg(feature = "dolphin-automation")]

@@ -2170,3 +2170,6 @@ ogc-system,src/lib.rs,power_callback_attempt,257,compatibility-forwarder,hardwar
 ogc-system,src/lib.rs,reset_plan,263,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_runtime_state,gc.reset_plan
 ogc-system,src/lib.rs,get_wireless_id,759,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_extended_sram_getters,system::get_wireless_id
 ogc-system,src/lib.rs,get_gbs_mode,798,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_extended_sram_getters,system::get_gbs_mode
+ogc-system,src/lib.rs,snapshot_pre_main,1312,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_startup_status,system::snapshot_pre_main
+ogc-system,src/lib.rs,runtime_fp_disabled_stage,313,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_startup_status,system::runtime_fp_disabled_stage
+ogc-system,src/startup.rs,validate,10,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_startup_status,startup::validate
