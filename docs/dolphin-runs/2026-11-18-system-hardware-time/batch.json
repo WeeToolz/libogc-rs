@@ -1,0 +1,32 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_hardware_probe",
+      "line": 4153,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system",
+      "api_path": "raw_system::snapshot_hardware_probe",
+      "checks": [
+        "Raw system hardware snapshot records getter calls"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_time",
+      "line": 4372,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system",
+      "api_path": "raw_system::sys_time",
+      "checks": [
+        "Raw system clock advances monotonically"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin hardware getter call flags and consecutive clock reads. Button transitions, clock rollover and physical Wii remain unverified."
+  ]
+}

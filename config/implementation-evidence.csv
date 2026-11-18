@@ -2426,3 +2426,5 @@ ogc-system,src/lib.rs,snapshot,436,compatibility-forwarder,hardware-probe,probes
 ogc-system-sys,src/lib.rs,sys_get_font_encoding,2518,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_font_snapshot,raw_system::sys_get_font_encoding
 ogc-system-sys,src/lib.rs,snapshot_font,3147,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_font_snapshot,raw_system::snapshot_font
 ogc-system,src/lib.rs,snapshot_font,1270,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_font_snapshot,system::snapshot_font
+ogc-system-sys,src/lib.rs,snapshot_hardware_probe,4153,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system,raw_system::snapshot_hardware_probe
+ogc-system-sys,src/lib.rs,sys_time,4372,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system,raw_system::sys_time

@@ -4904,6 +4904,18 @@ fn probe_system(logger: &mut ProbeLogger) {
                 && system::get_hollywood_revision() == 0x11
                 && system::get_hollywood_revision() == revision,
         );
+        let hardware = raw_system::snapshot_hardware_probe();
+        logger.record(
+            "Raw system hardware snapshot records getter calls",
+            hardware.reset_button_called && hardware.hollywood_revision_called,
+        );
+        // SAFETY: The time query reads the monotonic system clock.
+        let before = unsafe { raw_system::sys_time() };
+        let after = unsafe { raw_system::sys_time() };
+        logger.record(
+            "Raw system clock advances monotonically",
+            before > 0 && after >= before && raw_system::snapshot_time_probe().called,
+        );
         logger.note_u32("Proof font encoding", proof.font_encoding);
         logger.note_u32("Proof reset button", proof.reset_button_down);
         logger.note_hex32("Proof Hollywood revision", proof.hollywood_revision);
