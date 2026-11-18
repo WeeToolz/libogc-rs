@@ -1,0 +1,32 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "detach_thread",
+      "line": 110,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sys_detach",
+      "api_path": "raw_lwp::detach_thread",
+      "checks": [
+        "LWP raw detached worker finishes without join"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "lwp_yield_thread_abi",
+      "line": 410,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sys_detach",
+      "api_path": "raw_lwp::lwp_yield_thread_abi",
+      "checks": [
+        "LWP raw detached worker finishes without join"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin one detached worker. Detach and join races, cleanup failure and physical Wii remain unverified."
+  ]
+}

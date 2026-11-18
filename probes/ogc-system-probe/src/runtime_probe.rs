@@ -66,6 +66,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_lwp_driver_resources(logger);
     probe_lwp_thread_handle(logger);
     probe_lwp_detach(logger);
+    probe_lwp_sys_detach(logger);
     probe_lwp_suspend_resume(logger);
     probe_lwp_driver_suspend(logger);
     probe_lwp_driver_thread_metadata(logger);
@@ -810,6 +811,67 @@ fn probe_lwp_detach(logger: &mut ProbeLogger) {
         );
     } else {
         logger.record("LWP detached worker finishes without join", false);
+    }
+}
+
+fn probe_lwp_sys_detach(logger: &mut ProbeLogger) {
+    use ogc_lwp as api;
+    use ogc_lwp::sys as raw_lwp;
+    LWP_WORKER_RELEASE.store(false, Ordering::Release);
+    LWP_DETACH_DONE.store(false, Ordering::Release);
+    let before = ogc_lwp_driver::thread_cleanup_counters().detached_reaped;
+    let mut raw = api::sys::LWP_THREAD_NULL;
+    // SAFETY: The worker uses static state and the driver owns its stack.
+    let created = unsafe {
+        api::ThreadHandle::create(
+            &mut raw,
+            Some(probe_lwp_detached_worker),
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            8192,
+            64,
+        )
+    };
+    if let Ok(thread) = created {
+        let detached = raw_lwp::detach_thread(raw);
+        let second = raw_lwp::detach_thread(raw);
+        let join = thread.join();
+        LWP_WORKER_RELEASE.store(true, Ordering::Release);
+        for _ in 0..1000 {
+            if LWP_DETACH_DONE.load(Ordering::Acquire) {
+                break;
+            }
+            raw_lwp::lwp_yield_thread_abi();
+        }
+        for _ in 0..16 {
+            raw_lwp::lwp_yield_thread_abi();
+        }
+        let worker_finished = LWP_DETACH_DONE.load(Ordering::Acquire);
+        let mut cleanup_raw = api::sys::LWP_THREAD_NULL;
+        // SAFETY: The cleanup worker takes no argument and owns its stack.
+        let cleanup = unsafe {
+            api::ThreadHandle::create(
+                &mut cleanup_raw,
+                Some(probe_lwp_detached_worker),
+                core::ptr::null_mut(),
+                core::ptr::null_mut(),
+                8192,
+                64,
+            )
+        };
+        if let Ok(cleanup) = cleanup {
+            let _ = cleanup.join();
+        }
+        logger.record(
+            "LWP raw detached worker finishes without join",
+            detached == 0
+                && second != 0
+                && join.is_err()
+                && worker_finished
+                && ogc_lwp_driver::thread_cleanup_counters().detached_reaped > before,
+        );
+    } else {
+        logger.record("LWP raw detached worker finishes without join", false);
     }
 }
 
