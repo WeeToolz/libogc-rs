@@ -592,6 +592,7 @@ fn probe_raw_udp(logger: &mut ProbeLogger) {
                 && source.sin_port != destination.sin_port;
             logger.record("Raw UDP names report distinct loopback ports", names);
             if names {
+                probe_lwip_readiness(logger, sender, receiver, &mut destination);
                 let mut empty = [0xa5; 16];
                 let mut empty_peer = net::SockaddrIn::default();
                 let mut empty_len = addrlen;
@@ -751,6 +752,138 @@ fn probe_raw_udp(logger: &mut ProbeLogger) {
         logger.record("Raw UDP receiver closes", net::net_close(receiver) == 0);
     }
     logger.record("Raw network deinitializes", net::net_deinit() == 0);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_lwip_readiness(
+    logger: &mut ProbeLogger,
+    sender: i32,
+    receiver: i32,
+    destination: &mut raw_network::SockaddrIn,
+) {
+    use lwip_sys as lwip;
+    use raw_network as net;
+    let mut enabled = 1u32;
+    let set = unsafe { lwip::ioctl(receiver, lwip::FIONBIO, (&mut enabled as *mut u32).cast()) };
+    let mut byte = [0xa5u8];
+    let empty = if set == 0 {
+        unsafe { lwip::recv(receiver, byte.as_mut_ptr().cast(), 1, 0) }
+    } else {
+        0
+    };
+    enabled = 0;
+    let clear = unsafe { lwip::ioctl(receiver, lwip::FIONBIO, (&mut enabled as *mut u32).cast()) };
+    logger.record(
+        "lwIP ioctl toggles socket nonblocking mode",
+        set == 0 && empty < 0 && byte == [0xa5] && clear == 0,
+    );
+    enabled = 1;
+    let wrapper_set =
+        unsafe { net::net_ioctl(receiver, net::FIONBIO, (&mut enabled as *mut u32).cast()) };
+    let wrapper_flags = net::net_fcntl(receiver, net::F_GETFL, 0);
+    enabled = 0;
+    let wrapper_clear =
+        unsafe { net::net_ioctl(receiver, net::FIONBIO, (&mut enabled as *mut u32).cast()) };
+    let wrapper_restored = net::net_fcntl(receiver, net::F_GETFL, 0);
+    logger.note_i32("Raw ioctl set result", wrapper_set);
+    logger.note_i32("Raw fcntl flags after ioctl", wrapper_flags);
+    logger.note_i32("Raw ioctl clear result", wrapper_clear);
+    logger.note_i32("Raw fcntl flags after clear", wrapper_restored);
+    logger.record(
+        "Raw ioctl and fcntl agree on nonblocking mode",
+        wrapper_set == 0
+            && wrapper_flags == net::O_NONBLOCK as i32
+            && wrapper_clear == 0
+            && wrapper_restored == 0,
+    );
+    let mut pending = 0xa5a5_a5a5u32;
+    let rc = unsafe { lwip::ioctl(receiver, lwip::FIONREAD, (&mut pending as *mut u32).cast()) };
+    logger.record(
+        "lwIP ioctl rejects FIONREAD and preserves output",
+        rc == -22 && pending == 0xa5a5_a5a5,
+    );
+
+    let mut descriptor = lwip::PollFd {
+        fd: receiver,
+        events: lwip::POLLIN,
+        revents: -1,
+    };
+    let empty_poll = unsafe { lwip::poll(&mut descriptor, 1, 0) };
+    logger.record(
+        "lwIP poll clears empty read readiness",
+        empty_poll == 0 && descriptor.revents == 0,
+    );
+    let mut readset = lwip::FdSet::default();
+    let fd = receiver as usize;
+    if fd >= lwip::FD_SETSIZE {
+        logger.record("lwIP select clears empty read readiness", false);
+        logger.record("lwIP select reports queued read readiness", false);
+        return;
+    }
+    readset.fd_bits[fd / 8] = 1 << (fd % 8);
+    let mut timeout = lwip::TimeVal {
+        tv_sec: 0,
+        tv_usec: 0,
+    };
+    let empty_select = unsafe {
+        lwip::select(
+            receiver + 1,
+            &mut readset,
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            &mut timeout,
+        )
+    };
+    logger.record(
+        "lwIP select clears empty read readiness",
+        empty_select == 0 && readset.fd_bits[fd / 8] & (1 << (fd % 8)) == 0,
+    );
+
+    let payload = [0x21u8, 0x80, 0, 0xff];
+    let sent = unsafe {
+        net::net_sendto(
+            sender,
+            payload.as_ptr().cast(),
+            payload.len() as i32,
+            0,
+            (destination as *mut net::SockaddrIn).cast(),
+            16,
+        )
+    };
+    descriptor.revents = 0;
+    let ready_poll = if sent == payload.len() as i32 {
+        unsafe { lwip::poll(&mut descriptor, 1, 3000) }
+    } else {
+        -1
+    };
+    logger.record(
+        "lwIP poll reports queued read readiness",
+        ready_poll == 1 && descriptor.revents & lwip::POLLIN != 0,
+    );
+    readset.fd_bits[fd / 8] = 1 << (fd % 8);
+    let ready_select = unsafe {
+        lwip::select(
+            receiver + 1,
+            &mut readset,
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            &mut timeout,
+        )
+    };
+    logger.record(
+        "lwIP select reports queued read readiness",
+        ready_select == 1 && readset.fd_bits[fd / 8] & (1 << (fd % 8)) != 0,
+    );
+    let mut bytes = [0xa5u8; 8];
+    let got = if ready_poll == 1 {
+        unsafe { net::net_recv(receiver, bytes.as_mut_ptr().cast(), bytes.len() as i32, 0) }
+    } else {
+        -1
+    };
+    logger.record(
+        "lwIP readiness corresponds to queued datagram",
+        got == 4 && bytes[..4] == payload && bytes[4..] == [0xa5; 4],
+    );
 }
 
 #[cfg(feature = "dolphin-automation")]

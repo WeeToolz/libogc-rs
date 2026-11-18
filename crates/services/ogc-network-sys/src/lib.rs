@@ -1493,7 +1493,15 @@ mod wii_backend {
     /// and the referenced memory must obey Rust's aliasing requirements.
     /// The pointers must remain valid for the duration of the call.
     pub unsafe fn net_ioctl(s: i32, cmd: u32, argp: *mut c_void) -> i32 {
-        unsafe { lwip::ioctl(s, cmd as i64, argp) }
+        let result = unsafe { lwip::ioctl(s, cmd as i64, argp) };
+        if result >= 0
+            && cmd == FIONBIO
+            && !argp.is_null()
+            && let Some(idx) = track_idx(s)
+        {
+            SOCKET_NONBLOCK[idx].store(unsafe { *(argp as *const u32) } != 0, Ordering::Release);
+        }
+        result
     }
 
     pub fn net_shutdown(s: i32, how: u32) -> i32 {
