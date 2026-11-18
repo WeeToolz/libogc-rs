@@ -2374,3 +2374,6 @@ ogc-lwp,src/lib.rs,suspend,90,compatibility-forwarder,hardware-probe,probes/ogc-
 ogc-lwp,src/lib.rs,resume,95,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_suspend_resume,thread.resume
 ogc-lwp,src/lib.rs,is_suspended,100,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_suspend_resume,thread.is_suspended
 ogc-lwp,src/lib.rs,yield_now,375,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_suspend_resume,api::yield_now
+ogc-lwp-driver,src/runtime.rs,suspend_thread,2465,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_suspend,driver::suspend_thread
+ogc-lwp-driver,src/runtime.rs,resume_thread,2494,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_suspend,driver::resume_thread
+ogc-lwp-driver,src/runtime.rs,thread_is_suspended,2514,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_suspend,driver::thread_is_suspended

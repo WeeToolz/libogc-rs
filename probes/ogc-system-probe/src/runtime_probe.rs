@@ -65,6 +65,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_lwp_sys_resources(logger);
     probe_lwp_thread_handle(logger);
     probe_lwp_suspend_resume(logger);
+    probe_lwp_driver_suspend(logger);
     probe_controller_slots(logger);
     probe_owned_audio_buffer(logger);
     probe_l2cap_packets(logger);
@@ -241,6 +242,65 @@ unsafe extern "C" fn probe_lwp_suspend_worker(_: *mut core::ffi::c_void) -> *mut
         ogc_lwp::yield_now();
     }
     core::ptr::null_mut()
+}
+
+fn probe_lwp_driver_suspend(logger: &mut ProbeLogger) {
+    use ogc_lwp_driver as driver;
+    LWP_WORKER_READY.store(false, Ordering::Release);
+    LWP_WORKER_RELEASE.store(false, Ordering::Release);
+    LWP_WORKER_COUNT.store(0, Ordering::Release);
+    let mut raw = driver::LWP_THREAD_NULL;
+    // SAFETY: The worker uses static state and the driver owns the stack.
+    let created = unsafe {
+        driver::create_thread(
+            &mut raw,
+            Some(probe_lwp_suspend_worker),
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            8192,
+            64,
+        )
+    };
+    if created == 0 {
+        for _ in 0..1000 {
+            if LWP_WORKER_READY.load(Ordering::Acquire) {
+                break;
+            }
+            ogc_lwp::yield_now();
+        }
+        let ready = LWP_WORKER_READY.load(Ordering::Acquire);
+        let first = driver::suspend_thread(raw);
+        let second = driver::suspend_thread(raw);
+        let nested = driver::thread_is_suspended(raw);
+        let one_resume = driver::resume_thread(raw);
+        let still_suspended = driver::thread_is_suspended(raw);
+        let before = LWP_WORKER_COUNT.load(Ordering::Acquire);
+        for _ in 0..16 {
+            ogc_lwp::yield_now();
+        }
+        let after = LWP_WORKER_COUNT.load(Ordering::Acquire);
+        logger.record(
+            "LWP driver nested suspension stops worker",
+            ready
+                && first == 0
+                && second == 0
+                && nested
+                && one_resume == 0
+                && still_suspended
+                && before == after,
+        );
+        let final_resume = driver::resume_thread(raw);
+        let resumed = !driver::thread_is_suspended(raw);
+        LWP_WORKER_RELEASE.store(true, Ordering::Release);
+        let joined = ogc_lwp::ThreadHandle::new(raw).join();
+        logger.record(
+            "LWP driver final resume lets worker finish",
+            final_resume == 0 && resumed && joined == Ok(core::ptr::null_mut()),
+        );
+    } else {
+        logger.record("LWP driver nested suspension stops worker", false);
+        logger.record("LWP driver final resume lets worker finish", false);
+    }
 }
 
 fn probe_lwp_suspend_resume(logger: &mut ProbeLogger) {
