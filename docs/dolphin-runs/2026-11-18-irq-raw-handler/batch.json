@@ -1,0 +1,44 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-irq-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_irq_set",
+      "line": 760,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_irq_raw_handler_registry",
+      "api_path": "raw_irq::k_irq_set",
+      "checks": [
+        "Raw IRQ registry stores and clears handler"
+      ]
+    },
+    {
+      "crate": "ogc-irq-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_irq_get",
+      "line": 755,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_irq_raw_handler_registry",
+      "api_path": "raw_irq::k_irq_get",
+      "checks": [
+        "Raw IRQ registry stores and clears handler"
+      ]
+    },
+    {
+      "crate": "ogc-irq",
+      "path": "src/lib.rs",
+      "symbol": "clear",
+      "line": 67,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_irq_raw_handler_registry",
+      "api_path": "irq::clear",
+      "checks": [
+        "Raw IRQ registry stores and clears handler"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin registration and removal on an unused debug interrupt. Dispatch, interrupt masks, concurrent replacement and physical Wii remain unverified."
+  ]
+}

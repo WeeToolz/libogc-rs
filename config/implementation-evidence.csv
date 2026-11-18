@@ -2440,3 +2440,6 @@ ogc-lwp-sys,src/lib.rs,sleep_ticks,166,compatibility-forwarder,hardware-probe,pr
 ogc-irq,src/lib.rs,request,27,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_handler_registry,irq::request
 ogc-irq,src/lib.rs,get_handler,35,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_handler_registry,irq::get_handler
 ogc-irq,src/lib.rs,free,31,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_handler_registry,irq::free
+ogc-irq-sys,src/lib.rs,k_irq_set,760,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_raw_handler_registry,raw_irq::k_irq_set
+ogc-irq-sys,src/lib.rs,k_irq_get,755,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_raw_handler_registry,raw_irq::k_irq_get
+ogc-irq,src/lib.rs,clear,67,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_raw_handler_registry,irq::clear
