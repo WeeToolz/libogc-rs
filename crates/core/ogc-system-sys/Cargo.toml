@@ -14,6 +14,7 @@ ogc-irq = { path = "../ogc-irq" }
 ogc-ios-sys = { path = "../ogc-ios-sys" }
 ogc-lwp-sys = { path = "../ogc-lwp-sys" }
 ogc-lwp-driver = { path = "../ogc-lwp-driver" }
+ogc-sysbase = { path = "../ogc-sysbase" }
 ogc-exi = { path = "../../hardware/ogc-exi" }
 ogc-si = { path = "../../hardware/ogc-si" }
 ogc-sys = { path = "../../abi/ogc-sys" }

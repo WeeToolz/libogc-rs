@@ -11,6 +11,8 @@ pub use fs_abi::FsRequest;
 unsafe extern "C" {
     #[link_name = "__wii_std_output"]
     pub fn output(bytes: *const u8, length: usize, flush: bool) -> isize;
+    #[link_name = "__wii_std_output_stream"]
+    pub fn output_stream(stream: u32, bytes: *const u8, length: usize, flush: bool) -> isize;
     #[link_name = "__wii_std_fs"]
     pub fn fs(request: *mut FsRequest) -> i64;
     #[link_name = "__wii_std_net"]

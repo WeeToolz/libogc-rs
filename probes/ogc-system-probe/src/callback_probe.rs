@@ -27,6 +27,56 @@ pub fn run(logger: &mut ProbeLogger) {
         "report callback receives formatted bytes",
         test_report_callback(),
     );
+    logger.record(
+        "stdio report installs UART stream writers",
+        test_stdio_report_writers(),
+    );
+}
+
+fn test_stdio_report_writers() -> bool {
+    // SAFETY: This single-threaded probe saves and restores the stream table.
+    unsafe {
+        let table = core::ptr::addr_of_mut!(ogc_sysbase::devoptab_list)
+            .cast::<*const ogc_sysbase::Devoptab>();
+        let previous_stdout = table.add(1).read();
+        let previous_stderr = table.add(2).read();
+        table.add(1).write(core::ptr::null());
+        table.add(2).write(core::ptr::null());
+        system::stdio_report(false);
+        let stderr = table.add(2).read();
+        let stderr_only = table.add(1).read().is_null()
+            && !stderr.is_null()
+            && (*stderr).write_r.is_some()
+            && system::sys::sys_stdio_write(1, core::ptr::null(), 0).is_none();
+        let stderr_bytes = b"STDIO_STDERR_PROBE\n";
+        let stderr_written = if stderr.is_null() {
+            false
+        } else if let Some(write) = (*stderr).write_r {
+            write(
+                core::ptr::null_mut(),
+                core::ptr::null_mut(),
+                stderr_bytes.as_ptr().cast(),
+                stderr_bytes.len(),
+            ) == stderr_bytes.len() as isize
+        } else {
+            false
+        };
+        system::stdio_report(true);
+        let stdout = table.add(1).read();
+        let both =
+            !stdout.is_null() && stdout == table.add(2).read() && (*stdout).write_r.is_some();
+        let stdout_bytes = b"STDIO_STDOUT_PROBE\n";
+        let stdout_written =
+            system::sys::sys_stdio_write(1, stdout_bytes.as_ptr(), stdout_bytes.len())
+                == Some(stdout_bytes.len() as isize);
+        let invalid = system::sys::sys_stdio_write(2, core::ptr::null(), 1)
+            == Some(-(ogc_sysbase::EINVAL as isize));
+        system::stdio_report(false);
+        let retained = table.add(1).read() == stdout && system::stdio_report_uses_stdout();
+        table.add(1).write(previous_stdout);
+        table.add(2).write(previous_stderr);
+        stderr_only && stderr_written && both && stdout_written && invalid && retained
+    }
 }
 
 fn test_report_callback() -> bool {

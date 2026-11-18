@@ -1363,6 +1363,8 @@ fn dolphin_arguments(
         "-C".to_string(),
         "Logger.Logs.CI=True".to_string(),
         "-C".to_string(),
+        "Logger.Logs.OSREPORT=True".to_string(),
+        "-C".to_string(),
         "Logger.Logs.IOS=True".to_string(),
         "-C".to_string(),
         "Logger.Logs.IOS_NET=True".to_string(),

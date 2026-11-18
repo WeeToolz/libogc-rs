@@ -1,0 +1,32 @@
+{
+  "probe": "callback_probe",
+  "cases": [
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "stdio_report",
+      "line": 574,
+      "evidence_path": "probes/ogc-system-probe/src/callback_probe.rs",
+      "function": "test_stdio_report_writers",
+      "api_path": "system::stdio_report",
+      "checks": [
+        "stdio report installs UART stream writers"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_stdio_write",
+      "line": 938,
+      "evidence_path": "probes/ogc-system-probe/src/callback_probe.rs",
+      "function": "test_stdio_report_writers",
+      "api_path": "system::sys::sys_stdio_write",
+      "checks": [
+        "stdio report installs UART stream writers"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin UART routing and invalid buffer handling. Physical UART behavior and transport failure paths need separate evidence."
+  ]
+}
