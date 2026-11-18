@@ -4030,6 +4030,7 @@ pub unsafe fn sys_alloc_arena1_mem_lo(_size: u32, _align: u32) -> *mut c_void {
 ///
 /// Matches the reset-button ABI. The unreachable non-PowerPC fallback reports no button press.
 pub unsafe fn sys_reset_button_down() -> u32 {
+    SYS_RESET_BUTTON_DOWN_CALLED.store(true, Ordering::Release);
     unsafe {
         const PI_RESET_BUTTON_REG: usize = PI_REG_BASE;
         u32::from((core::ptr::read_volatile(PI_RESET_BUTTON_REG as *const u32) & 0x0001_0000) == 0)

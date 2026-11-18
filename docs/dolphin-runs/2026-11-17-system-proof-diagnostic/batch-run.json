@@ -1,0 +1,68 @@
+{
+  "source_revision": "aeed73c3f73d07ec657655bd952ecde4819f2c6b",
+  "source_fingerprint": "c9738db55836b9a32a16777f8ddd4e56d354aa55a3674f86cf77940031de5e0e",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "0829bfed3e61e9a9a478a523ba9629a944b26d47b100c81f5363ba179208f3a5",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "9bdc127db0ca4489290d92e02a53ad40a5cb4e6529bfb406e461be675bda5d7a",
+  "suite_sha256": "72ff0c82f42b8524050e6e911141f30d4aecd67ab1c8b6b8f2559decda43d95e",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/probe.log": "acac611745120f5591409598c0defb3f535e3144d8eadf884129046188776842",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/stderr.log": "4c7f96aa01d563a2d4d6f2d441a73b8785560a55388b7352cc4f9702857db090",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/probe-transport.bin": "4d6f727f7aac5b4825ed4f1aa39928d1273bbf2f21d03333cf3c725dbc8ce170",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-002.png": "7420bccc59797e0abd9dcacd00b73045d077c3e3b3dadf6b6ff847fc21f9c4d0",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-003.png": "ed2ef86d0af3a748e18185fbbd46b80f8271fd44c3949ff0d39f4fb85ae42a92",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-004.png": "1f4c351aeaa292177e1056ca96999cc4b4983f91f5a9c5f2f7966589aafdb135",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-005.png": "3c853308a567976db059adc08a14e2f63caee81b12ff9b55f1c8f9382c1eb4e6",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-006.png": "fc0b89c9653df33786a9446d29e215ebfe97a82c4a7deb8266c9307c9104a6cf",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-007.png": "5ad03f8d44171e353b9ab563c45fe0e97f263390247d76c34bcdd1737820bbb5",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-008.png": "ca9e2cfccd31311cb61847b7c6df40932bafabf8e608ad9dee7140d3fe63e467",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-009.png": "035cdea14cc3deb271b83e20de97023a1167859aacf6e45f60f1dc94e199b322",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-010.png": "7c18f9b85d025011f618b56d759db40753a81b3339454860728cf67b1dfa6e9a",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-011.png": "6de0e8148823d937ad3073d7af16a8ba8406c86d1ffa9d6236f04e20a6c075a7",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-012.png": "5956b253062389efd68e5e3898f3581978a48b71adf233d11c8762eb8b6dd82a",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-013.png": "da38a296bb00dbe22fa6fcfe80c34cdc564bc9caf4155934fce4d3d3652d6b29",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-014.png": "ac0318a7c96e919710ae502ce0c18a553172126f87012f32d1a30518aed79f4b",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-015.png": "69ead9a0bff38d7f0990c3c4015c12bcc6a83c9f9434f4fb747f3c6ccc6afe05",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-016.png": "bc87152f96bbe2e49ecf83b41a4369be980023f64381d8a6dc7f1cfa7c1c9a9b",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-017.png": "997150c401bc8eba5bb08c6797f9cfd67adc25c7196c3b1781537905892e6ddb",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-018.png": "6cd1dd70d2b9f440957c70c1d998aa1155bb87d60232cdcb4240d1e771df1dce",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-019.png": "7d9b6d8817d6b67fd8e21be48376003807b190f0c518a436d1eaa5ddf323bb52",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-020.png": "591a8b208fd46c895c764482ec966dbf365967c686a26a7f9149af10d6da15c5",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-021.png": "2e5748fe03fee57a5efe90809b0ebacecd8403102c03df2e8455242a2caa2a67",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-022.png": "307f7f167656ca733c9056ff7c8c4943ca3160863e9c9582636c856887939125",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-023.png": "39c7399a2a12c9063313d3be4de857cc433fe5f55a63db5b65378411829decb7",
+    "docs/dolphin-runs/2026-11-17-system-proof-diagnostic/runtime_probe/pages/page-024.png": "1d2fd58e5d022dc0832346f4b4157f353543fbebea46f7b260d015a911b170a4"
+  },
+  "exit_code": 0
+}

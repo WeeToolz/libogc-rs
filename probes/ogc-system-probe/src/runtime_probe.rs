@@ -1753,6 +1753,15 @@ fn probe_system_alarms(logger: &mut ProbeLogger) {
     let periodic = unsafe {
         system::set_periodic_alarm(alarm, &delay, &delay, Some(probe_alarm_callback), arg)
     } == 0;
+    let alarm_snapshot = system::snapshot_alarms();
+    logger.record(
+        "System alarm snapshot records handle and callbacks",
+        scheduled
+            && periodic
+            && alarm_snapshot.alarm == alarm as usize
+            && alarm_snapshot.callback == probe_alarm_callback as *const () as usize
+            && alarm_snapshot.periodic_callback == probe_alarm_callback as *const () as usize,
+    );
     for _ in 0..30 {
         if ALARM_COUNT.load(Ordering::Acquire) >= 4 {
             break;
@@ -1966,6 +1975,41 @@ fn probe_system(logger: &mut ProbeLogger) {
         "core hollywood revision matches system",
         revision == system::get_hollywood_revision(),
     );
+    #[cfg(feature = "dolphin-automation")]
+    {
+        let proof = system::hardware_proof();
+        let snapshot = system::snapshot_hardware();
+        logger.note_u32("Proof font encoding", proof.font_encoding);
+        logger.note_u32("Proof reset button", proof.reset_button_down);
+        logger.note_hex32("Proof Hollywood revision", proof.hollywood_revision);
+        logger.note_u32(
+            "Snapshot font queried",
+            u32::from(snapshot.font_encoding_read_called),
+        );
+        logger.note_u32(
+            "Snapshot reset queried",
+            u32::from(snapshot.reset_button_read_called),
+        );
+        logger.note_u32(
+            "Snapshot Hollywood queried",
+            u32::from(snapshot.hollywood_revision_read_called),
+        );
+        logger.record(
+            "System hardware proof records Dolphin observations",
+            proof.hollywood_revision == 0x11
+                && proof.hollywood_revision == revision
+                && proof.font_encoding == 0
+                && proof.reset_button_down == 0
+                && proof.time_monotonic
+                && proof.time_after >= proof.time_before
+                && snapshot.hollywood_revision == 0x11
+                && snapshot.font_encoding == 0
+                && snapshot.reset_button_down == 0
+                && snapshot.hollywood_revision_read_called
+                && snapshot.font_encoding_read_called
+                && snapshot.reset_button_read_called,
+        );
+    }
     let timebase_before = ogc_core::powerpc::read_timebase();
     let immediate = ogc_core::powerpc::read_timebase();
     // A timebase tick need not occur between adjacent reads. Bound polling by
