@@ -60,6 +60,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_ipv4_values(logger);
     probe_lwp_message_queue(logger);
     probe_lwp_sync_handles(logger);
+    probe_lwp_condition_wait(logger);
     probe_lwp_driver_objects(logger);
     probe_lwp_driver_mutex_cond(logger);
     probe_lwp_sys_resources(logger);
@@ -1149,6 +1150,100 @@ fn probe_lwp_driver_objects(logger: &mut ProbeLogger) {
         "LWP driver closed queue rejects send",
         !driver::message_send(queue, a, driver::MQ_MSG_NOBLOCK),
     );
+}
+
+struct LwpConditionProbe {
+    mutex: ogc_lwp::MutexHandle,
+    cond: ogc_lwp::CondVarHandle,
+    ready: AtomicBool,
+    awakened: AtomicBool,
+}
+
+unsafe extern "C" fn probe_lwp_condition_worker(
+    arg: *mut core::ffi::c_void,
+) -> *mut core::ffi::c_void {
+    // SAFETY: The parent keeps the probe live until the worker is joined.
+    let probe = unsafe { &*arg.cast::<LwpConditionProbe>() };
+    if probe.mutex.lock().is_ok() {
+        probe.ready.store(true, Ordering::Release);
+        let waited = probe.cond.wait(probe.mutex);
+        probe.awakened.store(waited.is_ok(), Ordering::Release);
+        let _ = probe.mutex.unlock();
+    }
+    core::ptr::null_mut()
+}
+
+fn probe_lwp_condition_wait(logger: &mut ProbeLogger) {
+    use ogc_lwp as api;
+    let mut raw_mutex = api::sys::LWP_MUTEX_NULL;
+    let mut raw_cond = api::sys::LWP_COND_NULL;
+    let mutex = api::MutexHandle::init(&mut raw_mutex, false);
+    let cond = api::CondVarHandle::init(&mut raw_cond);
+    if let (Ok(mutex), Ok(cond)) = (mutex, cond) {
+        let locked = mutex.lock();
+        let timeout = api::TimeSpec {
+            tv_sec: 0,
+            tv_nsec: 1_000_000,
+        };
+        let result = cond.timed_wait(mutex, &timeout);
+        let owned = mutex.try_lock() == Ok(false);
+        let unlocked = mutex.unlock();
+        logger.record(
+            "LWP condition timeout reacquires mutex",
+            locked.is_ok() && result == Err(116) && owned && unlocked.is_ok(),
+        );
+
+        let mut probe = LwpConditionProbe {
+            mutex,
+            cond,
+            ready: AtomicBool::new(false),
+            awakened: AtomicBool::new(false),
+        };
+        let mut raw_thread = api::sys::LWP_THREAD_NULL;
+        // SAFETY: The probe remains live until the worker is joined.
+        let worker = unsafe {
+            api::ThreadHandle::create(
+                &mut raw_thread,
+                Some(probe_lwp_condition_worker),
+                (&mut probe as *mut LwpConditionProbe).cast(),
+                core::ptr::null_mut(),
+                8192,
+                64,
+            )
+        };
+        for _ in 0..1000 {
+            if probe.ready.load(Ordering::Acquire) {
+                break;
+            }
+            api::yield_now();
+        }
+        for _ in 0..16 {
+            api::yield_now();
+        }
+        let waiting =
+            probe.ready.load(Ordering::Acquire) && !probe.awakened.load(Ordering::Acquire);
+        let signaled = cond.signal();
+        for _ in 0..1000 {
+            if probe.awakened.load(Ordering::Acquire) {
+                break;
+            }
+            api::yield_now();
+        }
+        let awakened = probe.awakened.load(Ordering::Acquire);
+        if !awakened {
+            let _ = cond.broadcast();
+        }
+        let joined = worker.is_ok_and(|worker| worker.join().is_ok());
+        logger.record(
+            "LWP condition signal wakes waiting worker",
+            waiting && signaled.is_ok() && awakened && joined,
+        );
+        let _ = cond.destroy();
+        let _ = mutex.destroy();
+    } else {
+        logger.record("LWP condition timeout reacquires mutex", false);
+        logger.record("LWP condition signal wakes waiting worker", false);
+    }
 }
 
 fn probe_lwp_sync_handles(logger: &mut ProbeLogger) {
