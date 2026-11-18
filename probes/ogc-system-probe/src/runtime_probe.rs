@@ -64,6 +64,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_lwp_driver_mutex_cond(logger);
     probe_lwp_sys_resources(logger);
     probe_lwp_thread_handle(logger);
+    probe_lwp_suspend_resume(logger);
     probe_controller_slots(logger);
     probe_owned_audio_buffer(logger);
     probe_l2cap_packets(logger);
@@ -227,6 +228,69 @@ fn probe_controller_slots(logger: &mut ProbeLogger) {
             && manager.set_bluetooth_calibration_checked(0, calibration)
                 == Err(InputFailure::UnsupportedReport),
     );
+}
+
+static LWP_WORKER_READY: AtomicBool = AtomicBool::new(false);
+static LWP_WORKER_RELEASE: AtomicBool = AtomicBool::new(false);
+static LWP_WORKER_COUNT: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+
+unsafe extern "C" fn probe_lwp_suspend_worker(_: *mut core::ffi::c_void) -> *mut core::ffi::c_void {
+    LWP_WORKER_READY.store(true, Ordering::Release);
+    while !LWP_WORKER_RELEASE.load(Ordering::Acquire) {
+        LWP_WORKER_COUNT.fetch_add(1, Ordering::Relaxed);
+        ogc_lwp::yield_now();
+    }
+    core::ptr::null_mut()
+}
+
+fn probe_lwp_suspend_resume(logger: &mut ProbeLogger) {
+    use ogc_lwp as api;
+    LWP_WORKER_READY.store(false, Ordering::Release);
+    LWP_WORKER_RELEASE.store(false, Ordering::Release);
+    LWP_WORKER_COUNT.store(0, Ordering::Release);
+    let mut raw = api::sys::LWP_THREAD_NULL;
+    // SAFETY: The worker uses static state and the driver owns its stack.
+    let thread = unsafe {
+        api::ThreadHandle::create(
+            &mut raw,
+            Some(probe_lwp_suspend_worker),
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            8192,
+            64,
+        )
+    };
+    if let Ok(thread) = thread {
+        for _ in 0..1000 {
+            if LWP_WORKER_READY.load(Ordering::Acquire) {
+                break;
+            }
+            api::yield_now();
+        }
+        let ready = LWP_WORKER_READY.load(Ordering::Acquire);
+        let suspended = thread.suspend();
+        let state = thread.is_suspended();
+        let before = LWP_WORKER_COUNT.load(Ordering::Acquire);
+        for _ in 0..16 {
+            api::yield_now();
+        }
+        let after = LWP_WORKER_COUNT.load(Ordering::Acquire);
+        logger.record(
+            "LWP suspended worker stops running",
+            ready && suspended.is_ok() && state && before == after,
+        );
+        let resumed = thread.resume();
+        let state = thread.is_suspended();
+        LWP_WORKER_RELEASE.store(true, Ordering::Release);
+        let joined = thread.join();
+        logger.record(
+            "LWP resumed worker finishes",
+            resumed.is_ok() && !state && joined == Ok(core::ptr::null_mut()),
+        );
+    } else {
+        logger.record("LWP suspended worker stops running", false);
+        logger.record("LWP resumed worker finishes", false);
+    }
 }
 
 unsafe extern "C" fn probe_lwp_thread_entry(arg: *mut core::ffi::c_void) -> *mut core::ffi::c_void {

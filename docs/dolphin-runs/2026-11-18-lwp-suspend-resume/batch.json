@@ -1,0 +1,57 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "suspend",
+      "line": 90,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_suspend_resume",
+      "api_path": "thread.suspend",
+      "checks": [
+        "LWP suspended worker stops running"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "resume",
+      "line": 95,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_suspend_resume",
+      "api_path": "thread.resume",
+      "checks": [
+        "LWP resumed worker finishes"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "is_suspended",
+      "line": 100,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_suspend_resume",
+      "api_path": "thread.is_suspended",
+      "checks": [
+        "LWP suspended worker stops running",
+        "LWP resumed worker finishes"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "yield_now",
+      "line": 375,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_suspend_resume",
+      "api_path": "api::yield_now",
+      "checks": [
+        "LWP suspended worker stops running"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin one cooperating worker. Nested suspension, detach, scheduling contention and physical Wii remain unverified."
+  ]
+}

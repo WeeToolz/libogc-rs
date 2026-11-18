@@ -2370,3 +2370,7 @@ ogc-lwp,src/lib.rs,current_thread,371,compatibility-forwarder,hardware-probe,pro
 ogc-lwp,src/lib.rs,create,72,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_thread_handle,api::ThreadHandle::create
 ogc-lwp,src/lib.rs,raw,56,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_thread_handle,thread.raw
 ogc-lwp,src/lib.rs,into_raw,64,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_thread_handle,thread.into_raw
+ogc-lwp,src/lib.rs,suspend,90,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_suspend_resume,thread.suspend
+ogc-lwp,src/lib.rs,resume,95,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_suspend_resume,thread.resume
+ogc-lwp,src/lib.rs,is_suspended,100,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_suspend_resume,thread.is_suspended
+ogc-lwp,src/lib.rs,yield_now,375,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_suspend_resume,api::yield_now
