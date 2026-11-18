@@ -2289,3 +2289,14 @@ ogc-controller,src/hardware.rs,clear_bluetooth_slot,2123,protocol,hardware-probe
 ogc-controller,src/hardware.rs,set_bluetooth_report,1962,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_controller_slots,manager.set_bluetooth_report
 ogc-controller,src/hardware.rs,set_bluetooth_report_checked,1974,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_controller_slots,manager.set_bluetooth_report_checked
 ogc-controller,src/hardware.rs,set_bluetooth_calibration_checked,1937,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_controller_slots,manager.set_bluetooth_calibration_checked
+ogc-lwp,src/lib.rs,init,137,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_sync_handles,api::QueueHandle::init
+ogc-lwp,src/lib.rs,raw,129,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_sync_handles,queue.raw
+ogc-lwp,src/lib.rs,into_raw,133,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_sync_handles,queue.into_raw
+ogc-lwp,src/lib.rs,init,219,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_sync_handles,api::CondVarHandle::init
+ogc-lwp,src/lib.rs,raw,215,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_sync_handles,cond.raw
+ogc-lwp,src/lib.rs,signal,240,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_sync_handles,cond.signal
+ogc-lwp,src/lib.rs,broadcast,245,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_sync_handles,cond.broadcast
+ogc-lwp,src/lib.rs,destroy,250,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_sync_handles,cond.destroy
+ogc-lwp,src/lib.rs,init,265,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_sync_handles,api::SemaphoreHandle::init
+ogc-lwp,src/lib.rs,raw,261,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_sync_handles,sem.raw
+ogc-lwp,src/lib.rs,destroy,275,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_sync_handles,sem.destroy

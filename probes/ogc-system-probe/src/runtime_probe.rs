@@ -59,6 +59,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_inet_addr(logger);
     probe_ipv4_values(logger);
     probe_lwp_message_queue(logger);
+    probe_lwp_sync_handles(logger);
     probe_controller_slots(logger);
     probe_owned_audio_buffer(logger);
     probe_l2cap_packets(logger);
@@ -216,6 +217,52 @@ fn probe_controller_slots(logger: &mut ProbeLogger) {
             && manager.set_bluetooth_calibration_checked(0, calibration)
                 == Err(InputFailure::UnsupportedReport),
     );
+}
+
+fn probe_lwp_sync_handles(logger: &mut ProbeLogger) {
+    use ogc_lwp as api;
+    let mut raw_queue = 0;
+    let queue = api::QueueHandle::init(&mut raw_queue);
+    if let Ok(queue) = queue {
+        logger.record(
+            "LWP queue handle retains output",
+            queue.raw() == raw_queue && queue.into_raw() == raw_queue,
+        );
+        queue.signal();
+        queue.broadcast();
+        queue.close();
+    } else {
+        logger.record("LWP queue handle retains output", false);
+    }
+    let mut raw_cond = 0;
+    let cond = api::CondVarHandle::init(&mut raw_cond);
+    if let Ok(cond) = cond {
+        logger.record(
+            "LWP condition handle retains output",
+            cond.raw() == raw_cond,
+        );
+        logger.record(
+            "LWP condition signal and broadcast succeed",
+            cond.signal().is_ok() && cond.broadcast().is_ok(),
+        );
+        logger.record("LWP condition destroy succeeds", cond.destroy().is_ok());
+    } else {
+        logger.record("LWP condition handle retains output", false);
+        logger.record("LWP condition signal and broadcast succeed", false);
+        logger.record("LWP condition destroy succeeds", false);
+    }
+    let mut raw_sem = 0;
+    let sem = api::SemaphoreHandle::init(&mut raw_sem, 1, 2);
+    if let Ok(sem) = sem {
+        logger.record(
+            "LWP semaphore handle retains output",
+            sem.raw() == raw_sem && sem.get_value() == Ok(1),
+        );
+        logger.record("LWP semaphore destroy succeeds", sem.destroy().is_ok());
+    } else {
+        logger.record("LWP semaphore handle retains output", false);
+        logger.record("LWP semaphore destroy succeeds", false);
+    }
 }
 
 fn probe_lwp_message_queue(logger: &mut ProbeLogger) {

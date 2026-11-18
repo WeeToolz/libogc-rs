@@ -1,0 +1,140 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "init",
+      "line": 137,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sync_handles",
+      "api_path": "api::QueueHandle::init",
+      "checks": [
+        "LWP queue handle retains output"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "raw",
+      "line": 129,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sync_handles",
+      "api_path": "queue.raw",
+      "checks": [
+        "LWP queue handle retains output"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "into_raw",
+      "line": 133,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sync_handles",
+      "api_path": "queue.into_raw",
+      "checks": [
+        "LWP queue handle retains output"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "init",
+      "line": 219,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sync_handles",
+      "api_path": "api::CondVarHandle::init",
+      "checks": [
+        "LWP condition handle retains output"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "raw",
+      "line": 215,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sync_handles",
+      "api_path": "cond.raw",
+      "checks": [
+        "LWP condition handle retains output"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "signal",
+      "line": 240,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sync_handles",
+      "api_path": "cond.signal",
+      "checks": [
+        "LWP condition signal and broadcast succeed"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "broadcast",
+      "line": 245,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sync_handles",
+      "api_path": "cond.broadcast",
+      "checks": [
+        "LWP condition signal and broadcast succeed"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "destroy",
+      "line": 250,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sync_handles",
+      "api_path": "cond.destroy",
+      "checks": [
+        "LWP condition destroy succeeds"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "init",
+      "line": 265,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sync_handles",
+      "api_path": "api::SemaphoreHandle::init",
+      "checks": [
+        "LWP semaphore handle retains output"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "raw",
+      "line": 261,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sync_handles",
+      "api_path": "sem.raw",
+      "checks": [
+        "LWP semaphore handle retains output"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "destroy",
+      "line": 275,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sync_handles",
+      "api_path": "sem.destroy",
+      "checks": [
+        "LWP semaphore destroy succeeds"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin single-threaded initialization and idle synchronization objects. Waiters, contention, failure paths and physical Wii remain unverified."
+  ]
+}
