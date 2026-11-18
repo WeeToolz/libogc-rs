@@ -2187,3 +2187,11 @@ lwip-sys,src/lib.rs,get_socket_option,898,ios,hardware-probe,probes/ogc-system-p
 lwip-sys,src/lib.rs,get_socket_option,1551,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_socket_options,lwip::get_socket_option
 lwip-sys,src/lib.rs,set_socket_option,949,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_socket_options,lwip::set_socket_option
 lwip-sys,src/lib.rs,set_socket_option,1568,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_socket_options,lwip::set_socket_option
+lwip-sys,src/lib.rs,listen,1013,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_tcp,lwip_sys::listen
+lwip-sys,src/lib.rs,listen,1590,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_tcp,lwip_sys::listen
+lwip-sys,src/lib.rs,accept,1027,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_tcp,lwip_sys::accept
+lwip-sys,src/lib.rs,accept,1601,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_tcp,lwip_sys::accept
+lwip-sys,src/lib.rs,get_peer_name,860,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_socket_names,lwip::get_peer_name
+lwip-sys,src/lib.rs,get_peer_name,1529,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_socket_names,lwip::get_peer_name
+lwip-sys,src/lib.rs,get_socket_name,879,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_socket_names,lwip::get_socket_name
+lwip-sys,src/lib.rs,get_socket_name,1540,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_socket_names,lwip::get_socket_name

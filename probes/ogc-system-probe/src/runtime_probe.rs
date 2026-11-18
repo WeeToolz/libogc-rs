@@ -822,9 +822,10 @@ fn probe_raw_tcp(logger: &mut ProbeLogger) {
                     &mut addrlen,
                 ) == 0
         };
-        let listening = bound && address.sin_port != 0 && net::net_listen(listener, 1) == 0;
+        let listening = bound && address.sin_port != 0 && lwip_sys::listen(listener, 1) == 0;
         logger.record("Raw TCP listener binds and listens", listening);
         if listening {
+            probe_lwip_unconnected_peer(logger, client);
             let connected = unsafe {
                 net::net_connect(
                     client,
@@ -846,7 +847,7 @@ fn probe_raw_tcp(logger: &mut ProbeLogger) {
                 let mut peer = net::SockaddrIn::default();
                 let mut peer_len = size_of::<net::SockaddrIn>() as u32;
                 let accepted = unsafe {
-                    net::net_accept(
+                    lwip_sys::accept(
                         listener,
                         (&mut peer as *mut net::SockaddrIn).cast(),
                         &mut peer_len,
@@ -857,6 +858,7 @@ fn probe_raw_tcp(logger: &mut ProbeLogger) {
                     accepted >= 0 && peer.sin_addr.s_addr == 0x7f00_0001 && peer.sin_port != 0,
                 );
                 if accepted >= 0 {
+                    probe_lwip_socket_names(logger, listener, client, accepted, &address, &peer);
                     let payload = b"tcp probe";
                     let sent = unsafe {
                         net::net_send(client, payload.as_ptr().cast(), payload.len() as i32, 0)
@@ -915,6 +917,53 @@ fn probe_raw_tcp(logger: &mut ProbeLogger) {
                         net::net_close(accepted) == 0,
                     );
                 }
+                let relisten = net::net_listen(listener, 1) == 0;
+                let second = net::net_socket(net::PF_INET, net::SOCK_STREAM, net::IPPROTO_IP);
+                let connected = second >= 0
+                    && relisten
+                    && unsafe {
+                        net::net_connect(
+                            second,
+                            (&mut address as *mut net::SockaddrIn).cast(),
+                            addrlen,
+                        )
+                    } == 0;
+                let mut poll = net::PollSd {
+                    socket: listener,
+                    events: 3,
+                    revents: 0,
+                };
+                let ready = connected
+                    && unsafe { net::net_poll(&mut poll, 1, 3000) } == 1
+                    && poll.revents & 3 != 0;
+                let mut second_peer = net::SockaddrIn::default();
+                let mut second_len = size_of::<net::SockaddrIn>() as u32;
+                let second_accepted = if ready {
+                    unsafe {
+                        net::net_accept(
+                            listener,
+                            (&mut second_peer as *mut net::SockaddrIn).cast(),
+                            &mut second_len,
+                        )
+                    }
+                } else {
+                    -1
+                };
+                logger.record(
+                    "Raw TCP wrapper relistens and accepts",
+                    second_accepted >= 0
+                        && second_peer.sin_addr.s_addr == 0x7f00_0001
+                        && second_peer.sin_port != 0,
+                );
+                if second_accepted >= 0 {
+                    logger.record(
+                        "Raw TCP second accepted socket closes",
+                        net::net_close(second_accepted) == 0,
+                    );
+                }
+                if second >= 0 {
+                    logger.record("Raw TCP second client closes", net::net_close(second) == 0);
+                }
             }
         }
     }
@@ -925,6 +974,119 @@ fn probe_raw_tcp(logger: &mut ProbeLogger) {
         logger.record("Raw TCP client closes", net::net_close(client) == 0);
     }
     logger.record("Raw TCP network deinitializes", net::net_deinit() == 0);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_lwip_unconnected_peer(logger: &mut ProbeLogger, socket: i32) {
+    use lwip_sys as lwip;
+    let mut name = lwip::SockAddrIn {
+        sin_len: 0xa5,
+        sin_family: 0xa5,
+        sin_port: 0xa5a5,
+        sin_addr: lwip::InAddr {
+            s_addr: 0xa5a5_a5a5,
+        },
+        sin_zero: [0xa5; 8],
+    };
+    let mut len = core::mem::size_of::<lwip::SockAddrIn>() as u32;
+    let result = unsafe {
+        lwip::get_peer_name(
+            socket,
+            (&mut name as *mut lwip::SockAddrIn).cast(),
+            &mut len,
+        )
+    };
+    logger.record(
+        "lwIP unconnected peer query preserves output",
+        result < 0
+            && len == 16
+            && name.sin_len == 0xa5
+            && name.sin_family == 0xa5
+            && name.sin_port == 0xa5a5
+            && name.sin_addr.s_addr == 0xa5a5_a5a5
+            && name.sin_zero == [0xa5; 8],
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_lwip_socket_names(
+    logger: &mut ProbeLogger,
+    listener: i32,
+    client: i32,
+    accepted: i32,
+    expected_server: &raw_network::SockaddrIn,
+    expected_client: &raw_network::SockaddrIn,
+) {
+    use lwip_sys as lwip;
+    let mut local = lwip::SockAddrIn::default();
+    let mut len = core::mem::size_of::<lwip::SockAddrIn>() as u32;
+    let result = unsafe {
+        lwip::get_socket_name(
+            listener,
+            (&mut local as *mut lwip::SockAddrIn).cast(),
+            &mut len,
+        )
+    };
+    logger.record(
+        "lwIP listener local address matches bind",
+        result == 0
+            && len == 8
+            && local.sin_family == 2
+            && local.sin_addr.s_addr == 0x7f00_0001
+            && local.sin_port == expected_server.sin_port
+            && local.sin_port != 0,
+    );
+    let mut remote = lwip::SockAddrIn::default();
+    len = core::mem::size_of::<lwip::SockAddrIn>() as u32;
+    let result = unsafe {
+        lwip::get_peer_name(
+            client,
+            (&mut remote as *mut lwip::SockAddrIn).cast(),
+            &mut len,
+        )
+    };
+    logger.record(
+        "lwIP client peer matches listener",
+        result == 0
+            && len == 8
+            && remote.sin_family == 2
+            && remote.sin_addr.s_addr == 0x7f00_0001
+            && remote.sin_port == expected_server.sin_port,
+    );
+    len = core::mem::size_of::<lwip::SockAddrIn>() as u32;
+    let result = unsafe {
+        lwip::get_socket_name(
+            client,
+            (&mut local as *mut lwip::SockAddrIn).cast(),
+            &mut len,
+        )
+    };
+    logger.record(
+        "lwIP client local address matches accepted peer",
+        result == 0
+            && len == 8
+            && local.sin_family == 2
+            && local.sin_addr.s_addr == 0x7f00_0001
+            && local.sin_port != 0
+            && local.sin_port == expected_client.sin_port,
+    );
+    len = core::mem::size_of::<lwip::SockAddrIn>() as u32;
+    let result = unsafe {
+        lwip::get_peer_name(
+            accepted,
+            (&mut remote as *mut lwip::SockAddrIn).cast(),
+            &mut len,
+        )
+    };
+    logger.record(
+        "lwIP accepted peer matches client",
+        result == 0
+            && len == 8
+            && remote.sin_family == 2
+            && remote.sin_addr.s_addr == 0x7f00_0001
+            && remote.sin_port == expected_client.sin_port
+            && remote.sin_port != 0,
+    );
 }
 
 #[cfg(feature = "dolphin-automation")]

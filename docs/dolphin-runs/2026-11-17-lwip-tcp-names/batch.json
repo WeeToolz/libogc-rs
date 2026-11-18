@@ -1,0 +1,116 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "listen",
+      "line": 1013,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_tcp",
+      "api_path": "lwip_sys::listen",
+      "checks": [
+        "Raw TCP listener binds and listens",
+        "Raw TCP client connects",
+        "Raw TCP accept reports loopback peer"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "listen",
+      "line": 1590,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_tcp",
+      "api_path": "lwip_sys::listen",
+      "checks": [
+        "Raw TCP listener binds and listens",
+        "Raw TCP client connects",
+        "Raw TCP accept reports loopback peer"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "accept",
+      "line": 1027,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_tcp",
+      "api_path": "lwip_sys::accept",
+      "checks": [
+        "Raw TCP accept reports loopback peer",
+        "lwIP accepted peer matches client",
+        "Raw TCP accepted socket receives bytes"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "accept",
+      "line": 1601,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_tcp",
+      "api_path": "lwip_sys::accept",
+      "checks": [
+        "Raw TCP accept reports loopback peer",
+        "lwIP accepted peer matches client",
+        "Raw TCP accepted socket receives bytes"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_peer_name",
+      "line": 860,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_socket_names",
+      "api_path": "lwip::get_peer_name",
+      "checks": [
+        "lwIP client peer matches listener",
+        "lwIP accepted peer matches client"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_peer_name",
+      "line": 1529,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_socket_names",
+      "api_path": "lwip::get_peer_name",
+      "checks": [
+        "lwIP client peer matches listener",
+        "lwIP accepted peer matches client"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_socket_name",
+      "line": 879,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_socket_names",
+      "api_path": "lwip::get_socket_name",
+      "checks": [
+        "lwIP listener local address matches bind",
+        "lwIP client local address matches accepted peer"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_socket_name",
+      "line": 1540,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_socket_names",
+      "api_path": "lwip::get_socket_name",
+      "checks": [
+        "lwIP listener local address matches bind",
+        "lwIP client local address matches accepted peer"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin IPv4 loopback TCP, one listener and client. Other address families, error paths, IOS versions, and physical Wii behavior remain unverified."
+  ]
+}
