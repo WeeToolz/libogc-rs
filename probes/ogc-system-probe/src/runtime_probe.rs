@@ -83,6 +83,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_system_framebuffer_status(logger);
     probe_video_queries(logger);
     probe_wd_information_elements(logger);
+    probe_wd_scan_defaults(logger);
     probe_ipc_heap_handles(logger);
     probe_device_registry(logger);
     probe_si_queries(logger);
@@ -1155,6 +1156,41 @@ fn probe_ipc_heap_handles(logger: &mut ProbeLogger) {
         logger.record("IPC allocations are aligned and distinct", false);
         logger.record("IPC freed space supports a larger allocation", false);
     }
+}
+
+fn probe_wd_scan_defaults(logger: &mut ProbeLogger) {
+    use ogc_wd as wd;
+    let mut params = wd::ScanParameters {
+        channel_bitmap: 1,
+        max_channel_time: 1,
+        bssid: [0x12; 6],
+        scan_type: 3,
+        ssid_length: 4,
+        ssid: [0x34; wd::SSID_LENGTH],
+        ssid_match_mask: [0x56; 6],
+    };
+    // SAFETY: The parameter block is writable and remains live for the call.
+    unsafe {
+        wd::set_default_scan_parameters(&mut params);
+    }
+    let defaults = wd::default_scan_parameters();
+    let matches = |p: &wd::ScanParameters| {
+        p.channel_bitmap == 0xfffe
+            && p.max_channel_time == 100
+            && p.bssid == [0xff; 6]
+            && p.scan_type == 0
+            && p.ssid_length == 0
+            && p.ssid == [0; wd::SSID_LENGTH]
+            && p.ssid_match_mask == [0xff; 6]
+    };
+    logger.record(
+        "WD defaults overwrite every scan parameter",
+        matches(&params),
+    );
+    logger.record(
+        "WD default scan constructor returns expected fields",
+        matches(&defaults),
+    );
 }
 
 fn probe_wd_information_elements(logger: &mut ProbeLogger) {

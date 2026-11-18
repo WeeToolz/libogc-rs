@@ -1,0 +1,32 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-wd",
+      "path": "src/lib.rs",
+      "symbol": "set_default_scan_parameters",
+      "line": 584,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wd_scan_defaults",
+      "api_path": "wd::set_default_scan_parameters",
+      "checks": [
+        "WD defaults overwrite every scan parameter"
+      ]
+    },
+    {
+      "crate": "ogc-wd",
+      "path": "src/lib.rs",
+      "symbol": "default_scan_parameters",
+      "line": 599,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wd_scan_defaults",
+      "api_path": "wd::default_scan_parameters",
+      "checks": [
+        "WD default scan constructor returns expected fields"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin scan parameter initialization. Wireless scanning, driver state and physical Wii remain unverified."
+  ]
+}
