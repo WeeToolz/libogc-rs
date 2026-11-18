@@ -2402,3 +2402,8 @@ ogc-lwp-sys,src/lib.rs,detach_thread,110,compatibility-forwarder,hardware-probe,
 ogc-lwp-sys,src/lib.rs,lwp_yield_thread_abi,410,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_sys_detach,raw_lwp::lwp_yield_thread_abi
 ogc-lwp,src/lib.rs,timed_wait,234,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_condition_wait,cond.timed_wait
 ogc-lwp,src/lib.rs,wait,229,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_condition_worker,probe.cond.wait
+ogc-bt-sync,src/protocol.rs,new,154,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_opcode_and_disconnected,HciOpcode::new
+ogc-bt-sync,src/protocol.rs,raw,158,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_opcode_and_disconnected,.raw
+ogc-bt-sync,src/hid_host.rs,request_disconnect,680,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_opcode_and_disconnected,host.request_disconnect
+ogc-bt-sync,src/hid_host.rs,disconnect,698,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_opcode_and_disconnected,host.disconnect
+ogc-bt-sync,src/hid_host.rs,switch_calibration,322,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_opcode_and_disconnected,host.switch_calibration

@@ -1,0 +1,68 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/protocol.rs",
+      "symbol": "new",
+      "line": 154,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_opcode_and_disconnected",
+      "api_path": "HciOpcode::new",
+      "checks": [
+        "Bluetooth opcode packs group and masked command"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/protocol.rs",
+      "symbol": "raw",
+      "line": 158,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_opcode_and_disconnected",
+      "api_path": ".raw",
+      "checks": [
+        "Bluetooth opcode packs group and masked command"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "request_disconnect",
+      "line": 680,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_opcode_and_disconnected",
+      "api_path": "host.request_disconnect",
+      "checks": [
+        "Bluetooth disconnected slots reject disconnect requests"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "disconnect",
+      "line": 698,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_opcode_and_disconnected",
+      "api_path": "host.disconnect",
+      "checks": [
+        "Bluetooth disconnected slots reject disconnect requests"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "switch_calibration",
+      "line": 322,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_opcode_and_disconnected",
+      "api_path": "host.switch_calibration",
+      "checks": [
+        "Bluetooth disconnected slots reject disconnect requests"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin opcode construction and disconnected host slots. Live adapter, active links, calibration and physical Wii remain unverified."
+  ]
+}

@@ -85,6 +85,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_bt_discovery_values(logger);
     probe_bt_l2cap_state(logger);
     probe_bt_host_startup(logger);
+    probe_bt_opcode_and_disconnected(logger);
     probe_bt_key_requests(logger);
     probe_system_runtime_state(logger);
     probe_system_startup_status(logger);
@@ -2080,6 +2081,30 @@ fn probe_bt_key_requests(logger: &mut ProbeLogger) {
     logger.record(
         "Bluetooth link key requests preserve keys and reject unknown peers",
         matched && rejected && malformed,
+    );
+}
+
+fn probe_bt_opcode_and_disconnected(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::{Failure, HciOpcode, HidHost, HostStage};
+    logger.record(
+        "Bluetooth opcode packs group and masked command",
+        HciOpcode::new(3, 3).raw() == 0x0c03
+            && HciOpcode::new(1, 0xffff).raw() == 0x07ff
+            && HciOpcode::new(0x3f, 0x4c).raw() == 0xfc4c,
+    );
+    let mut host = HidHost::new();
+    let empty = host.request_disconnect(0) == Err(Failure::Protocol)
+        && host.request_disconnect(usize::MAX) == Err(Failure::Protocol)
+        && host.switch_calibration(0).is_none()
+        && host.switch_calibration(usize::MAX).is_none();
+    host.disconnect(0);
+    host.disconnect(usize::MAX);
+    logger.record(
+        "Bluetooth disconnected slots reject disconnect requests",
+        empty
+            && host.diagnostics().stage == HostStage::Disabled
+            && host.next_event().is_none()
+            && host.next_outgoing(0).is_none(),
     );
 }
 
