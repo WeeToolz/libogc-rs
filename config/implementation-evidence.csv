@@ -2308,3 +2308,8 @@ ogc-wd,src/lib.rs,get_ie_length,726,ios,hardware-probe,probes/ogc-system-probe/s
 ogc-wd,src/lib.rs,ie_length,734,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wd_information_elements,wd::ie_length
 ogc-wd,src/lib.rs,get_ie,745,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wd_information_elements,wd::get_ie
 ogc-wd,src/lib.rs,copy_ie,768,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wd_information_elements,wd::copy_ie
+ogc-ipc,src/lib.rs,create,209,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_heap_handles,ipc::HeapId::create
+ogc-ipc,src/lib.rs,raw,205,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_heap_handles,heap.raw
+ogc-ipc,src/lib.rs,default_heap,222,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_heap_handles,ipc::HeapId::default_heap
+ogc-ipc,src/lib.rs,alloc,228,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_heap_handles,heap.alloc
+ogc-ipc,src/lib.rs,free,239,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_heap_handles,heap.free

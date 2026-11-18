@@ -76,6 +76,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_system_framebuffer_status(logger);
     probe_video_queries(logger);
     probe_wd_information_elements(logger);
+    probe_ipc_heap_handles(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -590,6 +591,78 @@ fn probe_network_error_conversion(logger: &mut ProbeLogger) {
         "Network error conversion offsets unknown values",
         raw::_net_convert_error(-78) == -10078 && net::convert_error(-100) == -10100,
     );
+}
+
+fn probe_ipc_heap_handles(logger: &mut ProbeLogger) {
+    use ogc_ipc as ipc;
+    logger.record(
+        "IPC heap rejects nonpositive size",
+        ipc::HeapId::create(0).is_err(),
+    );
+    let default = ipc::HeapId::default_heap();
+    logger.record(
+        "IPC default heap remains stable",
+        default.is_ok() && default == ipc::HeapId::default_heap(),
+    );
+    if let Ok(heap) = ipc::HeapId::create(1024) {
+        logger.record("IPC created heap has valid ID", heap.raw() >= 0);
+        let first = heap.alloc(32);
+        let second = heap.alloc(64);
+        if let (Some(first), Some(second)) = (first, second) {
+            let a = first.as_ptr().cast::<u8>();
+            let b = second.as_ptr().cast::<u8>();
+            // SAFETY: Each allocation has the requested size and is uniquely owned.
+            unsafe {
+                core::ptr::write_bytes(a, 0x35, 32);
+                core::ptr::write_bytes(b, 0xa7, 64);
+            }
+            // SAFETY: Both buffers remain allocated and readable.
+            let intact = unsafe {
+                core::slice::from_raw_parts(a, 32)
+                    .iter()
+                    .all(|v| *v == 0x35)
+                    && core::slice::from_raw_parts(b, 64)
+                        .iter()
+                        .all(|v| *v == 0xa7)
+            };
+            logger.record(
+                "IPC allocations are aligned and distinct",
+                intact && (a as usize) % 32 == 0 && (b as usize) % 32 == 0,
+            );
+            // SAFETY: These allocations belong to this heap and are freed once.
+            unsafe {
+                heap.free(first);
+                heap.free(second);
+            }
+            let reused = heap.alloc(800);
+            logger.record(
+                "IPC freed space supports a larger allocation",
+                reused.is_some(),
+            );
+            if let Some(block) = reused {
+                unsafe {
+                    heap.free(block);
+                }
+            }
+        } else {
+            logger.record("IPC allocations are aligned and distinct", false);
+            logger.record("IPC freed space supports a larger allocation", false);
+            if let Some(block) = first {
+                unsafe {
+                    heap.free(block);
+                }
+            }
+            if let Some(block) = second {
+                unsafe {
+                    heap.free(block);
+                }
+            }
+        }
+    } else {
+        logger.record("IPC created heap has valid ID", false);
+        logger.record("IPC allocations are aligned and distinct", false);
+        logger.record("IPC freed space supports a larger allocation", false);
+    }
 }
 
 fn probe_wd_information_elements(logger: &mut ProbeLogger) {
