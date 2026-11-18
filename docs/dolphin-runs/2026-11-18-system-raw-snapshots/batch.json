@@ -1,0 +1,80 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_startup",
+      "line": 4632,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_raw_snapshots",
+      "api_path": "raw_system::snapshot_startup",
+      "checks": [
+        "Raw system snapshots report completed startup"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_pre_main",
+      "line": 4611,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_raw_snapshots",
+      "api_path": "raw_system::snapshot_pre_main",
+      "checks": [
+        "Raw system snapshots report completed startup"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_runtime_calls",
+      "line": 4592,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_raw_snapshots",
+      "api_path": "raw_system::snapshot_runtime_calls",
+      "checks": [
+        "Raw system snapshots report completed startup"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_framebuffer",
+      "line": 2171,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_raw_snapshots",
+      "api_path": "raw_system::snapshot_framebuffer",
+      "checks": [
+        "Raw system framebuffer snapshot records allocation"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_time_probe",
+      "line": 4383,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_raw_snapshots",
+      "api_path": "raw_system::snapshot_time_probe",
+      "checks": [
+        "Raw system time snapshot records call"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "snapshot",
+      "line": 436,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_raw_snapshots",
+      "api_path": "system::snapshot",
+      "checks": [
+        "System aggregate snapshot includes startup and framebuffer"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin successful startup, framebuffer allocation and time call. Failure paths, other aggregate fields and physical Wii remain unverified."
+  ]
+}

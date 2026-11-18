@@ -90,6 +90,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_system_runtime_state(logger);
     probe_system_startup_status(logger);
     probe_system_framebuffer_status(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_system_raw_snapshots(logger);
     probe_video_queries(logger);
     probe_wd_information_elements(logger);
     probe_wd_scan_defaults(logger);
@@ -1965,6 +1967,60 @@ fn probe_video_queries(logger: &mut ProbeLogger) {
             && snapshot.current_line == line
             && snapshot.next_field == field
             && field <= 1,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_raw_snapshots(logger: &mut ProbeLogger) {
+    let startup = raw_system::snapshot_startup();
+    let pre_main = raw_system::snapshot_pre_main();
+    let calls = raw_system::snapshot_runtime_calls();
+    logger.record(
+        "Raw system snapshots report completed startup",
+        startup.init_called
+            && startup.init_started
+            && startup.init_completed
+            && startup.init_failed_stage == 0
+            && startup.init_completed_mask == 0x7ff
+            && pre_main.called
+            && pre_main.completed
+            && pre_main.result == 0
+            && calls.init_called
+            && calls.pre_main_called,
+    );
+    // SAFETY: A null destination requests the initialized preferred mode.
+    let mode = unsafe { ogc_video::get_preferred_mode(core::ptr::null_mut()) };
+    let framebuffer = raw_system::snapshot_framebuffer();
+    let expected = if mode.is_null() {
+        0
+    } else {
+        // SAFETY: A non-null preferred mode is valid for the probe lifetime.
+        let mode = unsafe { &*mode };
+        u32::from(mode.fb_width).div_ceil(16)
+            * 16
+            * (u32::from(mode.xfb_height) + if mode.aa != 0 { 4 } else { 0 })
+            * 2
+    };
+    logger.record(
+        "Raw system framebuffer snapshot records allocation",
+        framebuffer.called
+            && framebuffer.rmode == mode as usize
+            && expected > 0
+            && framebuffer.bytes == expected,
+    );
+    let _ = system::time();
+    logger.record(
+        "Raw system time snapshot records call",
+        raw_system::snapshot_time_probe().called,
+    );
+    let combined = system::snapshot();
+    logger.record(
+        "System aggregate snapshot includes startup and framebuffer",
+        combined.startup.init_completed
+            && combined.startup.init_completed_mask == 0x7ff
+            && combined.pre_main.completed
+            && combined.framebuffer.last_request_rmode == mode as usize
+            && combined.framebuffer.last_request_bytes == expected,
     );
 }
 
