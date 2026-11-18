@@ -2178,3 +2178,4 @@ ogc-system,src/lib.rs,last_framebuffer_bytes,393,compatibility-forwarder,hardwar
 ogc-system,src/lib.rs,get_font_encoding,820,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system,system::get_font_encoding
 ogc-system,src/lib.rs,reset_button_down,983,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system,system::reset_button_down
 ogc-system,src/lib.rs,get_hollywood_revision,998,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system,system::get_hollywood_revision
+ogc-system,src/lib.rs,init_checked,280,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_startup_status,system::init_checked

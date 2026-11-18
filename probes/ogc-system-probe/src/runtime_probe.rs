@@ -134,6 +134,19 @@ fn probe_system_startup_status(logger: &mut ProbeLogger) {
             && startup::validate(false, 7) == Err(InitError::FailedStage(7))
             && startup::validate(true, 9) == Err(InitError::FailedStage(9)),
     );
+    let before = system::snapshot_startup();
+    let checked = system::init_checked();
+    let after = system::snapshot_startup();
+    logger.record(
+        "Checked initialization preserves completed startup",
+        checked == Ok(())
+            && before.init_completed
+            && before.init_failed_stage == 0
+            && after.init_completed
+            && after.init_failed_stage == 0
+            && after.init_completed_mask == before.init_completed_mask
+            && after.init_stage == before.init_stage,
+    );
 }
 
 #[cfg(feature = "dolphin-automation")]

@@ -1,0 +1,20 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "init_checked",
+      "line": 280,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_startup_status",
+      "api_path": "system::init_checked",
+      "checks": [
+        "Checked initialization preserves completed startup"
+      ]
+    }
+  ],
+  "limits": [
+    "Repeat initialization after successful Dolphin startup. Failed and concurrent startup and physical hardware need separate checks."
+  ]
+}
