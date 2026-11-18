@@ -1,0 +1,70 @@
+{
+  "source_revision": "8e02fec9f9a873db8aa0e457bdb00458e9a57419",
+  "source_fingerprint": "61e0d46c2df8c982bccca11cb1704447553a8bc550c88612bf6970f2135c4031",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "ca45769a937f9de60d84cb82dcc1c3b73c82651c74c4ac97e0f8083d8fb1eb85",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "4cb3cd9bc70b4ca64abef78f23abf62e8254b5abeb869daece591c7d937736cb",
+  "suite_sha256": "5e86f95917c31ad315b083a6661d5efaf20eeb0b71ad5322e489fddbf5ca917b",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/probe.log": "130df36671065843a27d6a5a7d44226803389a2d5899e53a32e7d4354336ea83",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/stderr.log": "e07071fd2c681e60b79eb230f35f7f2e0a3731bdfda93a70fcc91d145db6fdf7",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/probe-transport.bin": "13fdd67c4faa76d9a9db5932be61ed70110c772b94af2936517adc615a2cc812",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-002.png": "fa1b0b9c1694bff7a4fb0836afe4f7876a21f8d23e4b48a1f571cbd9d21396da",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-003.png": "c20be63d61ee2118283195ee57d8daae8fcf663ec9770c6b5aa0e086d803fa3b",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-004.png": "f3b984887151761139a2280e3edaed5eb3f2179c2c87aeb24970f60cb54925ff",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-005.png": "d158a3532e430760303d233d2e3c61a91f5ffe6dcd358ab391b93a3a80e55877",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-006.png": "d73ff04667f94a34f2494e5cab031e1430ca3c23d391aa0da55a03a59bffe8a4",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-007.png": "3334a5d7da6bb90d844c7ecef1655847f14b57b93798918aabc390e4a651f885",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-008.png": "597c03792916175eeb42ed8c505be16e4bb7b7c2e5304b8daaba66fe9014ff86",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-009.png": "6dcfa78bbe60f00fdd631867fd0e247c561643104bf86f2c46a7817841624051",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-010.png": "5f948825cec04d4f88e66cd20d50d877665a8ba6990b2b1e912bb566f97c5f28",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-011.png": "bc1cdff885261e553093c80c1b36260a292e3ebebd8ca08dd30300c99889abaa",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-012.png": "a7a4f20c22fd8a46ab0b2f04a5c92407954daa204c1cda09a66e74a170431002",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-013.png": "5efa6c36340f84a05557e521a54d756f2a746e6e787bfafeb1193cc6d5265a70",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-014.png": "72ec80bc872b67768ca4ec36c27252dc5864f7dc91ce9ddcdff476cd1ec35e4a",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-015.png": "92e0c11dabfcc35c2edf70b42cf681033e5ab15dd8f25717d74c6766779a67c5",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-016.png": "259c57fc5ecf547e3532b22df17a78c6cbb4b706496800ebf9b6000daf99798a",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-017.png": "2e97ddd58ae2fb6b82b2098defe8381b36adc5349daa15817f6f2a85359246ab",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-018.png": "3d47eb6cd4f60dd468d93420bcc9dd35930809094cb14858b03814b708fdfe4e",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-019.png": "40a0be766322a3339aa3648a1aa4833ed36d8395789e946a1a6261460c6a37d0",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-020.png": "cd3b5a7cc3a278a354e43a060425ec4be1a00075e0022e48d4d86099a08034d4",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-021.png": "da6ab289fcb2d2e530ddecdd305adef3a9944fab9921b295ddc22ee9a31c3e5d",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-022.png": "cec5499e5656d380908fe93a41970eac63fd0d28d43965e784b1f368e968547c",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-023.png": "3b6af51138fbcbe25e30cc3d8f7f4b656d4a2bf0572b0030a7786920bc2d98ee",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-024.png": "1c835c1d70b5be176dca232364a894b946a8930545b2cf4f5f2a9acd488525ee",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-025.png": "32266d8d1a5d468badefddf2e9288a3e0ec0f836d3d2d697a8b343e293afa9ba",
+    "docs/dolphin-runs/2026-11-17-raw-tcp-backends/runtime_probe/pages/page-026.png": "c879dd4802ed828f0857f220499795604de0d4c257df2e4c878f0dd482caf6a2"
+  },
+  "exit_code": 0
+}

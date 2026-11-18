@@ -2229,3 +2229,12 @@ ogc-network-sys,src/lib.rs,net_recv,1403,ios,hardware-probe,probes/ogc-system-pr
 ogc-network-sys,src/lib.rs,net_write,1365,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_udp,net::net_write
 ogc-network-sys,src/lib.rs,net_read,1432,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_udp,net::net_read
 ogc-network-sys,src/lib.rs,net_close,1515,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_udp,net::net_close
+ogc-network-sys,src/lib.rs,net_accept,1345,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_tcp,net::net_accept
+ogc-network-sys,src/lib.rs,net_listen,1334,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_tcp,net::net_listen
+ogc-network-sys,src/lib.rs,net_fcntl,1841,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_tcp,net::net_fcntl
+ogc-network-sys,src/lib.rs,net_getsockopt,1443,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_tcp,net::net_getsockopt
+ogc-network-sys,src/lib.rs,net_setsockopt,1467,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_tcp,net::net_setsockopt
+ogc-network-sys,src/lib.rs,net_poll,1626,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_tcp,net::net_poll
+ogc-network-sys,src/lib.rs,net_shutdown,1507,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_tcp,net::net_shutdown
+ogc-network-sys,src/lib.rs,net_select,1531,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_readiness,net::net_select
+ogc-network-sys,src/lib.rs,net_select,2266,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_readiness,net::net_select

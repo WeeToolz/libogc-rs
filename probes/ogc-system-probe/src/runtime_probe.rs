@@ -877,6 +877,25 @@ fn probe_lwip_readiness(
         "lwIP select clears empty read readiness",
         empty_select == 0 && readset.fd_bits[fd / 8] & (1 << (fd % 8)) == 0,
     );
+    let mut raw_set = net::FdSet::default();
+    raw_set.fd_bits[fd / 8] = 1 << (fd % 8);
+    let mut raw_timeout = net::Timeval {
+        tv_sec: 0,
+        tv_usec: 0,
+    };
+    let raw_empty = unsafe {
+        net::net_select(
+            receiver + 1,
+            &mut raw_set,
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            &mut raw_timeout,
+        )
+    };
+    logger.record(
+        "Raw select clears empty UDP readiness",
+        raw_empty == 0 && raw_set.fd_bits[fd / 8] & (1 << (fd % 8)) == 0,
+    );
 
     let payload = [0x21u8, 0x80, 0, 0xff];
     let sent = unsafe {
@@ -912,6 +931,20 @@ fn probe_lwip_readiness(
     logger.record(
         "lwIP select reports queued read readiness",
         ready_select == 1 && readset.fd_bits[fd / 8] & (1 << (fd % 8)) != 0,
+    );
+    raw_set.fd_bits[fd / 8] = 1 << (fd % 8);
+    let raw_ready = unsafe {
+        net::net_select(
+            receiver + 1,
+            &mut raw_set,
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            &mut raw_timeout,
+        )
+    };
+    logger.record(
+        "Raw select reports queued UDP readiness",
+        raw_ready == 1 && raw_set.fd_bits[fd / 8] & (1 << (fd % 8)) != 0,
     );
     let mut bytes = [0xa5u8; 8];
     let got = if ready_poll == 1 {
@@ -1071,6 +1104,29 @@ fn probe_raw_tcp(logger: &mut ProbeLogger) {
         logger.record(
             "Raw TCP reuse option is enabled",
             options && length == 4 && actual != 0,
+        );
+        let disabled = 0u32;
+        actual = u32::MAX;
+        length = size_of::<u32>() as u32;
+        let disabled_ok = unsafe {
+            net::net_setsockopt(
+                listener,
+                net::SOL_SOCKET,
+                net::SO_REUSEADDR,
+                (&disabled as *const u32).cast(),
+                length,
+            ) == 0
+                && net::net_getsockopt(
+                    listener,
+                    net::SOL_SOCKET,
+                    net::SO_REUSEADDR,
+                    (&mut actual as *mut u32).cast(),
+                    &mut length,
+                ) == 0
+        };
+        logger.record(
+            "Raw TCP reuse option can be cleared",
+            disabled_ok && length == 4 && actual == 0,
         );
         let flags = net::net_fcntl(listener, net::F_GETFL, 0) == 0
             && net::net_fcntl(listener, net::F_SETFL, net::O_NONBLOCK) == 0
@@ -1232,6 +1288,27 @@ fn probe_raw_tcp(logger: &mut ProbeLogger) {
                     second_accepted >= 0
                         && second_peer.sin_addr.s_addr == 0x7f00_0001
                         && second_peer.sin_port != 0,
+                );
+                let mut second_local = net::SockaddrIn::default();
+                let mut second_local_len = size_of::<net::SockaddrIn>() as u32;
+                let second_name = if second_accepted >= 0 {
+                    unsafe {
+                        net::net_getsockname(
+                            second,
+                            (&mut second_local as *mut net::SockaddrIn).cast(),
+                            &mut second_local_len,
+                        )
+                    }
+                } else {
+                    -1
+                };
+                logger.record(
+                    "Raw TCP accepted peer matches second client",
+                    second_name == 0
+                        && second_local.sin_addr.s_addr == 0x7f00_0001
+                        && second_local.sin_port != 0
+                        && second_peer.sin_addr == second_local.sin_addr
+                        && second_peer.sin_port == second_local.sin_port,
                 );
                 if second_accepted >= 0 {
                     logger.record(
