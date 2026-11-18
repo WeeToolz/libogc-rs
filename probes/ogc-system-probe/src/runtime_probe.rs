@@ -88,6 +88,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_bt_opcode_and_disconnected(logger);
     probe_bt_key_requests(logger);
     probe_system_runtime_state(logger);
+    probe_wiilaunch_error_codes(logger);
     probe_system_startup_status(logger);
     probe_system_framebuffer_status(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -2204,6 +2205,25 @@ fn probe_system_extended_sram_getters(logger: &mut ProbeLogger) {
     logger.record(
         "Extended SRAM fixture lock and restoration",
         restored && checked,
+    );
+}
+
+fn probe_wiilaunch_error_codes(logger: &mut ProbeLogger) {
+    use ogc_wiilaunch::LaunchError;
+    let cases = [
+        (-0x9001, LaunchError::NotInitialized),
+        (-0x9002, LaunchError::Internal),
+        (-0x9003, LaunchError::Checksum),
+        (-0x9004, LaunchError::InstallMissing),
+        (-0x9005, LaunchError::ArgsTooLarge),
+        (-106, LaunchError::Es(-106)),
+        (0, LaunchError::Es(0)),
+    ];
+    logger.record(
+        "Wii launch error codes preserve named and ES values",
+        cases.into_iter().all(|(code, expected)| {
+            LaunchError::from_raw_code(code) == expected && expected.raw_code() == code
+        }),
     );
 }
 

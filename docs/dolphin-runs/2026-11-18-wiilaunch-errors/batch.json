@@ -1,0 +1,32 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "from_raw_code",
+      "line": 55,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_error_codes",
+      "api_path": "LaunchError::from_raw_code",
+      "checks": [
+        "Wii launch error codes preserve named and ES values"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "raw_code",
+      "line": 44,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_error_codes",
+      "api_path": "expected.raw_code",
+      "checks": [
+        "Wii launch error codes preserve named and ES values"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin error code conversions. Launches, initialization, ES calls and physical Wii remain unverified."
+  ]
+}

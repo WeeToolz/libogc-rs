@@ -2433,3 +2433,5 @@ ogc-system-sys,src/lib.rs,sys_unregister_reset_func,3945,hardware,hardware-probe
 ogc-system-sys,src/lib.rs,snapshot_reset_registration,4032,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_reset_registration,raw_system::snapshot_reset_registration
 ogc-sysbase,src/lib.rs,open_read,332,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_iso9660_files,sysbase::DeviceFile::open_read
 ogc-sysbase,src/lib.rs,seek,445,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_iso9660_files,file.seek
+ogc-wiilaunch,src/lib.rs,from_raw_code,55,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wiilaunch_error_codes,LaunchError::from_raw_code
+ogc-wiilaunch,src/lib.rs,raw_code,44,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wiilaunch_error_codes,expected.raw_code

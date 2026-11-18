@@ -65,6 +65,7 @@ ogc-ios = { path = "../../crates/core/ogc-ios" }
 ogc-ipc = { path = "../../crates/core/ogc-ipc" }
 ogc-irq = { path = "../../crates/core/ogc-irq" }
 ogc-lwp = { path = "../../crates/core/ogc-lwp" }
+ogc-wiilaunch = { path = "../../crates/core/ogc-wiilaunch" }
 ogc-lwp-driver = { path = "../../crates/core/ogc-lwp-driver" }
 modplay-capi = { path = "../../crates/abi/modplay-capi" }
 ogc-network = { path = "../../crates/services/ogc-network" }
