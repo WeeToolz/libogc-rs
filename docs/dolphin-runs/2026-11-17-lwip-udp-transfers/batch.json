@@ -1,0 +1,152 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "send_to",
+      "line": 1176,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_udp_transfer",
+      "api_path": "lwip::send_to",
+      "checks": [
+        "lwIP send_to and receive_from preserve datagram and source"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "send_to",
+      "line": 1663,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_udp_transfer",
+      "api_path": "lwip::send_to",
+      "checks": [
+        "lwIP send_to and receive_from preserve datagram and source"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "receive_from",
+      "line": 1091,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_udp_transfer",
+      "api_path": "lwip::receive_from",
+      "checks": [
+        "lwIP send_to and receive_from preserve datagram and source"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "receive_from",
+      "line": 1634,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_udp_transfer",
+      "api_path": "lwip::receive_from",
+      "checks": [
+        "lwIP send_to and receive_from preserve datagram and source"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "send",
+      "line": 1169,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_udp_transfer",
+      "api_path": "lwip::send",
+      "checks": [
+        "lwIP send and recv preserve connected datagram"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "send",
+      "line": 1652,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_udp_transfer",
+      "api_path": "lwip::send",
+      "checks": [
+        "lwIP send and recv preserve connected datagram"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "recv",
+      "line": 1068,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_udp_transfer",
+      "api_path": "lwip::recv",
+      "checks": [
+        "lwIP send and recv preserve connected datagram"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "recv",
+      "line": 1612,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_udp_transfer",
+      "api_path": "lwip::recv",
+      "checks": [
+        "lwIP send and recv preserve connected datagram"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "write",
+      "line": 1212,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_udp_transfer",
+      "api_path": "lwip::write",
+      "checks": [
+        "lwIP write and read preserve connected datagram"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "write",
+      "line": 1681,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_udp_transfer",
+      "api_path": "lwip::write",
+      "checks": [
+        "lwIP write and read preserve connected datagram"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "read",
+      "line": 1084,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_udp_transfer",
+      "api_path": "lwip::read",
+      "checks": [
+        "lwIP write and read preserve connected datagram"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "read",
+      "line": 1623,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_udp_transfer",
+      "api_path": "lwip::read",
+      "checks": [
+        "lwIP write and read preserve connected datagram"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin IPv4 UDP loopback only; larger, truncated, zero-length and error cases, TCP stream transfers, other IOS versions and physical Wii remain unverified."
+  ]
+}

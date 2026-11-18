@@ -672,6 +672,7 @@ fn probe_raw_udp(logger: &mut ProbeLogger) {
                             && peer.sin_addr.s_addr == source.sin_addr.s_addr,
                     );
                 }
+                probe_lwip_udp_addressed(logger, sender, receiver, &source, &mut destination);
                 let connected = unsafe {
                     net::net_connect(
                         sender,
@@ -738,6 +739,7 @@ fn probe_raw_udp(logger: &mut ProbeLogger) {
                             && bytes[..payload.len()] == *payload
                             && bytes[payload.len()..].iter().all(|b| *b == 0xa5),
                     );
+                    probe_lwip_udp_connected(logger, sender, receiver);
                 }
             }
         }
@@ -749,6 +751,110 @@ fn probe_raw_udp(logger: &mut ProbeLogger) {
         logger.record("Raw UDP receiver closes", net::net_close(receiver) == 0);
     }
     logger.record("Raw network deinitializes", net::net_deinit() == 0);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_lwip_udp_addressed(
+    logger: &mut ProbeLogger,
+    sender: i32,
+    receiver: i32,
+    source: &raw_network::SockaddrIn,
+    destination: &mut raw_network::SockaddrIn,
+) {
+    use lwip_sys as lwip;
+    use raw_network as net;
+    let data = [0x61u8, 0, 0xfe, 0x37, 0x80];
+    let sent = unsafe {
+        lwip::send_to(
+            sender,
+            data.as_ptr().cast(),
+            data.len() as i32,
+            0,
+            (destination as *mut net::SockaddrIn).cast(),
+            16,
+        )
+    };
+    let mut output = [0xa5u8; 24];
+    let mut peer = net::SockaddrIn::default();
+    let mut peer_len = 16;
+    let received = if sent == data.len() as i32 && probe_lwip_udp_readable(receiver) {
+        unsafe {
+            lwip::receive_from(
+                receiver,
+                output.as_mut_ptr().cast(),
+                output.len() as i32,
+                0,
+                (&mut peer as *mut net::SockaddrIn).cast(),
+                &mut peer_len,
+            )
+        }
+    } else {
+        -1
+    };
+    logger.note_i32("lwIP datagram sent", sent);
+    logger.note_i32("lwIP datagram received", received);
+    logger.note_u32("lwIP datagram peer length", peer_len);
+    logger.note_hex32("lwIP datagram peer address", peer.sin_addr.s_addr);
+    logger.note_u32("lwIP datagram peer port", u32::from(peer.sin_port));
+    logger.note_u32("lwIP datagram expected port", u32::from(source.sin_port));
+    logger.note_hex32(
+        "lwIP datagram first bytes",
+        u32::from_be_bytes([output[0], output[1], output[2], output[3]]),
+    );
+    logger.record(
+        "lwIP send_to and receive_from preserve datagram and source",
+        received == data.len() as i32
+            && output[..data.len()] == data
+            && output[data.len()..] == [0xa5; 19]
+            && peer.sin_addr.s_addr == 0x7f00_0001
+            && peer.sin_port == source.sin_port
+            && peer_len == 16,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_lwip_udp_readable(receiver: i32) -> bool {
+    let mut poll = raw_network::PollSd {
+        socket: receiver,
+        events: 3,
+        revents: 0,
+    };
+    unsafe { raw_network::net_poll(&mut poll, 1, 3000) == 1 && poll.revents & 3 != 0 }
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_lwip_udp_connected(logger: &mut ProbeLogger, sender: i32, receiver: i32) {
+    use lwip_sys as lwip;
+    let mut output = [0xa5u8; 24];
+    let data = b"lwip send recv";
+    let sent = unsafe { lwip::send(sender, data.as_ptr().cast(), data.len() as i32, 0) };
+    output.fill(0xa5);
+    let received = if sent == data.len() as i32 && probe_lwip_udp_readable(receiver) {
+        unsafe { lwip::recv(receiver, output.as_mut_ptr().cast(), output.len() as i32, 0) }
+    } else {
+        -1
+    };
+    logger.record(
+        "lwIP send and recv preserve connected datagram",
+        received == data.len() as i32
+            && output[..data.len()] == *data
+            && output[data.len()..].iter().all(|byte| *byte == 0xa5),
+    );
+
+    let data = b"lwip write read";
+    let sent = unsafe { lwip::write(sender, data.as_ptr().cast(), data.len() as i32) };
+    output.fill(0xa5);
+    let received = if sent == data.len() as i32 && probe_lwip_udp_readable(receiver) {
+        unsafe { lwip::read(receiver, output.as_mut_ptr().cast(), output.len() as i32) }
+    } else {
+        -1
+    };
+    logger.record(
+        "lwIP write and read preserve connected datagram",
+        received == data.len() as i32
+            && output[..data.len()] == *data
+            && output[data.len()..].iter().all(|byte| *byte == 0xa5),
+    );
 }
 
 #[cfg(feature = "dolphin-automation")]
