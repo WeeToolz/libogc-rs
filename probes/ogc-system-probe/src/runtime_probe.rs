@@ -768,6 +768,7 @@ fn probe_raw_tcp(logger: &mut ProbeLogger) {
     logger.note_i32("Raw TCP client descriptor", client);
     logger.record("Raw TCP sockets open", listener >= 0 && client >= 0);
     if listener >= 0 && client >= 0 {
+        probe_lwip_socket_options(logger, listener);
         let value: u32 = 1;
         let mut actual: u32 = 0;
         let mut length = size_of::<u32>() as u32;
@@ -924,6 +925,92 @@ fn probe_raw_tcp(logger: &mut ProbeLogger) {
         logger.record("Raw TCP client closes", net::net_close(client) == 0);
     }
     logger.record("Raw TCP network deinitializes", net::net_deinit() == 0);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_lwip_socket_options(logger: &mut ProbeLogger, socket: i32) {
+    use core::mem::size_of;
+    use lwip_sys as lwip;
+
+    let mut actual = 0x1234_5678u32;
+    let mut length = size_of::<u32>() as u32;
+    let enabled = 1u32;
+    // SAFETY: All option buffers are live and their lengths match their types.
+    let set = unsafe {
+        lwip::set_socket_option(
+            socket,
+            lwip::SOL_SOCKET,
+            lwip::SO_REUSEADDR,
+            (&enabled as *const u32).cast(),
+            length,
+        )
+    };
+    let get = unsafe {
+        lwip::get_socket_option(
+            socket,
+            lwip::SOL_SOCKET,
+            lwip::SO_REUSEADDR,
+            (&mut actual as *mut u32).cast(),
+            &mut length,
+        )
+    };
+    logger.record(
+        "lwIP reuse option set and read",
+        set == 0 && get == 0 && length == 4 && actual != 0,
+    );
+
+    let disabled = 0u32;
+    let set = unsafe {
+        lwip::set_socket_option(
+            socket,
+            lwip::SOL_SOCKET,
+            lwip::SO_REUSEADDR,
+            (&disabled as *const u32).cast(),
+            4,
+        )
+    };
+    actual = 0x1234_5678;
+    length = 4;
+    let get = unsafe {
+        lwip::get_socket_option(
+            socket,
+            lwip::SOL_SOCKET,
+            lwip::SO_REUSEADDR,
+            (&mut actual as *mut u32).cast(),
+            &mut length,
+        )
+    };
+    logger.record(
+        "lwIP reuse option clears",
+        set == 0 && get == 0 && length == 4 && actual == 0,
+    );
+
+    actual = 0x1234_5678;
+    length = 0;
+    let get = unsafe {
+        lwip::get_socket_option(
+            socket,
+            lwip::SOL_SOCKET,
+            lwip::SO_REUSEADDR,
+            (&mut actual as *mut u32).cast(),
+            &mut length,
+        )
+    };
+    logger.record(
+        "lwIP zero-length option read preserves output",
+        get == -22 && actual == 0x1234_5678 && length == 0,
+    );
+    let oversized = [0u8; 21];
+    let set = unsafe {
+        lwip::set_socket_option(
+            socket,
+            lwip::SOL_SOCKET,
+            lwip::SO_REUSEADDR,
+            oversized.as_ptr().cast(),
+            oversized.len() as u32,
+        )
+    };
+    logger.record("lwIP oversized option write rejected", set == -22);
 }
 
 #[cfg(feature = "dolphin-automation")]

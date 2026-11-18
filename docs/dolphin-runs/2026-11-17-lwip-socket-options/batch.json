@@ -1,0 +1,65 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_socket_option",
+      "line": 898,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_socket_options",
+      "api_path": "lwip::get_socket_option",
+      "checks": [
+        "lwIP reuse option set and read",
+        "lwIP reuse option clears",
+        "lwIP zero-length option read preserves output"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_socket_option",
+      "line": 1551,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_socket_options",
+      "api_path": "lwip::get_socket_option",
+      "checks": [
+        "lwIP reuse option set and read",
+        "lwIP reuse option clears",
+        "lwIP zero-length option read preserves output"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_socket_option",
+      "line": 949,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_socket_options",
+      "api_path": "lwip::set_socket_option",
+      "checks": [
+        "lwIP reuse option set and read",
+        "lwIP reuse option clears",
+        "lwIP oversized option write rejected"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_socket_option",
+      "line": 1568,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_socket_options",
+      "api_path": "lwip::set_socket_option",
+      "checks": [
+        "lwIP reuse option set and read",
+        "lwIP reuse option clears",
+        "lwIP oversized option write rejected"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin IPv4 TCP socket with SO_REUSEADDR and local validation only. Other options, IOS versions, and physical Wii remain unverified.",
+    "The separate network probe has four socket-option failures on unpatched Dolphin; see docs/dolphin-runs/2026-11-17-inet-address-network/batch-report.md and docs/dolphin-runs/2026-11-04-network-fixed/README.md."
+  ]
+}

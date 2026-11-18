@@ -2183,3 +2183,7 @@ ogc-system,src/lib.rs,stdio_report,574,compatibility-forwarder,hardware-probe,pr
 ogc-system-sys,src/lib.rs,sys_stdio_write,938,hardware,hardware-probe,probes/ogc-system-probe/src/callback_probe.rs,test_stdio_report_writers,system::sys::sys_stdio_write
 ogc-std-runtime,src/stdio.rs,__wii_std_output_stream,53,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/std_fs_entry.rs,probe_stdio_streams,__wii_std_output_stream
 ogc-network-sys,src/lib.rs,inet_addr,1317,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_inet_addr,ogc_network_sys::inet_addr
+lwip-sys,src/lib.rs,get_socket_option,898,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_socket_options,lwip::get_socket_option
+lwip-sys,src/lib.rs,get_socket_option,1551,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_socket_options,lwip::get_socket_option
+lwip-sys,src/lib.rs,set_socket_option,949,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_socket_options,lwip::set_socket_option
+lwip-sys,src/lib.rs,set_socket_option,1568,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_socket_options,lwip::set_socket_option
