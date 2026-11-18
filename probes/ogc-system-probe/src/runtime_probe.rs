@@ -62,6 +62,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_lwp_sync_handles(logger);
     probe_lwp_driver_objects(logger);
     probe_lwp_driver_mutex_cond(logger);
+    probe_lwp_sys_resources(logger);
     probe_controller_slots(logger);
     probe_owned_audio_buffer(logger);
     probe_l2cap_packets(logger);
@@ -224,6 +225,69 @@ fn probe_controller_slots(logger: &mut ProbeLogger) {
             == Err(InputFailure::MalformedReport)
             && manager.set_bluetooth_calibration_checked(0, calibration)
                 == Err(InputFailure::UnsupportedReport),
+    );
+}
+
+fn probe_lwp_sys_resources(logger: &mut ProbeLogger) {
+    use ogc_lwp::sys as raw_lwp;
+    // SAFETY: The allocations are written within their requested lengths and released once.
+    unsafe {
+        let first = raw_lwp::allocate_workspace(64);
+        let second = raw_lwp::allocate_workspace(64);
+        let allocated = !first.is_null() && !second.is_null() && first != second;
+        if allocated {
+            core::ptr::write_bytes(first, 0x42, 64);
+            core::ptr::write_bytes(second, 0x97, 64);
+            let intact = core::slice::from_raw_parts(first, 64)
+                .iter()
+                .all(|x| *x == 0x42)
+                && core::slice::from_raw_parts(second, 64)
+                    .iter()
+                    .all(|x| *x == 0x97);
+            logger.record("LWP workspace retains separate allocations", intact);
+        } else {
+            logger.record("LWP workspace retains separate allocations", false);
+        }
+        raw_lwp::release_workspace(first, 64);
+        raw_lwp::release_workspace(second, 64);
+        let again = raw_lwp::allocate_workspace(64);
+        logger.record("LWP workspace allocates after release", !again.is_null());
+        raw_lwp::release_workspace(again, 64);
+    }
+    let mut mutex = raw_lwp::LWP_MUTEX_NULL;
+    let init = unsafe { raw_lwp::mutex_init(&mut mutex, 0) };
+    let first = raw_lwp::mutex_try_lock(mutex);
+    let second = raw_lwp::mutex_try_lock(mutex);
+    logger.record(
+        "LWP raw try lock reports busy",
+        init == 0 && first == 0 && second == 1,
+    );
+    raw_lwp::mutex_unlock(mutex);
+    raw_lwp::mutex_destroy(mutex);
+
+    let mut sem = raw_lwp::LWP_SEM_NULL;
+    let init = unsafe { raw_lwp::sem_init(&mut sem, 3, 4) };
+    let mut count = 0;
+    let read = unsafe { raw_lwp::sem_get_value(sem, &mut count) };
+    logger.record(
+        "LWP raw semaphore reports its count",
+        init == 0 && read == 0 && count == 3,
+    );
+    raw_lwp::sem_destroy(sem);
+
+    let mut queue = raw_lwp::LWP_TQUEUE_NULL;
+    let init = unsafe { raw_lwp::init_queue(&mut queue) };
+    raw_lwp::close_queue(queue);
+    logger.record(
+        "LWP raw closed queue rejects sleep",
+        init == 0 && raw_lwp::thread_sleep(queue) != 0,
+    );
+    let mut abi_queue = raw_lwp::LWP_TQUEUE_NULL;
+    let init = unsafe { raw_lwp::lwp_init_queue_abi(&mut abi_queue) };
+    raw_lwp::lwp_close_queue_abi(abi_queue);
+    logger.record(
+        "LWP ABI closed queue rejects sleep",
+        init == 0 && raw_lwp::lwp_thread_sleep_abi(abi_queue) != 0,
     );
 }
 

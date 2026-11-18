@@ -1,0 +1,128 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "allocate_workspace",
+      "line": 43,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sys_resources",
+      "api_path": "raw_lwp::allocate_workspace",
+      "checks": [
+        "LWP workspace retains separate allocations"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "release_workspace",
+      "line": 52,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sys_resources",
+      "api_path": "raw_lwp::release_workspace",
+      "checks": [
+        "LWP workspace allocates after release"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "mutex_try_lock",
+      "line": 180,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sys_resources",
+      "api_path": "raw_lwp::mutex_try_lock",
+      "checks": [
+        "LWP raw try lock reports busy"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "sem_get_value",
+      "line": 257,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sys_resources",
+      "api_path": "raw_lwp::sem_get_value",
+      "checks": [
+        "LWP raw semaphore reports its count"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "init_queue",
+      "line": 292,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sys_resources",
+      "api_path": "raw_lwp::init_queue",
+      "checks": [
+        "LWP raw closed queue rejects sleep"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "close_queue",
+      "line": 296,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sys_resources",
+      "api_path": "raw_lwp::close_queue",
+      "checks": [
+        "LWP raw closed queue rejects sleep"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "thread_sleep",
+      "line": 300,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sys_resources",
+      "api_path": "raw_lwp::thread_sleep",
+      "checks": [
+        "LWP raw closed queue rejects sleep"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "lwp_init_queue_abi",
+      "line": 435,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sys_resources",
+      "api_path": "raw_lwp::lwp_init_queue_abi",
+      "checks": [
+        "LWP ABI closed queue rejects sleep"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "lwp_close_queue_abi",
+      "line": 439,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sys_resources",
+      "api_path": "raw_lwp::lwp_close_queue_abi",
+      "checks": [
+        "LWP ABI closed queue rejects sleep"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "lwp_thread_sleep_abi",
+      "line": 443,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sys_resources",
+      "api_path": "raw_lwp::lwp_thread_sleep_abi",
+      "checks": [
+        "LWP ABI closed queue rejects sleep"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin single-threaded workspace and idle synchronization resources. Waiters, contention, allocator exhaustion and physical Wii remain unverified."
+  ]
+}
