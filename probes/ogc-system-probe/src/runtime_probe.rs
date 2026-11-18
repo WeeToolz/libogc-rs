@@ -104,6 +104,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_ipc_heap_handles(logger);
     probe_device_registry(logger);
     probe_sysbase_errno(logger);
+    probe_irq_handler_registry(logger);
     probe_si_queries(logger);
     probe_si_raw_queries(logger);
     probe_ui_adapters(logger);
@@ -1697,6 +1698,36 @@ fn probe_si_queries(logger: &mut ProbeLogger) {
             && si::probe(channel) == 0x80;
     }
     logger.record("SI rejects channels outside zero through three", valid);
+}
+
+unsafe extern "C" fn probe_irq_handler(_: u32, _: *mut core::ffi::c_void) {}
+
+fn probe_irq_handler_registry(logger: &mut ProbeLogger) {
+    use ogc_irq as irq;
+    let id = irq::IRQ_PI_DEBUG;
+    let initial = irq::get_handler(id);
+    if initial.is_none() {
+        // SAFETY: The handler has static lifetime and carries no user pointer.
+        let previous = unsafe { irq::request(id, Some(probe_irq_handler), core::ptr::null_mut()) };
+        let registered = irq::get_handler(id).is_some_and(|handler| {
+            core::ptr::fn_addr_eq(
+                handler,
+                probe_irq_handler as unsafe extern "C" fn(u32, *mut core::ffi::c_void),
+            )
+        });
+        let removed = irq::free(id).is_some_and(|handler| {
+            core::ptr::fn_addr_eq(
+                handler,
+                probe_irq_handler as unsafe extern "C" fn(u32, *mut core::ffi::c_void),
+            )
+        });
+        logger.record(
+            "IRQ handler registry stores and removes handler",
+            previous.is_none() && registered && removed && irq::get_handler(id).is_none(),
+        );
+    } else {
+        logger.record("IRQ handler registry stores and removes handler", false);
+    }
 }
 
 struct ErrnoProbe {

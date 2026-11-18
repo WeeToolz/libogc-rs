@@ -1,0 +1,44 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-irq",
+      "path": "src/lib.rs",
+      "symbol": "request",
+      "line": 27,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_irq_handler_registry",
+      "api_path": "irq::request",
+      "checks": [
+        "IRQ handler registry stores and removes handler"
+      ]
+    },
+    {
+      "crate": "ogc-irq",
+      "path": "src/lib.rs",
+      "symbol": "get_handler",
+      "line": 35,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_irq_handler_registry",
+      "api_path": "irq::get_handler",
+      "checks": [
+        "IRQ handler registry stores and removes handler"
+      ]
+    },
+    {
+      "crate": "ogc-irq",
+      "path": "src/lib.rs",
+      "symbol": "free",
+      "line": 31,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_irq_handler_registry",
+      "api_path": "irq::free",
+      "checks": [
+        "IRQ handler registry stores and removes handler"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin registration and removal on an unused debug interrupt. Dispatch, interrupt masks, concurrent replacement and physical Wii remain unverified."
+  ]
+}
