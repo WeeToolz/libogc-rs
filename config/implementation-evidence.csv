@@ -2238,3 +2238,6 @@ ogc-network-sys,src/lib.rs,net_poll,1626,ios,hardware-probe,probes/ogc-system-pr
 ogc-network-sys,src/lib.rs,net_shutdown,1507,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_tcp,net::net_shutdown
 ogc-network-sys,src/lib.rs,net_select,1531,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_readiness,net::net_select
 ogc-network-sys,src/lib.rs,net_select,2266,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_readiness,net::net_select
+ogc-network-sys,src/lib.rs,_net_convert_error,1154,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_error_conversion,raw::_net_convert_error
+ogc-network-sys,src/lib.rs,_net_convert_error,1999,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_error_conversion,raw::_net_convert_error
+ogc-network,src/lib.rs,convert_error,110,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_error_conversion,net::convert_error

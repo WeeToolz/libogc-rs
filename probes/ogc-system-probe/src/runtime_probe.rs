@@ -55,6 +55,7 @@ fn probe_inet_addr(logger: &mut ProbeLogger) {
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("RUNTIME PROBE");
 
+    probe_network_error_conversion(logger);
     probe_inet_addr(logger);
     probe_ipv4_values(logger);
     probe_owned_audio_buffer(logger);
@@ -105,6 +106,28 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_network_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_udp(logger);
+}
+
+fn probe_network_error_conversion(logger: &mut ProbeLogger) {
+    use ogc_network as net;
+    use ogc_network_sys as raw;
+    logger.record(
+        "Network error conversion preserves nonnegative results",
+        raw::_net_convert_error(0) == 0
+            && raw::_net_convert_error(17) == 17
+            && net::convert_error(17) == 17,
+    );
+    logger.record(
+        "Network error conversion maps IOS errors",
+        raw::_net_convert_error(-3) == -112
+            && raw::_net_convert_error(-6) == -11
+            && raw::_net_convert_error(-28) == -22
+            && net::convert_error(-3) == -112,
+    );
+    logger.record(
+        "Network error conversion offsets unknown values",
+        raw::_net_convert_error(-78) == -10078 && net::convert_error(-100) == -10100,
+    );
 }
 
 fn probe_system_framebuffer_status(logger: &mut ProbeLogger) {

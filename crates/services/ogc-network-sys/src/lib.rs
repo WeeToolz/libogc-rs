@@ -1152,7 +1152,7 @@ mod wii_backend {
     }
 
     pub fn _net_convert_error(ios_retval: i32) -> i32 {
-        ios_retval
+        crate::socket_error::convert_ios_error(ios_retval)
     }
 
     #[cfg(not(gamecube))]
@@ -2668,3 +2668,5 @@ mod tests {
         assert_eq!(net_close(s), 0);
     }
 }
+
+mod socket_error;
