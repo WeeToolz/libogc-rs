@@ -7,6 +7,10 @@ use ogc_system_probe::probe_support;
 use std::io::Write;
 use std::process::ExitCode;
 
+unsafe extern "C" {
+    fn __wii_std_output_stream(stream: u32, bytes: *const u8, length: usize, flush: bool) -> isize;
+}
+
 #[unsafe(no_mangle)]
 pub static WII_STD_FS_PROBE_RESULT: AtomicI32 = AtomicI32::new(i32::MIN);
 
@@ -53,6 +57,17 @@ fn probe_stdio_streams(logger: &mut probe_support::ProbeLogger) {
     let stderr_uart = std::io::stderr()
         .write_all(b"STD_STREAM_ERR_UART\n")
         .is_ok();
+    let direct_bytes = b"STD_STREAM_DIRECT\n";
+    // SAFETY: The direct output buffer is readable for its stated length.
+    let direct = unsafe {
+        __wii_std_output_stream(2, direct_bytes.as_ptr(), direct_bytes.len(), false)
+            == direct_bytes.len() as isize
+            && __wii_std_output_stream(3, core::ptr::null(), 0, false)
+                == -(ogc_sysbase::EINVAL as isize)
+            && __wii_std_output_stream(2, core::ptr::null(), 1, false)
+                == -(ogc_sysbase::EINVAL as isize)
+            && __wii_std_output_stream(2, core::ptr::null(), 0, true) == 0
+    };
     unsafe {
         table.add(1).write(previous_stdout);
         table.add(2).write(previous_stderr);
@@ -61,4 +76,5 @@ fn probe_stdio_streams(logger: &mut probe_support::ProbeLogger) {
         "Wii std routes stdout and stderr by stream",
         stderr && stdout_console && stdout_uart && stderr_uart,
     );
+    logger.record("Wii std stream ABI writes and validates inputs", direct);
 }
