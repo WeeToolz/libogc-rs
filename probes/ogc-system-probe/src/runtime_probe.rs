@@ -6927,6 +6927,18 @@ fn probe_iso9660_files(logger: &mut ProbeLogger, mount_name: &core::ffi::CStr) {
     } else {
         c"isfs:/HELLO.TXT"
     };
+    let convenience = sysbase::DeviceFile::open_read(file_path);
+    let mut convenience_bytes = [0u8; 2];
+    let convenience_ok = convenience.as_ref().is_some_and(|file| {
+        file.read(&mut convenience_bytes) == Ok(2)
+            && convenience_bytes == *b"he"
+            && file.seek(1, sysbase::SEEK_SET) == Ok(1)
+    });
+    let convenience_closed = convenience.is_some_and(|file| file.close().is_ok());
+    logger.record(
+        "ISO9660 convenience open and seek work",
+        convenience_ok && convenience_closed,
+    );
     let device_found = sysbase::device_op_tab(file_path).is_some();
     let (file, open_error) = match sysbase::DeviceFile::open_checked(file_path, sysbase::O_RDONLY) {
         Ok(file) => (Some(file), 0),

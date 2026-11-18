@@ -2431,3 +2431,5 @@ ogc-system-sys,src/lib.rs,sys_time,4372,hardware,hardware-probe,probes/ogc-syste
 ogc-system-sys,src/lib.rs,sys_register_reset_func,3904,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_reset_registration,raw_system::sys_register_reset_func
 ogc-system-sys,src/lib.rs,sys_unregister_reset_func,3945,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_reset_registration,raw_system::sys_unregister_reset_func
 ogc-system-sys,src/lib.rs,snapshot_reset_registration,4032,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_reset_registration,raw_system::snapshot_reset_registration
+ogc-sysbase,src/lib.rs,open_read,332,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_iso9660_files,sysbase::DeviceFile::open_read
+ogc-sysbase,src/lib.rs,seek,445,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_iso9660_files,file.seek
