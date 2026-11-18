@@ -1,0 +1,44 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_get_font_encoding",
+      "line": 2518,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_font_snapshot",
+      "api_path": "raw_system::sys_get_font_encoding",
+      "checks": [
+        "System font encoding and snapshots report query"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_font",
+      "line": 3147,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_font_snapshot",
+      "api_path": "raw_system::snapshot_font",
+      "checks": [
+        "System font encoding and snapshots report query"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_font",
+      "line": 1270,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_font_snapshot",
+      "api_path": "system::snapshot_font",
+      "checks": [
+        "System font encoding and snapshots report query"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin current video mode encoding and font query snapshot. Font initialization, glyph textures, other video modes and physical Wii remain unverified."
+  ]
+}

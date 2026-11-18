@@ -92,6 +92,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_system_framebuffer_status(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_system_raw_snapshots(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_system_font_snapshot(logger);
     probe_video_queries(logger);
     probe_wd_information_elements(logger);
     probe_wd_scan_defaults(logger);
@@ -1967,6 +1969,24 @@ fn probe_video_queries(logger: &mut ProbeLogger) {
             && snapshot.current_line == line
             && snapshot.next_field == field
             && field <= 1,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_font_snapshot(logger: &mut ProbeLogger) {
+    // SAFETY: This query reads the video register and caches the encoding.
+    let encoding = unsafe { raw_system::sys_get_font_encoding() };
+    let raw = raw_system::snapshot_font();
+    let snapshot = system::snapshot_font();
+    logger.record(
+        "System font encoding and snapshots report query",
+        encoding == 0
+            && raw.encoding_queried
+            && snapshot.encoding_queried
+            && snapshot.init_called == raw.init_called
+            && snapshot.init_ptr == raw.init_ptr
+            && snapshot.texture_called == raw.texture_called
+            && snapshot.texel_called == raw.texel_called,
     );
 }
 
