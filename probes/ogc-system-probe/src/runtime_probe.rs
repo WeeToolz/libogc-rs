@@ -95,6 +95,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_wd_scan_defaults(logger);
     probe_ipc_heap_handles(logger);
     probe_device_registry(logger);
+    probe_sysbase_errno(logger);
     probe_si_queries(logger);
     probe_si_raw_queries(logger);
     probe_ui_adapters(logger);
@@ -1674,6 +1675,76 @@ fn probe_si_queries(logger: &mut ProbeLogger) {
             && si::probe(channel) == 0x80;
     }
     logger.record("SI rejects channels outside zero through three", valid);
+}
+
+struct ErrnoProbe {
+    address: usize,
+    value: i32,
+}
+
+unsafe extern "C" fn probe_errno_worker(arg: *mut core::ffi::c_void) -> *mut core::ffi::c_void {
+    // SAFETY: The parent owns this probe and waits for the worker to finish.
+    let probe = unsafe { &mut *arg.cast::<ErrnoProbe>() };
+    let reent = sysbase::current_reent();
+    let location = sysbase::errno_location();
+    // SAFETY: The calling worker owns its reentrancy record.
+    unsafe {
+        sysbase::set_reent_errno(reent, 13);
+    }
+    probe.address = location as usize;
+    probe.value = sysbase::errno();
+    core::ptr::null_mut()
+}
+
+fn probe_sysbase_errno(logger: &mut ProbeLogger) {
+    use ogc_sysbase as base;
+    use ogc_sysbase::error::{ErrnoKind, describe_errno};
+    let reent = base::current_reent();
+    let location = base::errno_location();
+    let saved = base::errno();
+    // SAFETY: The current thread exclusively owns this field.
+    unsafe {
+        base::set_reent_errno(reent, 22);
+    }
+    let mut probe = ErrnoProbe {
+        address: 0,
+        value: 0,
+    };
+    let mut raw = ogc_lwp::sys::LWP_THREAD_NULL;
+    // SAFETY: The probe remains writable until the worker is joined.
+    let worker = unsafe {
+        ogc_lwp::ThreadHandle::create(
+            &mut raw,
+            Some(probe_errno_worker),
+            (&mut probe as *mut ErrnoProbe).cast(),
+            core::ptr::null_mut(),
+            8192,
+            64,
+        )
+    };
+    let joined = worker.is_ok_and(|worker| worker.join().is_ok());
+    let parent_value = base::errno();
+    // SAFETY: Restore the caller's errno after the worker has exited.
+    unsafe {
+        base::set_reent_errno(reent, saved);
+    }
+    logger.record(
+        "Newlib errno is isolated per thread",
+        !reent.is_null()
+            && !location.is_null()
+            && joined
+            && parent_value == 22
+            && probe.value == 13
+            && probe.address != 0
+            && probe.address != location as usize,
+    );
+    logger.record(
+        "Newlib errno classification maps known and unknown codes",
+        describe_errno(2).kind == ErrnoKind::NotFound
+            && describe_errno(13).kind == ErrnoKind::PermissionDenied
+            && describe_errno(28).kind == ErrnoKind::StorageFull
+            && describe_errno(123456).kind == ErrnoKind::Other,
+    );
 }
 
 fn probe_device_registry(logger: &mut ProbeLogger) {

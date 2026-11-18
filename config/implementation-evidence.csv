@@ -2407,3 +2407,7 @@ ogc-bt-sync,src/protocol.rs,raw,158,ios,hardware-probe,probes/ogc-system-probe/s
 ogc-bt-sync,src/hid_host.rs,request_disconnect,680,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_opcode_and_disconnected,host.request_disconnect
 ogc-bt-sync,src/hid_host.rs,disconnect,698,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_opcode_and_disconnected,host.disconnect
 ogc-bt-sync,src/hid_host.rs,switch_calibration,322,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_opcode_and_disconnected,host.switch_calibration
+ogc-sysbase,src/lib.rs,current_reent,683,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_sysbase_errno,base::current_reent
+ogc-sysbase,src/lib.rs,errno_location,689,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_sysbase_errno,base::errno_location
+ogc-sysbase,src/lib.rs,set_reent_errno,53,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_sysbase_errno,base::set_reent_errno
+ogc-sysbase,src/error.rs,describe_errno,74,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_sysbase_errno,describe_errno
