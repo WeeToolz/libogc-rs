@@ -1,0 +1,20 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "detach",
+      "line": 116,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_detach",
+      "api_path": "thread.detach",
+      "checks": [
+        "LWP detached worker finishes without join"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin one detached worker. Detach and join races, cleanup failure and physical Wii remain unverified."
+  ]
+}

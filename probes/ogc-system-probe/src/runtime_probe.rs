@@ -65,6 +65,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_lwp_sys_resources(logger);
     probe_lwp_driver_resources(logger);
     probe_lwp_thread_handle(logger);
+    probe_lwp_detach(logger);
     probe_lwp_suspend_resume(logger);
     probe_lwp_driver_suspend(logger);
     probe_lwp_driver_thread_metadata(logger);
@@ -737,6 +738,78 @@ fn probe_lwp_suspend_resume(logger: &mut ProbeLogger) {
     } else {
         logger.record("LWP suspended worker stops running", false);
         logger.record("LWP resumed worker finishes", false);
+    }
+}
+
+static LWP_DETACH_DONE: AtomicBool = AtomicBool::new(false);
+
+unsafe extern "C" fn probe_lwp_detached_worker(
+    _: *mut core::ffi::c_void,
+) -> *mut core::ffi::c_void {
+    while !LWP_WORKER_RELEASE.load(Ordering::Acquire) {
+        ogc_lwp::yield_now();
+    }
+    LWP_DETACH_DONE.store(true, Ordering::Release);
+    core::ptr::null_mut()
+}
+
+fn probe_lwp_detach(logger: &mut ProbeLogger) {
+    use ogc_lwp as api;
+    LWP_WORKER_RELEASE.store(false, Ordering::Release);
+    LWP_DETACH_DONE.store(false, Ordering::Release);
+    let before = ogc_lwp_driver::thread_cleanup_counters().detached_reaped;
+    let mut raw = api::sys::LWP_THREAD_NULL;
+    // SAFETY: The worker uses static state and the driver owns its stack.
+    let created = unsafe {
+        api::ThreadHandle::create(
+            &mut raw,
+            Some(probe_lwp_detached_worker),
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            8192,
+            64,
+        )
+    };
+    if let Ok(thread) = created {
+        let detached = thread.detach();
+        let second = thread.detach();
+        let join = thread.join();
+        LWP_WORKER_RELEASE.store(true, Ordering::Release);
+        for _ in 0..1000 {
+            if LWP_DETACH_DONE.load(Ordering::Acquire) {
+                break;
+            }
+            api::yield_now();
+        }
+        for _ in 0..16 {
+            api::yield_now();
+        }
+        let worker_finished = LWP_DETACH_DONE.load(Ordering::Acquire);
+        let mut cleanup_raw = api::sys::LWP_THREAD_NULL;
+        // SAFETY: The cleanup worker takes no argument and owns its stack.
+        let cleanup = unsafe {
+            api::ThreadHandle::create(
+                &mut cleanup_raw,
+                Some(probe_lwp_detached_worker),
+                core::ptr::null_mut(),
+                core::ptr::null_mut(),
+                8192,
+                64,
+            )
+        };
+        if let Ok(cleanup) = cleanup {
+            let _ = cleanup.join();
+        }
+        logger.record(
+            "LWP detached worker finishes without join",
+            detached.is_ok()
+                && second.is_err()
+                && join.is_err()
+                && worker_finished
+                && ogc_lwp_driver::thread_cleanup_counters().detached_reaped > before,
+        );
+    } else {
+        logger.record("LWP detached worker finishes without join", false);
     }
 }
 

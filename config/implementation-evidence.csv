@@ -2397,3 +2397,4 @@ ogc-lwp-sys,src/lib.rs,lwp_thread_broadcast_abi,451,compatibility-forwarder,hard
 ogc-lwp-driver,src/runtime.rs,allocate_workspace,713,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_resources,driver::allocate_workspace
 ogc-lwp-driver,src/runtime.rs,release_workspace,722,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_resources,driver::release_workspace
 ogc-lwp-driver,src/runtime.rs,close_queue,2757,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_resources,driver::close_queue
+ogc-lwp,src/lib.rs,detach,116,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_detach,thread.detach
