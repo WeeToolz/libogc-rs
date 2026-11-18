@@ -2383,3 +2383,6 @@ ogc-lwp-driver,src/runtime.rs,thread_handle_by_argument,2443,scheduler,hardware-
 ogc-lwp-driver,src/runtime.rs,thread_context_snapshot,2415,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_thread_metadata,driver::thread_context_snapshot
 ogc-wd,src/lib.rs,set_default_scan_parameters,584,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wd_scan_defaults,wd::set_default_scan_parameters
 ogc-wd,src/lib.rs,default_scan_parameters,599,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wd_scan_defaults,wd::default_scan_parameters
+ogc-lwp,src/lib.rs,signal,155,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_queue_wake,queue.signal
+ogc-lwp,src/lib.rs,broadcast,159,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_queue_wake,queue.broadcast
+ogc-lwp,src/lib.rs,sleep,150,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_queue_worker,queue.sleep

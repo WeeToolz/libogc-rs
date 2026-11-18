@@ -67,6 +67,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_lwp_suspend_resume(logger);
     probe_lwp_driver_suspend(logger);
     probe_lwp_driver_thread_metadata(logger);
+    probe_lwp_queue_wake(logger);
     probe_controller_slots(logger);
     probe_owned_audio_buffer(logger);
     probe_l2cap_packets(logger);
@@ -231,6 +232,86 @@ fn probe_controller_slots(logger: &mut ProbeLogger) {
             && manager.set_bluetooth_calibration_checked(0, calibration)
                 == Err(InputFailure::UnsupportedReport),
     );
+}
+
+static LWP_QUEUE_READY: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+static LWP_QUEUE_WOKEN: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+
+unsafe extern "C" fn probe_lwp_queue_worker(arg: *mut core::ffi::c_void) -> *mut core::ffi::c_void {
+    let queue = ogc_lwp::QueueHandle::new(arg as usize as u32);
+    LWP_QUEUE_READY.fetch_add(1, Ordering::Release);
+    if queue.sleep().is_ok() {
+        LWP_QUEUE_WOKEN.fetch_add(1, Ordering::Release);
+    }
+    core::ptr::null_mut()
+}
+
+fn probe_lwp_queue_wake(logger: &mut ProbeLogger) {
+    use ogc_lwp as api;
+    LWP_QUEUE_READY.store(0, Ordering::Release);
+    LWP_QUEUE_WOKEN.store(0, Ordering::Release);
+    let mut raw_queue = api::sys::LWP_TQUEUE_NULL;
+    let queue = api::QueueHandle::init(&mut raw_queue);
+    if let Ok(queue) = queue {
+        let mut raw = [api::sys::LWP_THREAD_NULL; 2];
+        let mut handles = [None; 2];
+        for index in 0..2 {
+            // SAFETY: The queue remains live until both workers are joined.
+            handles[index] = unsafe {
+                api::ThreadHandle::create(
+                    &mut raw[index],
+                    Some(probe_lwp_queue_worker),
+                    raw_queue as usize as *mut core::ffi::c_void,
+                    core::ptr::null_mut(),
+                    8192,
+                    64,
+                )
+            }
+            .ok();
+        }
+        for _ in 0..1000 {
+            if LWP_QUEUE_READY.load(Ordering::Acquire) == 2 {
+                break;
+            }
+            api::yield_now();
+        }
+        for _ in 0..16 {
+            api::yield_now();
+        }
+        let ready = LWP_QUEUE_READY.load(Ordering::Acquire) == 2
+            && LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 0;
+        queue.signal();
+        for _ in 0..1000 {
+            if LWP_QUEUE_WOKEN.load(Ordering::Acquire) >= 1 {
+                break;
+            }
+            api::yield_now();
+        }
+        let one = LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 1;
+        logger.record("LWP queue signal wakes one waiter", ready && one);
+        queue.broadcast();
+        for _ in 0..1000 {
+            if LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 2 {
+                break;
+            }
+            api::yield_now();
+        }
+        let both = LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 2;
+        if !both {
+            queue.close();
+        }
+        let joined = handles
+            .into_iter()
+            .flatten()
+            .all(|handle| handle.join().is_ok());
+        if both {
+            queue.close();
+        }
+        logger.record("LWP queue broadcast wakes remaining waiter", both && joined);
+    } else {
+        logger.record("LWP queue signal wakes one waiter", false);
+        logger.record("LWP queue broadcast wakes remaining waiter", false);
+    }
 }
 
 static LWP_WORKER_READY: AtomicBool = AtomicBool::new(false);

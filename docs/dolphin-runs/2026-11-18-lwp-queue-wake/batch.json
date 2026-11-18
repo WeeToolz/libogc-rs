@@ -1,0 +1,45 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "signal",
+      "line": 155,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_queue_wake",
+      "api_path": "queue.signal",
+      "checks": [
+        "LWP queue signal wakes one waiter"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "broadcast",
+      "line": 159,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_queue_wake",
+      "api_path": "queue.broadcast",
+      "checks": [
+        "LWP queue broadcast wakes remaining waiter"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "sleep",
+      "line": 150,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_queue_worker",
+      "api_path": "queue.sleep",
+      "checks": [
+        "LWP queue signal wakes one waiter",
+        "LWP queue broadcast wakes remaining waiter"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin two cooperating waiters. Larger wait sets, cancellation races and physical Wii remain unverified."
+  ]
+}
