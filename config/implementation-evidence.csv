@@ -2275,3 +2275,17 @@ ogc-lwp,src/lib.rs,raw,303,compatibility-forwarder,hardware-probe,probes/ogc-sys
 ogc-lwp,src/lib.rs,send,325,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_message_queue,queue.send
 ogc-lwp,src/lib.rs,jam,341,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_message_queue,queue.jam
 ogc-lwp,src/lib.rs,receive,353,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_message_queue,queue.receive
+ogc-controller,src/hardware.rs,empty,826,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_controller_slots,BluetoothHidSlot::empty
+ogc-controller,src/hardware.rs,new,897,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_controller_slots,ControllerManager::new
+ogc-controller,src/hardware.rs,bluetooth_slots,1823,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_controller_slots,manager.bluetooth_slots
+ogc-controller,src/hardware.rs,usb_slots,1834,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_controller_slots,manager.usb_slots
+ogc-controller,src/hardware.rs,joycon_pair,1828,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_controller_slots,manager.joycon_pair
+ogc-controller,src/hardware.rs,bind_usb_hid_button,1840,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_controller_slots,manager.bind_usb_hid_button
+ogc-controller,src/hardware.rs,set_bluetooth_connected,1887,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_controller_slots,manager.set_bluetooth_connected
+ogc-controller,src/hardware.rs,set_bluetooth_connected_with_handle,1897,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_controller_slots,manager.set_bluetooth_connected_with_handle
+ogc-controller,src/hardware.rs,pair_joycons,2140,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_controller_slots,manager.pair_joycons
+ogc-controller,src/hardware.rs,clear_joycon_pair,2163,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_controller_slots,manager.clear_joycon_pair
+ogc-controller,src/hardware.rs,clear_bluetooth_slot,2123,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_controller_slots,manager.clear_bluetooth_slot
+ogc-controller,src/hardware.rs,set_bluetooth_report,1962,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_controller_slots,manager.set_bluetooth_report
+ogc-controller,src/hardware.rs,set_bluetooth_report_checked,1974,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_controller_slots,manager.set_bluetooth_report_checked
+ogc-controller,src/hardware.rs,set_bluetooth_calibration_checked,1937,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_controller_slots,manager.set_bluetooth_calibration_checked

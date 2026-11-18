@@ -59,6 +59,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_inet_addr(logger);
     probe_ipv4_values(logger);
     probe_lwp_message_queue(logger);
+    probe_controller_slots(logger);
     probe_owned_audio_buffer(logger);
     probe_l2cap_packets(logger);
     probe_l2cap_parsers(logger);
@@ -113,6 +114,108 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_network_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_udp(logger);
+}
+
+fn probe_controller_slots(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::BluetoothAddress;
+    use ogc_controller::usb_hid::UsbHidProfileError;
+    use ogc_controller::{
+        BluetoothHidSlot, Buttons, ControllerKind, ControllerManager, ControllerSource,
+        InputFailure, SwitchCalibration,
+    };
+
+    let slot = BluetoothHidSlot::empty(4);
+    logger.record(
+        "Controller empty slot keeps source",
+        !slot.connected && slot.state.source == ControllerSource::BluetoothHid(4),
+    );
+    let mut manager = ControllerManager::new();
+    logger.record(
+        "Controller manager starts with empty slots",
+        manager.bluetooth_slots().iter().enumerate().all(|(i, s)| {
+            !s.connected && s.state.source == ControllerSource::BluetoothHid(i as u8)
+        }) && manager.usb_slots().iter().all(|s| !s.connected)
+            && manager.joycon_pair().is_none(),
+    );
+    logger.record(
+        "Controller USB profile checks identity and usage",
+        manager.bind_usb_hid_button(0, 0, 1, Buttons::A)
+            == Err(UsbHidProfileError::InvalidIdentity)
+            && manager.bind_usb_hid_button(1, 2, 0, Buttons::A)
+                == Err(UsbHidProfileError::InvalidBinding)
+            && manager.bind_usb_hid_button(1, 2, 64, Buttons::A).is_ok(),
+    );
+
+    let left = BluetoothAddress {
+        bytes: [1, 2, 3, 4, 5, 6],
+    };
+    let right = BluetoothAddress {
+        bytes: [6, 5, 4, 3, 2, 1],
+    };
+    manager.set_bluetooth_connected(2, left, ControllerKind::JoyConLeft);
+    let l = &manager.bluetooth_slots()[2];
+    logger.record(
+        "Controller left slot needs a right partner",
+        l.address == left
+            && l.connection_handle == 0
+            && l.state.connected
+            && !manager.pair_joycons(),
+    );
+    manager.set_bluetooth_connected_with_handle(1, right, ControllerKind::JoyConRight, 0x321);
+    let r = &manager.bluetooth_slots()[1];
+    logger.record(
+        "Controller right slot retains address and handle",
+        r.address == right && r.connection_handle == 0x321 && r.kind == ControllerKind::JoyConRight,
+    );
+    logger.record(
+        "Controller pairs left and right by role",
+        manager.pair_joycons() && manager.joycon_pair() == Some((2, 1)),
+    );
+    manager.clear_joycon_pair();
+    logger.record(
+        "Controller split keeps both devices",
+        manager.joycon_pair().is_none()
+            && manager.bluetooth_slots()[1].connected
+            && manager.bluetooth_slots()[2].connected,
+    );
+    let paired = manager.pair_joycons();
+    manager.clear_bluetooth_slot(2);
+    logger.record(
+        "Controller disconnect clears pair and one device",
+        paired
+            && manager.joycon_pair().is_none()
+            && !manager.bluetooth_slots()[2].connected
+            && manager.bluetooth_slots()[1].connected,
+    );
+
+    manager.set_bluetooth_connected(0, left, ControllerKind::XboxOne);
+    let guide = manager.set_bluetooth_report(0, ControllerKind::XboxOne, &[2, 1]);
+    let x = &manager.bluetooth_slots()[0];
+    logger.record(
+        "Controller guide report sets HOME",
+        guide && x.state.buttons == Buttons::HOME && x.report_count == 1 && x.last_report_id == 2,
+    );
+    let released = manager.set_bluetooth_report_checked(0, ControllerKind::XboxOne, &[2, 0]);
+    logger.record(
+        "Controller guide release clears HOME",
+        released.is_ok()
+            && manager.bluetooth_slots()[0].state.buttons.is_empty()
+            && manager.bluetooth_slots()[0].report_count == 2,
+    );
+    let malformed = manager.set_bluetooth_report_checked(0, ControllerKind::XboxOne, &[2]);
+    logger.record(
+        "Controller short guide report invalidates sample",
+        malformed == Err(InputFailure::MalformedReport)
+            && !manager.bluetooth_slots()[0].state.connected,
+    );
+    let calibration = SwitchCalibration::default();
+    logger.record(
+        "Controller rejects missing or incompatible calibration",
+        manager.set_bluetooth_calibration_checked(1, calibration)
+            == Err(InputFailure::MalformedReport)
+            && manager.set_bluetooth_calibration_checked(0, calibration)
+                == Err(InputFailure::UnsupportedReport),
+    );
 }
 
 fn probe_lwp_message_queue(logger: &mut ProbeLogger) {
