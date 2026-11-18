@@ -58,6 +58,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_network_error_conversion(logger);
     probe_inet_addr(logger);
     probe_ipv4_values(logger);
+    probe_lwp_message_queue(logger);
     probe_owned_audio_buffer(logger);
     probe_l2cap_packets(logger);
     probe_l2cap_parsers(logger);
@@ -112,6 +113,50 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_network_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_udp(logger);
+}
+
+fn probe_lwp_message_queue(logger: &mut ProbeLogger) {
+    use ogc_lwp as lwp_api;
+    let mut raw = lwp_api::sys::MQ_BOX_NULL;
+    let initialized = lwp_api::MessageQueueHandle::init(&mut raw, 2);
+    if let Ok(queue) = initialized {
+        logger.record(
+            "LWP message queue handle matches initialized queue",
+            queue.raw() == raw && raw != lwp_api::sys::MQ_BOX_NULL,
+        );
+        let mut first = 0x17u8;
+        let mut urgent = 0x82u8;
+        let mut extra = 0x44u8;
+        let first_ptr = (&mut first as *mut u8).cast();
+        let urgent_ptr = (&mut urgent as *mut u8).cast();
+        let extra_ptr = (&mut extra as *mut u8).cast();
+        // SAFETY: The message storage remains live until the queue is drained.
+        let sent = unsafe { queue.send(first_ptr, false) };
+        let jammed = unsafe { queue.jam(urgent_ptr, false) };
+        let full = unsafe { queue.send(extra_ptr, false) };
+        logger.record(
+            "LWP message queue rejects send when full",
+            sent && jammed && !full,
+        );
+        let one = queue.receive(false);
+        let two = queue.receive(false);
+        let empty = queue.receive(false);
+        logger.record(
+            "LWP message queue returns urgent before FIFO and reports empty",
+            one == Some(urgent_ptr) && two == Some(first_ptr) && empty.is_none(),
+        );
+        queue.close();
+        let closed = unsafe { queue.send(extra_ptr, false) };
+        logger.record("LWP closed message queue rejects send", !closed);
+    } else {
+        logger.record("LWP message queue handle matches initialized queue", false);
+        logger.record("LWP message queue rejects send when full", false);
+        logger.record(
+            "LWP message queue returns urgent before FIFO and reports empty",
+            false,
+        );
+        logger.record("LWP closed message queue rejects send", false);
+    }
 }
 
 #[cfg(feature = "dolphin-automation")]

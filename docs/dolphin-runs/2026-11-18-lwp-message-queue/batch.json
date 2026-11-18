@@ -1,0 +1,71 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "init",
+      "line": 307,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_message_queue",
+      "api_path": "lwp_api::MessageQueueHandle::init",
+      "checks": [
+        "LWP message queue handle matches initialized queue",
+        "LWP message queue returns urgent before FIFO and reports empty"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "raw",
+      "line": 303,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_message_queue",
+      "api_path": "queue.raw",
+      "checks": [
+        "LWP message queue handle matches initialized queue"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "send",
+      "line": 325,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_message_queue",
+      "api_path": "queue.send",
+      "checks": [
+        "LWP message queue rejects send when full",
+        "LWP closed message queue rejects send"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "jam",
+      "line": 341,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_message_queue",
+      "api_path": "queue.jam",
+      "checks": [
+        "LWP message queue rejects send when full",
+        "LWP message queue returns urgent before FIFO and reports empty"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "receive",
+      "line": 353,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_message_queue",
+      "api_path": "queue.receive",
+      "checks": [
+        "LWP message queue returns urgent before FIFO and reports empty"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin single-threaded nonblocking queue operations only. Blocking wakeups, concurrency, exhaustion and physical Wii remain unverified."
+  ]
+}

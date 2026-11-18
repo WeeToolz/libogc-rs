@@ -2270,3 +2270,8 @@ ogc-network-sys,src/std_net.rs,connect,298,ios,hardware-probe,probes/ogc-system-
 ogc-network-sys,src/std_net.rs,accept,368,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_tcp_service,listener.accept
 ogc-network-sys,src/std_net.rs,shutdown,498,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_tcp_service,client.shutdown
 ogc-network-sys,src/std_net.rs,lookup,575,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_tcp_service,service::lookup
+ogc-lwp,src/lib.rs,init,307,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_message_queue,lwp_api::MessageQueueHandle::init
+ogc-lwp,src/lib.rs,raw,303,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_message_queue,queue.raw
+ogc-lwp,src/lib.rs,send,325,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_message_queue,queue.send
+ogc-lwp,src/lib.rs,jam,341,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_message_queue,queue.jam
+ogc-lwp,src/lib.rs,receive,353,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_message_queue,queue.receive
