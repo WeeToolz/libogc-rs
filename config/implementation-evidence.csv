@@ -2313,3 +2313,11 @@ ogc-ipc,src/lib.rs,raw,205,ios,hardware-probe,probes/ogc-system-probe/src/runtim
 ogc-ipc,src/lib.rs,default_heap,222,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_heap_handles,ipc::HeapId::default_heap
 ogc-ipc,src/lib.rs,alloc,228,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_heap_handles,heap.alloc
 ogc-ipc,src/lib.rs,free,239,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_heap_handles,heap.free
+ogc-sysbase,src/lib.rs,add_device,522,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_device_registry,base::add_device
+ogc-sysbase,src/lib.rs,find_device,527,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_device_registry,base::find_device
+ogc-sysbase,src/lib.rs,FindDevice,560,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_device_registry,base::FindDevice
+ogc-sysbase,src/lib.rs,device_op_tab,511,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_device_registry,base::device_op_tab
+ogc-sysbase,src/lib.rs,GetDeviceOpTab,664,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_device_registry,base::GetDeviceOpTab
+ogc-sysbase,src/lib.rs,remove_device,532,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_device_registry,base::remove_device
+ogc-sysbase,src/lib.rs,AddDevice,621,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_device_registry,base::AddDevice
+ogc-sysbase,src/lib.rs,RemoveDevice,589,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_device_registry,base::RemoveDevice

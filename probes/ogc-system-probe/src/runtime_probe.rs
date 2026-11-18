@@ -77,6 +77,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_video_queries(logger);
     probe_wd_information_elements(logger);
     probe_ipc_heap_handles(logger);
+    probe_device_registry(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -590,6 +591,41 @@ fn probe_network_error_conversion(logger: &mut ProbeLogger) {
     logger.record(
         "Network error conversion offsets unknown values",
         raw::_net_convert_error(-78) == -10078 && net::convert_error(-100) == -10100,
+    );
+}
+
+fn probe_device_registry(logger: &mut ProbeLogger) {
+    use ogc_sysbase as base;
+    let name = c"codexprobe";
+    let path = c"codexprobe:/sample";
+    let other = c"codexprobeextra:/sample";
+    // SAFETY: Zero is valid for every field in this C-compatible table.
+    let mut device: base::Devoptab = unsafe { core::mem::zeroed() };
+    device.name = name.as_ptr();
+    // SAFETY: This probe serializes its table access and removes the local entry before return.
+    let index = unsafe { base::add_device(&device) };
+    let found = base::find_device(path);
+    let direct = unsafe { base::FindDevice(path.as_ptr()) };
+    logger.record(
+        "Device registry finds the exact prefix",
+        index >= 3 && found == index && direct == index && base::find_device(other) == -1,
+    );
+    let table = base::device_op_tab(path);
+    let raw_table = unsafe { base::GetDeviceOpTab(path.as_ptr()) };
+    logger.record(
+        "Device registry returns the registered table",
+        table == Some(&device as *const _) && core::ptr::eq(raw_table, &device),
+    );
+    let removed = base::remove_device(name);
+    logger.record(
+        "Device registry removes the registered name",
+        removed == 0 && base::find_device(path) == -1 && base::device_op_tab(path).is_none(),
+    );
+    let second = unsafe { base::AddDevice(&device) };
+    let removed_raw = unsafe { base::RemoveDevice(path.as_ptr()) };
+    logger.record(
+        "Device C registry removes by path",
+        second >= 3 && removed_raw == 0 && unsafe { base::FindDevice(path.as_ptr()) } == -1,
     );
 }
 
