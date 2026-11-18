@@ -78,6 +78,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_wd_information_elements(logger);
     probe_ipc_heap_handles(logger);
     probe_device_registry(logger);
+    probe_si_queries(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -592,6 +593,33 @@ fn probe_network_error_conversion(logger: &mut ProbeLogger) {
         "Network error conversion offsets unknown values",
         raw::_net_convert_error(-78) == -10078 && net::convert_error(-100) == -10100,
     );
+}
+
+fn probe_si_queries(logger: &mut ProbeLogger) {
+    use ogc_si as si;
+    logger.record(
+        "SI decodes controller and error types",
+        si::decode_type(0x0900_0000) == 0x0900_0000
+            && si::decode_type(0x0500_0000) == 0x0500_0000
+            && si::decode_type(8) == 8
+            && si::decode_type(1) == 0x40
+            && si::decode_type(0x20) == 0x80,
+    );
+    let mut words = [0x1234_5678u32, 0x8765_4321];
+    let mut valid = true;
+    for channel in [-1, 4] {
+        let response = unsafe { si::get_response(channel, words.as_mut_ptr().cast()) };
+        valid &= si::is_chan_busy(channel) == 0
+            && si::get_status(channel) == 0
+            && si::get_response_raw(channel) == 0
+            && response == 0
+            && words == [0x1234_5678, 0x8765_4321]
+            && si::get_command(channel) == 0
+            && si::get_type(channel) == 0x40
+            && si::get_type_async(channel, None) == 0x40
+            && si::probe(channel) == 0x80;
+    }
+    logger.record("SI rejects channels outside zero through three", valid);
 }
 
 fn probe_device_registry(logger: &mut ProbeLogger) {

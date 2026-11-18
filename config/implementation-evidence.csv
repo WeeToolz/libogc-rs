@@ -2321,3 +2321,12 @@ ogc-sysbase,src/lib.rs,GetDeviceOpTab,664,hardware,hardware-probe,probes/ogc-sys
 ogc-sysbase,src/lib.rs,remove_device,532,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_device_registry,base::remove_device
 ogc-sysbase,src/lib.rs,AddDevice,621,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_device_registry,base::AddDevice
 ogc-sysbase,src/lib.rs,RemoveDevice,589,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_device_registry,base::RemoveDevice
+ogc-si,src/lib.rs,decode_type,99,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_queries,si::decode_type
+ogc-si,src/lib.rs,is_chan_busy,29,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_queries,si::is_chan_busy
+ogc-si,src/lib.rs,get_status,53,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_queries,si::get_status
+ogc-si,src/lib.rs,get_response_raw,57,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_queries,si::get_response_raw
+ogc-si,src/lib.rs,get_response,64,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_queries,si::get_response
+ogc-si,src/lib.rs,get_command,72,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_queries,si::get_command
+ogc-si,src/lib.rs,get_type,91,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_queries,si::get_type
+ogc-si,src/lib.rs,get_type_async,95,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_queries,si::get_type_async
+ogc-si,src/lib.rs,probe,103,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_queries,si::probe

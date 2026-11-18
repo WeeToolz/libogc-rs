@@ -1,0 +1,116 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "decode_type",
+      "line": 99,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_queries",
+      "api_path": "si::decode_type",
+      "checks": [
+        "SI decodes controller and error types"
+      ]
+    },
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "is_chan_busy",
+      "line": 29,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_queries",
+      "api_path": "si::is_chan_busy",
+      "checks": [
+        "SI rejects channels outside zero through three"
+      ]
+    },
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "get_status",
+      "line": 53,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_queries",
+      "api_path": "si::get_status",
+      "checks": [
+        "SI rejects channels outside zero through three"
+      ]
+    },
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "get_response_raw",
+      "line": 57,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_queries",
+      "api_path": "si::get_response_raw",
+      "checks": [
+        "SI rejects channels outside zero through three"
+      ]
+    },
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "get_response",
+      "line": 64,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_queries",
+      "api_path": "si::get_response",
+      "checks": [
+        "SI rejects channels outside zero through three"
+      ]
+    },
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "get_command",
+      "line": 72,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_queries",
+      "api_path": "si::get_command",
+      "checks": [
+        "SI rejects channels outside zero through three"
+      ]
+    },
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "get_type",
+      "line": 91,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_queries",
+      "api_path": "si::get_type",
+      "checks": [
+        "SI rejects channels outside zero through three"
+      ]
+    },
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "get_type_async",
+      "line": 95,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_queries",
+      "api_path": "si::get_type_async",
+      "checks": [
+        "SI rejects channels outside zero through three"
+      ]
+    },
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "probe",
+      "line": 103,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_queries",
+      "api_path": "si::probe",
+      "checks": [
+        "SI rejects channels outside zero through three"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin controller type decoding and invalid-channel behavior. Connected controller data, asynchronous completion and physical Wii remain unverified."
+  ]
+}
