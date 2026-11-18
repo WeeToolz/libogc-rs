@@ -1,0 +1,47 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_init_async",
+      "line": 1025,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_async_network_init",
+      "api_path": "raw::net_init_async",
+      "checks": [
+        "Raw network asynchronous initialization completes",
+        "Network wrapper asynchronous initialization completes"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_init_async",
+      "line": 1965,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_async_network_init",
+      "api_path": "raw::net_init_async",
+      "checks": [
+        "Raw network asynchronous initialization completes",
+        "Network wrapper asynchronous initialization completes"
+      ]
+    },
+    {
+      "crate": "ogc-network",
+      "path": "src/lib.rs",
+      "symbol": "init_async",
+      "line": 83,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_async_network_init",
+      "api_path": "net::init_async",
+      "checks": [
+        "Raw network asynchronous initialization completes",
+        "Network wrapper asynchronous initialization completes"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin success path and callback completion with a private NAND. Callback failure, abort, simultaneous requests and physical Wii remain unverified."
+  ]
+}

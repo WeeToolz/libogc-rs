@@ -101,11 +101,83 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_raw_udp(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_async_network_init(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_raw_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_udp(logger);
+}
+
+#[cfg(feature = "dolphin-automation")]
+static NETWORK_ASYNC_COUNT: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+#[cfg(feature = "dolphin-automation")]
+static NETWORK_ASYNC_RESULT: AtomicI32 = AtomicI32::new(i32::MIN);
+#[cfg(feature = "dolphin-automation")]
+static NETWORK_ASYNC_USERDATA: core::sync::atomic::AtomicU32 =
+    core::sync::atomic::AtomicU32::new(0);
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn network_async_callback(result: i32, userdata: *mut core::ffi::c_void) -> i32 {
+    NETWORK_ASYNC_RESULT.store(result, Ordering::Relaxed);
+    NETWORK_ASYNC_USERDATA.store(userdata as usize as u32, Ordering::Relaxed);
+    NETWORK_ASYNC_COUNT.fetch_add(1, Ordering::Release);
+    0
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_async_network_init(logger: &mut ProbeLogger) {
+    use ogc_network as net;
+    use raw_network as raw;
+    const TOKEN: usize = 0x1248;
+    for wrapper in [false, true] {
+        NETWORK_ASYNC_COUNT.store(0, Ordering::Relaxed);
+        NETWORK_ASYNC_RESULT.store(i32::MIN, Ordering::Relaxed);
+        NETWORK_ASYNC_USERDATA.store(0, Ordering::Relaxed);
+        let start = if wrapper {
+            unsafe {
+                net::init_async(
+                    Some(network_async_callback),
+                    TOKEN as *mut core::ffi::c_void,
+                )
+            }
+        } else {
+            unsafe {
+                raw::net_init_async(
+                    Some(network_async_callback),
+                    TOKEN as *mut core::ffi::c_void,
+                )
+            }
+        };
+        for _ in 0..1000 {
+            if NETWORK_ASYNC_COUNT.load(Ordering::Acquire) != 0 {
+                break;
+            }
+            lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 100).max(1));
+        }
+        let completed = start == 0
+            && NETWORK_ASYNC_COUNT.load(Ordering::Acquire) == 1
+            && NETWORK_ASYNC_RESULT.load(Ordering::Relaxed) == 0
+            && NETWORK_ASYNC_USERDATA.load(Ordering::Relaxed) == TOKEN as u32
+            && raw::net_get_status() == 0;
+        let socket = if completed {
+            raw::net_socket(raw::PF_INET, raw::SOCK_DGRAM, 0)
+        } else {
+            -1
+        };
+        let closed = socket >= 0 && raw::net_close(socket) == 0;
+        let deinit = raw::net_deinit();
+        let passed = completed && closed && deinit == 0 && raw::net_get_status() == -100;
+        logger.record(
+            if wrapper {
+                "Network wrapper asynchronous initialization completes"
+            } else {
+                "Raw network asynchronous initialization completes"
+            },
+            passed,
+        );
+    }
 }
 
 fn probe_network_error_conversion(logger: &mut ProbeLogger) {

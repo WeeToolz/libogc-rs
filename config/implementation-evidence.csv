@@ -2250,3 +2250,6 @@ ogc-network,src/lib.rs,if_configex,1142,compatibility-forwarder,hardware-probe,p
 ogc-network-sys,src/lib.rs,net_gethostbyname,1198,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_numeric_resolver,raw::net_gethostbyname
 ogc-network-sys,src/lib.rs,net_gethostbyname,2010,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_numeric_resolver,raw::net_gethostbyname
 ogc-network,src/lib.rs,get_host_by_name,122,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_numeric_resolver,net::get_host_by_name
+ogc-network-sys,src/lib.rs,net_init_async,1025,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_async_network_init,raw::net_init_async
+ogc-network-sys,src/lib.rs,net_init_async,1965,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_async_network_init,raw::net_init_async
+ogc-network,src/lib.rs,init_async,83,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_async_network_init,net::init_async
