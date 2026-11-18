@@ -2346,3 +2346,13 @@ ogc-lwp-driver,src/runtime.rs,close_mutex,2839,scheduler,hardware-probe,probes/o
 ogc-lwp-driver,src/runtime.rs,init_cond,2934,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_mutex_cond,driver::init_cond
 ogc-lwp-driver,src/runtime.rs,cond_broadcast,3034,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_mutex_cond,driver::cond_broadcast
 ogc-lwp-driver,src/runtime.rs,close_cond,2955,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_mutex_cond,driver::close_cond
+ogc-si-sys,src/lib.rs,decode_type,1345,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_raw_queries,raw_si::decode_type
+ogc-si-sys,src/lib.rs,is_chan_busy,1071,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_raw_queries,raw_si::is_chan_busy
+ogc-si-sys,src/lib.rs,get_status,1130,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_raw_queries,raw_si::get_status
+ogc-si-sys,src/lib.rs,get_response_raw,1144,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_raw_queries,raw_si::get_response_raw
+ogc-si-sys,src/lib.rs,get_response,1163,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_raw_queries,raw_si::get_response
+ogc-si-sys,src/lib.rs,debug_last_response,1200,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_raw_queries,raw_si::debug_last_response
+ogc-si-sys,src/lib.rs,get_command,1191,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_raw_queries,raw_si::get_command
+ogc-si-sys,src/lib.rs,get_type,1248,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_raw_queries,raw_si::get_type
+ogc-si-sys,src/lib.rs,get_type_async,1288,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_raw_queries,raw_si::get_type_async
+ogc-si-sys,src/lib.rs,probe,1384,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_raw_queries,raw_si::probe

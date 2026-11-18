@@ -81,6 +81,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_ipc_heap_handles(logger);
     probe_device_registry(logger);
     probe_si_queries(logger);
+    probe_si_raw_queries(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -691,6 +692,37 @@ fn probe_network_error_conversion(logger: &mut ProbeLogger) {
     logger.record(
         "Network error conversion offsets unknown values",
         raw::_net_convert_error(-78) == -10078 && net::convert_error(-100) == -10100,
+    );
+}
+
+fn probe_si_raw_queries(logger: &mut ProbeLogger) {
+    use ogc_si::sys as raw_si;
+    logger.record(
+        "SI raw decodes known device and errors",
+        raw_si::decode_type(0x0900_0000) == 0x0900_0000
+            && raw_si::decode_type(0x0004_0000) == 0x0004_0000
+            && raw_si::decode_type(8) == 8
+            && raw_si::decode_type(1) == 0x40,
+    );
+    let mut words = [0x1234_5678u32, 0x8765_4321];
+    let mut valid = true;
+    for channel in [-1, 4] {
+        // SAFETY: The two-word output buffer is writable and remains live.
+        let response = unsafe { raw_si::get_response(channel, words.as_mut_ptr().cast()) };
+        valid &= raw_si::is_chan_busy(channel) == 0
+            && raw_si::get_status(channel) == 0
+            && raw_si::get_response_raw(channel) == 0
+            && response == 0
+            && words == [0x1234_5678, 0x8765_4321]
+            && raw_si::debug_last_response(channel).is_none()
+            && raw_si::get_command(channel) == 0
+            && raw_si::get_type(channel) == 0x40
+            && raw_si::get_type_async(channel, None) == 0x40
+            && raw_si::probe(channel) == 0x80;
+    }
+    logger.record(
+        "SI raw rejects invalid channels without output writes",
+        valid,
     );
 }
 
