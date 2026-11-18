@@ -63,6 +63,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_lwp_driver_objects(logger);
     probe_lwp_driver_mutex_cond(logger);
     probe_lwp_sys_resources(logger);
+    probe_lwp_thread_handle(logger);
     probe_controller_slots(logger);
     probe_owned_audio_buffer(logger);
     probe_l2cap_packets(logger);
@@ -226,6 +227,51 @@ fn probe_controller_slots(logger: &mut ProbeLogger) {
             && manager.set_bluetooth_calibration_checked(0, calibration)
                 == Err(InputFailure::UnsupportedReport),
     );
+}
+
+unsafe extern "C" fn probe_lwp_thread_entry(arg: *mut core::ffi::c_void) -> *mut core::ffi::c_void {
+    // SAFETY: The caller keeps the byte alive until the thread is joined.
+    unsafe {
+        *arg.cast::<u8>() = 0x6d;
+    }
+    arg
+}
+
+fn probe_lwp_thread_handle(logger: &mut ProbeLogger) {
+    use ogc_lwp as api;
+    let current = api::current_thread();
+    logger.record(
+        "LWP current thread handle is live",
+        !current.is_null() && current.raw() == current.into_raw(),
+    );
+    let mut raw = api::sys::LWP_THREAD_NULL;
+    let mut marker = 0u8;
+    let arg = (&mut marker as *mut u8).cast();
+    // SAFETY: The argument remains live until join and the driver owns the stack.
+    let thread = unsafe {
+        api::ThreadHandle::create(
+            &mut raw,
+            Some(probe_lwp_thread_entry),
+            arg,
+            core::ptr::null_mut(),
+            8192,
+            64,
+        )
+    };
+    if let Ok(thread) = thread {
+        logger.record(
+            "LWP created thread returns its handle",
+            !thread.is_null() && thread.raw() == raw && thread.into_raw() == raw,
+        );
+        let result = thread.join();
+        logger.record(
+            "LWP thread runs and returns its argument",
+            result == Ok(arg) && marker == 0x6d,
+        );
+    } else {
+        logger.record("LWP created thread returns its handle", false);
+        logger.record("LWP thread runs and returns its argument", false);
+    }
 }
 
 fn probe_lwp_sys_resources(logger: &mut ProbeLogger) {
