@@ -66,6 +66,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_lwp_thread_handle(logger);
     probe_lwp_suspend_resume(logger);
     probe_lwp_driver_suspend(logger);
+    probe_lwp_driver_thread_metadata(logger);
     probe_controller_slots(logger);
     probe_owned_audio_buffer(logger);
     probe_l2cap_packets(logger);
@@ -242,6 +243,68 @@ unsafe extern "C" fn probe_lwp_suspend_worker(_: *mut core::ffi::c_void) -> *mut
         ogc_lwp::yield_now();
     }
     core::ptr::null_mut()
+}
+
+fn probe_lwp_driver_thread_metadata(logger: &mut ProbeLogger) {
+    use ogc_lwp_driver as driver;
+    let current = driver::current_thread();
+    logger.record(
+        "LWP driver reports current thread",
+        current != driver::LWP_THREAD_NULL && current == ogc_lwp::current_thread().raw(),
+    );
+    LWP_WORKER_READY.store(false, Ordering::Release);
+    LWP_WORKER_RELEASE.store(false, Ordering::Release);
+    let mut marker = 0u8;
+    let arg = (&mut marker as *mut u8).cast();
+    let mut raw = driver::LWP_THREAD_NULL;
+    // SAFETY: The argument remains live until join and the driver owns the stack.
+    let created = unsafe {
+        driver::create_thread(
+            &mut raw,
+            Some(probe_lwp_suspend_worker),
+            arg,
+            core::ptr::null_mut(),
+            8192,
+            64,
+        )
+    };
+    if created == 0 {
+        for _ in 0..1000 {
+            if LWP_WORKER_READY.load(Ordering::Acquire) {
+                break;
+            }
+            ogc_lwp::yield_now();
+        }
+        let ready = LWP_WORKER_READY.load(Ordering::Acquire);
+        let suspended = driver::suspend_thread(raw) == 0;
+        logger.record(
+            "LWP driver finds thread by its argument",
+            ready
+                && suspended
+                && driver::thread_argument(raw) == Some(arg)
+                && driver::thread_handle_by_argument(arg) == Some(raw)
+                && driver::thread_handle_by_argument(core::ptr::null_mut()).is_none(),
+        );
+        let context = driver::thread_context_snapshot(raw);
+        logger.record(
+            "LWP driver captures suspended thread context",
+            context.is_some_and(|context| context.pc != 0 && context.gpr[1] != 0),
+        );
+        driver::resume_thread(raw);
+        LWP_WORKER_RELEASE.store(true, Ordering::Release);
+        let joined = ogc_lwp::ThreadHandle::new(raw).join();
+        logger.record(
+            "LWP driver removes joined thread metadata",
+            joined.is_ok()
+                && driver::thread_argument(raw).is_none()
+                && driver::thread_context_snapshot(raw).is_none()
+                && driver::thread_handle_by_argument(arg).is_none(),
+        );
+    } else {
+        logger.record("LWP driver finds thread by its argument", false);
+        logger.record("LWP driver captures suspended thread context", false);
+        logger.record("LWP driver removes joined thread metadata", false);
+    }
 }
 
 fn probe_lwp_driver_suspend(logger: &mut ProbeLogger) {

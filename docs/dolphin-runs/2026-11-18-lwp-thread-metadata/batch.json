@@ -1,0 +1,59 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "current_thread",
+      "line": 1917,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_thread_metadata",
+      "api_path": "driver::current_thread",
+      "checks": [
+        "LWP driver reports current thread"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "thread_argument",
+      "line": 2434,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_thread_metadata",
+      "api_path": "driver::thread_argument",
+      "checks": [
+        "LWP driver finds thread by its argument",
+        "LWP driver removes joined thread metadata"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "thread_handle_by_argument",
+      "line": 2443,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_thread_metadata",
+      "api_path": "driver::thread_handle_by_argument",
+      "checks": [
+        "LWP driver finds thread by its argument",
+        "LWP driver removes joined thread metadata"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "thread_context_snapshot",
+      "line": 2415,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_thread_metadata",
+      "api_path": "driver::thread_context_snapshot",
+      "checks": [
+        "LWP driver captures suspended thread context",
+        "LWP driver removes joined thread metadata"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin one suspended and joined worker. Register content accuracy, concurrent metadata access and physical Wii remain unverified."
+  ]
+}
