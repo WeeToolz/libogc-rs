@@ -11,11 +11,29 @@ pub fn run(logger: &mut ProbeLogger) {
     logger.section("CALLBACK PROBE");
 
     logger.record("reset callback roundtrip", test_reset_callback());
+    logger.record(
+        "reset callback replacement preserves previous pointer",
+        test_reset_callback_replacement(),
+    );
     logger.record("power callback roundtrip", test_power_callback());
     logger.record("power callback dispatch", test_power_dispatch());
     logger.record("reset registration bookkeeping", test_reset_registration());
     logger.record("reset function gate", test_reset_function_gate());
     logger.record("power cooldown math", test_power_cooldown_math());
+}
+
+fn test_reset_callback_replacement() -> bool {
+    let original = system::set_reset_callback(Some(reset_callback));
+    let previous = system::set_reset_callback(Some(other_reset_callback));
+    let snapshot = system::snapshot_callbacks();
+    let cleared = system::set_reset_callback(None);
+    let empty = system::snapshot_callbacks();
+    let replaced = system::set_reset_callback(original);
+    previous.map(|cb| cb as usize) == Some(reset_callback as *const () as usize)
+        && snapshot.reset_callback == other_reset_callback as *const () as usize
+        && cleared.map(|cb| cb as usize) == Some(other_reset_callback as *const () as usize)
+        && empty.reset_callback == 0
+        && replaced.is_none()
 }
 
 fn test_reset_callback() -> bool {
@@ -87,6 +105,8 @@ fn test_power_cooldown_math() -> bool {
 }
 
 unsafe extern "C" fn reset_callback(_irq: u32, _ctx: *mut core::ffi::c_void) {}
+
+unsafe extern "C" fn other_reset_callback(_irq: u32, _ctx: *mut core::ffi::c_void) {}
 
 unsafe extern "C" fn power_callback() {
     POWER_COUNT.fetch_add(1, Ordering::AcqRel);

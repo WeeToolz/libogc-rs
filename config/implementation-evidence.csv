@@ -2157,3 +2157,5 @@ ogc-system,src/lib.rs,snapshot_arenas,1159,compatibility-forwarder,hardware-prob
 ogc-system,src/lib.rs,snapshot_alarms,1194,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_alarms,system::snapshot_alarms
 ogc-system,src/lib.rs,hardware_proof,1241,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system,system::hardware_proof
 ogc-system,src/lib.rs,snapshot_hardware,1213,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system,system::snapshot_hardware
+ogc-system,src/lib.rs,set_reset_callback,970,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/callback_probe.rs,test_reset_callback_replacement,system::set_reset_callback
+ogc-system,src/lib.rs,snapshot_callbacks,1178,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/callback_probe.rs,test_reset_callback_replacement,system::snapshot_callbacks

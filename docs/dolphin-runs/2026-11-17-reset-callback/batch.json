@@ -1,0 +1,32 @@
+{
+  "probe": "callback_probe",
+  "cases": [
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "set_reset_callback",
+      "line": 970,
+      "evidence_path": "probes/ogc-system-probe/src/callback_probe.rs",
+      "function": "test_reset_callback_replacement",
+      "api_path": "system::set_reset_callback",
+      "checks": [
+        "reset callback replacement preserves previous pointer"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_callbacks",
+      "line": 1178,
+      "evidence_path": "probes/ogc-system-probe/src/callback_probe.rs",
+      "function": "test_reset_callback_replacement",
+      "api_path": "system::snapshot_callbacks",
+      "checks": [
+        "reset callback replacement preserves previous pointer"
+      ]
+    }
+  ],
+  "limits": [
+    "Registration and snapshot state in Dolphin. Physical reset button dispatch and power callback behavior need separate evidence."
+  ]
+}
