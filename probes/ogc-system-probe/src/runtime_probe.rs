@@ -57,6 +57,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_system_sram_getters(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_system_sram_locks(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_system_extended_sram_getters(logger);
     probe_ios_stm(logger);
     probe_conf(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -80,6 +82,54 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_network_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_udp(logger);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_extended_sram_getters(logger: &mut ProbeLogger) {
+    let sram = unsafe { system::lock_sram_ex() };
+    if sram.is_null() {
+        logger.record("Extended SRAM fixture lock and restoration", false);
+        return;
+    }
+    // SAFETY: The lock owns the packed buffer until the paired unlock. Field
+    // writes use unaligned access and the original image is restored below.
+    let original = unsafe { *sram };
+    unsafe {
+        core::ptr::write_unaligned(
+            core::ptr::addr_of_mut!((*sram).wireless_pad_id),
+            [0x1234, 0xabcd, 0, 0xff00],
+        );
+        core::ptr::write_unaligned(core::ptr::addr_of_mut!((*sram).gbs), 0x2945);
+    }
+    let released = unsafe { system::unlock_sram_ex(false) };
+    logger.record(
+        "Wireless ID getter reads each extended SRAM channel",
+        released
+            && system::get_wireless_id(0) == 0x1234
+            && system::get_wireless_id(1) == 0xabcd
+            && system::get_wireless_id(2) == 0
+            && system::get_wireless_id(3) == 0xff00
+            && system::get_wireless_id(4) == 0
+            && system::get_wireless_id(u32::MAX) == 0,
+    );
+    logger.record(
+        "GBS getter reads extended SRAM",
+        system::get_gbs_mode() == 0x2945,
+    );
+    let restore = unsafe { system::lock_sram_ex() };
+    let restored = if restore.is_null() {
+        false
+    } else {
+        unsafe {
+            *restore = original;
+            system::unlock_sram_ex(false)
+        }
+    };
+    let checked = system::snapshot_sram_ex() == Some(original);
+    logger.record(
+        "Extended SRAM fixture lock and restoration",
+        restored && checked,
+    );
 }
 
 fn probe_system_runtime_state(logger: &mut ProbeLogger) {

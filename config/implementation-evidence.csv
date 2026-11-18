@@ -2168,3 +2168,5 @@ ogc-system,src/lib.rs,note_stm_event,230,compatibility-forwarder,hardware-probe,
 ogc-system,src/lib.rs,main_loop_step,244,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_runtime_state,wii.main_loop_step
 ogc-system,src/lib.rs,power_callback_attempt,257,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_runtime_state,throttle.power_callback_attempt
 ogc-system,src/lib.rs,reset_plan,263,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_runtime_state,gc.reset_plan
+ogc-system,src/lib.rs,get_wireless_id,759,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_extended_sram_getters,system::get_wireless_id
+ogc-system,src/lib.rs,get_gbs_mode,798,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_extended_sram_getters,system::get_gbs_mode
