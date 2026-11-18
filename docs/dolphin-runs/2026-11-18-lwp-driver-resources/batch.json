@@ -1,0 +1,44 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "allocate_workspace",
+      "line": 713,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_resources",
+      "api_path": "driver::allocate_workspace",
+      "checks": [
+        "LWP driver workspace preserves separate allocations"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "release_workspace",
+      "line": 722,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_resources",
+      "api_path": "driver::release_workspace",
+      "checks": [
+        "LWP driver workspace allocates after release"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "close_queue",
+      "line": 2757,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_resources",
+      "api_path": "driver::close_queue",
+      "checks": [
+        "LWP driver closing queue cancels waiter"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin workspace allocation and cancellation of one queue waiter. Exhaustion, cancellation races and physical Wii remain unverified."
+  ]
+}

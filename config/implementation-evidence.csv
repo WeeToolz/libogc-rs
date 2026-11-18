@@ -2394,3 +2394,6 @@ ogc-lwp-sys,src/lib.rs,thread_signal,304,compatibility-forwarder,hardware-probe,
 ogc-lwp-sys,src/lib.rs,thread_broadcast,308,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_sys_queue_wake,raw_lwp::thread_broadcast
 ogc-lwp-sys,src/lib.rs,lwp_thread_signal_abi,447,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_abi_queue_wake,raw_lwp::lwp_thread_signal_abi
 ogc-lwp-sys,src/lib.rs,lwp_thread_broadcast_abi,451,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_abi_queue_wake,raw_lwp::lwp_thread_broadcast_abi
+ogc-lwp-driver,src/runtime.rs,allocate_workspace,713,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_resources,driver::allocate_workspace
+ogc-lwp-driver,src/runtime.rs,release_workspace,722,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_resources,driver::release_workspace
+ogc-lwp-driver,src/runtime.rs,close_queue,2757,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_resources,driver::close_queue

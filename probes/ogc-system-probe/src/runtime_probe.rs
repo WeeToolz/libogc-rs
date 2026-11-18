@@ -63,6 +63,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_lwp_driver_objects(logger);
     probe_lwp_driver_mutex_cond(logger);
     probe_lwp_sys_resources(logger);
+    probe_lwp_driver_resources(logger);
     probe_lwp_thread_handle(logger);
     probe_lwp_suspend_resume(logger);
     probe_lwp_driver_suspend(logger);
@@ -782,6 +783,77 @@ fn probe_lwp_thread_handle(logger: &mut ProbeLogger) {
         logger.record("LWP created thread returns its handle", false);
         logger.record("LWP thread runs and returns its argument", false);
     }
+}
+
+fn probe_lwp_driver_resources(logger: &mut ProbeLogger) {
+    use ogc_lwp_driver as driver;
+    // SAFETY: Allocations remain within their requested bounds and are freed once.
+    unsafe {
+        let first = driver::allocate_workspace(64);
+        let second = driver::allocate_workspace(64);
+        let allocated = !first.is_null() && !second.is_null() && first != second;
+        if allocated {
+            core::ptr::write_bytes(first, 0x21, 64);
+            core::ptr::write_bytes(second, 0x87, 64);
+            let intact = core::slice::from_raw_parts(first, 64)
+                .iter()
+                .all(|x| *x == 0x21)
+                && core::slice::from_raw_parts(second, 64)
+                    .iter()
+                    .all(|x| *x == 0x87);
+            logger.record(
+                "LWP driver workspace preserves separate allocations",
+                intact,
+            );
+        } else {
+            logger.record("LWP driver workspace preserves separate allocations", false);
+        }
+        driver::release_workspace(first, 64);
+        driver::release_workspace(second, 64);
+        let again = driver::allocate_workspace(64);
+        logger.record(
+            "LWP driver workspace allocates after release",
+            !again.is_null(),
+        );
+        driver::release_workspace(again, 64);
+    }
+    LWP_QUEUE_READY.store(0, Ordering::Release);
+    LWP_QUEUE_WOKEN.store(0, Ordering::Release);
+    let mut queue = driver::LWP_TQUEUE_NULL;
+    let initialized = unsafe { driver::init_queue(&mut queue) };
+    let mut raw = driver::LWP_THREAD_NULL;
+    // SAFETY: The queue remains valid until it cancels the waiter.
+    let worker = unsafe {
+        ogc_lwp::ThreadHandle::create(
+            &mut raw,
+            Some(probe_lwp_driver_queue_worker),
+            queue as usize as *mut core::ffi::c_void,
+            core::ptr::null_mut(),
+            8192,
+            64,
+        )
+    };
+    for _ in 0..1000 {
+        if LWP_QUEUE_READY.load(Ordering::Acquire) == 1 {
+            break;
+        }
+        ogc_lwp::yield_now();
+    }
+    for _ in 0..16 {
+        ogc_lwp::yield_now();
+    }
+    let waiting = LWP_QUEUE_READY.load(Ordering::Acquire) == 1
+        && LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 0;
+    driver::close_queue(queue);
+    let joined = worker.is_ok_and(|worker| worker.join().is_ok());
+    logger.record(
+        "LWP driver closing queue cancels waiter",
+        initialized == 0
+            && waiting
+            && joined
+            && LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 0
+            && driver::queue_sleep(queue) != 0,
+    );
 }
 
 fn probe_lwp_sys_resources(logger: &mut ProbeLogger) {
