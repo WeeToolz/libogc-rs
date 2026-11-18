@@ -106,6 +106,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_sysbase_errno(logger);
     probe_irq_handler_registry(logger);
     probe_irq_raw_handler_registry(logger);
+    probe_irq_delivery_state(logger);
     probe_si_queries(logger);
     probe_si_raw_queries(logger);
     probe_ui_adapters(logger);
@@ -1702,6 +1703,44 @@ fn probe_si_queries(logger: &mut ProbeLogger) {
 }
 
 unsafe extern "C" fn probe_irq_handler(_: u32, _: *mut core::ffi::c_void) {}
+
+fn probe_irq_delivery_state(logger: &mut ProbeLogger) {
+    use ogc_irq as irq;
+    use ogc_irq::sys as raw_irq;
+    let before: u32;
+    let disabled: u32;
+    let nested: u32;
+    let restored_nested: u32;
+    let restored: u32;
+    // SAFETY: This reads MSR and restores the saved interrupt state before reporting.
+    unsafe {
+        core::arch::asm!("mfmsr {value}", value = out(reg) before, options(nomem, nostack));
+    }
+    let outer = irq::irq_disable();
+    unsafe {
+        core::arch::asm!("mfmsr {value}", value = out(reg) disabled, options(nomem, nostack));
+    }
+    let inner = raw_irq::k_irq_disable_all();
+    unsafe {
+        core::arch::asm!("mfmsr {value}", value = out(reg) nested, options(nomem, nostack));
+    }
+    raw_irq::k_irq_restore_all(inner);
+    unsafe {
+        core::arch::asm!("mfmsr {value}", value = out(reg) restored_nested, options(nomem, nostack));
+    }
+    irq::irq_restore(outer);
+    unsafe {
+        core::arch::asm!("mfmsr {value}", value = out(reg) restored, options(nomem, nostack));
+    }
+    let ee = 1u32 << 15;
+    logger.record(
+        "IRQ nested disable and restore preserve MSR delivery state",
+        disabled & ee == 0
+            && nested & ee == 0
+            && restored_nested & ee == 0
+            && restored & ee == before & ee,
+    );
+}
 
 fn probe_irq_raw_handler_registry(logger: &mut ProbeLogger) {
     use ogc_irq as irq;

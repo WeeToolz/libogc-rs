@@ -1,0 +1,56 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-irq",
+      "path": "src/lib.rs",
+      "symbol": "irq_disable",
+      "line": 50,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_irq_delivery_state",
+      "api_path": "irq::irq_disable",
+      "checks": [
+        "IRQ nested disable and restore preserve MSR delivery state"
+      ]
+    },
+    {
+      "crate": "ogc-irq",
+      "path": "src/lib.rs",
+      "symbol": "irq_restore",
+      "line": 55,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_irq_delivery_state",
+      "api_path": "irq::irq_restore",
+      "checks": [
+        "IRQ nested disable and restore preserve MSR delivery state"
+      ]
+    },
+    {
+      "crate": "ogc-irq-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_irq_disable_all",
+      "line": 336,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_irq_delivery_state",
+      "api_path": "raw_irq::k_irq_disable_all",
+      "checks": [
+        "IRQ nested disable and restore preserve MSR delivery state"
+      ]
+    },
+    {
+      "crate": "ogc-irq-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_irq_restore_all",
+      "line": 342,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_irq_delivery_state",
+      "api_path": "raw_irq::k_irq_restore_all",
+      "checks": [
+        "IRQ nested disable and restore preserve MSR delivery state"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin nested interrupt delivery disable and restoration on the current thread. Interrupt arrival, concurrency and physical Wii remain unverified."
+  ]
+}
