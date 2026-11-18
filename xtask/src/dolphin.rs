@@ -3,7 +3,7 @@ use sha2::{Digest, Sha256};
 use std::collections::HashSet;
 use std::ffi::CString;
 use std::fs::{self, File, OpenOptions};
-use std::io::{Read, Write};
+use std::io::{BufRead, BufReader, Read, Write};
 use std::net::{Ipv4Addr, SocketAddrV4, TcpListener, TcpStream};
 use std::ops::{Deref, DerefMut};
 use std::os::unix::ffi::OsStrExt;
@@ -226,6 +226,7 @@ const PROBES: &[ProbeSpec] = &[
 
 #[derive(Default)]
 struct Options {
+    no_build: bool,
     dolphin: Option<PathBuf>,
     nand_dir: Option<PathBuf>,
     disc_image: Option<PathBuf>,
@@ -467,6 +468,19 @@ pub fn validate(root: &Path, args: &[String]) -> Result<(), String> {
         }
     }
 
+    let selected = select_probes(&options.probes)?;
+    if !options.no_build {
+        if options.probes.is_empty() {
+            super::build_dolphin_probes()?;
+        } else {
+            let names: Vec<_> = selected.iter().map(|spec| spec.name).collect();
+            super::build_selected_dolphin_probes(&names)?;
+        }
+        if selected.iter().any(|spec| spec.name == "wii_std_fs_probe") {
+            super::build_wii_std_fs_dolphin_probe()?;
+        }
+    }
+
     let revision =
         git_output(root, &["rev-parse", "HEAD"]).unwrap_or_else(|_| "unknown".to_string());
     let short_revision = revision.chars().take(12).collect::<String>();
@@ -478,7 +492,6 @@ pub fn validate(root: &Path, args: &[String]) -> Result<(), String> {
     fs::create_dir_all(&artifact_dir)
         .map_err(|err| format!("{}: {err}", artifact_dir.display()))?;
 
-    let selected = select_probes(&options.probes)?;
     let requested_names: Vec<String> = selected.iter().map(|spec| spec.name.to_string()).collect();
     let dirty = git_output(root, &["status", "--porcelain"])
         .map(|value| !value.trim().is_empty())
@@ -550,7 +563,10 @@ fn parse_options(args: &[String]) -> Result<Options, String> {
     let mut index = 0;
     while index < args.len() {
         match args[index].as_str() {
-            "--no-build" => index += 1,
+            "--no-build" => {
+                options.no_build = true;
+                index += 1;
+            }
             "--format-private-card" => {
                 options.format_private_card = true;
                 index += 1;
@@ -961,6 +977,7 @@ fn run_probe(
     let mut captured_probe_log = String::new();
     let mut gecko_receiver = None;
     let mut next_gecko_connect = Instant::now();
+    let mut progress = ProbeProgress::default();
     let mut page_frames = Vec::new();
     let mut page_capture_error = None;
     let mut timeout_diagnostic = None;
@@ -1011,7 +1028,8 @@ fn run_probe(
         {
             captured_probe_log = contents;
         }
-        let captures = parse_page_captures(&captured_probe_log);
+        progress.update(&captured_probe_log);
+        let captures = &progress.captures;
         while page_frames.len() < captures.len() {
             let capture = &captures[page_frames.len()];
             let path = page_frames_dir.join(format!("page-{:03}.png", capture.capture));
@@ -1022,16 +1040,10 @@ fn run_probe(
             }
             page_frames.push(path);
         }
-        let summaries = parse_summaries(&captured_probe_log);
-        if summaries.len() > 1 {
+        if progress.summaries > 1 {
             return Err(format!("probe {} wrote duplicate summaries", spec.name));
         }
-        if summaries.len() == 1
-            && captured_probe_log
-                .lines()
-                .any(|line| line == CAPTURE_COMPLETE)
-            && page_frames.len() == captures.len()
-        {
+        if progress.summaries == 1 && progress.complete && page_frames.len() == captures.len() {
             completion = Completion::Summary;
             break;
         }
@@ -1413,8 +1425,31 @@ fn strip_dolphin_protocol(contents: &str) -> String {
     output
 }
 
-fn parse_page_captures(contents: &str) -> Vec<PageCapture> {
-    contents.lines().filter_map(parse_page_capture).collect()
+#[derive(Default)]
+struct ProbeProgress {
+    offset: usize,
+    captures: Vec<PageCapture>,
+    summaries: usize,
+    complete: bool,
+}
+
+impl ProbeProgress {
+    fn update(&mut self, log: &str) {
+        for line in log[self.offset..].split_inclusive('\n') {
+            let Some(line_body) = line.strip_suffix('\n') else {
+                break;
+            };
+            self.offset += line.len();
+            let line = line_body.strip_suffix('\r').unwrap_or(line_body);
+            if let Some(capture) = parse_page_capture(line) {
+                self.captures.push(capture);
+            } else if parse_summary(line).is_some() {
+                self.summaries += 1;
+            } else if line == CAPTURE_COMPLETE {
+                self.complete = true;
+            }
+        }
+    }
 }
 
 fn parse_page_capture(line: &str) -> Option<PageCapture> {
@@ -1555,7 +1590,7 @@ fn unused_tcp_port() -> Result<u16, String> {
 }
 
 struct GdbClient {
-    stream: TcpStream,
+    stream: BufReader<TcpStream>,
     pending_packet: Option<String>,
 }
 
@@ -1576,7 +1611,7 @@ impl GdbClient {
                         .set_write_timeout(Some(Duration::from_secs(5)))
                         .map_err(|err| format!("failed to configure Dolphin GDB: {err}"))?;
                     return Ok(Self {
-                        stream,
+                        stream: BufReader::new(stream),
                         pending_packet: None,
                     });
                 }
@@ -1623,6 +1658,7 @@ impl GdbClient {
 
     fn capture_xfb(&mut self, capture: &PageCapture, path: &Path) -> Result<(), String> {
         self.stream
+            .get_mut()
             .write_all(&[0x03])
             .map_err(|err| format!("failed to pause Dolphin for {}: {err}", capture.marker))?;
         let stop = self.read_packet()?;
@@ -1660,7 +1696,7 @@ impl GdbClient {
         };
         let mut errors = Vec::new();
 
-        if let Err(error) = self.stream.write_all(&[0x03]) {
+        if let Err(error) = self.stream.get_mut().write_all(&[0x03]) {
             diagnostic.error = Some(format!("failed to interrupt Dolphin: {error}"));
             return diagnostic;
         }
@@ -1797,6 +1833,7 @@ impl GdbClient {
             .fold(0u8, |sum, byte| sum.wrapping_add(*byte));
         let packet = format!("${payload}#{checksum:02x}");
         self.stream
+            .get_mut()
             .write_all(packet.as_bytes())
             .map_err(|err| format!("Dolphin GDB packet write failed: {err}"))?;
         let mut ack = [0u8; 1];
@@ -1832,17 +1869,12 @@ impl GdbClient {
     }
 
     fn read_packet_after_start(&mut self) -> Result<String, String> {
-        let mut byte = [0u8; 1];
-
         let mut payload = Vec::new();
-        loop {
-            self.stream
-                .read_exact(&mut byte)
-                .map_err(|err| format!("Dolphin GDB reply read failed: {err}"))?;
-            if byte[0] == b'#' {
-                break;
-            }
-            payload.push(byte[0]);
+        self.stream
+            .read_until(b'#', &mut payload)
+            .map_err(|err| format!("Dolphin GDB reply read failed: {err}"))?;
+        if payload.pop() != Some(b'#') {
+            return Err("Dolphin GDB reply ended before its checksum".into());
         }
         let mut checksum_text = [0u8; 2];
         self.stream
@@ -1853,12 +1885,13 @@ impl GdbClient {
             .iter()
             .fold(0u8, |sum, value| sum.wrapping_add(*value));
         if actual != expected {
-            let _ = self.stream.write_all(b"-");
+            let _ = self.stream.get_mut().write_all(b"-");
             return Err(format!(
                 "Dolphin GDB reply checksum mismatch: {actual:02x} != {expected:02x}"
             ));
         }
         self.stream
+            .get_mut()
             .write_all(b"+")
             .map_err(|err| format!("Dolphin GDB reply acknowledgement failed: {err}"))?;
         String::from_utf8(payload).map_err(|err| format!("Dolphin GDB reply was not UTF-8: {err}"))
@@ -2244,6 +2277,23 @@ fn unix_seconds() -> u64 {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn polling_consumes_complete_lines_once() {
+        let mut progress = super::ProbeProgress::default();
+        let mut log = String::from("PASS summary passes=3 fails=0");
+        progress.update(&log);
+        assert_eq!(progress.summaries, 0);
+        log.push_str("\r\nOGC_DOLPHIN_CAPTURE_COMP");
+        progress.update(&log);
+        progress.update(&log);
+        assert_eq!(progress.summaries, 1);
+        assert!(!progress.complete);
+        log.push_str("LETE\nFAIL summary passes=3 fails=1\n");
+        progress.update(&log);
+        assert!(progress.complete);
+        assert_eq!(progress.summaries, 2);
+    }
+
     #[test]
     fn card_format_evidence_requires_marker_removal_and_cleanup() {
         let old_log = "PASS card destructive format final unmount\n";
