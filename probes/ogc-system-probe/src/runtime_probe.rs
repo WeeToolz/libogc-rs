@@ -4414,6 +4414,19 @@ fn probe_system_sram_getters(logger: &mut ProbeLogger) {
         "System video mode reads SRAM bits",
         system::get_video_mode() == 2,
     );
+    logger.record(
+        "System SRAM getter snapshots record calls",
+        raw_system::snapshot_counter_bias_probe().get_called
+            && raw_system::snapshot_display_offset_probe().get_called
+            && raw_system::snapshot_eu_rgb60_probe().get_called
+            && raw_system::snapshot_language_probe().get_called
+            && raw_system::snapshot_progressive_scan_probe().get_called,
+    );
+    logger.record(
+        "System SRAM checksum wraps both sums",
+        raw_system::sram_checksum_words([0xffff, 2, 0x1234, 0xedcc]) == (1, 0xfffb)
+            && raw_system::sram_checksum_words([0; 4]) == (0, 0xfffc),
+    );
     let config = system::snapshot_config();
     logger.record(
         "System configuration snapshot reflects SRAM fixture",

@@ -2411,3 +2411,9 @@ ogc-sysbase,src/lib.rs,current_reent,683,hardware,hardware-probe,probes/ogc-syst
 ogc-sysbase,src/lib.rs,errno_location,689,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_sysbase_errno,base::errno_location
 ogc-sysbase,src/lib.rs,set_reent_errno,53,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_sysbase_errno,base::set_reent_errno
 ogc-sysbase,src/error.rs,describe_errno,74,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_sysbase_errno,describe_errno
+ogc-system-sys,src/lib.rs,snapshot_counter_bias_probe,3501,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_getters,raw_system::snapshot_counter_bias_probe
+ogc-system-sys,src/lib.rs,snapshot_display_offset_probe,3551,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_getters,raw_system::snapshot_display_offset_probe
+ogc-system-sys,src/lib.rs,snapshot_eu_rgb60_probe,3602,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_getters,raw_system::snapshot_eu_rgb60_probe
+ogc-system-sys,src/lib.rs,snapshot_language_probe,3652,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_getters,raw_system::snapshot_language_probe
+ogc-system-sys,src/lib.rs,snapshot_progressive_scan_probe,3703,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_getters,raw_system::snapshot_progressive_scan_probe
+ogc-system-sys,src/lib.rs,sram_checksum_words,1307,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_getters,raw_system::sram_checksum_words
