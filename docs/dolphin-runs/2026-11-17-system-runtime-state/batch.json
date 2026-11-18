@@ -1,0 +1,68 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "new",
+      "line": 221,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_runtime_state",
+      "api_path": "SystemRuntimeState::new",
+      "checks": [
+        "System runtime state tracks Wii and GameCube input"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "note_stm_event",
+      "line": 230,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_runtime_state",
+      "api_path": "wii.note_stm_event",
+      "checks": [
+        "System runtime state tracks Wii and GameCube input"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "main_loop_step",
+      "line": 244,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_runtime_state",
+      "api_path": "wii.main_loop_step",
+      "checks": [
+        "System runtime state tracks Wii and GameCube input"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "power_callback_attempt",
+      "line": 257,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_runtime_state",
+      "api_path": "throttle.power_callback_attempt",
+      "checks": [
+        "System runtime power cooldown extends after attempts"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "reset_plan",
+      "line": 263,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_runtime_state",
+      "api_path": "gc.reset_plan",
+      "checks": [
+        "System runtime reset plan reflects target and requested action"
+      ]
+    }
+  ],
+  "limits": [
+    "Runtime state decisions in Dolphin. Physical button events, reset execution, and hardware power transitions require separate evidence."
+  ]
+}

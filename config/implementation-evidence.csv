@@ -2163,3 +2163,8 @@ ogc-system,src/lib.rs,diet_print_set_func,1506,compatibility-forwarder,hardware-
 ogc-system,src/lib.rs,try_report,616,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/callback_probe.rs,test_report_callback,system::try_report
 ogc-system,src/lib.rs,report,642,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/callback_probe.rs,test_report_callback,system::report
 ogc-system,src/lib.rs,last_report_succeeded,646,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/callback_probe.rs,test_report_callback,system::last_report_succeeded
+ogc-system,src/lib.rs,new,221,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_runtime_state,SystemRuntimeState::new
+ogc-system,src/lib.rs,note_stm_event,230,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_runtime_state,wii.note_stm_event
+ogc-system,src/lib.rs,main_loop_step,244,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_runtime_state,wii.main_loop_step
+ogc-system,src/lib.rs,power_callback_attempt,257,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_runtime_state,throttle.power_callback_attempt
+ogc-system,src/lib.rs,reset_plan,263,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_runtime_state,gc.reset_plan

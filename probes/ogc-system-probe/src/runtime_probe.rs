@@ -46,6 +46,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_bt_l2cap_state(logger);
     probe_bt_host_startup(logger);
     probe_bt_key_requests(logger);
+    probe_system_runtime_state(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -79,6 +80,53 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_network_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_udp(logger);
+}
+
+fn probe_system_runtime_state(logger: &mut ProbeLogger) {
+    use system::{
+        MainLoopDecision, MainLoopExitReason, PowerButtonState, StmEvent, SystemRuntimeState,
+    };
+    let mut wii = SystemRuntimeState::new(true);
+    let initial = wii.is_wii
+        && !wii.main_loop_done
+        && wii.power_enable_time == 0
+        && wii.power_button_state == PowerButtonState::Idle
+        && wii.main_loop_step(true) == MainLoopDecision::Continue;
+    wii.note_stm_event(StmEvent::Reset, false);
+    let ignored = wii.power_button_state == PowerButtonState::Idle;
+    wii.note_stm_event(StmEvent::Reset, true);
+    wii.note_stm_event(StmEvent::Power, false);
+    let exit = wii.power_button_state == PowerButtonState::ResetPressed
+        && wii.main_loop_step(false) == MainLoopDecision::Exit(MainLoopExitReason::PowerButton)
+        && wii.main_loop_step(false) == MainLoopDecision::Exit(MainLoopExitReason::AlreadyDone);
+    let mut gc = SystemRuntimeState::new(false);
+    let gc_exit = gc.main_loop_step(false) == MainLoopDecision::Continue
+        && gc.main_loop_step(true) == MainLoopDecision::Exit(MainLoopExitReason::ResetButton);
+    logger.record(
+        "System runtime state tracks Wii and GameCube input",
+        initial && ignored && exit && gc_exit,
+    );
+
+    let mut throttle = SystemRuntimeState::new(true);
+    let first = throttle.power_callback_attempt(100, 50) && throttle.power_enable_time == 150;
+    let blocked = !throttle.power_callback_attempt(120, 50) && throttle.power_enable_time == 170;
+    let due = throttle.power_callback_attempt(170, 50) && throttle.power_enable_time == 220;
+    logger.record(
+        "System runtime power cooldown extends after attempts",
+        first && blocked && due,
+    );
+
+    let gc_plan = gc.reset_plan(system::SYS_HOTRESET, true, false);
+    let wii_plan = wii.reset_plan(system::SYS_POWEROFF, false, true);
+    logger.record(
+        "System runtime reset plan reflects target and requested action",
+        gc_plan.terminal == Some(system::ResetSystemTerminal::HotReset)
+            && gc_plan.sets_boot_ipl
+            && !gc_plan.clears_active_input_list
+            && wii_plan.terminal == Some(system::ResetSystemTerminal::ShutdownToIdle)
+            && wii_plan.clears_active_input_list
+            && !wii_plan.sets_boot_ipl,
+    );
 }
 
 fn probe_bt_key_requests(logger: &mut ProbeLogger) {
