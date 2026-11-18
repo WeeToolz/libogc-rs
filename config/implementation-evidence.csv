@@ -2300,3 +2300,5 @@ ogc-lwp,src/lib.rs,destroy,250,compatibility-forwarder,hardware-probe,probes/ogc
 ogc-lwp,src/lib.rs,init,265,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_sync_handles,api::SemaphoreHandle::init
 ogc-lwp,src/lib.rs,raw,261,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_sync_handles,sem.raw
 ogc-lwp,src/lib.rs,destroy,275,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_sync_handles,sem.destroy
+ogc-video,src/lib.rs,get_frame_buffer_size,409,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_queries,video::get_frame_buffer_size
+ogc-video,src/lib.rs,snapshot,611,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_queries,video::snapshot

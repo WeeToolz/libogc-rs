@@ -74,6 +74,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_system_runtime_state(logger);
     probe_system_startup_status(logger);
     probe_system_framebuffer_status(logger);
+    probe_video_queries(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -587,6 +588,45 @@ fn probe_network_error_conversion(logger: &mut ProbeLogger) {
     logger.record(
         "Network error conversion offsets unknown values",
         raw::_net_convert_error(-78) == -10078 && net::convert_error(-100) == -10100,
+    );
+}
+
+fn probe_video_queries(logger: &mut ProbeLogger) {
+    use ogc_video as video;
+    // SAFETY: A null destination requests the active preferred mode.
+    let preferred = unsafe { video::get_preferred_mode(core::ptr::null_mut()) };
+    if preferred.is_null() {
+        logger.record(
+            "Video framebuffer size aligns width and adds AA rows",
+            false,
+        );
+    } else {
+        // SAFETY: The preferred mode points to an initialized mode.
+        let mut mode = unsafe { *preferred };
+        mode.fb_width = 17;
+        mode.xfb_height = 3;
+        mode.aa = 0;
+        // SAFETY: Both calls use the live local mode.
+        let plain = unsafe { video::get_frame_buffer_size(&mut mode) };
+        mode.aa = 1;
+        let antialiased = unsafe { video::get_frame_buffer_size(&mut mode) };
+        logger.record(
+            "Video framebuffer size aligns width and adds AA rows",
+            plain == 192 && antialiased == 448,
+        );
+    }
+    let tv = video::get_current_tv_mode();
+    let scan = video::get_video_scan_mode();
+    let line = video::get_current_line();
+    let field = video::get_next_field();
+    let snapshot = video::snapshot();
+    logger.record(
+        "Video snapshot retains last queried state",
+        snapshot.current_tv_mode == tv
+            && snapshot.video_scan_mode == scan
+            && snapshot.current_line == line
+            && snapshot.next_field == field
+            && field <= 1,
     );
 }
 
