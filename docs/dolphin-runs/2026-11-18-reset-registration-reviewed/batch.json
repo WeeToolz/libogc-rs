@@ -1,0 +1,44 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_register_reset_func",
+      "line": 3904,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_reset_registration",
+      "api_path": "raw_system::sys_register_reset_func",
+      "checks": [
+        "System reset registration tracks the same live record"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_unregister_reset_func",
+      "line": 3945,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_reset_registration",
+      "api_path": "raw_system::sys_unregister_reset_func",
+      "checks": [
+        "System reset registration tracks the same live record"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_reset_registration",
+      "line": 4032,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_reset_registration",
+      "api_path": "raw_system::snapshot_reset_registration",
+      "checks": [
+        "System reset registration tracks the same live record"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin registration, duplicate registration and removal of one inert reset record. Callback ordering, invocation, concurrent mutation and physical Wii remain unverified."
+  ]
+}

@@ -94,6 +94,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_system_raw_snapshots(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_system_font_snapshot(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_reset_registration(logger);
     probe_video_queries(logger);
     probe_wd_information_elements(logger);
     probe_wd_scan_defaults(logger);
@@ -1969,6 +1971,56 @@ fn probe_video_queries(logger: &mut ProbeLogger) {
             && snapshot.current_line == line
             && snapshot.next_field == field
             && field <= 1,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_reset_registration(logger: &mut ProbeLogger) {
+    let empty = raw_system::LwpNode {
+        next: core::ptr::null_mut(),
+        prev: core::ptr::null_mut(),
+    };
+    let mut first = raw_system::SysResetInfo {
+        node: empty,
+        func: None,
+        prio: 0x7fff_4321,
+    };
+    let mut second = raw_system::SysResetInfo {
+        node: empty,
+        func: None,
+        prio: 0x7fff_4321,
+    };
+    let first_ptr = &mut first as *mut raw_system::SysResetInfo;
+    let second_ptr = &mut second as *mut raw_system::SysResetInfo;
+    // SAFETY: Both records remain live until their removal below.
+    unsafe {
+        raw_system::sys_register_reset_func(first_ptr);
+        raw_system::sys_register_reset_func(second_ptr);
+        raw_system::sys_register_reset_func(second_ptr);
+    }
+    let registered = raw_system::snapshot_reset_registration();
+    let linked = first.node.next == second_ptr.cast()
+        && second.node.prev == first_ptr.cast()
+        && second.node.next != second_ptr.cast();
+    // SAFETY: Both records remain live while they are removed.
+    unsafe {
+        raw_system::sys_unregister_reset_func(second_ptr);
+    }
+    let unlinked = first.node.next != second_ptr.cast()
+        && second.node.next.is_null()
+        && second.node.prev.is_null();
+    let removed = raw_system::snapshot_reset_registration();
+    unsafe {
+        raw_system::sys_unregister_reset_func(first_ptr);
+    }
+    logger.record(
+        "System reset registration tracks the same live record",
+        linked
+            && unlinked
+            && registered.register_called
+            && registered.register_ptr == second_ptr as usize
+            && removed.unregister_called
+            && removed.unregister_ptr == second_ptr as usize,
     );
 }
 
