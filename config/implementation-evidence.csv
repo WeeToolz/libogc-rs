@@ -2253,3 +2253,5 @@ ogc-network,src/lib.rs,get_host_by_name,122,compatibility-forwarder,hardware-pro
 ogc-network-sys,src/lib.rs,net_init_async,1025,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_async_network_init,raw::net_init_async
 ogc-network-sys,src/lib.rs,net_init_async,1965,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_async_network_init,raw::net_init_async
 ogc-network,src/lib.rs,init_async,83,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_async_network_init,net::init_async
+ogc-network-sys,src/lib.rs,net_get_mac_address,1096,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_mac_address,raw::net_get_mac_address
+ogc-network-sys,src/lib.rs,net_get_mac_address,1985,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_mac_address,raw::net_get_mac_address

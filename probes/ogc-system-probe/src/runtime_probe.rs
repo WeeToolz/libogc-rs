@@ -640,6 +640,7 @@ fn probe_raw_udp(logger: &mut ProbeLogger) {
     if initialized < 0 {
         return;
     }
+    probe_network_mac_address(logger);
     probe_network_interface_addresses(logger);
     probe_network_numeric_resolver(logger);
     let sender = net::net_socket(net::PF_INET, net::SOCK_DGRAM, net::IPPROTO_IP);
@@ -893,6 +894,43 @@ fn probe_raw_udp(logger: &mut ProbeLogger) {
         "Network resolver requires an active session",
         deinitialized == 0 && closed.is_null(),
     );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_network_mac_address(logger: &mut ProbeLogger) {
+    use ogc_ipc as ipc;
+    use raw_network as raw;
+    let mut ios_mac = [0u8; 6];
+    let mut status = [0u8; 32];
+    let reference = match ipc::open_file(c"/dev/net/ncd/manage", 0) {
+        Ok(fd) => {
+            let rc = fd.ioctlv(
+                8,
+                0,
+                [
+                    ipc::IoctlvEntry::Out(&mut status),
+                    ipc::IoctlvEntry::Out(&mut ios_mac),
+                ],
+            );
+            let close = fd.close();
+            rc == 0 && status[..4] == [0; 4] && close.is_ok()
+        }
+        Err(_) => false,
+    };
+    let mut guarded = [0xa5u8; 8];
+    let rc = unsafe { raw::net_get_mac_address(guarded.as_mut_ptr().add(1).cast()) };
+    logger.record(
+        "Network MAC matches independent IOS response",
+        reference
+            && rc == 0
+            && ios_mac != [0; 6]
+            && ios_mac[0] & 1 == 0
+            && guarded[1..7] == ios_mac
+            && guarded[0] == 0xa5
+            && guarded[7] == 0xa5,
+    );
+    let null_rc = unsafe { raw::net_get_mac_address(core::ptr::null_mut()) };
+    logger.record("Network MAC rejects null output", null_rc == -1);
 }
 
 #[cfg(feature = "dolphin-automation")]
