@@ -1,0 +1,58 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "init_queue",
+      "line": 2735,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_queue_wake",
+      "api_path": "driver::init_queue",
+      "checks": [
+        "LWP driver queue signal wakes one waiter",
+        "LWP driver queue broadcast wakes remaining waiter"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "queue_signal",
+      "line": 2787,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_queue_wake",
+      "api_path": "driver::queue_signal",
+      "checks": [
+        "LWP driver queue signal wakes one waiter"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "queue_broadcast",
+      "line": 2800,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_queue_wake",
+      "api_path": "driver::queue_broadcast",
+      "checks": [
+        "LWP driver queue broadcast wakes remaining waiter"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "queue_sleep",
+      "line": 2771,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_queue_worker",
+      "api_path": "ogc_lwp_driver::queue_sleep",
+      "checks": [
+        "LWP driver queue signal wakes one waiter",
+        "LWP driver queue broadcast wakes remaining waiter"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin two cooperating waiters. Larger wait sets, cancellation races and physical Wii remain unverified."
+  ]
+}
