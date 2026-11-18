@@ -1,0 +1,80 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-wd",
+      "path": "src/lib.rs",
+      "symbol": "get_number_of_ies",
+      "line": 683,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wd_information_elements",
+      "api_path": "wd::get_number_of_ies",
+      "checks": [
+        "WD counts complete nonempty elements"
+      ]
+    },
+    {
+      "crate": "ogc-wd",
+      "path": "src/lib.rs",
+      "symbol": "number_of_ies",
+      "line": 717,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wd_information_elements",
+      "api_path": "wd::number_of_ies",
+      "checks": [
+        "WD counts complete nonempty elements"
+      ]
+    },
+    {
+      "crate": "ogc-wd",
+      "path": "src/lib.rs",
+      "symbol": "get_ie_length",
+      "line": 726,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wd_information_elements",
+      "api_path": "wd::get_ie_length",
+      "checks": [
+        "WD element lengths and missing IDs"
+      ]
+    },
+    {
+      "crate": "ogc-wd",
+      "path": "src/lib.rs",
+      "symbol": "ie_length",
+      "line": 734,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wd_information_elements",
+      "api_path": "wd::ie_length",
+      "checks": [
+        "WD element lengths and missing IDs"
+      ]
+    },
+    {
+      "crate": "ogc-wd",
+      "path": "src/lib.rs",
+      "symbol": "get_ie",
+      "line": 745,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wd_information_elements",
+      "api_path": "wd::get_ie",
+      "checks": [
+        "WD copies payload and clears remaining buffer"
+      ]
+    },
+    {
+      "crate": "ogc-wd",
+      "path": "src/lib.rs",
+      "symbol": "copy_ie",
+      "line": 768,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wd_information_elements",
+      "api_path": "wd::copy_ie",
+      "checks": [
+        "WD safe copy checks capacity"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin synthetic BSS descriptor and malformed lengths. Wireless scans and physical Wii remain unverified."
+  ]
+}

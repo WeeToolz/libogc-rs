@@ -2302,3 +2302,9 @@ ogc-lwp,src/lib.rs,raw,261,compatibility-forwarder,hardware-probe,probes/ogc-sys
 ogc-lwp,src/lib.rs,destroy,275,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_sync_handles,sem.destroy
 ogc-video,src/lib.rs,get_frame_buffer_size,409,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_queries,video::get_frame_buffer_size
 ogc-video,src/lib.rs,snapshot,611,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_queries,video::snapshot
+ogc-wd,src/lib.rs,get_number_of_ies,683,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wd_information_elements,wd::get_number_of_ies
+ogc-wd,src/lib.rs,number_of_ies,717,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wd_information_elements,wd::number_of_ies
+ogc-wd,src/lib.rs,get_ie_length,726,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wd_information_elements,wd::get_ie_length
+ogc-wd,src/lib.rs,ie_length,734,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wd_information_elements,wd::ie_length
+ogc-wd,src/lib.rs,get_ie,745,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wd_information_elements,wd::get_ie
+ogc-wd,src/lib.rs,copy_ie,768,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wd_information_elements,wd::copy_ie

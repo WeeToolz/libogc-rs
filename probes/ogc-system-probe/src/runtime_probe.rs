@@ -75,6 +75,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_system_startup_status(logger);
     probe_system_framebuffer_status(logger);
     probe_video_queries(logger);
+    probe_wd_information_elements(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -588,6 +589,46 @@ fn probe_network_error_conversion(logger: &mut ProbeLogger) {
     logger.record(
         "Network error conversion offsets unknown values",
         raw::_net_convert_error(-78) == -10078 && net::convert_error(-100) == -10100,
+    );
+}
+
+fn probe_wd_information_elements(logger: &mut ProbeLogger) {
+    use ogc_wd as wd;
+    const HEADER: usize = core::mem::size_of::<wd::BssDescriptor>();
+    let mut bytes = [0u8; HEADER + 9];
+    let offset = core::mem::offset_of!(wd::BssDescriptor, ies_length);
+    bytes[offset..offset + 2].copy_from_slice(&9u16.to_ne_bytes());
+    bytes[HEADER..].copy_from_slice(&[1, 2, 0xaa, 0xbb, 5, 1, 0xcc, 9, 0]);
+    let ptr = bytes.as_ptr().cast::<wd::BssDescriptor>();
+    // SAFETY: The descriptor and the declared trailing bytes are readable.
+    let count = unsafe { wd::get_number_of_ies(ptr, bytes.len()) };
+    logger.record(
+        "WD counts complete nonempty elements",
+        count == 2 && wd::number_of_ies(&bytes) == 2,
+    );
+    let length = unsafe { wd::get_ie_length(ptr, bytes.len(), 1) };
+    logger.record(
+        "WD element lengths and missing IDs",
+        length == 2 && wd::ie_length(&bytes, 5) == Ok(1) && wd::ie_length(&bytes, 7).is_err(),
+    );
+    let mut out = [0x55; 4];
+    let copied = unsafe { wd::get_ie(ptr, bytes.len(), 5, out.as_mut_ptr(), out.len()) };
+    logger.record(
+        "WD copies payload and clears remaining buffer",
+        copied == 0 && out == [0xcc, 0, 0, 0],
+    );
+    let mut short = [0x77; 1];
+    let failed = wd::copy_ie(&bytes, 1, &mut short);
+    let mut exact = [0; 2];
+    let ok = wd::copy_ie(&bytes, 1, &mut exact);
+    logger.record(
+        "WD safe copy checks capacity",
+        failed.is_err() && short == [0x77] && ok.is_ok() && exact == [0xaa, 0xbb],
+    );
+    logger.record(
+        "WD rejects truncated descriptor",
+        unsafe { wd::get_ie_length(ptr, HEADER, 1) } == -1
+            && wd::number_of_ies(&bytes[..HEADER]) == 0,
     );
 }
 
