@@ -2330,3 +2330,13 @@ ogc-si,src/lib.rs,get_command,72,compatibility-forwarder,hardware-probe,probes/o
 ogc-si,src/lib.rs,get_type,91,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_queries,si::get_type
 ogc-si,src/lib.rs,get_type_async,95,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_queries,si::get_type_async
 ogc-si,src/lib.rs,probe,103,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_queries,si::probe
+ogc-lwp-driver,src/runtime.rs,init_semaphore,3054,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_objects,driver::init_semaphore
+ogc-lwp-driver,src/runtime.rs,semaphore_get_value,3151,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_objects,driver::semaphore_get_value
+ogc-lwp-driver,src/runtime.rs,semaphore_wait,3103,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_objects,driver::semaphore_wait
+ogc-lwp-driver,src/runtime.rs,semaphore_post,3127,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_objects,driver::semaphore_post
+ogc-lwp-driver,src/runtime.rs,close_semaphore,3085,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_objects,driver::close_semaphore
+ogc-lwp-driver,src/runtime.rs,init_message_queue,3178,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_objects,driver::init_message_queue
+ogc-lwp-driver,src/runtime.rs,message_send,3288,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_objects,driver::message_send
+ogc-lwp-driver,src/runtime.rs,message_jam,3293,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_objects,driver::message_jam
+ogc-lwp-driver,src/runtime.rs,message_receive,3320,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_objects,driver::message_receive
+ogc-lwp-driver,src/runtime.rs,close_message_queue,3221,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_objects,driver::close_message_queue

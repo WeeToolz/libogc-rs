@@ -1,0 +1,131 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "init_semaphore",
+      "line": 3054,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_objects",
+      "api_path": "driver::init_semaphore",
+      "checks": [
+        "LWP driver semaphore starts at two"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "semaphore_get_value",
+      "line": 3151,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_objects",
+      "api_path": "driver::semaphore_get_value",
+      "checks": [
+        "LWP driver semaphore starts at two",
+        "LWP driver semaphore wait decrements",
+        "LWP driver semaphore post increments"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "semaphore_wait",
+      "line": 3103,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_objects",
+      "api_path": "driver::semaphore_wait",
+      "checks": [
+        "LWP driver semaphore wait decrements"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "semaphore_post",
+      "line": 3127,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_objects",
+      "api_path": "driver::semaphore_post",
+      "checks": [
+        "LWP driver semaphore post increments"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "close_semaphore",
+      "line": 3085,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_objects",
+      "api_path": "driver::close_semaphore",
+      "checks": [
+        "LWP driver closed semaphore rejects access"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "init_message_queue",
+      "line": 3178,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_objects",
+      "api_path": "driver::init_message_queue",
+      "checks": [
+        "LWP driver queue rejects overflow"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "message_send",
+      "line": 3288,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_objects",
+      "api_path": "driver::message_send",
+      "checks": [
+        "LWP driver queue rejects overflow",
+        "LWP driver closed queue rejects send"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "message_jam",
+      "line": 3293,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_objects",
+      "api_path": "driver::message_jam",
+      "checks": [
+        "LWP driver queue returns urgent then FIFO"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "message_receive",
+      "line": 3320,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_objects",
+      "api_path": "driver::message_receive",
+      "checks": [
+        "LWP driver queue returns urgent then FIFO"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "close_message_queue",
+      "line": 3221,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_objects",
+      "api_path": "driver::close_message_queue",
+      "checks": [
+        "LWP driver closed queue rejects send"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin single-threaded nonblocking message queue and semaphore operations. Waiters, contention, exhaustion and physical Wii remain unverified."
+  ]
+}

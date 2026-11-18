@@ -60,6 +60,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_ipv4_values(logger);
     probe_lwp_message_queue(logger);
     probe_lwp_sync_handles(logger);
+    probe_lwp_driver_objects(logger);
     probe_controller_slots(logger);
     probe_owned_audio_buffer(logger);
     probe_l2cap_packets(logger);
@@ -221,6 +222,66 @@ fn probe_controller_slots(logger: &mut ProbeLogger) {
             == Err(InputFailure::MalformedReport)
             && manager.set_bluetooth_calibration_checked(0, calibration)
                 == Err(InputFailure::UnsupportedReport),
+    );
+}
+
+fn probe_lwp_driver_objects(logger: &mut ProbeLogger) {
+    use ogc_lwp_driver as driver;
+    let mut sem = driver::LWP_SEM_NULL;
+    let initialized = unsafe { driver::init_semaphore(&mut sem, 2, 3) };
+    let mut value = 99;
+    let read = unsafe { driver::semaphore_get_value(sem, &mut value) };
+    logger.record(
+        "LWP driver semaphore starts at two",
+        initialized == 0 && read == 0 && value == 2,
+    );
+    let waited = driver::semaphore_wait(sem);
+    let read = unsafe { driver::semaphore_get_value(sem, &mut value) };
+    logger.record(
+        "LWP driver semaphore wait decrements",
+        waited == 0 && read == 0 && value == 1,
+    );
+    let posted = driver::semaphore_post(sem);
+    let read = unsafe { driver::semaphore_get_value(sem, &mut value) };
+    logger.record(
+        "LWP driver semaphore post increments",
+        posted == 0 && read == 0 && value == 2,
+    );
+    let closed = driver::close_semaphore(sem);
+    logger.record(
+        "LWP driver closed semaphore rejects access",
+        closed == 0 && driver::semaphore_post(sem) != 0,
+    );
+
+    let mut queue = driver::MQ_BOX_NULL;
+    let initialized = unsafe { driver::init_message_queue(&mut queue, 2) };
+    let mut first = 11u8;
+    let mut urgent = 22u8;
+    let a = (&mut first as *mut u8).cast();
+    let b = (&mut urgent as *mut u8).cast();
+    let sent = driver::message_send(queue, a, driver::MQ_MSG_NOBLOCK);
+    let jammed = driver::message_jam(queue, b, driver::MQ_MSG_NOBLOCK);
+    logger.record(
+        "LWP driver queue rejects overflow",
+        initialized == 0
+            && sent
+            && jammed
+            && !driver::message_send(queue, a, driver::MQ_MSG_NOBLOCK),
+    );
+    let mut output = core::ptr::null_mut();
+    let one = unsafe { driver::message_receive(queue, &mut output, driver::MQ_MSG_NOBLOCK) }
+        && output == b;
+    let two = unsafe { driver::message_receive(queue, &mut output, driver::MQ_MSG_NOBLOCK) }
+        && output == a;
+    let empty = unsafe { driver::message_receive(queue, &mut output, driver::MQ_MSG_NOBLOCK) };
+    logger.record(
+        "LWP driver queue returns urgent then FIFO",
+        one && two && !empty,
+    );
+    driver::close_message_queue(queue);
+    logger.record(
+        "LWP driver closed queue rejects send",
+        !driver::message_send(queue, a, driver::MQ_MSG_NOBLOCK),
     );
 }
 

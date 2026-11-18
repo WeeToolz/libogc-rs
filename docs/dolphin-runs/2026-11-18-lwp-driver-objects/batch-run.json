@@ -1,0 +1,74 @@
+{
+  "source_revision": "9dbb184f33baeb6d0c7e8055daece8229ab4f036",
+  "source_fingerprint": "f2d3490535043e675d15537dee1ffa2ae7a6874cb713ee1331296df8c76e8af0",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "7651ee5011faa03f4632d4b3ba82a385e5bfff5fa02942037ca5bc89672a90b8",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "5112eda0e22abf82b752f34b1ffcd753bdb91938a5d081c96a8634e5c4d187a5",
+  "suite_sha256": "e345964ece406a3cac83d7e82177ab5240d8c1203213cffa9a90a94191dfa091",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/probe.log": "bf6856bc086fd35d8ce9f5c5a70ea7c62881cfdf9aa7c932946a934f7c622215",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/stderr.log": "7d881abf5a537b5e20b1dad794caa8f240a89920c1a4b93a92ea1545373f4f80",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/probe-transport.bin": "2d02b75e6ea941c33c3c909b045adb998758eda062d29a4f69e33bacea899c68",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-002.png": "5f947b9212cb392fb29390d46cc90c8f0127f278f75518e47898f43c3891c8e1",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-003.png": "1daa2287195337d699bf42676d44a87a04a5b89a949fd18ea8ab8a70f353ffbf",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-004.png": "315ddc7d9aaf06d3cd91476a691062df88c547bee9e34ded1d49ab9dd310217b",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-005.png": "d7455b88b6b29c9e520274a85837ffd04a88ea3ce3e7529c9fa76459bd402c94",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-006.png": "5915b95c9e95f3025abcafbe19dc66b96ecb807b4858b1d7914be3bf7c8dc42d",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-007.png": "6f07abe9dee920153802a5bfb75ae6a8e336cba28643b4ba2fd57999daab48b8",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-008.png": "71ba1be95902ec207ce82f73e813157a60e273691c22fc2d2d9b2f148842d95b",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-009.png": "47f91fcfbe6d1dd98fdbe6e3d3138017c6c6f734e53f88e25cfcf250be24963e",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-010.png": "1cfc6a04498203414fe6feb81336c27a3358c6713104fec19cb349b57fab25c2",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-011.png": "ad2acb82571363db7c7849353643f151063ddc70d74cc27610124d0d93eca99c",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-012.png": "76b71519fca783df910b87c0367519ce9d87749d0ebc7536ce509fcda6f736e1",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-013.png": "336f768df3341850cac6541849e9074a1835141efb307306f474f3643aaccb05",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-014.png": "2d1268859e8a2cb10306eae2cf74e19f761ce26134f722890c4242e3998d4c8e",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-015.png": "3e2898f4d7c8b284a183038fa580d10d7038e67d76c9a4958bc9014e84ca722b",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-016.png": "054986957acc306d5daee17a11627d5e4f0636595cc8d91c1102d72cf54f48c0",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-017.png": "88b8403fbf045f4a4b8a68ccc61ca5278f9479f3e742d81f03bdf9a07c622c00",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-018.png": "db8a41c0c37f2ae364b0331041f6f020649e2f1713508b33fe2661f5d96e02b8",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-019.png": "dd9ea13b9380378afe5a5761ef96e8d402edf23208ed2e4dca1c501787d002fa",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-020.png": "34a6592726f296a732f5971fb3d045c75912cec3ded6b025bfa5493f5eddfb0b",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-021.png": "7f974083f9c62e3a6ac5a541a8ed7b2ad2203512b587e663325afbbaf4a12a6f",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-022.png": "8a20e627d73b4331ddd6bdbbe276d6d64dc8cf4103926162576dfcc2b05a20e4",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-023.png": "f65ac7794c95485f367a6a9af65df68955a50d7c52cc3c2395116f42162b2be4",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-024.png": "d20403589aa2c839daa9f02cd7a81912cc9526a2132c8c1bc2d15658411a59f8",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-025.png": "46a568b46c0c20218bf5525a6f1f190b01e95bf0f0b26f45d4cdb8a34773b69a",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-026.png": "00716c59dc59bf0b1324ff548e759b5eb83f9fc8db329446e562644fcaed5163",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-027.png": "9d29cd09970b8c163796f7c7ceda3dd7b533d9c63522a26968aadcf3e9b2cc6c",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-028.png": "28b825d8c76d865826f1ebddd943a5676e9dae83b750bcfaed75cff76825ec33",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-029.png": "d3bb3c4bb7934e9d70e340a30706e0ed6839215571dcceeb3ef3668d23801b9f",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-objects/runtime_probe/pages/page-030.png": "325c2ce580cd28efa36e0eccc73201091dabd210f88f6d3893acae16d297e4e9"
+  },
+  "exit_code": 0
+}
