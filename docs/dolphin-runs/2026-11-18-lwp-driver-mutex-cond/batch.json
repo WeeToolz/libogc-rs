@@ -1,0 +1,82 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "init_mutex",
+      "line": 2817,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_mutex_cond",
+      "api_path": "driver::init_mutex",
+      "checks": [
+        "LWP driver mutex rejects repeated nonrecursive lock"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "mutex_try_lock",
+      "line": 2857,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_mutex_cond",
+      "api_path": "driver::mutex_try_lock",
+      "checks": [
+        "LWP driver mutex rejects repeated nonrecursive lock",
+        "LWP driver mutex can be locked after release"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "close_mutex",
+      "line": 2839,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_mutex_cond",
+      "api_path": "driver::close_mutex",
+      "checks": [
+        "LWP driver closed mutex rejects lock"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "init_cond",
+      "line": 2934,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_mutex_cond",
+      "api_path": "driver::init_cond",
+      "checks": [
+        "LWP driver empty condition broadcasts"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "cond_broadcast",
+      "line": 3034,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_mutex_cond",
+      "api_path": "driver::cond_broadcast",
+      "checks": [
+        "LWP driver empty condition broadcasts",
+        "LWP driver closed condition rejects broadcast"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "close_cond",
+      "line": 2955,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_mutex_cond",
+      "api_path": "driver::close_cond",
+      "checks": [
+        "LWP driver closed condition rejects broadcast"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin single-threaded nonrecursive mutex and idle condition. Contention, recursive locking, waiters and physical Wii remain unverified."
+  ]
+}

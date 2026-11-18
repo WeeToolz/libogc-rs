@@ -61,6 +61,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_lwp_message_queue(logger);
     probe_lwp_sync_handles(logger);
     probe_lwp_driver_objects(logger);
+    probe_lwp_driver_mutex_cond(logger);
     probe_controller_slots(logger);
     probe_owned_audio_buffer(logger);
     probe_l2cap_packets(logger);
@@ -222,6 +223,43 @@ fn probe_controller_slots(logger: &mut ProbeLogger) {
             == Err(InputFailure::MalformedReport)
             && manager.set_bluetooth_calibration_checked(0, calibration)
                 == Err(InputFailure::UnsupportedReport),
+    );
+}
+
+fn probe_lwp_driver_mutex_cond(logger: &mut ProbeLogger) {
+    use ogc_lwp_driver as driver;
+    let mut mutex = driver::LWP_MUTEX_NULL;
+    let initialized = unsafe { driver::init_mutex(&mut mutex, false) };
+    let first = driver::mutex_try_lock(mutex);
+    let second = driver::mutex_try_lock(mutex);
+    logger.record(
+        "LWP driver mutex rejects repeated nonrecursive lock",
+        initialized == 0 && first == 0 && second == 1,
+    );
+    let unlocked = driver::mutex_unlock(mutex);
+    let relocked = driver::mutex_try_lock(mutex);
+    let unlocked_again = driver::mutex_unlock(mutex);
+    logger.record(
+        "LWP driver mutex can be locked after release",
+        unlocked == 0 && relocked == 0 && unlocked_again == 0,
+    );
+    let closed = driver::close_mutex(mutex);
+    logger.record(
+        "LWP driver closed mutex rejects lock",
+        closed == 0 && driver::mutex_try_lock(mutex) != 0,
+    );
+
+    let mut cond = driver::LWP_COND_NULL;
+    let initialized = unsafe { driver::init_cond(&mut cond) };
+    let broadcast = driver::cond_broadcast(cond);
+    logger.record(
+        "LWP driver empty condition broadcasts",
+        initialized == 0 && broadcast == 0,
+    );
+    let closed = driver::close_cond(cond);
+    logger.record(
+        "LWP driver closed condition rejects broadcast",
+        closed == 0 && driver::cond_broadcast(cond) != 0,
     );
 }
 

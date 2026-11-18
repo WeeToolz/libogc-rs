@@ -2340,3 +2340,9 @@ ogc-lwp-driver,src/runtime.rs,message_send,3288,scheduler,hardware-probe,probes/
 ogc-lwp-driver,src/runtime.rs,message_jam,3293,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_objects,driver::message_jam
 ogc-lwp-driver,src/runtime.rs,message_receive,3320,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_objects,driver::message_receive
 ogc-lwp-driver,src/runtime.rs,close_message_queue,3221,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_objects,driver::close_message_queue
+ogc-lwp-driver,src/runtime.rs,init_mutex,2817,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_mutex_cond,driver::init_mutex
+ogc-lwp-driver,src/runtime.rs,mutex_try_lock,2857,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_mutex_cond,driver::mutex_try_lock
+ogc-lwp-driver,src/runtime.rs,close_mutex,2839,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_mutex_cond,driver::close_mutex
+ogc-lwp-driver,src/runtime.rs,init_cond,2934,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_mutex_cond,driver::init_cond
+ogc-lwp-driver,src/runtime.rs,cond_broadcast,3034,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_mutex_cond,driver::cond_broadcast
+ogc-lwp-driver,src/runtime.rs,close_cond,2955,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_driver_mutex_cond,driver::close_cond

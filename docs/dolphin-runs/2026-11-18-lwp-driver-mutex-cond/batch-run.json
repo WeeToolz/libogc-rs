@@ -1,0 +1,74 @@
+{
+  "source_revision": "58ce55f35491725b7902356eb96026205f073bba",
+  "source_fingerprint": "71e4aa0c981c4dd8699914a750f17d83389cd9953f84503f97d0f20e974b3c9d",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "6240cbb43cc7d9b15942dfbcd6fdf0846cc6cbc4b30b310fc7e8b482d48854f3",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "aaa3c9963d0077c61472705402d55ab9c71c85fed36daf1b762ffb0a3e6265c5",
+  "suite_sha256": "74af3a882938709b2835969e6c2915de7c4aeb0047ea62980af5039dd26bcb75",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/probe.log": "e5c3e512ca64837d18cd74032a1cc41908e9e4be523bbe86dabfccf822db615a",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/stderr.log": "a8270deee170bcc46b59e81fb110d0c8e4d9b014d6d6170383c6d309326d75f4",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/probe-transport.bin": "01c7ad14b3ef740bd02d4e807b70f49d6111861afc66cc49e68366c3ce59a5c3",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-002.png": "5f947b9212cb392fb29390d46cc90c8f0127f278f75518e47898f43c3891c8e1",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-003.png": "1daa2287195337d699bf42676d44a87a04a5b89a949fd18ea8ab8a70f353ffbf",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-004.png": "fa973ba2ed0c1d94787f00605625042feb3d7424a150581eb2e92f69432ce864",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-005.png": "bff047b958e6f4255456f60c72d3431376cf2e1c6a01dd0543e14dc84a6d0225",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-006.png": "d8c48d4419d8bee404b81ab4755b63711c21f18c52d5ad335546b4d57ab5360b",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-007.png": "0b45732623258ecbd676efd526c09b71b863398b8ccb2618f90119399244ab27",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-008.png": "7dd7460261a4ad689cafee901ef356cf68f94cce545f5ef4d2dc7e9cc02529c1",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-009.png": "4a02fcb76c89518a57d8d4af00eebc612f0da51612c453e9355f53fba86a9944",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-010.png": "35058035fa1e064469b27c253250c73f12b05f23343201d64981a91d8a9af443",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-011.png": "7890be58389f9019de9c2f369b7fd57726db5f7496c3642d5b9722e9f354758d",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-012.png": "89559f9eb30141500bdcea2c7584d6e239f571e06b3f6291f9d51817636baa1b",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-013.png": "f7d27cd872c72d3f952abc60f081e188f37642fafc027344bfa23be1ab83562e",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-014.png": "713b1785e04022a5adab56993cad6c328f3c7503d4abeeeea13580d698036a18",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-015.png": "0f5303b682f0544a9bc58120aeef17f2f5029097b604c7a4f3961cc111a967a2",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-016.png": "e0560838c96d0b8f61f87267b65a3ed3af81f59510c6a4d35f3e37d5af103183",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-017.png": "c5b954c8d402b5de5538bc95eba898c7f0654404f2c2f1d60daa5cabb840a614",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-018.png": "c44c8cb1aea632410c133133719815a6ca6a5ce99f05cd99d2d8ba7e13043f97",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-019.png": "67b6112b4f8200856884568f14609d944c0c863c8deaa4ddff28452c91cb856f",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-020.png": "e1232980c59f2097a68ddb144629cde669f4f7a6f94031b6a44d1975d54771d2",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-021.png": "9414904305a784ec83b87eb158383a59d64e03bb7f593023a3de9ecad6c08605",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-022.png": "8a7f79d0c9b16a0439bdd97ff7115eab9562cdcc380d8485aa49e7d58400782b",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-023.png": "f90b8398ca6501d5d4c2f6096dbf91eee3b32fcaca2a3c76469d903d4a618f25",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-024.png": "1b35702890a912fd830c7dabe1e9e37d5860ea3f8ca0be10361884b051189a57",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-025.png": "5bbcb4494b51f1f046b75b54920e7bdff625825222965ad297fa6aad0a14cbc9",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-026.png": "ff29d144b17d403efeb868a8b7474eb2fbb0488be3aa7f48d074e7b92a22c3a8",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-027.png": "6d5e3a996cd07594c13ea92252263e01937c9ab319960e79700d47eb4f266438",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-028.png": "467c7e2b6303f802f7a983eda312e12dc77c8804aa0a29689c9bbbf8d7df0f67",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-029.png": "28538cfa52c16b6c8454cd8342d9740aaedf28d841e91f1a99ebaaae34258913",
+    "docs/dolphin-runs/2026-11-18-lwp-driver-mutex-cond/runtime_probe/pages/page-030.png": "2d20722b6f5b3351d48856d14a361c2b251b5ee60a14e3c8297fa147bf58f214"
+  },
+  "exit_code": 0
+}
