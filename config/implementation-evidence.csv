@@ -2173,3 +2173,5 @@ ogc-system,src/lib.rs,get_gbs_mode,798,compatibility-forwarder,hardware-probe,pr
 ogc-system,src/lib.rs,snapshot_pre_main,1312,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_startup_status,system::snapshot_pre_main
 ogc-system,src/lib.rs,runtime_fp_disabled_stage,313,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_startup_status,system::runtime_fp_disabled_stage
 ogc-system,src/startup.rs,validate,10,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_startup_status,startup::validate
+ogc-system,src/lib.rs,snapshot_framebuffer,405,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_framebuffer_status,system::snapshot_framebuffer
+ogc-system,src/lib.rs,last_framebuffer_bytes,393,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_framebuffer_status,system::last_framebuffer_bytes

@@ -48,6 +48,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_bt_key_requests(logger);
     probe_system_runtime_state(logger);
     probe_system_startup_status(logger);
+    probe_system_framebuffer_status(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -83,6 +84,32 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_network_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_udp(logger);
+}
+
+fn probe_system_framebuffer_status(logger: &mut ProbeLogger) {
+    // SAFETY: A null argument requests the video subsystem's live preferred mode.
+    let mode = unsafe { ogc_video::get_preferred_mode(core::ptr::null_mut()) };
+    if mode.is_null() {
+        logger.record(
+            "System framebuffer snapshot matches preferred mode allocation",
+            false,
+        );
+        return;
+    }
+    // SAFETY: The preferred mode remains valid for the probe lifetime.
+    let (width, height, aa) = unsafe { ((*mode).fb_width, (*mode).xfb_height, (*mode).aa) };
+    let expected = (usize::from(width).div_ceil(16) * 16)
+        * (usize::from(height) + if aa != 0 { 4 } else { 0 })
+        * 2;
+    let snapshot = system::snapshot_framebuffer();
+    logger.record(
+        "System framebuffer snapshot matches preferred mode allocation",
+        expected > 0
+            && snapshot.last_request_rmode == mode as usize
+            && snapshot.last_request_bytes as usize == expected
+            && snapshot.last_bytes == expected
+            && system::last_framebuffer_bytes() == expected,
+    );
 }
 
 fn probe_system_startup_status(logger: &mut ProbeLogger) {
