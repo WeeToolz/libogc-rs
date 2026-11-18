@@ -103,11 +103,114 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_async_network_init(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_owned_udp_service(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_raw_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_udp(logger);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn owned_network_clock() -> Result<core::time::Duration, raw_network::std_net::NetError> {
+    let ticks = ogc_core::powerpc::read_timebase();
+    Ok(core::time::Duration::from_millis(
+        ticks.saturating_mul(1000) / u64::from(lwp::TICKS_PER_SECOND),
+    ))
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_owned_udp_service(logger: &mut ProbeLogger) {
+    use core::time::Duration;
+    use raw_network::std_net as service;
+    logger.report_step("Owned UDP service");
+    let initialized = service::initialize(false);
+    logger.record(
+        "Owned UDP service initializes",
+        initialized.is_ok() && raw_network::net_get_status() == 0,
+    );
+    let before = service::snapshot();
+    let sender = service::Socket::bind(0x7f00_0001, 0, true, owned_network_clock);
+    let receiver = service::Socket::bind(0x7f00_0001, 0, true, owned_network_clock);
+    if let (Ok(sender), Ok(receiver)) = (sender, receiver) {
+        let sender_address = sender.address(false);
+        let receiver_address = receiver.address(false);
+        let live = service::snapshot();
+        let addresses_ok = matches!((sender_address, receiver_address), (Ok((0x7f00_0001, a)), Ok((0x7f00_0001, b))) if a != 0 && b != 0 && a != b);
+        logger.record(
+            "Owned UDP binds distinct loopback sockets",
+            addresses_ok && live.live_sockets == before.live_sockets + 2,
+        );
+        let timeout = Duration::from_secs(3);
+        let timeout_ok = receiver.set_timeout(false, Some(timeout)).is_ok()
+            && receiver.timeout(false) == Ok(Some(timeout))
+            && receiver.set_timeout(true, Some(Duration::ZERO)).is_err();
+        logger.record("Owned UDP timeout state validates values", timeout_ok);
+        let nonblock_set = receiver.set_nonblocking(true).is_ok();
+        let mut bytes = [0xa5u8; 32];
+        let empty = receiver.receive(&mut bytes, false, true);
+        let nonblock_clear = receiver.set_nonblocking(false).is_ok();
+        logger.record(
+            "Owned UDP nonblocking empty receive preserves bytes",
+            nonblock_set && empty.is_err() && bytes == [0xa5; 32] && nonblock_clear,
+        );
+        let payload = [0x12u8, 0, 0xfe, 0x80, 0x44];
+        let sent = receiver_address
+            .is_ok_and(|destination| sender.send(&payload, Some(destination)) == Ok(payload.len()));
+        let received = if sent {
+            receiver.receive(&mut bytes, false, true)
+        } else {
+            Err(service::NetError::local(5))
+        };
+        let source_ok = matches!(received, Ok((5, Some(source))) if Ok(source) == sender_address);
+        logger.record(
+            "Owned UDP addressed transfer preserves payload and source",
+            sent && source_ok && bytes[..5] == payload && bytes[5..] == [0xa5; 27],
+        );
+        let connected =
+            receiver_address.is_ok_and(|(ip, port)| sender.udp_connect(ip, port).is_ok());
+        let payload = b"owned connected";
+        let sent = connected && sender.send(payload, None) == Ok(payload.len());
+        bytes.fill(0xa5);
+        let received = if sent {
+            receiver.receive(&mut bytes, false, false)
+        } else {
+            Err(service::NetError::local(5))
+        };
+        logger.record(
+            "Owned UDP connected transfer preserves payload",
+            sent && received == Ok((payload.len(), None))
+                && bytes[..payload.len()] == *payload
+                && bytes[payload.len()..].iter().all(|byte| *byte == 0xa5),
+        );
+        let busy = raw_network::net_deinit();
+        let sender_closed = sender.release();
+        let receiver_closed = receiver.release();
+        let after = service::snapshot();
+        let closed = raw_network::net_deinit();
+        logger.record(
+            "Owned UDP releases leases and closes sockets",
+            busy == -16
+                && sender_closed.is_ok()
+                && receiver_closed.is_ok()
+                && after.live_sockets == before.live_sockets
+                && after.close_failures == before.close_failures
+                && closed == 0
+                && raw_network::net_get_status() == -100,
+        );
+    } else {
+        logger.record("Owned UDP binds distinct loopback sockets", false);
+        logger.record("Owned UDP timeout state validates values", false);
+        logger.record("Owned UDP nonblocking empty receive preserves bytes", false);
+        logger.record(
+            "Owned UDP addressed transfer preserves payload and source",
+            false,
+        );
+        logger.record("Owned UDP connected transfer preserves payload", false);
+        logger.record("Owned UDP releases leases and closes sockets", false);
+        logger.note_i32("Owned UDP cleanup result", raw_network::net_deinit());
+    }
 }
 
 #[cfg(feature = "dolphin-automation")]

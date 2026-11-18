@@ -2255,3 +2255,14 @@ ogc-network-sys,src/lib.rs,net_init_async,1965,ios,hardware-probe,probes/ogc-sys
 ogc-network,src/lib.rs,init_async,83,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_async_network_init,net::init_async
 ogc-network-sys,src/lib.rs,net_get_mac_address,1096,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_mac_address,raw::net_get_mac_address
 ogc-network-sys,src/lib.rs,net_get_mac_address,1985,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_mac_address,raw::net_get_mac_address
+ogc-network-sys,src/std_net.rs,initialize,66,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_udp_service,service::initialize
+ogc-network-sys,src/std_net.rs,snapshot,39,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_udp_service,service::snapshot
+ogc-network-sys,src/std_net.rs,bind,309,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_udp_service,service::Socket::bind
+ogc-network-sys,src/std_net.rs,address,381,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_udp_service,sender.address
+ogc-network-sys,src/std_net.rs,send,446,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_udp_service,sender.send
+ogc-network-sys,src/std_net.rs,receive,401,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_udp_service,receiver.receive
+ogc-network-sys,src/std_net.rs,udp_connect,393,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_udp_service,sender.udp_connect
+ogc-network-sys,src/std_net.rs,set_nonblocking,481,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_udp_service,receiver.set_nonblocking
+ogc-network-sys,src/std_net.rs,set_timeout,486,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_udp_service,receiver.set_timeout
+ogc-network-sys,src/std_net.rs,timeout,494,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_udp_service,receiver.timeout
+ogc-network-sys,src/std_net.rs,release,551,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_udp_service,sender.release
