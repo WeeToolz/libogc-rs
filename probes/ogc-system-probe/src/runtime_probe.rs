@@ -32,9 +32,30 @@ unsafe extern "C" fn probe_alarm_callback(id: system::SysWd, arg: *mut core::ffi
 #[repr(align(16))]
 struct Align16([u8; 16]);
 
+fn probe_inet_addr(logger: &mut ProbeLogger) {
+    let parse = |text: &'static [u8]| unsafe { ogc_network_sys::inet_addr(text.as_ptr().cast()) };
+    logger.record(
+        "inet_addr dotted decimal",
+        parse(b"192.0.2.17\0") == 0xc000_0211,
+    );
+    logger.record(
+        "inet_addr abbreviated hexadecimal",
+        parse(b"0xc0.0x000211\0") == 0xc000_0211,
+    );
+    logger.record(
+        "inet_addr rejects overflow",
+        parse(b"256.0.2.17\0") == u32::MAX,
+    );
+    logger.record(
+        "inet_addr rejects invalid octal",
+        parse(b"192.0.02.08\0") == u32::MAX,
+    );
+}
+
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("RUNTIME PROBE");
 
+    probe_inet_addr(logger);
     probe_ipv4_values(logger);
     probe_owned_audio_buffer(logger);
     probe_l2cap_packets(logger);
