@@ -568,6 +568,7 @@ fn probe_raw_udp(logger: &mut ProbeLogger) {
     if initialized < 0 {
         return;
     }
+    probe_network_interface_addresses(logger);
     let sender = net::net_socket(net::PF_INET, net::SOCK_DGRAM, net::IPPROTO_IP);
     let receiver = net::net_socket(net::PF_INET, net::SOCK_DGRAM, net::IPPROTO_IP);
     logger.record("Raw UDP sockets open", sender >= 0 && receiver >= 0);
@@ -813,6 +814,68 @@ fn probe_raw_udp(logger: &mut ProbeLogger) {
     logger.record(
         "Raw network deinitializes",
         deinitialized == 0 && net::net_get_status() == -100,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_network_interface_addresses(logger: &mut ProbeLogger) {
+    use ogc_network as net;
+    use raw_network as raw;
+    let mut address = raw::InAddr {
+        s_addr: 0xa5a5_a5a5,
+    };
+    let mut mask = raw::InAddr {
+        s_addr: 0xa5a5_a5a5,
+    };
+    let unsupported =
+        unsafe { raw::if_configex(&mut address, &mut mask, core::ptr::null_mut(), false, 1) };
+    logger.record(
+        "Network static configuration rejects without writes",
+        unsupported == -22 && address.s_addr == 0xa5a5_a5a5 && mask.s_addr == 0xa5a5_a5a5,
+    );
+    let result =
+        unsafe { raw::if_configex(&mut address, &mut mask, core::ptr::null_mut(), true, 1) };
+    let host = raw::net_gethostip();
+    logger.record(
+        "Network DHCP address matches IOS host address",
+        result == 0 && address.s_addr != 0 && address.s_addr == host && mask.s_addr != 0,
+    );
+    let mut text = [0xa5u8; 16];
+    let text_result = unsafe {
+        raw::if_config(
+            text.as_mut_ptr().cast(),
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            true,
+            1,
+        )
+    };
+    let parsed = if text.contains(&0) {
+        unsafe { raw::inet_addr(text.as_ptr().cast()) }
+    } else {
+        u32::MAX
+    };
+    logger.record(
+        "Network DHCP text address matches binary address",
+        text_result == 0 && text.contains(&0) && parsed == address.s_addr && parsed != 0,
+    );
+    let mut wrapper_address = raw::InAddr::default();
+    let mut wrapper_mask = raw::InAddr::default();
+    let wrapper = unsafe {
+        net::if_configex(
+            &mut wrapper_address,
+            &mut wrapper_mask,
+            core::ptr::null_mut(),
+            true,
+            1,
+        )
+    };
+    logger.record(
+        "Network wrapper DHCP addresses match IOS",
+        wrapper == 0
+            && wrapper_address.s_addr == address.s_addr
+            && wrapper_mask.s_addr == mask.s_addr
+            && mask.s_addr != 0,
     );
 }
 

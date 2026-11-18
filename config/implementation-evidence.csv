@@ -2241,3 +2241,9 @@ ogc-network-sys,src/lib.rs,net_select,2266,ios,hardware-probe,probes/ogc-system-
 ogc-network-sys,src/lib.rs,_net_convert_error,1154,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_error_conversion,raw::_net_convert_error
 ogc-network-sys,src/lib.rs,_net_convert_error,1999,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_error_conversion,raw::_net_convert_error
 ogc-network,src/lib.rs,convert_error,110,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_error_conversion,net::convert_error
+ogc-network-sys,src/lib.rs,net_gethostip,1183,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_interface_addresses,raw::net_gethostip
+ogc-network-sys,src/lib.rs,net_gethostip,2004,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_interface_addresses,raw::net_gethostip
+ogc-network-sys,src/lib.rs,if_config,1679,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_interface_addresses,raw::if_config
+ogc-network-sys,src/lib.rs,if_configex,1715,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_interface_addresses,raw::if_configex
+ogc-network-sys,src/lib.rs,if_configex,2317,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_interface_addresses,raw::if_configex
+ogc-network,src/lib.rs,if_configex,1142,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_interface_addresses,net::if_configex

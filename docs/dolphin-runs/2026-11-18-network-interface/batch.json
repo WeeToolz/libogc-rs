@@ -1,0 +1,86 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_gethostip",
+      "line": 1183,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_network_interface_addresses",
+      "api_path": "raw::net_gethostip",
+      "checks": [
+        "Network DHCP address matches IOS host address"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_gethostip",
+      "line": 2004,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_network_interface_addresses",
+      "api_path": "raw::net_gethostip",
+      "checks": [
+        "Network DHCP address matches IOS host address"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "if_config",
+      "line": 1679,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_network_interface_addresses",
+      "api_path": "raw::if_config",
+      "checks": [
+        "Network DHCP text address matches binary address"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "if_configex",
+      "line": 1715,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_network_interface_addresses",
+      "api_path": "raw::if_configex",
+      "checks": [
+        "Network static configuration rejects without writes",
+        "Network DHCP address matches IOS host address",
+        "Network wrapper DHCP addresses match IOS"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "if_configex",
+      "line": 2317,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_network_interface_addresses",
+      "api_path": "raw::if_configex",
+      "checks": [
+        "Network static configuration rejects without writes",
+        "Network DHCP address matches IOS host address",
+        "Network wrapper DHCP addresses match IOS"
+      ]
+    },
+    {
+      "crate": "ogc-network",
+      "path": "src/lib.rs",
+      "symbol": "if_configex",
+      "line": 1142,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_network_interface_addresses",
+      "api_path": "net::if_configex",
+      "checks": [
+        "Network static configuration rejects without writes",
+        "Network DHCP address matches IOS host address",
+        "Network wrapper DHCP addresses match IOS"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin private profile using its DHCP configuration; no physical Wii or static configuration support is established. Gateway and lease changes are not tested."
+  ]
+}
