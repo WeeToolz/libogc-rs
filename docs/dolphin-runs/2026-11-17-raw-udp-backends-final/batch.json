@@ -1,0 +1,184 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_init",
+      "line": 659,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_udp",
+      "api_path": "net::net_init",
+      "checks": [
+        "Raw network initializes and reports status",
+        "Raw UDP sockets open"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_get_status",
+      "line": 1063,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_udp",
+      "api_path": "net::net_get_status",
+      "checks": [
+        "Raw network initializes and reports status",
+        "Raw network deinitializes"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_deinit",
+      "line": 1131,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_udp",
+      "api_path": "net::net_deinit",
+      "checks": [
+        "Raw network deinitializes"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_socket",
+      "line": 1511,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_udp",
+      "api_path": "net::net_socket",
+      "checks": [
+        "Raw UDP sockets open",
+        "Raw UDP sockets bind loopback"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_bind",
+      "line": 1327,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_udp",
+      "api_path": "net::net_bind",
+      "checks": [
+        "Raw UDP sockets bind loopback",
+        "Raw UDP names report distinct loopback ports"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_getsockname",
+      "line": 1484,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_udp",
+      "api_path": "net::net_getsockname",
+      "checks": [
+        "Raw UDP names report distinct loopback ports"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_sendto",
+      "line": 1386,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_udp",
+      "api_path": "net::net_sendto",
+      "checks": [
+        "Raw UDP invalid descriptor rejects sendto",
+        "Raw UDP recvfrom preserves bytes and sender"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_recvfrom",
+      "line": 1415,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_udp",
+      "api_path": "net::net_recvfrom",
+      "checks": [
+        "Raw UDP invalid descriptor preserves recvfrom outputs",
+        "Raw UDP recvfrom preserves bytes and sender"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_connect",
+      "line": 1355,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_udp",
+      "api_path": "net::net_connect",
+      "checks": [
+        "Raw UDP connect succeeds",
+        "Raw UDP send and recv preserve connected datagram"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_send",
+      "line": 1375,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_udp",
+      "api_path": "net::net_send",
+      "checks": [
+        "Raw UDP send and recv preserve connected datagram"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_recv",
+      "line": 1403,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_udp",
+      "api_path": "net::net_recv",
+      "checks": [
+        "Raw UDP send and recv preserve connected datagram"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_write",
+      "line": 1365,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_udp",
+      "api_path": "net::net_write",
+      "checks": [
+        "Raw UDP write and read preserve connected datagram"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_read",
+      "line": 1432,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_udp",
+      "api_path": "net::net_read",
+      "checks": [
+        "Raw UDP write and read preserve connected datagram"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_close",
+      "line": 1515,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_udp",
+      "api_path": "net::net_close",
+      "checks": [
+        "Raw UDP sender closes",
+        "Raw UDP receiver closes"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin IPv4 loopback UDP with small datagrams and selected failure paths. Other transports, edge cases, IOS versions and physical Wii remain unverified."
+  ]
+}

@@ -592,6 +592,41 @@ fn probe_raw_udp(logger: &mut ProbeLogger) {
                 && source.sin_port != destination.sin_port;
             logger.record("Raw UDP names report distinct loopback ports", names);
             if names {
+                let invalid_payload = [0x17u8, 0x42, 0x80];
+                let invalid_send = unsafe {
+                    net::net_sendto(
+                        -1,
+                        invalid_payload.as_ptr().cast(),
+                        invalid_payload.len() as i32,
+                        0,
+                        (&mut destination as *mut net::SockaddrIn).cast(),
+                        addrlen,
+                    )
+                };
+                logger.record(
+                    "Raw UDP invalid descriptor rejects sendto",
+                    invalid_send < 0,
+                );
+                let mut invalid_buffer = [0xa5u8; 8];
+                let mut invalid_peer = net::SockaddrIn::default();
+                let mut invalid_len = addrlen;
+                let invalid_receive = unsafe {
+                    net::net_recvfrom(
+                        -1,
+                        invalid_buffer.as_mut_ptr().cast(),
+                        invalid_buffer.len() as i32,
+                        net::MSG_DONTWAIT,
+                        (&mut invalid_peer as *mut net::SockaddrIn).cast(),
+                        &mut invalid_len,
+                    )
+                };
+                logger.record(
+                    "Raw UDP invalid descriptor preserves recvfrom outputs",
+                    invalid_receive < 0
+                        && invalid_buffer == [0xa5; 8]
+                        && invalid_peer == net::SockaddrIn::default()
+                        && invalid_len == addrlen,
+                );
                 probe_lwip_readiness(logger, sender, receiver, &mut destination);
                 let mut empty = [0xa5; 16];
                 let mut empty_peer = net::SockaddrIn::default();
@@ -751,7 +786,11 @@ fn probe_raw_udp(logger: &mut ProbeLogger) {
     if receiver >= 0 {
         logger.record("Raw UDP receiver closes", net::net_close(receiver) == 0);
     }
-    logger.record("Raw network deinitializes", net::net_deinit() == 0);
+    let deinitialized = net::net_deinit();
+    logger.record(
+        "Raw network deinitializes",
+        deinitialized == 0 && net::net_get_status() == -100,
+    );
 }
 
 #[cfg(feature = "dolphin-automation")]

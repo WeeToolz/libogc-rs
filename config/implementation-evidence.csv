@@ -2215,3 +2215,17 @@ lwip-sys,src/lib.rs,select,1219,ios,hardware-probe,probes/ogc-system-probe/src/r
 lwip-sys,src/lib.rs,select,1692,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_readiness,lwip::select
 ogc-network-sys,src/lib.rs,net_ioctl,1495,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_readiness,net::net_ioctl
 ogc-network-sys,src/lib.rs,net_ioctl,2235,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_readiness,net::net_ioctl
+ogc-network-sys,src/lib.rs,net_init,659,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_udp,net::net_init
+ogc-network-sys,src/lib.rs,net_get_status,1063,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_udp,net::net_get_status
+ogc-network-sys,src/lib.rs,net_deinit,1131,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_udp,net::net_deinit
+ogc-network-sys,src/lib.rs,net_socket,1511,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_udp,net::net_socket
+ogc-network-sys,src/lib.rs,net_bind,1327,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_udp,net::net_bind
+ogc-network-sys,src/lib.rs,net_getsockname,1484,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_udp,net::net_getsockname
+ogc-network-sys,src/lib.rs,net_sendto,1386,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_udp,net::net_sendto
+ogc-network-sys,src/lib.rs,net_recvfrom,1415,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_udp,net::net_recvfrom
+ogc-network-sys,src/lib.rs,net_connect,1355,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_udp,net::net_connect
+ogc-network-sys,src/lib.rs,net_send,1375,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_udp,net::net_send
+ogc-network-sys,src/lib.rs,net_recv,1403,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_udp,net::net_recv
+ogc-network-sys,src/lib.rs,net_write,1365,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_udp,net::net_write
+ogc-network-sys,src/lib.rs,net_read,1432,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_udp,net::net_read
+ogc-network-sys,src/lib.rs,net_close,1515,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_udp,net::net_close
