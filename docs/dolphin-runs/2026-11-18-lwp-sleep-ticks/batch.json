@@ -1,0 +1,32 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "sleep_ticks",
+      "line": 2682,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sleep_ticks",
+      "api_path": "driver::sleep_ticks",
+      "checks": [
+        "LWP driver sleep waits requested ticks"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "sleep_ticks",
+      "line": 166,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sleep_ticks",
+      "api_path": "raw_lwp::sleep_ticks",
+      "checks": [
+        "LWP raw sleep waits requested ticks"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin one-millisecond nonzero waits measured by the PowerPC timebase. Zero delay, long deadlines, competing threads and physical Wii remain unverified."
+  ]
+}

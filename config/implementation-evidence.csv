@@ -2435,3 +2435,5 @@ ogc-sysbase,src/lib.rs,open_read,332,hardware,hardware-probe,probes/ogc-system-p
 ogc-sysbase,src/lib.rs,seek,445,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_iso9660_files,file.seek
 ogc-wiilaunch,src/lib.rs,from_raw_code,55,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wiilaunch_error_codes,LaunchError::from_raw_code
 ogc-wiilaunch,src/lib.rs,raw_code,44,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wiilaunch_error_codes,expected.raw_code
+ogc-lwp-driver,src/runtime.rs,sleep_ticks,2682,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_sleep_ticks,driver::sleep_ticks
+ogc-lwp-sys,src/lib.rs,sleep_ticks,166,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_sleep_ticks,raw_lwp::sleep_ticks

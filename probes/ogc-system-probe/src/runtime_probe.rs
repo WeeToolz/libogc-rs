@@ -64,6 +64,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_lwp_driver_objects(logger);
     probe_lwp_driver_mutex_cond(logger);
     probe_lwp_sys_resources(logger);
+    probe_lwp_sleep_ticks(logger);
     probe_lwp_driver_resources(logger);
     probe_lwp_thread_handle(logger);
     probe_lwp_detach(logger);
@@ -999,6 +1000,20 @@ fn probe_lwp_driver_resources(logger: &mut ProbeLogger) {
             && LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 0
             && driver::queue_sleep(queue) != 0,
     );
+}
+
+fn probe_lwp_sleep_ticks(logger: &mut ProbeLogger) {
+    use ogc_lwp::sys as raw_lwp;
+    use ogc_lwp_driver as driver;
+    let ticks = driver::TICKS_PER_SECOND / 1000;
+    let start = ogc_core::powerpc::read_timebase();
+    driver::sleep_ticks(ticks);
+    let elapsed = ogc_core::powerpc::read_timebase().wrapping_sub(start);
+    logger.record("LWP driver sleep waits requested ticks", elapsed >= ticks);
+    let start = ogc_core::powerpc::read_timebase();
+    raw_lwp::sleep_ticks(ticks);
+    let elapsed = ogc_core::powerpc::read_timebase().wrapping_sub(start);
+    logger.record("LWP raw sleep waits requested ticks", elapsed >= ticks);
 }
 
 fn probe_lwp_sys_resources(logger: &mut ProbeLogger) {
