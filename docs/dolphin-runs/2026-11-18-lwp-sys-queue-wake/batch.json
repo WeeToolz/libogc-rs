@@ -1,0 +1,56 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "thread_signal",
+      "line": 304,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sys_queue_wake",
+      "api_path": "raw_lwp::thread_signal",
+      "checks": [
+        "LWP raw queue signal wakes one waiter"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "thread_broadcast",
+      "line": 308,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sys_queue_wake",
+      "api_path": "raw_lwp::thread_broadcast",
+      "checks": [
+        "LWP raw queue broadcast wakes remaining waiter"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "lwp_thread_signal_abi",
+      "line": 447,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_abi_queue_wake",
+      "api_path": "raw_lwp::lwp_thread_signal_abi",
+      "checks": [
+        "LWP ABI queue signal wakes one waiter"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "lwp_thread_broadcast_abi",
+      "line": 451,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_abi_queue_wake",
+      "api_path": "raw_lwp::lwp_thread_broadcast_abi",
+      "checks": [
+        "LWP ABI queue broadcast wakes remaining waiter"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin two cooperating waiters per queue. Larger wait sets, cancellation races and physical Wii remain unverified."
+  ]
+}

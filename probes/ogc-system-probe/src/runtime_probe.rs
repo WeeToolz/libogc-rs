@@ -69,6 +69,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_lwp_driver_thread_metadata(logger);
     probe_lwp_queue_wake(logger);
     probe_lwp_driver_queue_wake(logger);
+    probe_lwp_sys_queue_wake(logger);
+    probe_lwp_abi_queue_wake(logger);
     probe_controller_slots(logger);
     probe_owned_audio_buffer(logger);
     probe_l2cap_packets(logger);
@@ -395,6 +397,161 @@ fn probe_lwp_driver_queue_wake(logger: &mut ProbeLogger) {
     } else {
         logger.record("LWP driver queue signal wakes one waiter", false);
         logger.record("LWP driver queue broadcast wakes remaining waiter", false);
+    }
+}
+
+unsafe extern "C" fn probe_lwp_sys_queue_worker(
+    arg: *mut core::ffi::c_void,
+) -> *mut core::ffi::c_void {
+    let queue = arg as usize as u32;
+    LWP_QUEUE_READY.fetch_add(1, Ordering::Release);
+    if ogc_lwp::sys::thread_sleep(queue) == 0 {
+        LWP_QUEUE_WOKEN.fetch_add(1, Ordering::Release);
+    }
+    core::ptr::null_mut()
+}
+
+fn probe_lwp_sys_queue_wake(logger: &mut ProbeLogger) {
+    use ogc_lwp as api;
+    use ogc_lwp::sys as raw_lwp;
+    LWP_QUEUE_READY.store(0, Ordering::Release);
+    LWP_QUEUE_WOKEN.store(0, Ordering::Release);
+    let mut raw_queue = api::sys::LWP_TQUEUE_NULL;
+    let initialized = unsafe { raw_lwp::init_queue(&mut raw_queue) };
+    if initialized == 0 {
+        let mut raw = [api::sys::LWP_THREAD_NULL; 2];
+        let mut handles = [None; 2];
+        for index in 0..2 {
+            // SAFETY: The queue remains live until both workers are joined.
+            handles[index] = unsafe {
+                api::ThreadHandle::create(
+                    &mut raw[index],
+                    Some(probe_lwp_sys_queue_worker),
+                    raw_queue as usize as *mut core::ffi::c_void,
+                    core::ptr::null_mut(),
+                    8192,
+                    64,
+                )
+            }
+            .ok();
+        }
+        for _ in 0..1000 {
+            if LWP_QUEUE_READY.load(Ordering::Acquire) == 2 {
+                break;
+            }
+            api::yield_now();
+        }
+        for _ in 0..16 {
+            api::yield_now();
+        }
+        let ready = LWP_QUEUE_READY.load(Ordering::Acquire) == 2
+            && LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 0;
+        raw_lwp::thread_signal(raw_queue);
+        for _ in 0..1000 {
+            if LWP_QUEUE_WOKEN.load(Ordering::Acquire) >= 1 {
+                break;
+            }
+            api::yield_now();
+        }
+        let one = LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 1;
+        logger.record("LWP raw queue signal wakes one waiter", ready && one);
+        raw_lwp::thread_broadcast(raw_queue);
+        for _ in 0..1000 {
+            if LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 2 {
+                break;
+            }
+            api::yield_now();
+        }
+        let both = LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 2;
+        if !both {
+            raw_lwp::close_queue(raw_queue);
+        }
+        let joined = handles
+            .into_iter()
+            .flatten()
+            .all(|handle| handle.join().is_ok());
+        if both {
+            raw_lwp::close_queue(raw_queue);
+        }
+        logger.record(
+            "LWP raw queue broadcast wakes remaining waiter",
+            both && joined,
+        );
+    } else {
+        logger.record("LWP raw queue signal wakes one waiter", false);
+        logger.record("LWP raw queue broadcast wakes remaining waiter", false);
+    }
+}
+
+fn probe_lwp_abi_queue_wake(logger: &mut ProbeLogger) {
+    use ogc_lwp as api;
+    use ogc_lwp::sys as raw_lwp;
+    LWP_QUEUE_READY.store(0, Ordering::Release);
+    LWP_QUEUE_WOKEN.store(0, Ordering::Release);
+    let mut raw_queue = api::sys::LWP_TQUEUE_NULL;
+    let initialized = unsafe { raw_lwp::init_queue(&mut raw_queue) };
+    if initialized == 0 {
+        let mut raw = [api::sys::LWP_THREAD_NULL; 2];
+        let mut handles = [None; 2];
+        for index in 0..2 {
+            // SAFETY: The queue remains live until both workers are joined.
+            handles[index] = unsafe {
+                api::ThreadHandle::create(
+                    &mut raw[index],
+                    Some(probe_lwp_sys_queue_worker),
+                    raw_queue as usize as *mut core::ffi::c_void,
+                    core::ptr::null_mut(),
+                    8192,
+                    64,
+                )
+            }
+            .ok();
+        }
+        for _ in 0..1000 {
+            if LWP_QUEUE_READY.load(Ordering::Acquire) == 2 {
+                break;
+            }
+            api::yield_now();
+        }
+        for _ in 0..16 {
+            api::yield_now();
+        }
+        let ready = LWP_QUEUE_READY.load(Ordering::Acquire) == 2
+            && LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 0;
+        raw_lwp::lwp_thread_signal_abi(raw_queue);
+        for _ in 0..1000 {
+            if LWP_QUEUE_WOKEN.load(Ordering::Acquire) >= 1 {
+                break;
+            }
+            api::yield_now();
+        }
+        let one = LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 1;
+        logger.record("LWP ABI queue signal wakes one waiter", ready && one);
+        raw_lwp::lwp_thread_broadcast_abi(raw_queue);
+        for _ in 0..1000 {
+            if LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 2 {
+                break;
+            }
+            api::yield_now();
+        }
+        let both = LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 2;
+        if !both {
+            raw_lwp::close_queue(raw_queue);
+        }
+        let joined = handles
+            .into_iter()
+            .flatten()
+            .all(|handle| handle.join().is_ok());
+        if both {
+            raw_lwp::close_queue(raw_queue);
+        }
+        logger.record(
+            "LWP ABI queue broadcast wakes remaining waiter",
+            both && joined,
+        );
+    } else {
+        logger.record("LWP ABI queue signal wakes one waiter", false);
+        logger.record("LWP ABI queue broadcast wakes remaining waiter", false);
     }
 }
 
