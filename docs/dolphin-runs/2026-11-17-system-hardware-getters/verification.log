@@ -1,0 +1,108 @@
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.05s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
+     Running unittests src/lib.rs (target/debug/deps/modplay-c8ba97ff7ce32765)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/tables.rs (target/debug/deps/tables-c71bcd69cb07ec01)
+
+running 2 tests
+test frequency_values_have_expected_big_endian_serialization ... ok
+test table_lengths_and_anchor_values_match_review_expectations ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/modplay_capi-9dbdd1f99d0b8efc)
+
+running 15 tests
+test tests::caller_owned_setmod_buffer_survives_free ... ok
+test tests::fallible_unload_stops_playback_before_freeing_module ... ok
+test tests::fixture_write_rejects_existing_file ... ok
+test tests::init_and_unload_reset_public_state ... ok
+test tests::initial_audio_buffers_are_zeroed_before_dma ... ok
+test tests::layout_snapshot_and_exports_are_stable ... ok
+test tests::loaded_mod_is_freed_and_cleared_by_mod_free ... ok
+test tests::null_and_basic_control_paths_return_expected_values ... ok
+test tests::player_mixes_only_after_a_worker_signal_and_uses_fixed_dma_size ... ok
+test tests::player_shutdown_keeps_queue_open_if_join_fails ... ok
+test tests::player_shutdown_stops_dma_signals_joins_then_closes_queue ... ok
+test tests::player_worker_exits_when_queue_wait_fails ... ok
+test tests::stop_reports_worker_error_after_cleanup_and_keeps_state_on_join_error ... ok
+test tests::worker_error_during_join_is_reported_after_join_completes ... ok
+test tests::worker_failure_still_stops_dma_and_removes_callback_before_join ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/parser.rs (target/debug/deps/parser-c75ba985269445b0)
+
+running 3 tests
+test mod_set_mod_falls_back_to_15_instrument_legacy_layout ... ok
+test mod_set_mod_parses_31_instrument_metadata_and_patterns ... ok
+test mod_set_mod_rejects_truncated_images ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/state.rs (target/debug/deps/state-2bb6286f19235269)
+
+running 20 tests
+test alloc_sfx_channels_clamps_and_sets_shiftval ... ok
+test effect_handler_applies_arpeggio_on_tick ... ok
+test effect_handler_clamps_slides_and_handles_negative_vibrato ... ok
+test free_state_clears_runtime_fields ... ok
+test mod_free_preserves_caller_owned_mod_set_mod_buffer ... ok
+test mod_free_releases_loaded_buffer_and_tolerates_repeated_free ... ok
+test mod_load_reads_file_and_marks_owned_buffer ... ok
+test mod_player_mixes_samples_and_invokes_callback ... ok
+test mod_start_resets_runtime_state_and_sets_timing_tables ... ok
+test modplay_active_format_changes_reset_playback_phase ... ok
+test modplay_debug_timing_accessors_stay_zero_initially ... ok
+test modplay_load_alloc_and_trigger_route_through_mod_state ... ok
+test modplay_mix_callback_respects_manual_polling_and_pause ... ok
+test modplay_public_wrappers_update_state ... ok
+test modplay_state_helpers_update_embedded_mod ... ok
+test modplay_unload_preserves_caller_owned_set_mod_buffer ... ok
+test process_state_handles_pattern_break ... ok
+test process_uses_pattern_note_semantics ... ok
+test restart_preserves_pause_after_stop ... ok
+test trigger_note_updates_sfx_voice_state ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/ogc_sys-9a344e6642cd0ca5)
+
+running 10 tests
+test tests::critical_section_restores_only_saved_interrupt_and_fp_bits ... ok
+test tests::detects_only_the_hbc_reload_stub_signature ... ok
+test tests::exit_callback_can_be_registered_and_cleared ... ok
+test tests::irq_dispatch_callback_round_trips ... ok
+test tests::malformed_or_oversized_arguments_leave_destination_unchanged ... ok
+test tests::runtime_interrupt_setup_enables_ee_and_ri_and_preserves_other_bits ... ok
+test tests::sheltered_arguments_preserve_non_utf8_bytes ... ok
+test tests::shelters_overlapping_hbc_arguments_before_bss_clear ... ok
+test tests::status_helpers_convert_c_return_codes ... ok
+test tests::vector_snapshot_restores_exact_original_bytes_after_reinstall ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests modplay
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests modplay_capi
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests ogc_sys
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+Completeness audit reports 1215 remaining entries.
+Verified 3 entries. Unverified: 1212 -> 1209.

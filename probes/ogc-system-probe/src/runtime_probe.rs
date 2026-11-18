@@ -2129,6 +2129,13 @@ fn probe_system(logger: &mut ProbeLogger) {
     {
         let proof = system::hardware_proof();
         let snapshot = system::snapshot_hardware();
+        logger.record(
+            "System hardware getters match Dolphin default values",
+            system::get_font_encoding() == 0
+                && system::reset_button_down() == 0
+                && system::get_hollywood_revision() == 0x11
+                && system::get_hollywood_revision() == revision,
+        );
         logger.note_u32("Proof font encoding", proof.font_encoding);
         logger.note_u32("Proof reset button", proof.reset_button_down);
         logger.note_hex32("Proof Hollywood revision", proof.hollywood_revision);
