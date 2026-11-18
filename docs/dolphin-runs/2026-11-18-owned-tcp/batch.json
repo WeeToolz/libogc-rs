@@ -1,0 +1,61 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/std_net.rs",
+      "symbol": "connect",
+      "line": 298,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_owned_tcp_service",
+      "api_path": "service::Socket::connect",
+      "checks": [
+        "Owned TCP connect and accept match peer addresses",
+        "Owned TCP connection transfers bytes",
+        "Owned TCP closes all sockets"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/std_net.rs",
+      "symbol": "accept",
+      "line": 368,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_owned_tcp_service",
+      "api_path": "listener.accept",
+      "checks": [
+        "Owned TCP connect and accept match peer addresses",
+        "Owned TCP connection transfers bytes",
+        "Owned TCP closes all sockets"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/std_net.rs",
+      "symbol": "shutdown",
+      "line": 498,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_owned_tcp_service",
+      "api_path": "client.shutdown",
+      "checks": [
+        "Owned TCP shutdown delivers EOF",
+        "Owned TCP rejects invalid shutdown mode"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/std_net.rs",
+      "symbol": "lookup",
+      "line": 575,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_owned_tcp_service",
+      "api_path": "service::lookup",
+      "checks": [
+        "Owned resolver returns loopback and rejects invalid names"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin private profile, numeric IPv4 loopback and one TCP connection. DNS names, concurrent connections, transport failure injection and physical Wii remain unverified."
+  ]
+}

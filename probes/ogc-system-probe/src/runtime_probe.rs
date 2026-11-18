@@ -105,11 +105,101 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_owned_udp_service(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_owned_tcp_service(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_raw_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_udp(logger);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_owned_tcp_service(logger: &mut ProbeLogger) {
+    use raw_network::std_net as service;
+    logger.report_step("Owned TCP service");
+    let numeric = service::lookup(b"127.0.0.1");
+    let empty = service::lookup(b"");
+    let embedded_nul = service::lookup(b"host\0name");
+    logger.record(
+        "Owned resolver returns loopback and rejects invalid names",
+        numeric.is_ok_and(|ips| ips == [0x7f00_0001]) && empty.is_err() && embedded_nul.is_err(),
+    );
+    let before = service::snapshot();
+    let listener = service::Socket::bind(0x7f00_0001, 0, false, owned_network_clock);
+    if let Ok(listener) = listener {
+        let listen_address = listener.address(false);
+        let client = match listen_address {
+            Ok((ip, port)) if ip == 0x7f00_0001 && port != 0 => {
+                service::Socket::connect(ip, port, owned_network_clock)
+            }
+            _ => Err(service::NetError::local(22)),
+        };
+        if let Ok(client) = client {
+            let accepted = listener.accept();
+            if let Ok((accepted, peer_ip, peer_port)) = accepted {
+                let receive_timeout = accepted
+                    .set_timeout(false, Some(core::time::Duration::from_secs(3)))
+                    .is_ok();
+                let client_address = client.address(false);
+                let peer = accepted.address(true);
+                logger.record(
+                    "Owned TCP connect and accept match peer addresses",
+                    client_address == Ok((peer_ip, peer_port))
+                        && peer_ip == 0x7f00_0001
+                        && peer_port != 0
+                        && peer == client_address,
+                );
+                let value = b"owned TCP\0\xff";
+                let sent = client.send(value, None);
+                let mut output = [0xa5u8; 32];
+                let received = if receive_timeout && sent == Ok(value.len()) {
+                    accepted.receive(&mut output, false, false)
+                } else {
+                    Err(service::NetError::local(5))
+                };
+                logger.record(
+                    "Owned TCP connection transfers bytes",
+                    received == Ok((value.len(), None))
+                        && output[..value.len()] == *value
+                        && output[value.len()..].iter().all(|byte| *byte == 0xa5),
+                );
+                let shutdown = client.shutdown(1);
+                let eof = if shutdown.is_ok() {
+                    accepted.receive(&mut output, false, false)
+                } else {
+                    Err(service::NetError::local(5))
+                };
+                logger.record(
+                    "Owned TCP shutdown delivers EOF",
+                    shutdown.is_ok() && eof == Ok((0, None)),
+                );
+                let rejected = client.shutdown(3).is_err();
+                logger.record("Owned TCP rejects invalid shutdown mode", rejected);
+                let close_accepted = accepted.release();
+                let close_client = client.release();
+                let close_listener = listener.release();
+                let after = service::snapshot();
+                let deinit = raw_network::net_deinit();
+                logger.record(
+                    "Owned TCP closes all sockets",
+                    close_accepted.is_ok()
+                        && close_client.is_ok()
+                        && close_listener.is_ok()
+                        && after.live_sockets == before.live_sockets
+                        && after.close_failures == before.close_failures
+                        && deinit == 0,
+                );
+                return;
+            }
+        }
+    }
+    logger.record("Owned TCP connect and accept match peer addresses", false);
+    logger.record("Owned TCP connection transfers bytes", false);
+    logger.record("Owned TCP shutdown delivers EOF", false);
+    logger.record("Owned TCP rejects invalid shutdown mode", false);
+    logger.record("Owned TCP closes all sockets", false);
+    logger.note_i32("Owned TCP cleanup result", raw_network::net_deinit());
 }
 
 #[cfg(feature = "dolphin-automation")]

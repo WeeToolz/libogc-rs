@@ -2266,3 +2266,7 @@ ogc-network-sys,src/std_net.rs,set_nonblocking,481,ios,hardware-probe,probes/ogc
 ogc-network-sys,src/std_net.rs,set_timeout,486,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_udp_service,receiver.set_timeout
 ogc-network-sys,src/std_net.rs,timeout,494,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_udp_service,receiver.timeout
 ogc-network-sys,src/std_net.rs,release,551,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_udp_service,sender.release
+ogc-network-sys,src/std_net.rs,connect,298,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_tcp_service,service::Socket::connect
+ogc-network-sys,src/std_net.rs,accept,368,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_tcp_service,listener.accept
+ogc-network-sys,src/std_net.rs,shutdown,498,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_tcp_service,client.shutdown
+ogc-network-sys,src/std_net.rs,lookup,575,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_tcp_service,service::lookup
