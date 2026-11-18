@@ -195,6 +195,7 @@ static SYS_POWER_CALLBACK: AtomicUsize = AtomicUsize::new(0);
 #[cfg(all(target_arch = "powerpc", any(not(gamecube), test)))]
 static SYS_STM_EVENT_CALLBACK: AtomicUsize = AtomicUsize::new(0);
 static SYS_POWER_ENABLE_TIME: AtomicU32 = AtomicU32::new(0);
+static SYS_POWER_COOLDOWN_ACTIVE: AtomicBool = AtomicBool::new(false);
 static SYS_POWER_DISPATCH_CALLED: AtomicBool = AtomicBool::new(false);
 static SYS_POWER_DISPATCH_RESULT: AtomicBool = AtomicBool::new(false);
 static SYS_ARENA1_LO: AtomicUsize = AtomicUsize::new(0);
@@ -1978,6 +1979,7 @@ fn sys_pre_main_with_operations(operations: &PreMainOperations) -> i32 {
 
     SYS_RUNTIME_POWER_STATE.store(0, Ordering::Release);
     SYS_POWER_ENABLE_TIME.store(0, Ordering::Release);
+    SYS_POWER_COOLDOWN_ACTIVE.store(false, Ordering::Release);
     report_pre_main_progress(7);
     let (failed_stage, result) = first_failure.unwrap_or((0, 0));
     finish_pre_main(result, failed_stage, failed_stage == 0)
@@ -4235,7 +4237,8 @@ pub unsafe fn sys_do_power_cb() {
     if cfg!(target_arch = "powerpc") {
         let now = read_timebase() as u32;
         let enable_time = SYS_POWER_ENABLE_TIME.load(Ordering::Acquire);
-        let due = power_callback_due(now, enable_time);
+        let due = !SYS_POWER_COOLDOWN_ACTIVE.swap(true, Ordering::AcqRel)
+            || power_callback_due(now, enable_time);
         SYS_POWER_ENABLE_TIME.store(
             now.wrapping_add(sys_millisecs_to_ticks(POWER_CALLBACK_COOLDOWN_MS)),
             Ordering::Release,

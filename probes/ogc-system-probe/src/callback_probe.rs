@@ -6,6 +6,8 @@ use crate::probe_support::ProbeLogger;
 
 static POWER_COUNT: AtomicU32 = AtomicU32::new(0);
 static RESET_COUNT: AtomicU32 = AtomicU32::new(0);
+static REPORT_BYTES: AtomicU32 = AtomicU32::new(0);
+static REPORT_LEN: AtomicU32 = AtomicU32::new(0);
 
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("CALLBACK PROBE");
@@ -16,10 +18,51 @@ pub fn run(logger: &mut ProbeLogger) {
         test_reset_callback_replacement(),
     );
     logger.record("power callback roundtrip", test_power_callback());
-    logger.record("power callback dispatch", test_power_dispatch());
+    let power_dispatch = test_power_dispatch(logger);
+    logger.record("power callback dispatch", power_dispatch);
     logger.record("reset registration bookkeeping", test_reset_registration());
     logger.record("reset function gate", test_reset_function_gate());
     logger.record("power cooldown math", test_power_cooldown_math());
+    logger.record(
+        "report callback receives formatted bytes",
+        test_report_callback(),
+    );
+}
+
+fn test_report_callback() -> bool {
+    // SAFETY: The probe runs this callback check on one thread and restores
+    // the callback before it returns to the logger.
+    let original = unsafe { core::ptr::read(core::ptr::addr_of!(system::sys::DIET_PRINT_FN)) };
+    REPORT_BYTES.store(0, Ordering::Release);
+    REPORT_LEN.store(0, Ordering::Release);
+    system::diet_print_set_func(Some(report_callback));
+    let installed =
+        system::snapshot_callbacks().diet_print_fn == report_callback as *const () as usize;
+    let result = system::try_report(format_args!("Hi!\n"));
+    let first = REPORT_LEN.load(Ordering::Acquire) == 4
+        && REPORT_BYTES.load(Ordering::Acquire) == 0x4869_210a;
+    REPORT_BYTES.store(0, Ordering::Release);
+    REPORT_LEN.store(0, Ordering::Release);
+    system::report(format_args!("OK"));
+    let second = system::last_report_succeeded()
+        && REPORT_LEN.load(Ordering::Acquire) == 2
+        && REPORT_BYTES.load(Ordering::Acquire) == 0x4f4b;
+    system::diet_print_set_func(original);
+    installed
+        && result.is_ok()
+        && first
+        && second
+        && system::snapshot_callbacks().diet_print_fn == original.map_or(0, |cb| cb as usize)
+}
+
+unsafe extern "C" fn report_callback(buffer: *const core::ffi::c_char, size: usize) {
+    // SAFETY: The report sink supplies a readable buffer for this call.
+    let bytes = unsafe { core::slice::from_raw_parts(buffer.cast::<u8>(), size) };
+    for byte in bytes {
+        let previous = REPORT_BYTES.load(Ordering::Acquire);
+        REPORT_BYTES.store((previous << 8) | u32::from(*byte), Ordering::Release);
+        REPORT_LEN.fetch_add(1, Ordering::AcqRel);
+    }
 }
 
 fn test_reset_callback_replacement() -> bool {
@@ -58,14 +101,29 @@ fn test_power_callback() -> bool {
         && restored == original.map_or(0, |cb| cb as usize)
 }
 
-fn test_power_dispatch() -> bool {
+fn test_power_dispatch(logger: &mut ProbeLogger) -> bool {
     POWER_COUNT.store(0, Ordering::Release);
     let original = system::set_power_callback(Some(power_callback));
     system::do_power_cb();
     let dispatch = system::snapshot_power_dispatch();
     let count = POWER_COUNT.load(Ordering::Acquire);
+    system::do_power_cb();
+    let suppressed = system::snapshot_power_dispatch();
+    let after_repeat = POWER_COUNT.load(Ordering::Acquire);
     let _ = system::set_power_callback(original);
-    dispatch.called && dispatch.result && count == 1
+    logger.note_hex32(
+        "power dispatch timebase low",
+        ogc_core::powerpc::read_timebase() as u32,
+    );
+    logger.note_u32("power dispatch called", u32::from(dispatch.called));
+    logger.note_u32("power dispatch result", u32::from(dispatch.result));
+    logger.note_u32("power dispatch callback count", count);
+    dispatch.called
+        && dispatch.result
+        && count == 1
+        && suppressed.called
+        && !suppressed.result
+        && after_repeat == 1
 }
 
 fn test_reset_registration() -> bool {

@@ -1,0 +1,56 @@
+{
+  "probe": "callback_probe",
+  "cases": [
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "diet_print_set_func",
+      "line": 1506,
+      "evidence_path": "probes/ogc-system-probe/src/callback_probe.rs",
+      "function": "test_report_callback",
+      "api_path": "system::diet_print_set_func",
+      "checks": [
+        "report callback receives formatted bytes"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "try_report",
+      "line": 616,
+      "evidence_path": "probes/ogc-system-probe/src/callback_probe.rs",
+      "function": "test_report_callback",
+      "api_path": "system::try_report",
+      "checks": [
+        "report callback receives formatted bytes"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "report",
+      "line": 642,
+      "evidence_path": "probes/ogc-system-probe/src/callback_probe.rs",
+      "function": "test_report_callback",
+      "api_path": "system::report",
+      "checks": [
+        "report callback receives formatted bytes"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "last_report_succeeded",
+      "line": 646,
+      "evidence_path": "probes/ogc-system-probe/src/callback_probe.rs",
+      "function": "test_report_callback",
+      "api_path": "system::last_report_succeeded",
+      "checks": [
+        "report callback receives formatted bytes"
+      ]
+    }
+  ],
+  "limits": [
+    "Formatted callback delivery in Dolphin. Default UART output, callback concurrency, and physical hardware require separate checks."
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "source_revision": "fb7c0748ad3ecb5980f55e33d543b08abd1a71f3",
+  "source_fingerprint": "31a588adfc3b833471b94325e0075147a84d662f413b239d9204bd5bdb5b524e",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "callback_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-17-report-callback-diagnostic",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "1e414619c2ad13effa519e6536fc8ca9f8497a040a7b5c5a5d4bf9dc1b55067a",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "67a00db2f1e4466101385c1b3773a4f8985f7e5fb7bbc9c5d7b7160c3edb4cc1",
+  "suite_sha256": "44810d67f749ffda11bd44b25c0b6de70ca2acadee162742bc58182e7ddbd1b7",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-17-report-callback-diagnostic/callback_probe/probe.log": "bbd6605f738c363a727ab12d021345fd3aa84965fd3ec7d04551f548b473da73",
+    "docs/dolphin-runs/2026-11-17-report-callback-diagnostic/callback_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-17-report-callback-diagnostic/callback_probe/stderr.log": "dc4ab89f9b11d886fd1d2ef8737644cbf98209431178a4f91de5fe006ff7b709",
+    "docs/dolphin-runs/2026-11-17-report-callback-diagnostic/callback_probe/probe-transport.bin": "ee450354d6337c0200bbdeee80a30157ff7819a27b4de3378c1fa55464252120",
+    "docs/dolphin-runs/2026-11-17-report-callback-diagnostic/callback_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-17-report-callback-diagnostic/callback_probe/pages/page-002.png": "bce7455e73c6a94d63d7c154fc965b02222f002636c8d02fbdaa7bb9d6f0b67f",
+    "docs/dolphin-runs/2026-11-17-report-callback-diagnostic/callback_probe/pages/page-003.png": "43dd016668281c448400f0169d3851a9e9c4885457b0c69ad1be3c9f1e7fb624",
+    "docs/dolphin-runs/2026-11-17-report-callback-diagnostic/callback_probe/pages/page-004.png": "aea78e2afcc86c0fa3137014c827a5175317c6f777b245e591e07fe4e58b8470"
+  },
+  "exit_code": 1
+}
