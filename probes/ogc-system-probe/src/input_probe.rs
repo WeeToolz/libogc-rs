@@ -80,6 +80,8 @@ impl TraceQueue {
 }
 
 static TRACE_QUEUE: TraceQueue = TraceQueue::new();
+#[cfg(feature = "dolphin-automation")]
+static PAD_SCAN_HOOKS: AtomicUsize = AtomicUsize::new(0);
 
 fn queue_trace_event(event: &InputTraceEvent<'_>) -> Result<(), TraceError> {
     let InputTraceEvent::RawReport {
@@ -306,6 +308,7 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
             "PAD accessors match axes from raw samples",
             pad_checks.axes_ok && pad_checks.saw_stick,
         );
+        probe_controller_scan_modes(logger, &mut controllers);
     }
 
     let cleanup_complete =
@@ -336,6 +339,58 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
     loop {
         logger.display().wait_vsync();
     }
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn pad_scan_hook(stage: &'static str) {
+    let bit = match stage {
+        "PAD SCAN START" => 1,
+        "PAD SCAN DONE" => 2,
+        _ => 0,
+    };
+    PAD_SCAN_HOOKS.fetch_or(bit, Ordering::Relaxed);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_controller_scan_modes(logger: &mut ProbeLogger, controllers: &mut ControllerManager) {
+    fn has_pad(snapshot: &ControllerSnapshot) -> bool {
+        snapshot
+            .controllers()
+            .iter()
+            .any(|item| item.source == ControllerSource::GameCube(0) && item.connected)
+    }
+
+    PAD_SCAN_HOOKS.store(0, Ordering::Relaxed);
+    controllers.set_input_scan_hook(Some(pad_scan_hook));
+    logger.record(
+        "controller scan sees scripted pad",
+        has_pad(&controllers.scan()),
+    );
+    logger.record(
+        "controller timed scan sees scripted pad",
+        has_pad(&controllers.scan_at(system::time())),
+    );
+    let mut status = [pad::PadStatus::default(); MAX_GAMECUBE_CONTROLLERS];
+    let snapshot = controllers.scan_with_pad_status(&mut status);
+    logger.record(
+        "controller scan returns matching pad status",
+        has_pad(&snapshot) && status[0].err as i32 == pad::PAD_ERR_NONE,
+    );
+    let raw = controllers.scan_with_raw();
+    logger.record(
+        "controller raw scan returns matching pad status",
+        has_pad(&raw.snapshot) && raw.pad_status[0].err as i32 == pad::PAD_ERR_NONE,
+    );
+    let timed = controllers.scan_with_raw_at(system::time());
+    logger.record(
+        "controller timed raw scan returns matching pad status",
+        has_pad(&timed.snapshot) && timed.pad_status[0].err as i32 == pad::PAD_ERR_NONE,
+    );
+    controllers.set_input_scan_hook(None);
+    logger.record(
+        "controller scan hook observes PAD boundaries",
+        PAD_SCAN_HOOKS.load(Ordering::Relaxed) == 3,
+    );
 }
 
 #[cfg(feature = "dolphin-automation")]
