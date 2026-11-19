@@ -1,0 +1,32 @@
+{
+  "probe": "general_probe",
+  "cases": [
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "get_data_dir",
+      "line": 498,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_es_catalog_paths",
+      "api_path": "es::get_data_dir",
+      "checks": [
+        "ES system menu data path matches NAND"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "get_stored_tmd_contents",
+      "line": 757,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_es_catalog_paths",
+      "api_path": "es::get_stored_tmd_contents",
+      "checks": [
+        "ES rejected stored content list preserves output"
+      ]
+    }
+  ],
+  "limits": [
+    "Uses the imported Dolphin NAND system menu; stored content listing is rejected by Dolphin and successful listing remains open."
+  ]
+}

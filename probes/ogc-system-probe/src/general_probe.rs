@@ -8,6 +8,7 @@ pub fn run(logger: &mut ProbeLogger) {
     logger.section("GENERAL PROBE");
     probe_es_layout(logger);
     probe_es_certificate_chain(logger);
+    probe_es_catalog_paths(logger);
     probe_wpad_speaker_encoder(logger);
     probe_bluetooth_idle_host(logger);
     probe_break_callback(logger);
@@ -45,6 +46,49 @@ pub fn run(logger: &mut ProbeLogger) {
     logger.record(
         "console footer write",
         crate::probe_support::screen_write(b"general probe uses direct runtime calls\n").is_ok(),
+    );
+}
+
+fn probe_es_catalog_paths(logger: &mut ProbeLogger) {
+    const MENU: u64 = 0x0000_0001_0000_0002;
+    let initialized = es::init();
+    logger.record(
+        "ES catalog opens for path and content checks",
+        initialized == 0,
+    );
+    if initialized != 0 {
+        return;
+    }
+
+    let mut path = [0xa5u8; 32];
+    // SAFETY: The output has 30 writable bytes and two guard bytes.
+    let directory = unsafe { es::get_data_dir(MENU, path.as_mut_ptr()) };
+    logger.record(
+        "ES system menu data path matches NAND",
+        directory == 0
+            && &path[..29] == b"/title/00000001/00000002/data"
+            && path[29..] == [0xa5; 3],
+    );
+
+    #[repr(align(64))]
+    struct Tmd([u8; 832]);
+    let mut tmd = Tmd([0xa5; 832]);
+    // SAFETY: The aligned buffer accommodates the fixture's 808-byte TMD.
+    let fetched = unsafe { es::get_stored_tmd(MENU, tmd.0.as_mut_ptr().cast(), 808) };
+    let mut contents = [u32::MAX; 10];
+    let listed = if fetched == 0 {
+        // SAFETY: The signed TMD and output buffer remain live and aligned.
+        unsafe { es::get_stored_tmd_contents(tmd.0.as_ptr().cast(), 808, contents.as_mut_ptr(), 9) }
+    } else {
+        fetched
+    };
+    logger.record(
+        "ES rejected stored content list preserves output",
+        fetched == 0 && listed == -2011 && contents.iter().all(|&word| word == u32::MAX),
+    );
+    logger.record(
+        "ES catalog closes after path and content checks",
+        es::close() == 0,
     );
 }
 
