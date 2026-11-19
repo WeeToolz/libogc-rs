@@ -1607,6 +1607,86 @@ mod wii {
         );
     }
 
+    fn probe_tuxedo_mutexes(logger: &mut ProbeLogger) {
+        logger.section("TUXEDO MUTEX LIFECYCLE");
+        let mut mutex = tuxedo::KMutex::default();
+        let mut recursive = tuxedo::KRMutex::default();
+        let current = tuxedo::k_thread_get_self();
+        // SAFETY: The mutexes remain live and are owned by this thread.
+        unsafe {
+            tuxedo::k_mutex_lock(&mut mutex);
+            let locked = !current.is_null()
+                && mutex.owner == current
+                && tuxedo::k_mutex_is_locked_by_current_thread(&mut mutex);
+            let rejected = !tuxedo::k_mutex_try_lock(&mut mutex);
+            tuxedo::k_mutex_unlock(&mut mutex);
+            let released =
+                mutex.owner.is_null() && !tuxedo::k_mutex_is_locked_by_current_thread(&mut mutex);
+            let reacquired = tuxedo::mutex_try_lock(&mut mutex) && mutex.owner == current;
+            tuxedo::k_mutex_unlock(&mut mutex);
+            logger.record(
+                "Tuxedo mutex lock try unlock and wrapper ownership",
+                locked && rejected && released && reacquired && mutex.owner.is_null(),
+            );
+
+            tuxedo::k_rmutex_lock(&mut recursive);
+            let first = recursive.counter == 1 && recursive.mutex.owner == current;
+            tuxedo::k_rmutex_lock(&mut recursive);
+            let second = recursive.counter == 2 && recursive.mutex.owner == current;
+            let third = tuxedo::k_rmutex_try_lock(&mut recursive)
+                && recursive.counter == 3
+                && recursive.mutex.owner == current;
+            tuxedo::k_rmutex_unlock(&mut recursive);
+            let partial = recursive.counter == 2 && recursive.mutex.owner == current;
+            tuxedo::k_rmutex_unlock(&mut recursive);
+            tuxedo::k_rmutex_unlock(&mut recursive);
+            logger.record(
+                "Tuxedo recursive mutex preserves owner until final unlock",
+                first
+                    && second
+                    && third
+                    && partial
+                    && recursive.counter == 0
+                    && recursive.mutex.owner.is_null(),
+            );
+
+            let mut cv = tuxedo::KCondVar::default();
+            tuxedo::k_mutex_lock(&mut mutex);
+            let started = driver::now_ticks();
+            let ticks = tuxedo::k_cond_var_wait_timeout_ticks(
+                &mut cv,
+                &mut mutex,
+                driver::TICKS_PER_SECOND / 1000,
+            );
+            let ticks_elapsed = driver::now_ticks().wrapping_sub(started);
+            let started = driver::now_ticks();
+            let nanos = tuxedo::k_cond_var_wait_ns(&mut cv, &mut mutex, 1_000_000);
+            let nanos_elapsed = driver::now_ticks().wrapping_sub(started);
+            let started = driver::now_ticks();
+            let micros = tuxedo::k_cond_var_wait_us(&mut cv, &mut mutex, 1_000);
+            let micros_elapsed = driver::now_ticks().wrapping_sub(started);
+            let started = driver::now_ticks();
+            let millis = tuxedo::k_cond_var_wait_ms(&mut cv, &mut mutex, 1);
+            let millis_elapsed = driver::now_ticks().wrapping_sub(started);
+            let timed = |elapsed| {
+                elapsed >= driver::TICKS_PER_SECOND / 2000 && elapsed < driver::TICKS_PER_SECOND
+            };
+            logger.record(
+                "Tuxedo condition timeouts reacquire mutex",
+                !ticks
+                    && !nanos
+                    && !micros
+                    && !millis
+                    && mutex.owner == current
+                    && timed(ticks_elapsed)
+                    && timed(nanos_elapsed)
+                    && timed(micros_elapsed)
+                    && timed(millis_elapsed),
+            );
+            tuxedo::k_mutex_unlock(&mut mutex);
+        }
+    }
+
     fn run_tuxedo_compatibility(logger: &mut ProbeLogger) {
         logger.section("TUXEDO OVER LWP");
         unsafe {
@@ -1906,6 +1986,7 @@ mod wii {
         run_message_and_deferred(&mut logger);
         probe_interrupt_deferred(&mut logger);
         run_tuxedo_compatibility(&mut logger);
+        probe_tuxedo_mutexes(&mut logger);
         run_ipc_wakeup(&mut logger);
         run_std_foundation(&mut logger);
         crate::futex_probe::run(&mut logger);

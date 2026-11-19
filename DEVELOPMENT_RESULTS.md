@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-19 Tuxedo mutexes and condition timeouts
+
+The [Tuxedo batch](docs/dolphin-runs/2026-11-19-tuxedo-mutex-timeouts/README.md)
+checks 12 APIs in Dolphin. All 235 LWP probe checks passed. The completeness
+audit reports 623 unverified APIs. Contention, signaled waits, and physical
+Wii scheduling remain open.
+
 ## 2026-11-19 GX light commands and pixel state
 
 The [GX light and pixel batch](docs/dolphin-runs/2026-11-19-gx-light-state/README.md)

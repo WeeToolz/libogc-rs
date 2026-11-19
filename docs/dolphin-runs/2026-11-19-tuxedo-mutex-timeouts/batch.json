@@ -1,0 +1,152 @@
+{
+  "probe": "lwp_probe",
+  "cases": [
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_mutex_lock",
+      "line": 946,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_mutexes",
+      "api_path": "tuxedo::k_mutex_lock",
+      "checks": [
+        "Tuxedo mutex lock try unlock and wrapper ownership"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_mutex_try_lock",
+      "line": 926,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_mutexes",
+      "api_path": "tuxedo::k_mutex_try_lock",
+      "checks": [
+        "Tuxedo mutex lock try unlock and wrapper ownership"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_mutex_unlock",
+      "line": 982,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_mutexes",
+      "api_path": "tuxedo::k_mutex_unlock",
+      "checks": [
+        "Tuxedo mutex lock try unlock and wrapper ownership"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_mutex_is_locked_by_current_thread",
+      "line": 1009,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_mutexes",
+      "api_path": "tuxedo::k_mutex_is_locked_by_current_thread",
+      "checks": [
+        "Tuxedo mutex lock try unlock and wrapper ownership"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "mutex_try_lock",
+      "line": 1304,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_mutexes",
+      "api_path": "tuxedo::mutex_try_lock",
+      "checks": [
+        "Tuxedo mutex lock try unlock and wrapper ownership"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_rmutex_lock",
+      "line": 1019,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_mutexes",
+      "api_path": "tuxedo::k_rmutex_lock",
+      "checks": [
+        "Tuxedo recursive mutex preserves owner until final unlock"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_rmutex_try_lock",
+      "line": 1033,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_mutexes",
+      "api_path": "tuxedo::k_rmutex_try_lock",
+      "checks": [
+        "Tuxedo recursive mutex preserves owner until final unlock"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_rmutex_unlock",
+      "line": 1050,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_mutexes",
+      "api_path": "tuxedo::k_rmutex_unlock",
+      "checks": [
+        "Tuxedo recursive mutex preserves owner until final unlock"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_cond_var_wait_timeout_ticks",
+      "line": 1108,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_mutexes",
+      "api_path": "tuxedo::k_cond_var_wait_timeout_ticks",
+      "checks": [
+        "Tuxedo condition timeouts reacquire mutex"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_cond_var_wait_ns",
+      "line": 1137,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_mutexes",
+      "api_path": "tuxedo::k_cond_var_wait_ns",
+      "checks": [
+        "Tuxedo condition timeouts reacquire mutex"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_cond_var_wait_us",
+      "line": 1143,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_mutexes",
+      "api_path": "tuxedo::k_cond_var_wait_us",
+      "checks": [
+        "Tuxedo condition timeouts reacquire mutex"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_cond_var_wait_ms",
+      "line": 1149,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_mutexes",
+      "api_path": "tuxedo::k_cond_var_wait_ms",
+      "checks": [
+        "Tuxedo condition timeouts reacquire mutex"
+      ]
+    }
+  ],
+  "limits": [
+    "Single-thread ownership and one-millisecond condition timeouts in Dolphin. Cross-thread mutex contention, signaled condition waits, timeout races, and physical Wii scheduling remain untested."
+  ]
+}

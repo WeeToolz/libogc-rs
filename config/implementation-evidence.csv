@@ -2754,3 +2754,15 @@ ogc-gx,src/lib.rs,load_light_obj,7718,compatibility-forwarder,hardware-probe,pro
 ogc-gx,src/lib.rs,load_light_obj_idx,7746,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_light_and_pixel_state,gx::load_light_obj_idx
 ogc-gx,src/lib.rs,pix_mode_sync,3878,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_light_and_pixel_state,gx::pix_mode_sync
 ogc-gx,src/lib.rs,read_bounding_box,7577,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_light_and_pixel_state,gx::read_bounding_box
+tuxedo-sys,src/lib.rs,k_mutex_lock,946,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_tuxedo_mutexes,tuxedo::k_mutex_lock
+tuxedo-sys,src/lib.rs,k_mutex_try_lock,926,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_tuxedo_mutexes,tuxedo::k_mutex_try_lock
+tuxedo-sys,src/lib.rs,k_mutex_unlock,982,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_tuxedo_mutexes,tuxedo::k_mutex_unlock
+tuxedo-sys,src/lib.rs,k_mutex_is_locked_by_current_thread,1009,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_tuxedo_mutexes,tuxedo::k_mutex_is_locked_by_current_thread
+tuxedo-sys,src/lib.rs,mutex_try_lock,1304,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_tuxedo_mutexes,tuxedo::mutex_try_lock
+tuxedo-sys,src/lib.rs,k_rmutex_lock,1019,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_tuxedo_mutexes,tuxedo::k_rmutex_lock
+tuxedo-sys,src/lib.rs,k_rmutex_try_lock,1033,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_tuxedo_mutexes,tuxedo::k_rmutex_try_lock
+tuxedo-sys,src/lib.rs,k_rmutex_unlock,1050,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_tuxedo_mutexes,tuxedo::k_rmutex_unlock
+tuxedo-sys,src/lib.rs,k_cond_var_wait_timeout_ticks,1108,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_tuxedo_mutexes,tuxedo::k_cond_var_wait_timeout_ticks
+tuxedo-sys,src/lib.rs,k_cond_var_wait_ns,1137,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_tuxedo_mutexes,tuxedo::k_cond_var_wait_ns
+tuxedo-sys,src/lib.rs,k_cond_var_wait_us,1143,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_tuxedo_mutexes,tuxedo::k_cond_var_wait_us
+tuxedo-sys,src/lib.rs,k_cond_var_wait_ms,1149,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_tuxedo_mutexes,tuxedo::k_cond_var_wait_ms
