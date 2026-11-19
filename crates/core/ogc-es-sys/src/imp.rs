@@ -2203,7 +2203,7 @@ pub unsafe fn encrypt(
                 Ok(fd) => fd,
                 Err(rc) => return rc,
             };
-            let iv_in = slice_from_const(iv.cast::<u8>(), 0x10);
+            let iv_in = iv.cast::<[u32; 4]>().read();
             let source_in = slice_from_const(source, size as usize);
             let iv_out = slice_from_mut(iv.cast::<u8>(), 0x10);
             let dest_out = slice_from_mut(dest, size as usize);
@@ -2213,7 +2213,7 @@ pub unsafe fn encrypt(
                 3,
                 [
                     IoctlvEntry::In(bytes_of(&keynum)),
-                    IoctlvEntry::In(iv_in),
+                    IoctlvEntry::In(bytes_of(&iv_in)),
                     IoctlvEntry::In(source_in),
                     IoctlvEntry::Out(iv_out),
                     IoctlvEntry::Out(dest_out),
@@ -2252,7 +2252,7 @@ pub unsafe fn decrypt(
                 Ok(fd) => fd,
                 Err(rc) => return rc,
             };
-            let iv_in = slice_from_const(iv.cast::<u8>(), 0x10);
+            let iv_in = iv.cast::<[u32; 4]>().read();
             let source_in = slice_from_const(source, size as usize);
             let iv_out = slice_from_mut(iv.cast::<u8>(), 0x10);
             let dest_out = slice_from_mut(dest, size as usize);
@@ -2262,7 +2262,7 @@ pub unsafe fn decrypt(
                 3,
                 [
                     IoctlvEntry::In(bytes_of(&keynum)),
-                    IoctlvEntry::In(iv_in),
+                    IoctlvEntry::In(bytes_of(&iv_in)),
                     IoctlvEntry::In(source_in),
                     IoctlvEntry::Out(iv_out),
                     IoctlvEntry::Out(dest_out),

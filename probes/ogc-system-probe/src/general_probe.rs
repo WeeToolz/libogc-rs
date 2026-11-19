@@ -152,6 +152,42 @@ fn probe_es_crypto_inputs(logger: &mut ProbeLogger) {
             && iv == [0x1234_5678; 4]
             && dest.0 == [0xa5; 416],
     );
+    let initial_iv = [0x1234_5678u32; 4];
+    iv = initial_iv;
+    dest.0.fill(0xa5);
+    // SAFETY: The 16-byte source and destination are separately aligned,
+    // writable for IOS output where appropriate, and live through each call.
+    let invalid_key_encrypt = unsafe {
+        es::encrypt(
+            u32::MAX,
+            iv.as_mut_ptr(),
+            source.0.as_ptr(),
+            16,
+            dest.0.as_mut_ptr(),
+        )
+    };
+    logger.record(
+        "ES encrypt invalid key preserves IV and destination",
+        invalid_key_encrypt < 0 && iv == initial_iv && dest.0 == [0xa5; 416],
+    );
+    logger.note_i32("ES encrypt invalid key result", invalid_key_encrypt);
+
+    iv = initial_iv;
+    dest.0.fill(0xa5);
+    let invalid_key_decrypt = unsafe {
+        es::decrypt(
+            u32::MAX,
+            iv.as_mut_ptr(),
+            source.0.as_ptr(),
+            16,
+            dest.0.as_mut_ptr(),
+        )
+    };
+    logger.record(
+        "ES decrypt invalid key preserves IV and destination",
+        invalid_key_decrypt < 0 && iv == initial_iv && dest.0 == [0xa5; 416],
+    );
+    logger.note_i32("ES decrypt invalid key result", invalid_key_decrypt);
     logger.record("ES crypto probe closes service", es::close() == 0);
 }
 
