@@ -8,6 +8,7 @@ pub fn run(logger: &mut ProbeLogger) {
     logger.section("GENERAL PROBE");
     probe_es_layout(logger);
     probe_wpad_speaker_encoder(logger);
+    probe_bluetooth_idle_host(logger);
 
     logger.record("counter bias roundtrip", roundtrip_counter_bias());
     logger.record("display offset roundtrip", roundtrip_display_offset());
@@ -42,6 +43,48 @@ pub fn run(logger: &mut ProbeLogger) {
     logger.record(
         "console footer write",
         crate::probe_support::screen_write(b"general probe uses direct runtime calls\n").is_ok(),
+    );
+}
+
+fn probe_bluetooth_idle_host(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::{Failure, HostStage, WiiHidHost};
+
+    let mut host = WiiHidHost::new();
+    logger.record(
+        "Bluetooth idle host starts disabled",
+        host.diagnostics().stage == HostStage::Disabled && !host.shutdown_complete(),
+    );
+    logger.record(
+        "Bluetooth idle host rejects search and report",
+        !host.search(10) && !host.send_report(0, &[0xa2, 1]),
+    );
+    host.stop_search();
+    host.disconnect(0);
+    host.disconnect(usize::MAX);
+    logger.record(
+        "Bluetooth idle host rejects disconnect request",
+        host.request_disconnect(0) == Err(Failure::Protocol)
+            && host.request_disconnect(usize::MAX) == Err(Failure::Protocol)
+            && host.switch_calibration(0).is_none(),
+    );
+    logger.record(
+        "Bluetooth idle host has no queued events",
+        host.peek_event().is_none() && host.next_event().is_none(),
+    );
+    host.poll(11);
+    logger.record(
+        "Bluetooth idle host poll leaves it disabled",
+        host.diagnostics().stage == HostStage::Disabled && host.next_event().is_none(),
+    );
+    host.shutdown(12);
+    logger.record(
+        "Bluetooth idle host shutdown completes without adapter",
+        host.shutdown_complete() && host.diagnostics().stage == HostStage::Closing,
+    );
+    host.poll(13);
+    logger.record(
+        "Bluetooth closed host remains complete after poll",
+        host.shutdown_complete() && host.peek_event().is_none(),
     );
 }
 

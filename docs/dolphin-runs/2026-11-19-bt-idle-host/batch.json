@@ -1,0 +1,168 @@
+{
+  "probe": "general_probe",
+  "cases": [
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/wii_host.rs",
+      "symbol": "new",
+      "line": 40,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_bluetooth_idle_host",
+      "api_path": "WiiHidHost::new",
+      "checks": [
+        "Bluetooth idle host starts disabled"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/wii_host.rs",
+      "symbol": "diagnostics",
+      "line": 54,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_bluetooth_idle_host",
+      "api_path": "host.diagnostics",
+      "checks": [
+        "Bluetooth idle host starts disabled",
+        "Bluetooth idle host shutdown completes without adapter"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/wii_host.rs",
+      "symbol": "search",
+      "line": 100,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_bluetooth_idle_host",
+      "api_path": "host.search",
+      "checks": [
+        "Bluetooth idle host rejects search and report"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/wii_host.rs",
+      "symbol": "stop_search",
+      "line": 113,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_bluetooth_idle_host",
+      "api_path": "host.stop_search",
+      "checks": [
+        "Bluetooth idle host has no queued events"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/wii_host.rs",
+      "symbol": "send_report",
+      "line": 116,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_bluetooth_idle_host",
+      "api_path": "host.send_report",
+      "checks": [
+        "Bluetooth idle host rejects search and report"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/wii_host.rs",
+      "symbol": "disconnect",
+      "line": 119,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_bluetooth_idle_host",
+      "api_path": "host.disconnect",
+      "checks": [
+        "Bluetooth idle host has no queued events",
+        "Bluetooth idle host rejects disconnect request"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/wii_host.rs",
+      "symbol": "request_disconnect",
+      "line": 123,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_bluetooth_idle_host",
+      "api_path": "host.request_disconnect",
+      "checks": [
+        "Bluetooth idle host rejects disconnect request"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/wii_host.rs",
+      "symbol": "switch_calibration",
+      "line": 65,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_bluetooth_idle_host",
+      "api_path": "host.switch_calibration",
+      "checks": [
+        "Bluetooth idle host rejects disconnect request"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/wii_host.rs",
+      "symbol": "peek_event",
+      "line": 133,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_bluetooth_idle_host",
+      "api_path": "host.peek_event",
+      "checks": [
+        "Bluetooth idle host has no queued events"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/wii_host.rs",
+      "symbol": "next_event",
+      "line": 130,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_bluetooth_idle_host",
+      "api_path": "host.next_event",
+      "checks": [
+        "Bluetooth idle host has no queued events"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/wii_host.rs",
+      "symbol": "poll",
+      "line": 178,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_bluetooth_idle_host",
+      "api_path": "host.poll",
+      "checks": [
+        "Bluetooth idle host poll leaves it disabled",
+        "Bluetooth closed host remains complete after poll"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/wii_host.rs",
+      "symbol": "shutdown",
+      "line": 136,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_bluetooth_idle_host",
+      "api_path": "host.shutdown",
+      "checks": [
+        "Bluetooth idle host shutdown completes without adapter"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/wii_host.rs",
+      "symbol": "shutdown_complete",
+      "line": 175,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_bluetooth_idle_host",
+      "api_path": "host.shutdown_complete",
+      "checks": [
+        "Bluetooth idle host starts disabled",
+        "Bluetooth idle host shutdown completes without adapter"
+      ]
+    }
+  ],
+  "limits": [
+    "Idle host with no adapter or connected controllers; pairing, transfer, event delivery and physical hardware are not covered."
+  ]
+}
