@@ -833,6 +833,25 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
             && system::get_arena2_lo() as usize == expected_base + size as usize,
     );
 
+    let mut cpu_fifo = ogc_gx::GxFifoObj { pad: [0xa5; 128] };
+    let mut gp_fifo = cpu_fifo;
+    // SAFETY: Both output descriptors are writable and this probe owns GX.
+    unsafe {
+        ogc_gx::get_cpu_fifo(&mut cpu_fifo);
+        ogc_gx::get_gp_fifo(&mut gp_fifo);
+    }
+    // The C FIFO layout stores the base and size at offsets 0 and 8.
+    let expected_address = (expected_base as u32).to_be_bytes();
+    let expected_size = (256u32 * 1024).to_be_bytes();
+    logger.record(
+        "GX active CPU FIFO reports its base and size",
+        cpu_fifo.pad[..4] == expected_address && cpu_fifo.pad[8..12] == expected_size,
+    );
+    logger.record(
+        "GX active GP FIFO reports its base and size",
+        gp_fifo.pad[..4] == expected_address && gp_fifo.pad[8..12] == expected_size,
+    );
+
     // SAFETY: `rmode` is the live preferred mode initialized above, and this
     // probe owns the GX FIFO for the duration of the canvas check.
     let (width, height) = unsafe { ((*rmode).fb_width, (*rmode).efb_height) };

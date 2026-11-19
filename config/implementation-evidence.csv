@@ -59,6 +59,8 @@ ogc-gx,src/lib.rs,initialize_default_mem2,2065,compatibility-forwarder,hardware-
 ogc-gx,src/lib.rs,initialize_mem2,2079,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_canvas_dimensions,GxFifo::initialize_mem2
 ogc-gx,src/lib.rs,address,2143,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_canvas_dimensions,GxFifo::address
 ogc-gx,src/lib.rs,size,2139,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_canvas_dimensions,GxFifo::size
+ogc-gx,src/lib.rs,get_cpu_fifo,1738,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_canvas_dimensions,ogc_gx::get_cpu_fifo
+ogc-gx,src/lib.rs,get_gp_fifo,1749,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_canvas_dimensions,ogc_gx::get_gp_fifo
 ogc-gx,src/lib.rs,init_fog_adj_table,6596,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_fog_table
 ogc-gx,src/lib.rs,adjust_for_overscan,6081,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_overscan
 ogc-gx,src/lib.rs,init_specular_dir_ha,7824,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_specular_light
