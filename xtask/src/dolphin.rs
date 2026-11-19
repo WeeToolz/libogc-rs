@@ -1361,6 +1361,9 @@ fn dolphin_arguments(
         // Texture-copy probes compare the copied bytes in emulated RAM.
         "-C".to_string(),
         "Graphics.Hacks.EFBToTextureEnable=False".to_string(),
+        // Display-copy probes inspect the XFB bytes in emulated RAM.
+        "-C".to_string(),
+        "Graphics.Hacks.XFBToTextureEnable=False".to_string(),
         "-C".to_string(),
         "Dolphin.Analytics.PermissionAsked=True".to_string(),
         "-C".to_string(),
@@ -2805,6 +2808,9 @@ mod tests {
         );
         assert!(args.windows(2).any(|pair| {
             pair[0] == "-C" && pair[1] == "Graphics.Hacks.EFBToTextureEnable=False"
+        }));
+        assert!(args.windows(2).any(|pair| {
+            pair[0] == "-C" && pair[1] == "Graphics.Hacks.XFBToTextureEnable=False"
         }));
     }
 

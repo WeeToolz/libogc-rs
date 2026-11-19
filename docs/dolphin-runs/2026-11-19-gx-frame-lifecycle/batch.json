@@ -1,0 +1,32 @@
+{
+  "probe": "video_probe",
+  "cases": [
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "initialize_display",
+      "line": 4023,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_frame_lifecycle",
+      "api_path": "gx::initialize_display",
+      "checks": [
+        "GX frame lifecycle initializes display"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "present_frame_and_wait",
+      "line": 4051,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_frame_lifecycle",
+      "api_path": "gx::present_frame_and_wait",
+      "checks": [
+        "GX frame lifecycle presents white EFB pixels"
+      ]
+    }
+  ],
+  "limits": [
+    "Black initialization and a white EFB sample in one Dolphin display mode. Other colors, frame dimensions, asynchronous presentation, and physical Wii behavior remain open."
+  ]
+}

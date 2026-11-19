@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-19 GX frame lifecycle
+
+The [frame lifecycle batch](docs/dolphin-runs/2026-11-19-gx-frame-lifecycle-final/README.md)
+checks black display initialization and white EFB-to-XFB presentation. Dolphin
+Metal passed 360 checks with XFB copies to RAM enabled. The completeness audit
+now reports 656 unverified APIs. Physical Wii behavior remains open.
+
 ## 2026-11-19 Dolphin API evidence
 
 Use the [generated inventory](docs/generated/implementation-status.md) for

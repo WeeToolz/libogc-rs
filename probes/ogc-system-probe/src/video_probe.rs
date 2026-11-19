@@ -1050,6 +1050,81 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_solid_rect_render(logger, width, height);
     probe_textured_rect_render(logger, width, height);
     probe_texture_copy_render(logger, width, height);
+    probe_frame_lifecycle(logger, rmode);
+}
+
+fn probe_frame_lifecycle(logger: &mut ProbeLogger, rmode: *mut video::GxrModeObj) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX frame lifecycle framebuffer copies");
+    // The draw buffer is separate from the framebuffer scanned by VI.
+    let (buffer, width, efb_height, xfb_height) = unsafe {
+        (
+            DRAW_FRAMEBUFFER,
+            (*rmode).fb_width,
+            (*rmode).efb_height,
+            (*rmode).xfb_height,
+        )
+    };
+    let Some(config) = gx::FrameConfig::new(buffer, width, efb_height, xfb_height) else {
+        logger.record("GX frame lifecycle configuration valid", false);
+        return;
+    };
+    let black = gx::GxColor {
+        r: 0,
+        g: 0,
+        b: 0,
+        a: 255,
+    };
+    let white = gx::GxColor {
+        r: 255,
+        g: 255,
+        b: 255,
+        a: 255,
+    };
+    // SAFETY: The probe owns GX and the aligned draw framebuffer.
+    let initialized = unsafe { gx::initialize_display(config, black) };
+    let initial_pixel = framebuffer_word(48, 48);
+    logger.note_hex32(
+        "GX frame initialized black pixels",
+        initial_pixel.unwrap_or(0),
+    );
+    logger.record(
+        "GX frame lifecycle initializes display",
+        initialized
+            && initial_pixel.is_some_and(|word| {
+                let bytes = word.to_be_bytes();
+                bytes[0] <= 25
+                    && bytes[2] <= 25
+                    && (110..=146).contains(&bytes[1])
+                    && (110..=146).contains(&bytes[3])
+            }),
+    );
+    if !initialized {
+        return;
+    }
+
+    // Check two known EFB samples, well inside the copy region.
+    for y in 32..96 {
+        for x in 32..96 {
+            gx::poke_argb(x, y, white);
+        }
+    }
+    // SAFETY: The framebuffer stays allocated until the probe exits.
+    let completed = unsafe { gx::present_frame_and_wait(config) };
+    let copied = framebuffer_word(48, 48 * usize::from(xfb_height) / usize::from(efb_height));
+    logger.note_hex32("GX frame copied white pixels", copied.unwrap_or(0));
+    logger.record(
+        "GX frame lifecycle presents white EFB pixels",
+        completed
+            && copied.is_some_and(|word| {
+                let bytes = word.to_be_bytes();
+                bytes[0] >= 220
+                    && bytes[2] >= 220
+                    && (110..=146).contains(&bytes[1])
+                    && (110..=146).contains(&bytes[3])
+            }),
+    );
 }
 
 fn probe_gx_completion_callbacks(logger: &mut ProbeLogger) {

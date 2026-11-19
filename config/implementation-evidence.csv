@@ -2731,3 +2731,5 @@ ogc-lwp-driver,src/runtime.rs,initialize_external_reent,2046,scheduler,hardware-
 ogc-lwp-driver,src/runtime.rs,set_thread_context_mirror,2069,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_external_thread_setup,driver::set_thread_context_mirror
 ogc-lwp-driver,src/runtime.rs,set_thread_reent_storage,2091,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_external_thread_setup,driver::set_thread_reent_storage
 ogc-lwp-driver,src/runtime.rs,thread_exit,2627,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,external_setup_worker,driver::thread_exit
+ogc-gx,src/lib.rs,initialize_display,4023,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_frame_lifecycle,gx::initialize_display
+ogc-gx,src/lib.rs,present_frame_and_wait,4051,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_frame_lifecycle,gx::present_frame_and_wait
