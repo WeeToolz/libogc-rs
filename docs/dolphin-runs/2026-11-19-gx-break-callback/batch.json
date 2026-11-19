@@ -1,0 +1,20 @@
+{
+  "probe": "general_probe",
+  "cases": [
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "set_break_pt_callback",
+      "line": 1856,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_break_callback",
+      "api_path": "gx::set_break_pt_callback",
+      "checks": [
+        "GX breakpoint callback replacement and restoration"
+      ]
+    }
+  ],
+  "limits": [
+    "Checks callback replacement and restoration only. Breakpoint interrupt delivery remains untested."
+  ]
+}

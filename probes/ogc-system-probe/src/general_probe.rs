@@ -10,6 +10,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_es_certificate_chain(logger);
     probe_wpad_speaker_encoder(logger);
     probe_bluetooth_idle_host(logger);
+    probe_break_callback(logger);
 
     logger.record("counter bias roundtrip", roundtrip_counter_bias());
     logger.record("display offset roundtrip", roundtrip_display_offset());
@@ -284,4 +285,24 @@ fn roundtrip_video_mode() -> bool {
     let value = system::get_video_mode();
     system::set_video_mode(value);
     system::get_video_mode() == value
+}
+
+unsafe extern "C" fn probe_break_callback_a() {}
+unsafe extern "C" fn probe_break_callback_b() {}
+
+fn probe_break_callback(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    let original = gx::set_break_pt_callback(Some(probe_break_callback_a));
+    let previous_a = gx::set_break_pt_callback(Some(probe_break_callback_b));
+    let previous_b = gx::set_break_pt_callback(None);
+    let previous_none = gx::set_break_pt_callback(original);
+    logger.record(
+        "GX breakpoint callback replacement and restoration",
+        previous_a.map(|callback| callback as usize)
+            == Some(probe_break_callback_a as *const () as usize)
+            && previous_b.map(|callback| callback as usize)
+                == Some(probe_break_callback_b as *const () as usize)
+            && previous_none.is_none(),
+    );
 }

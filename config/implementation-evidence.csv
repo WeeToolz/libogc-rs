@@ -2689,3 +2689,4 @@ ogc-controller,src/hardware.rs,scan_with_raw,1473,protocol,hardware-probe,probes
 ogc-controller,src/hardware.rs,scan_with_raw_at,1478,protocol,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_controller_scan_modes,controllers.scan_with_raw_at
 ogc-controller,src/hardware.rs,set_input_scan_hook,979,protocol,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_controller_scan_modes,controllers.set_input_scan_hook
 ogc-es-sys,src/imp.rs,next_cert,2470,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_certificate_chain,es::next_cert
+ogc-gx,src/lib.rs,set_break_pt_callback,1856,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_break_callback,gx::set_break_pt_callback
