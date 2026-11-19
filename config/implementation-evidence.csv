@@ -2495,3 +2495,11 @@ ogc-exi-sys,src/lib.rs,imm_ex,1005,hardware,hardware-probe,probes/ogc-system-pro
 ogc-exi,src/lib.rs,dma,137,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_dma_write,exi::dma
 ogc-exi,src/lib.rs,try_dma,151,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_dma_write,exi::try_dma
 ogc-exi-sys,src/lib.rs,dma,1037,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_dma_write,raw_exi::dma
+ogc-gx,src/lib.rs,set_disp_copy_src,3750,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_display_copy_commands,gx::set_disp_copy_src
+ogc-gx,src/lib.rs,set_disp_copy_dst,3760,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_display_copy_commands,gx::set_disp_copy_dst
+ogc-gx,src/lib.rs,set_copy_clamp,3660,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_display_copy_commands,gx::set_copy_clamp
+ogc-gx,src/lib.rs,set_disp_copy_gamma,3671,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_display_copy_commands,gx::set_disp_copy_gamma
+ogc-gx,src/lib.rs,set_disp_copy_frame2field,3710,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_display_copy_commands,gx::set_disp_copy_frame2field
+ogc-gx,src/lib.rs,set_disp_copy_frame2_field,3721,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_display_copy_commands,gx::set_disp_copy_frame2_field
+ogc-gx,src/lib.rs,set_disp_copy_y_scale,3733,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_display_copy_commands,gx::set_disp_copy_y_scale
+ogc-gx,src/lib.rs,copy_disp,3860,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_display_copy_commands,gx::copy_disp

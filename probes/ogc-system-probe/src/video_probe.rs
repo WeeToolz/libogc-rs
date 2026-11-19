@@ -1006,6 +1006,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_fog_commands(logger);
     probe_clip_mode_commands(logger);
     probe_copy_clear_commands(logger);
+    probe_display_copy_commands(logger);
     probe_copy_filter_commands(logger);
     probe_field_mask_commands(logger);
     probe_bounding_box_commands(logger);
@@ -2659,6 +2660,61 @@ fn check_gx_bp_words(words: &[u32], emit: impl FnOnce()) -> bool {
         bytes[1..].copy_from_slice(&word.to_be_bytes());
     }
     check_gx_command_bytes(&expected[..size], emit)
+}
+
+fn probe_display_copy_commands(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX display copy command bytes");
+    // The destination is encoded into a captured list; GX does not access it.
+    let dest = core::ptr::without_provenance_mut::<core::ffi::c_void>(0x8123_4560);
+    let mut lines = 0;
+    let first = check_gx_bp_words(
+        &[
+            0x4e00_0100,
+            0x4900_1003,
+            0x4a07_7e7f,
+            0x4d00_0028,
+            0x4b09_1a2b,
+            0x5200_6082,
+        ],
+        || unsafe {
+            gx::set_disp_copy_src(3, 4, 640, 480);
+            gx::set_disp_copy_dst(640, 480);
+            gx::set_copy_clamp(2);
+            gx::set_disp_copy_gamma(1);
+            gx::set_disp_copy_frame2field(2);
+            lines = gx::set_disp_copy_y_scale(1.0);
+            gx::copy_disp(dest, 0);
+        },
+    );
+    logger.record(
+        "GX display copy encodes first configuration",
+        first && lines == 480,
+    );
+    let second = check_gx_bp_words(
+        &[
+            0x4e00_0080,
+            0x4900_2411,
+            0x4a03_bd3f,
+            0x4d00_0014,
+            0x4b09_1a2b,
+            0x5200_7503,
+        ],
+        || unsafe {
+            gx::set_disp_copy_src(17, 9, 320, 240);
+            gx::set_disp_copy_dst(320, 240);
+            gx::set_copy_clamp(3);
+            gx::set_disp_copy_gamma(2);
+            gx::set_disp_copy_frame2_field(3);
+            lines = gx::set_disp_copy_y_scale(2.0);
+            gx::copy_disp(dest, 0);
+        },
+    );
+    logger.record(
+        "GX display copy encodes second configuration",
+        second && lines == 479,
+    );
 }
 
 fn probe_pe_control_commands(logger: &mut ProbeLogger) {

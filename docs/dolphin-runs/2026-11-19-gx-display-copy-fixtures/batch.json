@@ -1,0 +1,110 @@
+{
+  "probe": "video_probe",
+  "cases": [
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "set_disp_copy_src",
+      "line": 3750,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_display_copy_commands",
+      "api_path": "gx::set_disp_copy_src",
+      "checks": [
+        "GX display copy encodes first configuration",
+        "GX display copy encodes second configuration"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "set_disp_copy_dst",
+      "line": 3760,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_display_copy_commands",
+      "api_path": "gx::set_disp_copy_dst",
+      "checks": [
+        "GX display copy encodes first configuration",
+        "GX display copy encodes second configuration"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "set_copy_clamp",
+      "line": 3660,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_display_copy_commands",
+      "api_path": "gx::set_copy_clamp",
+      "checks": [
+        "GX display copy encodes first configuration",
+        "GX display copy encodes second configuration"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "set_disp_copy_gamma",
+      "line": 3671,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_display_copy_commands",
+      "api_path": "gx::set_disp_copy_gamma",
+      "checks": [
+        "GX display copy encodes first configuration",
+        "GX display copy encodes second configuration"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "set_disp_copy_frame2field",
+      "line": 3710,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_display_copy_commands",
+      "api_path": "gx::set_disp_copy_frame2field",
+      "checks": [
+        "GX display copy encodes first configuration"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "set_disp_copy_frame2_field",
+      "line": 3721,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_display_copy_commands",
+      "api_path": "gx::set_disp_copy_frame2_field",
+      "checks": [
+        "GX display copy encodes second configuration"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "set_disp_copy_y_scale",
+      "line": 3733,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_display_copy_commands",
+      "api_path": "gx::set_disp_copy_y_scale",
+      "checks": [
+        "GX display copy encodes first configuration",
+        "GX display copy encodes second configuration"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "copy_disp",
+      "line": 3860,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_display_copy_commands",
+      "api_path": "gx::copy_disp",
+      "checks": [
+        "GX display copy encodes first configuration",
+        "GX display copy encodes second configuration"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin captured GX display-list command bytes for two configurations. This does not test an executed display copy, physical Wii hardware, clear behavior, or other configurations."
+  ]
+}

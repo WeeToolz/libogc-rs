@@ -1,0 +1,74 @@
+{
+  "source_revision": "ed6ec1a2897c2f6a6a31bea1e56d60ff5ccb3346",
+  "source_fingerprint": "bfc4ac6ff2dc76182cdc68235759ac1505b363ff59e2c57e35fc55a9c2e7fb8a",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "video_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "70f62c5a6ac275e0c1c4bfd02a60c647fc1441c2f3a5f44ad371268a0ff14bfe",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "fb729f6711a0fb7c767a97f85c9fb67988eb9adc28092fc2ce60bb1fdd502c4e",
+  "suite_sha256": "58eeeaf77005c1fca9f19a71686c60c709f8f451478ec993dbc150e5dbbe823c",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/probe.log": "f65518844266d355e2bc2a417268a3ad3fd49253e2e322b03304b2324fb702fd",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/stderr.log": "0b9e9ff1c8f89ef2ab473d95d4e621e4c09578ff6d43c5614937f15f7c069f1f",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/probe-transport.bin": "48e544b390cd2f1be9a927ee1eadcb881b84cf290f5dcd46f435a0c5d7850bc0",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-002.png": "320607dd113e5a5dfab9312b19f84eaa4ab8a65c09dee9554ec48090bb88ebda",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-003.png": "3fbdb6c4e30a3d8b92766338b096f49381750d988cd76a2b7c6dfba205af1748",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-004.png": "a8997c3c780a236e9e68932a9a34747f965b89245bb0cd244695fea79007fce3",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-005.png": "ddf466c8599e9b0513e9d708560d7e9c78af30b753b0ac1918c64adcea206e1e",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-006.png": "c37d5d2cd18e19929befe9c4812071805d06301d4cef67557f30f14cc78462f4",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-007.png": "975036dd54d9a22af02d6ce822847f493675d135291411aa925cff897c60cc5b",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-008.png": "3624363e00428e8bb23aea7a58025bcd1ef9e55bbf50bc85c078fc3e3671d588",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-009.png": "0ab40ab029c3b50c0dbd76e1f78e921220c9608651416a6e1b2f2d34f4a33150",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-010.png": "c367e78a210fcb0a8b27a982aeb038f696a420f2a1941a7daeb2d360c53b0f61",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-011.png": "f2df419a6310ba834701f8aa1ee8a5c9caf3d6b1b618df065c7cca978f37d22e",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-012.png": "44472a70e864a53b8db68751bc50260896e08f0f24824abaae86d22ea131edfb",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-013.png": "e6cd8f7ea460fbf60b7b0a0ef0a42411e5a78ee370bdd256f12f8ad6e165624e",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-014.png": "38c91fc04f25866e554da350488a8e6e8953ee34df2d2a546a94c2578d50d5e6",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-015.png": "e4b0cf221dbfd738854afdb3b76073556c98bc680efb70985c54154fc0459ca4",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-016.png": "e029acaf6fa43911160fcf62b23b7defadf09977cb79d43bedb889266429d4c4",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-017.png": "97c149691a6006a781b4d9558f935fb02a360835005adc7d587d695292ed3f7d",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-018.png": "9030c3f79bed7557623e3836f644df76dda0a12c264dd2798aec3f5b761ff129",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-019.png": "47cac45b72f44d9a990d202250fabd162b74f241ff2f83e318f7a8223e1203b7",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-020.png": "76975d9b72b392b3dd1db80cda1e4d753514e6a555de06d1f1ff55ea55c6cfa1",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-021.png": "87359a65f3b078828eaab8cf68dbb3386dee353b516aeaa87313eaa9ad27efb4",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-022.png": "a567e28df5cbef6d6d6500280b759be2acfa2c9439dab212edc44881ac7bbf85",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-023.png": "852ec64d1a52368e0a55cd67d90de8da05e78050579554fdc5a5662762fcf467",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-024.png": "dc7ae4437b1fde98cb2b90f4ebdb95ae4f27935503ebaa2dfadc9661bbeb517b",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-025.png": "5ff6f1c958f52703c853ffddacf95327b0e5ead3f51f2e5c369053be2c716409",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-026.png": "39dc3a667197359e7df1537ba0acc62b94b8919867ca2a786e0b306e02966273",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-027.png": "1dcf0cd0efc37046d0f09f0743879968ff336eb4fe3088033d5301c7d7968bc5",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-028.png": "cc487b3a5136fbcd09d6fc80d67a25f544c4b36646442bdcf82646998915afb8",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-029.png": "e302d46d93e8b0c345097f1a52bf75f7cbebbd5ff1f6ea5608fd51f44daf5951",
+    "docs/dolphin-runs/2026-11-19-gx-display-copy-fixtures/video_probe/pages/page-030.png": "8aa8082eee77366f6984bac9e326e4bb4e68bcde0c6ea68e40fac48835e53c12"
+  },
+  "exit_code": 1
+}
