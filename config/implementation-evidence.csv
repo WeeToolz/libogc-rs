@@ -2605,3 +2605,9 @@ wpad-sys,src/lib.rs,set_event_bufs,1245,hardware,hardware-probe,probes/ogc-syste
 wpad-sys,src/lib.rs,set_idle_thresholds,1519,scheduler,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_commands,wpad::set_idle_thresholds
 wpad-sys,src/lib.rs,set_motion_plus,1113,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_commands,wpad::set_motion_plus
 wpad-sys,src/lib.rs,set_v_res,1174,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_commands,wpad::set_v_res
+wpad-sys,src/lib.rs,bluetooth_diagnostics,70,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_bluetooth_helpers,wpad::bluetooth_diagnostics
+wpad-sys,src/lib.rs,bluetooth_hid_next_event,60,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_bluetooth_helpers,wpad::bluetooth_hid_next_event
+wpad-sys,src/lib.rs,bluetooth_hid_state,46,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_bluetooth_helpers,wpad::bluetooth_hid_state
+wpad-sys,src/lib.rs,bluetooth_shutdown_complete,86,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,run,wpad::bluetooth_shutdown_complete
+wpad-sys,src/lib.rs,bluetooth_switch_calibration,83,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_bluetooth_helpers,wpad::bluetooth_switch_calibration
+wpad-sys,src/lib.rs,set_bluetooth_poll_hook,99,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,run,wpad::set_bluetooth_poll_hook

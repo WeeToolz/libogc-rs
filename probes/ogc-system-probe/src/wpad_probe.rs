@@ -1,5 +1,8 @@
 use crate::probe_support::ProbeLogger;
+use core::sync::atomic::{AtomicU32, Ordering};
 use wpad_sys as wpad;
+
+static BLUETOOTH_POLL_MARKS: AtomicU32 = AtomicU32::new(0);
 
 /// Check the WPAD host lifecycle without starting a Bluetooth inquiry or
 /// changing saved controller configuration.
@@ -11,10 +14,12 @@ pub fn run(logger: &mut ProbeLogger) {
         wpad::get_status() == wpad::WPAD_STATE_DISABLED,
     );
 
+    wpad::set_bluetooth_poll_hook(Some(count_bluetooth_poll_mark));
     let init = wpad::init();
     logger.note_i32("WPAD init result", init);
     logger.record("WPAD init succeeds", init == wpad::WPAD_ERR_NONE as i32);
     if init != wpad::WPAD_ERR_NONE as i32 {
+        wpad::set_bluetooth_poll_hook(None);
         return;
     }
 
@@ -26,11 +31,17 @@ pub fn run(logger: &mut ProbeLogger) {
             break;
         }
     }
+    wpad::set_bluetooth_poll_hook(None);
+    logger.record(
+        "WPAD Bluetooth poll hook observes scan boundary",
+        BLUETOOTH_POLL_MARKS.load(Ordering::Acquire) > 0,
+    );
     logger.record(
         "WPAD reports enabled",
         wpad::get_status() == wpad::WPAD_STATE_ENABLED,
     );
     probe_invalid_channel_commands(logger);
+    probe_bluetooth_helpers(logger);
 
     let mut expansion = 0xfeed_beef;
     let no_controller = unsafe { wpad::probe(wpad::WPAD_CHAN_0, &mut expansion) };
@@ -66,6 +77,10 @@ pub fn run(logger: &mut ProbeLogger) {
     }
     logger.record(
         "WPAD adapter close completed",
+        wpad::bluetooth_shutdown_complete(),
+    );
+    logger.record(
+        "WPAD Bluetooth shutdown query reports complete",
         wpad::bluetooth_shutdown_complete(),
     );
     logger.record(
@@ -224,4 +239,32 @@ fn probe_invalid_channel_commands(logger: &mut ProbeLogger) {
         "WPAD invalid channel rejects IR resolution",
         wpad::set_v_res(invalid, 640, 480) == bad_channel,
     );
+}
+
+fn probe_bluetooth_helpers(logger: &mut ProbeLogger) {
+    let diagnostics = wpad::bluetooth_diagnostics();
+    logger.record(
+        "WPAD Bluetooth diagnostics report ready adapter",
+        diagnostics.stage == ogc_bt_sync::HostStage::Ready,
+    );
+
+    let state = wpad::bluetooth_hid_state(usize::MAX);
+    logger.record(
+        "WPAD Bluetooth invalid HID slot is empty",
+        !state.connected && state.report_count == 0 && state.report_len == 0,
+    );
+    logger.record(
+        "WPAD Bluetooth event queue is empty without HID devices",
+        wpad::bluetooth_hid_next_event().is_none(),
+    );
+    logger.record(
+        "WPAD Switch calibration rejects invalid slot",
+        wpad::bluetooth_switch_calibration(usize::MAX).is_none(),
+    );
+}
+
+fn count_bluetooth_poll_mark(stage: &'static str) {
+    if stage == "WPAD adapter service state check starting" {
+        BLUETOOTH_POLL_MARKS.fetch_add(1, Ordering::AcqRel);
+    }
 }
