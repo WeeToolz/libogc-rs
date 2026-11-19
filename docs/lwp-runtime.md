@@ -6,6 +6,18 @@ The PowerPC implementation is present and the source-level structural checks are
 
 Hardware acceptance requires running `target/xtask/probes/lwp_probe.dol` on a real Wii and retaining its complete log.
 
+The 2026-11-19 Dolphin runs cover
+[priority changes](dolphin-runs/2026-11-19-lwp-priority-order-final/batch-report.md),
+[equal-priority rescheduling](dolphin-runs/2026-11-19-lwp-reschedule-rotation-final/README.md),
+[critical sections and newlib state](dolphin-runs/2026-11-19-lwp-critical-reent/batch-report.md),
+and [deferred callbacks from an interrupt](dolphin-runs/2026-11-19-lwp-irq-deferred/batch-report.md).
+The [external wait run](dolphin-runs/2026-11-19-lwp-external-waits-final/README.md)
+covers one blocked waiter. The
+[external thread run](dolphin-runs/2026-11-19-lwp-external-thread/batch-report.md)
+covers one suspended worker with a caller-supplied stack, context mirror,
+and newlib state. Multiple waiters, races between wake and block, and
+physical interrupt timing still need tests.
+
 ## Ownership and initialization
 
 `ogc-lwp-driver` is the sole scheduler owner. It lazily initializes on the first LWP operation and creates:

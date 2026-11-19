@@ -11,6 +11,8 @@ ran, and any untested conditions. Keep changes focused and preserve useful error
 details. The root README lists build and test commands.
 
 PowerPC runtime checks use DOL probes in Dolphin. See [the probe guide](probes/README.md).
+For a group of APIs that need exact evidence, use the
+[Dolphin batch helper](docs/api-probe-batch.md).
 Dolphin evidence does not establish behavior on physical hardware. Before Wii
 hardware work, follow [the hardware validation guide](docs/wii-hardware-validation.md)
 and the mandatory instructions in [AGENTS.md](AGENTS.md).

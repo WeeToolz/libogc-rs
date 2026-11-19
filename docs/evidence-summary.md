@@ -10,7 +10,7 @@ check before making a claim about a later change.
 | [API inventory](generated/implementation-status.md) | Tracked public APIs and their evidence classifications | An evidence reference does not prove the API behaves correctly. The completeness audit has open entries. |
 | [Source review ledger](../config/static-review-scope.csv) | Review status and outstanding parity work by component | A reviewed scope does not establish hardware behavior. Run `cargo xtask review-status` for current counts. |
 | [Hardware register](hardware-api-validation.csv) | Probe scope, run identity, and recorded Wii results | Many rows are not tested. Use `cargo xtask audit-hardware-register` to validate records, not hardware behavior. |
-| [Dolphin probes](../probes/README.md) | Target execution for the checks in each probe | Dolphin does not replace a physical Wii run. Check the probe source and its report for exact coverage. |
+| [Dolphin results](../DEVELOPMENT_RESULTS.md) | Target execution for the checks in each probe | Check the recorded build, probe source, and report. Physical Wii acceptance needs a separate run. |
 | [Wii std checklist](wii-std-checklist.md) | Work and evidence for the standard library backend | Service and hardware acceptance remain incomplete. |
 
 The separate [hbc-rs application](https://github.com/WeeToolz/hbc-rs) uses
@@ -43,10 +43,10 @@ and its DOL SHA-256 is
 `6353a1b9cb993e1d1547cbea98b8037358a4d6bd4fb4015e51a8fed294201c41`.
 These runs do not establish real-Wii behavior.
 
-The 2026-11-03 inventory reports 1,965 APIs without accepted exact
-test or probe evidence. The hardware register has 14 passed and 38 not-tested
-rows. These counts describe evidence gaps; they do not mean that every API is
-broken or tested. No real-Wii run was made for this repository preparation.
+Use the [generated inventory](generated/implementation-status.md) for current
+API counts. Use the [hardware register](hardware-api-validation.csv) for
+physical test results. The [2026-11-19 Dolphin results](../DEVELOPMENT_RESULTS.md#2026-11-19-dolphin-api-evidence)
+record which checks passed on the emulator and list open cases.
 
 The [Dolphin run records](../DEVELOPMENT_RESULTS.md) include the 30-probe
 baseline and later arena, card metadata, and Bluetooth packet checks. The

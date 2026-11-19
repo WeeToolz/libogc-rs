@@ -24,7 +24,8 @@ Untracked findings and stale allowances fail the check. The generated debt repor
 cargo xtask audit-stubs
 ```
 
-This runs the structural audit checks the generated public-API inventory and fails for every API classified as:
+This command runs the structural audit and checks the generated public API
+inventory. It fails if the inventory contains any of these classifications:
 
 - stub
 - synthetic
@@ -33,6 +34,11 @@ This runs the structural audit checks the generated public-API inventory and fai
 - state-only
 - unimplemented
 - unverified
+
+Add `--json PATH` to save the count, locations, and reasons for open
+entries. Add `--refresh-inventory` to regenerate the inventory and audit
+it in the same command. See the [Dolphin batch guide](api-probe-batch.md)
+for the workflow that uses this report.
 
 The command fails until all disallowed entries are resolved. An `unverified`
 entry can lack a required test or probe reference even when implementation code
@@ -49,13 +55,13 @@ An allowed implementation classification must have an exact entry in
 - an API call inside that function, checked from the Rust syntax tree
 
 The audit accepts host tests for `pure`, `protocol`, and
-`compatibility-forwarder` entries. It requires a hardware probe for `hardware`,
-`ios`, and `scheduler` entries. Missing evidence produces the disallowed
-`unverified` classification. Host evidence must name a `#[test]` function.
-Hardware evidence must name a function in `probes/`. Stale, duplicate,
-mismatched, missing, or invalid evidence fails inventory generation. This check
-confirms a syntactic call; it does not prove runtime behavior or hardware
-acceptance.
+`compatibility-forwarder` entries. It requires a `hardware-probe` entry for
+`hardware`, `ios`, and `scheduler` classifications. Host evidence must name
+a `#[test]` function. Probe evidence must name a function in `probes/`.
+An API without exact evidence remains `unverified`. Stale, duplicate,
+or invalid evidence rows fail inventory generation. The audit checks the
+call in the source code. Check the saved report for the run result and
+whether the probe ran in Dolphin or on a physical console.
 
 `cargo check --tests` checks target test code without running it. A linked DOL
 provides a runnable probe, but hardware acceptance requires that probe to run

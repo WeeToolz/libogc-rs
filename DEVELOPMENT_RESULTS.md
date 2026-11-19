@@ -1,5 +1,34 @@
 # Development results
 
+## 2026-11-19 Dolphin API evidence
+
+Use the [generated inventory](docs/generated/implementation-status.md) for
+current counts. These reports describe the checks run on each recorded
+build. The [hardware register](docs/hardware-api-validation.csv) tracks
+physical Wii results.
+
+The audit of this snapshot found 658 of 3,390 public API entries without
+exact evidence. It also reported six DSP task API entries with an unmapped
+`dsp-task-probe`. The source audit passed.
+
+| Area | Saved reports |
+| --- | --- |
+| ES metadata and NAND queries | [Public layouts](docs/dolphin-runs/2026-11-19-es-layout/batch-report.md), [certificate chain](docs/dolphin-runs/2026-11-19-es-certificate-chain/batch-report.md), [catalog paths](docs/dolphin-runs/2026-11-19-es-catalog-paths/batch-report.md), [device identity](docs/dolphin-runs/2026-11-19-es-device-identity/batch-report.md), [disc TMD and ticket views](docs/dolphin-runs/2026-11-19-es-disc-views/batch-report.md), [consumption](docs/dolphin-runs/2026-11-19-es-consumption/batch-report.md) |
+| ES content and crypto | [Invalid content arguments](docs/dolphin-runs/2026-11-19-es-content-invalid/batch-report.md), [content open, read, seek, and close](docs/dolphin-runs/2026-11-19-es-open-content/batch-report.md), [certificate output and crypto arguments](docs/dolphin-runs/2026-11-19-es-crypto-inputs/batch-report.md), [AES-CBC vector and IV updates](docs/dolphin-runs/2026-11-19-es-crypto-vector/README.md) |
+| LWP | [Runtime status and reports](docs/lwp-runtime.md#status) |
+| IOS, IPC, and SRAM | [IOS versions](docs/dolphin-runs/2026-11-19-ios-versions/batch-report.md), [IPC buffer bounds](docs/dolphin-runs/2026-11-19-ipc-bounds/batch-report.md), [file reads and seek](docs/dolphin-runs/2026-11-19-ipc-file-reads-audited/batch-report.md), [file writes and async operations](docs/dolphin-runs/2026-11-19-ipc-file-cycle/batch-report.md), [ioctl and vector requests](docs/dolphin-runs/2026-11-19-ipc-ioctl/batch-report.md), [SRAM setters](docs/dolphin-runs/2026-11-19-sram-setters/batch-report.md) |
+| GX and video | [Display copy command encoding](docs/dolphin-runs/2026-11-19-gx-display-copy-metal/README.md), [active FIFOs](docs/dolphin-runs/2026-11-19-gx-active-fifos/README.md), [breakpoint callback registration](docs/dolphin-runs/2026-11-19-gx-break-callback/batch-report.md), [VI layout and scan](docs/dolphin-runs/2026-11-19-vi-layout-and-scan/README.md), [video registers and retrace](docs/dolphin-runs/2026-11-19-video-registers/batch-report.md), [framebuffer updates](docs/dolphin-runs/2026-11-19-video-updates-final/batch-report.md) |
+| PAD, SI, and controller scans | [PAD state](docs/dolphin-runs/2026-11-19-pad-state-evidence/batch-report.md), [PAD accessors](docs/dolphin-runs/2026-11-19-pad-accessors-final/batch-report.md), [SI polling](docs/dolphin-runs/2026-11-19-si-polling/batch-report.md), [SI handlers and transfer](docs/dolphin-runs/2026-11-19-si-handlers-transfer/batch-report.md), [SI sampling](docs/dolphin-runs/2026-11-19-si-sampling/batch-report.md), [scripted controller scans](docs/dolphin-runs/2026-11-19-controller-scan-modes/batch-report.md) |
+| Bluetooth and WPAD | [Idle host](docs/dolphin-runs/2026-11-19-bt-idle-host/batch-report.md), [transport metadata](docs/dolphin-runs/2026-11-19-bt-transport-metadata-final/batch-report.md), [WPAD Bluetooth helpers](docs/dolphin-runs/2026-11-19-wpad-bluetooth-audited/batch-report.md), [invalid WPAD queries](docs/dolphin-runs/2026-11-19-wpad-invalid-verified/batch-report.md), [invalid WPAD commands](docs/dolphin-runs/2026-11-19-wpad-invalid-commands/batch-report.md), [speaker encoding](docs/dolphin-runs/2026-11-19-wpad-speaker-encoding/README.md) |
+| USB | [Controller ownership](docs/dolphin-runs/2026-11-19-controller-usb-ownership/batch-report.md), [HID descriptor policy](docs/dolphin-runs/2026-11-19-usb-hid-policy-evidence/batch-report.md), [invalid arguments](docs/dolphin-runs/2026-11-19-usb-invalid-arguments-final/batch-report.md), [unavailable transfers](docs/dolphin-runs/2026-11-19-usb-unavailable-transfers/batch-report.md) |
+
+The ES content probe opened system menu content in the private Dolphin NAND
+and checked bytes after a seek. Active-title success, populated consumption
+records, and disc media still need test results. The GX display-copy checks
+compare command bytes and line counts. The Metal run passed all 351 checks.
+The OpenGL run passed the new checks and failed three existing EFB checks.
+The cause of those failures remains open.
+
 ## 2026-11-17: Raw UDP loopback
 
 Two instrumented Dolphin 2609a OpenGL runs passed 187 checks. An earlier run

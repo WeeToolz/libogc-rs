@@ -120,6 +120,7 @@ console results.
 - [Documentation guide](docs/README.md)
 - [Implementation status](docs/implementation-status.md)
 - [Evidence and open work](docs/evidence-summary.md)
+- [Dolphin batch guide](docs/api-probe-batch.md) and [saved results](DEVELOPMENT_RESULTS.md)
 - [LWP runtime design](docs/lwp-runtime.md)
 - [Verification commands](docs/verification.md)
 - [Probe instructions](probes/README.md)

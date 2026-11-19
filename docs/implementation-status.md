@@ -40,10 +40,12 @@ Disallowed completion classifications:
 
 `cargo xtask audit-stubs` fails while any public API has a disallowed classification.
 Allowed classifications also require an exact evidence record. The record must
-name a test or hardware probe function that contains a call to the API. Hardware,
-IOS, and scheduler classifications require hardware-probe evidence. This check
-confirms a syntactic call; it does not prove runtime behavior or hardware
-acceptance. An API without acceptable evidence is classified as `unverified`.
+name a test or probe function that contains a call to the API. The
+`hardware`, `ios`, and `scheduler` classifications require a probe function
+recorded as `hardware-probe` in the registry. This field identifies the source
+of the check. Use the saved run report to determine where the check ran and
+what passed. Physical acceptance requires a result from the applicable console.
+The inventory marks APIs without acceptable evidence as `unverified`.
 
 ## Milestone 1 implementation
 
@@ -59,9 +61,9 @@ The following source implementations now exist:
 - focused `lwp-probe` logging and scheduler trace hooks;
 - shared low-level timebase/Hollywood primitives, removing the previous dependency exception.
 
-These entries have allowed declared classes, but they remain `unverified` until
-their exact test or real-Wii probe evidence is recorded. A declaration is not
-proof of implementation or hardware behavior.
+See the generated inventory for exact evidence by API and the
+[LWP runtime status](lwp-runtime.md#status) for the scope of the Dolphin
+runs. Physical scheduling and interrupt timing still need console results.
 
 ## Source parity review status
 
@@ -88,15 +90,15 @@ The generated inventory is the source for current counts. See the
 [generated summary](generated/implementation-status.md) for current API totals
 and unverified counts. A test or probe reference records available evidence;
 it does not by itself prove correct runtime behavior or hardware acceptance.
+The [development results](../DEVELOPMENT_RESULTS.md#2026-11-19-dolphin-api-evidence)
+link to the 2026-11-19 Dolphin runs and their coverage limits.
 
 ## Release decision — 2026-10-28
 
-Do not release the repository as complete. The inventory has 3,385
-public APIs, of which 2,400 are `unverified`; `cargo xtask audit-stubs` fails.
-The inventory now includes 46 APIs from the local `mad-sys` ABI files. This
-count records missing exact evidence. It does not mean that all 2,400 APIs
-have defective implementations. The gate remains open until each API has the
-required evidence and the audit passes.
+Do not release the repository as complete. On 2026-10-28, the inventory had
+3,385 public APIs, of which 2,400 lacked exact evidence, and the completeness
+audit failed. That inventory included 46 APIs from the local `mad-sys` ABI
+files. See the generated summary for the current counts.
 
 The [source review ledger](../config/static-review-scope.csv) has 75 of 90
 entries reviewed, four parity blocked, four needing re-review, and seven

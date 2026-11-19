@@ -1,8 +1,16 @@
 # libes Review
 
+See the [2026-11-19 Dolphin results](../../DEVELOPMENT_RESULTS.md#2026-11-19-dolphin-api-evidence)
+for the current ES probe scope. The results include system menu metadata and
+content from a private Dolphin NAND, fixture-based crypto checks, and selected
+error paths. Physical Wii validation remains open.
+
 Status: the explicit initialization and `get_title_id` error-precedence fixes remain in place. The previously open Wii `es:` filesystem mismatch is now implemented in this pass; independent re-review and hardware validation remain. Comparison scope: `ogc-es` and `ogc-es-sys` against `C-sources/libogc/libogc/es.c` and `C-sources/libogc/gc/ogc/es.h`.
 
 ## Confirmed mismatches
+
+These findings describe the original review. See the follow-up sections below
+for the fixes and later review results.
 
 - **The explicit initialization contract is not preserved.** In C, `__ES_Init` creates the heap and opens `/dev/es`; public calls such as `ES_GetTitleID` return `ES_ENOTINIT` while the descriptor is closed (`libogc/es.c:124-152,179-190`). In Rust, the API entry points call `ensure_open` themselves (for example `imp.rs:407-419,438-456`), which opens the device and heap on first use. A caller that omits `init()` therefore gets an operation instead of `ES_ENOTINIT`. This affects the sys API broadly; `ensure_open(state)` appears throughout the implementation.
 

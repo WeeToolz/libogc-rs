@@ -10,9 +10,10 @@ snapshot; regenerate and check the inventory after each work batch.
 Use the [Dolphin batch helper](api-probe-batch.md) to run and record an
 explicit selection of APIs.
 
-The declared classes are 917 compatibility forwarders, 651 hardware, 539 IOS,
-133 protocol, 100 pure, and 60 scheduler entries. Classification is a starting
-point for selecting a test, not proof that the operation is complete or safe.
+At that baseline, the declared classes were 917 compatibility forwarders,
+651 hardware, 539 IOS, 133 protocol, 100 pure, and 60 scheduler entries.
+Use the classification to select a test. Check the result before making a
+claim about the operation.
 Review the API contract, C reference where applicable, implementation, and
 existing test or probe before selecting cases.
 
@@ -39,7 +40,10 @@ for the patch, DOL identity, differing emulator settings, and limitations.
 The network probe has not passed in this Linux environment; the two remaining
 failures must not be counted as passes.
 
-## Current Dolphin evidence batch
+## Dolphin evidence through 2026-11-17
+
+See the [2026-11-19 results](../DEVELOPMENT_RESULTS.md#2026-11-19-dolphin-api-evidence)
+for the later batches and their limits.
 
 The [TCP readiness batch](dolphin-runs/2026-11-17-tcp-socket-readiness-final/README.md)
 checks six network APIs using a loopback stream.
@@ -55,8 +59,9 @@ The [raw ES view batch](dolphin-runs/2026-11-17-raw-es-views/README.md)
 checks five APIs against a NAND fixture. Dolphin passes 235 checks.
 
 The [raw ES catalog batch](dolphin-runs/2026-11-17-raw-es-catalog-final/README.md)
-checks ten APIs. Dolphin leaves the data-directory terminator untouched;
-that API remains unverified.
+checks ten APIs. In that run, Dolphin left the data-directory terminator
+untouched. The later [ES catalog probe](dolphin-runs/2026-11-19-es-catalog-paths/batch-report.md)
+checks the system menu data path with the imported NAND fixture.
 
 The [raw video batch](dolphin-runs/2026-11-17-raw-video/README.md) checks
 13 APIs. Its new checks passed; the full suite and unchanged control each
@@ -310,11 +315,9 @@ APIs. Metal passes 67 checks. OpenGL with CPU EFB access enabled passes 65
 checks and fails two depth-related checks with the same DOL. Keep those
 backend limits separate from physical Wii acceptance.
 
-The next focused batch is GX graphics. Select existing GX probe checks and
-retain their reports and screenshots with the DOL hash and emulator settings.
-Evaluate the named checks as Dolphin evidence; the present batch does not
-require physical Wii testing. Existing hardware evidence requirements remain
-applicable to any later hardware acceptance claims.
+Before you select the next batch, run the batch helper's `plan` command
+against the current inventory. Group APIs that share a probe and test setup.
+Check the existing reports and use any open cases to define the next checks.
 
 ## Work order
 

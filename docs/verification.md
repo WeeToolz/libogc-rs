@@ -65,6 +65,11 @@ coverage, Dolphin limits, and physical USB and AESND procedures. The
 [hardware validation guide](wii-hardware-validation.md) explains how to record
 real-console evidence.
 
+For a group of related APIs, use the [Dolphin batch helper](api-probe-batch.md).
+It records the selected checks and refreshes the evidence registry and
+inventory after the run. Review the saved checks and their limits before
+you accept the evidence.
+
 ## Milestone commands
 
 Milestone commands combine checks for one area of work:

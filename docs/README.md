@@ -9,6 +9,9 @@ Use this guide to find the current state of the project and the evidence behind 
   explains what each type of evidence can establish.
 - [Verification guide](verification.md) lists host, target, probe, and milestone
   commands and explains their limits.
+- [Dolphin batch guide](api-probe-batch.md) explains how to select APIs, run
+  probes, and update the evidence registry. [Development results](../DEVELOPMENT_RESULTS.md)
+  links to saved runs.
 - [Architecture](architecture.md) and [crate roles](crate-roles.md) explain the
   workspace boundaries. [API documentation](api.md) describes the API surface.
 - [License and source notices](source-licenses.md) identify the known upstream
