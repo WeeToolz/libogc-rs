@@ -105,6 +105,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_video_queries(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_video_register_checks(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_video_framebuffer_updates(logger);
     probe_video_console_state(logger);
     probe_wd_information_elements(logger);
     probe_wd_scan_defaults(logger);
@@ -2962,6 +2964,124 @@ fn probe_video_register_checks(logger: &mut ProbeLogger) {
     );
     logger.record("Video wait_vsync observes retrace", after != before);
     logger.record("Video raw wait_v_sync observes retrace", raw_after != after);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_video_framebuffer_updates(logger: &mut ProbeLogger) {
+    use ogc_video as video;
+    use ogc_video::sys as raw_video;
+    logger.report_step("Video framebuffer updates and display state");
+    let mode = unsafe { raw_video::get_preferred_mode(core::ptr::null_mut()) };
+    let Some(regions) = crate::probe_support::framebuffer_regions() else {
+        logger.record("Video update fixture has two framebuffers", false);
+        return;
+    };
+    if mode.is_null() {
+        logger.record("Video update fixture has a preferred mode", false);
+        return;
+    }
+    let original = raw_video::get_current_framebuffer();
+    let next = raw_video::get_next_framebuffer();
+    if original != next
+        || (original as usize != regions[0].start && original as usize != regions[1].start)
+    {
+        logger.record("Video update fixture has one stable framebuffer", false);
+        return;
+    }
+    let other = if original as usize == regions[0].start {
+        regions[1].start
+    } else {
+        regions[0].start
+    } as *mut core::ffi::c_void;
+    // SAFETY: Both framebuffers remain allocated for the complete probe.
+    unsafe { raw_video::set_framebuffer(other) };
+    let raw_immediate = unsafe { raw_video::framebuffer_registers_match(other, mode) == 1 };
+    unsafe { video::set_framebuffer(original) };
+    let wrapper_immediate = unsafe { raw_video::framebuffer_registers_match(original, mode) == 1 };
+    unsafe { raw_video::set_next_framebuffer(other) };
+    let before_flush = raw_video::get_next_framebuffer() == original;
+    raw_video::flush();
+    let published = raw_video::get_next_framebuffer() == other;
+    for _ in 0..4 {
+        if raw_video::get_current_framebuffer() == other {
+            break;
+        }
+        video::wait_vsync();
+    }
+    let swapped = raw_video::get_current_framebuffer() == other
+        && unsafe { raw_video::framebuffer_registers_match(other, mode) == 1 };
+    unsafe { video::set_next_framebuffer(original) };
+    video::flush();
+    for _ in 0..4 {
+        if raw_video::get_current_framebuffer() == original {
+            break;
+        }
+        video::wait_vsync();
+    }
+    let restored = raw_video::get_current_framebuffer() == original
+        && raw_video::get_next_framebuffer() == original
+        && unsafe { raw_video::framebuffer_registers_match(original, mode) == 1 };
+
+    let registers = 0xcc00_2000usize as *const u16;
+    let saved_irq = ogc_irq::irq_disable();
+    let original_vertical = unsafe { core::ptr::read_volatile(registers) };
+    raw_video::set_black(1);
+    let black_vertical = unsafe { core::ptr::read_volatile(registers) };
+    raw_video::set_black(0);
+    let restored_vertical = unsafe { core::ptr::read_volatile(registers) };
+    let cable_register = unsafe { core::ptr::read_volatile(registers.add(55)) };
+    let cable = raw_video::have_component_cable();
+    ogc_irq::irq_restore(saved_irq);
+    let mut copied = unsafe { *mode };
+    copied.vi_tv_mode = u32::MAX;
+    copied.fb_width = 1;
+    copied.xfb_height = 1;
+    copied.vi_height = 1;
+    copied.xfb_mode = u32::MAX;
+    let copied_ptr = unsafe { raw_video::get_preferred_mode(&mut copied) };
+    let current = unsafe { *mode };
+    let expected_format = match conf::get_video() {
+        1 if conf::get_eu_rgb60() > 0 => 5,
+        1 => 1,
+        2 => 2,
+        _ => 0,
+    };
+    let expected_progressive = conf::get_progressive_scan() > 0 && cable != 0;
+    let mode_ok = copied_ptr == &mut copied as *mut _
+        && copied.vi_tv_mode == current.vi_tv_mode
+        && copied.vi_tv_mode == ((expected_format << 2) | u32::from(expected_progressive) * 2)
+        && copied.fb_width == current.fb_width
+        && copied.xfb_height == current.xfb_height
+        && copied.vi_height == current.vi_height
+        && copied.xfb_mode == current.xfb_mode;
+    logger.record("Video raw immediate framebuffer programs VI", raw_immediate);
+    logger.record(
+        "Video wrapper immediate framebuffer programs VI",
+        wrapper_immediate,
+    );
+    logger.record(
+        "Video raw next framebuffer latches after flush",
+        before_flush && published && swapped,
+    );
+    logger.record(
+        "Video raw flush publishes framebuffer",
+        before_flush && published && swapped,
+    );
+    logger.record("Video framebuffer fixture restored", restored);
+    logger.record(
+        "Video raw black toggles vertical display",
+        original_vertical & 0xfff0 != 0
+            && black_vertical & 0xfff0 == 0
+            && restored_vertical == original_vertical,
+    );
+    logger.record(
+        "Video raw component cable matches VI register",
+        cable == u32::from(cable_register & 1),
+    );
+    logger.record(
+        "Video raw preferred mode copies into caller storage",
+        mode_ok,
+    );
 }
 
 fn probe_video_queries(logger: &mut ProbeLogger) {

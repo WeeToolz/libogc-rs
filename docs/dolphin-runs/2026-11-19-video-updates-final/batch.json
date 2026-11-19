@@ -1,0 +1,99 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "set_framebuffer",
+      "line": 488,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_framebuffer_updates",
+      "api_path": "video::set_framebuffer",
+      "checks": [
+        "Video wrapper immediate framebuffer programs VI",
+        "Video framebuffer fixture restored"
+      ]
+    },
+    {
+      "crate": "ogc-video-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_framebuffer",
+      "line": 1077,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_framebuffer_updates",
+      "api_path": "raw_video::set_framebuffer",
+      "checks": [
+        "Video raw immediate framebuffer programs VI",
+        "Video framebuffer fixture restored"
+      ]
+    },
+    {
+      "crate": "ogc-video-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_next_framebuffer",
+      "line": 1092,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_framebuffer_updates",
+      "api_path": "raw_video::set_next_framebuffer",
+      "checks": [
+        "Video raw next framebuffer latches after flush",
+        "Video framebuffer fixture restored"
+      ]
+    },
+    {
+      "crate": "ogc-video-sys",
+      "path": "src/lib.rs",
+      "symbol": "flush",
+      "line": 852,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_framebuffer_updates",
+      "api_path": "raw_video::flush",
+      "checks": [
+        "Video raw flush publishes framebuffer",
+        "Video framebuffer fixture restored"
+      ]
+    },
+    {
+      "crate": "ogc-video-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_black",
+      "line": 881,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_framebuffer_updates",
+      "api_path": "raw_video::set_black",
+      "checks": [
+        "Video raw black toggles vertical display",
+        "Video framebuffer fixture restored"
+      ]
+    },
+    {
+      "crate": "ogc-video-sys",
+      "path": "src/lib.rs",
+      "symbol": "have_component_cable",
+      "line": 1116,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_framebuffer_updates",
+      "api_path": "raw_video::have_component_cable",
+      "checks": [
+        "Video raw component cable matches VI register",
+        "Video framebuffer fixture restored"
+      ]
+    },
+    {
+      "crate": "ogc-video-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_preferred_mode",
+      "line": 1144,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_framebuffer_updates",
+      "api_path": "raw_video::get_preferred_mode",
+      "checks": [
+        "Video raw preferred mode copies into caller storage",
+        "Video framebuffer fixture restored"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin active video mode, private framebuffer fixture and current cable configuration only. Other modes, timing and physical Wii remain unverified."
+  ]
+}

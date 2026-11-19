@@ -2576,3 +2576,10 @@ ogc-video-sys,src/lib.rs,framebuffer_registers_match,771,hardware,hardware-probe
 ogc-video-sys,src/lib.rs,get_current_tv_mode,929,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_register_checks,raw_video::get_current_tv_mode
 ogc-video-sys,src/lib.rs,wait_v_sync,978,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_register_checks,raw_video::wait_v_sync
 ogc-video-sys,src/lib.rs,read_register_snapshot,724,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_register_checks,raw_video::read_register_snapshot
+ogc-video,src/lib.rs,set_framebuffer,488,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_framebuffer_updates,video::set_framebuffer
+ogc-video-sys,src/lib.rs,set_framebuffer,1077,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_framebuffer_updates,raw_video::set_framebuffer
+ogc-video-sys,src/lib.rs,set_next_framebuffer,1092,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_framebuffer_updates,raw_video::set_next_framebuffer
+ogc-video-sys,src/lib.rs,flush,852,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_framebuffer_updates,raw_video::flush
+ogc-video-sys,src/lib.rs,set_black,881,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_framebuffer_updates,raw_video::set_black
+ogc-video-sys,src/lib.rs,have_component_cable,1116,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_framebuffer_updates,raw_video::have_component_cable
+ogc-video-sys,src/lib.rs,get_preferred_mode,1144,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_framebuffer_updates,raw_video::get_preferred_mode

@@ -1,0 +1,81 @@
+{
+  "source_revision": "74dc6c090580b6b1ac7fd87c4374e4574e5cd810",
+  "source_fingerprint": "966d7520781f7cbc764ac3cb27207b4f9ff223b83aec95038e06b810ec62449e",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-19-video-updates-final",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "25dc37fdbace0217acb8206d51e9b995bfd2822fe6c2745c65906af3690dbd41",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "0cbb6f9f0a20c93239ec06c6472faa1b58d40e8e8c3e602af63d6e334ad086c7",
+  "suite_sha256": "880ea6b114f49dbc5bc86a5ba00e310e2a115e74e41ca9a833d6dd64f0646f52",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/probe.log": "e1de3e7d8b07d43680c18185e7f58b2acae240895f91f5f56b68eef898bf0d17",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/stderr.log": "eb00ab426689fd50ac06a2fbe6dae1f8763350e363c030aa94eee159e23c85fe",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/probe-transport.bin": "a84e8b37877071b81d81e6ed6eaf56da054a3832095846fc6567a1c038cd2123",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-002.png": "5f947b9212cb392fb29390d46cc90c8f0127f278f75518e47898f43c3891c8e1",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-003.png": "1daa2287195337d699bf42676d44a87a04a5b89a949fd18ea8ab8a70f353ffbf",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-004.png": "32f622b17cd00bcd89f33cf96d1bbbb81cee0cbb15e710ca575a55953188a2b0",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-005.png": "5f89c76e2178c53255b4ac3948d5f48edb3a91895f2ef7d197c1e9d1d9ddd125",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-006.png": "eef70ace5a02eac328e243ad2d3c1f22ee1d153c84ab41300da5e04ab1f26cd6",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-007.png": "8ffceb851c62a458c4ad8ffd5bbbba59077d75f58d1c19fa9e184fa4a3fed263",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-008.png": "92b24674ba35283cb20080f8f4d61f683e2ca054278a46a2f7c5f682d54b9fe2",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-009.png": "f246275eb06405574c5cd336831851aaa7cfdb42405221ad24387fc54f385654",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-010.png": "e083e4199c82a43edf16e5f6f8fb6ff83a01acf7932fa1014b697d394c22d572",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-011.png": "d10601c0f18d2d1629296f5e1da30dcdd24b26913ce9267a59a549b91ec81afd",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-012.png": "4ab4d45cfd2d2c8f0fcf07a2a1aab41ec51c0b5baac62c56b3b5cfe2ff83b755",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-013.png": "2b64a51e4a05abe38a9018eba121a9d3a3c70590139794adc9b676e2f42435dc",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-014.png": "3aef4165ebadd734ab5f89b0e7ef2ce0f9484a1b8e165bc000c4819a7c558ac2",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-015.png": "6c8b4f796417b6250bcc570db21bbb15d821d0d2a02423e5ecbf7f16e270b233",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-016.png": "8a990f52cb441b812e686c6e2a9e374d7f22e4818856384355ba51145bc978a0",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-017.png": "73987acdf743e3deb1fbe2ce4be63b264416506fdcee19fbf43e917159650286",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-018.png": "965a096763034cbf0660b904c339064736b3e664a65d310b8538467a83a30cf2",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-019.png": "8b64a4b1c7445454f69c7a3fa5a5f7774673d84c11dc13430722248f4eeccafb",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-020.png": "1cfa3f0bf8d99d3c19b32e0e96f8e4eb47c78c88a1abcf7a29c0033c43424eb5",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-021.png": "c6a89cc53e0a0bf3fb7830552655db53f29244ed675b21f18e9fec15e6fe9600",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-022.png": "6e4ea162d482221c8158a2e122244881ded561bbbe85cb6c46fad83862af6b8e",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-023.png": "5573d7a6a1b5d5fa9d1530b2b11399c0b1abaa42ded1956c84f6b2224b03fd8d",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-024.png": "4595bc2809d60467d2671b687b3a0321051390acfe0bfe1b39c52383e6349ce6",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-025.png": "4f378bea9f11c4de5b635983ac3f98b9dd36f3b0c45257c4d58c010e371e4d69",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-026.png": "eace80b2ed29829a4dc0c14d27080d788db277cc018fb770d64bb90400097c2d",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-027.png": "b0356fb83e9a2771bcdf6901fdc2bd45be70fa54b66688cf04d8baebdebd5845",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-028.png": "d01495a7ffe73cb668c2700c8c4e97924a988740ca63f53c68c909b621facc26",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-029.png": "2aacaccd123edb650f9387976dc39cee895c9c1ee26beacef4a6d1037598faf2",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-030.png": "2d81ef570cde74b34f0fc4ce8d2b994dd3d834f1bc0c774b6b941054c267d204",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-031.png": "d66fc28189f81e4c2c1847958e488294d02676d39016375203e5e733ab2b3154",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-032.png": "5e3b49df2b0f819e19c3bbceef88dfc17a9f2373d9a648194ea2bb04971322a3",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-033.png": "ee1e900838ef023e59928eb745093810b175273e4eb901c8d647728b08f20e29",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-034.png": "6e9d6a2e527085e02f061013945bd903389bc7a355bf43a94a48a1d1c4c91576",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-035.png": "a2e3fbf8a33ce7546f995c3222f8b64090d75fbc32901c42cd6f55d6c169e2ce",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-036.png": "82175d4bdfe257b76ba0a9d4622da8e1ce29c5672393d7ad30228051304d4cbc",
+    "docs/dolphin-runs/2026-11-19-video-updates-final/runtime_probe/pages/page-037.png": "aaf3f3f4ab32f0c3a9987c621bd8a6dfc7bc011f8c697f5566d0ed2c17dc3dc5"
+  },
+  "exit_code": 0
+}
