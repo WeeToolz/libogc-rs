@@ -2473,3 +2473,12 @@ ogc-exi,src/lib.rs,unlock,53,compatibility-forwarder,hardware-probe,probes/ogc-s
 ogc-exi,src/lib.rs,try_unlock,57,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_locking,exi::try_unlock
 ogc-exi-sys,src/lib.rs,lock,597,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_raw_lock_queue,raw_exi::lock
 ogc-exi-sys,src/lib.rs,unlock,633,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_raw_lock_queue,raw_exi::unlock
+ogc-exi,src/lib.rs,select,61,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_selection,exi::select
+ogc-exi,src/lib.rs,try_select,65,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_selection,exi::try_select
+ogc-exi,src/lib.rs,deselect,77,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_selection,exi::deselect
+ogc-exi,src/lib.rs,try_deselect,81,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_selection,exi::try_deselect
+ogc-exi,src/lib.rs,select_sd,69,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_selection,exi::select_sd
+ogc-exi,src/lib.rs,try_select_sd,73,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_selection,exi::try_select_sd
+ogc-exi-sys,src/lib.rs,select,795,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_selection,raw_exi::select
+ogc-exi-sys,src/lib.rs,deselect,879,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_selection,raw_exi::deselect
+ogc-exi-sys,src/lib.rs,select_sd,832,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_selection,raw_exi::select_sd

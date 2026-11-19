@@ -115,6 +115,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_irq_mask_state(logger);
     probe_exi_locking(logger);
     probe_exi_raw_lock_queue(logger);
+    probe_exi_selection(logger);
     probe_si_queries(logger);
     probe_si_raw_queries(logger);
     probe_ui_adapters(logger);
@@ -1802,6 +1803,52 @@ fn probe_exi_raw_lock_queue(logger: &mut ProbeLogger) {
             && released == 1
             && EXI_UNLOCK_CALLS.load(Ordering::Acquire) == 1,
     );
+}
+
+fn probe_exi_selection(logger: &mut ProbeLogger) {
+    use ogc_exi as exi;
+    use ogc_exi::sys as raw_exi;
+    // SAFETY: The lock has no callback and is released before return.
+    let locked = unsafe { exi::lock(1, 1, None) };
+    if locked == 1 {
+        let selected = exi::select(1, 1, 0);
+        let marked = exi::get_state(1) as u32 & exi::EXI_FLAG_SELECT != 0;
+        let duplicate = exi::try_select(1, 1, 0);
+        let deselected = exi::deselect(1);
+        let cleared = exi::get_state(1) as u32 & exi::EXI_FLAG_SELECT == 0;
+        let selected_again = exi::try_select(1, 1, 0);
+        let deselected_again = exi::try_deselect(1);
+        let raw_selected = raw_exi::select(1, 1, 0);
+        let raw_removed = raw_exi::deselect(1);
+        let sd_selected = exi::select_sd(1, 1, 0);
+        let sd_removed = exi::deselect(1);
+        let try_sd = exi::try_select_sd(1, 1, 0);
+        let try_sd_removed = exi::try_deselect(1);
+        let raw_sd = raw_exi::select_sd(1, 1, 0);
+        let raw_sd_removed = raw_exi::deselect(1);
+        let unlocked = exi::unlock(1);
+        logger.record(
+            "EXI selection tracks state and rejects duplicates",
+            selected == 1
+                && marked
+                && duplicate.is_err()
+                && deselected == 1
+                && cleared
+                && selected_again.is_ok()
+                && deselected_again.is_ok()
+                && raw_selected == 1
+                && raw_removed == 1
+                && sd_selected == 1
+                && sd_removed == 1
+                && try_sd.is_ok()
+                && try_sd_removed.is_ok()
+                && raw_sd == 1
+                && raw_sd_removed == 1
+                && unlocked == 1,
+        );
+    } else {
+        logger.record("EXI selection tracks state and rejects duplicates", false);
+    }
 }
 
 fn probe_exi_locking(logger: &mut ProbeLogger) {

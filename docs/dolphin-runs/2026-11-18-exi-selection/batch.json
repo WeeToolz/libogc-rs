@@ -1,0 +1,116 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "select",
+      "line": 61,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_selection",
+      "api_path": "exi::select",
+      "checks": [
+        "EXI selection tracks state and rejects duplicates"
+      ]
+    },
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "try_select",
+      "line": 65,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_selection",
+      "api_path": "exi::try_select",
+      "checks": [
+        "EXI selection tracks state and rejects duplicates"
+      ]
+    },
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "deselect",
+      "line": 77,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_selection",
+      "api_path": "exi::deselect",
+      "checks": [
+        "EXI selection tracks state and rejects duplicates"
+      ]
+    },
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "try_deselect",
+      "line": 81,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_selection",
+      "api_path": "exi::try_deselect",
+      "checks": [
+        "EXI selection tracks state and rejects duplicates"
+      ]
+    },
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "select_sd",
+      "line": 69,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_selection",
+      "api_path": "exi::select_sd",
+      "checks": [
+        "EXI selection tracks state and rejects duplicates"
+      ]
+    },
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "try_select_sd",
+      "line": 73,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_selection",
+      "api_path": "exi::try_select_sd",
+      "checks": [
+        "EXI selection tracks state and rejects duplicates"
+      ]
+    },
+    {
+      "crate": "ogc-exi-sys",
+      "path": "src/lib.rs",
+      "symbol": "select",
+      "line": 795,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_selection",
+      "api_path": "raw_exi::select",
+      "checks": [
+        "EXI selection tracks state and rejects duplicates"
+      ]
+    },
+    {
+      "crate": "ogc-exi-sys",
+      "path": "src/lib.rs",
+      "symbol": "deselect",
+      "line": 879,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_selection",
+      "api_path": "raw_exi::deselect",
+      "checks": [
+        "EXI selection tracks state and rejects duplicates"
+      ]
+    },
+    {
+      "crate": "ogc-exi-sys",
+      "path": "src/lib.rs",
+      "symbol": "select_sd",
+      "line": 832,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_selection",
+      "api_path": "raw_exi::select_sd",
+      "checks": [
+        "EXI selection tracks state and rejects duplicates"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin EXI channel 1 device 1 selection without transfer. Device presence, other channels, concurrent access and physical Wii remain unverified."
+  ]
+}
