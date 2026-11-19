@@ -2694,3 +2694,5 @@ ogc-lwp-sys,src/lib.rs,deferred_reserve_interrupt_slot,327,compatibility-forward
 ogc-lwp-sys,src/lib.rs,deferred_cancel_interrupt_slot,331,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_interrupt_deferred,lwp::deferred_cancel_interrupt_slot
 ogc-lwp-sys,src/lib.rs,deferred_call_from_interrupt,323,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,irq_deferred_submit,lwp::deferred_call_from_interrupt
 ogc-lwp-sys,src/lib.rs,deferred_call_reserved_from_interrupt,337,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,irq_deferred_submit,lwp::deferred_call_reserved_from_interrupt
+ogc-lwp-sys,src/lib.rs,set_thread_priority,130,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_priority_order,lwp::set_thread_priority
+ogc-lwp-sys,src/lib.rs,lwp_set_thread_priority_abi,406,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_priority_order,lwp::lwp_set_thread_priority_abi

@@ -308,6 +308,8 @@ mod wii {
 
     static SWITCH_A: AtomicU32 = AtomicU32::new(0);
     static SWITCH_B: AtomicU32 = AtomicU32::new(0);
+    static PRIORITY_ORDER: AtomicU32 = AtomicU32::new(0);
+    static PRIORITY_POSITION: AtomicU32 = AtomicU32::new(0);
     static SHARED_VALUE: AtomicU32 = AtomicU32::new(0);
     static SEM_RELEASED: AtomicU32 = AtomicU32::new(0);
     static SEM_WAIT_RC: AtomicU32 = AtomicU32::new(u32::MAX);
@@ -338,6 +340,12 @@ mod wii {
     static COND: AtomicU32 = AtomicU32::new(lwp::LWP_COND_NULL);
     static SEM: AtomicU32 = AtomicU32::new(lwp::LWP_SEM_NULL);
     static MQ: AtomicU32 = AtomicU32::new(lwp::MQ_BOX_NULL);
+
+    unsafe extern "C" fn priority_worker(argument: *mut c_void) -> *mut c_void {
+        let position = PRIORITY_POSITION.fetch_add(1, Ordering::AcqRel);
+        PRIORITY_ORDER.fetch_or((argument as u32) << (position * 4), Ordering::AcqRel);
+        argument
+    }
 
     unsafe extern "C" fn switch_worker(argument: *mut c_void) -> *mut c_void {
         let counter = if argument as usize == 0 {
@@ -585,6 +593,47 @@ mod wii {
             Ok(value as usize)
         } else {
             Err(rc)
+        }
+    }
+
+    fn probe_priority_order(logger: &mut ProbeLogger) {
+        for abi in [false, true] {
+            PRIORITY_ORDER.store(0, Ordering::Release);
+            PRIORITY_POSITION.store(0, Ordering::Release);
+            let mut a = lwp::LWP_THREAD_NULL;
+            let mut b = lwp::LWP_THREAD_NULL;
+            let a_rc = create_with_stack(
+                &mut a,
+                Some(priority_worker),
+                1usize as *mut c_void,
+                core::ptr::addr_of_mut!(STACK_A),
+                if abi { 30 } else { 20 },
+            );
+            let b_rc = create_with_stack(
+                &mut b,
+                Some(priority_worker),
+                2usize as *mut c_void,
+                core::ptr::addr_of_mut!(STACK_B),
+                if abi { 20 } else { 30 },
+            );
+            if abi {
+                lwp::lwp_set_thread_priority_abi(b, 50);
+            } else {
+                lwp::set_thread_priority(a, 40);
+            }
+            let a_result = if a_rc == 0 { join(a) } else { Err(a_rc) };
+            let b_result = if b_rc == 0 { join(b) } else { Err(b_rc) };
+            logger.record(
+                if abi {
+                    "LWP ABI priority change selects higher worker"
+                } else {
+                    "LWP priority change selects higher worker"
+                },
+                a_result == Ok(1)
+                    && b_result == Ok(2)
+                    && PRIORITY_POSITION.load(Ordering::Acquire) == 2
+                    && PRIORITY_ORDER.load(Ordering::Acquire) == if abi { 0x12 } else { 0x21 },
+            );
         }
     }
 
@@ -1543,6 +1592,7 @@ mod wii {
 
         run_interrupt_frame_integrity(&mut logger);
         run_switch_and_join(&mut logger);
+        probe_priority_order(&mut logger);
         run_synchronization(&mut logger);
         run_legacy_sync_abi(&mut logger);
         run_legacy_thread_abi(&mut logger);

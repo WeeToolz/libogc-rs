@@ -1,0 +1,32 @@
+{
+  "probe": "lwp_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_thread_priority",
+      "line": 130,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_priority_order",
+      "api_path": "lwp::set_thread_priority",
+      "checks": [
+        "LWP priority change selects higher worker"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "lwp_set_thread_priority_abi",
+      "line": 406,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_priority_order",
+      "api_path": "lwp::lwp_set_thread_priority_abi",
+      "checks": [
+        "LWP ABI priority change selects higher worker"
+      ]
+    }
+  ],
+  "limits": [
+    "Two ready threads below the main thread on Dolphin; priority inheritance, equal-priority rotation and physical Wii timing are not covered."
+  ]
+}
