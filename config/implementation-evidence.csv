@@ -2611,3 +2611,11 @@ wpad-sys,src/lib.rs,bluetooth_hid_state,46,hardware,hardware-probe,probes/ogc-sy
 wpad-sys,src/lib.rs,bluetooth_shutdown_complete,86,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,run,wpad::bluetooth_shutdown_complete
 wpad-sys,src/lib.rs,bluetooth_switch_calibration,83,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_bluetooth_helpers,wpad::bluetooth_switch_calibration
 wpad-sys,src/lib.rs,set_bluetooth_poll_hook,99,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,run,wpad::set_bluetooth_poll_hook
+ogc-es-sys,src/imp.rs,certificate_size,392,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_layout,es::certificate_size
+ogc-es-sys,src/imp.rs,is_valid_cert,388,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_layout,es::is_valid_cert
+ogc-es-sys,src/imp.rs,is_valid_signature,380,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_layout,es::is_valid_signature
+ogc-es-sys,src/imp.rs,signature_size,384,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_layout,es::signature_size
+ogc-es-sys,src/imp.rs,signed_cert_size,408,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_layout,es::signed_cert_size
+ogc-es-sys,src/imp.rs,signed_tik_size,404,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_layout,es::signed_tik_size
+ogc-es-sys,src/imp.rs,signed_tmd_size,400,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_layout,es::signed_tmd_size
+ogc-es-sys,src/imp.rs,tmd_size,396,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_layout,es::tmd_size

@@ -1,0 +1,104 @@
+{
+  "probe": "general_probe",
+  "cases": [
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "certificate_size",
+      "line": 392,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_es_layout",
+      "api_path": "es::certificate_size",
+      "checks": [
+        "ES certificate sizes match public layouts"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "is_valid_cert",
+      "line": 388,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_es_layout",
+      "api_path": "es::is_valid_cert",
+      "checks": [
+        "ES certificate types accept only supported values"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "is_valid_signature",
+      "line": 380,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_es_layout",
+      "api_path": "es::is_valid_signature",
+      "checks": [
+        "ES signature types accept only supported values"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "signature_size",
+      "line": 384,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_es_layout",
+      "api_path": "es::signature_size",
+      "checks": [
+        "ES signature sizes match public layouts"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "signed_cert_size",
+      "line": 408,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_es_layout",
+      "api_path": "es::signed_cert_size",
+      "checks": [
+        "ES signed certificate sizes combine signature and certificate"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "signed_tik_size",
+      "line": 404,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_es_layout",
+      "api_path": "es::signed_tik_size",
+      "checks": [
+        "ES signed ticket sizes include signature"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "signed_tmd_size",
+      "line": 400,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_es_layout",
+      "api_path": "es::signed_tmd_size",
+      "checks": [
+        "ES signed title metadata adds signature size"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "tmd_size",
+      "line": 396,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_es_layout",
+      "api_path": "es::tmd_size",
+      "checks": [
+        "ES title metadata sizes match public layouts"
+      ]
+    }
+  ],
+  "limits": [
+    "Only public size and type tables were tested. IOS ticket, title, signing and certificate operations remain unverified."
+  ]
+}
