@@ -2619,3 +2619,11 @@ ogc-es-sys,src/imp.rs,signed_cert_size,408,ios,hardware-probe,probes/ogc-system-
 ogc-es-sys,src/imp.rs,signed_tik_size,404,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_layout,es::signed_tik_size
 ogc-es-sys,src/imp.rs,signed_tmd_size,400,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_layout,es::signed_tmd_size
 ogc-es-sys,src/imp.rs,tmd_size,396,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_layout,es::tmd_size
+ogc-usb,src/lib.rs,open_device,47,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_invalid_arguments,usb::open_device
+ogc-usb,src/lib.rs,close_device,59,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_invalid_arguments,usb::close_device
+ogc-usb,src/lib.rs,get_device_description,93,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_invalid_arguments,usb::get_device_description
+ogc-usb,src/lib.rs,get_descriptors,105,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_invalid_arguments,usb::get_descriptors
+ogc-usb,src/lib.rs,get_generic_descriptor,124,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_invalid_arguments,usb::get_generic_descriptor
+ogc-usb,src/lib.rs,get_hid_descriptor,157,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_invalid_arguments,usb::get_hid_descriptor
+ogc-usb,src/lib.rs,get_report_descriptor,190,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_invalid_arguments,usb::get_report_descriptor
+ogc-usb,src/lib.rs,get_configuration,487,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_invalid_arguments,usb::get_configuration

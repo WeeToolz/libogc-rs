@@ -6,6 +6,7 @@ use crate::probe_support::ProbeLogger;
 
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("USB HID DESCRIPTOR POLICY");
+    probe_invalid_arguments(logger);
 
     let mut descriptor = [
         9,
@@ -127,4 +128,49 @@ pub fn run(logger: &mut ProbeLogger) {
             && !free_called.get()
             && suspend_called.get(),
     );
+}
+
+fn probe_invalid_arguments(logger: &mut ProbeLogger) {
+    // These invalid inputs are rejected before any IOS request is made.
+    // SAFETY: Null pointers are permitted by the respective API contracts.
+    unsafe {
+        logger.record(
+            "USB open rejects null output",
+            usb::open_device(0, 0, 0, core::ptr::null_mut()) == 1,
+        );
+        logger.record(
+            "USB close rejects null output",
+            usb::close_device(core::ptr::null_mut()) == 1,
+        );
+        logger.record(
+            "USB device description rejects null output",
+            usb::get_device_description(-1, core::ptr::null_mut()) == 1,
+        );
+        logger.record(
+            "USB descriptors reject null output",
+            usb::get_descriptors(-1, core::ptr::null_mut()) == 1,
+        );
+        let mut byte = 0u8;
+        logger.record(
+            "USB generic descriptor rejects invalid buffers",
+            usb::get_generic_descriptor(-1, 1, 0, 0, core::ptr::null_mut(), 1) == 1
+                && usb::get_generic_descriptor(-1, 1, 0, 0, (&mut byte as *mut u8).cast(), 0) == 1,
+        );
+        let mut short_report = [0u8; 7];
+        let mut hid = usb::UsbHidDesc::default();
+        logger.record(
+            "USB HID descriptor rejects invalid buffers",
+            usb::get_hid_descriptor(-1, 0, core::ptr::null_mut(), 9) == -4
+                && usb::get_hid_descriptor(-1, 0, &mut hid, 8) == -4,
+        );
+        logger.record(
+            "USB report descriptor rejects invalid buffers",
+            usb::get_report_descriptor(-1, 0, core::ptr::null_mut(), 8) == -4
+                && usb::get_report_descriptor(-1, 0, short_report.as_mut_ptr().cast(), 7) == -4,
+        );
+        logger.record(
+            "USB configuration rejects null output",
+            usb::get_configuration(-1, core::ptr::null_mut()) == -4,
+        );
+    }
 }
