@@ -77,6 +77,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_lwp_sys_queue_wake(logger);
     probe_lwp_abi_queue_wake(logger);
     probe_controller_slots(logger);
+    probe_pad_clamp(logger);
     probe_owned_audio_buffer(logger);
     probe_l2cap_packets(logger);
     probe_l2cap_parsers(logger);
@@ -152,6 +153,45 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_network_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_udp(logger);
+}
+
+fn probe_pad_clamp(logger: &mut ProbeLogger) {
+    use ogc_input as pad;
+    use ogc_input::sys as raw_pad;
+    let mut status = [pad::PadStatus::default(); 4];
+    status[0].stick_x = -128;
+    status[0].substick_x = 127;
+    status[0].trigger_l = 29;
+    status[0].trigger_r = 200;
+    status[1].stick_x = 15;
+    status[1].stick_y = -15;
+    status[1].trigger_l = 30;
+    status[1].trigger_r = 180;
+    status[2].err = -1;
+    status[2].stick_x = 127;
+    status[2].trigger_l = 255;
+    let mut raw_status = status;
+    pad::clamp(&mut status);
+    // SAFETY: The array contains four writable PAD status records.
+    unsafe {
+        raw_pad::pad_clamp(raw_status.as_mut_ptr());
+    }
+    let expected = |samples: &[pad::PadStatus; 4]| {
+        samples[0].stick_x == -72
+            && samples[0].substick_x == 59
+            && samples[0].trigger_l == 0
+            && samples[0].trigger_r == 150
+            && samples[1].stick_x == 0
+            && samples[1].stick_y == 0
+            && samples[1].trigger_l == 0
+            && samples[1].trigger_r == 150
+            && samples[2].stick_x == 127
+            && samples[2].trigger_l == 255
+    };
+    logger.record(
+        "PAD clamp applies bounds and preserves error samples",
+        expected(&status) && expected(&raw_status),
+    );
 }
 
 fn probe_controller_slots(logger: &mut ProbeLogger) {
