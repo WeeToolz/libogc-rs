@@ -2592,3 +2592,16 @@ wpad-sys,src/lib.rs,battery_level,1721,hardware,hardware-probe,probes/ogc-system
 wpad-sys,src/lib.rs,buttons_down,1747,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_queries,wpad::buttons_down
 wpad-sys,src/lib.rs,buttons_held,1760,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_queries,wpad::buttons_held
 wpad-sys,src/lib.rs,buttons_up,1734,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_queries,wpad::buttons_up
+wpad-sys,src/lib.rs,control_speaker,843,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_commands,wpad::control_speaker
+wpad-sys,src/lib.rs,disconnect,1279,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_commands,wpad::disconnect
+wpad-sys,src/lib.rs,dropped_events,930,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_commands,wpad::dropped_events
+wpad-sys,src/lib.rs,flush,959,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_commands,wpad::flush
+wpad-sys,src/lib.rs,is_speaker_enabled,1297,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_commands,wpad::is_speaker_enabled
+wpad-sys,src/lib.rs,read_event,876,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_commands,wpad::read_event
+wpad-sys,src/lib.rs,rumble,1492,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_commands,wpad::rumble
+wpad-sys,src/lib.rs,send_stream_data,1328,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_commands,wpad::send_stream_data
+wpad-sys,src/lib.rs,set_data_format,1091,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_commands,wpad::set_data_format
+wpad-sys,src/lib.rs,set_event_bufs,1245,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_commands,wpad::set_event_bufs
+wpad-sys,src/lib.rs,set_idle_thresholds,1519,scheduler,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_commands,wpad::set_idle_thresholds
+wpad-sys,src/lib.rs,set_motion_plus,1113,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_commands,wpad::set_motion_plus
+wpad-sys,src/lib.rs,set_v_res,1174,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_commands,wpad::set_v_res

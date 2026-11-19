@@ -30,6 +30,7 @@ pub fn run(logger: &mut ProbeLogger) {
         "WPAD reports enabled",
         wpad::get_status() == wpad::WPAD_STATE_ENABLED,
     );
+    probe_invalid_channel_commands(logger);
 
     let mut expansion = 0xfeed_beef;
     let no_controller = unsafe { wpad::probe(wpad::WPAD_CHAN_0, &mut expansion) };
@@ -150,5 +151,77 @@ fn probe_invalid_channel_queries(logger: &mut ProbeLogger) {
     logger.record(
         "WPAD invalid channel leaves expansion output unchanged",
         expansion.type_ == 0x1234,
+    );
+}
+
+fn probe_invalid_channel_commands(logger: &mut ProbeLogger) {
+    let invalid = wpad::WPAD_MAX_WIIMOTES as i32;
+    let bad_channel = wpad::WPAD_ERR_BAD_CHANNEL as i32;
+    logger.record(
+        "WPAD invalid channel rejects speaker control",
+        wpad::control_speaker(invalid, 1) == bad_channel,
+    );
+    logger.record(
+        "WPAD invalid channel rejects disconnect",
+        wpad::disconnect(invalid) == bad_channel,
+    );
+    logger.record(
+        "WPAD invalid channel rejects dropped-event query",
+        wpad::dropped_events(invalid) == bad_channel,
+    );
+    logger.record(
+        "WPAD invalid channel rejects event flush",
+        wpad::flush(invalid) == bad_channel,
+    );
+    logger.record(
+        "WPAD invalid channel rejects speaker query",
+        wpad::is_speaker_enabled(invalid) == bad_channel,
+    );
+
+    let mut event = wpad::WpadData {
+        err: 0x1234,
+        battery_level: 0x5a,
+        ..wpad::WpadData::default()
+    };
+    // SAFETY: The output points to a valid local value.
+    let read = unsafe { wpad::read_event(invalid, &mut event) };
+    logger.record(
+        "WPAD invalid channel rejects event read and preserves output",
+        read == bad_channel && event.err == 0x1234 && event.battery_level == 0x5a,
+    );
+
+    logger.record(
+        "WPAD invalid channel rejects rumble",
+        wpad::rumble(invalid, 1) == bad_channel,
+    );
+    let mut stream_data = [0x5a_u8];
+    // SAFETY: The pointer references one readable byte for this call.
+    let stream = unsafe { wpad::send_stream_data(invalid, stream_data.as_mut_ptr().cast(), 1) };
+    logger.record(
+        "WPAD invalid channel rejects speaker stream",
+        stream == bad_channel,
+    );
+    logger.record(
+        "WPAD invalid channel rejects data format",
+        wpad::set_data_format(invalid, wpad::WPAD_FMT_BTNS) == bad_channel,
+    );
+    let mut event_buffer = wpad::WpadData::default();
+    // SAFETY: The pointer references one writable event value.
+    let buffers = unsafe { wpad::set_event_bufs(invalid, &mut event_buffer, 1) };
+    logger.record(
+        "WPAD invalid channel rejects event buffers",
+        buffers == bad_channel,
+    );
+    logger.record(
+        "WPAD invalid channel rejects idle thresholds",
+        wpad::set_idle_thresholds(invalid, 0, 0, 0, 0, 0, 0) == bad_channel,
+    );
+    logger.record(
+        "WPAD invalid channel rejects MotionPlus configuration",
+        wpad::set_motion_plus(invalid, 1) == bad_channel,
+    );
+    logger.record(
+        "WPAD invalid channel rejects IR resolution",
+        wpad::set_v_res(invalid, 640, 480) == bad_channel,
     );
 }
