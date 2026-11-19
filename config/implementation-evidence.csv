@@ -2708,3 +2708,8 @@ ogc-lwp-driver,src/runtime.rs,wake_external_by_mask,3565,scheduler,hardware-prob
 ogc-lwp-driver,src/runtime.rs,broadcast_external,3568,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_external_wait_paths,driver::broadcast_external
 ogc-lwp-driver,src/runtime.rs,cancel_external_wait,3585,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_external_wait_paths,driver::cancel_external_wait
 ogc-lwp-driver,src/runtime.rs,block_current_external,3480,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,external_wait_worker,driver::block_current_external
+ogc-lwp-driver,src/runtime.rs,create_thread_at_top,1878,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_external_thread_setup,driver::create_thread_at_top
+ogc-lwp-driver,src/runtime.rs,initialize_external_reent,2046,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_external_thread_setup,driver::initialize_external_reent
+ogc-lwp-driver,src/runtime.rs,set_thread_context_mirror,2069,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_external_thread_setup,driver::set_thread_context_mirror
+ogc-lwp-driver,src/runtime.rs,set_thread_reent_storage,2091,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_external_thread_setup,driver::set_thread_reent_storage
+ogc-lwp-driver,src/runtime.rs,thread_exit,2627,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,external_setup_worker,driver::thread_exit

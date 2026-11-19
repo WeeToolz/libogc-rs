@@ -311,6 +311,7 @@ mod wii {
     static PRIORITY_ORDER: AtomicU32 = AtomicU32::new(0);
     static PRIORITY_POSITION: AtomicU32 = AtomicU32::new(0);
     static CHILD_REENT: AtomicU32 = AtomicU32::new(0);
+    static EXTERNAL_SETUP_RAN: AtomicU32 = AtomicU32::new(0);
     static EXTERNAL_WAIT_READY: AtomicU32 = AtomicU32::new(0);
     static EXTERNAL_WATCHDOG: AtomicU32 = AtomicU32::new(0);
     const EXTERNAL_KEY: usize = 0x4558_5457;
@@ -349,6 +350,16 @@ mod wii {
 
     unsafe extern "C" {
         fn __getreent() -> *mut c_void;
+    }
+
+    unsafe extern "C" fn external_setup_worker(storage: *mut c_void) -> *mut c_void {
+        let matches = !storage.is_null() && driver::current_reent() == storage;
+        EXTERNAL_SETUP_RAN.store(u32::from(matches), Ordering::Release);
+        driver::thread_exit(if matches {
+            0x5a17usize as *mut c_void
+        } else {
+            ptr::null_mut()
+        })
     }
 
     unsafe extern "C" fn external_wait_worker(_: *mut c_void) -> *mut c_void {
@@ -636,6 +647,83 @@ mod wii {
         } else {
             Err(rc)
         }
+    }
+
+    fn probe_external_thread_setup(logger: &mut ProbeLogger) {
+        let mut storage = [u64::MAX; 64];
+        let storage_ptr = storage.as_mut_ptr().cast::<c_void>();
+        // SAFETY: The aligned storage has 512 writable bytes and remains live until join.
+        let initialized = unsafe { driver::initialize_external_reent(storage_ptr) };
+        let errno = unsafe { storage_ptr.cast::<u32>().read() };
+        logger.record(
+            "LWP external reentrancy storage initializes",
+            initialized && errno == 0,
+        );
+        if !initialized {
+            return;
+        }
+
+        EXTERNAL_SETUP_RAN.store(0, Ordering::Release);
+        let mut thread = lwp::LWP_THREAD_NULL;
+        // SAFETY: The aligned static stack is unique to this worker until join;
+        // storage and the handle output remain live for the worker's lifetime.
+        let stack_top = unsafe {
+            core::ptr::addr_of_mut!(STACK_A.0)
+                .cast::<u8>()
+                .add(STACK_BYTES)
+                .cast()
+        };
+        let created = unsafe {
+            driver::create_thread_at_top(
+                &mut thread,
+                Some(external_setup_worker),
+                storage_ptr,
+                stack_top,
+                20,
+                true,
+            )
+        };
+        if created != 0 {
+            logger.record("LWP stack-top worker starts suspended", false);
+            return;
+        }
+        logger.record(
+            "LWP stack-top worker starts suspended",
+            lwp::thread_is_suspended(thread) != 0
+                && EXTERNAL_SETUP_RAN.load(Ordering::Acquire) == 0,
+        );
+        // SAFETY: The initialized storage remains live until the worker is joined.
+        let attached = unsafe { driver::set_thread_reent_storage(thread, storage_ptr) };
+        let Some(mut mirror) = driver::thread_context_snapshot(thread) else {
+            let _ = lwp::resume_thread(thread);
+            let _ = join(thread);
+            logger.record("LWP suspended thread context mirror is writable", false);
+            return;
+        };
+        mirror.gpr[0] = 0x1357_2468;
+        // SAFETY: The copied context has the required layout and outlives the worker.
+        let mirrored = unsafe {
+            driver::set_thread_context_mirror(
+                thread,
+                (&mut mirror as *mut driver::LwpContext).cast(),
+            )
+        };
+        let mirrored_value =
+            driver::thread_context_snapshot(thread).is_some_and(|ctx| ctx.gpr[0] == 0x1357_2468);
+        logger.record(
+            "LWP suspended thread context mirror is writable",
+            mirrored && mirrored_value,
+        );
+        let resumed = lwp::resume_thread(thread) == 0;
+        let result = join(thread);
+        logger.record(
+            "LWP external reentrancy reaches worker",
+            attached && resumed && EXTERNAL_SETUP_RAN.load(Ordering::Acquire) == 1,
+        );
+        logger.record(
+            "LWP explicit thread exit returns value",
+            result == Ok(0x5a17),
+        );
     }
 
     fn probe_external_wait_paths(logger: &mut ProbeLogger) {
@@ -1808,6 +1896,7 @@ mod wii {
         probe_reschedule_rotation(&mut logger);
         probe_scheduler_critical_sections(&mut logger);
         probe_reentrancy_storage(&mut logger);
+        probe_external_thread_setup(&mut logger);
         probe_external_wait_paths(&mut logger);
         run_synchronization(&mut logger);
         run_legacy_sync_abi(&mut logger);
