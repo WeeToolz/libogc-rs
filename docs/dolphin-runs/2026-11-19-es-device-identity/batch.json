@@ -1,0 +1,44 @@
+{
+  "probe": "general_probe",
+  "cases": [
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "get_device_id",
+      "line": 2407,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_es_device_identity",
+      "api_path": "es::get_device_id",
+      "checks": [
+        "ES device ID matches imported NAND and rejects null"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "get_title_id",
+      "line": 459,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_es_device_identity",
+      "api_path": "es::get_title_id",
+      "checks": [
+        "ES title ID unavailable preserves output and rejects null"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "check_has_korean_key",
+      "line": 2454,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_es_device_identity",
+      "api_path": "es::check_has_korean_key",
+      "checks": [
+        "ES Korean key query returns IOS error"
+      ]
+    }
+  ],
+  "limits": [
+    "Device ID expectation belongs to the imported NAND fixture. Title ID and Korean-key queries exercise Dolphin error paths only."
+  ]
+}

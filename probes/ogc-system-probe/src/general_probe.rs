@@ -9,6 +9,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_es_layout(logger);
     probe_es_certificate_chain(logger);
     probe_es_catalog_paths(logger);
+    probe_es_device_identity(logger);
     probe_wpad_speaker_encoder(logger);
     probe_bluetooth_idle_host(logger);
     probe_break_callback(logger);
@@ -47,6 +48,36 @@ pub fn run(logger: &mut ProbeLogger) {
         "console footer write",
         crate::probe_support::screen_write(b"general probe uses direct runtime calls\n").is_ok(),
     );
+}
+
+fn probe_es_device_identity(logger: &mut ProbeLogger) {
+    let initialized = es::init();
+    logger.record("ES identity probe opens service", initialized == 0);
+    if initialized != 0 {
+        return;
+    }
+
+    let mut device = u32::MAX;
+    // SAFETY: The output pointers refer to live writable scalars.
+    let device_rc = unsafe { es::get_device_id(&mut device) };
+    let null_device = unsafe { es::get_device_id(core::ptr::null_mut()) };
+    logger.record(
+        "ES device ID matches imported NAND and rejects null",
+        device_rc == 0 && device == 0x06ee_ed45 && null_device == es::ES_EINVAL,
+    );
+
+    let mut title = 0x1234_5678_9abc_def0u64;
+    let title_rc = unsafe { es::get_title_id(&mut title) };
+    let null_title = unsafe { es::get_title_id(core::ptr::null_mut()) };
+    logger.record(
+        "ES title ID unavailable preserves output and rejects null",
+        title_rc == -1017 && title == 0x1234_5678_9abc_def0 && null_title == es::ES_EINVAL,
+    );
+    logger.record(
+        "ES Korean key query returns IOS error",
+        es::check_has_korean_key() == -1017,
+    );
+    logger.record("ES identity probe closes service", es::close() == 0);
 }
 
 fn probe_es_catalog_paths(logger: &mut ProbeLogger) {
