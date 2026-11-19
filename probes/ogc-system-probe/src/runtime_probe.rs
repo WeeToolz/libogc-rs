@@ -86,6 +86,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_bt_device_classes(logger);
     probe_bt_input_queue(logger);
     probe_bt_discovery_values(logger);
+    probe_bt_transport_metadata(logger);
     probe_bt_l2cap_state(logger);
     probe_bt_host_startup(logger);
     probe_bt_opcode_and_disconnected(logger);
@@ -3572,6 +3573,46 @@ fn probe_system_runtime_state(logger: &mut ProbeLogger) {
             && wii_plan.terminal == Some(system::ResetSystemTerminal::ShutdownToIdle)
             && wii_plan.clears_active_input_list
             && !wii_plan.sets_boot_ipl,
+    );
+}
+
+fn probe_bt_transport_metadata(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::{BluetoothAddress, BtSyncHost, Error, HciEvent};
+
+    // This synthetic descriptor is never submitted to IOS.
+    let host = BtSyncHost::from_file_descriptor(ogc_ipc::FileDescriptor::new(-1), 2, 0x81, 0x83);
+    let Ok(host) = host else {
+        logger.record(
+            "Bluetooth transport keeps supplied descriptor and endpoints",
+            false,
+        );
+        return;
+    };
+    logger.record(
+        "Bluetooth transport keeps supplied descriptor and endpoints",
+        host.fd().raw() == -1
+            && host.acl_out_endpoint() == 2
+            && host.event_in_endpoint() == 0x81
+            && host.acl_in_endpoint() == 0x83,
+    );
+    logger.record(
+        "Bluetooth transport parses and rejects event frames",
+        matches!(
+            host.parse_event(&[0x0e, 4, 1, 3, 0x0c, 0]),
+            Ok(HciEvent::CommandComplete { .. })
+        ) && host.parse_event(&[0x0e, 4, 1]) == Err(Error::MalformedEvent),
+    );
+    logger.record(
+        "Bluetooth transport rejects oversized PIN before submission",
+        host.pin_code_request_reply(BluetoothAddress::new([1, 2, 3, 4, 5, 6]), &[0; 17])
+            == Err(Error::BufferTooSmall),
+    );
+    logger.record(
+        "Bluetooth transport rejects invalid endpoints before open",
+        matches!(
+            BtSyncHost::open_with_endpoints(c"/missing", 0x82, 0x81, 0x83),
+            Err(Error::InvalidEndpoint)
+        ),
     );
 }
 

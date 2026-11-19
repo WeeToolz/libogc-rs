@@ -1,0 +1,104 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "from_file_descriptor",
+      "line": 441,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_metadata",
+      "api_path": "BtSyncHost::from_file_descriptor",
+      "checks": [
+        "Bluetooth transport keeps supplied descriptor and endpoints"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "fd",
+      "line": 468,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_metadata",
+      "api_path": "host.fd",
+      "checks": [
+        "Bluetooth transport keeps supplied descriptor and endpoints"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "acl_out_endpoint",
+      "line": 472,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_metadata",
+      "api_path": "host.acl_out_endpoint",
+      "checks": [
+        "Bluetooth transport keeps supplied descriptor and endpoints"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "event_in_endpoint",
+      "line": 476,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_metadata",
+      "api_path": "host.event_in_endpoint",
+      "checks": [
+        "Bluetooth transport keeps supplied descriptor and endpoints"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "acl_in_endpoint",
+      "line": 480,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_metadata",
+      "api_path": "host.acl_in_endpoint",
+      "checks": [
+        "Bluetooth transport keeps supplied descriptor and endpoints"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "parse_event",
+      "line": 886,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_metadata",
+      "api_path": "host.parse_event",
+      "checks": [
+        "Bluetooth transport parses and rejects event frames"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "pin_code_request_reply",
+      "line": 850,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_metadata",
+      "api_path": "host.pin_code_request_reply",
+      "checks": [
+        "Bluetooth transport rejects oversized PIN before submission"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "open_with_endpoints",
+      "line": 429,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_metadata",
+      "api_path": "BtSyncHost::open_with_endpoints",
+      "checks": [
+        "Bluetooth transport rejects invalid endpoints before open"
+      ]
+    }
+  ],
+  "limits": [
+    "Synthetic descriptor and invalid-input checks only; no adapter open, IOS transfer, PIN submission, or physical controller behavior is covered."
+  ]
+}

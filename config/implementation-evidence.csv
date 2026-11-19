@@ -2633,3 +2633,11 @@ ogc-input,src/lib.rs,sync,28,compatibility-forwarder,hardware-probe,probes/ogc-s
 ogc-input,src/lib.rs,read,33,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,run_state,pad::read
 ogc-usb-sys,src/lib.rs,convert_hid_descriptor_lengths,2314,ios,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,run,usb::sys::convert_hid_descriptor_lengths
 ogc-usb-sys,src/lib.rs,prepare_hid_v5_device_with,1702,ios,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,run,usb::sys::prepare_hid_v5_device_with
+ogc-bt-sync,src/transport.rs,from_file_descriptor,441,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_transport_metadata,BtSyncHost::from_file_descriptor
+ogc-bt-sync,src/transport.rs,fd,468,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_transport_metadata,host.fd
+ogc-bt-sync,src/transport.rs,acl_out_endpoint,472,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_transport_metadata,host.acl_out_endpoint
+ogc-bt-sync,src/transport.rs,event_in_endpoint,476,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_transport_metadata,host.event_in_endpoint
+ogc-bt-sync,src/transport.rs,acl_in_endpoint,480,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_transport_metadata,host.acl_in_endpoint
+ogc-bt-sync,src/transport.rs,parse_event,886,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_transport_metadata,host.parse_event
+ogc-bt-sync,src/transport.rs,pin_code_request_reply,850,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_transport_metadata,host.pin_code_request_reply
+ogc-bt-sync,src/transport.rs,open_with_endpoints,429,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_transport_metadata,BtSyncHost::open_with_endpoints
