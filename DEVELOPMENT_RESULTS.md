@@ -8,8 +8,8 @@ build. The [hardware register](docs/hardware-api-validation.csv) tracks
 physical Wii results.
 
 The audit of this snapshot found 658 of 3,390 public API entries without
-exact evidence. It also reported six DSP task API entries with an unmapped
-`dsp-task-probe`. The source audit passed.
+exact evidence. The source audit passed. The six DSP task entries now
+reference `bus-probe`, which runs the DSP task checks.
 
 | Area | Saved reports |
 | --- | --- |
