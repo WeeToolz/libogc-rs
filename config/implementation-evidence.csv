@@ -2503,3 +2503,7 @@ ogc-gx,src/lib.rs,set_disp_copy_frame2field,3710,compatibility-forwarder,hardwar
 ogc-gx,src/lib.rs,set_disp_copy_frame2_field,3721,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_display_copy_commands,gx::set_disp_copy_frame2_field
 ogc-gx,src/lib.rs,set_disp_copy_y_scale,3733,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_display_copy_commands,gx::set_disp_copy_y_scale
 ogc-gx,src/lib.rs,copy_disp,3860,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_display_copy_commands,gx::copy_disp
+ogc-ipc,src/lib.rs,raw,256,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_file_reads,file.raw
+ogc-ipc,src/lib.rs,seek,364,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_file_reads,file.seek
+ogc-ipc,src/lib.rs,read,375,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_file_reads,file.read
+ogc-ipc,src/lib.rs,read_exact,396,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_file_reads,file.read_exact

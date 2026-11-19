@@ -107,6 +107,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_wd_information_elements(logger);
     probe_wd_scan_defaults(logger);
     probe_ipc_heap_handles(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_ipc_file_reads(logger);
     probe_device_registry(logger);
     probe_sysbase_errno(logger);
     probe_irq_handler_registry(logger);
@@ -2230,6 +2232,67 @@ fn probe_device_registry(logger: &mut ProbeLogger) {
     logger.record(
         "Device C registry removes by path",
         second >= 3 && removed_raw == 0 && unsafe { base::FindDevice(path.as_ptr()) } == -1,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_ipc_file_reads(logger: &mut ProbeLogger) {
+    use ogc_ipc as ipc;
+
+    #[repr(align(32))]
+    struct Aligned<const N: usize>([u8; N]);
+
+    logger.report_step("IPC file read and seek");
+    let Ok(file) = ipc::open_file(
+        c"/title/00000001/00000002/data/setting.txt",
+        ipc::IPC_OPEN_READ,
+    ) else {
+        for label in [
+            "IPC descriptor identifies open file",
+            "IPC reads settings bytes",
+            "IPC seek selects file offsets",
+            "IPC exact read detects short file",
+        ] {
+            logger.record(label, false);
+        }
+        return;
+    };
+    let raw_file = ipc::FileDescriptor::new(file.raw());
+    let mut raw_bytes = Aligned([0; 32]);
+    let raw_read = raw_file.read(&mut raw_bytes.0) == Ok(32);
+    let reset = file.seek(0, 0) == Ok(0);
+    let mut all = Aligned([0; 256]);
+    let full_read = file.read(&mut all.0) == Ok(256);
+    let mut decoded = all.0;
+    let mut key = 0x73b5_dbfau32;
+    for byte in &mut decoded {
+        *byte ^= key as u8;
+        key = key.rotate_left(1);
+    }
+    let valid_settings = decoded.windows(5).any(|bytes| bytes == b"AREA=")
+        && decoded.windows(5).any(|bytes| bytes == b"GAME=");
+    logger.record(
+        "IPC descriptor identifies open file",
+        raw_read && reset && full_read && valid_settings && raw_bytes.0 == all.0[..32],
+    );
+    logger.record("IPC reads settings bytes", full_read && valid_settings);
+
+    let mut chunk = Aligned([0; 32]);
+    let seek = file.seek(64, 0) == Ok(64);
+    let chunk_read = file.read(&mut chunk.0) == Ok(32) && chunk.0 == all.0[64..96];
+    let end = file.seek(-16, 2) == Ok(240);
+    logger.record(
+        "IPC seek selects file offsets",
+        full_read && seek && chunk_read && end,
+    );
+
+    let short = file.read_exact(&mut chunk.0) == Err(ipc::IPC_EINVAL);
+    let positioned = file.seek(128, 0) == Ok(128);
+    let exact = file.read_exact(&mut chunk.0) == Ok(()) && chunk.0 == all.0[128..160];
+    let closed = file.close().is_ok();
+    logger.record(
+        "IPC exact read detects short file",
+        full_read && short && positioned && exact && closed,
     );
 }
 
