@@ -2534,3 +2534,11 @@ ogc-ios-sys,src/lib.rs,get_revision,407,ios,hardware-probe,probes/ogc-system-pro
 ogc-ios-sys,src/lib.rs,get_revision_major,420,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ios_version_queries,raw_ios::get_revision_major
 ogc-ios-sys,src/lib.rs,get_revision_minor,428,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ios_version_queries,raw_ios::get_revision_minor
 ogc-ios-sys,src/lib.rs,get_preferred_version,340,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ios_version_queries,raw_ios::get_preferred_version
+ogc-si,src/lib.rs,set_xy,33,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_registers,si::set_xy
+ogc-si,src/lib.rs,enable_polling,37,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_registers,si::enable_polling
+ogc-si,src/lib.rs,disable_polling,41,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_registers,si::disable_polling
+ogc-si,src/lib.rs,set_command,68,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_registers,si::set_command
+ogc-si-sys,src/lib.rs,set_xy,1079,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_registers,raw_si::set_xy
+ogc-si-sys,src/lib.rs,enable_polling,1090,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_registers,raw_si::enable_polling
+ogc-si-sys,src/lib.rs,disable_polling,1105,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_registers,raw_si::disable_polling
+ogc-si-sys,src/lib.rs,set_command,1181,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_registers,raw_si::set_command

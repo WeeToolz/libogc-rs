@@ -125,6 +125,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_exi_dma_write(logger);
     probe_si_queries(logger);
     probe_si_raw_queries(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_si_polling_registers(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -1719,6 +1721,76 @@ fn probe_network_error_conversion(logger: &mut ProbeLogger) {
     logger.record(
         "Network error conversion offsets unknown values",
         raw::_net_convert_error(-78) == -10078 && net::convert_error(-100) == -10100,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_si_polling_registers(logger: &mut ProbeLogger) {
+    use ogc_si as si;
+    use ogc_si::sys as raw_si;
+    logger.report_step("SI polling and command registers");
+    let base = if ogc_core::powerpc::hollywood_revision() == 0 {
+        0xcc00_6400usize
+    } else {
+        0xcd00_6400usize
+    };
+    let poll_reg = (base + 12 * 4) as *const u32;
+    let command_reg = (base + 9 * 4) as *const u32;
+    let saved_irq = ogc_irq::irq_disable();
+    // SAFETY: SI is initialized, interrupts are masked, and these are readable SI registers.
+    let original_poll = unsafe { core::ptr::read_volatile(poll_reg) };
+    let original_command = unsafe { core::ptr::read_volatile(command_reg) };
+    si::set_xy(0x155, 0x46);
+    let xy = unsafe { core::ptr::read_volatile(poll_reg) };
+    raw_si::set_xy(0x2aa, 0x79);
+    let raw_xy = unsafe { core::ptr::read_volatile(poll_reg) };
+    si::disable_polling(0x1000_0000);
+    si::enable_polling(0x1000_0000);
+    let enabled = unsafe { core::ptr::read_volatile(poll_reg) };
+    si::disable_polling(0x1000_0000);
+    let disabled = unsafe { core::ptr::read_volatile(poll_reg) };
+    raw_si::enable_polling(0x1000_0000);
+    let raw_enabled = unsafe { core::ptr::read_volatile(poll_reg) };
+    raw_si::disable_polling(0x1000_0000);
+    let raw_disabled = unsafe { core::ptr::read_volatile(poll_reg) };
+    si::set_command(3, 0x1234_5678);
+    let command = unsafe { core::ptr::read_volatile(command_reg) };
+    raw_si::set_command(3, 0x89ab_cdef);
+    let raw_command = unsafe { core::ptr::read_volatile(command_reg) };
+    raw_si::set_command(3, original_command);
+    si::set_xy(
+        ((original_poll >> 16) & 0x3ff) as u16,
+        ((original_poll >> 8) & 0xff) as u8,
+    );
+    si::enable_polling(0x1000_0000 | ((original_poll & 1) << 24));
+    if original_poll & 0x10 == 0 {
+        si::disable_polling(0x1000_0000);
+    }
+    let restored_poll = unsafe { core::ptr::read_volatile(poll_reg) };
+    let restored_command = unsafe { core::ptr::read_volatile(command_reg) };
+    ogc_irq::irq_restore(saved_irq);
+    logger.record(
+        "SI wrapper sets polling coordinates",
+        xy & 0x03ff_ff00 == 0x0155_4600 && xy & !0x03ff_ff00 == original_poll & !0x03ff_ff00,
+    );
+    logger.record(
+        "SI raw sets polling coordinates",
+        raw_xy & 0x03ff_ff00 == 0x02aa_7900
+            && raw_xy & !0x03ff_ff00 == original_poll & !0x03ff_ff00,
+    );
+    logger.record(
+        "SI wrapper enables and disables polling",
+        enabled & 0x10 != 0 && disabled & 0x10 == 0,
+    );
+    logger.record(
+        "SI raw enables and disables polling",
+        raw_enabled & 0x10 != 0 && raw_disabled & 0x10 == 0,
+    );
+    logger.record("SI wrapper writes channel command", command == 0x1234_5678);
+    logger.record("SI raw writes channel command", raw_command == 0x89ab_cdef);
+    logger.record(
+        "SI polling and command registers restored",
+        restored_poll == original_poll && restored_command == original_command,
     );
 }
 
