@@ -1,0 +1,92 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "ioctl",
+      "line": 442,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_ioctl_file_stats",
+      "api_path": "file.ioctl",
+      "checks": [
+        "IPC ioctl reads file stats"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "ioctl_result",
+      "line": 448,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_ioctl_file_stats",
+      "api_path": "file.ioctl_result",
+      "checks": [
+        "IPC ioctl_result reads guarded file stats"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "ioctl_async",
+      "line": 506,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_ioctl_file_stats",
+      "api_path": "file.ioctl_async",
+      "checks": [
+        "IPC ioctl_async returns file stats"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "ioctlv",
+      "line": 643,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_ioctlv_mac",
+      "api_path": "fd.ioctlv",
+      "checks": [
+        "IPC ioctlv returns MAC"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "ioctlv_result",
+      "line": 631,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_ioctlv_mac",
+      "api_path": "fd.ioctlv_result",
+      "checks": [
+        "IPC ioctlv_result returns MAC"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "ioctlv_raw",
+      "line": 570,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_ioctlv_mac",
+      "api_path": "fd.ioctlv_raw",
+      "checks": [
+        "IPC ioctlv_raw returns MAC"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "ioctlv_async_raw",
+      "line": 661,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_ioctlv_mac",
+      "api_path": "fd.ioctlv_async_raw",
+      "checks": [
+        "IPC ioctlv_async_raw returns MAC"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin IOS file-stat and network MAC requests only. Other commands, error paths, concurrent requests, and physical Wii remain unverified."
+  ]
+}

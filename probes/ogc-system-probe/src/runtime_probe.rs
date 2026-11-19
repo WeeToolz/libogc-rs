@@ -109,6 +109,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_ipc_heap_handles(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_ipc_file_reads(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_ipc_ioctl_file_stats(logger);
     probe_device_registry(logger);
     probe_sysbase_errno(logger);
     probe_irq_handler_registry(logger);
@@ -2296,6 +2298,69 @@ fn probe_ipc_file_reads(logger: &mut ProbeLogger) {
     );
 }
 
+#[cfg(feature = "dolphin-automation")]
+fn probe_ipc_ioctl_file_stats(logger: &mut ProbeLogger) {
+    use ogc_ipc as ipc;
+    logger.report_step("IPC file stat ioctls");
+    let Ok(file) = ipc::open_file(
+        c"/title/00000001/00000002/data/setting.txt",
+        ipc::IPC_OPEN_READ,
+    ) else {
+        for label in [
+            "IPC ioctl reads file stats",
+            "IPC ioctl_result reads guarded file stats",
+            "IPC ioctl_async returns file stats",
+        ] {
+            logger.record(label, false);
+        }
+        return;
+    };
+    let positioned = file.seek(64, 0) == Ok(64);
+    let expected = [0, 0, 1, 0, 0, 0, 0, 64];
+    let mut first = AlignedIsfsBytes([0xa5; 32]);
+    let result = file.ioctl(
+        11,
+        ipc::IoctlBuffers::from_slices(None, Some(&mut first.0[..8])),
+    );
+    logger.record(
+        "IPC ioctl reads file stats",
+        positioned && result == 0 && first.0[..8] == expected && first.0[8..] == [0xa5; 24],
+    );
+    let mut guarded = [0xa5; 10];
+    let result = file.ioctl_result(
+        11,
+        ipc::IoctlBuffers::from_slices(None, Some(&mut guarded[1..9])),
+    );
+    logger.record(
+        "IPC ioctl_result reads guarded file stats",
+        positioned
+            && result == Ok(0)
+            && guarded[1..9] == expected
+            && guarded[0] == 0xa5
+            && guarded[9] == 0xa5,
+    );
+    let mut asynchronous = AlignedIsfsBytes([0xa5; 32]);
+    // SAFETY: The aligned output and callback remain live until the request completes.
+    let (submit, reply) = run_isfs_async_and_wait(|| unsafe {
+        file.ioctl_async(
+            11,
+            ipc::IoctlBuffers::from_slices(None, Some(&mut asynchronous.0[..8])),
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    });
+    let closed = file.close().is_ok();
+    logger.record(
+        "IPC ioctl_async returns file stats",
+        positioned
+            && submit >= 0
+            && reply == 0
+            && asynchronous.0[..8] == expected
+            && asynchronous.0[8..] == [0xa5; 24]
+            && closed,
+    );
+}
+
 fn probe_ipc_heap_handles(logger: &mut ProbeLogger) {
     use ogc_ipc as ipc;
     logger.record(
@@ -3189,6 +3254,8 @@ fn probe_raw_udp(logger: &mut ProbeLogger) {
         return;
     }
     probe_network_mac_address(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_ipc_ioctlv_mac(logger);
     probe_network_interface_addresses(logger);
     probe_network_numeric_resolver(logger);
     let sender = net::net_socket(net::PF_INET, net::SOCK_DGRAM, net::IPPROTO_IP);
@@ -3479,6 +3546,115 @@ fn probe_network_mac_address(logger: &mut ProbeLogger) {
     );
     let null_rc = unsafe { raw::net_get_mac_address(core::ptr::null_mut()) };
     logger.record("Network MAC rejects null output", null_rc == -1);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_ipc_ioctlv_mac(logger: &mut ProbeLogger) {
+    use ogc_ipc as ipc;
+    #[repr(align(32))]
+    struct Vectors([ipc::Ioctlv; 2]);
+    logger.report_step("IPC vector MAC queries");
+    let mut expected = [0; 6];
+    let reference = unsafe { raw_network::net_get_mac_address(expected.as_mut_ptr().cast()) } == 0
+        && expected != [0; 6];
+    let Ok(fd) = ipc::open_file(c"/dev/net/ncd/manage", 0) else {
+        for label in [
+            "IPC ioctlv returns MAC",
+            "IPC ioctlv_result returns MAC",
+            "IPC ioctlv_raw returns MAC",
+            "IPC ioctlv_async_raw returns MAC",
+        ] {
+            logger.record(label, false);
+        }
+        return;
+    };
+    let mut status = AlignedIsfsBytes([0xa5; 32]);
+    let mut mac = AlignedIsfsBytes([0xa5; 32]);
+    let valid = |status: &[u8; 32], mac: &[u8; 32]| {
+        status[..4] == [0; 4] && mac[..6] == expected && mac[6..] == [0xa5; 26]
+    };
+    let rc = fd.ioctlv(
+        8,
+        0,
+        [
+            ipc::IoctlvEntry::Out(&mut status.0),
+            ipc::IoctlvEntry::Out(&mut mac.0[..6]),
+        ],
+    );
+    logger.record(
+        "IPC ioctlv returns MAC",
+        reference && rc == 0 && valid(&status.0, &mac.0),
+    );
+    status.0.fill(0xa5);
+    mac.0.fill(0xa5);
+    let rc = fd.ioctlv_result(
+        8,
+        0,
+        [
+            ipc::IoctlvEntry::Out(&mut status.0),
+            ipc::IoctlvEntry::Out(&mut mac.0[..6]),
+        ],
+    );
+    logger.record(
+        "IPC ioctlv_result returns MAC",
+        reference && rc == Ok(0) && valid(&status.0, &mac.0),
+    );
+    status.0.fill(0xa5);
+    mac.0.fill(0xa5);
+    let status_ptr = status.0.as_mut_ptr().cast();
+    let mac_ptr = mac.0.as_mut_ptr().cast();
+    let mut vectors = Vectors([
+        ipc::Ioctlv {
+            data: status_ptr,
+            len: 32,
+        },
+        ipc::Ioctlv {
+            data: mac_ptr,
+            len: 6,
+        },
+    ]);
+    // SAFETY: Both DMA buffers and the vector list own complete aligned cache lines.
+    let rc = unsafe { fd.ioctlv_raw(8, 0, 2, &mut vectors.0) };
+    logger.record(
+        "IPC ioctlv_raw returns MAC",
+        reference
+            && rc == 0
+            && vectors.0[0].data == status_ptr
+            && vectors.0[1].data == mac_ptr
+            && valid(&status.0, &mac.0),
+    );
+    status.0.fill(0xa5);
+    mac.0.fill(0xa5);
+    let mut vectors = Vectors([
+        ipc::Ioctlv {
+            data: status_ptr,
+            len: 32,
+        },
+        ipc::Ioctlv {
+            data: mac_ptr,
+            len: 6,
+        },
+    ]);
+    // SAFETY: All aligned buffers stay live and exclusive through callback completion.
+    let (submit, reply) = run_isfs_async_and_wait(|| unsafe {
+        fd.ioctlv_async_raw(
+            8,
+            0,
+            2,
+            vectors.0.as_mut_ptr(),
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    });
+    unsafe {
+        ogc_cache::dc_invalidate_range(status.0.as_ptr().cast(), 32);
+        ogc_cache::dc_invalidate_range(mac.0.as_ptr().cast(), 32);
+    }
+    let closed = fd.close().is_ok();
+    logger.record(
+        "IPC ioctlv_async_raw returns MAC",
+        reference && submit >= 0 && reply == 0 && valid(&status.0, &mac.0) && closed,
+    );
 }
 
 #[cfg(feature = "dolphin-automation")]

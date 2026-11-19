@@ -2513,3 +2513,10 @@ ogc-ipc,src/lib.rs,write_async,331,ios,hardware-probe,probes/ogc-system-probe/sr
 ogc-ipc,src/lib.rs,seek_async,351,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_file_cycle,file.seek_async
 ogc-ipc,src/lib.rs,read_async,305,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_file_cycle,file.read_async
 ogc-ipc,src/lib.rs,close_async,272,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_file_cycle,file.close_async
+ogc-ipc,src/lib.rs,ioctl,442,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctl_file_stats,file.ioctl
+ogc-ipc,src/lib.rs,ioctl_result,448,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctl_file_stats,file.ioctl_result
+ogc-ipc,src/lib.rs,ioctl_async,506,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctl_file_stats,file.ioctl_async
+ogc-ipc,src/lib.rs,ioctlv,643,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctlv_mac,fd.ioctlv
+ogc-ipc,src/lib.rs,ioctlv_result,631,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctlv_mac,fd.ioctlv_result
+ogc-ipc,src/lib.rs,ioctlv_raw,570,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctlv_mac,fd.ioctlv_raw
+ogc-ipc,src/lib.rs,ioctlv_async_raw,661,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctlv_mac,fd.ioctlv_async_raw
