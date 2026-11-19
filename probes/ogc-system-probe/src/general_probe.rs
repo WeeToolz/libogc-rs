@@ -12,6 +12,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_es_device_identity(logger);
     probe_es_content_invalid(logger);
     probe_es_crypto_inputs(logger);
+    probe_es_crypto_vector(logger);
     probe_wpad_speaker_encoder(logger);
     probe_bluetooth_idle_host(logger);
     probe_break_callback(logger);
@@ -50,6 +51,75 @@ pub fn run(logger: &mut ProbeLogger) {
         "console footer write",
         crate::probe_support::screen_write(b"general probe uses direct runtime calls\n").is_ok(),
     );
+}
+
+fn probe_es_crypto_vector(logger: &mut ProbeLogger) {
+    const IV: [u32; 4] = [0x0001_0203, 0x0405_0607, 0x0809_0a0b, 0x0c0d_0e0f];
+    const PLAINTEXT: [u8; 32] = [
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e,
+        0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d,
+        0x1e, 0x1f,
+    ];
+    // Independently computed AES-128-CBC vector using the retail common key.
+    const CIPHERTEXT: [u8; 32] = [
+        0xaa, 0x9e, 0x6e, 0x32, 0xce, 0x5e, 0xad, 0x73, 0xae, 0x09, 0x6f, 0xda, 0xcc, 0xee, 0xd2,
+        0xe6, 0xae, 0xf2, 0xcf, 0xb8, 0x27, 0x42, 0xb7, 0xf8, 0x8a, 0x08, 0x35, 0xce, 0x12, 0x36,
+        0x72, 0xc5,
+    ];
+    const FINAL_IV: [u32; 4] = [0xaef2_cfb8, 0x2742_b7f8, 0x8a08_35ce, 0x1236_72c5];
+
+    #[repr(align(32))]
+    struct Buffer([u8; 64]);
+    let initialized = es::init();
+    logger.record("ES crypto vector opens service", initialized == 0);
+    if initialized != 0 {
+        return;
+    }
+    let mut input = Buffer([0xa5; 64]);
+    input.0[..32].copy_from_slice(&PLAINTEXT);
+    let mut output = Buffer([0xa5; 64]);
+    let mut iv = IV;
+    // SAFETY: All three buffers are live, separate, aligned, and sized for
+    // the requested two AES blocks. The key handle belongs to Dolphin.
+    let encrypted = unsafe {
+        es::encrypt(
+            4,
+            iv.as_mut_ptr(),
+            input.0.as_ptr(),
+            32,
+            output.0.as_mut_ptr(),
+        )
+    };
+    logger.note_i32("ES crypto vector encrypt result", encrypted);
+    logger.record(
+        "ES encrypt matches independent CBC vector and updates IV",
+        encrypted == 0
+            && output.0[..32] == CIPHERTEXT
+            && output.0[32..] == [0xa5; 32]
+            && iv == FINAL_IV,
+    );
+
+    input.0[..32].copy_from_slice(&CIPHERTEXT);
+    output.0.fill(0xa5);
+    iv = IV;
+    let decrypted = unsafe {
+        es::decrypt(
+            4,
+            iv.as_mut_ptr(),
+            input.0.as_ptr(),
+            32,
+            output.0.as_mut_ptr(),
+        )
+    };
+    logger.note_i32("ES crypto vector decrypt result", decrypted);
+    logger.record(
+        "ES decrypt matches independent CBC vector and updates IV",
+        decrypted == 0
+            && output.0[..32] == PLAINTEXT
+            && output.0[32..] == [0xa5; 32]
+            && iv == FINAL_IV,
+    );
+    logger.record("ES crypto vector closes service", es::close() == 0);
 }
 
 fn probe_es_crypto_inputs(logger: &mut ProbeLogger) {

@@ -1,0 +1,71 @@
+PASS SYS_Init completed
+-- page 2 --
+PASS display initialized
+PASS power button callback installed
+PASS ES signature sizes match public layouts
+PASS ES signature types accept only supported values
+PASS ES certificate sizes match public layouts
+PASS ES certificate types accept only supported values
+PASS ES signed certificate sizes combine signature and certificate
+PASS ES signed ticket sizes include signature
+PASS ES title metadata sizes match public layouts
+PASS ES signed title metadata adds signature size
+-- page 3 --
+PASS ES next certificate follows all supported ABI layouts
+PASS ES catalog opens for path and content checks
+PASS ES system menu data path matches NAND
+PASS ES rejected stored content list preserves output
+PASS ES catalog closes after path and content checks
+PASS ES identity probe opens service
+PASS ES device ID matches imported NAND and rejects null
+PASS ES title ID unavailable preserves output and rejects null
+PASS ES Korean key query returns IOS error
+PASS ES identity probe closes service
+PASS ES content validation opens service
+PASS ES content read rejects invalid inputs and preserves output
+PASS ES content seek rejects negative descriptor
+PASS ES content close rejects negative descriptor
+PASS ES content validation closes service
+PASS ES crypto probe opens service
+PASS ES device certificate has ECC format and bounded output
+PASS ES encrypt rejects invalid buffers without mutation
+PASS ES decrypt rejects invalid buffers without mutation
+PASS ES encrypt invalid key preserves IV and destination
+PASS ES decrypt invalid key preserves IV and destination
+-- page 4 --
+PASS ES crypto probe closes service
+PASS ES crypto vector opens service
+INFO ES crypto vector encrypt result=0
+PASS ES encrypt matches independent CBC vector and updates IV
+INFO ES crypto vector decrypt result=0
+PASS ES decrypt matches independent CBC vector and updates IV
+PASS ES crypto vector closes service
+PASS WPAD speaker encoding matches C reference
+PASS WPAD speaker continuation preserves encoder state
+PASS WPAD speaker odd sample uses zero padding
+PASS Bluetooth idle host starts disabled
+PASS Bluetooth idle host rejects search and report
+PASS Bluetooth idle host rejects disconnect request
+PASS Bluetooth idle host has no queued events
+PASS Bluetooth idle host poll leaves it disabled
+PASS Bluetooth idle host shutdown completes without adapter
+PASS Bluetooth closed host remains complete after poll
+PASS GX breakpoint callback replacement and restoration
+PASS counter bias roundtrip
+PASS display offset roundtrip
+PASS EU RGB60 roundtrip
+PASS language roundtrip
+PASS progressive scan roundtrip
+-- page 5 --
+PASS sound mode roundtrip
+PASS video mode roundtrip
+PASS system time advanced
+PASS hollywood revision observable
+PASS font encoding sane
+PASS reset button state sane
+PASS console banner write
+PASS console summary write
+PASS console footer write
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+PASS summary passes=63 fails=0
