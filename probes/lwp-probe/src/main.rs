@@ -310,6 +310,7 @@ mod wii {
     static SWITCH_B: AtomicU32 = AtomicU32::new(0);
     static PRIORITY_ORDER: AtomicU32 = AtomicU32::new(0);
     static PRIORITY_POSITION: AtomicU32 = AtomicU32::new(0);
+    static ROTATION_ABI: AtomicU32 = AtomicU32::new(0);
     static SHARED_VALUE: AtomicU32 = AtomicU32::new(0);
     static SEM_RELEASED: AtomicU32 = AtomicU32::new(0);
     static SEM_WAIT_RC: AtomicU32 = AtomicU32::new(u32::MAX);
@@ -340,6 +341,20 @@ mod wii {
     static COND: AtomicU32 = AtomicU32::new(lwp::LWP_COND_NULL);
     static SEM: AtomicU32 = AtomicU32::new(lwp::LWP_SEM_NULL);
     static MQ: AtomicU32 = AtomicU32::new(lwp::MQ_BOX_NULL);
+
+    unsafe extern "C" fn rotation_worker(argument: *mut c_void) -> *mut c_void {
+        let id = argument as u32;
+        let position = PRIORITY_POSITION.fetch_add(1, Ordering::AcqRel);
+        PRIORITY_ORDER.fetch_or(id << (position * 4), Ordering::AcqRel);
+        if ROTATION_ABI.load(Ordering::Acquire) != 0 {
+            lwp::lwp_reschedule_abi(20);
+        } else {
+            lwp::reschedule(20);
+        }
+        let position = PRIORITY_POSITION.fetch_add(1, Ordering::AcqRel);
+        PRIORITY_ORDER.fetch_or(id << (position * 4), Ordering::AcqRel);
+        argument
+    }
 
     unsafe extern "C" fn priority_worker(argument: *mut c_void) -> *mut c_void {
         let position = PRIORITY_POSITION.fetch_add(1, Ordering::AcqRel);
@@ -593,6 +608,45 @@ mod wii {
             Ok(value as usize)
         } else {
             Err(rc)
+        }
+    }
+
+    fn probe_reschedule_rotation(logger: &mut ProbeLogger) {
+        for abi in [false, true] {
+            PRIORITY_ORDER.store(0, Ordering::Release);
+            PRIORITY_POSITION.store(0, Ordering::Release);
+            ROTATION_ABI.store(u32::from(abi), Ordering::Release);
+            let mut a = lwp::LWP_THREAD_NULL;
+            let mut b = lwp::LWP_THREAD_NULL;
+            let a_rc = create_with_stack(
+                &mut a,
+                Some(rotation_worker),
+                1usize as *mut c_void,
+                core::ptr::addr_of_mut!(STACK_A),
+                20,
+            );
+            let b_rc = create_with_stack(
+                &mut b,
+                Some(rotation_worker),
+                2usize as *mut c_void,
+                core::ptr::addr_of_mut!(STACK_B),
+                20,
+            );
+            let a_result = if a_rc == 0 { join(a) } else { Err(a_rc) };
+            let b_result = if b_rc == 0 { join(b) } else { Err(b_rc) };
+            let order = PRIORITY_ORDER.load(Ordering::Acquire);
+            logger.note_hex32("LWP reschedule worker order", order);
+            logger.record(
+                if abi {
+                    "LWP ABI reschedule rotates equal priority workers"
+                } else {
+                    "LWP reschedule rotates equal priority workers"
+                },
+                a_result == Ok(1)
+                    && b_result == Ok(2)
+                    && PRIORITY_POSITION.load(Ordering::Acquire) == 4
+                    && (order == 0x2121 || order == 0x1212),
+            );
         }
     }
 
@@ -1593,6 +1647,7 @@ mod wii {
         run_interrupt_frame_integrity(&mut logger);
         run_switch_and_join(&mut logger);
         probe_priority_order(&mut logger);
+        probe_reschedule_rotation(&mut logger);
         run_synchronization(&mut logger);
         run_legacy_sync_abi(&mut logger);
         run_legacy_thread_abi(&mut logger);

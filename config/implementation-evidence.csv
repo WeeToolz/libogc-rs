@@ -2696,3 +2696,5 @@ ogc-lwp-sys,src/lib.rs,deferred_call_from_interrupt,323,compatibility-forwarder,
 ogc-lwp-sys,src/lib.rs,deferred_call_reserved_from_interrupt,337,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,irq_deferred_submit,lwp::deferred_call_reserved_from_interrupt
 ogc-lwp-sys,src/lib.rs,set_thread_priority,130,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_priority_order,lwp::set_thread_priority
 ogc-lwp-sys,src/lib.rs,lwp_set_thread_priority_abi,406,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_priority_order,lwp::lwp_set_thread_priority_abi
+ogc-lwp-sys,src/lib.rs,reschedule,162,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,rotation_worker,lwp::reschedule
+ogc-lwp-sys,src/lib.rs,lwp_reschedule_abi,414,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,rotation_worker,lwp::lwp_reschedule_abi

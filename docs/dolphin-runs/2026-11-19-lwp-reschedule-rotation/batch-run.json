@@ -1,0 +1,60 @@
+{
+  "source_revision": "9f707b77d0e182d4011ec607ac269178a7c20793",
+  "source_fingerprint": "2207acd1b9a2a7dfdd4632ff179610e4d834da6d0a888dc5fd47633018bc8d34",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "lwp_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-19-lwp-reschedule-rotation",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "fd0cec62c71d3d7d7827298b5196c6ff863f8063b99651a16c8c20ff5c45e2e7",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "643f45663304f37d6d4f7adc4db902716028aea0b4149885a68fe54f475a73ad",
+  "suite_sha256": "5f125a002294b993d19e7252e01819e3392f2c9dbe873b24f409d52ebf1ae999",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-19-lwp-reschedule-rotation/lwp_probe/probe.log": "66fa368205e1ed18e37404b81d9098eb2e3456f5f15e52bb1ec0aa8c03edea3e",
+    "docs/dolphin-runs/2026-11-19-lwp-reschedule-rotation/lwp_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-19-lwp-reschedule-rotation/lwp_probe/stderr.log": "e715b269ac87b0ad040c817ad8a01611018a4c84fe8252ba4e91debfd3f4ca2a",
+    "docs/dolphin-runs/2026-11-19-lwp-reschedule-rotation/lwp_probe/probe-transport.bin": "105a2127352eb3d6764ae479e308c48440ce36a25f82d6c905777e2674464fe3",
+    "docs/dolphin-runs/2026-11-19-lwp-reschedule-rotation/lwp_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-19-lwp-reschedule-rotation/lwp_probe/pages/page-002.png": "9c8b3f13ef5d5cec9f65b4401fddae6d9b00780f7ce4356e3f82e6ad052ea442",
+    "docs/dolphin-runs/2026-11-19-lwp-reschedule-rotation/lwp_probe/pages/page-003.png": "34ef23c3793040453de07e28e61b41de4828241a09d36713c529b784f6ad7436",
+    "docs/dolphin-runs/2026-11-19-lwp-reschedule-rotation/lwp_probe/pages/page-004.png": "bdb8e484a693ee0c591fbd3a1ffe2b7ca4eb00c75d61a1a0a29e3e920214cfba",
+    "docs/dolphin-runs/2026-11-19-lwp-reschedule-rotation/lwp_probe/pages/page-005.png": "339adc8cf8a983b1c0b492da178638c0aae0c4bdf6a61b4323f582c32d2e9b24",
+    "docs/dolphin-runs/2026-11-19-lwp-reschedule-rotation/lwp_probe/pages/page-006.png": "524fd64e443ec1f773c54ca86c84805ad686075b6a35526d77a3784c596a0833",
+    "docs/dolphin-runs/2026-11-19-lwp-reschedule-rotation/lwp_probe/pages/page-007.png": "a700190022a986b356901d9e9f2850e464d8b8f2c0b8f0d29b04de56b1b99281",
+    "docs/dolphin-runs/2026-11-19-lwp-reschedule-rotation/lwp_probe/pages/page-008.png": "97880e0083847eadd0242b3f4654577eb12a1c995d21b198277cc6f9819512e6",
+    "docs/dolphin-runs/2026-11-19-lwp-reschedule-rotation/lwp_probe/pages/page-009.png": "c4f8934f3d4a0b86250f60185ddbdfc760cc9f845af4a3ce1b305ba795f90a3d",
+    "docs/dolphin-runs/2026-11-19-lwp-reschedule-rotation/lwp_probe/pages/page-010.png": "796d32a66f4da64ff235162bd474f4afd71af9349e5e5e9bb94f0ea9b4cae91b",
+    "docs/dolphin-runs/2026-11-19-lwp-reschedule-rotation/lwp_probe/pages/page-011.png": "8fd0b7066678904b8cf618a76946f213eb211c7e6e002a31fe12142754ed7b68",
+    "docs/dolphin-runs/2026-11-19-lwp-reschedule-rotation/lwp_probe/pages/page-012.png": "e67dd401a33c54a06f7dab06c9f7f7190b4ea3662b5cd273625a81d00dec0f40",
+    "docs/dolphin-runs/2026-11-19-lwp-reschedule-rotation/lwp_probe/pages/page-013.png": "5339891799bb44ec188f858f5d1ce62514f88b1943a41f15e574d63d18534f89",
+    "docs/dolphin-runs/2026-11-19-lwp-reschedule-rotation/lwp_probe/pages/page-014.png": "da12db62046cf0dd9a74312ecd44daa9b50984dee84035ace0301355f2f2980e",
+    "docs/dolphin-runs/2026-11-19-lwp-reschedule-rotation/lwp_probe/pages/page-015.png": "327797c4176c772944cf3b433f2efdeed389617d939946bc356e192e39923f06",
+    "docs/dolphin-runs/2026-11-19-lwp-reschedule-rotation/lwp_probe/pages/page-016.png": "e717aa4fa143ec99a34ef548f62d74ce702805f2fb35ae585a4fed0adf095821"
+  },
+  "exit_code": 1
+}
