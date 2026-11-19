@@ -311,6 +311,10 @@ mod wii {
     static PRIORITY_ORDER: AtomicU32 = AtomicU32::new(0);
     static PRIORITY_POSITION: AtomicU32 = AtomicU32::new(0);
     static CHILD_REENT: AtomicU32 = AtomicU32::new(0);
+    static EXTERNAL_WAIT_READY: AtomicU32 = AtomicU32::new(0);
+    static EXTERNAL_WATCHDOG: AtomicU32 = AtomicU32::new(0);
+    const EXTERNAL_KEY: usize = 0x4558_5457;
+    const EXTERNAL_TIMER: usize = 0x4558_5454;
     static ROTATION_ABI: AtomicU32 = AtomicU32::new(0);
     static SHARED_VALUE: AtomicU32 = AtomicU32::new(0);
     static SEM_RELEASED: AtomicU32 = AtomicU32::new(0);
@@ -345,6 +349,16 @@ mod wii {
 
     unsafe extern "C" {
         fn __getreent() -> *mut c_void;
+    }
+
+    unsafe extern "C" fn external_wait_worker(_: *mut c_void) -> *mut c_void {
+        EXTERNAL_WAIT_READY.store(1, Ordering::Release);
+        driver::block_current_external(EXTERNAL_KEY, 0x15) as usize as *mut c_void
+    }
+
+    unsafe extern "C" fn external_wait_watchdog(_: u32, _: *mut c_void) {
+        EXTERNAL_WATCHDOG.store(1, Ordering::Release);
+        driver::broadcast_external(EXTERNAL_KEY);
     }
 
     unsafe extern "C" fn reent_worker(_: *mut c_void) -> *mut c_void {
@@ -621,6 +635,85 @@ mod wii {
             Ok(value as usize)
         } else {
             Err(rc)
+        }
+    }
+
+    fn probe_external_wait_paths(logger: &mut ProbeLogger) {
+        for scenario in 0..5 {
+            EXTERNAL_WAIT_READY.store(0, Ordering::Release);
+            EXTERNAL_WATCHDOG.store(0, Ordering::Release);
+            let mut thread = lwp::LWP_THREAD_NULL;
+            let created = create_with_stack(
+                &mut thread,
+                Some(external_wait_worker),
+                ptr::null_mut(),
+                core::ptr::addr_of_mut!(STACK_A),
+                80,
+            );
+            if created != 0 {
+                logger.record("LWP external wait worker starts", false);
+                return;
+            }
+            // SAFETY: The watchdog uses only static state and is cancelled after the join.
+            let timer = unsafe {
+                driver::timer_start_with_key(
+                    EXTERNAL_TIMER,
+                    Some(external_wait_watchdog),
+                    ptr::null_mut(),
+                    driver::TICKS_PER_SECOND,
+                    0,
+                )
+            };
+            lwp::yield_thread();
+            let ready = EXTERNAL_WAIT_READY.load(Ordering::Acquire) == 1;
+            let (label, expected, submitted) = match scenario {
+                0 => (
+                    "LWP external direct wake returns token",
+                    0x55,
+                    driver::wake_thread_with_token(thread, 0x55),
+                ),
+                1 => {
+                    driver::wake_external_by_value(EXTERNAL_KEY, 0x15, false);
+                    ("LWP external value wake returns signal", 1, true)
+                }
+                2 => {
+                    driver::wake_external_by_mask(EXTERNAL_KEY, 0x04, false);
+                    ("LWP external mask wake returns matched bits", 4, true)
+                }
+                3 => {
+                    driver::broadcast_external(EXTERNAL_KEY);
+                    ("LWP external broadcast wakes waiter", 1, true)
+                }
+                _ => {
+                    driver::cancel_external_wait(EXTERNAL_KEY, thread);
+                    ("LWP external cancellation returns zero", 0, true)
+                }
+            };
+            if timer != 0 {
+                let _ = driver::wake_thread_with_token(thread, 0);
+            }
+            let result = join(thread);
+            driver::timer_cancel(EXTERNAL_TIMER);
+            logger.note_u32("external wait scenario", scenario);
+            logger.note_u32("external wait worker ready", u32::from(ready));
+            logger.note_i32("external wait timer result", timer);
+            logger.note_u32("external wait submitted", u32::from(submitted));
+            logger.note_i32(
+                "external wait join result",
+                result.map_or_else(|error| error, |value| value as i32),
+            );
+            logger.note_u32(
+                "external wait watchdog ran",
+                EXTERNAL_WATCHDOG.load(Ordering::Acquire),
+            );
+            logger.record(
+                label,
+                ready
+                    && timer == 0
+                    && submitted
+                    && result == Ok(expected)
+                    && EXTERNAL_WATCHDOG.load(Ordering::Acquire) == 0,
+            );
         }
     }
 
@@ -1715,6 +1808,7 @@ mod wii {
         probe_reschedule_rotation(&mut logger);
         probe_scheduler_critical_sections(&mut logger);
         probe_reentrancy_storage(&mut logger);
+        probe_external_wait_paths(&mut logger);
         run_synchronization(&mut logger);
         run_legacy_sync_abi(&mut logger);
         run_legacy_thread_abi(&mut logger);

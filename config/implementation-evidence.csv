@@ -2702,3 +2702,9 @@ ogc-lwp-driver,src/runtime.rs,critical_enter,1764,scheduler,hardware-probe,probe
 ogc-lwp-driver,src/runtime.rs,critical_exit,1770,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_scheduler_critical_sections,driver::critical_exit
 ogc-lwp-driver,src/runtime.rs,current_reent,2111,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_reentrancy_storage,driver::current_reent
 ogc-lwp-driver,src/runtime.rs,__getreent,2406,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_reentrancy_storage,__getreent
+ogc-lwp-driver,src/runtime.rs,wake_thread_with_token,3504,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_external_wait_paths,driver::wake_thread_with_token
+ogc-lwp-driver,src/runtime.rs,wake_external_by_value,3562,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_external_wait_paths,driver::wake_external_by_value
+ogc-lwp-driver,src/runtime.rs,wake_external_by_mask,3565,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_external_wait_paths,driver::wake_external_by_mask
+ogc-lwp-driver,src/runtime.rs,broadcast_external,3568,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_external_wait_paths,driver::broadcast_external
+ogc-lwp-driver,src/runtime.rs,cancel_external_wait,3585,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_external_wait_paths,driver::cancel_external_wait
+ogc-lwp-driver,src/runtime.rs,block_current_external,3480,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,external_wait_worker,driver::block_current_external
