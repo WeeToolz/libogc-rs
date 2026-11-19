@@ -1,0 +1,80 @@
+{
+  "source_revision": "7e0878a7daf9e3818c8a4c48281ab158ae2b8297",
+  "source_fingerprint": "945510b2790fd69a49da7a701ceea06446d63af0f350f620360c2e5d3dd1e263",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "65b1593ba18056459a8565cb2725bb8dd56c3eb4a7e512db247133d2df5581fc",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "5060cd7a731a5465134b9c78228daed2dd5169d414da7c24b167167a281189cc",
+  "suite_sha256": "01d89c0d9ae56d91732f047a27e634bd3b2f3a8df97a36fe052b50f0b175337f",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/probe.log": "1cf944f2bf85a21580d3a403363d6a4cf67c5be10acdc7588f225bb208a4dfd1",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/stderr.log": "227476312805b1eb68d8539f5528e44c66e59e2e5c662ed0c2e15eea9aae3c29",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/probe-transport.bin": "2225053b02be134bd97616225564371256d1a28bea76241113151c7398ce6b28",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-002.png": "5f947b9212cb392fb29390d46cc90c8f0127f278f75518e47898f43c3891c8e1",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-003.png": "1daa2287195337d699bf42676d44a87a04a5b89a949fd18ea8ab8a70f353ffbf",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-004.png": "32f622b17cd00bcd89f33cf96d1bbbb81cee0cbb15e710ca575a55953188a2b0",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-005.png": "5f89c76e2178c53255b4ac3948d5f48edb3a91895f2ef7d197c1e9d1d9ddd125",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-006.png": "eef70ace5a02eac328e243ad2d3c1f22ee1d153c84ab41300da5e04ab1f26cd6",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-007.png": "8ffceb851c62a458c4ad8ffd5bbbba59077d75f58d1c19fa9e184fa4a3fed263",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-008.png": "92b24674ba35283cb20080f8f4d61f683e2ca054278a46a2f7c5f682d54b9fe2",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-009.png": "4e07ee553e21bcd4a8ac436f3b8a74882b0f2ae7c958ea578991603c558b253a",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-010.png": "6c40a9bc369b21926b961ad322239dd2fcdfcb991c896736c3a0d42c1ce9e1dd",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-011.png": "a6f4105c8f919fe23e83b2c7ed51a8bd22384b30bcdd82a24cdeafe9340e1461",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-012.png": "740a859f3823667ba4696b407d9f1497c41733a87f38d0af61ec364f0e8596a1",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-013.png": "f694c376f267594ba4fc904c4abb4e878611b033a01c31145467ab0a3bbdbd00",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-014.png": "181c71df641b40823e3ba71180e780066ce490c2f6dbf5ff7367fec8c7613a12",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-015.png": "f5c3df257a136e3e8582495513ccef31ca1a32760f043c6b28301ab6f86d13fd",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-016.png": "159aac94ab09562afa388845b2a0b8980ae5dc66365f456d8ac59fb2bca2c1b4",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-017.png": "b803b1def3df1317393e12ec1a02ec1f59a2c9bb920e5997a6fbe74c89919966",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-018.png": "40ddc2821980586fc2041ce0dd6cece76b7ca665f2e349cbfde62e52b48ad845",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-019.png": "fa53e29d4045b6d65aaf0b7250e4a6479efb64e6eee4a58ac405d816811da143",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-020.png": "bc61682e326bd49631b353a0fad02ce1588ec04df18fad9d145f73327fabbb29",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-021.png": "73b86de4af496b9215d4305c780c18419bd059e7c75d7c88486acdf1af447f2a",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-022.png": "1a2e7e777b3e458aba2cfb450a38aafa2134f59306f0ee51151501ac32eef398",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-023.png": "d6500ba3aecd245106c8522433858c2f2639c24bc3f8093a9cf207f879bdc35f",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-024.png": "e4194c95fe4e186d2c909701bd8b944e5bdc8e3dc4ab728310b626391b1f6110",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-025.png": "4e7c5da20eea4adeca466a4f1f4f69c76f96d26968fee08945ce72549e98f9d3",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-026.png": "0783eb807c428ae2257e6ad49ab8de20e98629f92eb70f615e8189430262f354",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-027.png": "c506587774ac6b4d2dcf72c217c5433b22a704f1751cf20fff30bae0bac50f25",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-028.png": "f78aa9d118d09c89643ece8abd287f545cfffd4cd63aee7a90c9c02da79dd3d7",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-029.png": "a46a5806410eb174ebfbbd7af16bde228ff79dcdaf00e6d5fbfc406e184d8b0c",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-030.png": "ba62e64fac3bd367fb7ee52f3aaddecdbe8ddc064628f6d2beb8c1155daea3d2",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-031.png": "0e3313c595c729237007fddc4ccc56bdd1bfde439760e45685f07d8b75b0f848",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-032.png": "1462daf4a01a4f3e72e0c80b42294ab2b6598c53aa83b712059cea3d8c43682f",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-033.png": "a81eaa85eca5bbf287db4bd727b17a4e1a23ece7cabea9e0a85f0cbd22376042",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-034.png": "c281a347987b662beeec9724edc502a03f5cb315e568edd8c570e08262b50583",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-035.png": "854adff3a7324736cadbf84da681cbc26cdc37f0579943712e20d10439f0d3fd",
+    "docs/dolphin-runs/2026-11-19-si-handlers-transfer/runtime_probe/pages/page-036.png": "e17a8bb3f2a5d78335d9b772dc524bd241ebbecac11ff7cae9199af0c9bcc12f"
+  },
+  "exit_code": 0
+}

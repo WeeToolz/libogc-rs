@@ -2542,3 +2542,15 @@ ogc-si-sys,src/lib.rs,set_xy,1079,hardware,hardware-probe,probes/ogc-system-prob
 ogc-si-sys,src/lib.rs,enable_polling,1090,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_registers,raw_si::enable_polling
 ogc-si-sys,src/lib.rs,disable_polling,1105,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_registers,raw_si::disable_polling
 ogc-si-sys,src/lib.rs,set_command,1181,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_registers,raw_si::set_command
+ogc-si,src/lib.rs,enable_polling_interrupt,119,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_handlers_and_transfer,si::enable_polling_interrupt
+ogc-si,src/lib.rs,register_polling_handler,111,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_handlers_and_transfer,si::register_polling_handler
+ogc-si,src/lib.rs,unregister_polling_handler,115,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_handlers_and_transfer,si::unregister_polling_handler
+ogc-si,src/lib.rs,transfer,79,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_handlers_and_transfer,si::transfer
+ogc-si,src/lib.rs,busy,25,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_handlers_and_transfer,si::busy
+ogc-si,src/lib.rs,sync,21,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_handlers_and_transfer,si::sync
+ogc-si-sys,src/lib.rs,enable_polling_interrupt,1451,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_handlers_and_transfer,raw_si::enable_polling_interrupt
+ogc-si-sys,src/lib.rs,register_polling_handler,1394,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_handlers_and_transfer,raw_si::register_polling_handler
+ogc-si-sys,src/lib.rs,unregister_polling_handler,1420,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_handlers_and_transfer,raw_si::unregister_polling_handler
+ogc-si-sys,src/lib.rs,transfer,1211,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_handlers_and_transfer,raw_si::transfer
+ogc-si-sys,src/lib.rs,busy,1067,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_handlers_and_transfer,raw_si::busy
+ogc-si-sys,src/lib.rs,sync,1057,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_handlers_and_transfer,raw_si::sync

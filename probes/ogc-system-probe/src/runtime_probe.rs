@@ -127,6 +127,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_si_raw_queries(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_si_polling_registers(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_si_polling_handlers_and_transfer(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -1791,6 +1793,113 @@ fn probe_si_polling_registers(logger: &mut ProbeLogger) {
     logger.record(
         "SI polling and command registers restored",
         restored_poll == original_poll && restored_command == original_command,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn probe_si_polling_handler(_: u32, _: *mut core::ffi::c_void) {}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_si_polling_handlers_and_transfer(logger: &mut ProbeLogger) {
+    use ogc_si as si;
+    use ogc_si::sys as raw_si;
+    logger.report_step("SI polling handlers and transfers");
+    let base = if ogc_core::powerpc::hollywood_revision() == 0 {
+        0xcc00_6400usize
+    } else {
+        0xcd00_6400usize
+    };
+    let control = (base + 13 * 4) as *const u32;
+    let saved_irq = ogc_irq::irq_disable();
+    let original_interrupt = unsafe { core::ptr::read_volatile(control) } & (1 << 27) != 0;
+    let previous = si::enable_polling_interrupt(0);
+    let disabled = unsafe { core::ptr::read_volatile(control) } & (1 << 27) == 0;
+    let before_enable = si::enable_polling_interrupt(1);
+    let enabled = unsafe { core::ptr::read_volatile(control) } & (1 << 27) != 0;
+    let raw_previous = raw_si::enable_polling_interrupt(0);
+    let raw_disabled = unsafe { core::ptr::read_volatile(control) } & (1 << 27) == 0;
+    let raw_before_enable = raw_si::enable_polling_interrupt(1);
+    let raw_enabled = unsafe { core::ptr::read_volatile(control) } & (1 << 27) != 0;
+    let handler =
+        Some(probe_si_polling_handler as unsafe extern "C" fn(u32, *mut core::ffi::c_void));
+    let registered = si::register_polling_handler(handler);
+    let duplicate = si::register_polling_handler(handler);
+    let removed = si::unregister_polling_handler(handler);
+    let removed_again = si::unregister_polling_handler(handler);
+    let raw_registered = raw_si::register_polling_handler(handler);
+    let raw_duplicate = raw_si::register_polling_handler(handler);
+    let raw_removed = raw_si::unregister_polling_handler(handler);
+    let raw_removed_again = raw_si::unregister_polling_handler(handler);
+    raw_si::enable_polling_interrupt(i32::from(original_interrupt));
+    let restored =
+        (unsafe { core::ptr::read_volatile(control) } & (1 << 27) != 0) == original_interrupt;
+
+    let output = 0u32;
+    let mut input = 0xa5a5_a5a5u32;
+    // SAFETY: The aligned words remain live while interrupts are masked until sync completes.
+    let submit = unsafe {
+        si::transfer(
+            3,
+            (&output as *const u32).cast(),
+            1,
+            (&mut input as *mut u32).cast(),
+            3,
+            None,
+            0,
+        )
+    };
+    let busy = si::busy();
+    let result = si::sync();
+    let idle = si::busy();
+    let mut raw_input = 0xa5a5_a5a5u32;
+    // SAFETY: The aligned words remain live until raw sync completes.
+    let raw_submit = unsafe {
+        raw_si::transfer(
+            3,
+            (&output as *const u32).cast(),
+            1,
+            (&mut raw_input as *mut u32).cast(),
+            3,
+            None,
+            0,
+        )
+    };
+    let raw_busy = raw_si::busy();
+    let raw_result = raw_si::sync();
+    let raw_idle = raw_si::busy();
+    ogc_irq::irq_restore(saved_irq);
+
+    logger.record(
+        "SI wrapper polling interrupt changes and reports previous state",
+        previous == u32::from(original_interrupt) && disabled && before_enable == 0 && enabled,
+    );
+    logger.record(
+        "SI raw polling interrupt changes and reports previous state",
+        raw_previous == 1 && raw_disabled && raw_before_enable == 0 && raw_enabled && restored,
+    );
+    logger.record(
+        "SI wrapper polling handler registration and removal",
+        registered == 1 && duplicate == 1 && removed == 1 && removed_again == 0,
+    );
+    logger.record(
+        "SI raw polling handler registration and removal",
+        raw_registered == 1 && raw_duplicate == 1 && raw_removed == 1 && raw_removed_again == 0,
+    );
+    logger.record(
+        "SI wrapper transfer reports no controller and clears busy",
+        submit == 1
+            && busy == 1
+            && result == si::SI_ERROR_NO_RESPONSE
+            && idle == 0
+            && input & 0xff == 0xa5,
+    );
+    logger.record(
+        "SI raw transfer reports no controller and clears busy",
+        raw_submit == 1
+            && raw_busy == 1
+            && raw_result == si::SI_ERROR_NO_RESPONSE
+            && raw_idle == 0
+            && raw_input & 0xff == 0xa5,
     );
 }
 
