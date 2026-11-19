@@ -7,6 +7,7 @@ use crate::probe_support::ProbeLogger;
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("USB HID DESCRIPTOR POLICY");
     probe_invalid_arguments(logger);
+    probe_unavailable_transfers(logger);
 
     let mut descriptor = [
         9,
@@ -201,4 +202,136 @@ fn probe_invalid_arguments(logger: &mut ProbeLogger) {
             usb::get_configuration(-1, core::ptr::null_mut()) == -4,
         );
     }
+}
+
+#[repr(align(32))]
+struct TransferData([u8; 32]);
+#[repr(align(32))]
+struct PacketSizes([u16; 1]);
+static TRANSFER_CALLBACKS: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+
+unsafe extern "C" fn transfer_callback(result: i32, _: *mut core::ffi::c_void) -> i32 {
+    TRANSFER_CALLBACKS.fetch_add(1, core::sync::atomic::Ordering::Relaxed);
+    result
+}
+
+fn probe_unavailable_transfers(logger: &mut ProbeLogger) {
+    let mut data = TransferData([0xa5; 32]);
+    let mut sizes = PacketSizes([32]);
+    TRANSFER_CALLBACKS.store(0, core::sync::atomic::Ordering::Relaxed);
+    // SAFETY: Both aligned buffers remain valid throughout each rejected call.
+    unsafe {
+        logger.record(
+            "USB unavailable read_intr_msg",
+            usb::read_intr_msg(-1, 0x81, 32, data.0.as_mut_ptr().cast()) == -6,
+        );
+        logger.record(
+            "USB unavailable read_intr_msg_async",
+            usb::read_intr_msg_async(
+                -1,
+                0x81,
+                32,
+                data.0.as_mut_ptr().cast(),
+                Some(transfer_callback),
+                core::ptr::null_mut(),
+            ) == -6,
+        );
+        logger.record(
+            "USB unavailable read_blk_msg",
+            usb::read_blk_msg(-1, 0x81, 32, data.0.as_mut_ptr().cast()) == -6,
+        );
+        logger.record(
+            "USB unavailable read_blk_msg_async",
+            usb::read_blk_msg_async(
+                -1,
+                0x81,
+                32,
+                data.0.as_mut_ptr().cast(),
+                Some(transfer_callback),
+                core::ptr::null_mut(),
+            ) == -6,
+        );
+        logger.record(
+            "USB unavailable write_intr_msg",
+            usb::write_intr_msg(-1, 1, 32, data.0.as_mut_ptr().cast()) == -6,
+        );
+        logger.record(
+            "USB unavailable write_intr_msg_async",
+            usb::write_intr_msg_async(
+                -1,
+                1,
+                32,
+                data.0.as_mut_ptr().cast(),
+                Some(transfer_callback),
+                core::ptr::null_mut(),
+            ) == -6,
+        );
+        logger.record(
+            "USB unavailable write_blk_msg",
+            usb::write_blk_msg(-1, 1, 32, data.0.as_mut_ptr().cast()) == -6,
+        );
+        logger.record(
+            "USB unavailable write_blk_msg_async",
+            usb::write_blk_msg_async(
+                -1,
+                1,
+                32,
+                data.0.as_mut_ptr().cast(),
+                Some(transfer_callback),
+                core::ptr::null_mut(),
+            ) == -6,
+        );
+        logger.record(
+            "USB unavailable read_ctrl_msg",
+            usb::read_ctrl_msg(-1, 0x80, 6, 0, 0, 32, data.0.as_mut_ptr().cast()) == -6,
+        );
+        logger.record(
+            "USB unavailable write_ctrl_msg",
+            usb::write_ctrl_msg(-1, 0, 9, 0, 0, 32, data.0.as_mut_ptr().cast()) == -6,
+        );
+        logger.record(
+            "USB unavailable read_iso_msg",
+            usb::read_iso_msg(
+                -1,
+                0x81,
+                1,
+                sizes.0.as_mut_ptr(),
+                data.0.as_mut_ptr().cast(),
+            ) == -6,
+        );
+        logger.record(
+            "USB unavailable read_iso_msg_async",
+            usb::read_iso_msg_async(
+                -1,
+                0x81,
+                1,
+                sizes.0.as_mut_ptr(),
+                data.0.as_mut_ptr().cast(),
+                Some(transfer_callback),
+                core::ptr::null_mut(),
+            ) == -6,
+        );
+        logger.record(
+            "USB unavailable write_iso_msg",
+            usb::write_iso_msg(-1, 1, 1, sizes.0.as_mut_ptr(), data.0.as_mut_ptr().cast()) == -6,
+        );
+        logger.record(
+            "USB unavailable write_iso_msg_async",
+            usb::write_iso_msg_async(
+                -1,
+                1,
+                1,
+                sizes.0.as_mut_ptr(),
+                data.0.as_mut_ptr().cast(),
+                Some(transfer_callback),
+                core::ptr::null_mut(),
+            ) == -6,
+        );
+    }
+    logger.record(
+        "USB rejected transfers leave buffers and callbacks untouched",
+        data.0 == [0xa5; 32]
+            && sizes.0 == [32]
+            && TRANSFER_CALLBACKS.load(core::sync::atomic::Ordering::Relaxed) == 0,
+    );
 }

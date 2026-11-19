@@ -1,0 +1,190 @@
+{
+  "probe": "hid_descriptor_probe",
+  "cases": [
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "read_intr_msg",
+      "line": 292,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_transfers",
+      "api_path": "usb::read_intr_msg",
+      "checks": [
+        "USB unavailable read_intr_msg",
+        "USB rejected transfers leave buffers and callbacks untouched"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "read_intr_msg_async",
+      "line": 304,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_transfers",
+      "api_path": "usb::read_intr_msg_async",
+      "checks": [
+        "USB unavailable read_intr_msg_async",
+        "USB rejected transfers leave buffers and callbacks untouched"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "read_blk_msg",
+      "line": 318,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_transfers",
+      "api_path": "usb::read_blk_msg",
+      "checks": [
+        "USB unavailable read_blk_msg",
+        "USB rejected transfers leave buffers and callbacks untouched"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "read_blk_msg_async",
+      "line": 330,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_transfers",
+      "api_path": "usb::read_blk_msg_async",
+      "checks": [
+        "USB unavailable read_blk_msg_async",
+        "USB rejected transfers leave buffers and callbacks untouched"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "write_intr_msg",
+      "line": 408,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_transfers",
+      "api_path": "usb::write_intr_msg",
+      "checks": [
+        "USB unavailable write_intr_msg",
+        "USB rejected transfers leave buffers and callbacks untouched"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "write_intr_msg_async",
+      "line": 422,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_transfers",
+      "api_path": "usb::write_intr_msg_async",
+      "checks": [
+        "USB unavailable write_intr_msg_async",
+        "USB rejected transfers leave buffers and callbacks untouched"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "write_blk_msg",
+      "line": 436,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_transfers",
+      "api_path": "usb::write_blk_msg",
+      "checks": [
+        "USB unavailable write_blk_msg",
+        "USB rejected transfers leave buffers and callbacks untouched"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "write_blk_msg_async",
+      "line": 448,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_transfers",
+      "api_path": "usb::write_blk_msg_async",
+      "checks": [
+        "USB unavailable write_blk_msg_async",
+        "USB rejected transfers leave buffers and callbacks untouched"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "read_ctrl_msg",
+      "line": 344,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_transfers",
+      "api_path": "usb::read_ctrl_msg",
+      "checks": [
+        "USB unavailable read_ctrl_msg",
+        "USB rejected transfers leave buffers and callbacks untouched"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "write_ctrl_msg",
+      "line": 462,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_transfers",
+      "api_path": "usb::write_ctrl_msg",
+      "checks": [
+        "USB unavailable write_ctrl_msg",
+        "USB rejected transfers leave buffers and callbacks untouched"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "read_iso_msg",
+      "line": 254,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_transfers",
+      "api_path": "usb::read_iso_msg",
+      "checks": [
+        "USB unavailable read_iso_msg",
+        "USB rejected transfers leave buffers and callbacks untouched"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "read_iso_msg_async",
+      "line": 267,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_transfers",
+      "api_path": "usb::read_iso_msg_async",
+      "checks": [
+        "USB unavailable read_iso_msg_async",
+        "USB rejected transfers leave buffers and callbacks untouched"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "write_iso_msg",
+      "line": 369,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_transfers",
+      "api_path": "usb::write_iso_msg",
+      "checks": [
+        "USB unavailable write_iso_msg",
+        "USB rejected transfers leave buffers and callbacks untouched"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "write_iso_msg_async",
+      "line": 382,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_transfers",
+      "api_path": "usb::write_iso_msg_async",
+      "checks": [
+        "USB unavailable write_iso_msg_async",
+        "USB rejected transfers leave buffers and callbacks untouched"
+      ]
+    }
+  ],
+  "limits": [
+    "No USB host is open. Only unavailable-host rejection and its buffer/callback side effects are tested; successful transfers and physical hardware are not covered."
+  ]
+}

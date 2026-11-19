@@ -1,0 +1,48 @@
+{
+  "source_revision": "db274ff2eafcae8b4c8e93977246231f8e9b632a",
+  "source_fingerprint": "84179b04db5fdb18426720bf6275cd5ac9acd3ee27ec20b49ae063b73ec9ae6f",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "hid_descriptor_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-19-usb-unavailable-transfers",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "60353c428b2981743075ccf9d1a84fcaae786925eb3575f3a6bc72eaab706514",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "fd2617b5503a42081a594dada4ad9fff8cb5b32f036a4a65448fd96c9d322740",
+  "suite_sha256": "4462c1d08dcaabb3c6594a3497a9ae34659ac55f8b8182f1a8a42749c292c1a3",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-19-usb-unavailable-transfers/hid_descriptor_probe/probe.log": "5fe09dfe1a36b6d6cfa4cae0fbe29057292dc5f03f39c8dcf59cc4bd6bb7a8c4",
+    "docs/dolphin-runs/2026-11-19-usb-unavailable-transfers/hid_descriptor_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-19-usb-unavailable-transfers/hid_descriptor_probe/stderr.log": "881b6a10684cbc7d61e645544a243297e46930317aa5f9a5eb6fcaf2c04c4073",
+    "docs/dolphin-runs/2026-11-19-usb-unavailable-transfers/hid_descriptor_probe/probe-transport.bin": "3037c764274f0f1aa2a76f386413ce3e0163ef14bcd60f7ab34b170ae70dd30d",
+    "docs/dolphin-runs/2026-11-19-usb-unavailable-transfers/hid_descriptor_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-19-usb-unavailable-transfers/hid_descriptor_probe/pages/page-002.png": "117a20eb9bd745eab3c8702c5d6b842c60d2bcdebb7befaf2101a1818feb31fb",
+    "docs/dolphin-runs/2026-11-19-usb-unavailable-transfers/hid_descriptor_probe/pages/page-003.png": "b1b629c23c930457f05193a54ea71b7c7b50ecc6cf247b26babf5c6742c8314d",
+    "docs/dolphin-runs/2026-11-19-usb-unavailable-transfers/hid_descriptor_probe/pages/page-004.png": "3d481033b4a188317f8f0f4e46ae2820ec796ce0ff7c15ce711bc2dba35aba0a"
+  },
+  "exit_code": 0
+}
