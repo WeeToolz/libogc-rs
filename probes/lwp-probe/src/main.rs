@@ -315,6 +315,11 @@ mod wii {
     static SYNC_COND_SIGNAL_RC: AtomicU32 = AtomicU32::new(u32::MAX);
     static SYNC_MUTEX_UNLOCK_RC: AtomicU32 = AtomicU32::new(u32::MAX);
     static DEFERRED_RAN: AtomicU32 = AtomicU32::new(0);
+    static IRQ_RESERVATION: AtomicU32 = AtomicU32::new(u32::MAX);
+    static IRQ_DEFERRED_RESULT: AtomicU32 = AtomicU32::new(u32::MAX);
+    static IRQ_RESERVED_RESULT: AtomicU32 = AtomicU32::new(u32::MAX);
+    static IRQ_DEFERRED_RAN: AtomicU32 = AtomicU32::new(0);
+    static IRQ_CONTEXT: AtomicU32 = AtomicU32::new(0);
     #[unsafe(export_name = "lwp_probe_debug_hook_count")]
     static DEBUG_HOOK_COUNT: AtomicU32 = AtomicU32::new(0);
     #[unsafe(export_name = "lwp_probe_debug_last_event")]
@@ -392,6 +397,85 @@ mod wii {
 
     unsafe fn deferred_callback(_: *mut c_void) {
         DEFERRED_RAN.store(1, Ordering::Release);
+    }
+
+    unsafe fn irq_deferred_callback(_: *mut c_void) {
+        IRQ_DEFERRED_RAN.fetch_or(1, Ordering::AcqRel);
+    }
+
+    unsafe fn irq_reserved_callback(_: *mut c_void) {
+        IRQ_DEFERRED_RAN.fetch_or(2, Ordering::AcqRel);
+    }
+
+    unsafe extern "C" fn irq_deferred_submit(_: u32, _: *mut c_void) {
+        let msr: u32;
+        unsafe { core::arch::asm!("mfmsr {value}", value = out(reg) msr, options(nomem, nostack)) };
+        IRQ_CONTEXT.store(u32::from(msr & 0x8000 == 0), Ordering::Release);
+        let reservation = IRQ_RESERVATION.load(Ordering::Acquire);
+        // SAFETY: The callbacks ignore their null arguments and the reservation
+        // is owned by this one-shot interrupt until it is consumed here.
+        let ordinary = unsafe {
+            lwp::deferred_call_from_interrupt(Some(irq_deferred_callback), ptr::null_mut())
+        };
+        let reserved = unsafe {
+            lwp::deferred_call_reserved_from_interrupt(
+                reservation,
+                Some(irq_reserved_callback),
+                ptr::null_mut(),
+            )
+        };
+        IRQ_DEFERRED_RESULT.store(ordinary as u32, Ordering::Release);
+        IRQ_RESERVED_RESULT.store(reserved as u32, Ordering::Release);
+    }
+
+    fn probe_interrupt_deferred(logger: &mut ProbeLogger) {
+        let Some(cancelled) = lwp::deferred_reserve_interrupt_slot() else {
+            logger.record("LWP interrupt reservation cancels once", false);
+            return;
+        };
+        logger.record(
+            "LWP interrupt reservation cancels once",
+            lwp::deferred_cancel_interrupt_slot(cancelled) == 0
+                && lwp::deferred_cancel_interrupt_slot(cancelled) == lwp::LWP_CLOSED,
+        );
+        let Some(reservation) = lwp::deferred_reserve_interrupt_slot() else {
+            logger.record("LWP interrupt deferred submission completes", false);
+            return;
+        };
+        IRQ_RESERVATION.store(reservation, Ordering::Release);
+        IRQ_DEFERRED_RESULT.store(u32::MAX, Ordering::Release);
+        IRQ_RESERVED_RESULT.store(u32::MAX, Ordering::Release);
+        IRQ_DEFERRED_RAN.store(0, Ordering::Release);
+        IRQ_CONTEXT.store(0, Ordering::Release);
+        let started = driver::now_ticks();
+        // SAFETY: This one-shot timer uses only static state in its callback.
+        let rc = unsafe {
+            driver::timer_start_with_key(
+                0x4952_5144,
+                Some(irq_deferred_submit),
+                ptr::null_mut(),
+                driver::TICKS_PER_SECOND / 100,
+                0,
+            )
+        };
+        while rc == 0
+            && IRQ_DEFERRED_RAN.load(Ordering::Acquire) != 3
+            && driver::now_ticks().wrapping_sub(started) < driver::TICKS_PER_SECOND
+        {
+            lwp::yield_thread();
+        }
+        driver::timer_cancel(0x4952_5144);
+        if IRQ_RESERVED_RESULT.load(Ordering::Acquire) != 0 {
+            let _ = lwp::deferred_cancel_interrupt_slot(reservation);
+        }
+        logger.record(
+            "LWP interrupt deferred submission completes",
+            rc == 0
+                && IRQ_CONTEXT.load(Ordering::Acquire) == 1
+                && IRQ_DEFERRED_RESULT.load(Ordering::Acquire) == 0
+                && IRQ_RESERVED_RESULT.load(Ordering::Acquire) == 0
+                && IRQ_DEFERRED_RAN.load(Ordering::Acquire) == 3,
+        );
     }
 
     unsafe extern "C" fn tuxedo_queue_worker(_: *mut c_void) -> isize {
@@ -1465,6 +1549,7 @@ mod wii {
         run_condition_broadcast(&mut logger);
         run_timed_wait(&mut logger);
         run_message_and_deferred(&mut logger);
+        probe_interrupt_deferred(&mut logger);
         run_tuxedo_compatibility(&mut logger);
         run_ipc_wakeup(&mut logger);
         run_std_foundation(&mut logger);

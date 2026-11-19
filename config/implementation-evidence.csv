@@ -2690,3 +2690,7 @@ ogc-controller,src/hardware.rs,scan_with_raw_at,1478,protocol,hardware-probe,pro
 ogc-controller,src/hardware.rs,set_input_scan_hook,979,protocol,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_controller_scan_modes,controllers.set_input_scan_hook
 ogc-es-sys,src/imp.rs,next_cert,2470,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_certificate_chain,es::next_cert
 ogc-gx,src/lib.rs,set_break_pt_callback,1856,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_break_callback,gx::set_break_pt_callback
+ogc-lwp-sys,src/lib.rs,deferred_reserve_interrupt_slot,327,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_interrupt_deferred,lwp::deferred_reserve_interrupt_slot
+ogc-lwp-sys,src/lib.rs,deferred_cancel_interrupt_slot,331,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_interrupt_deferred,lwp::deferred_cancel_interrupt_slot
+ogc-lwp-sys,src/lib.rs,deferred_call_from_interrupt,323,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,irq_deferred_submit,lwp::deferred_call_from_interrupt
+ogc-lwp-sys,src/lib.rs,deferred_call_reserved_from_interrupt,337,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,irq_deferred_submit,lwp::deferred_call_reserved_from_interrupt
