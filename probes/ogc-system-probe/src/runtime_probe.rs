@@ -113,6 +113,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_irq_raw_handler_registry(logger);
     probe_irq_delivery_state(logger);
     probe_irq_mask_state(logger);
+    probe_exi_locking(logger);
     probe_si_queries(logger);
     probe_si_raw_queries(logger);
     probe_ui_adapters(logger);
@@ -1767,6 +1768,26 @@ fn probe_si_queries(logger: &mut ProbeLogger) {
 }
 
 unsafe extern "C" fn probe_irq_handler(_: u32, _: *mut core::ffi::c_void) {}
+
+fn probe_exi_locking(logger: &mut ProbeLogger) {
+    use ogc_exi as exi;
+    // SAFETY: No callback is installed, and the acquired lock is released below.
+    let first = unsafe { exi::lock(1, 1, None) };
+    let busy = unsafe { exi::try_lock(1, 1, None) };
+    let released = exi::unlock(1);
+    let second = unsafe { exi::try_lock(1, 1, None) };
+    let released_again = exi::try_unlock(1);
+    let invalid = unsafe { exi::try_lock(-1, 1, None) };
+    logger.record(
+        "EXI lock rejects contention and permits reacquisition",
+        first == 1
+            && busy.is_err()
+            && released == 1
+            && second.is_ok()
+            && released_again.is_ok()
+            && invalid.is_err(),
+    );
+}
 
 fn probe_irq_mask_state(logger: &mut ProbeLogger) {
     use ogc_irq as irq;

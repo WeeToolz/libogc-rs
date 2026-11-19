@@ -1,0 +1,56 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "lock",
+      "line": 42,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_locking",
+      "api_path": "exi::lock",
+      "checks": [
+        "EXI lock rejects contention and permits reacquisition"
+      ]
+    },
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "try_lock",
+      "line": 49,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_locking",
+      "api_path": "exi::try_lock",
+      "checks": [
+        "EXI lock rejects contention and permits reacquisition"
+      ]
+    },
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "unlock",
+      "line": 53,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_locking",
+      "api_path": "exi::unlock",
+      "checks": [
+        "EXI lock rejects contention and permits reacquisition"
+      ]
+    },
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "try_unlock",
+      "line": 57,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_locking",
+      "api_path": "exi::try_unlock",
+      "checks": [
+        "EXI lock rejects contention and permits reacquisition"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin single-threaded EXI channel 1 lock and error paths. Concurrent callbacks, transfers, hardware devices and physical Wii remain unverified."
+  ]
+}

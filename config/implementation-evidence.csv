@@ -2467,3 +2467,7 @@ ogc-system-sys,src/lib.rs,sys_set_power_callback,4315,hardware,hardware-probe,pr
 ogc-system-sys,src/lib.rs,sys_do_power_cb,4327,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_callbacks,raw_system::sys_do_power_cb
 ogc-system-sys,src/lib.rs,snapshot_power_dispatch,4362,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_callbacks,raw_system::snapshot_power_dispatch
 ogc-system-sys,src/lib.rs,sys_set_reset_callback,4044,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_callbacks,raw_system::sys_set_reset_callback
+ogc-exi,src/lib.rs,lock,42,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_locking,exi::lock
+ogc-exi,src/lib.rs,try_lock,49,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_locking,exi::try_lock
+ogc-exi,src/lib.rs,unlock,53,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_locking,exi::unlock
+ogc-exi,src/lib.rs,try_unlock,57,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_locking,exi::try_unlock
