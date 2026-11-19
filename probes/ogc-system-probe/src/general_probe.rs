@@ -9,6 +9,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_es_layout(logger);
     probe_es_certificate_chain(logger);
     probe_es_catalog_paths(logger);
+    probe_es_disc_views(logger);
     probe_es_device_identity(logger);
     probe_es_content_invalid(logger);
     probe_es_crypto_inputs(logger);
@@ -324,6 +325,73 @@ fn probe_es_device_identity(logger: &mut ProbeLogger) {
         es::check_has_korean_key() == -1017,
     );
     logger.record("ES identity probe closes service", es::close() == 0);
+}
+
+fn probe_es_disc_views(logger: &mut ProbeLogger) {
+    const MENU: u64 = 0x0000_0001_0000_0002;
+    #[repr(align(64))]
+    struct Tmd([u8; 832]);
+    #[repr(align(32))]
+    struct View([u8; 256]);
+
+    let initialized = es::init();
+    logger.record("ES disc view probe opens service", initialized == 0);
+    if initialized != 0 {
+        return;
+    }
+
+    let mut tmd = Tmd([0xa5; 832]);
+    // SAFETY: TMD storage is aligned and holds the fixture's 808-byte TMD.
+    let fetched = unsafe { es::get_stored_tmd(MENU, tmd.0.as_mut_ptr().cast(), 808) };
+    let mut size = u32::MAX;
+    let size_rc = if fetched == 0 {
+        // SAFETY: The fetched TMD and scalar output remain live and aligned.
+        unsafe { es::di_get_tmd_view_size(tmd.0.as_ptr().cast(), 808, &mut size) }
+    } else {
+        fetched
+    };
+    logger.record(
+        "ES disc TMD view size matches system menu",
+        fetched == 0 && size_rc == 0 && size == 236 && tmd.0[808..].iter().all(|&b| b == 0xa5),
+    );
+
+    let mut view = View([0xa5; 256]);
+    // SAFETY: The output buffer is aligned and contains 236 writable bytes.
+    let view_rc = if size_rc == 0 && size == 236 {
+        unsafe { es::di_get_tmd_view(tmd.0.as_ptr().cast(), 808, view.0.as_mut_ptr().cast(), size) }
+    } else {
+        size_rc
+    };
+    // SAFETY: A null output is passed to verify rejection before use.
+    let null_rc =
+        unsafe { es::di_get_tmd_view(tmd.0.as_ptr().cast(), 808, core::ptr::null_mut(), 236) };
+    logger.record(
+        "ES disc TMD view matches menu and rejects null",
+        fetched == 0
+            && size_rc == 0
+            && size == 236
+            && view_rc == 0
+            && view.0[12..20] == MENU.to_be_bytes()
+            && view.0[90..92] == [0, 9]
+            && view.0[236..].iter().all(|&b| b == 0xa5)
+            && null_rc == es::ES_EINVAL,
+    );
+
+    let mut missing_size = u32::MAX;
+    // SAFETY: A null TMD requests the current title, and outputs are writable.
+    let missing_rc = unsafe { es::di_get_tmd_view_size(core::ptr::null(), 0, &mut missing_size) };
+    let mut ticket = View([0xa5; 256]);
+    let ticket_rc = unsafe { es::get_ticket_view(core::ptr::null(), ticket.0.as_mut_ptr().cast()) };
+    let null_ticket = unsafe { es::get_ticket_view(core::ptr::null(), core::ptr::null_mut()) };
+    logger.record(
+        "ES disc view size reports no active title",
+        missing_rc == -1017 && missing_size == u32::MAX,
+    );
+    logger.record(
+        "ES disc ticket view reports no active title",
+        ticket_rc == -1017 && null_ticket == es::ES_EINVAL && ticket.0 == [0xa5; 256],
+    );
+    logger.record("ES disc view probe closes service", es::close() == 0);
 }
 
 fn probe_es_catalog_paths(logger: &mut ProbeLogger) {

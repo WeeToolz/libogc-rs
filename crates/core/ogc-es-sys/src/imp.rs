@@ -1141,7 +1141,7 @@ pub unsafe fn di_get_tmd_view(
 ) -> i32 {
     unsafe {
         with_state(|state| {
-            if view_size < core::mem::size_of::<TmdView>() as u32 {
+            if view.is_null() || (view_size as usize) < core::mem::size_of::<TmdView>() {
                 return ES_EINVAL;
             }
             if !is_aligned(s_tmd.cast(), 4) || !is_aligned(view.cast(), 4) {
@@ -1163,7 +1163,7 @@ pub unsafe fn di_get_tmd_view(
                 slice_from_const(s_tmd.cast::<u8>(), tmd_size as usize)
             };
             let out = slice_from_mut(view.cast::<u8>(), view_size as usize);
-            let size_in = if s_tmd.is_null() { 0 } else { tmd_size };
+            let size_in = view_size;
 
             fd.ioctlv(
                 IOCTL_ES_DIGETTMDVIEW,
