@@ -7,6 +7,7 @@ use crate::probe_support::ProbeLogger;
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("GENERAL PROBE");
     probe_es_layout(logger);
+    probe_wpad_speaker_encoder(logger);
 
     logger.record("counter bias roundtrip", roundtrip_counter_bias());
     logger.record("display offset roundtrip", roundtrip_display_offset());
@@ -41,6 +42,52 @@ pub fn run(logger: &mut ProbeLogger) {
     logger.record(
         "console footer write",
         crate::probe_support::screen_write(b"general probe uses direct runtime calls\n").is_ok(),
+    );
+}
+
+fn probe_wpad_speaker_encoder(logger: &mut ProbeLogger) {
+    use wpad_sys as wpad;
+
+    // Expected bytes and final state come from libogc's C speaker encoder.
+    let samples = [0i16, 1000, -1000, 32767, -32768, 1234, 42, -42];
+    let mut state = wpad::WpadEncStatus::default();
+    let mut encoded = [0xa5; 5];
+    // SAFETY: The input has eight samples and the output has room for four bytes.
+    unsafe { wpad::encode_data(&mut state, 0, samples.as_ptr(), 8, encoded.as_mut_ptr()) };
+    logger.record(
+        "WPAD speaker encoding matches C reference",
+        encoded == [0x07, 0xf7, 0xf3, 0x98, 0xa5]
+            && i32::from_be_bytes(state.data[0..4].try_into().unwrap()) == -394
+            && i32::from_be_bytes(state.data[8..12].try_into().unwrap()) == 3039,
+    );
+
+    let mut split_state = wpad::WpadEncStatus::default();
+    let mut split = [0u8; 4];
+    // SAFETY: Each call has four samples and two output bytes.
+    unsafe {
+        wpad::encode_data(&mut split_state, 0, samples.as_ptr(), 4, split.as_mut_ptr());
+        wpad::encode_data(
+            &mut split_state,
+            wpad::WPAD_ENC_CONT,
+            samples[4..].as_ptr(),
+            4,
+            split[2..].as_mut_ptr(),
+        );
+    }
+    logger.record(
+        "WPAD speaker continuation preserves encoder state",
+        split == encoded[..4]
+            && split_state.data[0..4] == state.data[0..4]
+            && split_state.data[8..12] == state.data[8..12],
+    );
+
+    let mut odd_state = wpad::WpadEncStatus::default();
+    let mut odd = [0xa5; 3];
+    // SAFETY: Three input samples produce two output bytes; the final sample is padded with zero.
+    unsafe { wpad::encode_data(&mut odd_state, 0, samples.as_ptr(), 3, odd.as_mut_ptr()) };
+    logger.record(
+        "WPAD speaker odd sample uses zero padding",
+        odd == [0x07, 0xf1, 0xa5],
     );
 }
 

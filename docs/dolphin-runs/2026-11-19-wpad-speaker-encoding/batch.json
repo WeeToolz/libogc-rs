@@ -1,0 +1,22 @@
+{
+  "probe": "general_probe",
+  "cases": [
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "encode_data",
+      "line": 1578,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_wpad_speaker_encoder",
+      "api_path": "wpad::encode_data",
+      "checks": [
+        "WPAD speaker encoding matches C reference",
+        "WPAD speaker continuation preserves encoder state",
+        "WPAD speaker odd sample uses zero padding"
+      ]
+    }
+  ],
+  "limits": [
+    "Encoding only; the odd-sample zero pad is a Rust safety difference from C, which reads a second sample. Speaker transport and physical hardware are not covered."
+  ]
+}
