@@ -1,0 +1,86 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "write",
+      "line": 405,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_file_cycle",
+      "api_path": "file.write",
+      "checks": [
+        "IPC write persists bytes",
+        "IPC test file cleanup"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "write_exact",
+      "line": 433,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_file_cycle",
+      "api_path": "file.write_exact",
+      "checks": [
+        "IPC exact write persists bytes",
+        "IPC test file cleanup"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "write_async",
+      "line": 331,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_file_cycle",
+      "api_path": "file.write_async",
+      "checks": [
+        "IPC async write completes and persists",
+        "IPC test file cleanup"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "seek_async",
+      "line": 351,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_file_cycle",
+      "api_path": "file.seek_async",
+      "checks": [
+        "IPC async seek selects offset",
+        "IPC test file cleanup"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "read_async",
+      "line": 305,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_file_cycle",
+      "api_path": "file.read_async",
+      "checks": [
+        "IPC async read returns bytes",
+        "IPC test file cleanup"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "close_async",
+      "line": 272,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_file_cycle",
+      "api_path": "file.close_async",
+      "checks": [
+        "IPC async close completes and persists",
+        "IPC test file cleanup"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin IOS uses a temporary file in a private NAND copy. Physical Wii, async error paths, concurrent requests, and other file types remain unverified."
+  ]
+}

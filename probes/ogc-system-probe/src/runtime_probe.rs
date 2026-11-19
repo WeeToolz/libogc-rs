@@ -6831,6 +6831,7 @@ fn probe_isfs_successful_file_cycle(logger: &mut ProbeLogger) {
         read_dir_result == filesystem::ISFS_OK && directory_count > 0 && entry_present,
     );
     probe_isfs_async_file_cycle(directory, logger);
+    probe_ipc_file_cycle(logger);
     probe_isfs_async_directory_cycle(directory, logger);
     probe_isfs_directory_rename_cycles(logger);
     probe_isfs_async_rename_cycle(logger);
@@ -7258,6 +7259,100 @@ fn probe_isfs_async_file_cycle(directory: &core::ffi::CStr, logger: &mut ProbeLo
             && delete_result == filesystem::ISFS_OK
             && deleted_file_open.is_err_and(|error| error == filesystem::ISFS_ENOENT),
     );
+}
+
+fn probe_ipc_file_cycle(logger: &mut ProbeLogger) {
+    use ogc_ipc as ipc;
+
+    logger.report_step("IPC synchronous and asynchronous file cycle");
+    let path = c"/tmp/ogc-rs-isfs-verify/ipc";
+    let created = filesystem::create_file(path, 0, 3, 3, 3) == filesystem::ISFS_OK;
+    let file = if created {
+        ipc::open_file(path, ipc::IPC_OPEN_RW).ok()
+    } else {
+        None
+    };
+    let Some(file) = file else {
+        for label in [
+            "IPC write persists bytes",
+            "IPC exact write persists bytes",
+            "IPC async write completes and persists",
+            "IPC async seek selects offset",
+            "IPC async read returns bytes",
+            "IPC async close completes and persists",
+        ] {
+            logger.record(label, false);
+        }
+        if created {
+            logger.record(
+                "IPC test file cleanup",
+                filesystem::delete(path) == filesystem::ISFS_OK,
+            );
+        }
+        return;
+    };
+    let first = AlignedIsfsBytes([0x13; 32]);
+    let second = AlignedIsfsBytes([0x57; 32]);
+    let third = AlignedIsfsBytes([0xa9; 32]);
+    let write = file.write(&first.0) == Ok(32);
+    let exact = file.write_exact(&second.0) == Ok(());
+    // SAFETY: The buffer and callback remain valid until completion.
+    let (write_submit, write_result) = run_isfs_async_and_wait(|| unsafe {
+        file.write_async(&third.0, Some(isfs_probe_callback), core::ptr::null_mut())
+    });
+    let (seek_submit, seek_result) = run_isfs_async_and_wait(|| unsafe {
+        file.seek_async(32, 0, Some(isfs_probe_callback), core::ptr::null_mut())
+    });
+    let mut read = AlignedIsfsBytes([0; 32]);
+    let (read_submit, read_result) = run_isfs_async_and_wait(|| unsafe {
+        file.read_async(
+            &mut read.0,
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    });
+    let raw = file.raw();
+    let (close_submit, close_result) = run_isfs_async_and_wait(|| unsafe {
+        file.close_async(Some(isfs_probe_callback), core::ptr::null_mut())
+    });
+    let close_ok = close_submit >= 0 && close_result == 0;
+    let fallback_close = close_ok || ipc::FileDescriptor::new(raw).close().is_ok();
+
+    let mut persisted = AlignedIsfsBytes([0; 96]);
+    let reopened = filesystem::open(path, filesystem::ISFS_OPEN_READ);
+    let persisted_ok = if let Ok(reopened) = reopened {
+        let result = reopened.read(&mut persisted.0) == Ok(96);
+        let closed = reopened.close() == filesystem::ISFS_OK;
+        result && closed
+    } else {
+        false
+    };
+    logger.record(
+        "IPC write persists bytes",
+        write && persisted_ok && persisted.0[..32] == first.0,
+    );
+    logger.record(
+        "IPC exact write persists bytes",
+        exact && persisted_ok && persisted.0[32..64] == second.0,
+    );
+    logger.record(
+        "IPC async write completes and persists",
+        write_submit >= 0 && write_result == 32 && persisted_ok && persisted.0[64..] == third.0,
+    );
+    logger.record(
+        "IPC async seek selects offset",
+        seek_submit >= 0 && seek_result == 32 && read_result == 32 && read.0 == second.0,
+    );
+    logger.record(
+        "IPC async read returns bytes",
+        read_submit >= 0 && read_result == 32 && read.0 == second.0,
+    );
+    logger.record(
+        "IPC async close completes and persists",
+        close_ok && persisted_ok,
+    );
+    let deleted = filesystem::delete(path) == filesystem::ISFS_OK;
+    logger.record("IPC test file cleanup", fallback_close && deleted);
 }
 
 fn probe_isfs_async_directory_cycle(directory: &core::ffi::CStr, logger: &mut ProbeLogger) {
