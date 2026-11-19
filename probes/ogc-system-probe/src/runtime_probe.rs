@@ -103,6 +103,8 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_reset_registration(logger);
     probe_video_queries(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_video_register_checks(logger);
     probe_video_console_state(logger);
     probe_wd_information_elements(logger);
     probe_wd_scan_defaults(logger);
@@ -2862,6 +2864,104 @@ fn probe_video_console_state(logger: &mut ProbeLogger) {
             && console.font.num_chars == 96,
     );
     logger.record("Video default console supplies its font", default_ok);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_video_register_checks(logger: &mut ProbeLogger) {
+    use ogc_video as video;
+    use ogc_video::sys as raw_video;
+    logger.report_step("Video register checks and retrace waits");
+    let mode = unsafe { video::get_preferred_mode(core::ptr::null_mut()) };
+    let Some(regions) = crate::probe_support::framebuffer_regions() else {
+        logger.record("Video register fixture has two framebuffers", false);
+        return;
+    };
+    if mode.is_null() {
+        logger.record("Video register fixture has an active mode", false);
+        return;
+    }
+    // SAFETY: The live mode and both complete framebuffer regions belong to the probe.
+    let mut other_mode = unsafe { *mode };
+    other_mode.vi_tv_mode ^= 2;
+    let saved_irq = ogc_irq::irq_disable();
+    let framebuffer = raw_video::get_next_framebuffer();
+    let other = if framebuffer as usize == regions[0].start {
+        regions[1].start
+    } else {
+        regions[0].start
+    } as *mut core::ffi::c_void;
+    let registers = 0xcc00_2000usize as *const u16;
+    let read = |index: usize| unsafe { core::ptr::read_volatile(registers.add(index)) };
+    let snapshot = raw_video::read_register_snapshot();
+    let direct = snapshot.control == read(1)
+        && snapshot.vertical_timing == read(0)
+        && snapshot.top_field_high == read(14)
+        && snapshot.top_field_low == read(15)
+        && snapshot.bottom_field_high == read(18)
+        && snapshot.bottom_field_low == read(19)
+        && snapshot.current_framebuffer == raw_video::get_current_framebuffer() as usize
+        && snapshot.next_framebuffer == framebuffer as usize;
+    let control = unsafe {
+        video::control_register_matches(mode) && !video::control_register_matches(&mut other_mode)
+    };
+    let raw_control = unsafe {
+        raw_video::control_register_matches(mode) == 1
+            && raw_video::control_register_matches(&mut other_mode) == 0
+    };
+    let framebuffer_match = unsafe {
+        video::framebuffer_registers_match(framebuffer, mode)
+            && !video::framebuffer_registers_match(other, mode)
+    };
+    let raw_framebuffer_match = unsafe {
+        raw_video::framebuffer_registers_match(framebuffer, mode) == 1
+            && raw_video::framebuffer_registers_match(other, mode) == 0
+    };
+    let mode_value = unsafe { (*mode).vi_tv_mode };
+    let expected_tv = match (mode_value >> 2) & 7 {
+        0 | 3 => 0,
+        2 => 2,
+        5 => 5,
+        _ => 1,
+    };
+    let expected_scan = if read(54) & 1 != 0 {
+        2
+    } else {
+        u32::from((read(1) >> 2) & 1)
+    };
+    let tv = video::get_current_tv_mode();
+    let raw_tv = raw_video::get_current_tv_mode();
+    let scan = video::get_video_scan_mode();
+    ogc_irq::irq_restore(saved_irq);
+    let before = raw_video::retrace_count();
+    video::wait_vsync();
+    let after = raw_video::retrace_count();
+    raw_video::wait_v_sync();
+    let raw_after = raw_video::retrace_count();
+    logger.record("Video raw register snapshot matches VI registers", direct);
+    logger.record("Video control match distinguishes mode", control);
+    logger.record("Video raw control match distinguishes mode", raw_control);
+    logger.record(
+        "Video framebuffer match distinguishes buffers",
+        framebuffer_match,
+    );
+    logger.record(
+        "Video raw framebuffer match distinguishes buffers",
+        raw_framebuffer_match,
+    );
+    logger.record(
+        "Video current TV mode matches configured mode",
+        tv == expected_tv,
+    );
+    logger.record(
+        "Video raw TV mode matches configured mode",
+        raw_tv == expected_tv,
+    );
+    logger.record(
+        "Video scan mode matches VI registers",
+        scan == expected_scan,
+    );
+    logger.record("Video wait_vsync observes retrace", after != before);
+    logger.record("Video raw wait_v_sync observes retrace", raw_after != after);
 }
 
 fn probe_video_queries(logger: &mut ProbeLogger) {

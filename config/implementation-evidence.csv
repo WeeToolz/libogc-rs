@@ -2566,3 +2566,13 @@ ogc-si,src/lib.rs,set_sampling_rate,45,compatibility-forwarder,hardware-probe,pr
 ogc-si,src/lib.rs,refresh_sampling_rate,49,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_sampling_rates,si::refresh_sampling_rate
 ogc-si-sys,src/lib.rs,set_sampling_rate,1114,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_sampling_rates,raw_si::set_sampling_rate
 ogc-si-sys,src/lib.rs,refresh_sampling_rate,1125,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_sampling_rates,raw_si::refresh_sampling_rate
+ogc-video,src/lib.rs,control_register_matches,672,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_register_checks,video::control_register_matches
+ogc-video,src/lib.rs,framebuffer_registers_match,664,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_register_checks,video::framebuffer_registers_match
+ogc-video,src/lib.rs,get_current_tv_mode,382,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_register_checks,video::get_current_tv_mode
+ogc-video,src/lib.rs,get_video_scan_mode,547,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_register_checks,video::get_video_scan_mode
+ogc-video,src/lib.rs,wait_vsync,450,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_register_checks,video::wait_vsync
+ogc-video-sys,src/lib.rs,control_register_matches,792,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_register_checks,raw_video::control_register_matches
+ogc-video-sys,src/lib.rs,framebuffer_registers_match,771,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_register_checks,raw_video::framebuffer_registers_match
+ogc-video-sys,src/lib.rs,get_current_tv_mode,929,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_register_checks,raw_video::get_current_tv_mode
+ogc-video-sys,src/lib.rs,wait_v_sync,978,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_register_checks,raw_video::wait_v_sync
+ogc-video-sys,src/lib.rs,read_register_snapshot,724,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_register_checks,raw_video::read_register_snapshot
