@@ -2554,3 +2554,11 @@ ogc-si-sys,src/lib.rs,unregister_polling_handler,1420,hardware,hardware-probe,pr
 ogc-si-sys,src/lib.rs,transfer,1211,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_handlers_and_transfer,raw_si::transfer
 ogc-si-sys,src/lib.rs,busy,1067,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_handlers_and_transfer,raw_si::busy
 ogc-si-sys,src/lib.rs,sync,1057,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_handlers_and_transfer,raw_si::sync
+ogc-ipc,src/lib.rs,get_buffer_lo,1716,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_buffer_bounds,ipc::get_buffer_lo
+ogc-ipc,src/lib.rs,get_buffer_hi,1722,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_buffer_bounds,ipc::get_buffer_hi
+ogc-ipc,src/lib.rs,set_buffer_lo,1731,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_buffer_bounds,ipc::set_buffer_lo
+ogc-ipc,src/lib.rs,set_buffer_hi,1744,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_buffer_bounds,ipc::set_buffer_hi
+ogc-ipc,src/lib.rs,IPC_GetBufferLo,1756,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_buffer_bounds,ipc::IPC_GetBufferLo
+ogc-ipc,src/lib.rs,IPC_GetBufferHi,1762,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_buffer_bounds,ipc::IPC_GetBufferHi
+ogc-ipc,src/lib.rs,IPC_SetBufferLo,1771,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_buffer_bounds,ipc::IPC_SetBufferLo
+ogc-ipc,src/lib.rs,IPC_SetBufferHi,1780,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_buffer_bounds,ipc::IPC_SetBufferHi

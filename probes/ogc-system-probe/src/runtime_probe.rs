@@ -108,6 +108,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_wd_scan_defaults(logger);
     probe_ipc_heap_handles(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_ipc_buffer_bounds(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_ipc_file_reads(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_ipc_ioctl_file_stats(logger);
@@ -2544,6 +2546,58 @@ fn probe_ipc_ioctl_file_stats(logger: &mut ProbeLogger) {
             && asynchronous.0[8..] == [0xa5; 24]
             && closed,
     );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_ipc_buffer_bounds(logger: &mut ProbeLogger) {
+    use ogc_ipc as ipc;
+    logger.report_step("IPC buffer boundary accessors");
+    let saved_irq = ogc_irq::irq_disable();
+    let lo = ipc::get_buffer_lo();
+    let hi = ipc::get_buffer_hi();
+    let extent = (hi as usize).checked_sub(lo as usize).unwrap_or(0);
+    if extent < 160 {
+        ogc_irq::irq_restore(saved_irq);
+        logger.record("IPC buffer fixture has room for bounds checks", false);
+        return;
+    }
+    let lo1 = lo.wrapping_byte_add(32);
+    let hi1 = hi.wrapping_byte_sub(32);
+    let lo2 = lo.wrapping_byte_add(64);
+    let hi2 = hi.wrapping_byte_sub(64);
+    // SAFETY: All temporary boundaries remain within the existing buffer,
+    // and interrupts stay masked until the original bounds are restored.
+    unsafe {
+        ipc::set_buffer_lo(lo1);
+        ipc::set_buffer_hi(hi1);
+    }
+    let rust_lo = ipc::get_buffer_lo();
+    let rust_hi = ipc::get_buffer_hi();
+    let c_lo = ipc::IPC_GetBufferLo();
+    let c_hi = ipc::IPC_GetBufferHi();
+    unsafe {
+        ipc::IPC_SetBufferLo(lo2);
+        ipc::IPC_SetBufferHi(hi2);
+    }
+    let changed_lo = ipc::get_buffer_lo();
+    let changed_hi = ipc::get_buffer_hi();
+    let changed_c_lo = ipc::IPC_GetBufferLo();
+    let changed_c_hi = ipc::IPC_GetBufferHi();
+    unsafe {
+        ipc::set_buffer_lo(lo);
+        ipc::set_buffer_hi(hi);
+    }
+    let restored = ipc::get_buffer_lo() == lo && ipc::get_buffer_hi() == hi;
+    ogc_irq::irq_restore(saved_irq);
+    logger.record(
+        "IPC Rust buffer setters and getters update bounds",
+        rust_lo == lo1 && rust_hi == hi1 && c_lo == lo1 && c_hi == hi1,
+    );
+    logger.record(
+        "IPC C buffer setters and getters update bounds",
+        changed_lo == lo2 && changed_hi == hi2 && changed_c_lo == lo2 && changed_c_hi == hi2,
+    );
+    logger.record("IPC buffer bounds restored", restored);
 }
 
 fn probe_ipc_heap_handles(logger: &mut ProbeLogger) {
