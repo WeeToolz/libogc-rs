@@ -312,7 +312,7 @@ fn certificate_size_from_blob(blob: *const SignedBlob) -> usize {
     let header =
         unsafe { blob.cast::<u8>().add(signature_size_inner(signature_type)) }.cast::<CertHeader>();
     let cert_type = read_u32_unaligned(unsafe { core::ptr::addr_of!((*header).cert_type) });
-    signature_size_inner(signature_type) + certificate_size_inner(cert_type)
+    certificate_total_size(signature_type, cert_type)
 }
 
 fn next_cert_inner(certs: *const SignedBlob) -> *const SignedBlob {
@@ -2466,9 +2466,18 @@ pub fn check_has_korean_key() -> i32 {
 
 /// # Safety
 ///
-/// `certs` must point to a valid signed certificate blob chain.
+/// `certs` may be null; otherwise its type, supported signature, and certificate header must be readable, and a supported certificate must fit in the allocation.
 pub unsafe fn next_cert(certs: *const SignedBlob) -> *const SignedBlob {
     next_cert_inner(certs)
+}
+
+fn certificate_total_size(signature_type: Sigtype, cert_type: u32) -> usize {
+    let certificate_size = certificate_size_inner(cert_type);
+    if certificate_size == 0 {
+        0
+    } else {
+        signature_size_inner(signature_type) + certificate_size
+    }
 }
 
 #[cfg(all(test, target_arch = "powerpc"))]
