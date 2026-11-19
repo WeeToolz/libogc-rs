@@ -2482,3 +2482,6 @@ ogc-exi,src/lib.rs,try_select_sd,73,compatibility-forwarder,hardware-probe,probe
 ogc-exi-sys,src/lib.rs,select,795,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_selection,raw_exi::select
 ogc-exi-sys,src/lib.rs,deselect,879,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_selection,raw_exi::deselect
 ogc-exi-sys,src/lib.rs,select_sd,832,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_selection,raw_exi::select_sd
+ogc-exi,src/lib.rs,register_exi_callback,197,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_callback_registry,exi::register_exi_callback
+ogc-exi-sys,src/lib.rs,register_exi_callback,1249,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_callback_registry,raw_exi::register_exi_callback
+ogc-exi-sys,src/lib.rs,interrupts_ready,585,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_callback_registry,raw_exi::interrupts_ready

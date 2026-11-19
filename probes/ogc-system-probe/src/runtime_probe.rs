@@ -116,6 +116,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_exi_locking(logger);
     probe_exi_raw_lock_queue(logger);
     probe_exi_selection(logger);
+    probe_exi_callback_registry(logger);
     probe_si_queries(logger);
     probe_si_raw_queries(logger);
     probe_ui_adapters(logger);
@@ -1802,6 +1803,24 @@ fn probe_exi_raw_lock_queue(logger: &mut ProbeLogger) {
             && relocked == 1
             && released == 1
             && EXI_UNLOCK_CALLS.load(Ordering::Acquire) == 1,
+    );
+}
+
+fn probe_exi_callback_registry(logger: &mut ProbeLogger) {
+    use ogc_exi as exi;
+    use ogc_exi::sys as raw_exi;
+    let ready = raw_exi::interrupts_ready();
+    let previous = exi::register_exi_callback(1, Some(probe_exi_unlock_callback));
+    let replaced = raw_exi::register_exi_callback(1, previous);
+    let callback = replaced.is_some_and(|callback| {
+        core::ptr::fn_addr_eq(
+            callback,
+            probe_exi_unlock_callback as unsafe extern "C" fn(i32, i32) -> i32,
+        )
+    });
+    logger.record(
+        "EXI callback registry installs and restores callback",
+        ready && callback,
     );
 }
 
