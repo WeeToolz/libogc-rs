@@ -1,0 +1,125 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "set_counter_bias",
+      "line": 665,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_setters",
+      "api_path": "system::set_counter_bias",
+      "checks": [
+        "SRAM counter bias setter updates field",
+        "SRAM setter fixture restores both images"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "set_display_offset_h",
+      "line": 677,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_setters",
+      "api_path": "system::set_display_offset_h",
+      "checks": [
+        "SRAM display offset setter updates field",
+        "SRAM setter fixture restores both images"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "set_language",
+      "line": 704,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_setters",
+      "api_path": "system::set_language",
+      "checks": [
+        "SRAM language setter updates field",
+        "SRAM setter fixture restores both images"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "set_eu_rgb60",
+      "line": 692,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_setters",
+      "api_path": "system::set_eu_rgb60",
+      "checks": [
+        "SRAM RGB60 setter updates bit",
+        "SRAM setter fixture restores both images"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "set_progressive_scan",
+      "line": 716,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_setters",
+      "api_path": "system::set_progressive_scan",
+      "checks": [
+        "SRAM progressive setter updates bit",
+        "SRAM setter fixture restores both images"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "set_sound_mode",
+      "line": 731,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_setters",
+      "api_path": "system::set_sound_mode",
+      "checks": [
+        "SRAM sound setter updates bit",
+        "SRAM setter fixture restores both images"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "set_video_mode",
+      "line": 750,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_setters",
+      "api_path": "system::set_video_mode",
+      "checks": [
+        "SRAM video setter updates bits",
+        "SRAM setter fixture restores both images"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "set_wireless_id",
+      "line": 784,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_setters",
+      "api_path": "system::set_wireless_id",
+      "checks": [
+        "SRAM wireless setter updates selected channel",
+        "SRAM setter fixture restores both images"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "set_gbs_mode",
+      "line": 811,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_setters",
+      "api_path": "system::set_gbs_mode",
+      "checks": [
+        "SRAM GBS setter updates field",
+        "SRAM setter fixture restores both images"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin private profile only. Checks cover SRAM image changes and restoration, not persistence across restart or physical Wii behavior."
+  ]
+}

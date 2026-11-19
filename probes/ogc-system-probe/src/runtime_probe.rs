@@ -137,6 +137,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_system_sram_locks(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_system_extended_sram_getters(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_system_sram_setters(logger);
     probe_ios_stm(logger);
     probe_conf(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -2880,6 +2882,109 @@ fn probe_system_extended_sram_getters(logger: &mut ProbeLogger) {
     logger.record(
         "Extended SRAM fixture lock and restoration",
         restored && checked,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_sram_setters(logger: &mut ProbeLogger) {
+    logger.report_step("System SRAM configuration setters");
+    let (Some(original), Some(original_ex)) = (system::snapshot_sram(), system::snapshot_sram_ex())
+    else {
+        logger.record("SRAM setter fixtures acquired", false);
+        return;
+    };
+    let original_ids = original_ex.wireless_pad_id;
+    let original_gbs = original_ex.gbs;
+    let bias = original.counter_bias ^ 0x1020_3040;
+    let offset = original.display_offset_h.wrapping_add(1);
+    let language = original.lang.wrapping_add(1) % 6;
+    let rgb = ((original.ntd >> 6) & 1) ^ 1;
+    let progressive = ((original.flags >> 7) & 1) ^ 1;
+    let sound = ((original.flags >> 2) & 1) ^ 1;
+    let video = ((original.flags & 3) + 1) & 3;
+    let wireless = original_ids[2] ^ 0x5142;
+    let gbs = if original_gbs == 0x0445 {
+        0x0846
+    } else {
+        0x0445
+    };
+    system::set_counter_bias(bias);
+    system::set_display_offset_h(offset);
+    system::set_language(language);
+    system::set_eu_rgb60(rgb);
+    system::set_progressive_scan(progressive);
+    system::set_sound_mode(sound);
+    system::set_video_mode(video);
+    system::set_wireless_id(2, wireless);
+    system::set_gbs_mode(gbs);
+    let standard = system::snapshot_sram();
+    let extended = system::snapshot_sram_ex();
+    logger.record(
+        "SRAM counter bias setter updates field",
+        standard.is_some_and(|s| s.counter_bias == bias),
+    );
+    logger.record(
+        "SRAM display offset setter updates field",
+        standard.is_some_and(|s| s.display_offset_h == offset),
+    );
+    logger.record(
+        "SRAM language setter updates field",
+        standard.is_some_and(|s| s.lang == language),
+    );
+    logger.record(
+        "SRAM RGB60 setter updates bit",
+        standard.is_some_and(|s| (s.ntd >> 6) & 1 == rgb && s.ntd & !0x40 == original.ntd & !0x40),
+    );
+    logger.record(
+        "SRAM progressive setter updates bit",
+        standard.is_some_and(|s| (s.flags >> 7) & 1 == progressive),
+    );
+    logger.record(
+        "SRAM sound setter updates bit",
+        standard.is_some_and(|s| (s.flags >> 2) & 1 == sound),
+    );
+    logger.record(
+        "SRAM video setter updates bits",
+        standard.is_some_and(|s| s.flags & 3 == video && s.flags & 0x78 == original.flags & 0x78),
+    );
+    logger.record(
+        "SRAM wireless setter updates selected channel",
+        extended.is_some_and(|s| {
+            let ids = s.wireless_pad_id;
+            ids == [original_ids[0], original_ids[1], wireless, original_ids[3]]
+        }),
+    );
+    logger.record(
+        "SRAM GBS setter updates field",
+        extended.is_some_and(|s| {
+            let actual = s.gbs;
+            actual == gbs
+        }),
+    );
+    let standard_ptr = unsafe { system::lock_sram() };
+    let standard_restored = if standard_ptr.is_null() {
+        false
+    } else {
+        unsafe {
+            *standard_ptr = original;
+            system::unlock_sram(true)
+        }
+    };
+    let extended_ptr = unsafe { system::lock_sram_ex() };
+    let extended_restored = if extended_ptr.is_null() {
+        false
+    } else {
+        unsafe {
+            *extended_ptr = original_ex;
+            system::unlock_sram_ex(true)
+        }
+    };
+    logger.record(
+        "SRAM setter fixture restores both images",
+        standard_restored
+            && extended_restored
+            && system::snapshot_sram() == Some(original)
+            && system::snapshot_sram_ex() == Some(original_ex),
     );
 }
 

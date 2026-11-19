@@ -2520,3 +2520,12 @@ ogc-ipc,src/lib.rs,ioctlv,643,ios,hardware-probe,probes/ogc-system-probe/src/run
 ogc-ipc,src/lib.rs,ioctlv_result,631,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctlv_mac,fd.ioctlv_result
 ogc-ipc,src/lib.rs,ioctlv_raw,570,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctlv_mac,fd.ioctlv_raw
 ogc-ipc,src/lib.rs,ioctlv_async_raw,661,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctlv_mac,fd.ioctlv_async_raw
+ogc-system,src/lib.rs,set_counter_bias,665,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_setters,system::set_counter_bias
+ogc-system,src/lib.rs,set_display_offset_h,677,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_setters,system::set_display_offset_h
+ogc-system,src/lib.rs,set_language,704,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_setters,system::set_language
+ogc-system,src/lib.rs,set_eu_rgb60,692,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_setters,system::set_eu_rgb60
+ogc-system,src/lib.rs,set_progressive_scan,716,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_setters,system::set_progressive_scan
+ogc-system,src/lib.rs,set_sound_mode,731,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_setters,system::set_sound_mode
+ogc-system,src/lib.rs,set_video_mode,750,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_setters,system::set_video_mode
+ogc-system,src/lib.rs,set_wireless_id,784,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_setters,system::set_wireless_id
+ogc-system,src/lib.rs,set_gbs_mode,811,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_setters,system::set_gbs_mode
