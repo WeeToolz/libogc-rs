@@ -1051,6 +1051,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_textured_rect_render(logger, width, height);
     probe_texture_copy_render(logger, width, height);
     probe_frame_lifecycle(logger, rmode);
+    probe_frame_commands(logger, rmode);
 }
 
 fn probe_frame_lifecycle(logger: &mut ProbeLogger, rmode: *mut video::GxrModeObj) {
@@ -1125,6 +1126,115 @@ fn probe_frame_lifecycle(logger: &mut ProbeLogger, rmode: *mut video::GxrModeObj
                     && (110..=146).contains(&bytes[3])
             }),
     );
+}
+
+fn probe_frame_commands(logger: &mut ProbeLogger, rmode: *mut video::GxrModeObj) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX frame commands and completion");
+    let (buffer, width, efb_height, xfb_height) = unsafe {
+        (
+            DRAW_FRAMEBUFFER,
+            (*rmode).fb_width,
+            (*rmode).efb_height,
+            (*rmode).xfb_height,
+        )
+    };
+    let Some(config) = gx::FrameConfig::new(buffer, width, efb_height, xfb_height) else {
+        logger.record("GX frame commands configuration valid", false);
+        return;
+    };
+    let black = gx::GxColor {
+        r: 0,
+        g: 0,
+        b: 0,
+        a: 255,
+    };
+    let white = gx::GxColor {
+        r: 255,
+        g: 255,
+        b: 255,
+        a: 255,
+    };
+    let sample_y = 48 * usize::from(xfb_height) / usize::from(efb_height);
+
+    // SAFETY: This probe owns the initialized FIFO and the aligned draw buffer.
+    unsafe { gx::configure_frame(config) };
+    for y in 32..96 {
+        for x in 32..96 {
+            gx::poke_argb(x, y, black);
+        }
+    }
+    GX_DONE_COUNT.store(0, Ordering::Release);
+    let old_done = gx::set_draw_done_callback(Some(probe_gx_done_callback));
+    // SAFETY: The draw buffer stays allocated and this probe owns GX.
+    unsafe {
+        gx::copy_display(config, false);
+        gx::finish_frame();
+        gx::flush();
+    }
+    for _ in 0..10 {
+        if GX_DONE_COUNT.load(Ordering::Acquire) != 0 {
+            break;
+        }
+        if !video::wait_vsync_timeout_us(RETRACE_WAIT_TIMEOUT_US) {
+            break;
+        }
+    }
+    let black_copy = framebuffer_word(48, sample_y) == Some(0x1080_1080);
+    logger.record(
+        "GX frame commands configure copy flush and finish",
+        black_copy && GX_DONE_COUNT.load(Ordering::Acquire) == 1,
+    );
+
+    let mut progress = [false; 3];
+    // SAFETY: Configuration emits commands only on the owned GX FIFO.
+    unsafe {
+        gx::configure_frame_with_progress(config, |step| match step {
+            "GX VIEWPORT CALC START" => progress[0] = true,
+            "GX COPY SCALE DONE" => progress[1] = progress[0],
+            "GX FRAME CONFIG DONE" => progress[2] = progress[1],
+            _ => {}
+        });
+    }
+    for y in 32..96 {
+        for x in 32..96 {
+            gx::poke_argb(x, y, white);
+        }
+    }
+    // SAFETY: The framebuffer and FIFO remain live for the completion wait.
+    let cleared = unsafe {
+        gx::set_copy_clear(black, 0x00ff_ffff);
+        gx::copy_display(config, true);
+        gx::finish_frame_and_wait()
+    };
+    let mut efb_after_clear = gx::GxColor::default();
+    unsafe { gx::peek_argb(48, 48, &mut efb_after_clear) };
+    logger.record(
+        "GX frame progress and clearing copy",
+        cleared
+            && progress == [true; 3]
+            && framebuffer_word(48, sample_y) == Some(0xeb80_eb80)
+            && efb_after_clear == black,
+    );
+
+    GX_DONE_COUNT.store(0, Ordering::Release);
+    // SAFETY: The display is configured and the draw buffer remains live.
+    unsafe { gx::present_frame(config) };
+    for _ in 0..10 {
+        if GX_DONE_COUNT.load(Ordering::Acquire) != 0 {
+            break;
+        }
+        if !video::wait_vsync_timeout_us(RETRACE_WAIT_TIMEOUT_US) {
+            break;
+        }
+    }
+    logger.record(
+        "GX asynchronous present copies cleared EFB and signals completion",
+        GX_DONE_COUNT.load(Ordering::Acquire) == 1
+            && framebuffer_word(48, sample_y) == Some(0x1080_1080),
+    );
+    gx::set_draw_done_callback(old_done);
 }
 
 fn probe_gx_completion_callbacks(logger: &mut ProbeLogger) {

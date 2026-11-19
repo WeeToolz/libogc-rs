@@ -1,5 +1,13 @@
 # Development results
 
+## 2026-11-19 GX frame commands
+
+The [frame command batch](docs/dolphin-runs/2026-11-19-gx-frame-commands/README.md)
+checks six APIs with XFB pixel values, EFB clearing, progress callbacks, and
+finish interrupts. Dolphin Metal passed 363 checks. The completeness audit
+reports 650 unverified APIs. Other display modes and physical Wii behavior
+remain open.
+
 ## 2026-11-19 GX frame lifecycle
 
 The [frame lifecycle batch](docs/dolphin-runs/2026-11-19-gx-frame-lifecycle-final/README.md)

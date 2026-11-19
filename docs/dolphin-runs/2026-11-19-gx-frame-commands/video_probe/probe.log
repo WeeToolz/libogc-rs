@@ -1,0 +1,656 @@
+
+
+BOOT 1/3: system and video initialized
+INFO Wiiload arguments source=entry count=0
+PASS SYS_Init completed
+INFO startup stage=0 completed_mask=0x7ff failed_stage=0
+BOOT watchdog arm starting
+INFO recovery reset watchdog not armed
+BOOT watchdog arm complete
+BOOT Wiiload report argument check
+INFO Wiiload report check disabled for this probe build
+BOOT before first vsync
+BOOT 2/3: entering IOS pre-main
+PRE 0/7: closing inherited IOS descriptors
+IPC: sync state ready
+IPC: command=0x00000002 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000002 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 1/7: IOS startup
+PRE 2/7: IOS subsystems
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 3/7: STM handler
+PRE 4/7: STM devices
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+PRE 5/7: configuration
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 6/7: Wii launch state
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 7/7: complete
+-- page 2 --
+BOOT 3/3: IOS pre-main completed
+PASS display initialized
+INFO boot stage: system/video initialized
+INFO boot stage: IOS pre-main completed
+INFO log backend disabled
+INFO argv0 unavailable
+INFO argv raw magic=0x00000000 len=0 argc=0 cmd=0x00000000 argv=0x00000000 end=0x00000000
+PASS power button callback installed
+INFO stm init deferred until shutdown
+INFO fat mount sd=not-selected usb=not-selected
+INFO previous stm handler chained=0
+INFO previous power callback replaced
+
+== VIDEO PROBE ==
+PASS GX texture descriptor dimensions and format
+PASS GX texture descriptor wrap and user data
+INFO STEP 1 GX display copy scale valid dimensions; vi_frame=83 frame_increment=15 passes=4 fails=0
+PASS GX display copy scale ratio
+INFO STEP 2 GX display copy scale unsupported dimensions; vi_frame=85 frame_increment=2 passes=5 fails=0
+PASS GX display copy scale rejects unsupported dimensions
+-- page 3 --
+PASS GX TPL memory rejects null input
+PASS GX TPL memory image opens
+PASS GX TPL image metadata and invalid index
+PASS GX TPL creates texture descriptor
+PASS GX TPL close invalidates descriptor
+PASS GX indexed TPL texture and palette
+PASS GX frame configuration validates input
+PASS GX frame filter and field settings retained
+PASS GX texture image and user pointers
+PASS GX texture filter and LOD queries
+PASS GX texture grouped queries
+PASS GX indexed texture descriptors and palette
+PASS GX texture LOD fields and clamps
+PASS GX texture cache region C layout
+PASS GX texture preload region C layout
+PASS GX palette region preserves cached fields
+PASS GX palette object masks format
+PASS GX texture buffer tile and mip sizes
+PASS GX RGB565 tiled conversion and partial dimensions
+PASS GX light object fields and attenuation
+PASS GX light distance attenuation modes
+PASS GX light spotlight cutoff
+PASS GX light spotlight modes
+-- page 4 --
+PASS GX specular directions
+PASS GX overscan modes and in-place output
+PASS GX fog adjustment table and zero width
+PASS GX perspective fog table and null inputs
+INFO STEP 3 GX wrapped FIFO pointer metadata; vi_frame=238 frame_increment=153 passes=33 fails=0
+PASS GX FIFO base size and initial count
+PASS GX FIFO watermarks and adjacent fields
+PASS GX FIFO short initialization preserves object
+PASS GX FIFO wrap flag readback
+PASS GX wrapped FIFO keeps real pointer addresses and distance
+INFO STEP 4 GX invalid FIFO pointer rejection; vi_frame=244 frame_increment=6 passes=38 fails=0
+PASS GX invalid FIFO pointer leaves prior metadata unchanged
+PASS VI framebuffer wrapper sizes include row and AA padding
+PASS VI framebuffer sys sizes include row and AA padding
+PASS VI framebuffer sizes return zero for null mode
+PASS VI framebuffer clear writes only the padded extent
+PASS XFB A survives cached alias flush
+PASS XFB B survives cached alias flush
+INFO VI initial retrace wait number=1
+INFO VI initial retrace count before=2
+INFO VI initial retrace count after=3
+-- page 5 --
+INFO VI initial retrace wait number=2
+INFO VI initial retrace count before=6
+INFO VI initial retrace count after=7
+PASS VI retrace interrupt arrives after flush
+PASS video init display
+
+== RAW VIDEO API ==
+PASS Raw video framebuffer size aligns width
+PASS Raw video clear preserves framebuffer guards
+PASS Raw video antialias framebuffer includes four rows
+PASS Raw video scan mode matches active mode
+PASS Raw video framebuffer state matches active display
+PASS Raw video snapshot contains active framebuffer
+PASS Raw video Wii timebase frequency
+PASS Raw video fixed timing conversions
+PASS Raw video mode standard mapping
+PASS Raw video callbacks fire in retrace order
+PASS Raw video restores retrace callbacks
+PASS GX MEM2 FIFO rejects invalid sizes without allocation
+PASS GX default MEM2 FIFO address size and arena advancement
+PASS GX active CPU FIFO reports its base and size
+PASS GX active GP FIFO reports its base and size
+PASS GX canvas dimensions and validation
+-- page 6 --
+INFO STEP 5 GX EFB color and depth access; vi_frame=93 frame_increment=4294967145 passes=63 fails=0
+PASS GX EFB format command completes
+INFO GX EFB observed ARGB=0xff123456
+INFO GX EFB observed depth=0x00123456
+INFO GX EFB observed ARGB=0xffabcdef
+INFO GX EFB observed depth=0x00abcdef
+INFO GX EFB observed ARGB=0xff654321
+INFO GX EFB observed depth=0x00654321
+PASS GX EFB RGB8 colors preserve X and Y coordinates
+PASS GX EFB Z24 depths preserve X and Y coordinates
+PASS GX EFB replacement preserves adjacent color and depth
+PASS GX EFB alpha read mode changes only returned alpha
+INFO STEP 6 GX pixel engine configuration register readback; vi_frame=167 frame_increment=74 passes=68 fails=0
+INFO GX PE register actual=0x000003a5
+INFO GX PE register expected=0x000003a5
+PASS GX alpha mode stores function and threshold
+INFO GX PE register actual=0x0000ff12
+INFO GX PE register expected=0x0000ff12
+PASS GX alpha mode replaces both bytes
+INFO GX PE register actual=0x00000048
+INFO GX PE register expected=0x00000048
+-- page 7 --
+PASS GX destination alpha masks disabled enable bit
+INFO GX PE register actual=0x000001a5
+INFO GX PE register expected=0x000001a5
+PASS GX destination alpha stores enabled value
+INFO GX PE register actual=0x0000f030
+INFO GX PE register expected=0x0000f030
+PASS GX color update changes only its bit
+INFO GX PE register actual=0x0000f038
+INFO GX PE register expected=0x0000f038
+PASS GX color update changes only its bit
+INFO GX PE register actual=0x0000f028
+INFO GX PE register expected=0x0000f028
+PASS GX alpha update changes only its bit
+INFO GX PE register actual=0x0000f038
+INFO GX PE register expected=0x0000f038
+PASS GX alpha update changes only its bit
+INFO GX PE register actual=0x0000f038
+INFO GX PE register expected=0x0000f038
+PASS GX dither changes only its bit
+INFO GX PE register actual=0x0000f03c
+INFO GX PE register expected=0x0000f03c
+PASS GX dither changes only its bit
+INFO GX PE register actual=0x00000000
+-- page 8 --
+INFO GX PE register expected=0x00000000
+PASS GX blend mode baseline is zero
+INFO GX PE register actual=0x000064a1
+INFO GX PE register expected=0x000064a1
+PASS GX blend mode encodes factors and logic field
+INFO GX PE register actual=0x000031e2
+INFO GX PE register expected=0x000031e2
+PASS GX logic mode replaces prior blend fields
+INFO GX PE register actual=0x0000ff01
+INFO GX PE register expected=0x0000ff01
+PASS GX subtract mode sets subtract and blend bits
+INFO GX PE register actual=0x00000000
+INFO GX PE register expected=0x00000000
+PASS GX poke Z mode clears update
+INFO GX PE register actual=0x00000010
+INFO GX PE register expected=0x00000010
+PASS GX poke Z mode follows C update-bit behavior
+INFO GX PE register actual=0x00000000
+INFO GX PE register expected=0x00000000
+PASS GX poke Z mode clears prior update bit
+PASS GX pixel engine configuration registers restore
+INFO STEP 7 GX display-list capture and GPU replay; vi_frame=344 frame_increment=177 passes=86 fails=0
+-- page 9 --
+PASS GX direct draw token reaches pixel engine
+PASS GX display list has exact BP bytes padding and guard
+PASS GX capture does not execute token commands
+PASS GX replay executes captured token on pixel engine
+PASS GX display list has exact BP bytes padding and guard
+PASS GX capture does not execute token commands
+PASS GX replay executes captured token on pixel engine
+PASS GX display-list overflow preserves guard and GPU token
+PASS GX inactive display-list end returns zero
+PASS GX FIFO executes commands after capture overflow
+INFO STEP 8 GX viewport command bytes; vi_frame=417 frame_increment=73 passes=96 fails=0
+PASS GX viewport emits exact nonzero-origin XF transform
+PASS GX viewport encodes changed geometry and reversed depth
+INFO STEP 9 GX viewport field jitter command bytes; vi_frame=420 frame_increment=3 passes=98 fails=0
+INFO GX viewport jitter field=0
+PASS GX viewport jitter emits exact field-dependent Y origin
+INFO GX viewport jitter field=1
+PASS GX viewport jitter emits exact field-dependent Y origin
+INFO STEP 10 GX scissor command bytes; vi_frame=425 frame_increment=5 passes=100 fails=0
+INFO GX scissor input width=64
+-- page 10 --
+PASS GX scissor encodes bias inclusive bounds and unsigned wrap
+INFO GX scissor input width=0
+PASS GX scissor encodes bias inclusive bounds and unsigned wrap
+INFO GX scissor input width=1
+PASS GX scissor encodes bias inclusive bounds and unsigned wrap
+INFO STEP 11 GX scissor offset command bytes; vi_frame=494 frame_increment=69 passes=103 fails=0
+PASS GX scissor offset encodes bias half units and negative wrap
+PASS GX scissor offset encodes bias half units and negative wrap
+PASS GX scissor offset encodes bias half units and negative wrap
+INFO STEP 12 GX projection matrix command bytes; vi_frame=498 frame_increment=4 passes=106 fails=0
+INFO GX projection type=0
+PASS GX projection emits exact selected columns and integer type
+INFO GX projection type=1
+PASS GX projection emits exact selected columns and integer type
+INFO STEP 13 GX immediate position matrix commands; vi_frame=503 frame_increment=5 passes=108 fails=0
+INFO GX position matrix slot=3
+PASS GX position matrix emits exact row order and destination
+INFO GX position matrix slot=9
+PASS GX position matrix emits exact row order and destination
+INFO STEP 14 GX indexed position matrix commands; vi_frame=508 frame_increment=5 passes=110 fails=0
+-- page 11 --
+PASS GX indexed position encodes source index length and slot
+PASS GX indexed position encodes source index length and slot
+INFO STEP 15 GX normal matrix from 3x4 commands; vi_frame=573 frame_increment=65 passes=112 fails=0
+PASS GX normal matrix omits translation and selects normal memory
+PASS GX normal matrix omits translation and selects normal memory
+INFO STEP 16 GX immediate 3x3 normal matrix commands; vi_frame=576 frame_increment=3 passes=114 fails=0
+PASS GX 3x3 normal matrix emits all nine words in row order
+PASS GX 3x3 normal matrix emits all nine words in row order
+INFO STEP 17 GX indexed normal matrix commands; vi_frame=579 frame_increment=3 passes=116 fails=0
+PASS GX indexed normal encodes source index length and address
+PASS GX indexed normal encodes source index length and address
+INFO STEP 18 GX immediate texture matrix commands; vi_frame=582 frame_increment=3 passes=118 fails=0
+INFO GX texture matrix slot=30
+INFO GX texture matrix word count=8
+PASS GX texture matrix emits exact format rows and memory bank
+INFO GX texture matrix slot=30
+INFO GX texture matrix word count=12
+PASS GX texture matrix emits exact format rows and memory bank
+INFO GX texture matrix slot=67
+-- page 12 --
+INFO GX texture matrix word count=8
+PASS GX texture matrix emits exact format rows and memory bank
+INFO GX texture matrix slot=67
+INFO GX texture matrix word count=12
+PASS GX texture matrix emits exact format rows and memory bank
+INFO STEP 19 GX indexed texture matrix commands; vi_frame=657 frame_increment=75 passes=122 fails=0
+PASS GX indexed texture encodes source format length and bank
+PASS GX indexed texture encodes source format length and bank
+PASS GX indexed texture encodes source format length and bank
+PASS GX indexed texture encodes source format length and bank
+INFO STEP 20 GX signed position capture and boundary bytes; vi_frame=662 frame_increment=5 passes=126 fails=0
+PASS GX position3s16 captures zeros and exact signed boundary bytes
+PASS GX position3s16 captures zeros and exact signed boundary bytes
+PASS GX position3s8 captures zeros and exact signed boundary bytes
+PASS GX position3s8 captures zeros and exact signed boundary bytes
+PASS GX position2s16 captures zeros and exact signed boundary bytes
+PASS GX position2s16 captures zeros and exact signed boundary bytes
+PASS GX position2s8 captures zeros and exact signed boundary bytes
+PASS GX position2s8 captures zeros and exact signed boundary bytes
+INFO STEP 21 GX signed normal capture and boundary bytes; vi_frame=671 frame_increment=9 passes=134 fails=0
+-- page 13 --
+PASS GX normal3s16 captures zeros and exact signed boundary bytes
+PASS GX normal3s16 captures zeros and exact signed boundary bytes
+PASS GX normal3s8 captures zeros and exact signed boundary bytes
+PASS GX normal3s8 captures zeros and exact signed boundary bytes
+INFO STEP 22 GX signed texture coordinate capture and bytes; vi_frame=738 frame_increment=67 passes=138 fails=0
+PASS GX tex_coord2s16 captures zeros and exact signed boundary bytes
+PASS GX tex_coord2s16 captures zeros and exact signed boundary bytes
+PASS GX tex_coord2s8 captures zeros and exact signed boundary bytes
+PASS GX tex_coord2s8 captures zeros and exact signed boundary bytes
+PASS GX tex_coord1s16 captures zeros and exact signed boundary bytes
+PASS GX tex_coord1s16 captures zeros and exact signed boundary bytes
+PASS GX tex_coord1s8 captures zeros and exact signed boundary bytes
+PASS GX tex_coord1s8 captures zeros and exact signed boundary bytes
+INFO STEP 23 GX vertex color capture bytes; vi_frame=747 frame_increment=9 passes=146 fails=0
+PASS GX color4u8 captures exact RGBA channel order
+PASS GX color4u8 captures exact RGBA channel order
+PASS GX color3u8 captures exactly three RGB bytes
+PASS GX color3u8 captures exactly three RGB bytes
+PASS GX color3f32 captures fixed normalized conversion bytes
+PASS GX color3f32 captures fixed normalized conversion bytes
+PASS GX color1u32 captures exact big-endian packed color
+-- page 14 --
+PASS GX color1u32 captures exact big-endian packed color
+PASS GX color1u16 captures exactly two packed bytes
+PASS GX color1u16 captures exactly two packed bytes
+INFO STEP 24 GX eight-bit vertex index capture; vi_frame=820 frame_increment=73 passes=156 fails=0
+PASS GX position1x8 exact index bytes
+PASS GX position1x8 exact index bytes
+PASS GX normal1x8 exact index bytes
+PASS GX normal1x8 exact index bytes
+PASS GX color1x8 exact index bytes
+PASS GX color1x8 exact index bytes
+PASS GX tex_coord1x8 exact index bytes
+PASS GX tex_coord1x8 exact index bytes
+PASS GX matrix_index1x8 exact index bytes
+PASS GX matrix_index1x8 exact index bytes
+INFO STEP 25 GX sixteen-bit vertex index capture; vi_frame=831 frame_increment=11 passes=166 fails=0
+PASS GX position1x16 exact big-endian index
+PASS GX position1x16 exact big-endian index
+PASS GX normal1x16 exact big-endian index
+PASS GX normal1x16 exact big-endian index
+PASS GX color1x16 exact big-endian index
+PASS GX color1x16 exact big-endian index
+-- page 15 --
+PASS GX tex_coord1x16 exact big-endian index
+PASS GX tex_coord1x16 exact big-endian index
+INFO STEP 26 GX floating-point vertex data bytes; vi_frame=902 frame_increment=71 passes=174 fails=0
+PASS GX position3f32 exact XYZ float bits and width
+PASS GX position3f32 exact XYZ float bits and width
+PASS GX position2f32 exact XY float bits and width
+PASS GX tex_coord2f32 exact ST float bits and width
+PASS GX position2f32 exact XY float bits and width
+PASS GX tex_coord2f32 exact ST float bits and width
+PASS GX normal3f32 exact XYZ float bits and width
+PASS GX normal3f32 exact XYZ float bits and width
+PASS GX tex_coord1f32 exact single float bits and width
+PASS GX tex_coord1f32 exact single float bits and width
+INFO STEP 27 GX unsigned position data bytes; vi_frame=913 frame_increment=11 passes=184 fails=0
+PASS GX position3u16 exact unsigned XYZ big-endian bytes
+PASS GX position3u16 exact unsigned XYZ big-endian bytes
+PASS GX position3u8 exact unsigned XYZ bytes
+PASS GX position3u8 exact unsigned XYZ bytes
+PASS GX position2u16 exact unsigned XY big-endian bytes
+PASS GX position2u16 exact unsigned XY big-endian bytes
+PASS GX position2u8 exact unsigned XY bytes
+-- page 16 --
+PASS GX position2u8 exact unsigned XY bytes
+INFO STEP 28 GX unsigned texture coordinate data bytes; vi_frame=984 frame_increment=71 passes=192 fails=0
+PASS GX tex_coord2u16 exact unsigned ST big-endian bytes
+PASS GX tex_coord2u16 exact unsigned ST big-endian bytes
+PASS GX tex_coord2u8 exact unsigned ST bytes
+PASS GX tex_coord2u8 exact unsigned ST bytes
+PASS GX tex_coord1u16 exact unsigned single big-endian value
+PASS GX tex_coord1u16 exact unsigned single big-endian value
+PASS GX tex_coord1u8 exact unsigned single byte
+PASS GX tex_coord1u8 exact unsigned single byte
+INFO STEP 29 GX TEV color register command bytes; vi_frame=993 frame_increment=9 passes=200 fails=0
+PASS GX TEV color encodes RA BG slots and three BG writes
+PASS GX TEV color encodes RA BG slots and three BG writes
+INFO STEP 30 GX signed TEV color register bytes; vi_frame=996 frame_increment=3 passes=202 fails=0
+PASS GX signed TEV color preserves exact eleven-bit fields
+PASS GX signed TEV color preserves exact eleven-bit fields
+INFO STEP 31 GX constant TEV color register bytes; vi_frame=999 frame_increment=3 passes=204 fails=0
+PASS GX constant TEV color sets bank bit and exact channel fields
+PASS GX constant TEV color sets bank bit and exact channel fields
+-- page 17 --
+INFO STEP 32 GX signed constant TEV color register bytes; vi_frame=1002 frame_increment=3 passes=206 fails=0
+PASS GX signed constant TEV color encodes bank and signed fields
+PASS GX signed constant TEV color encodes bank and signed fields
+INFO STEP 33 GX TEV combiner command bytes; vi_frame=1067 frame_increment=65 passes=208 fails=0
+PASS GX TEV input and arithmetic operation preserve other fields
+INFO STEP 34 GX TEV constant selectors and swap command bytes; vi_frame=1069 frame_increment=2 passes=209 fails=0
+PASS GX TEV swap table and even odd selectors encode exact fields
+PASS GX TEV swap mode encodes raster and texture selections
+INFO STEP 35 GX indirect TEV command bytes; vi_frame=1072 frame_increment=3 passes=211 fails=0
+PASS GX indirect TEV packs all fields and direct resets them
+PASS GX indirect TEV masks stage and input fields
+INFO STEP 36 GX indirect texture scale and order bytes; vi_frame=1075 frame_increment=3 passes=213 fails=0
+PASS GX indirect scale packs four stages and preserves neighbors
+PASS GX indirect order packs four coordinate and map pairs
+INFO STEP 37 GX indirect TEV helper command bytes; vi_frame=1078 frame_increment=3 passes=215 fails=0
+PASS GX indirect bump ST emits three stage commands
+PASS GX indirect bump XYZ emits bias and matrix
+-- page 18 --
+PASS GX indirect repeat emits wrap and previous offset
+PASS GX indirect warp emits selected bias and wrap
+INFO STEP 38 GX indirect texture matrix and tile bytes; vi_frame=1145 frame_increment=67 passes=219 fails=0
+PASS GX indirect matrix packs signed coefficients and exponent
+PASS GX indirect matrix rejects null input
+PASS GX indirect tile emits spacing matrix and wrap fields
+INFO STEP 39 GX texture coordinate scale and flag command bytes; vi_frame=1149 frame_increment=4 passes=222 fails=0
+PASS GX manual texture scale emits sizes and deferred flags
+PASS GX manual texture scale wraps zero size to sixteen bits
+INFO STEP 40 GX alpha comparison command bytes; vi_frame=1152 frame_increment=3 passes=224 fails=0
+PASS GX alpha comparison encodes both references and operations
+PASS GX alpha comparison encodes both references and operations
+INFO STEP 41 GX fog color command bytes; vi_frame=1155 frame_increment=3 passes=226 fails=0
+PASS GX fog color encodes RGB and ignores alpha
+PASS GX fog color encodes RGB and ignores alpha
+PASS GX fog color encodes RGB and ignores alpha
+INFO STEP 42 GX fog and range adjustment command bytes; vi_frame=1159 frame_increment=4 passes=229 fails=0
+PASS GX perspective fog emits expected coefficients and color
+-- page 19 --
+PASS GX orthographic fog emits expected coefficients and color
+PASS GX degenerate perspective fog emits zero coefficients
+PASS GX fog range adjustment packs table and wraps center
+PASS GX disabled fog range adjustment does not read a table
+INFO STEP 43 GX clip mode command bytes; vi_frame=1227 frame_increment=68 passes=234 fails=0
+PASS GX clip mode emits exact XF enable and disable values
+PASS GX clip mode emits exact XF enable and disable values
+INFO STEP 44 GX copy clear color and depth command bytes; vi_frame=1230 frame_increment=3 passes=236 fails=0
+PASS GX copy clear packs AR GB and masked 24-bit depth
+PASS GX copy clear packs AR GB and masked 24-bit depth
+INFO STEP 45 GX display copy command bytes; vi_frame=1233 frame_increment=3 passes=238 fails=0
+PASS GX display copy encodes first configuration
+PASS GX display copy encodes second configuration
+INFO STEP 46 GX copy filter sample and coefficient bytes; vi_frame=1236 frame_increment=3 passes=240 fails=0
+INFO GX filter AA enabled=0
+INFO GX vertical filter enabled=0
+PASS GX copy filter emits six exact default or masked table words
+INFO GX filter AA enabled=1
+INFO GX vertical filter enabled=0
+-- page 20 --
+PASS GX copy filter emits six exact default or masked table words
+INFO GX filter AA enabled=0
+INFO GX vertical filter enabled=1
+PASS GX copy filter emits six exact default or masked table words
+INFO GX filter AA enabled=1
+INFO GX vertical filter enabled=1
+PASS GX copy filter emits six exact default or masked table words
+PASS GX copy filter rejects enabled null table without commands
+PASS GX copy filter rejects enabled null table without commands
+INFO STEP 47 GX even and odd field mask command bytes; vi_frame=1313 frame_increment=77 passes=246 fails=0
+PASS GX field mask encodes independent even odd and masked bits
+PASS GX field mask encodes independent even odd and masked bits
+PASS GX field mask encodes independent even odd and masked bits
+PASS GX field mask encodes independent even odd and masked bits
+INFO STEP 48 GX bounding box reset command bytes; vi_frame=1318 frame_increment=5 passes=250 fails=0
+PASS GX bounding box reset emits both fixed reset words each time
+PASS GX bounding box reset emits both fixed reset words each time
+INFO STEP 49 GX Z texture bias format and operation command bytes; vi_frame=1321 frame_increment=3 passes=252 fails=0
+PASS GX Z texture emits exact masked bias format and operation
+PASS GX Z texture emits exact masked bias format and operation
+-- page 21 --
+PASS GX Z texture emits exact masked bias format and operation
+INFO STEP 50 GX depth comparison mode command bytes; vi_frame=1387 frame_increment=66 passes=255 fails=0
+PASS GX depth mode encodes enable function and update
+PASS GX depth mode encodes enable function and update
+PASS GX depth mode encodes enable function and update
+INFO STEP 51 GX pixel engine control command bytes; vi_frame=1391 frame_increment=4 passes=258 fails=0
+PASS GX alpha update and dither preserve neighboring fields
+PASS GX destination alpha encodes enable and value
+PASS GX depth comparison location toggles the expected bit
+INFO STEP 52 GX vertex cache invalidation command; vi_frame=1395 frame_increment=4 passes=261 fails=0
+PASS GX vertex cache invalidation emits opcode each time
+PASS GX vertex cache invalidation emits opcode each time
+INFO STEP 53 GX texture cache invalidation commands; vi_frame=1398 frame_increment=3 passes=263 fails=0
+INFO GX cache trace size=32
+INFO GX cache trace word0=0x0f000000
+INFO GX cache trace opcode=97
+INFO GX cache trace word1=0x66001000
+INFO GX cache trace opcode=97
+INFO GX cache trace word2=0x66001100
+-- page 22 --
+INFO GX cache trace opcode=97
+INFO GX cache trace word3=0x0f000000
+INFO GX cache trace opcode=97
+PASS GX invalidate_tex_all emits both cache words and flushes
+PASS GX invalidate_texture_cache emits both cache words and flushes
+PASS GX invalidate_tex_all emits both cache words and flushes
+PASS GX invalidate_texture_cache emits both cache words and flushes
+PASS GX executes cache commands and subsequent token
+INFO STEP 54 GX texture region invalidation command bytes; vi_frame=1475 frame_increment=77 passes=268 fails=0
+PASS GX region invalidation emits C cache words and flushes
+PASS GX region invalidation emits C cache words and flushes
+PASS GX region invalidation omits an empty odd bank
+PASS GX region invalidation rejects a null region
+INFO STEP 55 GX line point and field shared state; vi_frame=1480 frame_increment=5 passes=272 fails=0
+PASS GX line point field baseline completes
+PASS GX line width preserves point fields
+PASS GX point size preserves line fields
+PASS GX field mode preserves dimensions and flushes current mask
+PASS GX field mode clears its bits and retains line point state
+PASS GX nonzero indirect mask setup completes
+PASS GX field mode preserves a nonzero indirect mask
+-- page 23 --
+PASS GX indirect mask restoration completes
+INFO GX field trace size=32
+INFO GX field trace word0=0x226b220c
+INFO GX field trace opcode=97
+INFO GX field trace word1=0x0f000000
+INFO GX field trace opcode=97
+INFO GX field trace word2=0x68000001
+INFO GX field trace opcode=97
+INFO GX field trace word3=0x0f000000
+INFO GX field trace opcode=97
+PASS GX line point field restoration completes
+PASS GX cleared vertex descriptor is fully empty
+PASS GX descriptor list orders attributes and stops at sentinel
+PASS GX single descriptor switches normal and removes color
+PASS GX vertex descriptor restoration
+INFO STEP 56 GX vertex array and primitive command bytes; vi_frame=1565 frame_increment=85 passes=285 fails=0
+PASS GX position array encodes physical address and stride
+PASS GX NBT array maps to normal array registers
+PASS GX invalid array attribute emits no command
+PASS GX primitive begin and end encode header
+INFO STEP 57 GX vertex format command bytes; vi_frame=1570 frame_increment=5 passes=289 fails=0
+-- page 24 --
+PASS GX vertex format flushes exact CP words and honors terminator
+INFO STEP 58 GX lighting channel command bytes; vi_frame=1634 frame_increment=64 passes=290 fails=0
+PASS GX channel colors and lighting control emit expected XF words
+INFO STEP 59 GX generation mode and texture offset command bytes; vi_frame=1636 frame_increment=2 passes=291 fails=0
+PASS GX cull modes map to hardware values and reject invalid input
+PASS GX coplanar mode emits its mask and preserves generation state
+PASS GX channel texture TEV and indirect counts flush expected state
+PASS GX texture offsets preserve size and mask coordinate and enables
+INFO STEP 60 GX texture generator and current matrix command bytes; vi_frame=1641 frame_increment=5 passes=295 fails=0
+PASS GX texture generators and matrix indices emit expected CP and XF words
+INFO STEP 61 GX pixel format and TEV default command bytes; vi_frame=1643 frame_increment=2 passes=296 fails=0
+PASS GX RGB565 format sets pixel control and deferred multisample bit
+PASS GX V8 format selects YUV field and invalid format emits nothing
+PASS GX modulate TEV default uses previous stage and clamp
+PASS GX replace TEV default selects texture and clamps
+INFO STEP 62 GX TEV order automatic texture scale; vi_frame=1648 frame_increment=5 passes=300 fails=0
+INFO GX TEV order trace size=32
+-- page 25 --
+INFO GX TEV order trace bytes=1630011392
+INFO GX TEV order trace bytes=1482765824
+INFO GX TEV order trace bytes=483639
+INFO GX TEV order trace bytes=912
+PASS GX TEV order updates automatic texture coordinate scale
+PASS GX TEV order selects map-specific scale and wrap fields
+PASS GX preloaded texture supplies map-specific scale
+PASS GX manual texture scale is not overwritten by TEV order
+PASS GX null TEV texture does not update automatic scale
+PASS GX indirect texture order updates automatic scale
+INFO STEP 63 GX preloaded texture command bytes; vi_frame=1722 frame_increment=74 passes=306 fails=0
+PASS GX preloaded texture emits map five object and region registers
+PASS GX preloaded texture rejects invalid arguments without commands
+INFO STEP 64 GX texture preload command bytes; vi_frame=1725 frame_increment=3 passes=308 fails=0
+PASS GX texture preload emits C base and mip-level commands
+PASS GX texture preload emits C base and mip-level commands
+PASS GX texture preload rejects null pointers
+INFO STEP 65 GX TLUT callback and load commands; vi_frame=1729 frame_increment=4 passes=311 fails=0
+PASS GX TLUT load calls callback and emits source region and flush words
+PASS GX TLUT load rejects null object and callback region
+-- page 26 --
+PASS GX TLUT callback replacement returns installed callback
+INFO STEP 66 GX texture region callback and load commands; vi_frame=1795 frame_increment=66 passes=314 fails=0
+PASS GX texture callback receives object map and supplies region words
+PASS GX texture callback null region is rejected
+PASS GX texture callback replacement returns installed callback
+INFO STEP 67 GX completion and token callbacks; vi_frame=1799 frame_increment=4 passes=317 fails=0
+PASS GX token and finish interrupts invoke callbacks
+PASS GX queued draw done signals before wait
+PASS GX draw done waits for next finish callback
+PASS GX callback setters return replaced handlers
+INFO STEP 68 GX solid rectangle rendered pixel checks; vi_frame=1805 frame_increment=6 passes=321 fails=0
+PASS GX solid rectangle render setup completes
+PASS GX altered combiner renders black before reconfiguration
+PASS GX solid pipeline reconfiguration completes
+PASS GX solid rectangle writes inside pixels and preserves outside
+PASS GX disabled color update preserves rendered pixels
+PASS GX disabled blending writes transparent source color
+PASS GX zero-alpha blend preserves destination pixels
+PASS GX opaque blend replaces destination pixels
+PASS GX scissor clips opaque blended rectangle
+-- page 27 --
+PASS GX rectangle test state restoration completes
+INFO STEP 69 GX textured rectangle rendered pixel checks; vi_frame=1878 frame_increment=73 passes=331 fails=0
+PASS GX textured rectangle setup completes
+PASS GX textured drawing rejects invalid object map and geometry
+PASS GX texture object loads into map zero
+INFO GX textured sample ARGB0=0xffff0000
+INFO GX textured sample ARGB1=0xff00ff00
+INFO GX textured sample ARGB2=0xff0000ff
+INFO GX textured sample ARGB3=0xffffff00
+INFO GX textured sample ARGB4=0xff000000
+PASS GX textured rectangle draws first tile quadrants
+INFO GX textured sample ARGB0=0xffff00ff
+INFO GX textured sample ARGB1=0xff00ffff
+INFO GX textured sample ARGB2=0xffffffff
+INFO GX textured sample ARGB3=0xff4080c0
+INFO GX textured sample ARGB4=0xff000000
+PASS GX texture replacement draws new tile quadrants
+PASS GX textured rectangle state restoration completes
+INFO STEP 70 GX EFB texture copy rendered pixel checks; vi_frame=1895 frame_increment=17 passes=337 fails=0
+PASS GX EFB texture copy completes
+PASS GX EFB copy writes expected tiled RGBA8 bytes
+-- page 28 --
+INFO GX textured sample ARGB0=0xffff0000
+INFO GX textured sample ARGB1=0xff00ff00
+INFO GX textured sample ARGB2=0xff0000ff
+INFO GX textured sample ARGB3=0xffffff00
+INFO GX textured sample ARGB4=0xff000000
+PASS GX copied texture renders expected quadrants
+PASS GX texture copy state restoration completes
+INFO STEP 71 GX frame lifecycle framebuffer copies; vi_frame=1967 frame_increment=72 passes=341 fails=0
+INFO GX frame initialized black pixels=0x10801080
+PASS GX frame lifecycle initializes display
+INFO GX frame copied white pixels=0xeb80eb80
+PASS GX frame lifecycle presents white EFB pixels
+INFO STEP 72 GX frame commands and completion; vi_frame=1972 frame_increment=5 passes=343 fails=0
+PASS GX frame commands configure copy flush and finish
+PASS GX frame progress and clearing copy
+PASS GX asynchronous present copies cleared EFB and signals completion
+PASS video control register readback
+PASS video framebuffer register readback
+PASS video scan mode matches selected VI mode
+PASS VI sys scan mode matches selected VI mode
+INFO VI selected mode=0
+-- page 29 --
+INFO VI timing platform clock Hz=60750000
+INFO VI expected retrace us=16683
+INFO VI measured retrace average us=16683
+PASS VI wait matches selected mode timing
+INFO VI retrace count before wait=2057
+INFO VI retrace count after wait=2058
+PASS VI retrace interrupt advances counter
+PASS pre retrace callback fired
+PASS post retrace callback fired
+PASS retrace callback order
+PASS video next framebuffer observable
+PASS component cable state sane
+PASS framebuffer draw memory readback
+PASS framebuffer swap register readback
+ogc-system-probe video
+PASS console write video banner
+video probe validated retrace and swap behavior
+PASS console write video footer
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+INFO summary_candidate passes=363 fails=0
+PASS summary passes=363 fails=0

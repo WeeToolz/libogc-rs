@@ -1,0 +1,81 @@
+{
+  "probe": "video_probe",
+  "cases": [
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "configure_frame",
+      "line": 3555,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_frame_commands",
+      "api_path": "gx::configure_frame",
+      "checks": [
+        "GX frame commands configure copy flush and finish"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "configure_frame_with_progress",
+      "line": 3567,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_frame_commands",
+      "api_path": "gx::configure_frame_with_progress",
+      "checks": [
+        "GX frame progress and clearing copy"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "copy_display",
+      "line": 3916,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_frame_commands",
+      "api_path": "gx::copy_display",
+      "checks": [
+        "GX frame commands configure copy flush and finish",
+        "GX frame progress and clearing copy"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "finish_frame",
+      "line": 3990,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_frame_commands",
+      "api_path": "gx::finish_frame",
+      "checks": [
+        "GX frame commands configure copy flush and finish"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "flush",
+      "line": 4060,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_frame_commands",
+      "api_path": "gx::flush",
+      "checks": [
+        "GX frame commands configure copy flush and finish"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "present_frame",
+      "line": 4041,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_frame_commands",
+      "api_path": "gx::present_frame",
+      "checks": [
+        "GX asynchronous present copies cleared EFB and signals completion"
+      ]
+    }
+  ],
+  "limits": [
+    "One Dolphin display mode and black/white pixel samples. Other dimensions, colors, interrupt races, and physical Wii behavior remain open."
+  ]
+}

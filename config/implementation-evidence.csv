@@ -2733,3 +2733,9 @@ ogc-lwp-driver,src/runtime.rs,set_thread_reent_storage,2091,scheduler,hardware-p
 ogc-lwp-driver,src/runtime.rs,thread_exit,2627,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,external_setup_worker,driver::thread_exit
 ogc-gx,src/lib.rs,initialize_display,4023,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_frame_lifecycle,gx::initialize_display
 ogc-gx,src/lib.rs,present_frame_and_wait,4051,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_frame_lifecycle,gx::present_frame_and_wait
+ogc-gx,src/lib.rs,configure_frame,3555,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_frame_commands,gx::configure_frame
+ogc-gx,src/lib.rs,configure_frame_with_progress,3567,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_frame_commands,gx::configure_frame_with_progress
+ogc-gx,src/lib.rs,copy_display,3916,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_frame_commands,gx::copy_display
+ogc-gx,src/lib.rs,finish_frame,3990,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_frame_commands,gx::finish_frame
+ogc-gx,src/lib.rs,flush,4060,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_frame_commands,gx::flush
+ogc-gx,src/lib.rs,present_frame,4041,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_frame_commands,gx::present_frame
