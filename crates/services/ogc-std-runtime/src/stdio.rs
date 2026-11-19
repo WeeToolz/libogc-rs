@@ -43,3 +43,30 @@ pub unsafe extern "C" fn __wii_std_output(bytes: *const u8, length: usize, flush
         }
     }
 }
+
+/// Write stdout or stderr through its configured device, falling back to the
+/// console when the stream has no UART redirection.
+///
+/// # Safety
+/// Nonempty input must point to `length` readable bytes for this call.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn __wii_std_output_stream(
+    stream: u32,
+    bytes: *const u8,
+    length: usize,
+    flush: bool,
+) -> isize {
+    if stream != 1 && stream != 2 {
+        return -(ogc_sysbase::EINVAL as isize);
+    }
+    if let Some(result) =
+        unsafe { ogc_system::sys::sys_stdio_write(stream as usize, bytes, length) }
+    {
+        if result < 0 {
+            LAST_ERROR.store((-result) as i32, Ordering::Release);
+        }
+        result
+    } else {
+        unsafe { __wii_std_output(bytes, length, flush) }
+    }
+}

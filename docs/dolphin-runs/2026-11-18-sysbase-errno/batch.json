@@ -1,0 +1,56 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-sysbase",
+      "path": "src/lib.rs",
+      "symbol": "current_reent",
+      "line": 683,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_sysbase_errno",
+      "api_path": "base::current_reent",
+      "checks": [
+        "Newlib errno is isolated per thread"
+      ]
+    },
+    {
+      "crate": "ogc-sysbase",
+      "path": "src/lib.rs",
+      "symbol": "errno_location",
+      "line": 689,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_sysbase_errno",
+      "api_path": "base::errno_location",
+      "checks": [
+        "Newlib errno is isolated per thread"
+      ]
+    },
+    {
+      "crate": "ogc-sysbase",
+      "path": "src/lib.rs",
+      "symbol": "set_reent_errno",
+      "line": 53,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_sysbase_errno",
+      "api_path": "base::set_reent_errno",
+      "checks": [
+        "Newlib errno is isolated per thread"
+      ]
+    },
+    {
+      "crate": "ogc-sysbase",
+      "path": "src/error.rs",
+      "symbol": "describe_errno",
+      "line": 74,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_sysbase_errno",
+      "api_path": "describe_errno",
+      "checks": [
+        "Newlib errno classification maps known and unknown codes"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin parent and one worker with separate errno values. Concurrent reuse, cleanup errors and physical Wii remain unverified."
+  ]
+}

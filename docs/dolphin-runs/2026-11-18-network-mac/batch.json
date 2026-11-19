@@ -1,0 +1,34 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_get_mac_address",
+      "line": 1096,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_network_mac_address",
+      "api_path": "raw::net_get_mac_address",
+      "checks": [
+        "Network MAC matches independent IOS response",
+        "Network MAC rejects null output"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_get_mac_address",
+      "line": 1985,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_network_mac_address",
+      "api_path": "raw::net_get_mac_address",
+      "checks": [
+        "Network MAC matches independent IOS response",
+        "Network MAC rejects null output"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin private NAND and IOS network manager response. Physical Wii, alternate interface states and IOS failure paths are unverified."
+  ]
+}

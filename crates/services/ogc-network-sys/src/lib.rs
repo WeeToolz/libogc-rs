@@ -1152,7 +1152,7 @@ mod wii_backend {
     }
 
     pub fn _net_convert_error(ios_retval: i32) -> i32 {
-        ios_retval
+        crate::socket_error::convert_ios_error(ios_retval)
     }
 
     #[cfg(not(gamecube))]
@@ -1204,12 +1204,11 @@ mod wii_backend {
             if bytes.is_empty() || bytes.len() + 1 > 256 {
                 return core::ptr::null_mut();
             }
-            let Ok(path) = CStr::from_bytes_with_nul(IP_TOP_PATH) else {
+            let raw_fd = NET_IP_TOP_FD.load(Ordering::Acquire);
+            if raw_fd < 0 {
                 return core::ptr::null_mut();
-            };
-            let Ok(fd) = open_file(path, 0) else {
-                return core::ptr::null_mut();
-            };
+            }
+            let fd = FileDescriptor::new(raw_fd);
             let mut request = [0u8; 256];
             request[..bytes.len()].copy_from_slice(bytes);
             request[bytes.len()] = 0;
@@ -1220,7 +1219,6 @@ mod wii_backend {
                 GETHOSTBYNAME_IOCTL,
                 IoctlBuffers::from_slices(Some(&mut request[..=bytes.len()]), Some(&mut *response)),
             );
-            let rc = finish_file_operation(fd, rc);
             if rc < 0 {
                 return core::ptr::null_mut();
             }
@@ -1493,7 +1491,15 @@ mod wii_backend {
     /// and the referenced memory must obey Rust's aliasing requirements.
     /// The pointers must remain valid for the duration of the call.
     pub unsafe fn net_ioctl(s: i32, cmd: u32, argp: *mut c_void) -> i32 {
-        unsafe { lwip::ioctl(s, cmd as i64, argp) }
+        let result = unsafe { lwip::ioctl(s, cmd as i64, argp) };
+        if result >= 0
+            && cmd == FIONBIO
+            && !argp.is_null()
+            && let Some(idx) = track_idx(s)
+        {
+            SOCKET_NONBLOCK[idx].store(unsafe { *(argp as *const u32) } != 0, Ordering::Release);
+        }
+        result
     }
 
     pub fn net_shutdown(s: i32, how: u32) -> i32 {
@@ -2660,3 +2666,5 @@ mod tests {
         assert_eq!(net_close(s), 0);
     }
 }
+
+mod socket_error;

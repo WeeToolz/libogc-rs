@@ -1,0 +1,164 @@
+{
+  "probe": "wpad_probe",
+  "cases": [
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "control_speaker",
+      "line": 843,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_commands",
+      "api_path": "wpad::control_speaker",
+      "checks": [
+        "WPAD invalid channel rejects speaker control"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "disconnect",
+      "line": 1279,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_commands",
+      "api_path": "wpad::disconnect",
+      "checks": [
+        "WPAD invalid channel rejects disconnect"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "dropped_events",
+      "line": 930,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_commands",
+      "api_path": "wpad::dropped_events",
+      "checks": [
+        "WPAD invalid channel rejects dropped-event query"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "flush",
+      "line": 959,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_commands",
+      "api_path": "wpad::flush",
+      "checks": [
+        "WPAD invalid channel rejects event flush"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "is_speaker_enabled",
+      "line": 1297,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_commands",
+      "api_path": "wpad::is_speaker_enabled",
+      "checks": [
+        "WPAD invalid channel rejects speaker query"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "read_event",
+      "line": 876,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_commands",
+      "api_path": "wpad::read_event",
+      "checks": [
+        "WPAD invalid channel rejects event read and preserves output"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "rumble",
+      "line": 1492,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_commands",
+      "api_path": "wpad::rumble",
+      "checks": [
+        "WPAD invalid channel rejects rumble"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "send_stream_data",
+      "line": 1328,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_commands",
+      "api_path": "wpad::send_stream_data",
+      "checks": [
+        "WPAD invalid channel rejects speaker stream"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_data_format",
+      "line": 1091,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_commands",
+      "api_path": "wpad::set_data_format",
+      "checks": [
+        "WPAD invalid channel rejects data format"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_event_bufs",
+      "line": 1245,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_commands",
+      "api_path": "wpad::set_event_bufs",
+      "checks": [
+        "WPAD invalid channel rejects event buffers"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_idle_thresholds",
+      "line": 1519,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_commands",
+      "api_path": "wpad::set_idle_thresholds",
+      "checks": [
+        "WPAD invalid channel rejects idle thresholds"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_motion_plus",
+      "line": 1113,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_commands",
+      "api_path": "wpad::set_motion_plus",
+      "checks": [
+        "WPAD invalid channel rejects MotionPlus configuration"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_v_res",
+      "line": 1174,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_commands",
+      "api_path": "wpad::set_v_res",
+      "checks": [
+        "WPAD invalid channel rejects IR resolution"
+      ]
+    }
+  ],
+  "limits": [
+    "Only invalid channel WPAD_MAX_WIIMOTES was tested. Valid channel operations, connected controller behavior and physical Wii remain unverified."
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "source_revision": "adc2f2c556cba9530b8a8c136783945db2b905a9",
+  "source_fingerprint": "f7a2da0102eade44c788ba050b6981ea942341c243bc07f694b4ba71690c7461",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-18-net-error-red",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "2fb420f31a18db7def8b8c03e21fca7dbb4b9b1d8547fb366afd5dcc65948ec7",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "c2efda439becb8271e7ca8d1ef22822feac23f7c6ff87fda6e9e9b16d6259282",
+  "suite_sha256": "cdfa75326d18ffdc427a43adb80859e23678478ec4dab82d81451482ca1c5302",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/probe.log": "884934ef27d758e4c5916f128bc2b9e0e6baedb02a670b28eb95c183e40fbda9",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/stderr.log": "a48a027c0bd2ceb43a87aa787beb6830735fb0e95580491abf00daf66bf30a03",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/probe-transport.bin": "5849e5c7c2e35f241118d38c21681acf141e131fab01165b450377c7967385c7",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-002.png": "d5d854a8ec3b42af2c8fc88550c6896aeeed2c304c909cec77de211ea6d8acff",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-003.png": "435235a0f0d8b60df114f0a0342e74ccdb1a7f93af7b9a7a9cefe8326bc7faf2",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-004.png": "d721669e691a9b8318749d9ac7949636d0d4ca5408076b97936340ded51a7ede",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-005.png": "6b355f4dbe5ce5ff65a68d7ee6667b4603df3e90d5e2b2441fbc01c434457bbf",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-006.png": "a134bd5b53fd913959fde2edd616dcb68819d7cfc6eae68a7bcf63e6ba32a5ad",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-007.png": "6a8be8be7d319e7db49f6b932f15e68a86a1fbd54ec8f580a722767eab70f542",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-008.png": "c1b7a4da8ae3003dd8270624d2f4e2bfe8d8502b756d339d3e7c7fde810de42d",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-009.png": "bb29cfee1667206bb898d52cdd0c0b0af08a3a30e5e413a523eb5ffd9ce76fa5",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-010.png": "c80bb3fa7b17fd222e323e78f739cf2ee4fca53fc55e99e5361f458cdb18fdaa",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-011.png": "a2bdf67824c4887affa8e1a438df599718efdf39a247bdd3ad6ff123397ec2de",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-012.png": "b278bc11f97ab7fbd7c7b11b5326f43e1814cb5294b7bd7c37ad859c176611af",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-013.png": "79da4b18e6bf1e0aa5b3bbdf8c322217d59d90d27ae12abc7f88e89975efa45e",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-014.png": "637db9077b624af404f6f47eb913b8301680ad681f2435b254404ef1c032f2b8",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-015.png": "929b5655be75ca28bce53c8fb3ebf5dc4bda4535e8a7befba90e3981c04940b7",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-016.png": "cf68191183ff3a0571ea30b3637c60effd9e9d42e609a433891e7270f163416a",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-017.png": "935a7c09bdf9848a679b3cb7d0fb50282360913f57fb9a858e72cc3224ba3c6b",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-018.png": "f68017b6f3adc816638e761a07002b291ab63fd19e8dde7b7560edf7549ab243",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-019.png": "f96f0c22bcf6b4c5d7a238f84ba419073d2a5979c1bcbaa93d33a9ac523966ce",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-020.png": "64544329e87a10d8c44dee62a67ce7a2d9d177d12e5834260bf086cf61f73af5",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-021.png": "3f0a879e73215d032ad94a5f41aa82cb93d2e61a5802b7e86c017366ee0e46ef",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-022.png": "615252993bc0d271098d1feb1e25094fdcbe15eaf1acab268d5f34be14616782",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-023.png": "3a8e86272cd746ed99a9c1579e70bc8b339d1e4b95a01333c30938ce180f4c45",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-024.png": "8d557d7ad0b0f6b58634f1bedc4f11226a1cd7f0a6d5a593be77735c83f6d405",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-025.png": "ec1407777ea361f10921848dba838ff0050c833ef3f31c939ddaba221dc0a147",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-026.png": "ab6c939e18ecf74c366a5eaeb78a4ca579c55c712b9d5f89d76cb96bbad2b3bc",
+    "docs/dolphin-runs/2026-11-18-net-error-red/runtime_probe/pages/page-027.png": "b44782537d0ef3f043bb144a97ccf77920a4bea0d1695ca27ca6f9c2f351226a"
+  },
+  "exit_code": 1
+}

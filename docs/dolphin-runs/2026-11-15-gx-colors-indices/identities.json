@@ -1,0 +1,38 @@
+{
+  "source_revision": "9838ca374dbf396c3d9d95423d59726854923905",
+  "source_note": "Initial run: probe uses arrays of API function pointers. Final run: equivalent noncapturing closures call each API explicitly for the existing evidence checker. No production or runner change.",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "c_header_sha256": "3684a372389896dc35a24f7c5ebd1fef9728ec372458462d4d0bac041fe20904",
+  "fixtures": {
+    "layer3-stereo.mp3": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a",
+    "libmad-stereo-mpeg1.mp3": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+  },
+  "runs": {
+    "initial": {
+      "source_sha256": {
+        "probes/ogc-system-probe/src/video_probe.rs": "ad24962819efbe467de89155e16b432e421d34cd387393272e409b5814e74668",
+        "crates/hardware/ogc-gx/src/lib.rs": "d74e907b4fefc25a92ddaf7680a076b856b9ab0f71fa288e948c17665b66f82e",
+        "xtask/src/dolphin.rs": "b9810935de2b2ce8ce36fd928533fd253736a10ab0e5cdb26b793e766b3e13b9",
+        "docs/dolphin-runs/2026-11-15-gx-efb-metal/dolphin-metal.sh": "1f14a0cadbe0c50b27b419c411eaa1fee33d4933397e7fe3e26610671d07316a"
+      },
+      "dol_sha256": "37ee2537495e3e4a0e3d5738893bffb2f27ee6c60898fb418568b0067a8181d0",
+      "elf_sha256": "6d301074b001c0fe4606fd1e5f976ade599c677b22f1adea3d72471b5f0439c6"
+    },
+    "final": {
+      "source_sha256": {
+        "probes/ogc-system-probe/src/video_probe.rs": "830584fb8493a1557969b410a065cdd6f4d6b7e5415850e8285a759909528d3c",
+        "crates/hardware/ogc-gx/src/lib.rs": "d74e907b4fefc25a92ddaf7680a076b856b9ab0f71fa288e948c17665b66f82e",
+        "xtask/src/dolphin.rs": "b9810935de2b2ce8ce36fd928533fd253736a10ab0e5cdb26b793e766b3e13b9",
+        "docs/dolphin-runs/2026-11-15-gx-efb-metal/dolphin-metal.sh": "1f14a0cadbe0c50b27b419c411eaa1fee33d4933397e7fe3e26610671d07316a"
+      },
+      "dol_sha256": "008bf1a81635c1dbf27a1a778c84b2ba01d8e4e7eec842e0be7f87a3990a54bd",
+      "elf_sha256": "2f2323f94271784d8a63b73672c459692874af3975671fb584eb38609dfbd4d4"
+    }
+  },
+  "nand_fixture": {
+    "file_count": 587,
+    "tree_sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc",
+    "method": "sorted relative POSIX paths; u64 big-endian UTF-8 path length, path bytes, raw SHA-256 file digest"
+  }
+}

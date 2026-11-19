@@ -1,0 +1,34 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-network",
+      "path": "src/lib.rs",
+      "symbol": "sendto",
+      "line": 579,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_network_udp",
+      "api_path": "ogc_network::sendto",
+      "checks": [
+        "UDP sendto rejects an invalid handle",
+        "UDP sendto reports byte count and queues datagram"
+      ]
+    },
+    {
+      "crate": "ogc-network",
+      "path": "src/lib.rs",
+      "symbol": "recvfrom",
+      "line": 613,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_network_udp",
+      "api_path": "ogc_network::recvfrom",
+      "checks": [
+        "UDP recvfrom rejects an invalid handle and preserves output",
+        "UDP recvfrom returns the payload and source address"
+      ]
+    }
+  ],
+  "limits": [
+    "IPv4 loopback in Dolphin. Physical Wii networking, nonzero flags, and truncated datagrams are outside this run."
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "control_register_matches",
+      "line": 672,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_register_checks",
+      "api_path": "video::control_register_matches",
+      "checks": [
+        "Video control match distinguishes mode"
+      ]
+    },
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "framebuffer_registers_match",
+      "line": 664,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_register_checks",
+      "api_path": "video::framebuffer_registers_match",
+      "checks": [
+        "Video framebuffer match distinguishes buffers"
+      ]
+    },
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "get_current_tv_mode",
+      "line": 382,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_register_checks",
+      "api_path": "video::get_current_tv_mode",
+      "checks": [
+        "Video current TV mode matches configured mode"
+      ]
+    },
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "get_video_scan_mode",
+      "line": 547,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_register_checks",
+      "api_path": "video::get_video_scan_mode",
+      "checks": [
+        "Video scan mode matches VI registers"
+      ]
+    },
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "wait_vsync",
+      "line": 450,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_register_checks",
+      "api_path": "video::wait_vsync",
+      "checks": [
+        "Video wait_vsync observes retrace"
+      ]
+    },
+    {
+      "crate": "ogc-video-sys",
+      "path": "src/lib.rs",
+      "symbol": "control_register_matches",
+      "line": 792,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_register_checks",
+      "api_path": "raw_video::control_register_matches",
+      "checks": [
+        "Video raw control match distinguishes mode"
+      ]
+    },
+    {
+      "crate": "ogc-video-sys",
+      "path": "src/lib.rs",
+      "symbol": "framebuffer_registers_match",
+      "line": 771,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_register_checks",
+      "api_path": "raw_video::framebuffer_registers_match",
+      "checks": [
+        "Video raw framebuffer match distinguishes buffers"
+      ]
+    },
+    {
+      "crate": "ogc-video-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_current_tv_mode",
+      "line": 929,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_register_checks",
+      "api_path": "raw_video::get_current_tv_mode",
+      "checks": [
+        "Video raw TV mode matches configured mode"
+      ]
+    },
+    {
+      "crate": "ogc-video-sys",
+      "path": "src/lib.rs",
+      "symbol": "wait_v_sync",
+      "line": 978,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_register_checks",
+      "api_path": "raw_video::wait_v_sync",
+      "checks": [
+        "Video raw wait_v_sync observes retrace"
+      ]
+    },
+    {
+      "crate": "ogc-video-sys",
+      "path": "src/lib.rs",
+      "symbol": "read_register_snapshot",
+      "line": 724,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_register_checks",
+      "api_path": "raw_video::read_register_snapshot",
+      "checks": [
+        "Video raw register snapshot matches VI registers"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin active video mode and two probe framebuffers only. Other modes, timing accuracy, and physical Wii remain unverified."
+  ]
+}

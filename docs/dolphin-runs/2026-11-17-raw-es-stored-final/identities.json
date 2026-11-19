@@ -1,0 +1,21 @@
+{
+  "source_revision": "0702f98f2115e08d0a6ba8dff03c948652c4421e",
+  "source_sha256": {
+    "probes/ogc-system-probe/src/runtime_probe.rs": "86908bf878701627ac7bff00695f92a13c63d76aab2394b69fad95801a9d10e5",
+    "crates/core/ogc-es-sys/src/imp.rs": "eb92c348f76656faa954d71381dd1ed99b742539b271fd7862bbf879d6ff896f",
+    "xtask/src/dolphin.rs": "1d917d97790a642f5a3e1952af62377a3d6582a221b2d56cfd3e1ab7293da255",
+    "target/dolphin-usb-source/Source/Core/Core/IOS/ES/TitleInformation.cpp": "c41f09999f346145754216d9fa31d7572dee1f43094172f9be57767c36ac9fd4"
+  },
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "6988ee01cff8cb9adb4ba4e93de4923491ae7045d91a92a4feca80193f412d4f",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "fixture_sha256": {
+    "title/00000001/00000002/content/title.tmd": "1a5df7b0e72721c9ffae34664b00144eda2aeee0e327332deda84d3cfddb317b",
+    "shared1/content.map": "9168dc4ba3fe233d1c78a6f06c7c7852d8901409a4de23166de72459f73b9955"
+  },
+  "nand_source_after_launch": {
+    "file_count": 587,
+    "tree_sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc",
+    "method": "sorted relative POSIX paths; u64 big-endian UTF-8 path length, path bytes, raw SHA-256 file digest"
+  }
+}

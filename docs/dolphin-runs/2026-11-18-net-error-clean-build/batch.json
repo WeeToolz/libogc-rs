@@ -1,0 +1,50 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "_net_convert_error",
+      "line": 1154,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_network_error_conversion",
+      "api_path": "raw::_net_convert_error",
+      "checks": [
+        "Network error conversion preserves nonnegative results",
+        "Network error conversion maps IOS errors",
+        "Network error conversion offsets unknown values"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "_net_convert_error",
+      "line": 1999,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_network_error_conversion",
+      "api_path": "raw::_net_convert_error",
+      "checks": [
+        "Network error conversion preserves nonnegative results",
+        "Network error conversion maps IOS errors",
+        "Network error conversion offsets unknown values"
+      ]
+    },
+    {
+      "crate": "ogc-network",
+      "path": "src/lib.rs",
+      "symbol": "convert_error",
+      "line": 110,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_network_error_conversion",
+      "api_path": "net::convert_error",
+      "checks": [
+        "Network error conversion preserves nonnegative results",
+        "Network error conversion maps IOS errors",
+        "Network error conversion offsets unknown values"
+      ]
+    }
+  ],
+  "limits": [
+    "Fixed representative newlib errno mappings and unknown values on Dolphin PowerPC; physical Wii and all error values remain unverified."
+  ]
+}

@@ -7,6 +7,8 @@ The initial 2026-10-29 inventory had 2,400 `unverified` entries in 67 packages. 
 work list: use crate, source path, symbol, and line together to identify an
 entry. An entry is an evidence gap, not a confirmed defect. Counts are a
 snapshot; regenerate and check the inventory after each work batch.
+Use the [Dolphin batch helper](api-probe-batch.md) to run and record an
+explicit selection of APIs.
 
 The declared classes are 917 compatibility forwarders, 651 hardware, 539 IOS,
 133 protocol, 100 pure, and 60 scheduler entries. Classification is a starting
@@ -15,6 +17,12 @@ Review the API contract, C reference where applicable, implementation, and
 existing test or probe before selecting cases.
 
 ## Current network probe result
+
+The [network transfer batch](dolphin-runs/2026-11-04-network-transfers/README.md)
+adds UDP loopback byte and sender checks. Standard and development DOLs each
+pass 66 checks; the HBC TCP integration test also passes with its recorded DOL.
+These results do not establish current-SDK TCP peer coverage or physical Wii
+behavior.
 
 The [2026-11-04 fixed network run](dolphin-runs/2026-11-04-network-fixed/README.md)
 passed 52 checks with both standard and development DOLs. It requires the
@@ -32,6 +40,275 @@ The network probe has not passed in this Linux environment; the two remaining
 failures must not be counted as passes.
 
 ## Current Dolphin evidence batch
+
+The [TCP readiness batch](dolphin-runs/2026-11-17-tcp-socket-readiness-final/README.md)
+checks six network APIs using a loopback stream.
+
+The [IPv4 and descriptor-set batch](dolphin-runs/2026-11-17-network-ipv4-fdset/README.md)
+checks 12 network APIs with fixed IPv4 values and descriptor bits.
+
+The [ES stored and shared content batch](dolphin-runs/2026-11-17-raw-es-stored-final/README.md)
+checks three count and list APIs. Successful listing from a supplied TMD
+remains open.
+
+The [raw ES view batch](dolphin-runs/2026-11-17-raw-es-views/README.md)
+checks five APIs against a NAND fixture. Dolphin passes 235 checks.
+
+The [raw ES catalog batch](dolphin-runs/2026-11-17-raw-es-catalog-final/README.md)
+checks ten APIs. Dolphin leaves the data-directory terminator untouched;
+that API remains unverified.
+
+The [raw video batch](dolphin-runs/2026-11-17-raw-video/README.md) checks
+13 APIs. Its new checks passed; the full suite and unchanged control each
+had three GX EFB failures. The [same DOL passes on Metal](dolphin-runs/2026-11-17-gx-metal-comparison/README.md); the OpenGL cause remains open.
+
+The [LWP condition batch](dolphin-runs/2026-11-17-lwp-cond-broadcast/README.md)
+checks five wait, signal, and broadcast APIs. Dolphin passes 214 checks.
+Physical Wii behavior remains open.
+
+The [LWP thread batch](dolphin-runs/2026-11-17-lwp-thread-abi-gated/README.md)
+checks nine APIs with a gated worker. Dolphin passes 186 checks. An earlier
+continuously yielding worker timed out for an unknown reason.
+
+The [LWP synchronization ABI batch](dolphin-runs/2026-11-17-lwp-sync-abi/README.md)
+checks 19 public APIs. Dolphin passes 172 checks. Physical Wii testing and
+other contention cases remain open.
+
+The [TCP wrapper batch](dolphin-runs/2026-11-17-network-tcp-wrappers-final/README.md)
+checks 18 public network APIs with local stream traffic. Dolphin passes 219
+checks. Physical Wii and external networking remain open.
+
+The [raw TCP batch](dolphin-runs/2026-11-17-raw-tcp-default/README.md)
+checks six socket APIs with local stream traffic. The default-protocol run
+passes 201 checks. Socket creation with protocol 6 failed for an unknown
+reason; physical Wii and external traffic remain open.
+
+The [raw UDP batch](dolphin-runs/2026-11-17-raw-udp-repeat/README.md) checks
+selected loopback socket operations. Two instrumented OpenGL runs pass 187
+checks. An earlier recvfrom comparison failed for an unknown reason; that API
+remains unverified. Physical Wii and external networking remain open.
+
+The [IPv4 value batch](dolphin-runs/2026-11-17-ipv4-values/README.md) checks
+packing, octets, masks, and selected parsing on target. OpenGL passes 175
+checks. Packet transport and physical Wii remain open.
+
+The [raw alarm batch](dolphin-runs/2026-11-17-alarms-raw/README.md) checks
+raw callbacks, cancellation, removal, and state. OpenGL passes 165 checks.
+Other timing cases and physical Wii remain open.
+
+The [raw SRAM batch](dolphin-runs/2026-11-17-sram-raw/README.md) checks raw
+getters and setters with saved-value restoration. OpenGL passes 18 checks.
+Concurrent access and physical Wii remain open.
+
+The [raw arena batch](dolphin-runs/2026-11-17-arena-raw/README.md) checks
+MEM1 and MEM2 bounds and allocation, including MEM2 C ABI calls. OpenGL
+passes 13 checks. Concurrent allocation and physical Wii remain open.
+
+The [texture callback batch](dolphin-runs/2026-11-17-gx-tex-region-callback/README.md)
+checks selected callback handling and load commands. Metal passes 338 checks.
+Actual texture sampling and physical Wii remain open.
+
+The [TLUT batch](dolphin-runs/2026-11-17-gx-tlut-load/README.md) checks callback
+handling and selected load commands. Metal passes 335 checks. Actual palette
+transfers and physical Wii remain open.
+
+The [texture preload batch](dolphin-runs/2026-11-17-gx-texture-preload-fixed/README.md)
+checks base and mip-level commands. Metal passes 332 checks. Actual transfers
+and physical Wii remain open.
+
+The [texture region batch](dolphin-runs/2026-11-16-gx-region-fixed/README.md)
+fixes the mipmap flag read and checks region invalidation commands. Metal passes
+329 checks. Cache effects on sampling and physical Wii remain open.
+
+The [preloaded texture batch](dolphin-runs/2026-11-16-gx-preloaded-commands/README.md)
+checks selected texture and region command bytes. Metal passes 325 checks.
+Sampling through this path and physical Wii remain open.
+
+The [pixel format and TEV batch](dolphin-runs/2026-11-16-gx-pixel-tev/README.md)
+checks selected command encoding. Metal passes 317 checks. Rendered effects
+and physical Wii remain open.
+
+The [TEV order batch](dolphin-runs/2026-11-16-gx-tev-order-preloaded/README.md)
+fixes the saved BP register address and automatic texture scaling. Metal passes
+323 checks, including preloaded, direct, indirect, manual, and null-texture cases.
+Physical Wii remains open.
+
+The [texture generator batch](dolphin-runs/2026-11-16-gx-texgen/README.md)
+checks generator and matrix-index command encoding. Metal passes 313 checks.
+Rendered texture coordinates and physical Wii remain open.
+
+The [fog batch](dolphin-runs/2026-11-16-gx-fog/README.md) checks fog and range
+adjustment command encoding. Metal passes 312 checks. Rendered fog and
+physical Wii remain open.
+
+The [generation mode batch](dolphin-runs/2026-11-16-gx-generation-mode/README.md)
+checks cull, co-planar, stage-count, and texture-offset commands. Metal passes
+307 checks. Rendered effects and physical Wii remain open.
+
+The [lighting channel batch](dolphin-runs/2026-11-16-gx-lighting-channels/README.md)
+checks ambient, material, and control command encoding. Metal passes 303 checks.
+Rendered lighting and physical Wii remain open.
+
+The [vertex format batch](dolphin-runs/2026-11-16-gx-vertex-format/README.md)
+checks deferred CP register encoding and list termination. Metal passes 302
+checks. Rendered vertex formats and physical Wii remain open.
+
+The [pixel-engine control batch](dolphin-runs/2026-11-16-gx-pe-control/README.md)
+checks alpha, dither, and depth-location commands. Metal passes 301 checks.
+Rendered effects and physical Wii remain open.
+
+The [vertex array batch](dolphin-runs/2026-11-16-gx-vertex-array/README.md)
+checks array and primitive command encoding. Metal passes 298 checks.
+Indexed vertex rendering and physical Wii remain open.
+
+The [SRAM lock batch](dolphin-runs/2026-11-16-sram-locks/README.md) checks
+standard and extended lock exclusion. OpenGL passes 159 checks. Concurrent
+threads, writeback, and physical Wii remain open.
+
+The [system alarm batch](dolphin-runs/2026-11-16-system-alarms/README.md)
+checks one-shot and periodic callbacks, cancellation, and removal. OpenGL
+passes 154 checks. Other timing cases and physical Wii remain open.
+
+The [indirect matrix batch](dolphin-runs/2026-11-16-gx-indirect-matrix/README.md)
+checks matrix and tile command encoding. Metal passes 294 checks. Rendered
+indirect texturing and physical Wii remain open.
+
+The [indirect TEV helper batch](dolphin-runs/2026-11-16-gx-indirect-helpers/README.md)
+checks bump, repeat, and warp command encoding. Metal passes 291 checks.
+Rendered effects and physical Wii remain open.
+
+The [indirect texture scale batch](dolphin-runs/2026-11-16-gx-indirect-scale/README.md)
+checks scale and order command encoding. Metal passes 287 checks. Rendered
+indirect texturing and physical Wii remain open.
+
+The [indirect TEV batch](dolphin-runs/2026-11-16-gx-indirect-tev/README.md)
+checks indirect and direct command encoding. Metal passes 285 checks.
+Rendered indirect texturing and physical Wii remain open.
+
+The [system SRAM getter batch](dolphin-runs/2026-11-16-sram-getters/README.md)
+checks seven getters against fixed buffer values. OpenGL passes 149 checks.
+Physical SRAM and Wii behavior remain open.
+
+The [text configuration batch](dolphin-runs/2026-11-16-conf-text/README.md)
+checks region, area, and video against an independent IOS file read. OpenGL
+passes 141 checks. Other profiles and physical Wii remain open.
+
+The [controller configuration batch](dolphin-runs/2026-11-16-conf-pads/README.md)
+checks registered and guest records, limits, and restoration. OpenGL passes
+137 checks. Persistent writes, pairing, and physical Wii remain open.
+
+The [typed configuration batch](dolphin-runs/2026-11-16-conf-typed/README.md)
+checks arrays, signed and big-endian values, and parental error paths. OpenGL
+passes 129 checks. Successful parental retrieval and physical Wii remain open.
+
+The [configuration batch](dolphin-runs/2026-11-16-conf-values/README.md)
+checks generic byte settings and nine selected getters. OpenGL passes 120 checks.
+Persistent writes and physical Wii remain open.
+
+The [TEV selector batch](dolphin-runs/2026-11-16-gx-tev-selectors-final/README.md)
+checks constant selection and swap command words. Metal passes 283 checks.
+Rendered selector effects and physical Wii remain open.
+
+The [GX completion batch](dolphin-runs/2026-11-16-gx-completion/README.md)
+checks finish and token callbacks and completed-event waits. Metal passes 281
+checks. Pending-event sleep and physical Wii remain open.
+
+The [EFB texture copy batch](dolphin-runs/2026-11-16-gx-texture-copy-ram/README.md)
+checks copied RGBA8 bytes and rendered pixels. Metal with copies to RAM enabled
+passes 277 checks; the default-mode byte check failed and remains recorded.
+
+The [texture coordinate batch](dolphin-runs/2026-11-16-gx-texcoord-scale/README.md)
+checks manual scale, wrap, and bias command words. Metal passes 273 checks.
+Rendered texture coordinates and physical Wii remain open.
+
+The [TEV combiner batch](dolphin-runs/2026-11-16-gx-tev-combiner/README.md)
+checks four input and operation command words. Metal passes 271 checks.
+Rendered combiner modes and physical Wii remain open.
+
+The [vertex descriptor batch](dolphin-runs/2026-11-16-gx-vertex-descriptors/README.md)
+checks descriptor state, list termination, ordering, replacement, and restoration.
+Metal passes 270 checks. CP/XF output and physical Wii remain open.
+
+The [textured-render batch](dolphin-runs/2026-11-16-gx-textured-render/README.md)
+checks texture setup, loading, and rectangle drawing through rendered EFB
+pixels. Metal passes 266 checks. Other texture formats and physical Wii remain open.
+
+The [solid-render batch](dolphin-runs/2026-11-16-gx-solid-render/README.md)
+adds rendered EFB pixel checks for solid setup, rectangle drawing, color
+updates, blending, and scissor clipping. Metal passes 260 checks. Other
+formats, blend factors, display-copy output, and physical Wii remain open.
+
+The [pixel-engine register batch](dolphin-runs/2026-11-16-gx-pe-registers/README.md)
+adds eighteen readback and restoration checks for seven GX APIs. Metal
+passes 250 checks. Register behavior is checked; effects on pixels and
+physical Wii behavior remain open.
+
+The [line, point, and field batch](dolphin-runs/2026-11-15-gx-line-point-field/README.md)
+adds command checks for three APIs and fixes `set_field_mode` to write the
+current texture mask. Metal passes 232 checks, including zero and nonzero
+mask cases. Rendered effects and physical Wii behavior remain open.
+
+The [cache command batch](dolphin-runs/2026-11-15-gx-cache-commands/README.md)
+adds checks for three vertex and texture cache APIs. Metal passes 223 checks.
+Exact command encoding and a subsequent GPU token are checked; cache effects
+on rendered data and physical Wii behavior remain open.
+
+The [depth-mode batch](dolphin-runs/2026-11-15-gx-depth-mode/README.md)
+adds three command-encoding checks for `set_z_mode`. Metal passes 216 checks.
+Depth comparison effects and physical Wii behavior remain open.
+
+The [2026-11-15 copy and depth command batch](dolphin-runs/2026-11-15-gx-copy-depth/README.md)
+adds seventeen checks for five copy-clear, copy-filter, field-mask,
+bounding-box reset, and Z-texture APIs. Metal passes 213 checks. Fixed words
+cover packing, masks, defaults, and null-table rejection. Rendered effects
+and physical Wii behavior remain open.
+
+The [2026-11-15 TEV color batch](dolphin-runs/2026-11-15-gx-tev-colors/README.md)
+adds fifteen command checks for seven TEV color, alpha comparison, fog color,
+and clip-mode APIs. Metal passes 196 checks. Fixed words cover signed color
+fields, constant-color bank selection, repeated writes, references, and clip
+values. Rendered effects and physical Wii behavior remain open.
+
+The [2026-11-15 float and unsigned vertex batch](dolphin-runs/2026-11-15-gx-float-unsigned-vertices/README.md)
+adds 26 capture checks for thirteen position, normal, and texture-coordinate
+APIs. Metal passes 181 checks. Fixed bytes cover float bit patterns, negative
+zero, unsigned limits, byte order, and widths. Rendered geometry and physical
+Wii behavior remain open.
+
+The [2026-11-15 color and index batch](dolphin-runs/2026-11-15-gx-colors-indices/README.md)
+adds 28 capture checks for fourteen color and vertex-index APIs. Metal passes
+155 checks. Fixed bytes cover channel order, packed colors, normalized float
+conversion, and index widths. Indexed array reads and rendered colors remain
+open.
+
+The [2026-11-15 signed vertex batch](dolphin-runs/2026-11-15-gx-signed-vertices/README.md)
+fixes ten signed writers that bypassed display-list capture. The same probe
+reports 107 passes and ten failures before the fix, then 127 passes and no
+failures after it. Checks cover zero capture and fixed signed bytes; rendered
+signed geometry and physical Wii behavior remain open.
+
+The [2026-11-15 matrix-loading batch](dolphin-runs/2026-11-15-gx-matrix-loads/README.md)
+adds 18 exact command checks for seven immediate and indexed GX matrix APIs.
+Metal passes 107 checks. Both texture matrix formats and memory banks are
+covered for encoding. Indexed fetches and rendered transforms remain open.
+
+The [2026-11-15 transform command batch](dolphin-runs/2026-11-15-gx-transform-commands/README.md)
+adds 12 exact command-byte checks for five GX viewport, scissor, and projection
+APIs. Metal passes 89 checks. These checks cover target command encoding;
+rendered clipping, projected geometry, and physical Wii behavior remain open.
+The initial test-helper size failure is retained with its corrected rerun.
+
+The [2026-11-15 display-list batch](dolphin-runs/2026-11-15-gx-display-list/README.md)
+adds exact command bytes, padding, overflow guards, GPU token replay, and FIFO
+restoration checks for six GX APIs. Metal passes 77 checks. The texture sync
+check covers encoding only; rendered geometry and physical Wii behavior remain
+open.
+
+The [2026-11-15 EFB batch](dolphin-runs/2026-11-15-gx-efb-metal/README.md)
+adds color, depth, coordinate, replacement, and alpha read checks for five GX
+APIs. Metal passes 67 checks. OpenGL with CPU EFB access enabled passes 65
+checks and fails two depth-related checks with the same DOL. Keep those
+backend limits separate from physical Wii acceptance.
 
 The next focused batch is GX graphics. Select existing GX probe checks and
 retain their reports and screenshots with the DOL hash and emulator settings.

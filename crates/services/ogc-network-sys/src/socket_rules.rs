@@ -1,10 +1,8 @@
 //! Packet bounds and deadline engine used by the production std network service.
 extern crate alloc;
+pub use crate::socket_error::NetError;
 use alloc::vec::Vec;
 use core::time::Duration;
-#[path = "socket_error.rs"]
-mod error;
-pub use error::NetError;
 
 /// IOS may reject libogc's preferred receive-window size when network memory
 /// is low. In that case, it keeps the socket's valid system-default window.

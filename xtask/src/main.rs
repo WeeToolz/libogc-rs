@@ -106,13 +106,6 @@ fn main() -> Result<(), String> {
                 dolphin::print_help();
                 return Ok(());
             }
-            let no_build = rest.iter().any(|arg| arg == "--no-build");
-            if !no_build {
-                build_dolphin_probes()?;
-                if dolphin_validation_needs_wii_std_fs(&rest) {
-                    build_wii_std_fs_dolphin_probe()?;
-                }
-            }
             dolphin::validate(&repo_root()?, &rest)
         }
         "validate-pad-logs" => {
@@ -134,7 +127,7 @@ fn main() -> Result<(), String> {
         "check-dependencies" => check_dependencies(),
         "test-host" => host_tests::run(&repo_root()?),
         "audit-source" => audit_source(),
-        "audit-stubs" => audit_stubs(),
+        "audit-stubs" => audit_stubs(args),
         "check-group" => {
             let group = args
                 .next()
@@ -186,7 +179,7 @@ fn print_usage() {
     eprintln!("  cargo xtask check-dependencies");
     eprintln!("  cargo xtask test-host");
     eprintln!("  cargo xtask audit-source");
-    eprintln!("  cargo xtask audit-stubs");
+    eprintln!("  cargo xtask audit-stubs [--refresh-inventory] [--json PATH]");
     eprintln!(
         "  cargo xtask check-group <core|storage|input|network|audio|debug|hardware|ui|abi|probes>"
     );
@@ -465,22 +458,14 @@ const PROBE_BINARIES: &[&str] = &[
 #[cfg(test)]
 mod probe_artifact_tests {
     #[test]
-    fn dolphin_std_filesystem_probe_requests_the_pinned_std_build() {
-        assert!(super::dolphin_validation_needs_wii_std_fs(&[]));
-        assert!(super::dolphin_validation_needs_wii_std_fs(&[
-            "--probe".to_string(),
-            "wii_std_fs_probe".to_string(),
-        ]));
-        assert!(!super::dolphin_validation_needs_wii_std_fs(&[
-            "--probe".to_string(),
-            "lwp_probe".to_string(),
-        ]));
-        assert!(super::dolphin_validation_needs_wii_std_fs(&[
-            "--probe".to_string(),
-            "lwp_probe".to_string(),
-            "--probe".to_string(),
-            "wii_std_fs_probe".to_string(),
-        ]));
+    fn selected_dolphin_packages_keep_separate_startup_features() {
+        assert_eq!(
+            super::selected_probe_invocations(&["runtime_probe", "lwp_probe"]),
+            vec![
+                vec!["-p", "ogc-system-probe", "--bin", "runtime_probe"],
+                vec!["-p", "lwp-probe", "--bin", "lwp_probe"]
+            ]
+        );
     }
 
     #[test]
@@ -1039,10 +1024,6 @@ fn build_lwp_probe() -> Result<(), String> {
     build_lwp_probe_with_std(false)
 }
 
-fn dolphin_validation_needs_wii_std_fs(args: &[String]) -> bool {
-    !args.iter().any(|arg| arg == "--probe") || args.iter().any(|arg| arg == "wii_std_fs_probe")
-}
-
 /// Prepare and install the pinned Wii sysroot before any consumer build.
 fn wii_build_compiler(root: &Path, rustup: &str) -> Result<PathBuf, String> {
     let prepared = Command::new("python3")
@@ -1343,6 +1324,38 @@ impl ProbeBuildMode {
 }
 
 fn build_probe_artifacts(include_examples: bool, mode: ProbeBuildMode) -> Result<(), String> {
+    build_probe_selection(include_examples, mode, None)
+}
+
+fn selected_probe_invocations(binaries: &[&'static str]) -> Vec<Vec<&'static str>> {
+    let mut system = vec!["-p", "ogc-system-probe"];
+    for &name in binaries {
+        if name != "lwp_probe" {
+            system.extend(["--bin", name]);
+        }
+    }
+    let mut invocations = Vec::new();
+    if system.len() > 2 {
+        invocations.push(system);
+    }
+    if binaries.contains(&"lwp_probe") {
+        invocations.push(vec!["-p", "lwp-probe", "--bin", "lwp_probe"]);
+    }
+    invocations
+}
+
+fn build_selected_dolphin_probes(names: &[&'static str]) -> Result<(), String> {
+    if names.iter().all(|name| *name == "wii_std_fs_probe") {
+        return Ok(());
+    }
+    build_probe_selection(false, ProbeBuildMode::Dolphin, Some(names))
+}
+
+fn build_probe_selection(
+    include_examples: bool,
+    mode: ProbeBuildMode,
+    selected: Option<&[&'static str]>,
+) -> Result<(), String> {
     let root = repo_root()?;
     let target_spec = root.join("targets/powerpc-nintendo-none.json");
     let target_dir = root.join("target/xtask/system-probe-build");
@@ -1351,14 +1364,17 @@ fn build_probe_artifacts(include_examples: bool, mode: ProbeBuildMode) -> Result
     let probe_output_name = mode.output_directory();
     let probe_output = dol_root.join(probe_output_name);
     let rustup = env::var("RUSTUP").unwrap_or_else(|_| "rustup".to_string());
-    let nightly_rustc = wii_build_compiler(&root, &rustup)?;
+    let mut binaries = mode.binaries();
+    if let Some(names) = selected {
+        binaries.retain(|name| names.contains(name));
+    }
     let rustflags = encoded_powerpc_wii_rustflags(&root);
 
     fs::create_dir_all(&target_dir).map_err(|err| format!("{}: {err}", target_dir.display()))?;
     fs::create_dir_all(&cargo_home).map_err(|err| format!("{}: {err}", cargo_home.display()))?;
     for output_dir in ["system-probe", probe_output_name] {
         let path = dol_root.join(output_dir);
-        if path.exists() {
+        if selected.is_none() && path.exists() {
             fs::remove_dir_all(&path).map_err(|err| format!("{}: {err}", path.display()))?;
         }
     }
@@ -1373,33 +1389,41 @@ fn build_probe_artifacts(include_examples: bool, mode: ProbeBuildMode) -> Result
     fs::create_dir_all(&probe_output)
         .map_err(|err| format!("{}: {err}", probe_output.display()))?;
 
-    for arguments in mode.invocations(include_examples) {
-        let mut command = Command::new(&rustup);
-        command
-            .arg("run")
-            .arg("nightly")
-            .arg("cargo")
-            .arg("build")
-            .arg("-Z")
-            .arg("json-target-spec")
-            .arg("--target")
-            .arg(&target_spec)
-            .arg("--target-dir")
-            .arg(&target_dir)
-            .arg("--release")
-            .args(arguments)
-            .env("RUSTC", &nightly_rustc)
-            .env("CARGO_HOME", &cargo_home)
-            .env("CARGO_ENCODED_RUSTFLAGS", &rustflags)
-            .env_remove("RUSTFLAGS")
-            .current_dir(&root);
-        if let Some(features) = mode.features() {
-            command.arg("--features").arg(features);
+    let invocations = if selected.is_some() {
+        selected_probe_invocations(&binaries)
+    } else {
+        mode.invocations(include_examples)
+    };
+    if !invocations.is_empty() {
+        let nightly_rustc = wii_build_compiler(&root, &rustup)?;
+        for arguments in invocations {
+            let mut command = Command::new(&rustup);
+            command
+                .arg("run")
+                .arg("nightly")
+                .arg("cargo")
+                .arg("build")
+                .arg("-Z")
+                .arg("json-target-spec")
+                .arg("--target")
+                .arg(&target_spec)
+                .arg("--target-dir")
+                .arg(&target_dir)
+                .arg("--release")
+                .args(arguments)
+                .env("RUSTC", &nightly_rustc)
+                .env("CARGO_HOME", &cargo_home)
+                .env("CARGO_ENCODED_RUSTFLAGS", &rustflags)
+                .env_remove("RUSTFLAGS")
+                .current_dir(&root);
+            if let Some(features) = mode.features() {
+                command.arg("--features").arg(features);
+            }
+            run_command(&mut command)?;
         }
-        run_command(&mut command)?;
     }
-
-    if mode == ProbeBuildMode::Dolphin {
+    if mode == ProbeBuildMode::Dolphin && selected.is_none_or(|names| names.contains(&"card_probe"))
+    {
         let gamecube_target_spec = root.join("targets/powerpc-nintendo-gamecube.json");
         let gamecube_target_dir = root.join("target/xtask/gamecube-system-probe-build");
         let mut gamecube_rustflags = encoded_powerpc_wii_rustflags(&root);
@@ -1446,7 +1470,7 @@ fn build_probe_artifacts(include_examples: bool, mode: ProbeBuildMode) -> Result
     }
 
     let build_root = target_dir.join("powerpc-nintendo-none/release");
-    for probe in mode.binaries() {
+    for probe in binaries {
         gc_elf::convert_elf_file(
             &build_root.join(probe),
             &probe_output.join(format!("{probe}.dol")),
@@ -1496,11 +1520,35 @@ fn audit_source() -> Result<(), String> {
     audit::audit_source_structure(&repo_root()?)
 }
 
-fn audit_stubs() -> Result<(), String> {
-    let root = repo_root()?;
-    audit::audit_source_structure(&root)?;
-    inventory::check_inventory(&root)?;
-    inventory::audit_runtime_completeness(&root)
+fn audit_stubs(mut args: impl Iterator<Item = String>) -> Result<(), String> {
+    let mut refresh = false;
+    let mut json_path = None;
+    while let Some(arg) = args.next() {
+        match arg.as_str() {
+            "--refresh-inventory" if !refresh => refresh = true,
+            "--json" if json_path.is_none() => {
+                let path = args
+                    .next()
+                    .filter(|path| !path.starts_with("--"))
+                    .ok_or("--json requires an output path")?;
+                json_path = Some(PathBuf::from(path));
+            }
+            _ => return Err(format!("unknown or repeated audit-stubs option: {arg}")),
+        }
+    }
+    audit_inventory(&repo_root()?, refresh, json_path.as_deref())
+}
+
+fn audit_inventory(root: &Path, refresh: bool, json_path: Option<&Path>) -> Result<(), String> {
+    audit::audit_source_structure(root)?;
+    let inventory = inventory::RuntimeInventory::collect(root)?;
+    if refresh {
+        inventory.write(root)?;
+        audit::write_debt_report(root)?;
+    } else {
+        inventory.check(root)?;
+    }
+    inventory.audit(root, json_path)
 }
 
 fn rustup_which(rustup: &str, tool: &str) -> Result<String, String> {
@@ -1655,14 +1703,20 @@ fn phase0_readiness() -> Result<(), String> {
 }
 
 fn milestone0_verify() -> Result<(), String> {
+    milestone0_inventory().map(|_| ())
+}
+
+fn milestone0_inventory() -> Result<inventory::RuntimeInventory, String> {
     let root = repo_root()?;
     workspace::check_role_manifest(&root)?;
     workspace::check_dependency_direction(&root)?;
     audit::audit_source_structure(&root)?;
-    inventory::check_inventory(&root)?;
+    let inventory = inventory::RuntimeInventory::collect(&root)?;
+    inventory.check(&root)?;
     phase0_readiness()?;
     host_tests::run(&root)?;
-    check_all_runtime()
+    check_all_runtime()?;
+    Ok(inventory)
 }
 
 fn milestone1_readiness(root: &Path) -> Result<(), String> {
@@ -1742,11 +1796,11 @@ fn milestone2_verify() -> Result<(), String> {
 
 fn verify() -> Result<(), String> {
     let root = repo_root()?;
-    milestone0_verify()?;
+    let inventory = milestone0_inventory()?;
     hardware_register::audit(&root)?;
     check_abi()?;
     check_abi_rust_target()?;
-    inventory::audit_runtime_completeness(&root)?;
+    inventory.audit(&root, None)?;
     run_command(
         Command::new("git")
             .arg("status")
@@ -1765,9 +1819,7 @@ fn verify_complete() -> Result<(), String> {
     host_tests::run(&root)?;
     check_abi()?;
     check_abi_rust_target()?;
-    inventory::check_inventory(&root)?;
-    audit::audit_source_structure(&root)?;
-    audit_stubs()?;
+    audit_inventory(&root, false, None)?;
     check_all_runtime()?;
     build_dols()?;
     build_probes()

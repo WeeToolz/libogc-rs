@@ -1,0 +1,76 @@
+{
+  "source_revision": "45e53b3499371baaa2c44ec3f56dcd9a422ee933",
+  "source_fingerprint": "ecb1195a6e712c3db91ca7e5df963d25e6854b4bd0b390a6be1060bdeece1d79",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "d066696a32a470da897f095a75eb875725a46f4445c475ae92ec5af77d8ce12f",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "4265b6703dbe08d66ec9fb4a6c6e260f9279a850a217ac4dd575ee3083f1ca73",
+  "suite_sha256": "b086d2dac654298e1d47105c5cde86c572b288373df6b43c98fc34bd5831e3df",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/probe.log": "91b9ebeaa7c62561d0bcabcaa3cf01942880019500250e6c738adcaddc1ea5fa",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/stderr.log": "b058f630cc050dcfb6e60df34d416e909f10bb8ad73d0e2916d5c69192bf3c87",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/probe-transport.bin": "8f95d41df338db7ec418a8ebe69360be28e7bf93f9c52bd264989a7d2c44d7fc",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-002.png": "5f947b9212cb392fb29390d46cc90c8f0127f278f75518e47898f43c3891c8e1",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-003.png": "1daa2287195337d699bf42676d44a87a04a5b89a949fd18ea8ab8a70f353ffbf",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-004.png": "32f622b17cd00bcd89f33cf96d1bbbb81cee0cbb15e710ca575a55953188a2b0",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-005.png": "f24ff90f56a7e7ecd7f4708b9113bcb2b3428d47c3fd0f8315b1900f7281a559",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-006.png": "e630b205ad48635ca8e288b34e3bd34554cd56d165c0704d4197c3824172ce11",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-007.png": "debf4464220fdd263a719000b79a20ae0d743844aa9b827e784a3a2697f6424f",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-008.png": "f697ec8bdc5c6a6ff722f6ed485d512e1f864eee44238ddc71d4a58de14cbded",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-009.png": "0e4d39e1c176d6e6fc6efbc5041684334e8eef89e7c4e3af0cf6893ae5c13cb4",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-010.png": "fd411b2c0a536d4382e9a8a25903493c3eb660647b12e8b171757f56763f14fc",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-011.png": "ee98d862872e08eae72568fdad096e1d0f6d9aca1fbe717afb0c333a6a498e68",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-012.png": "5c91458bb760219f511f7365bc6af56df5fde2a0618fe9f6b98cb83d5f156914",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-013.png": "e1f79c8c0991a507ad15ae6686dcfd3db652fa9d8613b062d92f90d7f9be0a92",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-014.png": "5f1c5735e97b41048303a8b4bd577ea0e8ae4e1582b5a02ed2e6415733b1523a",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-015.png": "108f2c8150753d3d05dc2008546197a466e822b8068571edaa1699f9e58408c4",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-016.png": "0c6c7bfdebaf0868260a5d14a97533805cfc3c627f333d580d6ddbc33f333ab3",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-017.png": "189f4882d658bc0d498e4b597ffef281a32dc04861820eb0b943a55a1811fc2c",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-018.png": "0d0c8e7d1f2be018433f186f78867c72f09b139a69542fa2adaaccb5ceb729f2",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-019.png": "ce85323aea4bb185407548390d73312281c214a283dfea3493b7661a1d31fa9a",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-020.png": "3bbe863ce002546bedfc22169add4772250122747e0b9cd6df8dbc42ce727348",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-021.png": "ddbe0e87e9f2d6e41a68eaf4b193595d5fcd12fdaa617ca0a301ef152ea19045",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-022.png": "d1f1e31acd93c3dda0ae6f47df4ee88609981879f959ed9a2531dc8d66735329",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-023.png": "e43983bc0faf0370f01b455607bf716139a65d0e694984aaef60ce7336b1bb9b",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-024.png": "999e87595c04da6989b126fba628af43c6c861ec72a3488d17129e1879506542",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-025.png": "40442ed0c1f0d67a80e381c026154c76f8f8544ff96a2e1f97c65224ad33f4cc",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-026.png": "aa918aefd4b311d0aeaf197610ba58128d02a5fdae5ba4ca292e0afa15d747b7",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-027.png": "0e1342e435c547398a0a1911cd4f8ce1c2597e9eedd22cb00d24e8736dd3dc4b",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-028.png": "9aa6ec13972f728f3548724d2bf0c01442953d75ced7950e5ebbb114fb7d9066",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-029.png": "da48f378ce803e0bb3f94e5c9a652c2cb570661a621eda63bf921ad842c27307",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-030.png": "4d983f021d045f493030f74a0b85db153bd75f84a8d0db43d43143245ad668c2",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-031.png": "b1141e18f1408abe478d0dced72b614c8d06f94b0546a00b2528b5f91f83127b",
+    "docs/dolphin-runs/2026-11-18-sysbase-iso-convenience/runtime_probe/pages/page-032.png": "036e9612bbf9ab7f9e15e132934cf27c5e8686b779f24cfd42c834d0834d0cb7"
+  },
+  "exit_code": 0
+}

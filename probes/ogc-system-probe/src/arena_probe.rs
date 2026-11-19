@@ -1,6 +1,7 @@
 use core::ffi::c_void;
 
 use ogc_system::{self as system};
+use ogc_system_sys as raw;
 
 use crate::probe_support::ProbeLogger;
 
@@ -38,6 +39,11 @@ pub fn run(logger: &mut ProbeLogger) {
     logger.record(
         "arena bounds restored",
         restored.arena1_lo == original.arena1_lo && restored.arena2_lo == original.arena2_lo,
+    );
+    logger.record("raw arena1 bounds and allocation", probe_raw_arena1());
+    logger.record(
+        "raw and ABI arena2 bounds and allocation",
+        probe_raw_arena2(),
     );
 }
 
@@ -116,4 +122,75 @@ fn test_arena2(original_lo: *mut c_void) -> bool {
         && new_lo == expected_lo
         && next_ptr == expected_next
         && system::get_arena2_lo() as usize == expected_next + 0x100
+}
+
+// These checks reserve only unused arena space. They do not access the
+// reserved memory, and restore both original bounds before returning.
+fn probe_raw_arena1() -> bool {
+    // SAFETY: The probe serializes arena changes and restores the saved bounds.
+    unsafe {
+        let lo = raw::sys_get_arena1_lo();
+        let hi = raw::sys_get_arena1_hi();
+        let bounds = check_bounds(
+            || raw::sys_get_arena1_lo(),
+            || raw::sys_get_arena1_hi(),
+            |value| raw::sys_set_arena1_lo(value),
+            |value| raw::sys_set_arena1_hi(value),
+            || raw::sys_get_arena1_size(),
+        );
+        let expected = (lo as usize).div_ceil(32) * 32;
+        let allocation = raw::sys_alloc_arena1_mem_lo(0x31, 32) as usize;
+        let next = raw::sys_get_arena1_lo() as usize;
+        let invalid = raw::sys_alloc_arena1_mem_lo(1, 3).is_null()
+            && raw::sys_get_arena1_lo() as usize == next;
+        raw::sys_set_arena1_lo(lo);
+        raw::sys_set_arena1_hi(hi);
+        bounds
+            && allocation == expected
+            && next == expected + 0x40
+            && invalid
+            && raw::sys_get_arena1_lo() == lo
+            && raw::sys_get_arena1_hi() == hi
+    }
+}
+
+fn probe_raw_arena2() -> bool {
+    // SAFETY: The probe serializes arena changes and restores the saved bounds.
+    unsafe {
+        let lo = raw::sys_get_arena2_lo();
+        let hi = raw::sys_get_arena2_hi();
+        let raw_bounds = check_bounds(
+            || raw::sys_get_arena2_lo(),
+            || raw::sys_get_arena2_hi(),
+            |value| raw::sys_set_arena2_lo(value),
+            |value| raw::sys_set_arena2_hi(value),
+            || raw::sys_get_arena2_size(),
+        );
+        let abi_bounds = check_bounds(
+            || raw::abi_sys_get_arena2_lo(),
+            || raw::abi_sys_get_arena2_hi(),
+            |value| raw::abi_sys_set_arena2_lo(value),
+            |value| raw::abi_sys_set_arena2_hi(value),
+            || raw::abi_sys_get_arena2_size(),
+        );
+        let expected = (lo as usize).div_ceil(64) * 64;
+        let direct = raw::sys_alloc_arena2_mem_lo(0x31, 64) as usize;
+        let direct_next = raw::sys_get_arena2_lo() as usize;
+        let invalid = raw::sys_alloc_arena2_mem_lo(0, 64).is_null()
+            && raw::sys_get_arena2_lo() as usize == direct_next;
+        raw::sys_set_arena2_lo(lo);
+        let abi = raw::abi_sys_alloc_arena2_mem_lo(0x31, 64) as usize;
+        let abi_next = raw::abi_sys_get_arena2_lo() as usize;
+        raw::abi_sys_set_arena2_lo(lo);
+        raw::abi_sys_set_arena2_hi(hi);
+        raw_bounds
+            && abi_bounds
+            && direct == expected
+            && direct_next == expected + 0x40
+            && invalid
+            && abi == expected
+            && abi_next == expected + 0x40
+            && raw::sys_get_arena2_lo() == lo
+            && raw::sys_get_arena2_hi() == hi
+    }
 }

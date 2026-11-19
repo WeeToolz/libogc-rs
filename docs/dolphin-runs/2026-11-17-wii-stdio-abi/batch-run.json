@@ -1,0 +1,51 @@
+{
+  "source_revision": "f9372406a34d2a547016d3b281f76d07b78ebfad",
+  "source_fingerprint": "d99ed486301352a068c688a11a7e084bab4830bc80ca4c3ad23a107ca174143e",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "wii_std_fs_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-17-wii-stdio-abi",
+    "--timeout-seconds",
+    "240"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "547ffa487a2af9fa1e933bb97e471dbed1f47382830f86400b448fe1459b62ca",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "697fa1ff76ee7aa5f0364b6a37898e36de0e4c287830259f4003152077b5d84e",
+  "suite_sha256": "9027c4d7f1a6f1f11685e896849b2acfc249381f49b7a3da4e010a8c1bce0a2d",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-17-wii-stdio-abi/wii_std_fs_probe/probe.log": "94131c61e7eb6cb71268b2d1377d5685b9710274b6314a2ccda03d9e979174bd",
+    "docs/dolphin-runs/2026-11-17-wii-stdio-abi/wii_std_fs_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-17-wii-stdio-abi/wii_std_fs_probe/stderr.log": "c5c97852c4813b54f8de4500632fa63498b1214bccfdb905502b73763d4b7f7f",
+    "docs/dolphin-runs/2026-11-17-wii-stdio-abi/wii_std_fs_probe/probe-transport.bin": "016c64deee310959ba9bfb3e069d8b9c3aee4cb4f651d497c2cefb171a2c19c4",
+    "docs/dolphin-runs/2026-11-17-wii-stdio-abi/wii_std_fs_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-17-wii-stdio-abi/wii_std_fs_probe/pages/page-002.png": "8972eb453f72fca70ffc4c051d48dacc05b25a1187a5f9b207aee8170e7d3a2a",
+    "docs/dolphin-runs/2026-11-17-wii-stdio-abi/wii_std_fs_probe/pages/page-003.png": "c76d4cdf69c0864300eb783b5e8404b8f6fc60230982f42d7241a32dc7b0559f",
+    "docs/dolphin-runs/2026-11-17-wii-stdio-abi/wii_std_fs_probe/pages/page-004.png": "e67e447f996e55ef11bee0a06be4c12b64db584306fed6cd3f1203a0e6cea7a7",
+    "docs/dolphin-runs/2026-11-17-wii-stdio-abi/wii_std_fs_probe/pages/page-005.png": "911e99f09610ab931ad13252db2da0a36ceb455e2c88e1c9c956b98f3db7970f",
+    "docs/dolphin-runs/2026-11-17-wii-stdio-abi/wii_std_fs_probe/pages/page-006.png": "c0eb6e4f51a14d43a51dbf9df75cd569ec8adaddf9b2d47fd4c40f94bd5a5944",
+    "docs/dolphin-runs/2026-11-17-wii-stdio-abi/wii_std_fs_probe/pages/page-007.png": "dc80be1ded6c274086d8256eb25fe3e4684183781aaca69fd666df202469380e"
+  },
+  "exit_code": 0
+}

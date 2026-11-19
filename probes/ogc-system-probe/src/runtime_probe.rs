@@ -5,30 +5,5652 @@ use ogc_es as es;
 use ogc_filesystem as filesystem;
 use ogc_ios as ios;
 use ogc_lwp::sys as lwp;
+use ogc_network_sys as raw_network;
 use ogc_sha as sha;
 use ogc_stm as stm;
 use ogc_sysbase as sysbase;
 use ogc_system as system;
+#[cfg(feature = "dolphin-automation")]
+use ogc_system_sys as raw_system;
 
 use crate::probe_support::ProbeLogger;
+
+#[cfg(feature = "dolphin-automation")]
+static ALARM_COUNT: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+#[cfg(feature = "dolphin-automation")]
+static ALARM_ID: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+#[cfg(feature = "dolphin-automation")]
+static ALARM_ARG: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn probe_alarm_callback(id: system::SysWd, arg: *mut core::ffi::c_void) {
+    ALARM_ID.store(id, Ordering::Relaxed);
+    ALARM_ARG.store(arg as usize as u32, Ordering::Relaxed);
+    ALARM_COUNT.fetch_add(1, Ordering::Release);
+}
 
 #[repr(align(16))]
 struct Align16([u8; 16]);
 
+fn probe_inet_addr(logger: &mut ProbeLogger) {
+    let parse = |text: &'static [u8]| unsafe { ogc_network_sys::inet_addr(text.as_ptr().cast()) };
+    logger.record(
+        "inet_addr dotted decimal",
+        parse(b"192.0.2.17\0") == 0xc000_0211,
+    );
+    logger.record(
+        "inet_addr abbreviated hexadecimal",
+        parse(b"0xc0.0x000211\0") == 0xc000_0211,
+    );
+    logger.record(
+        "inet_addr rejects overflow",
+        parse(b"256.0.2.17\0") == u32::MAX,
+    );
+    logger.record(
+        "inet_addr rejects invalid octal",
+        parse(b"192.0.02.08\0") == u32::MAX,
+    );
+}
+
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("RUNTIME PROBE");
 
+    probe_network_error_conversion(logger);
+    probe_inet_addr(logger);
+    probe_ipv4_values(logger);
+    probe_lwp_message_queue(logger);
+    probe_lwp_sync_handles(logger);
+    probe_lwp_condition_wait(logger);
+    probe_lwp_driver_objects(logger);
+    probe_lwp_driver_mutex_cond(logger);
+    probe_lwp_sys_resources(logger);
+    probe_lwp_sleep_ticks(logger);
+    probe_lwp_driver_resources(logger);
+    probe_lwp_thread_handle(logger);
+    probe_lwp_detach(logger);
+    probe_lwp_sys_detach(logger);
+    probe_lwp_suspend_resume(logger);
+    probe_lwp_driver_suspend(logger);
+    probe_lwp_driver_thread_metadata(logger);
+    probe_lwp_queue_wake(logger);
+    probe_lwp_driver_queue_wake(logger);
+    probe_lwp_sys_queue_wake(logger);
+    probe_lwp_abi_queue_wake(logger);
+    probe_controller_slots(logger);
+    probe_pad_clamp(logger);
+    probe_pad_status_decode(logger);
+    probe_controller_usb_ownership(logger);
     probe_owned_audio_buffer(logger);
     probe_l2cap_packets(logger);
     probe_l2cap_parsers(logger);
     probe_hci_events(logger);
+    probe_bt_device_classes(logger);
+    probe_bt_input_queue(logger);
+    probe_bt_discovery_values(logger);
+    probe_bt_transport_metadata(logger);
+    probe_bt_l2cap_state(logger);
+    probe_bt_host_startup(logger);
+    probe_bt_opcode_and_disconnected(logger);
+    probe_bt_key_requests(logger);
+    probe_system_runtime_state(logger);
+    probe_wiilaunch_error_codes(logger);
+    probe_system_startup_status(logger);
+    probe_system_framebuffer_status(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_system_raw_snapshots(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_system_font_snapshot(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_system_callbacks(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_reset_registration(logger);
+    probe_video_queries(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_video_register_checks(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_video_framebuffer_updates(logger);
+    probe_video_console_state(logger);
+    probe_wd_information_elements(logger);
+    probe_wd_scan_defaults(logger);
+    probe_ipc_heap_handles(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_ipc_buffer_bounds(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_ipc_file_reads(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_ipc_ioctl_file_stats(logger);
+    probe_device_registry(logger);
+    probe_sysbase_errno(logger);
+    probe_irq_handler_registry(logger);
+    probe_irq_raw_handler_registry(logger);
+    probe_irq_delivery_state(logger);
+    probe_irq_mask_state(logger);
+    probe_exi_locking(logger);
+    probe_exi_raw_lock_queue(logger);
+    probe_exi_selection(logger);
+    probe_exi_callback_registry(logger);
+    probe_exi_immediate_write(logger);
+    probe_exi_dma_write(logger);
+    probe_si_queries(logger);
+    probe_si_raw_queries(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_si_polling_registers(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_si_polling_handlers_and_transfer(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_si_sampling_rates(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_system_alarms(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_raw_system_alarms(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_system_sram_getters(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_system_sram_locks(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_system_extended_sram_getters(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_system_sram_setters(logger);
     probe_ios_stm(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_ios_version_queries(logger);
     probe_conf(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_conf_fixture(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_conf_typed_values(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_conf_pad_records(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_conf_text_settings(logger);
     probe_es(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_raw_es_catalog(logger);
     probe_crypto(logger);
     probe_iso9660(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_raw_udp(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_async_network_init(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_owned_udp_service(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_owned_tcp_service(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_raw_tcp(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_network_tcp(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_network_udp(logger);
+}
+
+fn probe_pad_status_decode(logger: &mut ProbeLogger) {
+    use ogc_input::sys as raw_pad;
+    let invalid_low = raw_pad::pad_debug_make_status(-1, [0, 0]);
+    let invalid_high = raw_pad::pad_debug_make_status(4, [0, 0]);
+    let decoded = raw_pad::pad_debug_make_status(0, [0x0100_8080, 0x8080_0000]);
+    logger.record(
+        "PAD diagnostic decoder handles neutral sample and invalid channels",
+        invalid_low.err == -1
+            && invalid_high.err == -1
+            && decoded.button == 0x0100
+            && decoded.stick_x == 0
+            && decoded.stick_y == 0
+            && decoded.substick_x == 0
+            && decoded.substick_y == 0
+            && decoded.trigger_l == 0
+            && decoded.trigger_r == 0,
+    );
+}
+
+fn probe_pad_clamp(logger: &mut ProbeLogger) {
+    use ogc_input as pad;
+    use ogc_input::sys as raw_pad;
+    let mut status = [pad::PadStatus::default(); 4];
+    status[0].stick_x = -128;
+    status[0].substick_x = 127;
+    status[0].trigger_l = 29;
+    status[0].trigger_r = 200;
+    status[1].stick_x = 15;
+    status[1].stick_y = -15;
+    status[1].trigger_l = 30;
+    status[1].trigger_r = 180;
+    status[2].err = -1;
+    status[2].stick_x = 127;
+    status[2].trigger_l = 255;
+    let mut raw_status = status;
+    pad::clamp(&mut status);
+    // SAFETY: The array contains four writable PAD status records.
+    unsafe {
+        raw_pad::pad_clamp(raw_status.as_mut_ptr());
+    }
+    let expected = |samples: &[pad::PadStatus; 4]| {
+        samples[0].stick_x == -72
+            && samples[0].substick_x == 59
+            && samples[0].trigger_l == 0
+            && samples[0].trigger_r == 150
+            && samples[1].stick_x == 0
+            && samples[1].stick_y == 0
+            && samples[1].trigger_l == 0
+            && samples[1].trigger_r == 150
+            && samples[2].stick_x == 127
+            && samples[2].trigger_l == 255
+    };
+    logger.record(
+        "PAD clamp applies bounds and preserves error samples",
+        expected(&status) && expected(&raw_status),
+    );
+}
+
+fn probe_controller_usb_ownership(logger: &mut ProbeLogger) {
+    use ogc_controller::{ControllerManager, InputFailure};
+
+    let mut first = ControllerManager::new();
+    let mut second = ControllerManager::new();
+    first.enable_usb_hid();
+    first.enable_usb_hid();
+    second.enable_usb_hid();
+    let denied = matches!(second.shutdown_usb_hid(), Err(error)
+        if error.failure == InputFailure::AlreadyOwned && error.operation == "USB bus ownership");
+    let released = first.shutdown_usb_hid() == Ok(true);
+    second.enable_usb_hid();
+    let reacquired = second.shutdown_usb_hid() == Ok(true);
+    let idle = first.shutdown_usb_hid() == Ok(true);
+    logger.record(
+        "Controller USB ownership rejects contention and permits reuse",
+        denied && released && reacquired && idle,
+    );
+}
+
+fn probe_controller_slots(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::BluetoothAddress;
+    use ogc_controller::usb_hid::UsbHidProfileError;
+    use ogc_controller::{
+        BluetoothHidSlot, Buttons, ControllerKind, ControllerManager, ControllerSource,
+        InputFailure, SwitchCalibration,
+    };
+
+    let slot = BluetoothHidSlot::empty(4);
+    logger.record(
+        "Controller empty slot keeps source",
+        !slot.connected && slot.state.source == ControllerSource::BluetoothHid(4),
+    );
+    let mut manager = ControllerManager::new();
+    logger.record(
+        "Controller manager starts with empty slots",
+        manager.bluetooth_slots().iter().enumerate().all(|(i, s)| {
+            !s.connected && s.state.source == ControllerSource::BluetoothHid(i as u8)
+        }) && manager.usb_slots().iter().all(|s| !s.connected)
+            && manager.joycon_pair().is_none(),
+    );
+    logger.record(
+        "Controller USB profile checks identity and usage",
+        manager.bind_usb_hid_button(0, 0, 1, Buttons::A)
+            == Err(UsbHidProfileError::InvalidIdentity)
+            && manager.bind_usb_hid_button(1, 2, 0, Buttons::A)
+                == Err(UsbHidProfileError::InvalidBinding)
+            && manager.bind_usb_hid_button(1, 2, 64, Buttons::A).is_ok(),
+    );
+
+    let left = BluetoothAddress {
+        bytes: [1, 2, 3, 4, 5, 6],
+    };
+    let right = BluetoothAddress {
+        bytes: [6, 5, 4, 3, 2, 1],
+    };
+    manager.set_bluetooth_connected(2, left, ControllerKind::JoyConLeft);
+    let l = &manager.bluetooth_slots()[2];
+    logger.record(
+        "Controller left slot needs a right partner",
+        l.address == left
+            && l.connection_handle == 0
+            && l.state.connected
+            && !manager.pair_joycons(),
+    );
+    manager.set_bluetooth_connected_with_handle(1, right, ControllerKind::JoyConRight, 0x321);
+    let r = &manager.bluetooth_slots()[1];
+    logger.record(
+        "Controller right slot retains address and handle",
+        r.address == right && r.connection_handle == 0x321 && r.kind == ControllerKind::JoyConRight,
+    );
+    logger.record(
+        "Controller pairs left and right by role",
+        manager.pair_joycons() && manager.joycon_pair() == Some((2, 1)),
+    );
+    manager.clear_joycon_pair();
+    logger.record(
+        "Controller split keeps both devices",
+        manager.joycon_pair().is_none()
+            && manager.bluetooth_slots()[1].connected
+            && manager.bluetooth_slots()[2].connected,
+    );
+    let paired = manager.pair_joycons();
+    manager.clear_bluetooth_slot(2);
+    logger.record(
+        "Controller disconnect clears pair and one device",
+        paired
+            && manager.joycon_pair().is_none()
+            && !manager.bluetooth_slots()[2].connected
+            && manager.bluetooth_slots()[1].connected,
+    );
+
+    manager.set_bluetooth_connected(0, left, ControllerKind::XboxOne);
+    let guide = manager.set_bluetooth_report(0, ControllerKind::XboxOne, &[2, 1]);
+    let x = &manager.bluetooth_slots()[0];
+    logger.record(
+        "Controller guide report sets HOME",
+        guide && x.state.buttons == Buttons::HOME && x.report_count == 1 && x.last_report_id == 2,
+    );
+    let released = manager.set_bluetooth_report_checked(0, ControllerKind::XboxOne, &[2, 0]);
+    logger.record(
+        "Controller guide release clears HOME",
+        released.is_ok()
+            && manager.bluetooth_slots()[0].state.buttons.is_empty()
+            && manager.bluetooth_slots()[0].report_count == 2,
+    );
+    let malformed = manager.set_bluetooth_report_checked(0, ControllerKind::XboxOne, &[2]);
+    logger.record(
+        "Controller short guide report invalidates sample",
+        malformed == Err(InputFailure::MalformedReport)
+            && !manager.bluetooth_slots()[0].state.connected,
+    );
+    let calibration = SwitchCalibration::default();
+    logger.record(
+        "Controller rejects missing or incompatible calibration",
+        manager.set_bluetooth_calibration_checked(1, calibration)
+            == Err(InputFailure::MalformedReport)
+            && manager.set_bluetooth_calibration_checked(0, calibration)
+                == Err(InputFailure::UnsupportedReport),
+    );
+}
+
+static LWP_QUEUE_READY: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+static LWP_QUEUE_WOKEN: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+
+unsafe extern "C" fn probe_lwp_queue_worker(arg: *mut core::ffi::c_void) -> *mut core::ffi::c_void {
+    let queue = ogc_lwp::QueueHandle::new(arg as usize as u32);
+    LWP_QUEUE_READY.fetch_add(1, Ordering::Release);
+    if queue.sleep().is_ok() {
+        LWP_QUEUE_WOKEN.fetch_add(1, Ordering::Release);
+    }
+    core::ptr::null_mut()
+}
+
+fn probe_lwp_queue_wake(logger: &mut ProbeLogger) {
+    use ogc_lwp as api;
+    LWP_QUEUE_READY.store(0, Ordering::Release);
+    LWP_QUEUE_WOKEN.store(0, Ordering::Release);
+    let mut raw_queue = api::sys::LWP_TQUEUE_NULL;
+    let queue = api::QueueHandle::init(&mut raw_queue);
+    if let Ok(queue) = queue {
+        let mut raw = [api::sys::LWP_THREAD_NULL; 2];
+        let mut handles = [None; 2];
+        for index in 0..2 {
+            // SAFETY: The queue remains live until both workers are joined.
+            handles[index] = unsafe {
+                api::ThreadHandle::create(
+                    &mut raw[index],
+                    Some(probe_lwp_queue_worker),
+                    raw_queue as usize as *mut core::ffi::c_void,
+                    core::ptr::null_mut(),
+                    8192,
+                    64,
+                )
+            }
+            .ok();
+        }
+        for _ in 0..1000 {
+            if LWP_QUEUE_READY.load(Ordering::Acquire) == 2 {
+                break;
+            }
+            api::yield_now();
+        }
+        for _ in 0..16 {
+            api::yield_now();
+        }
+        let ready = LWP_QUEUE_READY.load(Ordering::Acquire) == 2
+            && LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 0;
+        queue.signal();
+        for _ in 0..1000 {
+            if LWP_QUEUE_WOKEN.load(Ordering::Acquire) >= 1 {
+                break;
+            }
+            api::yield_now();
+        }
+        let one = LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 1;
+        logger.record("LWP queue signal wakes one waiter", ready && one);
+        queue.broadcast();
+        for _ in 0..1000 {
+            if LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 2 {
+                break;
+            }
+            api::yield_now();
+        }
+        let both = LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 2;
+        if !both {
+            queue.close();
+        }
+        let joined = handles
+            .into_iter()
+            .flatten()
+            .all(|handle| handle.join().is_ok());
+        if both {
+            queue.close();
+        }
+        logger.record("LWP queue broadcast wakes remaining waiter", both && joined);
+    } else {
+        logger.record("LWP queue signal wakes one waiter", false);
+        logger.record("LWP queue broadcast wakes remaining waiter", false);
+    }
+}
+
+unsafe extern "C" fn probe_lwp_driver_queue_worker(
+    arg: *mut core::ffi::c_void,
+) -> *mut core::ffi::c_void {
+    let queue = arg as usize as u32;
+    LWP_QUEUE_READY.fetch_add(1, Ordering::Release);
+    if ogc_lwp_driver::queue_sleep(queue) == 0 {
+        LWP_QUEUE_WOKEN.fetch_add(1, Ordering::Release);
+    }
+    core::ptr::null_mut()
+}
+
+fn probe_lwp_driver_queue_wake(logger: &mut ProbeLogger) {
+    use ogc_lwp as api;
+    use ogc_lwp_driver as driver;
+    LWP_QUEUE_READY.store(0, Ordering::Release);
+    LWP_QUEUE_WOKEN.store(0, Ordering::Release);
+    let mut raw_queue = api::sys::LWP_TQUEUE_NULL;
+    let initialized = unsafe { driver::init_queue(&mut raw_queue) };
+    if initialized == 0 {
+        let mut raw = [api::sys::LWP_THREAD_NULL; 2];
+        let mut handles = [None; 2];
+        for index in 0..2 {
+            // SAFETY: The queue remains live until both workers are joined.
+            handles[index] = unsafe {
+                api::ThreadHandle::create(
+                    &mut raw[index],
+                    Some(probe_lwp_driver_queue_worker),
+                    raw_queue as usize as *mut core::ffi::c_void,
+                    core::ptr::null_mut(),
+                    8192,
+                    64,
+                )
+            }
+            .ok();
+        }
+        for _ in 0..1000 {
+            if LWP_QUEUE_READY.load(Ordering::Acquire) == 2 {
+                break;
+            }
+            api::yield_now();
+        }
+        for _ in 0..16 {
+            api::yield_now();
+        }
+        let ready = LWP_QUEUE_READY.load(Ordering::Acquire) == 2
+            && LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 0;
+        driver::queue_signal(raw_queue);
+        for _ in 0..1000 {
+            if LWP_QUEUE_WOKEN.load(Ordering::Acquire) >= 1 {
+                break;
+            }
+            api::yield_now();
+        }
+        let one = LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 1;
+        logger.record("LWP driver queue signal wakes one waiter", ready && one);
+        driver::queue_broadcast(raw_queue);
+        for _ in 0..1000 {
+            if LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 2 {
+                break;
+            }
+            api::yield_now();
+        }
+        let both = LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 2;
+        if !both {
+            driver::close_queue(raw_queue);
+        }
+        let joined = handles
+            .into_iter()
+            .flatten()
+            .all(|handle| handle.join().is_ok());
+        if both {
+            driver::close_queue(raw_queue);
+        }
+        logger.record(
+            "LWP driver queue broadcast wakes remaining waiter",
+            both && joined,
+        );
+    } else {
+        logger.record("LWP driver queue signal wakes one waiter", false);
+        logger.record("LWP driver queue broadcast wakes remaining waiter", false);
+    }
+}
+
+unsafe extern "C" fn probe_lwp_sys_queue_worker(
+    arg: *mut core::ffi::c_void,
+) -> *mut core::ffi::c_void {
+    let queue = arg as usize as u32;
+    LWP_QUEUE_READY.fetch_add(1, Ordering::Release);
+    if ogc_lwp::sys::thread_sleep(queue) == 0 {
+        LWP_QUEUE_WOKEN.fetch_add(1, Ordering::Release);
+    }
+    core::ptr::null_mut()
+}
+
+fn probe_lwp_sys_queue_wake(logger: &mut ProbeLogger) {
+    use ogc_lwp as api;
+    use ogc_lwp::sys as raw_lwp;
+    LWP_QUEUE_READY.store(0, Ordering::Release);
+    LWP_QUEUE_WOKEN.store(0, Ordering::Release);
+    let mut raw_queue = api::sys::LWP_TQUEUE_NULL;
+    let initialized = unsafe { raw_lwp::init_queue(&mut raw_queue) };
+    if initialized == 0 {
+        let mut raw = [api::sys::LWP_THREAD_NULL; 2];
+        let mut handles = [None; 2];
+        for index in 0..2 {
+            // SAFETY: The queue remains live until both workers are joined.
+            handles[index] = unsafe {
+                api::ThreadHandle::create(
+                    &mut raw[index],
+                    Some(probe_lwp_sys_queue_worker),
+                    raw_queue as usize as *mut core::ffi::c_void,
+                    core::ptr::null_mut(),
+                    8192,
+                    64,
+                )
+            }
+            .ok();
+        }
+        for _ in 0..1000 {
+            if LWP_QUEUE_READY.load(Ordering::Acquire) == 2 {
+                break;
+            }
+            api::yield_now();
+        }
+        for _ in 0..16 {
+            api::yield_now();
+        }
+        let ready = LWP_QUEUE_READY.load(Ordering::Acquire) == 2
+            && LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 0;
+        raw_lwp::thread_signal(raw_queue);
+        for _ in 0..1000 {
+            if LWP_QUEUE_WOKEN.load(Ordering::Acquire) >= 1 {
+                break;
+            }
+            api::yield_now();
+        }
+        let one = LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 1;
+        logger.record("LWP raw queue signal wakes one waiter", ready && one);
+        raw_lwp::thread_broadcast(raw_queue);
+        for _ in 0..1000 {
+            if LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 2 {
+                break;
+            }
+            api::yield_now();
+        }
+        let both = LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 2;
+        if !both {
+            raw_lwp::close_queue(raw_queue);
+        }
+        let joined = handles
+            .into_iter()
+            .flatten()
+            .all(|handle| handle.join().is_ok());
+        if both {
+            raw_lwp::close_queue(raw_queue);
+        }
+        logger.record(
+            "LWP raw queue broadcast wakes remaining waiter",
+            both && joined,
+        );
+    } else {
+        logger.record("LWP raw queue signal wakes one waiter", false);
+        logger.record("LWP raw queue broadcast wakes remaining waiter", false);
+    }
+}
+
+fn probe_lwp_abi_queue_wake(logger: &mut ProbeLogger) {
+    use ogc_lwp as api;
+    use ogc_lwp::sys as raw_lwp;
+    LWP_QUEUE_READY.store(0, Ordering::Release);
+    LWP_QUEUE_WOKEN.store(0, Ordering::Release);
+    let mut raw_queue = api::sys::LWP_TQUEUE_NULL;
+    let initialized = unsafe { raw_lwp::init_queue(&mut raw_queue) };
+    if initialized == 0 {
+        let mut raw = [api::sys::LWP_THREAD_NULL; 2];
+        let mut handles = [None; 2];
+        for index in 0..2 {
+            // SAFETY: The queue remains live until both workers are joined.
+            handles[index] = unsafe {
+                api::ThreadHandle::create(
+                    &mut raw[index],
+                    Some(probe_lwp_sys_queue_worker),
+                    raw_queue as usize as *mut core::ffi::c_void,
+                    core::ptr::null_mut(),
+                    8192,
+                    64,
+                )
+            }
+            .ok();
+        }
+        for _ in 0..1000 {
+            if LWP_QUEUE_READY.load(Ordering::Acquire) == 2 {
+                break;
+            }
+            api::yield_now();
+        }
+        for _ in 0..16 {
+            api::yield_now();
+        }
+        let ready = LWP_QUEUE_READY.load(Ordering::Acquire) == 2
+            && LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 0;
+        raw_lwp::lwp_thread_signal_abi(raw_queue);
+        for _ in 0..1000 {
+            if LWP_QUEUE_WOKEN.load(Ordering::Acquire) >= 1 {
+                break;
+            }
+            api::yield_now();
+        }
+        let one = LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 1;
+        logger.record("LWP ABI queue signal wakes one waiter", ready && one);
+        raw_lwp::lwp_thread_broadcast_abi(raw_queue);
+        for _ in 0..1000 {
+            if LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 2 {
+                break;
+            }
+            api::yield_now();
+        }
+        let both = LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 2;
+        if !both {
+            raw_lwp::close_queue(raw_queue);
+        }
+        let joined = handles
+            .into_iter()
+            .flatten()
+            .all(|handle| handle.join().is_ok());
+        if both {
+            raw_lwp::close_queue(raw_queue);
+        }
+        logger.record(
+            "LWP ABI queue broadcast wakes remaining waiter",
+            both && joined,
+        );
+    } else {
+        logger.record("LWP ABI queue signal wakes one waiter", false);
+        logger.record("LWP ABI queue broadcast wakes remaining waiter", false);
+    }
+}
+
+static LWP_WORKER_READY: AtomicBool = AtomicBool::new(false);
+static LWP_WORKER_RELEASE: AtomicBool = AtomicBool::new(false);
+static LWP_WORKER_COUNT: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+
+unsafe extern "C" fn probe_lwp_suspend_worker(_: *mut core::ffi::c_void) -> *mut core::ffi::c_void {
+    LWP_WORKER_READY.store(true, Ordering::Release);
+    while !LWP_WORKER_RELEASE.load(Ordering::Acquire) {
+        LWP_WORKER_COUNT.fetch_add(1, Ordering::Relaxed);
+        ogc_lwp::yield_now();
+    }
+    core::ptr::null_mut()
+}
+
+fn probe_lwp_driver_thread_metadata(logger: &mut ProbeLogger) {
+    use ogc_lwp_driver as driver;
+    let current = driver::current_thread();
+    logger.record(
+        "LWP driver reports current thread",
+        current != driver::LWP_THREAD_NULL && current == ogc_lwp::current_thread().raw(),
+    );
+    LWP_WORKER_READY.store(false, Ordering::Release);
+    LWP_WORKER_RELEASE.store(false, Ordering::Release);
+    let mut marker = 0u8;
+    let arg = (&mut marker as *mut u8).cast();
+    let mut raw = driver::LWP_THREAD_NULL;
+    // SAFETY: The argument remains live until join and the driver owns the stack.
+    let created = unsafe {
+        driver::create_thread(
+            &mut raw,
+            Some(probe_lwp_suspend_worker),
+            arg,
+            core::ptr::null_mut(),
+            8192,
+            64,
+        )
+    };
+    if created == 0 {
+        for _ in 0..1000 {
+            if LWP_WORKER_READY.load(Ordering::Acquire) {
+                break;
+            }
+            ogc_lwp::yield_now();
+        }
+        let ready = LWP_WORKER_READY.load(Ordering::Acquire);
+        let suspended = driver::suspend_thread(raw) == 0;
+        logger.record(
+            "LWP driver finds thread by its argument",
+            ready
+                && suspended
+                && driver::thread_argument(raw) == Some(arg)
+                && driver::thread_handle_by_argument(arg) == Some(raw)
+                && driver::thread_handle_by_argument(core::ptr::null_mut()).is_none(),
+        );
+        let context = driver::thread_context_snapshot(raw);
+        logger.record(
+            "LWP driver captures suspended thread context",
+            context.is_some_and(|context| context.pc != 0 && context.gpr[1] != 0),
+        );
+        driver::resume_thread(raw);
+        LWP_WORKER_RELEASE.store(true, Ordering::Release);
+        let joined = ogc_lwp::ThreadHandle::new(raw).join();
+        logger.record(
+            "LWP driver removes joined thread metadata",
+            joined.is_ok()
+                && driver::thread_argument(raw).is_none()
+                && driver::thread_context_snapshot(raw).is_none()
+                && driver::thread_handle_by_argument(arg).is_none(),
+        );
+    } else {
+        logger.record("LWP driver finds thread by its argument", false);
+        logger.record("LWP driver captures suspended thread context", false);
+        logger.record("LWP driver removes joined thread metadata", false);
+    }
+}
+
+fn probe_lwp_driver_suspend(logger: &mut ProbeLogger) {
+    use ogc_lwp_driver as driver;
+    LWP_WORKER_READY.store(false, Ordering::Release);
+    LWP_WORKER_RELEASE.store(false, Ordering::Release);
+    LWP_WORKER_COUNT.store(0, Ordering::Release);
+    let mut raw = driver::LWP_THREAD_NULL;
+    // SAFETY: The worker uses static state and the driver owns the stack.
+    let created = unsafe {
+        driver::create_thread(
+            &mut raw,
+            Some(probe_lwp_suspend_worker),
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            8192,
+            64,
+        )
+    };
+    if created == 0 {
+        for _ in 0..1000 {
+            if LWP_WORKER_READY.load(Ordering::Acquire) {
+                break;
+            }
+            ogc_lwp::yield_now();
+        }
+        let ready = LWP_WORKER_READY.load(Ordering::Acquire);
+        let first = driver::suspend_thread(raw);
+        let second = driver::suspend_thread(raw);
+        let nested = driver::thread_is_suspended(raw);
+        let one_resume = driver::resume_thread(raw);
+        let still_suspended = driver::thread_is_suspended(raw);
+        let before = LWP_WORKER_COUNT.load(Ordering::Acquire);
+        for _ in 0..16 {
+            ogc_lwp::yield_now();
+        }
+        let after = LWP_WORKER_COUNT.load(Ordering::Acquire);
+        logger.record(
+            "LWP driver nested suspension stops worker",
+            ready
+                && first == 0
+                && second == 0
+                && nested
+                && one_resume == 0
+                && still_suspended
+                && before == after,
+        );
+        let final_resume = driver::resume_thread(raw);
+        let resumed = !driver::thread_is_suspended(raw);
+        LWP_WORKER_RELEASE.store(true, Ordering::Release);
+        let joined = ogc_lwp::ThreadHandle::new(raw).join();
+        logger.record(
+            "LWP driver final resume lets worker finish",
+            final_resume == 0 && resumed && joined == Ok(core::ptr::null_mut()),
+        );
+    } else {
+        logger.record("LWP driver nested suspension stops worker", false);
+        logger.record("LWP driver final resume lets worker finish", false);
+    }
+}
+
+fn probe_lwp_suspend_resume(logger: &mut ProbeLogger) {
+    use ogc_lwp as api;
+    LWP_WORKER_READY.store(false, Ordering::Release);
+    LWP_WORKER_RELEASE.store(false, Ordering::Release);
+    LWP_WORKER_COUNT.store(0, Ordering::Release);
+    let mut raw = api::sys::LWP_THREAD_NULL;
+    // SAFETY: The worker uses static state and the driver owns its stack.
+    let thread = unsafe {
+        api::ThreadHandle::create(
+            &mut raw,
+            Some(probe_lwp_suspend_worker),
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            8192,
+            64,
+        )
+    };
+    if let Ok(thread) = thread {
+        for _ in 0..1000 {
+            if LWP_WORKER_READY.load(Ordering::Acquire) {
+                break;
+            }
+            api::yield_now();
+        }
+        let ready = LWP_WORKER_READY.load(Ordering::Acquire);
+        let suspended = thread.suspend();
+        let state = thread.is_suspended();
+        let before = LWP_WORKER_COUNT.load(Ordering::Acquire);
+        for _ in 0..16 {
+            api::yield_now();
+        }
+        let after = LWP_WORKER_COUNT.load(Ordering::Acquire);
+        logger.record(
+            "LWP suspended worker stops running",
+            ready && suspended.is_ok() && state && before == after,
+        );
+        let resumed = thread.resume();
+        let state = thread.is_suspended();
+        LWP_WORKER_RELEASE.store(true, Ordering::Release);
+        let joined = thread.join();
+        logger.record(
+            "LWP resumed worker finishes",
+            resumed.is_ok() && !state && joined == Ok(core::ptr::null_mut()),
+        );
+    } else {
+        logger.record("LWP suspended worker stops running", false);
+        logger.record("LWP resumed worker finishes", false);
+    }
+}
+
+static LWP_DETACH_DONE: AtomicBool = AtomicBool::new(false);
+
+unsafe extern "C" fn probe_lwp_detached_worker(
+    _: *mut core::ffi::c_void,
+) -> *mut core::ffi::c_void {
+    while !LWP_WORKER_RELEASE.load(Ordering::Acquire) {
+        ogc_lwp::yield_now();
+    }
+    LWP_DETACH_DONE.store(true, Ordering::Release);
+    core::ptr::null_mut()
+}
+
+fn probe_lwp_detach(logger: &mut ProbeLogger) {
+    use ogc_lwp as api;
+    LWP_WORKER_RELEASE.store(false, Ordering::Release);
+    LWP_DETACH_DONE.store(false, Ordering::Release);
+    let before = ogc_lwp_driver::thread_cleanup_counters().detached_reaped;
+    let mut raw = api::sys::LWP_THREAD_NULL;
+    // SAFETY: The worker uses static state and the driver owns its stack.
+    let created = unsafe {
+        api::ThreadHandle::create(
+            &mut raw,
+            Some(probe_lwp_detached_worker),
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            8192,
+            64,
+        )
+    };
+    if let Ok(thread) = created {
+        let detached = thread.detach();
+        let second = thread.detach();
+        let join = thread.join();
+        LWP_WORKER_RELEASE.store(true, Ordering::Release);
+        for _ in 0..1000 {
+            if LWP_DETACH_DONE.load(Ordering::Acquire) {
+                break;
+            }
+            api::yield_now();
+        }
+        for _ in 0..16 {
+            api::yield_now();
+        }
+        let worker_finished = LWP_DETACH_DONE.load(Ordering::Acquire);
+        let mut cleanup_raw = api::sys::LWP_THREAD_NULL;
+        // SAFETY: The cleanup worker takes no argument and owns its stack.
+        let cleanup = unsafe {
+            api::ThreadHandle::create(
+                &mut cleanup_raw,
+                Some(probe_lwp_detached_worker),
+                core::ptr::null_mut(),
+                core::ptr::null_mut(),
+                8192,
+                64,
+            )
+        };
+        if let Ok(cleanup) = cleanup {
+            let _ = cleanup.join();
+        }
+        logger.record(
+            "LWP detached worker finishes without join",
+            detached.is_ok()
+                && second.is_err()
+                && join.is_err()
+                && worker_finished
+                && ogc_lwp_driver::thread_cleanup_counters().detached_reaped > before,
+        );
+    } else {
+        logger.record("LWP detached worker finishes without join", false);
+    }
+}
+
+fn probe_lwp_sys_detach(logger: &mut ProbeLogger) {
+    use ogc_lwp as api;
+    use ogc_lwp::sys as raw_lwp;
+    LWP_WORKER_RELEASE.store(false, Ordering::Release);
+    LWP_DETACH_DONE.store(false, Ordering::Release);
+    let before = ogc_lwp_driver::thread_cleanup_counters().detached_reaped;
+    let mut raw = api::sys::LWP_THREAD_NULL;
+    // SAFETY: The worker uses static state and the driver owns its stack.
+    let created = unsafe {
+        api::ThreadHandle::create(
+            &mut raw,
+            Some(probe_lwp_detached_worker),
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            8192,
+            64,
+        )
+    };
+    if let Ok(thread) = created {
+        let detached = raw_lwp::detach_thread(raw);
+        let second = raw_lwp::detach_thread(raw);
+        let join = thread.join();
+        LWP_WORKER_RELEASE.store(true, Ordering::Release);
+        for _ in 0..1000 {
+            if LWP_DETACH_DONE.load(Ordering::Acquire) {
+                break;
+            }
+            raw_lwp::lwp_yield_thread_abi();
+        }
+        for _ in 0..16 {
+            raw_lwp::lwp_yield_thread_abi();
+        }
+        let worker_finished = LWP_DETACH_DONE.load(Ordering::Acquire);
+        let mut cleanup_raw = api::sys::LWP_THREAD_NULL;
+        // SAFETY: The cleanup worker takes no argument and owns its stack.
+        let cleanup = unsafe {
+            api::ThreadHandle::create(
+                &mut cleanup_raw,
+                Some(probe_lwp_detached_worker),
+                core::ptr::null_mut(),
+                core::ptr::null_mut(),
+                8192,
+                64,
+            )
+        };
+        if let Ok(cleanup) = cleanup {
+            let _ = cleanup.join();
+        }
+        logger.record(
+            "LWP raw detached worker finishes without join",
+            detached == 0
+                && second != 0
+                && join.is_err()
+                && worker_finished
+                && ogc_lwp_driver::thread_cleanup_counters().detached_reaped > before,
+        );
+    } else {
+        logger.record("LWP raw detached worker finishes without join", false);
+    }
+}
+
+unsafe extern "C" fn probe_lwp_thread_entry(arg: *mut core::ffi::c_void) -> *mut core::ffi::c_void {
+    // SAFETY: The caller keeps the byte alive until the thread is joined.
+    unsafe {
+        *arg.cast::<u8>() = 0x6d;
+    }
+    arg
+}
+
+fn probe_lwp_thread_handle(logger: &mut ProbeLogger) {
+    use ogc_lwp as api;
+    let current = api::current_thread();
+    logger.record(
+        "LWP current thread handle is live",
+        !current.is_null() && current.raw() == current.into_raw(),
+    );
+    let mut raw = api::sys::LWP_THREAD_NULL;
+    let mut marker = 0u8;
+    let arg = (&mut marker as *mut u8).cast();
+    // SAFETY: The argument remains live until join and the driver owns the stack.
+    let thread = unsafe {
+        api::ThreadHandle::create(
+            &mut raw,
+            Some(probe_lwp_thread_entry),
+            arg,
+            core::ptr::null_mut(),
+            8192,
+            64,
+        )
+    };
+    if let Ok(thread) = thread {
+        logger.record(
+            "LWP created thread returns its handle",
+            !thread.is_null() && thread.raw() == raw && thread.into_raw() == raw,
+        );
+        let result = thread.join();
+        logger.record(
+            "LWP thread runs and returns its argument",
+            result == Ok(arg) && marker == 0x6d,
+        );
+    } else {
+        logger.record("LWP created thread returns its handle", false);
+        logger.record("LWP thread runs and returns its argument", false);
+    }
+}
+
+fn probe_lwp_driver_resources(logger: &mut ProbeLogger) {
+    use ogc_lwp_driver as driver;
+    // SAFETY: Allocations remain within their requested bounds and are freed once.
+    unsafe {
+        let first = driver::allocate_workspace(64);
+        let second = driver::allocate_workspace(64);
+        let allocated = !first.is_null() && !second.is_null() && first != second;
+        if allocated {
+            core::ptr::write_bytes(first, 0x21, 64);
+            core::ptr::write_bytes(second, 0x87, 64);
+            let intact = core::slice::from_raw_parts(first, 64)
+                .iter()
+                .all(|x| *x == 0x21)
+                && core::slice::from_raw_parts(second, 64)
+                    .iter()
+                    .all(|x| *x == 0x87);
+            logger.record(
+                "LWP driver workspace preserves separate allocations",
+                intact,
+            );
+        } else {
+            logger.record("LWP driver workspace preserves separate allocations", false);
+        }
+        driver::release_workspace(first, 64);
+        driver::release_workspace(second, 64);
+        let again = driver::allocate_workspace(64);
+        logger.record(
+            "LWP driver workspace allocates after release",
+            !again.is_null(),
+        );
+        driver::release_workspace(again, 64);
+    }
+    LWP_QUEUE_READY.store(0, Ordering::Release);
+    LWP_QUEUE_WOKEN.store(0, Ordering::Release);
+    let mut queue = driver::LWP_TQUEUE_NULL;
+    let initialized = unsafe { driver::init_queue(&mut queue) };
+    let mut raw = driver::LWP_THREAD_NULL;
+    // SAFETY: The queue remains valid until it cancels the waiter.
+    let worker = unsafe {
+        ogc_lwp::ThreadHandle::create(
+            &mut raw,
+            Some(probe_lwp_driver_queue_worker),
+            queue as usize as *mut core::ffi::c_void,
+            core::ptr::null_mut(),
+            8192,
+            64,
+        )
+    };
+    for _ in 0..1000 {
+        if LWP_QUEUE_READY.load(Ordering::Acquire) == 1 {
+            break;
+        }
+        ogc_lwp::yield_now();
+    }
+    for _ in 0..16 {
+        ogc_lwp::yield_now();
+    }
+    let waiting = LWP_QUEUE_READY.load(Ordering::Acquire) == 1
+        && LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 0;
+    driver::close_queue(queue);
+    let joined = worker.is_ok_and(|worker| worker.join().is_ok());
+    logger.record(
+        "LWP driver closing queue cancels waiter",
+        initialized == 0
+            && waiting
+            && joined
+            && LWP_QUEUE_WOKEN.load(Ordering::Acquire) == 0
+            && driver::queue_sleep(queue) != 0,
+    );
+}
+
+fn probe_lwp_sleep_ticks(logger: &mut ProbeLogger) {
+    use ogc_lwp::sys as raw_lwp;
+    use ogc_lwp_driver as driver;
+    let ticks = driver::TICKS_PER_SECOND / 1000;
+    let start = ogc_core::powerpc::read_timebase();
+    driver::sleep_ticks(ticks);
+    let elapsed = ogc_core::powerpc::read_timebase().wrapping_sub(start);
+    logger.record("LWP driver sleep waits requested ticks", elapsed >= ticks);
+    let start = ogc_core::powerpc::read_timebase();
+    raw_lwp::sleep_ticks(ticks);
+    let elapsed = ogc_core::powerpc::read_timebase().wrapping_sub(start);
+    logger.record("LWP raw sleep waits requested ticks", elapsed >= ticks);
+}
+
+fn probe_lwp_sys_resources(logger: &mut ProbeLogger) {
+    use ogc_lwp::sys as raw_lwp;
+    // SAFETY: The allocations are written within their requested lengths and released once.
+    unsafe {
+        let first = raw_lwp::allocate_workspace(64);
+        let second = raw_lwp::allocate_workspace(64);
+        let allocated = !first.is_null() && !second.is_null() && first != second;
+        if allocated {
+            core::ptr::write_bytes(first, 0x42, 64);
+            core::ptr::write_bytes(second, 0x97, 64);
+            let intact = core::slice::from_raw_parts(first, 64)
+                .iter()
+                .all(|x| *x == 0x42)
+                && core::slice::from_raw_parts(second, 64)
+                    .iter()
+                    .all(|x| *x == 0x97);
+            logger.record("LWP workspace retains separate allocations", intact);
+        } else {
+            logger.record("LWP workspace retains separate allocations", false);
+        }
+        raw_lwp::release_workspace(first, 64);
+        raw_lwp::release_workspace(second, 64);
+        let again = raw_lwp::allocate_workspace(64);
+        logger.record("LWP workspace allocates after release", !again.is_null());
+        raw_lwp::release_workspace(again, 64);
+    }
+    let mut mutex = raw_lwp::LWP_MUTEX_NULL;
+    let init = unsafe { raw_lwp::mutex_init(&mut mutex, 0) };
+    let first = raw_lwp::mutex_try_lock(mutex);
+    let second = raw_lwp::mutex_try_lock(mutex);
+    logger.record(
+        "LWP raw try lock reports busy",
+        init == 0 && first == 0 && second == 1,
+    );
+    raw_lwp::mutex_unlock(mutex);
+    raw_lwp::mutex_destroy(mutex);
+
+    let mut sem = raw_lwp::LWP_SEM_NULL;
+    let init = unsafe { raw_lwp::sem_init(&mut sem, 3, 4) };
+    let mut count = 0;
+    let read = unsafe { raw_lwp::sem_get_value(sem, &mut count) };
+    logger.record(
+        "LWP raw semaphore reports its count",
+        init == 0 && read == 0 && count == 3,
+    );
+    raw_lwp::sem_destroy(sem);
+
+    let mut queue = raw_lwp::LWP_TQUEUE_NULL;
+    let init = unsafe { raw_lwp::init_queue(&mut queue) };
+    raw_lwp::close_queue(queue);
+    logger.record(
+        "LWP raw closed queue rejects sleep",
+        init == 0 && raw_lwp::thread_sleep(queue) != 0,
+    );
+    let mut abi_queue = raw_lwp::LWP_TQUEUE_NULL;
+    let init = unsafe { raw_lwp::lwp_init_queue_abi(&mut abi_queue) };
+    raw_lwp::lwp_close_queue_abi(abi_queue);
+    logger.record(
+        "LWP ABI closed queue rejects sleep",
+        init == 0 && raw_lwp::lwp_thread_sleep_abi(abi_queue) != 0,
+    );
+}
+
+fn probe_lwp_driver_mutex_cond(logger: &mut ProbeLogger) {
+    use ogc_lwp_driver as driver;
+    let mut mutex = driver::LWP_MUTEX_NULL;
+    let initialized = unsafe { driver::init_mutex(&mut mutex, false) };
+    let first = driver::mutex_try_lock(mutex);
+    let second = driver::mutex_try_lock(mutex);
+    logger.record(
+        "LWP driver mutex rejects repeated nonrecursive lock",
+        initialized == 0 && first == 0 && second == 1,
+    );
+    let unlocked = driver::mutex_unlock(mutex);
+    let relocked = driver::mutex_try_lock(mutex);
+    let unlocked_again = driver::mutex_unlock(mutex);
+    logger.record(
+        "LWP driver mutex can be locked after release",
+        unlocked == 0 && relocked == 0 && unlocked_again == 0,
+    );
+    let closed = driver::close_mutex(mutex);
+    logger.record(
+        "LWP driver closed mutex rejects lock",
+        closed == 0 && driver::mutex_try_lock(mutex) != 0,
+    );
+
+    let mut cond = driver::LWP_COND_NULL;
+    let initialized = unsafe { driver::init_cond(&mut cond) };
+    let broadcast = driver::cond_broadcast(cond);
+    logger.record(
+        "LWP driver empty condition broadcasts",
+        initialized == 0 && broadcast == 0,
+    );
+    let closed = driver::close_cond(cond);
+    logger.record(
+        "LWP driver closed condition rejects broadcast",
+        closed == 0 && driver::cond_broadcast(cond) != 0,
+    );
+}
+
+fn probe_lwp_driver_objects(logger: &mut ProbeLogger) {
+    use ogc_lwp_driver as driver;
+    let mut sem = driver::LWP_SEM_NULL;
+    let initialized = unsafe { driver::init_semaphore(&mut sem, 2, 3) };
+    let mut value = 99;
+    let read = unsafe { driver::semaphore_get_value(sem, &mut value) };
+    logger.record(
+        "LWP driver semaphore starts at two",
+        initialized == 0 && read == 0 && value == 2,
+    );
+    let waited = driver::semaphore_wait(sem);
+    let read = unsafe { driver::semaphore_get_value(sem, &mut value) };
+    logger.record(
+        "LWP driver semaphore wait decrements",
+        waited == 0 && read == 0 && value == 1,
+    );
+    let posted = driver::semaphore_post(sem);
+    let read = unsafe { driver::semaphore_get_value(sem, &mut value) };
+    logger.record(
+        "LWP driver semaphore post increments",
+        posted == 0 && read == 0 && value == 2,
+    );
+    let closed = driver::close_semaphore(sem);
+    logger.record(
+        "LWP driver closed semaphore rejects access",
+        closed == 0 && driver::semaphore_post(sem) != 0,
+    );
+
+    let mut queue = driver::MQ_BOX_NULL;
+    let initialized = unsafe { driver::init_message_queue(&mut queue, 2) };
+    let mut first = 11u8;
+    let mut urgent = 22u8;
+    let a = (&mut first as *mut u8).cast();
+    let b = (&mut urgent as *mut u8).cast();
+    let sent = driver::message_send(queue, a, driver::MQ_MSG_NOBLOCK);
+    let jammed = driver::message_jam(queue, b, driver::MQ_MSG_NOBLOCK);
+    logger.record(
+        "LWP driver queue rejects overflow",
+        initialized == 0
+            && sent
+            && jammed
+            && !driver::message_send(queue, a, driver::MQ_MSG_NOBLOCK),
+    );
+    let mut output = core::ptr::null_mut();
+    let one = unsafe { driver::message_receive(queue, &mut output, driver::MQ_MSG_NOBLOCK) }
+        && output == b;
+    let two = unsafe { driver::message_receive(queue, &mut output, driver::MQ_MSG_NOBLOCK) }
+        && output == a;
+    let empty = unsafe { driver::message_receive(queue, &mut output, driver::MQ_MSG_NOBLOCK) };
+    logger.record(
+        "LWP driver queue returns urgent then FIFO",
+        one && two && !empty,
+    );
+    driver::close_message_queue(queue);
+    logger.record(
+        "LWP driver closed queue rejects send",
+        !driver::message_send(queue, a, driver::MQ_MSG_NOBLOCK),
+    );
+}
+
+struct LwpConditionProbe {
+    mutex: ogc_lwp::MutexHandle,
+    cond: ogc_lwp::CondVarHandle,
+    ready: AtomicBool,
+    awakened: AtomicBool,
+}
+
+unsafe extern "C" fn probe_lwp_condition_worker(
+    arg: *mut core::ffi::c_void,
+) -> *mut core::ffi::c_void {
+    // SAFETY: The parent keeps the probe live until the worker is joined.
+    let probe = unsafe { &*arg.cast::<LwpConditionProbe>() };
+    if probe.mutex.lock().is_ok() {
+        probe.ready.store(true, Ordering::Release);
+        let waited = probe.cond.wait(probe.mutex);
+        probe.awakened.store(waited.is_ok(), Ordering::Release);
+        let _ = probe.mutex.unlock();
+    }
+    core::ptr::null_mut()
+}
+
+fn probe_lwp_condition_wait(logger: &mut ProbeLogger) {
+    use ogc_lwp as api;
+    let mut raw_mutex = api::sys::LWP_MUTEX_NULL;
+    let mut raw_cond = api::sys::LWP_COND_NULL;
+    let mutex = api::MutexHandle::init(&mut raw_mutex, false);
+    let cond = api::CondVarHandle::init(&mut raw_cond);
+    if let (Ok(mutex), Ok(cond)) = (mutex, cond) {
+        let locked = mutex.lock();
+        let timeout = api::TimeSpec {
+            tv_sec: 0,
+            tv_nsec: 1_000_000,
+        };
+        let result = cond.timed_wait(mutex, &timeout);
+        let owned = mutex.try_lock() == Ok(false);
+        let unlocked = mutex.unlock();
+        logger.record(
+            "LWP condition timeout reacquires mutex",
+            locked.is_ok() && result == Err(116) && owned && unlocked.is_ok(),
+        );
+
+        let mut probe = LwpConditionProbe {
+            mutex,
+            cond,
+            ready: AtomicBool::new(false),
+            awakened: AtomicBool::new(false),
+        };
+        let mut raw_thread = api::sys::LWP_THREAD_NULL;
+        // SAFETY: The probe remains live until the worker is joined.
+        let worker = unsafe {
+            api::ThreadHandle::create(
+                &mut raw_thread,
+                Some(probe_lwp_condition_worker),
+                (&mut probe as *mut LwpConditionProbe).cast(),
+                core::ptr::null_mut(),
+                8192,
+                64,
+            )
+        };
+        for _ in 0..1000 {
+            if probe.ready.load(Ordering::Acquire) {
+                break;
+            }
+            api::yield_now();
+        }
+        for _ in 0..16 {
+            api::yield_now();
+        }
+        let waiting =
+            probe.ready.load(Ordering::Acquire) && !probe.awakened.load(Ordering::Acquire);
+        let signaled = cond.signal();
+        for _ in 0..1000 {
+            if probe.awakened.load(Ordering::Acquire) {
+                break;
+            }
+            api::yield_now();
+        }
+        let awakened = probe.awakened.load(Ordering::Acquire);
+        if !awakened {
+            let _ = cond.broadcast();
+        }
+        let joined = worker.is_ok_and(|worker| worker.join().is_ok());
+        logger.record(
+            "LWP condition signal wakes waiting worker",
+            waiting && signaled.is_ok() && awakened && joined,
+        );
+        let _ = cond.destroy();
+        let _ = mutex.destroy();
+    } else {
+        logger.record("LWP condition timeout reacquires mutex", false);
+        logger.record("LWP condition signal wakes waiting worker", false);
+    }
+}
+
+fn probe_lwp_sync_handles(logger: &mut ProbeLogger) {
+    use ogc_lwp as api;
+    let mut raw_queue = 0;
+    let queue = api::QueueHandle::init(&mut raw_queue);
+    if let Ok(queue) = queue {
+        logger.record(
+            "LWP queue handle retains output",
+            queue.raw() == raw_queue && queue.into_raw() == raw_queue,
+        );
+        queue.signal();
+        queue.broadcast();
+        queue.close();
+    } else {
+        logger.record("LWP queue handle retains output", false);
+    }
+    let mut raw_cond = 0;
+    let cond = api::CondVarHandle::init(&mut raw_cond);
+    if let Ok(cond) = cond {
+        logger.record(
+            "LWP condition handle retains output",
+            cond.raw() == raw_cond,
+        );
+        logger.record(
+            "LWP condition signal and broadcast succeed",
+            cond.signal().is_ok() && cond.broadcast().is_ok(),
+        );
+        logger.record("LWP condition destroy succeeds", cond.destroy().is_ok());
+    } else {
+        logger.record("LWP condition handle retains output", false);
+        logger.record("LWP condition signal and broadcast succeed", false);
+        logger.record("LWP condition destroy succeeds", false);
+    }
+    let mut raw_sem = 0;
+    let sem = api::SemaphoreHandle::init(&mut raw_sem, 1, 2);
+    if let Ok(sem) = sem {
+        logger.record(
+            "LWP semaphore handle retains output",
+            sem.raw() == raw_sem && sem.get_value() == Ok(1),
+        );
+        logger.record("LWP semaphore destroy succeeds", sem.destroy().is_ok());
+    } else {
+        logger.record("LWP semaphore handle retains output", false);
+        logger.record("LWP semaphore destroy succeeds", false);
+    }
+}
+
+fn probe_lwp_message_queue(logger: &mut ProbeLogger) {
+    use ogc_lwp as lwp_api;
+    let mut raw = lwp_api::sys::MQ_BOX_NULL;
+    let initialized = lwp_api::MessageQueueHandle::init(&mut raw, 2);
+    if let Ok(queue) = initialized {
+        logger.record(
+            "LWP message queue handle matches initialized queue",
+            queue.raw() == raw && raw != lwp_api::sys::MQ_BOX_NULL,
+        );
+        let mut first = 0x17u8;
+        let mut urgent = 0x82u8;
+        let mut extra = 0x44u8;
+        let first_ptr = (&mut first as *mut u8).cast();
+        let urgent_ptr = (&mut urgent as *mut u8).cast();
+        let extra_ptr = (&mut extra as *mut u8).cast();
+        // SAFETY: The message storage remains live until the queue is drained.
+        let sent = unsafe { queue.send(first_ptr, false) };
+        let jammed = unsafe { queue.jam(urgent_ptr, false) };
+        let full = unsafe { queue.send(extra_ptr, false) };
+        logger.record(
+            "LWP message queue rejects send when full",
+            sent && jammed && !full,
+        );
+        let one = queue.receive(false);
+        let two = queue.receive(false);
+        let empty = queue.receive(false);
+        logger.record(
+            "LWP message queue returns urgent before FIFO and reports empty",
+            one == Some(urgent_ptr) && two == Some(first_ptr) && empty.is_none(),
+        );
+        queue.close();
+        let closed = unsafe { queue.send(extra_ptr, false) };
+        logger.record("LWP closed message queue rejects send", !closed);
+    } else {
+        logger.record("LWP message queue handle matches initialized queue", false);
+        logger.record("LWP message queue rejects send when full", false);
+        logger.record(
+            "LWP message queue returns urgent before FIFO and reports empty",
+            false,
+        );
+        logger.record("LWP closed message queue rejects send", false);
+    }
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_owned_tcp_service(logger: &mut ProbeLogger) {
+    use raw_network::std_net as service;
+    logger.report_step("Owned TCP service");
+    let numeric = service::lookup(b"127.0.0.1");
+    let empty = service::lookup(b"");
+    let embedded_nul = service::lookup(b"host\0name");
+    logger.record(
+        "Owned resolver returns loopback and rejects invalid names",
+        numeric.is_ok_and(|ips| ips == [0x7f00_0001]) && empty.is_err() && embedded_nul.is_err(),
+    );
+    let before = service::snapshot();
+    let listener = service::Socket::bind(0x7f00_0001, 0, false, owned_network_clock);
+    if let Ok(listener) = listener {
+        let listen_address = listener.address(false);
+        let client = match listen_address {
+            Ok((ip, port)) if ip == 0x7f00_0001 && port != 0 => {
+                service::Socket::connect(ip, port, owned_network_clock)
+            }
+            _ => Err(service::NetError::local(22)),
+        };
+        if let Ok(client) = client {
+            let accepted = listener.accept();
+            if let Ok((accepted, peer_ip, peer_port)) = accepted {
+                let receive_timeout = accepted
+                    .set_timeout(false, Some(core::time::Duration::from_secs(3)))
+                    .is_ok();
+                let client_address = client.address(false);
+                let peer = accepted.address(true);
+                logger.record(
+                    "Owned TCP connect and accept match peer addresses",
+                    client_address == Ok((peer_ip, peer_port))
+                        && peer_ip == 0x7f00_0001
+                        && peer_port != 0
+                        && peer == client_address,
+                );
+                let value = b"owned TCP\0\xff";
+                let sent = client.send(value, None);
+                let mut output = [0xa5u8; 32];
+                let received = if receive_timeout && sent == Ok(value.len()) {
+                    accepted.receive(&mut output, false, false)
+                } else {
+                    Err(service::NetError::local(5))
+                };
+                logger.record(
+                    "Owned TCP connection transfers bytes",
+                    received == Ok((value.len(), None))
+                        && output[..value.len()] == *value
+                        && output[value.len()..].iter().all(|byte| *byte == 0xa5),
+                );
+                let shutdown = client.shutdown(1);
+                let eof = if shutdown.is_ok() {
+                    accepted.receive(&mut output, false, false)
+                } else {
+                    Err(service::NetError::local(5))
+                };
+                logger.record(
+                    "Owned TCP shutdown delivers EOF",
+                    shutdown.is_ok() && eof == Ok((0, None)),
+                );
+                let rejected = client.shutdown(3).is_err();
+                logger.record("Owned TCP rejects invalid shutdown mode", rejected);
+                let close_accepted = accepted.release();
+                let close_client = client.release();
+                let close_listener = listener.release();
+                let after = service::snapshot();
+                let deinit = raw_network::net_deinit();
+                logger.record(
+                    "Owned TCP closes all sockets",
+                    close_accepted.is_ok()
+                        && close_client.is_ok()
+                        && close_listener.is_ok()
+                        && after.live_sockets == before.live_sockets
+                        && after.close_failures == before.close_failures
+                        && deinit == 0,
+                );
+                return;
+            }
+        }
+    }
+    logger.record("Owned TCP connect and accept match peer addresses", false);
+    logger.record("Owned TCP connection transfers bytes", false);
+    logger.record("Owned TCP shutdown delivers EOF", false);
+    logger.record("Owned TCP rejects invalid shutdown mode", false);
+    logger.record("Owned TCP closes all sockets", false);
+    logger.note_i32("Owned TCP cleanup result", raw_network::net_deinit());
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn owned_network_clock() -> Result<core::time::Duration, raw_network::std_net::NetError> {
+    let ticks = ogc_core::powerpc::read_timebase();
+    Ok(core::time::Duration::from_millis(
+        ticks.saturating_mul(1000) / u64::from(lwp::TICKS_PER_SECOND),
+    ))
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_owned_udp_service(logger: &mut ProbeLogger) {
+    use core::time::Duration;
+    use raw_network::std_net as service;
+    logger.report_step("Owned UDP service");
+    let initialized = service::initialize(false);
+    logger.record(
+        "Owned UDP service initializes",
+        initialized.is_ok() && raw_network::net_get_status() == 0,
+    );
+    let before = service::snapshot();
+    let sender = service::Socket::bind(0x7f00_0001, 0, true, owned_network_clock);
+    let receiver = service::Socket::bind(0x7f00_0001, 0, true, owned_network_clock);
+    if let (Ok(sender), Ok(receiver)) = (sender, receiver) {
+        let sender_address = sender.address(false);
+        let receiver_address = receiver.address(false);
+        let live = service::snapshot();
+        let addresses_ok = matches!((sender_address, receiver_address), (Ok((0x7f00_0001, a)), Ok((0x7f00_0001, b))) if a != 0 && b != 0 && a != b);
+        logger.record(
+            "Owned UDP binds distinct loopback sockets",
+            addresses_ok && live.live_sockets == before.live_sockets + 2,
+        );
+        let timeout = Duration::from_secs(3);
+        let timeout_ok = receiver.set_timeout(false, Some(timeout)).is_ok()
+            && receiver.timeout(false) == Ok(Some(timeout))
+            && receiver.set_timeout(true, Some(Duration::ZERO)).is_err();
+        logger.record("Owned UDP timeout state validates values", timeout_ok);
+        let nonblock_set = receiver.set_nonblocking(true).is_ok();
+        let mut bytes = [0xa5u8; 32];
+        let empty = receiver.receive(&mut bytes, false, true);
+        let nonblock_clear = receiver.set_nonblocking(false).is_ok();
+        logger.record(
+            "Owned UDP nonblocking empty receive preserves bytes",
+            nonblock_set && empty.is_err() && bytes == [0xa5; 32] && nonblock_clear,
+        );
+        let payload = [0x12u8, 0, 0xfe, 0x80, 0x44];
+        let sent = receiver_address
+            .is_ok_and(|destination| sender.send(&payload, Some(destination)) == Ok(payload.len()));
+        let received = if sent {
+            receiver.receive(&mut bytes, false, true)
+        } else {
+            Err(service::NetError::local(5))
+        };
+        let source_ok = matches!(received, Ok((5, Some(source))) if Ok(source) == sender_address);
+        logger.record(
+            "Owned UDP addressed transfer preserves payload and source",
+            sent && source_ok && bytes[..5] == payload && bytes[5..] == [0xa5; 27],
+        );
+        let connected =
+            receiver_address.is_ok_and(|(ip, port)| sender.udp_connect(ip, port).is_ok());
+        let payload = b"owned connected";
+        let sent = connected && sender.send(payload, None) == Ok(payload.len());
+        bytes.fill(0xa5);
+        let received = if sent {
+            receiver.receive(&mut bytes, false, false)
+        } else {
+            Err(service::NetError::local(5))
+        };
+        logger.record(
+            "Owned UDP connected transfer preserves payload",
+            sent && received == Ok((payload.len(), None))
+                && bytes[..payload.len()] == *payload
+                && bytes[payload.len()..].iter().all(|byte| *byte == 0xa5),
+        );
+        let busy = raw_network::net_deinit();
+        let sender_closed = sender.release();
+        let receiver_closed = receiver.release();
+        let after = service::snapshot();
+        let closed = raw_network::net_deinit();
+        logger.record(
+            "Owned UDP releases leases and closes sockets",
+            busy == -16
+                && sender_closed.is_ok()
+                && receiver_closed.is_ok()
+                && after.live_sockets == before.live_sockets
+                && after.close_failures == before.close_failures
+                && closed == 0
+                && raw_network::net_get_status() == -100,
+        );
+    } else {
+        logger.record("Owned UDP binds distinct loopback sockets", false);
+        logger.record("Owned UDP timeout state validates values", false);
+        logger.record("Owned UDP nonblocking empty receive preserves bytes", false);
+        logger.record(
+            "Owned UDP addressed transfer preserves payload and source",
+            false,
+        );
+        logger.record("Owned UDP connected transfer preserves payload", false);
+        logger.record("Owned UDP releases leases and closes sockets", false);
+        logger.note_i32("Owned UDP cleanup result", raw_network::net_deinit());
+    }
+}
+
+#[cfg(feature = "dolphin-automation")]
+static NETWORK_ASYNC_COUNT: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+#[cfg(feature = "dolphin-automation")]
+static NETWORK_ASYNC_RESULT: AtomicI32 = AtomicI32::new(i32::MIN);
+#[cfg(feature = "dolphin-automation")]
+static NETWORK_ASYNC_USERDATA: core::sync::atomic::AtomicU32 =
+    core::sync::atomic::AtomicU32::new(0);
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn network_async_callback(result: i32, userdata: *mut core::ffi::c_void) -> i32 {
+    NETWORK_ASYNC_RESULT.store(result, Ordering::Relaxed);
+    NETWORK_ASYNC_USERDATA.store(userdata as usize as u32, Ordering::Relaxed);
+    NETWORK_ASYNC_COUNT.fetch_add(1, Ordering::Release);
+    0
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_async_network_init(logger: &mut ProbeLogger) {
+    use ogc_network as net;
+    use raw_network as raw;
+    const TOKEN: usize = 0x1248;
+    for wrapper in [false, true] {
+        NETWORK_ASYNC_COUNT.store(0, Ordering::Relaxed);
+        NETWORK_ASYNC_RESULT.store(i32::MIN, Ordering::Relaxed);
+        NETWORK_ASYNC_USERDATA.store(0, Ordering::Relaxed);
+        let start = if wrapper {
+            unsafe {
+                net::init_async(
+                    Some(network_async_callback),
+                    TOKEN as *mut core::ffi::c_void,
+                )
+            }
+        } else {
+            unsafe {
+                raw::net_init_async(
+                    Some(network_async_callback),
+                    TOKEN as *mut core::ffi::c_void,
+                )
+            }
+        };
+        for _ in 0..1000 {
+            if NETWORK_ASYNC_COUNT.load(Ordering::Acquire) != 0 {
+                break;
+            }
+            lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 100).max(1));
+        }
+        let completed = start == 0
+            && NETWORK_ASYNC_COUNT.load(Ordering::Acquire) == 1
+            && NETWORK_ASYNC_RESULT.load(Ordering::Relaxed) == 0
+            && NETWORK_ASYNC_USERDATA.load(Ordering::Relaxed) == TOKEN as u32
+            && raw::net_get_status() == 0;
+        let socket = if completed {
+            raw::net_socket(raw::PF_INET, raw::SOCK_DGRAM, 0)
+        } else {
+            -1
+        };
+        let closed = socket >= 0 && raw::net_close(socket) == 0;
+        let deinit = raw::net_deinit();
+        let passed = completed && closed && deinit == 0 && raw::net_get_status() == -100;
+        logger.record(
+            if wrapper {
+                "Network wrapper asynchronous initialization completes"
+            } else {
+                "Raw network asynchronous initialization completes"
+            },
+            passed,
+        );
+    }
+}
+
+fn probe_network_error_conversion(logger: &mut ProbeLogger) {
+    use ogc_network as net;
+    use ogc_network_sys as raw;
+    logger.record(
+        "Network error conversion preserves nonnegative results",
+        raw::_net_convert_error(0) == 0
+            && raw::_net_convert_error(17) == 17
+            && net::convert_error(17) == 17,
+    );
+    logger.record(
+        "Network error conversion maps IOS errors",
+        raw::_net_convert_error(-3) == -112
+            && raw::_net_convert_error(-6) == -11
+            && raw::_net_convert_error(-28) == -22
+            && net::convert_error(-3) == -112,
+    );
+    logger.record(
+        "Network error conversion offsets unknown values",
+        raw::_net_convert_error(-78) == -10078 && net::convert_error(-100) == -10100,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_si_polling_registers(logger: &mut ProbeLogger) {
+    use ogc_si as si;
+    use ogc_si::sys as raw_si;
+    logger.report_step("SI polling and command registers");
+    let base = if ogc_core::powerpc::hollywood_revision() == 0 {
+        0xcc00_6400usize
+    } else {
+        0xcd00_6400usize
+    };
+    let poll_reg = (base + 12 * 4) as *const u32;
+    let command_reg = (base + 9 * 4) as *const u32;
+    let saved_irq = ogc_irq::irq_disable();
+    // SAFETY: SI is initialized, interrupts are masked, and these are readable SI registers.
+    let original_poll = unsafe { core::ptr::read_volatile(poll_reg) };
+    let original_command = unsafe { core::ptr::read_volatile(command_reg) };
+    si::set_xy(0x155, 0x46);
+    let xy = unsafe { core::ptr::read_volatile(poll_reg) };
+    raw_si::set_xy(0x2aa, 0x79);
+    let raw_xy = unsafe { core::ptr::read_volatile(poll_reg) };
+    si::disable_polling(0x1000_0000);
+    si::enable_polling(0x1000_0000);
+    let enabled = unsafe { core::ptr::read_volatile(poll_reg) };
+    si::disable_polling(0x1000_0000);
+    let disabled = unsafe { core::ptr::read_volatile(poll_reg) };
+    raw_si::enable_polling(0x1000_0000);
+    let raw_enabled = unsafe { core::ptr::read_volatile(poll_reg) };
+    raw_si::disable_polling(0x1000_0000);
+    let raw_disabled = unsafe { core::ptr::read_volatile(poll_reg) };
+    si::set_command(3, 0x1234_5678);
+    let command = unsafe { core::ptr::read_volatile(command_reg) };
+    raw_si::set_command(3, 0x89ab_cdef);
+    let raw_command = unsafe { core::ptr::read_volatile(command_reg) };
+    raw_si::set_command(3, original_command);
+    si::set_xy(
+        ((original_poll >> 16) & 0x3ff) as u16,
+        ((original_poll >> 8) & 0xff) as u8,
+    );
+    si::enable_polling(0x1000_0000 | ((original_poll & 1) << 24));
+    if original_poll & 0x10 == 0 {
+        si::disable_polling(0x1000_0000);
+    }
+    let restored_poll = unsafe { core::ptr::read_volatile(poll_reg) };
+    let restored_command = unsafe { core::ptr::read_volatile(command_reg) };
+    ogc_irq::irq_restore(saved_irq);
+    logger.record(
+        "SI wrapper sets polling coordinates",
+        xy & 0x03ff_ff00 == 0x0155_4600 && xy & !0x03ff_ff00 == original_poll & !0x03ff_ff00,
+    );
+    logger.record(
+        "SI raw sets polling coordinates",
+        raw_xy & 0x03ff_ff00 == 0x02aa_7900
+            && raw_xy & !0x03ff_ff00 == original_poll & !0x03ff_ff00,
+    );
+    logger.record(
+        "SI wrapper enables and disables polling",
+        enabled & 0x10 != 0 && disabled & 0x10 == 0,
+    );
+    logger.record(
+        "SI raw enables and disables polling",
+        raw_enabled & 0x10 != 0 && raw_disabled & 0x10 == 0,
+    );
+    logger.record("SI wrapper writes channel command", command == 0x1234_5678);
+    logger.record("SI raw writes channel command", raw_command == 0x89ab_cdef);
+    logger.record(
+        "SI polling and command registers restored",
+        restored_poll == original_poll && restored_command == original_command,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn probe_si_polling_handler(_: u32, _: *mut core::ffi::c_void) {}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_si_sampling_rates(logger: &mut ProbeLogger) {
+    use ogc_si as si;
+    use ogc_si::sys as raw_si;
+    logger.report_step("SI sampling rate configuration");
+    let base = if ogc_core::powerpc::hollywood_revision() == 0 {
+        0xcc00_6400usize
+    } else {
+        0xcd00_6400usize
+    };
+    let poll = (base + 12 * 4) as *const u32;
+    let video_control = (base + 54 * 4) as *const u32;
+    let pal = ogc_video::get_current_tv_mode() == 1;
+    let saved_irq = ogc_irq::irq_disable();
+    // SAFETY: The initialized SI registers are read while interrupts are masked.
+    let original = unsafe { core::ptr::read_volatile(poll) };
+    let multiplier = if unsafe { core::ptr::read_volatile(video_control) } & 1 != 0 {
+        2
+    } else {
+        1
+    };
+    let xy = |line: u32, count: u32| (line * multiplier << 16) | (count << 8);
+    let original_xy = if pal { xy(0x128, 2) } else { xy(0xf6, 2) };
+    if original & 0x03ff_ff00 != original_xy {
+        ogc_irq::irq_restore(saved_irq);
+        logger.record("SI sampling fixture starts at rate zero", false);
+        return;
+    }
+    let rate1 = if pal { xy(15, 21) } else { xy(15, 18) };
+    let rate11 = if pal { xy(156, 2) } else { xy(131, 2) };
+    si::set_sampling_rate(1);
+    let set = unsafe { core::ptr::read_volatile(poll) };
+    si::set_xy(7, 7);
+    si::refresh_sampling_rate();
+    let refreshed = unsafe { core::ptr::read_volatile(poll) };
+    raw_si::set_sampling_rate(u32::MAX);
+    let raw_set = unsafe { core::ptr::read_volatile(poll) };
+    raw_si::set_xy(9, 9);
+    raw_si::refresh_sampling_rate();
+    let raw_refreshed = unsafe { core::ptr::read_volatile(poll) };
+    si::set_sampling_rate(0);
+    let restored = unsafe { core::ptr::read_volatile(poll) };
+    ogc_irq::irq_restore(saved_irq);
+    logger.record(
+        "SI wrapper sets sampling rate one",
+        set & 0x03ff_ff00 == rate1 && set & !0x03ff_ff00 == original & !0x03ff_ff00,
+    );
+    logger.record(
+        "SI wrapper refresh restores selected sampling rate",
+        refreshed == set,
+    );
+    logger.record(
+        "SI raw clamps and sets sampling rate",
+        raw_set & 0x03ff_ff00 == rate11 && raw_set & !0x03ff_ff00 == original & !0x03ff_ff00,
+    );
+    logger.record(
+        "SI raw refresh restores selected sampling rate",
+        raw_refreshed == raw_set,
+    );
+    logger.record("SI sampling rate fixture restored", restored == original);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_si_polling_handlers_and_transfer(logger: &mut ProbeLogger) {
+    use ogc_si as si;
+    use ogc_si::sys as raw_si;
+    logger.report_step("SI polling handlers and transfers");
+    let base = if ogc_core::powerpc::hollywood_revision() == 0 {
+        0xcc00_6400usize
+    } else {
+        0xcd00_6400usize
+    };
+    let control = (base + 13 * 4) as *const u32;
+    let saved_irq = ogc_irq::irq_disable();
+    let original_interrupt = unsafe { core::ptr::read_volatile(control) } & (1 << 27) != 0;
+    let previous = si::enable_polling_interrupt(0);
+    let disabled = unsafe { core::ptr::read_volatile(control) } & (1 << 27) == 0;
+    let before_enable = si::enable_polling_interrupt(1);
+    let enabled = unsafe { core::ptr::read_volatile(control) } & (1 << 27) != 0;
+    let raw_previous = raw_si::enable_polling_interrupt(0);
+    let raw_disabled = unsafe { core::ptr::read_volatile(control) } & (1 << 27) == 0;
+    let raw_before_enable = raw_si::enable_polling_interrupt(1);
+    let raw_enabled = unsafe { core::ptr::read_volatile(control) } & (1 << 27) != 0;
+    let handler =
+        Some(probe_si_polling_handler as unsafe extern "C" fn(u32, *mut core::ffi::c_void));
+    let registered = si::register_polling_handler(handler);
+    let duplicate = si::register_polling_handler(handler);
+    let removed = si::unregister_polling_handler(handler);
+    let removed_again = si::unregister_polling_handler(handler);
+    let raw_registered = raw_si::register_polling_handler(handler);
+    let raw_duplicate = raw_si::register_polling_handler(handler);
+    let raw_removed = raw_si::unregister_polling_handler(handler);
+    let raw_removed_again = raw_si::unregister_polling_handler(handler);
+    raw_si::enable_polling_interrupt(i32::from(original_interrupt));
+    let restored =
+        (unsafe { core::ptr::read_volatile(control) } & (1 << 27) != 0) == original_interrupt;
+
+    let output = 0u32;
+    let mut input = 0xa5a5_a5a5u32;
+    // SAFETY: The aligned words remain live while interrupts are masked until sync completes.
+    let submit = unsafe {
+        si::transfer(
+            3,
+            (&output as *const u32).cast(),
+            1,
+            (&mut input as *mut u32).cast(),
+            3,
+            None,
+            0,
+        )
+    };
+    let busy = si::busy();
+    let result = si::sync();
+    let idle = si::busy();
+    let mut raw_input = 0xa5a5_a5a5u32;
+    // SAFETY: The aligned words remain live until raw sync completes.
+    let raw_submit = unsafe {
+        raw_si::transfer(
+            3,
+            (&output as *const u32).cast(),
+            1,
+            (&mut raw_input as *mut u32).cast(),
+            3,
+            None,
+            0,
+        )
+    };
+    let raw_busy = raw_si::busy();
+    let raw_result = raw_si::sync();
+    let raw_idle = raw_si::busy();
+    ogc_irq::irq_restore(saved_irq);
+
+    logger.record(
+        "SI wrapper polling interrupt changes and reports previous state",
+        previous == u32::from(original_interrupt) && disabled && before_enable == 0 && enabled,
+    );
+    logger.record(
+        "SI raw polling interrupt changes and reports previous state",
+        raw_previous == 1 && raw_disabled && raw_before_enable == 0 && raw_enabled && restored,
+    );
+    logger.record(
+        "SI wrapper polling handler registration and removal",
+        registered == 1 && duplicate == 1 && removed == 1 && removed_again == 0,
+    );
+    logger.record(
+        "SI raw polling handler registration and removal",
+        raw_registered == 1 && raw_duplicate == 1 && raw_removed == 1 && raw_removed_again == 0,
+    );
+    logger.record(
+        "SI wrapper transfer reports no controller and clears busy",
+        submit == 1
+            && busy == 1
+            && result == si::SI_ERROR_NO_RESPONSE
+            && idle == 0
+            && input & 0xff == 0xa5,
+    );
+    logger.record(
+        "SI raw transfer reports no controller and clears busy",
+        raw_submit == 1
+            && raw_busy == 1
+            && raw_result == si::SI_ERROR_NO_RESPONSE
+            && raw_idle == 0
+            && raw_input & 0xff == 0xa5,
+    );
+}
+
+fn probe_si_raw_queries(logger: &mut ProbeLogger) {
+    use ogc_si::sys as raw_si;
+    logger.record(
+        "SI raw decodes known device and errors",
+        raw_si::decode_type(0x0900_0000) == 0x0900_0000
+            && raw_si::decode_type(0x0004_0000) == 0x0004_0000
+            && raw_si::decode_type(8) == 8
+            && raw_si::decode_type(1) == 0x40,
+    );
+    let mut words = [0x1234_5678u32, 0x8765_4321];
+    let mut valid = true;
+    for channel in [-1, 4] {
+        // SAFETY: The two-word output buffer is writable and remains live.
+        let response = unsafe { raw_si::get_response(channel, words.as_mut_ptr().cast()) };
+        valid &= raw_si::is_chan_busy(channel) == 0
+            && raw_si::get_status(channel) == 0
+            && raw_si::get_response_raw(channel) == 0
+            && response == 0
+            && words == [0x1234_5678, 0x8765_4321]
+            && raw_si::debug_last_response(channel).is_none()
+            && raw_si::get_command(channel) == 0
+            && raw_si::get_type(channel) == 0x40
+            && raw_si::get_type_async(channel, None) == 0x40
+            && raw_si::probe(channel) == 0x80;
+    }
+    logger.record(
+        "SI raw rejects invalid channels without output writes",
+        valid,
+    );
+}
+
+fn probe_si_queries(logger: &mut ProbeLogger) {
+    use ogc_si as si;
+    logger.record(
+        "SI decodes controller and error types",
+        si::decode_type(0x0900_0000) == 0x0900_0000
+            && si::decode_type(0x0500_0000) == 0x0500_0000
+            && si::decode_type(8) == 8
+            && si::decode_type(1) == 0x40
+            && si::decode_type(0x20) == 0x80,
+    );
+    let mut words = [0x1234_5678u32, 0x8765_4321];
+    let mut valid = true;
+    for channel in [-1, 4] {
+        let response = unsafe { si::get_response(channel, words.as_mut_ptr().cast()) };
+        valid &= si::is_chan_busy(channel) == 0
+            && si::get_status(channel) == 0
+            && si::get_response_raw(channel) == 0
+            && response == 0
+            && words == [0x1234_5678, 0x8765_4321]
+            && si::get_command(channel) == 0
+            && si::get_type(channel) == 0x40
+            && si::get_type_async(channel, None) == 0x40
+            && si::probe(channel) == 0x80;
+    }
+    logger.record("SI rejects channels outside zero through three", valid);
+}
+
+unsafe extern "C" fn probe_irq_handler(_: u32, _: *mut core::ffi::c_void) {}
+
+static EXI_UNLOCK_CALLS: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+static EXI_UNLOCK_ARGS: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+
+unsafe extern "C" fn probe_exi_unlock_callback(channel: i32, device: i32) -> i32 {
+    EXI_UNLOCK_ARGS.store(((channel as u32) << 16) | device as u32, Ordering::Release);
+    EXI_UNLOCK_CALLS.fetch_add(1, Ordering::Release);
+    1
+}
+
+fn probe_exi_raw_lock_queue(logger: &mut ProbeLogger) {
+    use ogc_exi::sys as raw_exi;
+    EXI_UNLOCK_CALLS.store(0, Ordering::Release);
+    EXI_UNLOCK_ARGS.store(0, Ordering::Release);
+    let locked = raw_exi::lock(1, 1, None);
+    let blocked = raw_exi::lock(1, 2, Some(probe_exi_unlock_callback));
+    let duplicate = raw_exi::lock(1, 2, Some(probe_exi_unlock_callback));
+    let unlocked = raw_exi::unlock(1);
+    let callback = EXI_UNLOCK_CALLS.load(Ordering::Acquire) == 1
+        && EXI_UNLOCK_ARGS.load(Ordering::Acquire) == 0x0001_0002;
+    let relocked = raw_exi::lock(1, 2, None);
+    let released = raw_exi::unlock(1);
+    logger.record(
+        "Raw EXI lock delivers queued callback once",
+        locked == 1
+            && blocked == 0
+            && duplicate == 0
+            && unlocked == 1
+            && callback
+            && relocked == 1
+            && released == 1
+            && EXI_UNLOCK_CALLS.load(Ordering::Acquire) == 1,
+    );
+}
+
+fn probe_exi_dma_write(logger: &mut ProbeLogger) {
+    use ogc_exi as exi;
+    use ogc_exi::sys as raw_exi;
+    #[repr(align(32))]
+    struct DmaBuffer([u8; 32]);
+    let mut data = DmaBuffer([0x5a; 32]);
+    // SAFETY: The aligned live buffer is published before DMA, and remains owned until sync.
+    unsafe {
+        ogc_cache::dc_store_range(data.0.as_ptr().cast(), 32);
+    }
+    let locked = unsafe { exi::lock(1, 1, None) };
+    if locked == 1 {
+        let selected = exi::select(1, 1, 0);
+        let first = unsafe {
+            exi::dma(
+                1,
+                data.0.as_mut_ptr().cast(),
+                32,
+                exi::EXI_WRITE as i32,
+                None,
+            )
+        };
+        let pending = exi::get_state(1) as u32 & exi::EXI_FLAG_DMA != 0;
+        let first_sync = exi::try_sync(1);
+        let second = unsafe {
+            exi::try_dma(
+                1,
+                data.0.as_mut_ptr().cast(),
+                32,
+                exi::EXI_WRITE as i32,
+                None,
+            )
+        };
+        let second_sync = exi::try_sync(1);
+        let raw = unsafe {
+            raw_exi::dma(
+                1,
+                data.0.as_mut_ptr().cast(),
+                32,
+                exi::EXI_WRITE as i32,
+                None,
+            )
+        };
+        let raw_sync = exi::try_sync(1);
+        let deselected = exi::deselect(1);
+        let unlocked = exi::unlock(1);
+        logger.record(
+            "EXI DMA writes complete and preserve source",
+            selected == 1
+                && first == 1
+                && pending
+                && first_sync.is_ok()
+                && second.is_ok()
+                && second_sync.is_ok()
+                && raw == 1
+                && raw_sync.is_ok()
+                && data.0 == [0x5a; 32]
+                && deselected == 1
+                && unlocked == 1,
+        );
+    } else {
+        logger.record("EXI DMA writes complete and preserve source", false);
+    }
+}
+
+fn probe_exi_immediate_write(logger: &mut ProbeLogger) {
+    use ogc_exi as exi;
+    use ogc_exi::sys as raw_exi;
+    // SAFETY: No callback is installed and the lock is released below.
+    let locked = unsafe { exi::lock(1, 1, None) };
+    if locked == 1 {
+        let selected = exi::select(1, 1, 0);
+        let mut bytes = [0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc];
+        // SAFETY: The byte buffer remains live until each synchronous completion.
+        let first =
+            unsafe { exi::imm(1, bytes.as_mut_ptr().cast(), 4, exi::EXI_WRITE as i32, None) };
+        let pending = exi::get_state(1) as u32 & exi::EXI_FLAG_IMM != 0;
+        let first_sync = exi::try_sync(1);
+        let second =
+            unsafe { exi::try_imm(1, bytes.as_mut_ptr().cast(), 2, exi::EXI_WRITE as i32, None) };
+        let second_sync = exi::try_sync(1);
+        let extended =
+            unsafe { exi::imm_ex(1, bytes.as_mut_ptr().cast(), 6, exi::EXI_WRITE as i32) };
+        let try_extended =
+            unsafe { exi::try_imm_ex(1, bytes.as_mut_ptr().cast(), 6, exi::EXI_WRITE as i32) };
+        let raw =
+            unsafe { raw_exi::imm(1, bytes.as_mut_ptr().cast(), 4, exi::EXI_WRITE as i32, None) };
+        let raw_sync = exi::try_sync(1);
+        let raw_extended =
+            unsafe { raw_exi::imm_ex(1, bytes.as_mut_ptr().cast(), 6, exi::EXI_WRITE as i32) };
+        let deselected = exi::deselect(1);
+        let unlocked = exi::unlock(1);
+        logger.record(
+            "EXI immediate writes complete and preserve source",
+            selected == 1
+                && first == 1
+                && pending
+                && first_sync.is_ok()
+                && second.is_ok()
+                && second_sync.is_ok()
+                && extended == 1
+                && try_extended.is_ok()
+                && raw == 1
+                && raw_sync.is_ok()
+                && raw_extended == 1
+                && bytes == [0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc]
+                && deselected == 1
+                && unlocked == 1,
+        );
+    } else {
+        logger.record("EXI immediate writes complete and preserve source", false);
+    }
+}
+
+fn probe_exi_callback_registry(logger: &mut ProbeLogger) {
+    use ogc_exi as exi;
+    use ogc_exi::sys as raw_exi;
+    let ready = raw_exi::interrupts_ready();
+    let previous = exi::register_exi_callback(1, Some(probe_exi_unlock_callback));
+    let replaced = raw_exi::register_exi_callback(1, previous);
+    let callback = replaced.is_some_and(|callback| {
+        core::ptr::fn_addr_eq(
+            callback,
+            probe_exi_unlock_callback as unsafe extern "C" fn(i32, i32) -> i32,
+        )
+    });
+    logger.record(
+        "EXI callback registry installs and restores callback",
+        ready && callback,
+    );
+}
+
+fn probe_exi_selection(logger: &mut ProbeLogger) {
+    use ogc_exi as exi;
+    use ogc_exi::sys as raw_exi;
+    // SAFETY: The lock has no callback and is released before return.
+    let locked = unsafe { exi::lock(1, 1, None) };
+    if locked == 1 {
+        let selected = exi::select(1, 1, 0);
+        let marked = exi::get_state(1) as u32 & exi::EXI_FLAG_SELECT != 0;
+        let duplicate = exi::try_select(1, 1, 0);
+        let deselected = exi::deselect(1);
+        let cleared = exi::get_state(1) as u32 & exi::EXI_FLAG_SELECT == 0;
+        let selected_again = exi::try_select(1, 1, 0);
+        let deselected_again = exi::try_deselect(1);
+        let raw_selected = raw_exi::select(1, 1, 0);
+        let raw_removed = raw_exi::deselect(1);
+        let sd_selected = exi::select_sd(1, 1, 0);
+        let sd_removed = exi::deselect(1);
+        let try_sd = exi::try_select_sd(1, 1, 0);
+        let try_sd_removed = exi::try_deselect(1);
+        let raw_sd = raw_exi::select_sd(1, 1, 0);
+        let raw_sd_removed = raw_exi::deselect(1);
+        let unlocked = exi::unlock(1);
+        logger.record(
+            "EXI selection tracks state and rejects duplicates",
+            selected == 1
+                && marked
+                && duplicate.is_err()
+                && deselected == 1
+                && cleared
+                && selected_again.is_ok()
+                && deselected_again.is_ok()
+                && raw_selected == 1
+                && raw_removed == 1
+                && sd_selected == 1
+                && sd_removed == 1
+                && try_sd.is_ok()
+                && try_sd_removed.is_ok()
+                && raw_sd == 1
+                && raw_sd_removed == 1
+                && unlocked == 1,
+        );
+    } else {
+        logger.record("EXI selection tracks state and rejects duplicates", false);
+    }
+}
+
+fn probe_exi_locking(logger: &mut ProbeLogger) {
+    use ogc_exi as exi;
+    // SAFETY: No callback is installed, and the acquired lock is released below.
+    let first = unsafe { exi::lock(1, 1, None) };
+    let busy = unsafe { exi::try_lock(1, 1, None) };
+    let released = exi::unlock(1);
+    let second = unsafe { exi::try_lock(1, 1, None) };
+    let released_again = exi::try_unlock(1);
+    let invalid = unsafe { exi::try_lock(-1, 1, None) };
+    logger.record(
+        "EXI lock rejects contention and permits reacquisition",
+        first == 1
+            && busy.is_err()
+            && released == 1
+            && second.is_ok()
+            && released_again.is_ok()
+            && invalid.is_err(),
+    );
+}
+
+fn probe_irq_mask_state(logger: &mut ProbeLogger) {
+    use ogc_irq as irq;
+    use ogc_irq::sys as raw_irq;
+    let mask = 1u32 << irq::IRQ_PI_DEBUG;
+    let saved = irq::irq_disable();
+    let original = raw_irq::mask();
+    irq::disable(mask);
+    let disabled = raw_irq::mask() & mask == 0;
+    irq::enable(mask);
+    let enabled = raw_irq::mask() & mask == mask;
+    irq::mask(mask);
+    let masked = raw_irq::mask() & mask == 0;
+    irq::unmask(mask);
+    let unmasked = raw_irq::mask() & mask == mask;
+    raw_irq::k_irq_disable(mask);
+    let raw_disabled = raw_irq::mask() & mask == 0;
+    raw_irq::k_irq_enable(mask);
+    let raw_enabled = raw_irq::mask() & mask == mask;
+    if original & mask == 0 {
+        raw_irq::k_irq_disable(mask);
+    }
+    let restored = raw_irq::mask() == original;
+    irq::irq_restore(saved);
+    logger.record(
+        "IRQ mask operations update and restore debug bit",
+        disabled && enabled && masked && unmasked && raw_disabled && raw_enabled && restored,
+    );
+}
+
+fn probe_irq_delivery_state(logger: &mut ProbeLogger) {
+    use ogc_irq as irq;
+    use ogc_irq::sys as raw_irq;
+    let before: u32;
+    let disabled: u32;
+    let nested: u32;
+    let restored_nested: u32;
+    let restored: u32;
+    // SAFETY: This reads MSR and restores the saved interrupt state before reporting.
+    unsafe {
+        core::arch::asm!("mfmsr {value}", value = out(reg) before, options(nomem, nostack));
+    }
+    let outer = irq::irq_disable();
+    unsafe {
+        core::arch::asm!("mfmsr {value}", value = out(reg) disabled, options(nomem, nostack));
+    }
+    let inner = raw_irq::k_irq_disable_all();
+    unsafe {
+        core::arch::asm!("mfmsr {value}", value = out(reg) nested, options(nomem, nostack));
+    }
+    raw_irq::k_irq_restore_all(inner);
+    unsafe {
+        core::arch::asm!("mfmsr {value}", value = out(reg) restored_nested, options(nomem, nostack));
+    }
+    irq::irq_restore(outer);
+    unsafe {
+        core::arch::asm!("mfmsr {value}", value = out(reg) restored, options(nomem, nostack));
+    }
+    let ee = 1u32 << 15;
+    logger.record(
+        "IRQ nested disable and restore preserve MSR delivery state",
+        disabled & ee == 0
+            && nested & ee == 0
+            && restored_nested & ee == 0
+            && restored & ee == before & ee,
+    );
+}
+
+fn probe_irq_raw_handler_registry(logger: &mut ProbeLogger) {
+    use ogc_irq as irq;
+    use ogc_irq::sys as raw_irq;
+    let id = irq::IRQ_PI_DEBUG;
+    if raw_irq::k_irq_get(id).is_none() {
+        let previous = raw_irq::k_irq_set(id, Some(probe_irq_handler), core::ptr::null_mut());
+        let registered = raw_irq::k_irq_get(id).is_some_and(|handler| {
+            core::ptr::fn_addr_eq(
+                handler,
+                probe_irq_handler as unsafe extern "C" fn(u32, *mut core::ffi::c_void),
+            )
+        });
+        let cleared = irq::clear(id).is_some_and(|handler| {
+            core::ptr::fn_addr_eq(
+                handler,
+                probe_irq_handler as unsafe extern "C" fn(u32, *mut core::ffi::c_void),
+            )
+        });
+        logger.record(
+            "Raw IRQ registry stores and clears handler",
+            previous.is_none() && registered && cleared && raw_irq::k_irq_get(id).is_none(),
+        );
+    } else {
+        logger.record("Raw IRQ registry stores and clears handler", false);
+    }
+}
+
+fn probe_irq_handler_registry(logger: &mut ProbeLogger) {
+    use ogc_irq as irq;
+    let id = irq::IRQ_PI_DEBUG;
+    let initial = irq::get_handler(id);
+    if initial.is_none() {
+        // SAFETY: The handler has static lifetime and carries no user pointer.
+        let previous = unsafe { irq::request(id, Some(probe_irq_handler), core::ptr::null_mut()) };
+        let registered = irq::get_handler(id).is_some_and(|handler| {
+            core::ptr::fn_addr_eq(
+                handler,
+                probe_irq_handler as unsafe extern "C" fn(u32, *mut core::ffi::c_void),
+            )
+        });
+        let removed = irq::free(id).is_some_and(|handler| {
+            core::ptr::fn_addr_eq(
+                handler,
+                probe_irq_handler as unsafe extern "C" fn(u32, *mut core::ffi::c_void),
+            )
+        });
+        logger.record(
+            "IRQ handler registry stores and removes handler",
+            previous.is_none() && registered && removed && irq::get_handler(id).is_none(),
+        );
+    } else {
+        logger.record("IRQ handler registry stores and removes handler", false);
+    }
+}
+
+struct ErrnoProbe {
+    address: usize,
+    value: i32,
+}
+
+unsafe extern "C" fn probe_errno_worker(arg: *mut core::ffi::c_void) -> *mut core::ffi::c_void {
+    // SAFETY: The parent owns this probe and waits for the worker to finish.
+    let probe = unsafe { &mut *arg.cast::<ErrnoProbe>() };
+    let reent = sysbase::current_reent();
+    let location = sysbase::errno_location();
+    // SAFETY: The calling worker owns its reentrancy record.
+    unsafe {
+        sysbase::set_reent_errno(reent, 13);
+    }
+    probe.address = location as usize;
+    probe.value = sysbase::errno();
+    core::ptr::null_mut()
+}
+
+fn probe_sysbase_errno(logger: &mut ProbeLogger) {
+    use ogc_sysbase as base;
+    use ogc_sysbase::error::{ErrnoKind, describe_errno};
+    let reent = base::current_reent();
+    let location = base::errno_location();
+    let saved = base::errno();
+    // SAFETY: The current thread exclusively owns this field.
+    unsafe {
+        base::set_reent_errno(reent, 22);
+    }
+    let mut probe = ErrnoProbe {
+        address: 0,
+        value: 0,
+    };
+    let mut raw = ogc_lwp::sys::LWP_THREAD_NULL;
+    // SAFETY: The probe remains writable until the worker is joined.
+    let worker = unsafe {
+        ogc_lwp::ThreadHandle::create(
+            &mut raw,
+            Some(probe_errno_worker),
+            (&mut probe as *mut ErrnoProbe).cast(),
+            core::ptr::null_mut(),
+            8192,
+            64,
+        )
+    };
+    let joined = worker.is_ok_and(|worker| worker.join().is_ok());
+    let parent_value = base::errno();
+    // SAFETY: Restore the caller's errno after the worker has exited.
+    unsafe {
+        base::set_reent_errno(reent, saved);
+    }
+    logger.record(
+        "Newlib errno is isolated per thread",
+        !reent.is_null()
+            && !location.is_null()
+            && joined
+            && parent_value == 22
+            && probe.value == 13
+            && probe.address != 0
+            && probe.address != location as usize,
+    );
+    logger.record(
+        "Newlib errno classification maps known and unknown codes",
+        describe_errno(2).kind == ErrnoKind::NotFound
+            && describe_errno(13).kind == ErrnoKind::PermissionDenied
+            && describe_errno(28).kind == ErrnoKind::StorageFull
+            && describe_errno(123456).kind == ErrnoKind::Other,
+    );
+}
+
+fn probe_device_registry(logger: &mut ProbeLogger) {
+    use ogc_sysbase as base;
+    let name = c"codexprobe";
+    let path = c"codexprobe:/sample";
+    let other = c"codexprobeextra:/sample";
+    // SAFETY: Zero is valid for every field in this C-compatible table.
+    let mut device: base::Devoptab = unsafe { core::mem::zeroed() };
+    device.name = name.as_ptr();
+    // SAFETY: This probe serializes its table access and removes the local entry before return.
+    let index = unsafe { base::add_device(&device) };
+    let found = base::find_device(path);
+    let direct = unsafe { base::FindDevice(path.as_ptr()) };
+    logger.record(
+        "Device registry finds the exact prefix",
+        index >= 3 && found == index && direct == index && base::find_device(other) == -1,
+    );
+    let table = base::device_op_tab(path);
+    let raw_table = unsafe { base::GetDeviceOpTab(path.as_ptr()) };
+    logger.record(
+        "Device registry returns the registered table",
+        table == Some(&device as *const _) && core::ptr::eq(raw_table, &device),
+    );
+    let removed = base::remove_device(name);
+    logger.record(
+        "Device registry removes the registered name",
+        removed == 0 && base::find_device(path) == -1 && base::device_op_tab(path).is_none(),
+    );
+    let second = unsafe { base::AddDevice(&device) };
+    let removed_raw = unsafe { base::RemoveDevice(path.as_ptr()) };
+    logger.record(
+        "Device C registry removes by path",
+        second >= 3 && removed_raw == 0 && unsafe { base::FindDevice(path.as_ptr()) } == -1,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_ipc_file_reads(logger: &mut ProbeLogger) {
+    use ogc_ipc as ipc;
+
+    #[repr(align(32))]
+    struct Aligned<const N: usize>([u8; N]);
+
+    logger.report_step("IPC file read and seek");
+    let Ok(file) = ipc::open_file(
+        c"/title/00000001/00000002/data/setting.txt",
+        ipc::IPC_OPEN_READ,
+    ) else {
+        for label in [
+            "IPC descriptor identifies open file",
+            "IPC reads settings bytes",
+            "IPC seek selects file offsets",
+            "IPC exact read detects short file",
+        ] {
+            logger.record(label, false);
+        }
+        return;
+    };
+    let raw_file = ipc::FileDescriptor::new(file.raw());
+    let mut raw_bytes = Aligned([0; 32]);
+    let raw_read = raw_file.read(&mut raw_bytes.0) == Ok(32);
+    let reset = file.seek(0, 0) == Ok(0);
+    let mut all = Aligned([0; 256]);
+    let full_read = file.read(&mut all.0) == Ok(256);
+    let mut decoded = all.0;
+    let mut key = 0x73b5_dbfau32;
+    for byte in &mut decoded {
+        *byte ^= key as u8;
+        key = key.rotate_left(1);
+    }
+    let valid_settings = decoded.windows(5).any(|bytes| bytes == b"AREA=")
+        && decoded.windows(5).any(|bytes| bytes == b"GAME=");
+    logger.record(
+        "IPC descriptor identifies open file",
+        raw_read && reset && full_read && valid_settings && raw_bytes.0 == all.0[..32],
+    );
+    logger.record("IPC reads settings bytes", full_read && valid_settings);
+
+    let mut chunk = Aligned([0; 32]);
+    let seek = file.seek(64, 0) == Ok(64);
+    let chunk_read = file.read(&mut chunk.0) == Ok(32) && chunk.0 == all.0[64..96];
+    let end = file.seek(-16, 2) == Ok(240);
+    logger.record(
+        "IPC seek selects file offsets",
+        full_read && seek && chunk_read && end,
+    );
+
+    let short = file.read_exact(&mut chunk.0) == Err(ipc::IPC_EINVAL);
+    let positioned = file.seek(128, 0) == Ok(128);
+    let exact = file.read_exact(&mut chunk.0) == Ok(()) && chunk.0 == all.0[128..160];
+    let closed = file.close().is_ok();
+    logger.record(
+        "IPC exact read detects short file",
+        full_read && short && positioned && exact && closed,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_ipc_ioctl_file_stats(logger: &mut ProbeLogger) {
+    use ogc_ipc as ipc;
+    logger.report_step("IPC file stat ioctls");
+    let Ok(file) = ipc::open_file(
+        c"/title/00000001/00000002/data/setting.txt",
+        ipc::IPC_OPEN_READ,
+    ) else {
+        for label in [
+            "IPC ioctl reads file stats",
+            "IPC ioctl_result reads guarded file stats",
+            "IPC ioctl_async returns file stats",
+        ] {
+            logger.record(label, false);
+        }
+        return;
+    };
+    let positioned = file.seek(64, 0) == Ok(64);
+    let expected = [0, 0, 1, 0, 0, 0, 0, 64];
+    let mut first = AlignedIsfsBytes([0xa5; 32]);
+    let result = file.ioctl(
+        11,
+        ipc::IoctlBuffers::from_slices(None, Some(&mut first.0[..8])),
+    );
+    logger.record(
+        "IPC ioctl reads file stats",
+        positioned && result == 0 && first.0[..8] == expected && first.0[8..] == [0xa5; 24],
+    );
+    let mut guarded = [0xa5; 10];
+    let result = file.ioctl_result(
+        11,
+        ipc::IoctlBuffers::from_slices(None, Some(&mut guarded[1..9])),
+    );
+    logger.record(
+        "IPC ioctl_result reads guarded file stats",
+        positioned
+            && result == Ok(0)
+            && guarded[1..9] == expected
+            && guarded[0] == 0xa5
+            && guarded[9] == 0xa5,
+    );
+    let mut asynchronous = AlignedIsfsBytes([0xa5; 32]);
+    // SAFETY: The aligned output and callback remain live until the request completes.
+    let (submit, reply) = run_isfs_async_and_wait(|| unsafe {
+        file.ioctl_async(
+            11,
+            ipc::IoctlBuffers::from_slices(None, Some(&mut asynchronous.0[..8])),
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    });
+    let closed = file.close().is_ok();
+    logger.record(
+        "IPC ioctl_async returns file stats",
+        positioned
+            && submit >= 0
+            && reply == 0
+            && asynchronous.0[..8] == expected
+            && asynchronous.0[8..] == [0xa5; 24]
+            && closed,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_ipc_buffer_bounds(logger: &mut ProbeLogger) {
+    use ogc_ipc as ipc;
+    logger.report_step("IPC buffer boundary accessors");
+    let saved_irq = ogc_irq::irq_disable();
+    let lo = ipc::get_buffer_lo();
+    let hi = ipc::get_buffer_hi();
+    let extent = (hi as usize).checked_sub(lo as usize).unwrap_or(0);
+    if extent < 160 {
+        ogc_irq::irq_restore(saved_irq);
+        logger.record("IPC buffer fixture has room for bounds checks", false);
+        return;
+    }
+    let lo1 = lo.wrapping_byte_add(32);
+    let hi1 = hi.wrapping_byte_sub(32);
+    let lo2 = lo.wrapping_byte_add(64);
+    let hi2 = hi.wrapping_byte_sub(64);
+    // SAFETY: All temporary boundaries remain within the existing buffer,
+    // and interrupts stay masked until the original bounds are restored.
+    unsafe {
+        ipc::set_buffer_lo(lo1);
+        ipc::set_buffer_hi(hi1);
+    }
+    let rust_lo = ipc::get_buffer_lo();
+    let rust_hi = ipc::get_buffer_hi();
+    let c_lo = ipc::IPC_GetBufferLo();
+    let c_hi = ipc::IPC_GetBufferHi();
+    unsafe {
+        ipc::IPC_SetBufferLo(lo2);
+        ipc::IPC_SetBufferHi(hi2);
+    }
+    let changed_lo = ipc::get_buffer_lo();
+    let changed_hi = ipc::get_buffer_hi();
+    let changed_c_lo = ipc::IPC_GetBufferLo();
+    let changed_c_hi = ipc::IPC_GetBufferHi();
+    unsafe {
+        ipc::set_buffer_lo(lo);
+        ipc::set_buffer_hi(hi);
+    }
+    let restored = ipc::get_buffer_lo() == lo && ipc::get_buffer_hi() == hi;
+    ogc_irq::irq_restore(saved_irq);
+    logger.record(
+        "IPC Rust buffer setters and getters update bounds",
+        rust_lo == lo1 && rust_hi == hi1 && c_lo == lo1 && c_hi == hi1,
+    );
+    logger.record(
+        "IPC C buffer setters and getters update bounds",
+        changed_lo == lo2 && changed_hi == hi2 && changed_c_lo == lo2 && changed_c_hi == hi2,
+    );
+    logger.record("IPC buffer bounds restored", restored);
+}
+
+fn probe_ipc_heap_handles(logger: &mut ProbeLogger) {
+    use ogc_ipc as ipc;
+    logger.record(
+        "IPC heap rejects nonpositive size",
+        ipc::HeapId::create(0).is_err(),
+    );
+    let default = ipc::HeapId::default_heap();
+    logger.record(
+        "IPC default heap remains stable",
+        default.is_ok() && default == ipc::HeapId::default_heap(),
+    );
+    if let Ok(heap) = ipc::HeapId::create(1024) {
+        logger.record("IPC created heap has valid ID", heap.raw() >= 0);
+        let first = heap.alloc(32);
+        let second = heap.alloc(64);
+        if let (Some(first), Some(second)) = (first, second) {
+            let a = first.as_ptr().cast::<u8>();
+            let b = second.as_ptr().cast::<u8>();
+            // SAFETY: Each allocation has the requested size and is uniquely owned.
+            unsafe {
+                core::ptr::write_bytes(a, 0x35, 32);
+                core::ptr::write_bytes(b, 0xa7, 64);
+            }
+            // SAFETY: Both buffers remain allocated and readable.
+            let intact = unsafe {
+                core::slice::from_raw_parts(a, 32)
+                    .iter()
+                    .all(|v| *v == 0x35)
+                    && core::slice::from_raw_parts(b, 64)
+                        .iter()
+                        .all(|v| *v == 0xa7)
+            };
+            logger.record(
+                "IPC allocations are aligned and distinct",
+                intact && (a as usize) % 32 == 0 && (b as usize) % 32 == 0,
+            );
+            // SAFETY: These allocations belong to this heap and are freed once.
+            unsafe {
+                heap.free(first);
+                heap.free(second);
+            }
+            let reused = heap.alloc(800);
+            logger.record(
+                "IPC freed space supports a larger allocation",
+                reused.is_some(),
+            );
+            if let Some(block) = reused {
+                unsafe {
+                    heap.free(block);
+                }
+            }
+        } else {
+            logger.record("IPC allocations are aligned and distinct", false);
+            logger.record("IPC freed space supports a larger allocation", false);
+            if let Some(block) = first {
+                unsafe {
+                    heap.free(block);
+                }
+            }
+            if let Some(block) = second {
+                unsafe {
+                    heap.free(block);
+                }
+            }
+        }
+    } else {
+        logger.record("IPC created heap has valid ID", false);
+        logger.record("IPC allocations are aligned and distinct", false);
+        logger.record("IPC freed space supports a larger allocation", false);
+    }
+}
+
+fn probe_wd_scan_defaults(logger: &mut ProbeLogger) {
+    use ogc_wd as wd;
+    let mut params = wd::ScanParameters {
+        channel_bitmap: 1,
+        max_channel_time: 1,
+        bssid: [0x12; 6],
+        scan_type: 3,
+        ssid_length: 4,
+        ssid: [0x34; wd::SSID_LENGTH],
+        ssid_match_mask: [0x56; 6],
+    };
+    // SAFETY: The parameter block is writable and remains live for the call.
+    unsafe {
+        wd::set_default_scan_parameters(&mut params);
+    }
+    let defaults = wd::default_scan_parameters();
+    let matches = |p: &wd::ScanParameters| {
+        p.channel_bitmap == 0xfffe
+            && p.max_channel_time == 100
+            && p.bssid == [0xff; 6]
+            && p.scan_type == 0
+            && p.ssid_length == 0
+            && p.ssid == [0; wd::SSID_LENGTH]
+            && p.ssid_match_mask == [0xff; 6]
+    };
+    logger.record(
+        "WD defaults overwrite every scan parameter",
+        matches(&params),
+    );
+    logger.record(
+        "WD default scan constructor returns expected fields",
+        matches(&defaults),
+    );
+}
+
+fn probe_wd_information_elements(logger: &mut ProbeLogger) {
+    use ogc_wd as wd;
+    const HEADER: usize = core::mem::size_of::<wd::BssDescriptor>();
+    let mut bytes = [0u8; HEADER + 9];
+    let offset = core::mem::offset_of!(wd::BssDescriptor, ies_length);
+    bytes[offset..offset + 2].copy_from_slice(&9u16.to_ne_bytes());
+    bytes[HEADER..].copy_from_slice(&[1, 2, 0xaa, 0xbb, 5, 1, 0xcc, 9, 0]);
+    let ptr = bytes.as_ptr().cast::<wd::BssDescriptor>();
+    // SAFETY: The descriptor and the declared trailing bytes are readable.
+    let count = unsafe { wd::get_number_of_ies(ptr, bytes.len()) };
+    logger.record(
+        "WD counts complete nonempty elements",
+        count == 2 && wd::number_of_ies(&bytes) == 2,
+    );
+    let length = unsafe { wd::get_ie_length(ptr, bytes.len(), 1) };
+    logger.record(
+        "WD element lengths and missing IDs",
+        length == 2 && wd::ie_length(&bytes, 5) == Ok(1) && wd::ie_length(&bytes, 7).is_err(),
+    );
+    let mut out = [0x55; 4];
+    let copied = unsafe { wd::get_ie(ptr, bytes.len(), 5, out.as_mut_ptr(), out.len()) };
+    logger.record(
+        "WD copies payload and clears remaining buffer",
+        copied == 0 && out == [0xcc, 0, 0, 0],
+    );
+    let mut short = [0x77; 1];
+    let failed = wd::copy_ie(&bytes, 1, &mut short);
+    let mut exact = [0; 2];
+    let ok = wd::copy_ie(&bytes, 1, &mut exact);
+    logger.record(
+        "WD safe copy checks capacity",
+        failed.is_err() && short == [0x77] && ok.is_ok() && exact == [0xaa, 0xbb],
+    );
+    logger.record(
+        "WD rejects truncated descriptor",
+        unsafe { wd::get_ie_length(ptr, HEADER, 1) } == -1
+            && wd::number_of_ies(&bytes[..HEADER]) == 0,
+    );
+}
+
+fn probe_video_console_state(logger: &mut ProbeLogger) {
+    use ogc_video as video;
+    let default = video::console_get_default();
+    // SAFETY: Zero is valid for the console's pointer, callback, and scalar fields.
+    let mut console: video::PrintConsole = unsafe { core::mem::zeroed() };
+    console.con_cols = 80;
+    console.con_rows = 30;
+    console.cursor_x = 9;
+    console.cursor_y = 6;
+    let mut glyph = [0x5au8; 1];
+    let font = video::ConsoleFont {
+        gfx: glyph.as_mut_ptr(),
+        ascii_offset: 32,
+        num_chars: 96,
+    };
+    // SAFETY: The local console is live until the previous selection is restored.
+    let previous = unsafe { video::console_select(&mut console) };
+    let mut cols = 0;
+    let mut rows = 0;
+    let mut col = 0;
+    let mut row = 0;
+    video::console_get_metrics(&mut cols, &mut rows);
+    video::console_get_position(&mut col, &mut row);
+    // SAFETY: The selected console and font remain live for these calls.
+    unsafe {
+        video::console_set_font(core::ptr::null_mut(), &font);
+        video::console_set_window(core::ptr::null_mut(), 75, 25, 20, 20);
+    }
+    let mut window_col = 0;
+    let mut window_row = 0;
+    video::console_get_position(&mut window_col, &mut window_row);
+    // SAFETY: Restore the selection returned by console_select.
+    let selected = unsafe { video::console_select(previous) };
+    let default_ok = !default.is_null() && unsafe { (*default).font.num_chars == 256 };
+    logger.record(
+        "Video console selection exposes metrics and position",
+        selected == &mut console as *mut _ && cols == 80 && rows == 30 && col == 9 && row == 6,
+    );
+    logger.record(
+        "Video console window clips and font copies",
+        console.window_x == 75
+            && console.window_y == 25
+            && console.window_width == 6
+            && console.window_height == 6
+            && window_col == 1
+            && window_row == 1
+            && console.font.gfx == glyph.as_mut_ptr()
+            && console.font.ascii_offset == 32
+            && console.font.num_chars == 96,
+    );
+    logger.record("Video default console supplies its font", default_ok);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_video_register_checks(logger: &mut ProbeLogger) {
+    use ogc_video as video;
+    use ogc_video::sys as raw_video;
+    logger.report_step("Video register checks and retrace waits");
+    let mode = unsafe { video::get_preferred_mode(core::ptr::null_mut()) };
+    let Some(regions) = crate::probe_support::framebuffer_regions() else {
+        logger.record("Video register fixture has two framebuffers", false);
+        return;
+    };
+    if mode.is_null() {
+        logger.record("Video register fixture has an active mode", false);
+        return;
+    }
+    // SAFETY: The live mode and both complete framebuffer regions belong to the probe.
+    let mut other_mode = unsafe { *mode };
+    other_mode.vi_tv_mode ^= 2;
+    let saved_irq = ogc_irq::irq_disable();
+    let framebuffer = raw_video::get_next_framebuffer();
+    let other = if framebuffer as usize == regions[0].start {
+        regions[1].start
+    } else {
+        regions[0].start
+    } as *mut core::ffi::c_void;
+    let registers = 0xcc00_2000usize as *const u16;
+    let read = |index: usize| unsafe { core::ptr::read_volatile(registers.add(index)) };
+    let snapshot = raw_video::read_register_snapshot();
+    let direct = snapshot.control == read(1)
+        && snapshot.vertical_timing == read(0)
+        && snapshot.top_field_high == read(14)
+        && snapshot.top_field_low == read(15)
+        && snapshot.bottom_field_high == read(18)
+        && snapshot.bottom_field_low == read(19)
+        && snapshot.current_framebuffer == raw_video::get_current_framebuffer() as usize
+        && snapshot.next_framebuffer == framebuffer as usize;
+    let control = unsafe {
+        video::control_register_matches(mode) && !video::control_register_matches(&mut other_mode)
+    };
+    let raw_control = unsafe {
+        raw_video::control_register_matches(mode) == 1
+            && raw_video::control_register_matches(&mut other_mode) == 0
+    };
+    let framebuffer_match = unsafe {
+        video::framebuffer_registers_match(framebuffer, mode)
+            && !video::framebuffer_registers_match(other, mode)
+    };
+    let raw_framebuffer_match = unsafe {
+        raw_video::framebuffer_registers_match(framebuffer, mode) == 1
+            && raw_video::framebuffer_registers_match(other, mode) == 0
+    };
+    let mode_value = unsafe { (*mode).vi_tv_mode };
+    let expected_tv = match (mode_value >> 2) & 7 {
+        0 | 3 => 0,
+        2 => 2,
+        5 => 5,
+        _ => 1,
+    };
+    let expected_scan = if read(54) & 1 != 0 {
+        2
+    } else {
+        u32::from((read(1) >> 2) & 1)
+    };
+    let tv = video::get_current_tv_mode();
+    let raw_tv = raw_video::get_current_tv_mode();
+    let scan = video::get_video_scan_mode();
+    ogc_irq::irq_restore(saved_irq);
+    let before = raw_video::retrace_count();
+    video::wait_vsync();
+    let after = raw_video::retrace_count();
+    raw_video::wait_v_sync();
+    let raw_after = raw_video::retrace_count();
+    logger.record("Video raw register snapshot matches VI registers", direct);
+    logger.record("Video control match distinguishes mode", control);
+    logger.record("Video raw control match distinguishes mode", raw_control);
+    logger.record(
+        "Video framebuffer match distinguishes buffers",
+        framebuffer_match,
+    );
+    logger.record(
+        "Video raw framebuffer match distinguishes buffers",
+        raw_framebuffer_match,
+    );
+    logger.record(
+        "Video current TV mode matches configured mode",
+        tv == expected_tv,
+    );
+    logger.record(
+        "Video raw TV mode matches configured mode",
+        raw_tv == expected_tv,
+    );
+    logger.record(
+        "Video scan mode matches VI registers",
+        scan == expected_scan,
+    );
+    logger.record("Video wait_vsync observes retrace", after != before);
+    logger.record("Video raw wait_v_sync observes retrace", raw_after != after);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_video_framebuffer_updates(logger: &mut ProbeLogger) {
+    use ogc_video as video;
+    use ogc_video::sys as raw_video;
+    logger.report_step("Video framebuffer updates and display state");
+    let mode = unsafe { raw_video::get_preferred_mode(core::ptr::null_mut()) };
+    let Some(regions) = crate::probe_support::framebuffer_regions() else {
+        logger.record("Video update fixture has two framebuffers", false);
+        return;
+    };
+    if mode.is_null() {
+        logger.record("Video update fixture has a preferred mode", false);
+        return;
+    }
+    let original = raw_video::get_current_framebuffer();
+    let next = raw_video::get_next_framebuffer();
+    if original != next
+        || (original as usize != regions[0].start && original as usize != regions[1].start)
+    {
+        logger.record("Video update fixture has one stable framebuffer", false);
+        return;
+    }
+    let other = if original as usize == regions[0].start {
+        regions[1].start
+    } else {
+        regions[0].start
+    } as *mut core::ffi::c_void;
+    // SAFETY: Both framebuffers remain allocated for the complete probe.
+    unsafe { raw_video::set_framebuffer(other) };
+    let raw_immediate = unsafe { raw_video::framebuffer_registers_match(other, mode) == 1 };
+    unsafe { video::set_framebuffer(original) };
+    let wrapper_immediate = unsafe { raw_video::framebuffer_registers_match(original, mode) == 1 };
+    unsafe { raw_video::set_next_framebuffer(other) };
+    let before_flush = raw_video::get_next_framebuffer() == original;
+    raw_video::flush();
+    let published = raw_video::get_next_framebuffer() == other;
+    for _ in 0..4 {
+        if raw_video::get_current_framebuffer() == other {
+            break;
+        }
+        video::wait_vsync();
+    }
+    let swapped = raw_video::get_current_framebuffer() == other
+        && unsafe { raw_video::framebuffer_registers_match(other, mode) == 1 };
+    unsafe { video::set_next_framebuffer(original) };
+    video::flush();
+    for _ in 0..4 {
+        if raw_video::get_current_framebuffer() == original {
+            break;
+        }
+        video::wait_vsync();
+    }
+    let restored = raw_video::get_current_framebuffer() == original
+        && raw_video::get_next_framebuffer() == original
+        && unsafe { raw_video::framebuffer_registers_match(original, mode) == 1 };
+
+    let registers = 0xcc00_2000usize as *const u16;
+    let saved_irq = ogc_irq::irq_disable();
+    let original_vertical = unsafe { core::ptr::read_volatile(registers) };
+    raw_video::set_black(1);
+    let black_vertical = unsafe { core::ptr::read_volatile(registers) };
+    raw_video::set_black(0);
+    let restored_vertical = unsafe { core::ptr::read_volatile(registers) };
+    let cable_register = unsafe { core::ptr::read_volatile(registers.add(55)) };
+    let cable = raw_video::have_component_cable();
+    ogc_irq::irq_restore(saved_irq);
+    let mut copied = unsafe { *mode };
+    copied.vi_tv_mode = u32::MAX;
+    copied.fb_width = 1;
+    copied.xfb_height = 1;
+    copied.vi_height = 1;
+    copied.xfb_mode = u32::MAX;
+    let copied_ptr = unsafe { raw_video::get_preferred_mode(&mut copied) };
+    let current = unsafe { *mode };
+    let expected_format = match conf::get_video() {
+        1 if conf::get_eu_rgb60() > 0 => 5,
+        1 => 1,
+        2 => 2,
+        _ => 0,
+    };
+    let expected_progressive = conf::get_progressive_scan() > 0 && cable != 0;
+    let mode_ok = copied_ptr == &mut copied as *mut _
+        && copied.vi_tv_mode == current.vi_tv_mode
+        && copied.vi_tv_mode == ((expected_format << 2) | u32::from(expected_progressive) * 2)
+        && copied.fb_width == current.fb_width
+        && copied.xfb_height == current.xfb_height
+        && copied.vi_height == current.vi_height
+        && copied.xfb_mode == current.xfb_mode;
+    logger.record("Video raw immediate framebuffer programs VI", raw_immediate);
+    logger.record(
+        "Video wrapper immediate framebuffer programs VI",
+        wrapper_immediate,
+    );
+    logger.record(
+        "Video raw next framebuffer latches after flush",
+        before_flush && published && swapped,
+    );
+    logger.record(
+        "Video raw flush publishes framebuffer",
+        before_flush && published && swapped,
+    );
+    logger.record("Video framebuffer fixture restored", restored);
+    logger.record(
+        "Video raw black toggles vertical display",
+        original_vertical & 0xfff0 != 0
+            && black_vertical & 0xfff0 == 0
+            && restored_vertical == original_vertical,
+    );
+    logger.record(
+        "Video raw component cable matches VI register",
+        cable == u32::from(cable_register & 1),
+    );
+    logger.record(
+        "Video raw preferred mode copies into caller storage",
+        mode_ok,
+    );
+}
+
+fn probe_video_queries(logger: &mut ProbeLogger) {
+    use ogc_video as video;
+    // SAFETY: A null destination requests the active preferred mode.
+    let preferred = unsafe { video::get_preferred_mode(core::ptr::null_mut()) };
+    if preferred.is_null() {
+        logger.record(
+            "Video framebuffer size aligns width and adds AA rows",
+            false,
+        );
+    } else {
+        // SAFETY: The preferred mode points to an initialized mode.
+        let mut mode = unsafe { *preferred };
+        mode.fb_width = 17;
+        mode.xfb_height = 3;
+        mode.aa = 0;
+        // SAFETY: Both calls use the live local mode.
+        let plain = unsafe { video::get_frame_buffer_size(&mut mode) };
+        mode.aa = 1;
+        let antialiased = unsafe { video::get_frame_buffer_size(&mut mode) };
+        logger.record(
+            "Video framebuffer size aligns width and adds AA rows",
+            plain == 192 && antialiased == 448,
+        );
+    }
+    let tv = video::get_current_tv_mode();
+    let scan = video::get_video_scan_mode();
+    let line = video::get_current_line();
+    let field = video::get_next_field();
+    let snapshot = video::snapshot();
+    logger.record(
+        "Video snapshot retains last queried state",
+        snapshot.current_tv_mode == tv
+            && snapshot.video_scan_mode == scan
+            && snapshot.current_line == line
+            && snapshot.next_field == field
+            && field <= 1,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_reset_registration(logger: &mut ProbeLogger) {
+    let empty = raw_system::LwpNode {
+        next: core::ptr::null_mut(),
+        prev: core::ptr::null_mut(),
+    };
+    let mut first = raw_system::SysResetInfo {
+        node: empty,
+        func: None,
+        prio: 0x7fff_4321,
+    };
+    let mut second = raw_system::SysResetInfo {
+        node: empty,
+        func: None,
+        prio: 0x7fff_4321,
+    };
+    let first_ptr = &mut first as *mut raw_system::SysResetInfo;
+    let second_ptr = &mut second as *mut raw_system::SysResetInfo;
+    // SAFETY: Both records remain live until their removal below.
+    unsafe {
+        raw_system::sys_register_reset_func(first_ptr);
+        raw_system::sys_register_reset_func(second_ptr);
+        raw_system::sys_register_reset_func(second_ptr);
+    }
+    let registered = raw_system::snapshot_reset_registration();
+    let linked = first.node.next == second_ptr.cast()
+        && second.node.prev == first_ptr.cast()
+        && second.node.next != second_ptr.cast();
+    // SAFETY: Both records remain live while they are removed.
+    unsafe {
+        raw_system::sys_unregister_reset_func(second_ptr);
+    }
+    let unlinked = first.node.next != second_ptr.cast()
+        && second.node.next.is_null()
+        && second.node.prev.is_null();
+    let removed = raw_system::snapshot_reset_registration();
+    unsafe {
+        raw_system::sys_unregister_reset_func(first_ptr);
+    }
+    logger.record(
+        "System reset registration tracks the same live record",
+        linked
+            && unlinked
+            && registered.register_called
+            && registered.register_ptr == second_ptr as usize
+            && removed.unregister_called
+            && removed.unregister_ptr == second_ptr as usize,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+static SYSTEM_POWER_CALLBACK_COUNT: core::sync::atomic::AtomicU32 =
+    core::sync::atomic::AtomicU32::new(0);
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn probe_power_callback() {
+    SYSTEM_POWER_CALLBACK_COUNT.fetch_add(1, Ordering::Release);
+}
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn probe_reset_callback(_: u32, _: *mut core::ffi::c_void) {}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_callbacks(logger: &mut ProbeLogger) {
+    SYSTEM_POWER_CALLBACK_COUNT.store(0, Ordering::Release);
+    // SAFETY: The callbacks have static lifetime and the previous handlers are restored.
+    let previous = unsafe { raw_system::sys_set_power_callback(Some(probe_power_callback)) };
+    ogc_lwp::sys::sleep_ticks(ogc_lwp::sys::TICKS_PER_SECOND / 10);
+    unsafe {
+        raw_system::sys_do_power_cb();
+    }
+    let first = raw_system::snapshot_power_dispatch();
+    unsafe {
+        raw_system::sys_do_power_cb();
+    }
+    let second = raw_system::snapshot_power_dispatch();
+    let replaced = unsafe { raw_system::sys_set_power_callback(previous) };
+    let power_ok = first.called
+        && first.result
+        && second.called
+        && !second.result
+        && SYSTEM_POWER_CALLBACK_COUNT.load(Ordering::Acquire) == 1
+        && replaced.is_some_and(|handler| {
+            core::ptr::fn_addr_eq(handler, probe_power_callback as unsafe extern "C" fn())
+        });
+    logger.record("System power callback dispatch observes cooldown", power_ok);
+
+    let previous = unsafe { raw_system::sys_set_reset_callback(Some(probe_reset_callback)) };
+    let replaced = unsafe { raw_system::sys_set_reset_callback(previous) };
+    logger.record(
+        "System reset callback setter returns previous handler",
+        replaced.is_some_and(|handler| {
+            core::ptr::fn_addr_eq(
+                handler,
+                probe_reset_callback as unsafe extern "C" fn(u32, *mut core::ffi::c_void),
+            )
+        }),
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_font_snapshot(logger: &mut ProbeLogger) {
+    // SAFETY: This query reads the video register and caches the encoding.
+    let encoding = unsafe { raw_system::sys_get_font_encoding() };
+    let raw = raw_system::snapshot_font();
+    let snapshot = system::snapshot_font();
+    logger.record(
+        "System font encoding and snapshots report query",
+        encoding == 0
+            && raw.encoding_queried
+            && snapshot.encoding_queried
+            && snapshot.init_called == raw.init_called
+            && snapshot.init_ptr == raw.init_ptr
+            && snapshot.texture_called == raw.texture_called
+            && snapshot.texel_called == raw.texel_called,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_raw_snapshots(logger: &mut ProbeLogger) {
+    let startup = raw_system::snapshot_startup();
+    let pre_main = raw_system::snapshot_pre_main();
+    let calls = raw_system::snapshot_runtime_calls();
+    logger.record(
+        "Raw system snapshots report completed startup",
+        startup.init_called
+            && startup.init_started
+            && startup.init_completed
+            && startup.init_failed_stage == 0
+            && startup.init_completed_mask == 0x7ff
+            && pre_main.called
+            && pre_main.completed
+            && pre_main.result == 0
+            && calls.init_called
+            && calls.pre_main_called,
+    );
+    // SAFETY: A null destination requests the initialized preferred mode.
+    let mode = unsafe { ogc_video::get_preferred_mode(core::ptr::null_mut()) };
+    let framebuffer = raw_system::snapshot_framebuffer();
+    let expected = if mode.is_null() {
+        0
+    } else {
+        // SAFETY: A non-null preferred mode is valid for the probe lifetime.
+        let mode = unsafe { &*mode };
+        u32::from(mode.fb_width).div_ceil(16)
+            * 16
+            * (u32::from(mode.xfb_height) + if mode.aa != 0 { 4 } else { 0 })
+            * 2
+    };
+    logger.record(
+        "Raw system framebuffer snapshot records allocation",
+        framebuffer.called
+            && framebuffer.rmode == mode as usize
+            && expected > 0
+            && framebuffer.bytes == expected,
+    );
+    let _ = system::time();
+    logger.record(
+        "Raw system time snapshot records call",
+        raw_system::snapshot_time_probe().called,
+    );
+    let combined = system::snapshot();
+    logger.record(
+        "System aggregate snapshot includes startup and framebuffer",
+        combined.startup.init_completed
+            && combined.startup.init_completed_mask == 0x7ff
+            && combined.pre_main.completed
+            && combined.framebuffer.last_request_rmode == mode as usize
+            && combined.framebuffer.last_request_bytes == expected,
+    );
+}
+
+fn probe_system_framebuffer_status(logger: &mut ProbeLogger) {
+    // SAFETY: A null argument requests the video subsystem's live preferred mode.
+    let mode = unsafe { ogc_video::get_preferred_mode(core::ptr::null_mut()) };
+    if mode.is_null() {
+        logger.record(
+            "System framebuffer snapshot matches preferred mode allocation",
+            false,
+        );
+        return;
+    }
+    // SAFETY: The preferred mode remains valid for the probe lifetime.
+    let (width, height, aa) = unsafe { ((*mode).fb_width, (*mode).xfb_height, (*mode).aa) };
+    let expected = (usize::from(width).div_ceil(16) * 16)
+        * (usize::from(height) + if aa != 0 { 4 } else { 0 })
+        * 2;
+    let snapshot = system::snapshot_framebuffer();
+    logger.record(
+        "System framebuffer snapshot matches preferred mode allocation",
+        expected > 0
+            && snapshot.last_request_rmode == mode as usize
+            && snapshot.last_request_bytes as usize == expected
+            && snapshot.last_bytes == expected
+            && system::last_framebuffer_bytes() == expected,
+    );
+}
+
+fn probe_system_startup_status(logger: &mut ProbeLogger) {
+    use system::startup::{self, InitError};
+    let pre_main = system::snapshot_pre_main();
+    let startup = system::snapshot_startup();
+    logger.record(
+        "System startup snapshots report completed initialization",
+        pre_main.called
+            && pre_main.completed
+            && pre_main.failed_stage == 0
+            && pre_main.result == 0
+            && startup.init_completed
+            && startup.init_failed_stage == 0
+            && startup.init_completed_mask == 0x7ff
+            && system::runtime_fp_disabled_stage() == 0,
+    );
+    logger.record(
+        "System startup validation preserves failed stage and incomplete state",
+        startup::validate(true, 0) == Ok(())
+            && startup::validate(false, 0) == Err(InitError::NotCompleted)
+            && startup::validate(false, 7) == Err(InitError::FailedStage(7))
+            && startup::validate(true, 9) == Err(InitError::FailedStage(9)),
+    );
+    let before = system::snapshot_startup();
+    let checked = system::init_checked();
+    let after = system::snapshot_startup();
+    logger.record(
+        "Checked initialization preserves completed startup",
+        checked == Ok(())
+            && before.init_completed
+            && before.init_failed_stage == 0
+            && after.init_completed
+            && after.init_failed_stage == 0
+            && after.init_completed_mask == before.init_completed_mask
+            && after.init_stage == before.init_stage,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_extended_sram_getters(logger: &mut ProbeLogger) {
+    let sram = unsafe { system::lock_sram_ex() };
+    if sram.is_null() {
+        logger.record("Extended SRAM fixture lock and restoration", false);
+        return;
+    }
+    // SAFETY: The lock owns the packed buffer until the paired unlock. Field
+    // writes use unaligned access and the original image is restored below.
+    let original = unsafe { *sram };
+    unsafe {
+        core::ptr::write_unaligned(
+            core::ptr::addr_of_mut!((*sram).wireless_pad_id),
+            [0x1234, 0xabcd, 0, 0xff00],
+        );
+        core::ptr::write_unaligned(core::ptr::addr_of_mut!((*sram).gbs), 0x2945);
+    }
+    let released = unsafe { system::unlock_sram_ex(false) };
+    logger.record(
+        "Wireless ID getter reads each extended SRAM channel",
+        released
+            && system::get_wireless_id(0) == 0x1234
+            && system::get_wireless_id(1) == 0xabcd
+            && system::get_wireless_id(2) == 0
+            && system::get_wireless_id(3) == 0xff00
+            && system::get_wireless_id(4) == 0
+            && system::get_wireless_id(u32::MAX) == 0,
+    );
+    logger.record(
+        "GBS getter reads extended SRAM",
+        system::get_gbs_mode() == 0x2945,
+    );
+    let restore = unsafe { system::lock_sram_ex() };
+    let restored = if restore.is_null() {
+        false
+    } else {
+        unsafe {
+            *restore = original;
+            system::unlock_sram_ex(false)
+        }
+    };
+    let checked = system::snapshot_sram_ex() == Some(original);
+    logger.record(
+        "Extended SRAM fixture lock and restoration",
+        restored && checked,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_sram_setters(logger: &mut ProbeLogger) {
+    logger.report_step("System SRAM configuration setters");
+    let (Some(original), Some(original_ex)) = (system::snapshot_sram(), system::snapshot_sram_ex())
+    else {
+        logger.record("SRAM setter fixtures acquired", false);
+        return;
+    };
+    let original_ids = original_ex.wireless_pad_id;
+    let original_gbs = original_ex.gbs;
+    let bias = original.counter_bias ^ 0x1020_3040;
+    let offset = original.display_offset_h.wrapping_add(1);
+    let language = original.lang.wrapping_add(1) % 6;
+    let rgb = ((original.ntd >> 6) & 1) ^ 1;
+    let progressive = ((original.flags >> 7) & 1) ^ 1;
+    let sound = ((original.flags >> 2) & 1) ^ 1;
+    let video = ((original.flags & 3) + 1) & 3;
+    let wireless = original_ids[2] ^ 0x5142;
+    let gbs = if original_gbs == 0x0445 {
+        0x0846
+    } else {
+        0x0445
+    };
+    system::set_counter_bias(bias);
+    system::set_display_offset_h(offset);
+    system::set_language(language);
+    system::set_eu_rgb60(rgb);
+    system::set_progressive_scan(progressive);
+    system::set_sound_mode(sound);
+    system::set_video_mode(video);
+    system::set_wireless_id(2, wireless);
+    system::set_gbs_mode(gbs);
+    let standard = system::snapshot_sram();
+    let extended = system::snapshot_sram_ex();
+    logger.record(
+        "SRAM counter bias setter updates field",
+        standard.is_some_and(|s| s.counter_bias == bias),
+    );
+    logger.record(
+        "SRAM display offset setter updates field",
+        standard.is_some_and(|s| s.display_offset_h == offset),
+    );
+    logger.record(
+        "SRAM language setter updates field",
+        standard.is_some_and(|s| s.lang == language),
+    );
+    logger.record(
+        "SRAM RGB60 setter updates bit",
+        standard.is_some_and(|s| (s.ntd >> 6) & 1 == rgb && s.ntd & !0x40 == original.ntd & !0x40),
+    );
+    logger.record(
+        "SRAM progressive setter updates bit",
+        standard.is_some_and(|s| (s.flags >> 7) & 1 == progressive),
+    );
+    logger.record(
+        "SRAM sound setter updates bit",
+        standard.is_some_and(|s| (s.flags >> 2) & 1 == sound),
+    );
+    logger.record(
+        "SRAM video setter updates bits",
+        standard.is_some_and(|s| s.flags & 3 == video && s.flags & 0x78 == original.flags & 0x78),
+    );
+    logger.record(
+        "SRAM wireless setter updates selected channel",
+        extended.is_some_and(|s| {
+            let ids = s.wireless_pad_id;
+            ids == [original_ids[0], original_ids[1], wireless, original_ids[3]]
+        }),
+    );
+    logger.record(
+        "SRAM GBS setter updates field",
+        extended.is_some_and(|s| {
+            let actual = s.gbs;
+            actual == gbs
+        }),
+    );
+    let standard_ptr = unsafe { system::lock_sram() };
+    let standard_restored = if standard_ptr.is_null() {
+        false
+    } else {
+        unsafe {
+            *standard_ptr = original;
+            system::unlock_sram(true)
+        }
+    };
+    let extended_ptr = unsafe { system::lock_sram_ex() };
+    let extended_restored = if extended_ptr.is_null() {
+        false
+    } else {
+        unsafe {
+            *extended_ptr = original_ex;
+            system::unlock_sram_ex(true)
+        }
+    };
+    logger.record(
+        "SRAM setter fixture restores both images",
+        standard_restored
+            && extended_restored
+            && system::snapshot_sram() == Some(original)
+            && system::snapshot_sram_ex() == Some(original_ex),
+    );
+}
+
+fn probe_wiilaunch_error_codes(logger: &mut ProbeLogger) {
+    use ogc_wiilaunch::LaunchError;
+    let cases = [
+        (-0x9001, LaunchError::NotInitialized),
+        (-0x9002, LaunchError::Internal),
+        (-0x9003, LaunchError::Checksum),
+        (-0x9004, LaunchError::InstallMissing),
+        (-0x9005, LaunchError::ArgsTooLarge),
+        (-106, LaunchError::Es(-106)),
+        (0, LaunchError::Es(0)),
+    ];
+    logger.record(
+        "Wii launch error codes preserve named and ES values",
+        cases.into_iter().all(|(code, expected)| {
+            LaunchError::from_raw_code(code) == expected && expected.raw_code() == code
+        }),
+    );
+}
+
+fn probe_system_runtime_state(logger: &mut ProbeLogger) {
+    use system::{
+        MainLoopDecision, MainLoopExitReason, PowerButtonState, StmEvent, SystemRuntimeState,
+    };
+    let mut wii = SystemRuntimeState::new(true);
+    let initial = wii.is_wii
+        && !wii.main_loop_done
+        && wii.power_enable_time == 0
+        && wii.power_button_state == PowerButtonState::Idle
+        && wii.main_loop_step(true) == MainLoopDecision::Continue;
+    wii.note_stm_event(StmEvent::Reset, false);
+    let ignored = wii.power_button_state == PowerButtonState::Idle;
+    wii.note_stm_event(StmEvent::Reset, true);
+    wii.note_stm_event(StmEvent::Power, false);
+    let exit = wii.power_button_state == PowerButtonState::ResetPressed
+        && wii.main_loop_step(false) == MainLoopDecision::Exit(MainLoopExitReason::PowerButton)
+        && wii.main_loop_step(false) == MainLoopDecision::Exit(MainLoopExitReason::AlreadyDone);
+    let mut gc = SystemRuntimeState::new(false);
+    let gc_exit = gc.main_loop_step(false) == MainLoopDecision::Continue
+        && gc.main_loop_step(true) == MainLoopDecision::Exit(MainLoopExitReason::ResetButton);
+    logger.record(
+        "System runtime state tracks Wii and GameCube input",
+        initial && ignored && exit && gc_exit,
+    );
+
+    let mut throttle = SystemRuntimeState::new(true);
+    let first = throttle.power_callback_attempt(100, 50) && throttle.power_enable_time == 150;
+    let blocked = !throttle.power_callback_attempt(120, 50) && throttle.power_enable_time == 170;
+    let due = throttle.power_callback_attempt(170, 50) && throttle.power_enable_time == 220;
+    logger.record(
+        "System runtime power cooldown extends after attempts",
+        first && blocked && due,
+    );
+
+    let gc_plan = gc.reset_plan(system::SYS_HOTRESET, true, false);
+    let wii_plan = wii.reset_plan(system::SYS_POWEROFF, false, true);
+    logger.record(
+        "System runtime reset plan reflects target and requested action",
+        gc_plan.terminal == Some(system::ResetSystemTerminal::HotReset)
+            && gc_plan.sets_boot_ipl
+            && !gc_plan.clears_active_input_list
+            && wii_plan.terminal == Some(system::ResetSystemTerminal::ShutdownToIdle)
+            && wii_plan.clears_active_input_list
+            && !wii_plan.sets_boot_ipl,
+    );
+}
+
+fn probe_bt_transport_metadata(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::{BluetoothAddress, BtSyncHost, Error, HciEvent};
+
+    // This synthetic descriptor is never submitted to IOS.
+    let host = BtSyncHost::from_file_descriptor(ogc_ipc::FileDescriptor::new(-1), 2, 0x81, 0x83);
+    let Ok(host) = host else {
+        logger.record(
+            "Bluetooth transport keeps supplied descriptor and endpoints",
+            false,
+        );
+        return;
+    };
+    logger.record(
+        "Bluetooth transport keeps supplied descriptor and endpoints",
+        host.fd().raw() == -1
+            && host.acl_out_endpoint() == 2
+            && host.event_in_endpoint() == 0x81
+            && host.acl_in_endpoint() == 0x83,
+    );
+    logger.record(
+        "Bluetooth transport parses and rejects event frames",
+        matches!(
+            host.parse_event(&[0x0e, 4, 1, 3, 0x0c, 0]),
+            Ok(HciEvent::CommandComplete { .. })
+        ) && host.parse_event(&[0x0e, 4, 1]) == Err(Error::MalformedEvent),
+    );
+    logger.record(
+        "Bluetooth transport rejects oversized PIN before submission",
+        host.pin_code_request_reply(BluetoothAddress::new([1, 2, 3, 4, 5, 6]), &[0; 17])
+            == Err(Error::BufferTooSmall),
+    );
+    logger.record(
+        "Bluetooth transport rejects invalid endpoints before open",
+        matches!(
+            BtSyncHost::open_with_endpoints(c"/missing", 0x82, 0x81, 0x83),
+            Err(Error::InvalidEndpoint)
+        ),
+    );
+}
+
+fn probe_bt_key_requests(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::{BluetoothAddress, HidHost, Outgoing};
+
+    let mut host = HidHost::new();
+    host.load_link_key(BluetoothAddress::new([1, 2, 3, 4, 5, 6]), [0xa5; 16]);
+    host.reset_preserving_keys();
+    host.receive_event(&[0x17, 6, 1, 2, 3, 4, 5, 6], 1);
+    host.start();
+    let matched = matches!(host.next_outgoing(2), Some(Outgoing::Hci { opcode, params })
+        if opcode.raw() == 0x040b && params.len() == 22
+            && params[..6] == [1, 2, 3, 4, 5, 6] && params[6..] == [0xa5; 16])
+        && host.diagnostics().link_key_requests == 1
+        && host.diagnostics().link_key_matches == 1;
+    let mut unknown = HidHost::new();
+    unknown.receive_event(&[0x17, 6, 6, 5, 4, 3, 2, 1], 1);
+    unknown.start();
+    let rejected = matches!(unknown.next_outgoing(2), Some(Outgoing::Hci { opcode, params })
+        if opcode.raw() == 0x040c && params == [6, 5, 4, 3, 2, 1])
+        && unknown.diagnostics().link_key_misses == 1;
+    let before = unknown.diagnostics();
+    unknown.receive_event(&[0x17, 6, 6], 3);
+    let malformed = unknown.diagnostics().malformed == before.malformed + 1
+        && unknown.diagnostics().link_key_requests == before.link_key_requests;
+    logger.record(
+        "Bluetooth link key requests preserve keys and reject unknown peers",
+        matched && rejected && malformed,
+    );
+}
+
+fn probe_bt_opcode_and_disconnected(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::{Failure, HciOpcode, HidHost, HostStage};
+    logger.record(
+        "Bluetooth opcode packs group and masked command",
+        HciOpcode::new(3, 3).raw() == 0x0c03
+            && HciOpcode::new(1, 0xffff).raw() == 0x07ff
+            && HciOpcode::new(0x3f, 0x4c).raw() == 0xfc4c,
+    );
+    let mut host = HidHost::new();
+    let empty = host.request_disconnect(0) == Err(Failure::Protocol)
+        && host.request_disconnect(usize::MAX) == Err(Failure::Protocol)
+        && host.switch_calibration(0).is_none()
+        && host.switch_calibration(usize::MAX).is_none();
+    host.disconnect(0);
+    host.disconnect(usize::MAX);
+    logger.record(
+        "Bluetooth disconnected slots reject disconnect requests",
+        empty
+            && host.diagnostics().stage == HostStage::Disabled
+            && host.next_event().is_none()
+            && host.next_outgoing(0).is_none(),
+    );
+}
+
+fn probe_bt_host_startup(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::{Failure, HidEvent, HidHost, HostStage, Outgoing};
+
+    let mut host = HidHost::new();
+    let initial = host.diagnostics().stage == HostStage::Disabled
+        && host.peek_event().is_none()
+        && host.next_event().is_none()
+        && host.next_outgoing(0).is_none()
+        && !host.search(0)
+        && host.switch_calibration(0).is_none();
+    host.adapter_opening();
+    let opening = host.diagnostics().stage == HostStage::AdapterOpen;
+    host.start();
+    let reset = host.diagnostics().stage == HostStage::Reset
+        && matches!(host.next_outgoing(1), Some(Outgoing::Hci { opcode, params })
+            if opcode.raw() == 0x0c03 && params.is_empty())
+        && host.next_outgoing(2).is_none();
+    host.fail_timeout();
+    let expected = Some(HidEvent::Failed {
+        slot: None,
+        failure: Failure::Timeout,
+    });
+    let failed = host.diagnostics().stage == HostStage::Failed
+        && host.diagnostics().failed_stage == Some(HostStage::Reset)
+        && host.diagnostics().failure == Some(Failure::Timeout)
+        && host.peek_event() == expected
+        && host.peek_event() == expected
+        && host.next_event() == expected
+        && host.next_event().is_none()
+        && host.next_outgoing(3).is_none();
+    host.reset_preserving_keys();
+    let reset_state = host.diagnostics().stage == HostStage::Disabled
+        && host.diagnostics().failure.is_none()
+        && host.peek_event().is_none();
+    host.fail_transport(-7);
+    let transport = host.diagnostics().failure == Some(Failure::Transport(-7))
+        && host.next_event()
+            == Some(HidEvent::Failed {
+                slot: None,
+                failure: Failure::Transport(-7),
+            });
+    logger.record(
+        "Bluetooth host startup and failure lifecycle",
+        initial && opening && reset && failed && reset_state && transport,
+    );
+}
+
+fn probe_bt_l2cap_state(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::{HidL2capState, L2capHidChannelState, L2capSignal};
+
+    let mut channel = L2capHidChannelState::new(0x11, 0x40);
+    let initial = channel.psm == 0x11
+        && channel.local_cid == 0x40
+        && channel.remote_cid == 0
+        && !L2capHidChannelState::ready(channel);
+    channel.remote_cid = 0x70;
+    channel.active = true;
+    channel.connected = true;
+    channel.local_configured = true;
+    channel.remote_configured = true;
+    let complete = L2capHidChannelState::ready(channel);
+    channel.remote_cid = 0;
+    logger.record(
+        "L2CAP channel readiness requires a remote channel",
+        initial && complete && !L2capHidChannelState::ready(channel),
+    );
+
+    let mut state = HidL2capState::new();
+    let empty = !HidL2capState::ready(state)
+        && state.control.local_cid == 0x40
+        && state.interrupt.local_cid == 0x41;
+    let conn_control = [0x70, 0, 0x40, 0, 0, 0, 0, 0];
+    let continuation = [0x40, 0, 1, 0];
+    let config_control = [0x40, 0, 0, 0];
+    let reply_control = [0x70, 0, 0, 0, 0, 0];
+    let conn_interrupt = [0x71, 0, 0x41, 0, 0, 0, 0, 0];
+    let config_interrupt = [0x41, 0, 0, 0];
+    let reply_interrupt = [0x71, 0, 0, 0, 0, 0];
+    let signal = |code, payload| L2capSignal {
+        code,
+        identifier: 1,
+        payload,
+    };
+    let first = state.observe_signal(signal(3, &conn_control)) == Ok(())
+        && state.control.remote_cid == 0x70
+        && !HidL2capState::ready(state)
+        && state.observe_signal(signal(4, &continuation)) == Ok(())
+        && !state.control.remote_configured;
+    let control = state.observe_signal(signal(4, &config_control)) == Ok(())
+        && state.observe_signal(signal(5, &reply_control)) == Ok(())
+        && L2capHidChannelState::ready(state.control)
+        && !HidL2capState::ready(state);
+    let interrupt = state.observe_signal(signal(3, &conn_interrupt)) == Ok(())
+        && state.observe_signal(signal(4, &config_interrupt)) == Ok(())
+        && state.observe_signal(signal(5, &reply_interrupt)) == Ok(())
+        && HidL2capState::ready(state);
+    let before = state;
+    let malformed = state.observe_signal(signal(3, &[0x70])).is_err() && state == before;
+    logger.record(
+        "L2CAP HID state tracks both configured channels",
+        empty && first && control && interrupt && malformed,
+    );
+}
+
+fn probe_bt_discovery_values(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::{ControllerFamily as Family, Error, HciEndpointAddresses};
+
+    let names = [
+        (&b"Nintendo RVL-CNT-01-TR"[..], Family::WiiRemote),
+        (&b"Joy-Con (L)\0suffix"[..], Family::JoyConLeft),
+        (&b"Nintendo Joy-Con (R)"[..], Family::JoyConRight),
+        (&b"Nintendo Pro Controller"[..], Family::SwitchPro),
+        (&b"xbox wireless controller"[..], Family::Xbox),
+        (&b"Fake Pro Controller"[..], Family::Generic),
+        (&b""[..], Family::Generic),
+    ];
+    let classified = names
+        .iter()
+        .all(|(name, expected)| Family::from_name(name) == *expected);
+    let switches = Family::is_switch(Family::SwitchPro)
+        && Family::is_switch(Family::JoyConLeft)
+        && Family::is_switch(Family::JoyConRight)
+        && !Family::is_switch(Family::WiiRemote)
+        && !Family::is_switch(Family::Xbox)
+        && !Family::is_switch(Family::Generic);
+    logger.record(
+        "Bluetooth discovery classifies controller names",
+        classified && switches,
+    );
+
+    let expected = HciEndpointAddresses {
+        acl_out: 2,
+        event_in: 0x81,
+        acl_in: 0x82,
+    };
+    let valid = HciEndpointAddresses::new(2, 0x81, 0x82) == Ok(expected);
+    let invalid = [
+        (0, 0x81, 0x82),
+        (0x82, 0x81, 0x82),
+        (2, 1, 0x82),
+        (2, 0x81, 2),
+        (2, 0x81, 0x81),
+        (0x12, 0x81, 0x82),
+    ];
+    logger.record(
+        "Bluetooth HCI endpoints validate direction and distinct inputs",
+        valid
+            && invalid.iter().all(|&(out, event, input)| {
+                HciEndpointAddresses::new(out, event, input) == Err(Error::InvalidEndpoint)
+            }),
+    );
+}
+
+fn probe_bt_input_queue(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::{
+        BLUETOOTH_INPUT_QUEUE_CAPACITY, BluetoothAddress, BluetoothInputKind, BluetoothInputQueue,
+        BluetoothInputQueueError, ControllerFamily,
+    };
+
+    let mut queue = BluetoothInputQueue::new();
+    let initial = queue.is_empty()
+        && !queue.is_full()
+        && queue.len() == 0
+        && queue.active_generation(0).is_none()
+        && queue.pop().is_none();
+    let address = BluetoothAddress::new([1, 2, 3, 4, 5, 6]);
+    let generation = queue.push_connected(0, address, 0x123, ControllerFamily::Generic, None);
+    let connected = generation == Ok(1)
+        && queue.active_generation(0) == Some(1)
+        && queue.len() == 1
+        && queue.push_connected(0, address, 0x123, ControllerFamily::Generic, None)
+            == Err(BluetoothInputQueueError::AlreadyConnected);
+    let report = queue.push_report(0, 1, &[0x30, 0xff, 0x00]) == Ok(())
+        && queue.push_report(0, 2, &[1]) == Err(BluetoothInputQueueError::StaleGeneration)
+        && queue.len() == 2;
+    let first = queue.pop();
+    let second = queue.pop();
+    let ordered = matches!(first, Some(event) if event.slot == 0 && event.generation == 1
+        && matches!(event.kind, BluetoothInputKind::Connected { address: a, handle: 0x123, family: ControllerFamily::Generic, calibration: None } if a == address))
+        && matches!(second, Some(event) if event.slot == 0 && event.generation == 1
+            && event.kind == BluetoothInputKind::Report { len: 3 }
+            && event.bytes[..3] == [0x30, 0xff, 0]
+            && event.bytes[3..].iter().all(|byte| *byte == 0));
+    let disconnected = queue.push_disconnected(0, 1, 0x13) == Ok(())
+        && queue.active_generation(0).is_none()
+        && matches!(queue.pop(), Some(event) if event.generation == 1
+            && event.kind == BluetoothInputKind::Disconnected { reason: 0x13 })
+        && queue.is_empty();
+    logger.record(
+        "Bluetooth queue preserves connection report and disconnect order",
+        initial && connected && report && ordered && disconnected,
+    );
+
+    let next = queue.push_connected(0, address, 0x123, ControllerFamily::Generic, None);
+    let mut filled = next == Ok(2);
+    for value in 0..BLUETOOTH_INPUT_QUEUE_CAPACITY - 1 {
+        filled &= queue.push_report(0, 2, &[value as u8]) == Ok(());
+    }
+    let full = filled
+        && queue.is_full()
+        && queue.len() == BLUETOOTH_INPUT_QUEUE_CAPACITY
+        && queue.push_disconnected(0, 2, 0x13) == Err(BluetoothInputQueueError::Full)
+        && queue.active_generation(0) == Some(2);
+    let released = queue.pop().is_some()
+        && queue.push_disconnected(0, 2, 0x13) == Ok(())
+        && queue.active_generation(0).is_none()
+        && queue.is_full();
+    logger.record(
+        "Bluetooth queue applies backpressure without losing state",
+        full && released,
+    );
+}
+
+fn probe_bt_device_classes(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::{BluetoothAddress, ClassOfDevice};
+
+    let address = BluetoothAddress::new([0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc]);
+    logger.record(
+        "Bluetooth address preserves HCI byte order",
+        BluetoothAddress::as_raw(&address) == [0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc],
+    );
+    let controller = ClassOfDevice::new([0x5c, 0xa5, 0xff]);
+    let phone = ClassOfDevice::new([0x94, 0x02, 0x00]);
+    logger.record(
+        "Bluetooth class extracts major and minor fields",
+        ClassOfDevice::major(controller) == 5
+            && ClassOfDevice::minor(controller) == 23
+            && ClassOfDevice::major(phone) == 2
+            && ClassOfDevice::minor(phone) == 37,
+    );
+    logger.record(
+        "Bluetooth class recognizes peripheral devices",
+        ClassOfDevice::likely_game_controller(controller)
+            && !ClassOfDevice::likely_game_controller(phone),
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_raw_udp(logger: &mut ProbeLogger) {
+    use core::mem::size_of;
+    use raw_network as net;
+
+    logger.report_step("Raw UDP loopback operations");
+    let initialized = net::net_init();
+    logger.record(
+        "Raw network initializes and reports status",
+        initialized >= 0 && net::net_get_status() == initialized,
+    );
+    if initialized < 0 {
+        return;
+    }
+    probe_network_mac_address(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_ipc_ioctlv_mac(logger);
+    probe_network_interface_addresses(logger);
+    probe_network_numeric_resolver(logger);
+    let sender = net::net_socket(net::PF_INET, net::SOCK_DGRAM, net::IPPROTO_IP);
+    let receiver = net::net_socket(net::PF_INET, net::SOCK_DGRAM, net::IPPROTO_IP);
+    logger.record("Raw UDP sockets open", sender >= 0 && receiver >= 0);
+    if sender >= 0 && receiver >= 0 {
+        let mut bind = net::SockaddrIn {
+            sin_len: size_of::<net::SockaddrIn>() as u8,
+            sin_family: net::AF_INET as u8,
+            sin_port: 0,
+            sin_addr: net::InAddr {
+                s_addr: 0x7f00_0001,
+            },
+            sin_zero: [0; 8],
+        };
+        let addrlen = size_of::<net::SockaddrIn>() as u32;
+        // SAFETY: All address and data buffers remain live for each call.
+        let bound = unsafe {
+            net::net_bind(sender, (&mut bind as *mut net::SockaddrIn).cast(), addrlen) == 0
+                && net::net_bind(
+                    receiver,
+                    (&mut bind as *mut net::SockaddrIn).cast(),
+                    addrlen,
+                ) == 0
+        };
+        logger.record("Raw UDP sockets bind loopback", bound);
+        if bound {
+            let mut source = net::SockaddrIn::default();
+            let mut destination = net::SockaddrIn::default();
+            let mut source_len = addrlen;
+            let mut destination_len = addrlen;
+            let names = unsafe {
+                net::net_getsockname(
+                    sender,
+                    (&mut source as *mut net::SockaddrIn).cast(),
+                    &mut source_len,
+                ) == 0
+                    && net::net_getsockname(
+                        receiver,
+                        (&mut destination as *mut net::SockaddrIn).cast(),
+                        &mut destination_len,
+                    ) == 0
+            } && source.sin_addr.s_addr == 0x7f00_0001
+                && destination.sin_addr.s_addr == 0x7f00_0001
+                && source.sin_port != 0
+                && destination.sin_port != 0
+                && source.sin_port != destination.sin_port;
+            logger.record("Raw UDP names report distinct loopback ports", names);
+            if names {
+                let invalid_payload = [0x17u8, 0x42, 0x80];
+                let invalid_send = unsafe {
+                    net::net_sendto(
+                        -1,
+                        invalid_payload.as_ptr().cast(),
+                        invalid_payload.len() as i32,
+                        0,
+                        (&mut destination as *mut net::SockaddrIn).cast(),
+                        addrlen,
+                    )
+                };
+                logger.record(
+                    "Raw UDP invalid descriptor rejects sendto",
+                    invalid_send < 0,
+                );
+                let mut invalid_buffer = [0xa5u8; 8];
+                let mut invalid_peer = net::SockaddrIn::default();
+                let mut invalid_len = addrlen;
+                let invalid_receive = unsafe {
+                    net::net_recvfrom(
+                        -1,
+                        invalid_buffer.as_mut_ptr().cast(),
+                        invalid_buffer.len() as i32,
+                        net::MSG_DONTWAIT,
+                        (&mut invalid_peer as *mut net::SockaddrIn).cast(),
+                        &mut invalid_len,
+                    )
+                };
+                logger.record(
+                    "Raw UDP invalid descriptor preserves recvfrom outputs",
+                    invalid_receive < 0
+                        && invalid_buffer == [0xa5; 8]
+                        && invalid_peer == net::SockaddrIn::default()
+                        && invalid_len == addrlen,
+                );
+                probe_lwip_readiness(logger, sender, receiver, &mut destination);
+                let mut empty = [0xa5; 16];
+                let mut empty_peer = net::SockaddrIn::default();
+                let mut empty_len = addrlen;
+                // SAFETY: The data and address buffers are writable for the call.
+                let empty_result = unsafe {
+                    net::net_recvfrom(
+                        receiver,
+                        empty.as_mut_ptr().cast(),
+                        empty.len() as i32,
+                        net::MSG_DONTWAIT,
+                        (&mut empty_peer as *mut net::SockaddrIn).cast(),
+                        &mut empty_len,
+                    )
+                };
+                logger.note_i32("Raw UDP empty recvfrom result", empty_result);
+                logger.note_u32("Raw UDP empty recvfrom address length", empty_len);
+                logger.record(
+                    "Raw UDP recvfrom leaves outputs unchanged on would-block",
+                    empty_result < 0
+                        && empty == [0xa5; 16]
+                        && empty_peer == net::SockaddrIn::default()
+                        && empty_len == addrlen,
+                );
+                let payload = [0, 0xff, 0x52, 0x41, 0x57, 0x80];
+                let sent = unsafe {
+                    net::net_sendto(
+                        sender,
+                        payload.as_ptr().cast(),
+                        payload.len() as i32,
+                        0,
+                        (&mut destination as *mut net::SockaddrIn).cast(),
+                        addrlen,
+                    )
+                };
+                let mut poll = net::PollSd {
+                    socket: receiver,
+                    events: 3,
+                    revents: 0,
+                };
+                let ready = sent == payload.len() as i32
+                    && unsafe { net::net_poll(&mut poll, 1, 3000) } == 1
+                    && poll.revents & 3 != 0;
+                logger.record("Raw UDP sendto and poll deliver readiness", ready);
+                if ready {
+                    let mut bytes = [0xa5; 32];
+                    let mut peer = net::SockaddrIn::default();
+                    let mut peer_len = addrlen;
+                    let got = unsafe {
+                        net::net_recvfrom(
+                            receiver,
+                            bytes.as_mut_ptr().cast(),
+                            bytes.len() as i32,
+                            0,
+                            (&mut peer as *mut net::SockaddrIn).cast(),
+                            &mut peer_len,
+                        )
+                    };
+                    logger.note_i32("Raw UDP recvfrom count", got);
+                    logger.note_u32("Raw UDP recvfrom peer length", peer_len);
+                    logger.note_hex32("Raw UDP expected peer address", source.sin_addr.s_addr);
+                    logger.note_hex32("Raw UDP actual peer address", peer.sin_addr.s_addr);
+                    logger.note_u32("Raw UDP expected peer port", u32::from(source.sin_port));
+                    logger.note_u32("Raw UDP actual peer port", u32::from(peer.sin_port));
+                    logger.note_hex32(
+                        "Raw UDP received first four bytes",
+                        u32::from_be_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]),
+                    );
+                    logger.note_hex32(
+                        "Raw UDP received next four bytes",
+                        u32::from_be_bytes([bytes[4], bytes[5], bytes[6], bytes[7]]),
+                    );
+                    logger.record(
+                        "Raw UDP recvfrom preserves bytes and sender",
+                        got == payload.len() as i32
+                            && bytes[..payload.len()] == payload
+                            && bytes[payload.len()..].iter().all(|b| *b == 0xa5)
+                            && peer.sin_port == source.sin_port
+                            && peer.sin_addr.s_addr == source.sin_addr.s_addr,
+                    );
+                }
+                probe_lwip_udp_addressed(logger, sender, receiver, &source, &mut destination);
+                let connected = unsafe {
+                    net::net_connect(
+                        sender,
+                        (&mut destination as *mut net::SockaddrIn).cast(),
+                        addrlen,
+                    )
+                } == 0;
+                logger.record("Raw UDP connect succeeds", connected);
+                if connected {
+                    let payload = b"raw connected";
+                    let sent = unsafe {
+                        net::net_send(sender, payload.as_ptr().cast(), payload.len() as i32, 0)
+                    };
+                    let mut poll = net::PollSd {
+                        socket: receiver,
+                        events: 3,
+                        revents: 0,
+                    };
+                    let ready = sent == payload.len() as i32
+                        && unsafe { net::net_poll(&mut poll, 1, 3000) } == 1
+                        && poll.revents & 3 != 0;
+                    let mut bytes = [0xa5; 32];
+                    let got = if ready {
+                        unsafe {
+                            net::net_recv(
+                                receiver,
+                                bytes.as_mut_ptr().cast(),
+                                bytes.len() as i32,
+                                0,
+                            )
+                        }
+                    } else {
+                        -1
+                    };
+                    logger.record(
+                        "Raw UDP send and recv preserve connected datagram",
+                        got == payload.len() as i32
+                            && bytes[..payload.len()] == *payload
+                            && bytes[payload.len()..].iter().all(|b| *b == 0xa5),
+                    );
+                    let payload = b"raw write";
+                    let sent = unsafe {
+                        net::net_write(sender, payload.as_ptr().cast(), payload.len() as i32)
+                    };
+                    let mut poll = net::PollSd {
+                        socket: receiver,
+                        events: 3,
+                        revents: 0,
+                    };
+                    let ready = sent == payload.len() as i32
+                        && unsafe { net::net_poll(&mut poll, 1, 3000) } == 1
+                        && poll.revents & 3 != 0;
+                    let mut bytes = [0xa5; 32];
+                    let got = if ready {
+                        unsafe {
+                            net::net_read(receiver, bytes.as_mut_ptr().cast(), bytes.len() as i32)
+                        }
+                    } else {
+                        -1
+                    };
+                    logger.record(
+                        "Raw UDP write and read preserve connected datagram",
+                        got == payload.len() as i32
+                            && bytes[..payload.len()] == *payload
+                            && bytes[payload.len()..].iter().all(|b| *b == 0xa5),
+                    );
+                    probe_lwip_udp_connected(logger, sender, receiver);
+                }
+            }
+        }
+    }
+    if sender >= 0 {
+        logger.record("Raw UDP sender closes", net::net_close(sender) == 0);
+    }
+    if receiver >= 0 {
+        logger.record("Raw UDP receiver closes", net::net_close(receiver) == 0);
+    }
+    let deinitialized = net::net_deinit();
+    logger.record(
+        "Raw network deinitializes",
+        deinitialized == 0 && net::net_get_status() == -100,
+    );
+    let closed = unsafe { net::net_gethostbyname(c"127.0.0.1".as_ptr()) };
+    logger.record(
+        "Network resolver requires an active session",
+        deinitialized == 0 && closed.is_null(),
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_network_mac_address(logger: &mut ProbeLogger) {
+    use ogc_ipc as ipc;
+    use raw_network as raw;
+    let mut ios_mac = [0u8; 6];
+    let mut status = [0u8; 32];
+    let reference = match ipc::open_file(c"/dev/net/ncd/manage", 0) {
+        Ok(fd) => {
+            let rc = fd.ioctlv(
+                8,
+                0,
+                [
+                    ipc::IoctlvEntry::Out(&mut status),
+                    ipc::IoctlvEntry::Out(&mut ios_mac),
+                ],
+            );
+            let close = fd.close();
+            rc == 0 && status[..4] == [0; 4] && close.is_ok()
+        }
+        Err(_) => false,
+    };
+    let mut guarded = [0xa5u8; 8];
+    let rc = unsafe { raw::net_get_mac_address(guarded.as_mut_ptr().add(1).cast()) };
+    logger.record(
+        "Network MAC matches independent IOS response",
+        reference
+            && rc == 0
+            && ios_mac != [0; 6]
+            && ios_mac[0] & 1 == 0
+            && guarded[1..7] == ios_mac
+            && guarded[0] == 0xa5
+            && guarded[7] == 0xa5,
+    );
+    let null_rc = unsafe { raw::net_get_mac_address(core::ptr::null_mut()) };
+    logger.record("Network MAC rejects null output", null_rc == -1);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_ipc_ioctlv_mac(logger: &mut ProbeLogger) {
+    use ogc_ipc as ipc;
+    #[repr(align(32))]
+    struct Vectors([ipc::Ioctlv; 2]);
+    logger.report_step("IPC vector MAC queries");
+    let mut expected = [0; 6];
+    let reference = unsafe { raw_network::net_get_mac_address(expected.as_mut_ptr().cast()) } == 0
+        && expected != [0; 6];
+    let Ok(fd) = ipc::open_file(c"/dev/net/ncd/manage", 0) else {
+        for label in [
+            "IPC ioctlv returns MAC",
+            "IPC ioctlv_result returns MAC",
+            "IPC ioctlv_raw returns MAC",
+            "IPC ioctlv_async_raw returns MAC",
+        ] {
+            logger.record(label, false);
+        }
+        return;
+    };
+    let mut status = AlignedIsfsBytes([0xa5; 32]);
+    let mut mac = AlignedIsfsBytes([0xa5; 32]);
+    let valid = |status: &[u8; 32], mac: &[u8; 32]| {
+        status[..4] == [0; 4] && mac[..6] == expected && mac[6..] == [0xa5; 26]
+    };
+    let rc = fd.ioctlv(
+        8,
+        0,
+        [
+            ipc::IoctlvEntry::Out(&mut status.0),
+            ipc::IoctlvEntry::Out(&mut mac.0[..6]),
+        ],
+    );
+    logger.record(
+        "IPC ioctlv returns MAC",
+        reference && rc == 0 && valid(&status.0, &mac.0),
+    );
+    status.0.fill(0xa5);
+    mac.0.fill(0xa5);
+    let rc = fd.ioctlv_result(
+        8,
+        0,
+        [
+            ipc::IoctlvEntry::Out(&mut status.0),
+            ipc::IoctlvEntry::Out(&mut mac.0[..6]),
+        ],
+    );
+    logger.record(
+        "IPC ioctlv_result returns MAC",
+        reference && rc == Ok(0) && valid(&status.0, &mac.0),
+    );
+    status.0.fill(0xa5);
+    mac.0.fill(0xa5);
+    let status_ptr = status.0.as_mut_ptr().cast();
+    let mac_ptr = mac.0.as_mut_ptr().cast();
+    let mut vectors = Vectors([
+        ipc::Ioctlv {
+            data: status_ptr,
+            len: 32,
+        },
+        ipc::Ioctlv {
+            data: mac_ptr,
+            len: 6,
+        },
+    ]);
+    // SAFETY: Both DMA buffers and the vector list own complete aligned cache lines.
+    let rc = unsafe { fd.ioctlv_raw(8, 0, 2, &mut vectors.0) };
+    logger.record(
+        "IPC ioctlv_raw returns MAC",
+        reference
+            && rc == 0
+            && vectors.0[0].data == status_ptr
+            && vectors.0[1].data == mac_ptr
+            && valid(&status.0, &mac.0),
+    );
+    status.0.fill(0xa5);
+    mac.0.fill(0xa5);
+    let mut vectors = Vectors([
+        ipc::Ioctlv {
+            data: status_ptr,
+            len: 32,
+        },
+        ipc::Ioctlv {
+            data: mac_ptr,
+            len: 6,
+        },
+    ]);
+    // SAFETY: All aligned buffers stay live and exclusive through callback completion.
+    let (submit, reply) = run_isfs_async_and_wait(|| unsafe {
+        fd.ioctlv_async_raw(
+            8,
+            0,
+            2,
+            vectors.0.as_mut_ptr(),
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    });
+    unsafe {
+        ogc_cache::dc_invalidate_range(status.0.as_ptr().cast(), 32);
+        ogc_cache::dc_invalidate_range(mac.0.as_ptr().cast(), 32);
+    }
+    let closed = fd.close().is_ok();
+    logger.record(
+        "IPC ioctlv_async_raw returns MAC",
+        reference && submit >= 0 && reply == 0 && valid(&status.0, &mac.0) && closed,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_network_numeric_resolver(logger: &mut ProbeLogger) {
+    use ogc_network as net;
+    use raw_network as raw;
+    let null_result = unsafe { raw::net_gethostbyname(core::ptr::null()) };
+    let empty_result = unsafe { net::get_host_by_name(c"".as_ptr()) };
+    logger.record(
+        "Network resolver rejects null and empty names",
+        null_result.is_null() && empty_result.is_null(),
+    );
+    let result = unsafe { raw::net_gethostbyname(c"127.0.0.1".as_ptr()) };
+    let matches = if result.is_null() {
+        false
+    } else {
+        unsafe {
+            let entry = &*result;
+            if entry.h_addrtype != 2
+                || entry.h_length != 4
+                || entry.h_addr_list.is_null()
+                || (*entry.h_addr_list).is_null()
+            {
+                false
+            } else {
+                core::slice::from_raw_parts((*entry.h_addr_list).cast::<u8>(), 4) == [127, 0, 0, 1]
+                    && (*entry.h_addr_list.add(1)).is_null()
+            }
+        }
+    };
+    logger.record("Network resolver returns numeric loopback address", matches);
+    let result = unsafe { net::get_host_by_name(c"127.0.0.1".as_ptr()) };
+    let matches = if result.is_null() {
+        false
+    } else {
+        unsafe {
+            let entry = &*result;
+            if entry.h_addrtype != 2
+                || entry.h_length != 4
+                || entry.h_addr_list.is_null()
+                || (*entry.h_addr_list).is_null()
+            {
+                false
+            } else {
+                core::slice::from_raw_parts((*entry.h_addr_list).cast::<u8>(), 4) == [127, 0, 0, 1]
+            }
+        }
+    };
+    logger.record("Network resolver wrapper returns numeric loopback", matches);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_network_interface_addresses(logger: &mut ProbeLogger) {
+    use ogc_network as net;
+    use raw_network as raw;
+    let mut address = raw::InAddr {
+        s_addr: 0xa5a5_a5a5,
+    };
+    let mut mask = raw::InAddr {
+        s_addr: 0xa5a5_a5a5,
+    };
+    let unsupported =
+        unsafe { raw::if_configex(&mut address, &mut mask, core::ptr::null_mut(), false, 1) };
+    logger.record(
+        "Network static configuration rejects without writes",
+        unsupported == -22 && address.s_addr == 0xa5a5_a5a5 && mask.s_addr == 0xa5a5_a5a5,
+    );
+    let result =
+        unsafe { raw::if_configex(&mut address, &mut mask, core::ptr::null_mut(), true, 1) };
+    let host = raw::net_gethostip();
+    logger.record(
+        "Network DHCP address matches IOS host address",
+        result == 0 && address.s_addr != 0 && address.s_addr == host && mask.s_addr != 0,
+    );
+    let mut text = [0xa5u8; 16];
+    let text_result = unsafe {
+        raw::if_config(
+            text.as_mut_ptr().cast(),
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            true,
+            1,
+        )
+    };
+    let parsed = if text.contains(&0) {
+        unsafe { raw::inet_addr(text.as_ptr().cast()) }
+    } else {
+        u32::MAX
+    };
+    logger.record(
+        "Network DHCP text address matches binary address",
+        text_result == 0 && text.contains(&0) && parsed == address.s_addr && parsed != 0,
+    );
+    let mut wrapper_address = raw::InAddr::default();
+    let mut wrapper_mask = raw::InAddr::default();
+    let wrapper = unsafe {
+        net::if_configex(
+            &mut wrapper_address,
+            &mut wrapper_mask,
+            core::ptr::null_mut(),
+            true,
+            1,
+        )
+    };
+    logger.record(
+        "Network wrapper DHCP addresses match IOS",
+        wrapper == 0
+            && wrapper_address.s_addr == address.s_addr
+            && wrapper_mask.s_addr == mask.s_addr
+            && mask.s_addr != 0,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_lwip_readiness(
+    logger: &mut ProbeLogger,
+    sender: i32,
+    receiver: i32,
+    destination: &mut raw_network::SockaddrIn,
+) {
+    use lwip_sys as lwip;
+    use raw_network as net;
+    let mut enabled = 1u32;
+    let set = unsafe { lwip::ioctl(receiver, lwip::FIONBIO, (&mut enabled as *mut u32).cast()) };
+    let mut byte = [0xa5u8];
+    let empty = if set == 0 {
+        unsafe { lwip::recv(receiver, byte.as_mut_ptr().cast(), 1, 0) }
+    } else {
+        0
+    };
+    enabled = 0;
+    let clear = unsafe { lwip::ioctl(receiver, lwip::FIONBIO, (&mut enabled as *mut u32).cast()) };
+    logger.record(
+        "lwIP ioctl toggles socket nonblocking mode",
+        set == 0 && empty < 0 && byte == [0xa5] && clear == 0,
+    );
+    enabled = 1;
+    let wrapper_set =
+        unsafe { net::net_ioctl(receiver, net::FIONBIO, (&mut enabled as *mut u32).cast()) };
+    let wrapper_flags = net::net_fcntl(receiver, net::F_GETFL, 0);
+    enabled = 0;
+    let wrapper_clear =
+        unsafe { net::net_ioctl(receiver, net::FIONBIO, (&mut enabled as *mut u32).cast()) };
+    let wrapper_restored = net::net_fcntl(receiver, net::F_GETFL, 0);
+    logger.note_i32("Raw ioctl set result", wrapper_set);
+    logger.note_i32("Raw fcntl flags after ioctl", wrapper_flags);
+    logger.note_i32("Raw ioctl clear result", wrapper_clear);
+    logger.note_i32("Raw fcntl flags after clear", wrapper_restored);
+    logger.record(
+        "Raw ioctl and fcntl agree on nonblocking mode",
+        wrapper_set == 0
+            && wrapper_flags == net::O_NONBLOCK as i32
+            && wrapper_clear == 0
+            && wrapper_restored == 0,
+    );
+    let mut pending = 0xa5a5_a5a5u32;
+    let rc = unsafe { lwip::ioctl(receiver, lwip::FIONREAD, (&mut pending as *mut u32).cast()) };
+    logger.record(
+        "lwIP ioctl rejects FIONREAD and preserves output",
+        rc == -22 && pending == 0xa5a5_a5a5,
+    );
+
+    let mut descriptor = lwip::PollFd {
+        fd: receiver,
+        events: lwip::POLLIN,
+        revents: -1,
+    };
+    let empty_poll = unsafe { lwip::poll(&mut descriptor, 1, 0) };
+    logger.record(
+        "lwIP poll clears empty read readiness",
+        empty_poll == 0 && descriptor.revents == 0,
+    );
+    let mut readset = lwip::FdSet::default();
+    let fd = receiver as usize;
+    if fd >= lwip::FD_SETSIZE {
+        logger.record("lwIP select clears empty read readiness", false);
+        logger.record("lwIP select reports queued read readiness", false);
+        return;
+    }
+    readset.fd_bits[fd / 8] = 1 << (fd % 8);
+    let mut timeout = lwip::TimeVal {
+        tv_sec: 0,
+        tv_usec: 0,
+    };
+    let empty_select = unsafe {
+        lwip::select(
+            receiver + 1,
+            &mut readset,
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            &mut timeout,
+        )
+    };
+    logger.record(
+        "lwIP select clears empty read readiness",
+        empty_select == 0 && readset.fd_bits[fd / 8] & (1 << (fd % 8)) == 0,
+    );
+    let mut raw_set = net::FdSet::default();
+    raw_set.fd_bits[fd / 8] = 1 << (fd % 8);
+    let mut raw_timeout = net::Timeval {
+        tv_sec: 0,
+        tv_usec: 0,
+    };
+    let raw_empty = unsafe {
+        net::net_select(
+            receiver + 1,
+            &mut raw_set,
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            &mut raw_timeout,
+        )
+    };
+    logger.record(
+        "Raw select clears empty UDP readiness",
+        raw_empty == 0 && raw_set.fd_bits[fd / 8] & (1 << (fd % 8)) == 0,
+    );
+
+    let payload = [0x21u8, 0x80, 0, 0xff];
+    let sent = unsafe {
+        net::net_sendto(
+            sender,
+            payload.as_ptr().cast(),
+            payload.len() as i32,
+            0,
+            (destination as *mut net::SockaddrIn).cast(),
+            16,
+        )
+    };
+    descriptor.revents = 0;
+    let ready_poll = if sent == payload.len() as i32 {
+        unsafe { lwip::poll(&mut descriptor, 1, 3000) }
+    } else {
+        -1
+    };
+    logger.record(
+        "lwIP poll reports queued read readiness",
+        ready_poll == 1 && descriptor.revents & lwip::POLLIN != 0,
+    );
+    readset.fd_bits[fd / 8] = 1 << (fd % 8);
+    let ready_select = unsafe {
+        lwip::select(
+            receiver + 1,
+            &mut readset,
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            &mut timeout,
+        )
+    };
+    logger.record(
+        "lwIP select reports queued read readiness",
+        ready_select == 1 && readset.fd_bits[fd / 8] & (1 << (fd % 8)) != 0,
+    );
+    raw_set.fd_bits[fd / 8] = 1 << (fd % 8);
+    let raw_ready = unsafe {
+        net::net_select(
+            receiver + 1,
+            &mut raw_set,
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            &mut raw_timeout,
+        )
+    };
+    logger.record(
+        "Raw select reports queued UDP readiness",
+        raw_ready == 1 && raw_set.fd_bits[fd / 8] & (1 << (fd % 8)) != 0,
+    );
+    let mut bytes = [0xa5u8; 8];
+    let got = if ready_poll == 1 {
+        unsafe { net::net_recv(receiver, bytes.as_mut_ptr().cast(), bytes.len() as i32, 0) }
+    } else {
+        -1
+    };
+    logger.record(
+        "lwIP readiness corresponds to queued datagram",
+        got == 4 && bytes[..4] == payload && bytes[4..] == [0xa5; 4],
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_lwip_udp_addressed(
+    logger: &mut ProbeLogger,
+    sender: i32,
+    receiver: i32,
+    source: &raw_network::SockaddrIn,
+    destination: &mut raw_network::SockaddrIn,
+) {
+    use lwip_sys as lwip;
+    use raw_network as net;
+    let data = [0x61u8, 0, 0xfe, 0x37, 0x80];
+    let sent = unsafe {
+        lwip::send_to(
+            sender,
+            data.as_ptr().cast(),
+            data.len() as i32,
+            0,
+            (destination as *mut net::SockaddrIn).cast(),
+            16,
+        )
+    };
+    let mut output = [0xa5u8; 24];
+    let mut peer = net::SockaddrIn::default();
+    let mut peer_len = 16;
+    let received = if sent == data.len() as i32 && probe_lwip_udp_readable(receiver) {
+        unsafe {
+            lwip::receive_from(
+                receiver,
+                output.as_mut_ptr().cast(),
+                output.len() as i32,
+                0,
+                (&mut peer as *mut net::SockaddrIn).cast(),
+                &mut peer_len,
+            )
+        }
+    } else {
+        -1
+    };
+    logger.note_i32("lwIP datagram sent", sent);
+    logger.note_i32("lwIP datagram received", received);
+    logger.note_u32("lwIP datagram peer length", peer_len);
+    logger.note_hex32("lwIP datagram peer address", peer.sin_addr.s_addr);
+    logger.note_u32("lwIP datagram peer port", u32::from(peer.sin_port));
+    logger.note_u32("lwIP datagram expected port", u32::from(source.sin_port));
+    logger.note_hex32(
+        "lwIP datagram first bytes",
+        u32::from_be_bytes([output[0], output[1], output[2], output[3]]),
+    );
+    logger.record(
+        "lwIP send_to and receive_from preserve datagram and source",
+        received == data.len() as i32
+            && output[..data.len()] == data
+            && output[data.len()..] == [0xa5; 19]
+            && peer.sin_addr.s_addr == 0x7f00_0001
+            && peer.sin_port == source.sin_port
+            && peer_len == 16,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_lwip_udp_readable(receiver: i32) -> bool {
+    let mut poll = raw_network::PollSd {
+        socket: receiver,
+        events: 3,
+        revents: 0,
+    };
+    unsafe { raw_network::net_poll(&mut poll, 1, 3000) == 1 && poll.revents & 3 != 0 }
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_lwip_udp_connected(logger: &mut ProbeLogger, sender: i32, receiver: i32) {
+    use lwip_sys as lwip;
+    let mut output = [0xa5u8; 24];
+    let data = b"lwip send recv";
+    let sent = unsafe { lwip::send(sender, data.as_ptr().cast(), data.len() as i32, 0) };
+    output.fill(0xa5);
+    let received = if sent == data.len() as i32 && probe_lwip_udp_readable(receiver) {
+        unsafe { lwip::recv(receiver, output.as_mut_ptr().cast(), output.len() as i32, 0) }
+    } else {
+        -1
+    };
+    logger.record(
+        "lwIP send and recv preserve connected datagram",
+        received == data.len() as i32
+            && output[..data.len()] == *data
+            && output[data.len()..].iter().all(|byte| *byte == 0xa5),
+    );
+
+    let data = b"lwip write read";
+    let sent = unsafe { lwip::write(sender, data.as_ptr().cast(), data.len() as i32) };
+    output.fill(0xa5);
+    let received = if sent == data.len() as i32 && probe_lwip_udp_readable(receiver) {
+        unsafe { lwip::read(receiver, output.as_mut_ptr().cast(), output.len() as i32) }
+    } else {
+        -1
+    };
+    logger.record(
+        "lwIP write and read preserve connected datagram",
+        received == data.len() as i32
+            && output[..data.len()] == *data
+            && output[data.len()..].iter().all(|byte| *byte == 0xa5),
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_raw_tcp(logger: &mut ProbeLogger) {
+    use core::mem::size_of;
+    use raw_network as net;
+
+    logger.report_step("Raw TCP loopback operations");
+    let initialized = net::net_init();
+    logger.record("Raw TCP network initializes", initialized >= 0);
+    if initialized < 0 {
+        return;
+    }
+    let listener = net::net_socket(net::PF_INET, net::SOCK_STREAM, net::IPPROTO_IP);
+    let client = net::net_socket(net::PF_INET, net::SOCK_STREAM, net::IPPROTO_IP);
+    logger.note_i32("Raw TCP listener descriptor", listener);
+    logger.note_i32("Raw TCP client descriptor", client);
+    logger.record("Raw TCP sockets open", listener >= 0 && client >= 0);
+    if listener >= 0 && client >= 0 {
+        probe_lwip_socket_options(logger, listener);
+        let value: u32 = 1;
+        let mut actual: u32 = 0;
+        let mut length = size_of::<u32>() as u32;
+        // SAFETY: The option buffers and address structures are live and sized for each call.
+        let options = unsafe {
+            net::net_setsockopt(
+                listener,
+                net::SOL_SOCKET,
+                net::SO_REUSEADDR,
+                (&value as *const u32).cast(),
+                length,
+            ) == 0
+                && net::net_getsockopt(
+                    listener,
+                    net::SOL_SOCKET,
+                    net::SO_REUSEADDR,
+                    (&mut actual as *mut u32).cast(),
+                    &mut length,
+                ) == 0
+        };
+        logger.note_u32("Raw TCP reuse option", actual);
+        logger.record(
+            "Raw TCP reuse option is enabled",
+            options && length == 4 && actual != 0,
+        );
+        let disabled = 0u32;
+        actual = u32::MAX;
+        length = size_of::<u32>() as u32;
+        let disabled_ok = unsafe {
+            net::net_setsockopt(
+                listener,
+                net::SOL_SOCKET,
+                net::SO_REUSEADDR,
+                (&disabled as *const u32).cast(),
+                length,
+            ) == 0
+                && net::net_getsockopt(
+                    listener,
+                    net::SOL_SOCKET,
+                    net::SO_REUSEADDR,
+                    (&mut actual as *mut u32).cast(),
+                    &mut length,
+                ) == 0
+        };
+        logger.record(
+            "Raw TCP reuse option can be cleared",
+            disabled_ok && length == 4 && actual == 0,
+        );
+        let flags = net::net_fcntl(listener, net::F_GETFL, 0) == 0
+            && net::net_fcntl(listener, net::F_SETFL, net::O_NONBLOCK) == 0
+            && net::net_fcntl(listener, net::F_GETFL, 0) == net::O_NONBLOCK as i32
+            && net::net_fcntl(listener, net::F_SETFL, 0) == 0
+            && net::net_fcntl(listener, net::F_GETFL, 0) == 0;
+        logger.record("Raw TCP nonblocking flags set and clear", flags);
+        let mut address = net::SockaddrIn {
+            sin_len: size_of::<net::SockaddrIn>() as u8,
+            sin_family: net::AF_INET as u8,
+            sin_port: 0,
+            sin_addr: net::InAddr {
+                s_addr: 0x7f00_0001,
+            },
+            sin_zero: [0; 8],
+        };
+        let mut addrlen = size_of::<net::SockaddrIn>() as u32;
+        let bound = unsafe {
+            net::net_bind(
+                listener,
+                (&mut address as *mut net::SockaddrIn).cast(),
+                addrlen,
+            ) == 0
+                && net::net_getsockname(
+                    listener,
+                    (&mut address as *mut net::SockaddrIn).cast(),
+                    &mut addrlen,
+                ) == 0
+        };
+        let listening = bound && address.sin_port != 0 && lwip_sys::listen(listener, 1) == 0;
+        logger.record("Raw TCP listener binds and listens", listening);
+        if listening {
+            probe_lwip_unconnected_peer(logger, client);
+            let connected = unsafe {
+                net::net_connect(
+                    client,
+                    (&mut address as *mut net::SockaddrIn).cast(),
+                    addrlen,
+                )
+            } == 0;
+            logger.record("Raw TCP client connects", connected);
+            let mut poll = net::PollSd {
+                socket: listener,
+                events: 3,
+                revents: 0,
+            };
+            let ready = connected
+                && unsafe { net::net_poll(&mut poll, 1, 3000) } == 1
+                && poll.revents & 3 != 0;
+            logger.record("Raw TCP listener becomes ready", ready);
+            if ready {
+                let mut peer = net::SockaddrIn::default();
+                let mut peer_len = size_of::<net::SockaddrIn>() as u32;
+                let accepted = unsafe {
+                    lwip_sys::accept(
+                        listener,
+                        (&mut peer as *mut net::SockaddrIn).cast(),
+                        &mut peer_len,
+                    )
+                };
+                logger.record(
+                    "Raw TCP accept reports loopback peer",
+                    accepted >= 0 && peer.sin_addr.s_addr == 0x7f00_0001 && peer.sin_port != 0,
+                );
+                if accepted >= 0 {
+                    probe_lwip_socket_names(logger, listener, client, accepted, &address, &peer);
+                    let payload = b"tcp probe";
+                    let sent = unsafe {
+                        net::net_send(client, payload.as_ptr().cast(), payload.len() as i32, 0)
+                    };
+                    let mut poll = net::PollSd {
+                        socket: accepted,
+                        events: 3,
+                        revents: 0,
+                    };
+                    let ready = sent == payload.len() as i32
+                        && unsafe { net::net_poll(&mut poll, 1, 3000) } == 1
+                        && poll.revents & 3 != 0;
+                    let mut bytes = [0xa5; 32];
+                    let got = if ready {
+                        unsafe {
+                            net::net_recv(
+                                accepted,
+                                bytes.as_mut_ptr().cast(),
+                                bytes.len() as i32,
+                                0,
+                            )
+                        }
+                    } else {
+                        -1
+                    };
+                    logger.record(
+                        "Raw TCP accepted socket receives bytes",
+                        got == payload.len() as i32
+                            && bytes[..payload.len()] == *payload
+                            && bytes[payload.len()..].iter().all(|b| *b == 0xa5),
+                    );
+                    let shutdown = net::net_shutdown(client, 1) == 0;
+                    let mut poll = net::PollSd {
+                        socket: accepted,
+                        events: 3,
+                        revents: 0,
+                    };
+                    let ready = shutdown
+                        && unsafe { net::net_poll(&mut poll, 1, 3000) } == 1
+                        && poll.revents & 3 != 0;
+                    let eof = if ready {
+                        unsafe {
+                            net::net_recv(
+                                accepted,
+                                bytes.as_mut_ptr().cast(),
+                                bytes.len() as i32,
+                                0,
+                            )
+                        }
+                    } else {
+                        -1
+                    };
+                    logger.record("Raw TCP write shutdown delivers EOF", shutdown && eof == 0);
+                    logger.record(
+                        "Raw TCP accepted socket closes",
+                        net::net_close(accepted) == 0,
+                    );
+                }
+                let relisten = net::net_listen(listener, 1) == 0;
+                let second = net::net_socket(net::PF_INET, net::SOCK_STREAM, net::IPPROTO_IP);
+                let connected = second >= 0
+                    && relisten
+                    && unsafe {
+                        net::net_connect(
+                            second,
+                            (&mut address as *mut net::SockaddrIn).cast(),
+                            addrlen,
+                        )
+                    } == 0;
+                let mut poll = net::PollSd {
+                    socket: listener,
+                    events: 3,
+                    revents: 0,
+                };
+                let ready = connected
+                    && unsafe { net::net_poll(&mut poll, 1, 3000) } == 1
+                    && poll.revents & 3 != 0;
+                let mut second_peer = net::SockaddrIn::default();
+                let mut second_len = size_of::<net::SockaddrIn>() as u32;
+                let second_accepted = if ready {
+                    unsafe {
+                        net::net_accept(
+                            listener,
+                            (&mut second_peer as *mut net::SockaddrIn).cast(),
+                            &mut second_len,
+                        )
+                    }
+                } else {
+                    -1
+                };
+                logger.record(
+                    "Raw TCP wrapper relistens and accepts",
+                    second_accepted >= 0
+                        && second_peer.sin_addr.s_addr == 0x7f00_0001
+                        && second_peer.sin_port != 0,
+                );
+                let mut second_local = net::SockaddrIn::default();
+                let mut second_local_len = size_of::<net::SockaddrIn>() as u32;
+                let second_name = if second_accepted >= 0 {
+                    unsafe {
+                        net::net_getsockname(
+                            second,
+                            (&mut second_local as *mut net::SockaddrIn).cast(),
+                            &mut second_local_len,
+                        )
+                    }
+                } else {
+                    -1
+                };
+                logger.record(
+                    "Raw TCP accepted peer matches second client",
+                    second_name == 0
+                        && second_local.sin_addr.s_addr == 0x7f00_0001
+                        && second_local.sin_port != 0
+                        && second_peer.sin_addr == second_local.sin_addr
+                        && second_peer.sin_port == second_local.sin_port,
+                );
+                if second_accepted >= 0 {
+                    logger.record(
+                        "Raw TCP second accepted socket closes",
+                        net::net_close(second_accepted) == 0,
+                    );
+                }
+                if second >= 0 {
+                    logger.record("Raw TCP second client closes", net::net_close(second) == 0);
+                }
+            }
+        }
+    }
+    if listener >= 0 {
+        logger.record("Raw TCP listener closes", net::net_close(listener) == 0);
+    }
+    if client >= 0 {
+        logger.record("Raw TCP client closes", net::net_close(client) == 0);
+    }
+    logger.record("Raw TCP network deinitializes", net::net_deinit() == 0);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_lwip_unconnected_peer(logger: &mut ProbeLogger, socket: i32) {
+    use lwip_sys as lwip;
+    let mut name = lwip::SockAddrIn {
+        sin_len: 0xa5,
+        sin_family: 0xa5,
+        sin_port: 0xa5a5,
+        sin_addr: lwip::InAddr {
+            s_addr: 0xa5a5_a5a5,
+        },
+        sin_zero: [0xa5; 8],
+    };
+    let mut len = core::mem::size_of::<lwip::SockAddrIn>() as u32;
+    let result = unsafe {
+        lwip::get_peer_name(
+            socket,
+            (&mut name as *mut lwip::SockAddrIn).cast(),
+            &mut len,
+        )
+    };
+    logger.record(
+        "lwIP unconnected peer query preserves output",
+        result < 0
+            && len == 16
+            && name.sin_len == 0xa5
+            && name.sin_family == 0xa5
+            && name.sin_port == 0xa5a5
+            && name.sin_addr.s_addr == 0xa5a5_a5a5
+            && name.sin_zero == [0xa5; 8],
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_lwip_socket_names(
+    logger: &mut ProbeLogger,
+    listener: i32,
+    client: i32,
+    accepted: i32,
+    expected_server: &raw_network::SockaddrIn,
+    expected_client: &raw_network::SockaddrIn,
+) {
+    use lwip_sys as lwip;
+    let mut local = lwip::SockAddrIn::default();
+    let mut len = core::mem::size_of::<lwip::SockAddrIn>() as u32;
+    let result = unsafe {
+        lwip::get_socket_name(
+            listener,
+            (&mut local as *mut lwip::SockAddrIn).cast(),
+            &mut len,
+        )
+    };
+    logger.record(
+        "lwIP listener local address matches bind",
+        result == 0
+            && len == 8
+            && local.sin_family == 2
+            && local.sin_addr.s_addr == 0x7f00_0001
+            && local.sin_port == expected_server.sin_port
+            && local.sin_port != 0,
+    );
+    let mut remote = lwip::SockAddrIn::default();
+    len = core::mem::size_of::<lwip::SockAddrIn>() as u32;
+    let result = unsafe {
+        lwip::get_peer_name(
+            client,
+            (&mut remote as *mut lwip::SockAddrIn).cast(),
+            &mut len,
+        )
+    };
+    logger.record(
+        "lwIP client peer matches listener",
+        result == 0
+            && len == 8
+            && remote.sin_family == 2
+            && remote.sin_addr.s_addr == 0x7f00_0001
+            && remote.sin_port == expected_server.sin_port,
+    );
+    len = core::mem::size_of::<lwip::SockAddrIn>() as u32;
+    let result = unsafe {
+        lwip::get_socket_name(
+            client,
+            (&mut local as *mut lwip::SockAddrIn).cast(),
+            &mut len,
+        )
+    };
+    logger.record(
+        "lwIP client local address matches accepted peer",
+        result == 0
+            && len == 8
+            && local.sin_family == 2
+            && local.sin_addr.s_addr == 0x7f00_0001
+            && local.sin_port != 0
+            && local.sin_port == expected_client.sin_port,
+    );
+    len = core::mem::size_of::<lwip::SockAddrIn>() as u32;
+    let result = unsafe {
+        lwip::get_peer_name(
+            accepted,
+            (&mut remote as *mut lwip::SockAddrIn).cast(),
+            &mut len,
+        )
+    };
+    logger.record(
+        "lwIP accepted peer matches client",
+        result == 0
+            && len == 8
+            && remote.sin_family == 2
+            && remote.sin_addr.s_addr == 0x7f00_0001
+            && remote.sin_port == expected_client.sin_port
+            && remote.sin_port != 0,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_lwip_socket_options(logger: &mut ProbeLogger, socket: i32) {
+    use core::mem::size_of;
+    use lwip_sys as lwip;
+
+    let mut actual = 0x1234_5678u32;
+    let mut length = size_of::<u32>() as u32;
+    let enabled = 1u32;
+    // SAFETY: All option buffers are live and their lengths match their types.
+    let set = unsafe {
+        lwip::set_socket_option(
+            socket,
+            lwip::SOL_SOCKET,
+            lwip::SO_REUSEADDR,
+            (&enabled as *const u32).cast(),
+            length,
+        )
+    };
+    let get = unsafe {
+        lwip::get_socket_option(
+            socket,
+            lwip::SOL_SOCKET,
+            lwip::SO_REUSEADDR,
+            (&mut actual as *mut u32).cast(),
+            &mut length,
+        )
+    };
+    logger.record(
+        "lwIP reuse option set and read",
+        set == 0 && get == 0 && length == 4 && actual != 0,
+    );
+
+    let disabled = 0u32;
+    let set = unsafe {
+        lwip::set_socket_option(
+            socket,
+            lwip::SOL_SOCKET,
+            lwip::SO_REUSEADDR,
+            (&disabled as *const u32).cast(),
+            4,
+        )
+    };
+    actual = 0x1234_5678;
+    length = 4;
+    let get = unsafe {
+        lwip::get_socket_option(
+            socket,
+            lwip::SOL_SOCKET,
+            lwip::SO_REUSEADDR,
+            (&mut actual as *mut u32).cast(),
+            &mut length,
+        )
+    };
+    logger.record(
+        "lwIP reuse option clears",
+        set == 0 && get == 0 && length == 4 && actual == 0,
+    );
+
+    actual = 0x1234_5678;
+    length = 0;
+    let get = unsafe {
+        lwip::get_socket_option(
+            socket,
+            lwip::SOL_SOCKET,
+            lwip::SO_REUSEADDR,
+            (&mut actual as *mut u32).cast(),
+            &mut length,
+        )
+    };
+    logger.record(
+        "lwIP zero-length option read preserves output",
+        get == -22 && actual == 0x1234_5678 && length == 0,
+    );
+    let oversized = [0u8; 21];
+    let set = unsafe {
+        lwip::set_socket_option(
+            socket,
+            lwip::SOL_SOCKET,
+            lwip::SO_REUSEADDR,
+            oversized.as_ptr().cast(),
+            oversized.len() as u32,
+        )
+    };
+    logger.record("lwIP oversized option write rejected", set == -22);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_network_udp(logger: &mut ProbeLogger) {
+    use ogc_network as net;
+
+    const LOOPBACK: u32 = 0x7f00_0001;
+    const ADDR_LEN: u32 = 16;
+    const PAYLOAD: &[u8] = &[0x00, 0xff, 0x55, 0x44, 0x50, 0x80];
+
+    logger.report_step("Network UDP wrapper operations");
+    let initialized = net::init() >= 0;
+    logger.record("UDP wrapper initializes", initialized);
+    if !initialized {
+        return;
+    }
+    let sender = net::socket(net::PF_INET, net::SOCK_DGRAM, 0);
+    let receiver = net::socket(net::PF_INET, net::SOCK_DGRAM, 0);
+    logger.record("UDP wrapper sockets open", sender >= 0 && receiver >= 0);
+
+    let bind = net::SockaddrIn {
+        sin_len: ADDR_LEN as u8,
+        sin_family: net::AF_INET as u8,
+        sin_port: 0,
+        sin_addr: net::InAddr { s_addr: LOOPBACK },
+        sin_zero: [0; 8],
+    };
+    let mut socket_name = |fd| {
+        let mut name = net::SockaddrIn::default();
+        let mut len = ADDR_LEN;
+        // SAFETY: The address and length have writable storage for the call.
+        let result =
+            unsafe { net::getsockname(fd, (&mut name as *mut net::SockaddrIn).cast(), &mut len) };
+        logger.note_i32("UDP getsockname result", result);
+        logger.note_u32("UDP getsockname address length", len);
+        logger.note_u32("UDP getsockname address family", u32::from(name.sin_family));
+        logger.note_hex32("UDP getsockname address", name.sin_addr.s_addr);
+        logger.note_u32("UDP getsockname port", u32::from(name.sin_port));
+        (result == 0
+            // getsockname reports the compact IOS IPv4 address length.
+            && len == 8
+            && name.sin_family == bind.sin_family
+            && name.sin_addr.s_addr == LOOPBACK
+            && name.sin_port != 0)
+            .then_some(name)
+    };
+    let bound = sender >= 0
+        && receiver >= 0
+        && net::bind_addr(sender, &bind) == 0
+        && net::bind_addr(receiver, &bind) == 0;
+    let names = if bound {
+        socket_name(sender).zip(socket_name(receiver))
+    } else {
+        None
+    };
+    logger.record("UDP wrapper binds loopback sockets", bound);
+    let mut bytes = [0xa5; 16];
+    let mut peer = net::SockaddrIn::default();
+    let mut peer_len = ADDR_LEN;
+    let send = |fd, to: &mut net::SockaddrIn| {
+        // SAFETY: The payload and address are readable for the supplied lengths.
+        unsafe {
+            net::sendto(
+                fd,
+                PAYLOAD.as_ptr().cast(),
+                PAYLOAD.len() as i32,
+                0,
+                (to as *mut net::SockaddrIn).cast(),
+                ADDR_LEN,
+            )
+        }
+    };
+    let recv = |fd, bytes: &mut [u8], peer: &mut net::SockaddrIn, len: &mut u32| {
+        // SAFETY: The caller supplies writable data and address storage and its length.
+        unsafe {
+            net::recvfrom(
+                fd,
+                bytes.as_mut_ptr().cast(),
+                bytes.len() as i32,
+                0,
+                (peer as *mut net::SockaddrIn).cast(),
+                len,
+            )
+        }
+    };
+    let rejected = recv(-1, &mut bytes, &mut peer, &mut peer_len);
+    logger.record(
+        "UDP recvfrom rejects an invalid handle and preserves output",
+        rejected == net::SOCKET_ERROR
+            && bytes == [0xa5; 16]
+            && peer == net::SockaddrIn::default()
+            && peer_len == ADDR_LEN,
+    );
+
+    let distinct_names = names.is_some_and(|(from, to)| from.sin_port != to.sin_port);
+    logger.record("UDP wrapper binds distinct loopback ports", distinct_names);
+    if let Some((from, mut to)) = names.filter(|_| distinct_names) {
+        logger.record(
+            "UDP sendto rejects an invalid handle",
+            send(-1, &mut to) == net::SOCKET_ERROR,
+        );
+        let sent = send(sender, &mut to);
+        let ready = sent == PAYLOAD.len() as i32 && wrapper_readable(receiver);
+        logger.record("UDP sendto reports byte count and queues datagram", ready);
+        if ready {
+            let received = recv(receiver, &mut bytes, &mut peer, &mut peer_len);
+            logger.note_i32("UDP wrapper received byte count", received);
+            logger.note_u32("UDP wrapper received address length", peer_len);
+            logger.note_u32("UDP wrapper expected source port", u32::from(from.sin_port));
+            logger.note_u32("UDP wrapper received source port", u32::from(peer.sin_port));
+            logger.record(
+                "UDP recvfrom returns the payload and source address",
+                received == PAYLOAD.len() as i32
+                    && bytes[..PAYLOAD.len()] == *PAYLOAD
+                    && bytes[PAYLOAD.len()..] == [0xa5; 16 - PAYLOAD.len()]
+                    && peer_len == ADDR_LEN
+                    && peer.sin_family == bind.sin_family
+                    && peer.sin_addr.s_addr == LOOPBACK
+                    && peer.sin_port == from.sin_port,
+            );
+        }
+    }
+    if sender >= 0 {
+        logger.record("UDP wrapper sender closes", net::close(sender) == 0);
+    }
+    if receiver >= 0 {
+        logger.record("UDP wrapper receiver closes", net::close(receiver) == 0);
+    }
+    logger.record("UDP wrapper deinitializes", net::deinit() == 0);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_network_tcp(logger: &mut ProbeLogger) {
+    use core::mem::size_of;
+    use ogc_network as net;
+
+    logger.report_step("Network TCP wrapper operations");
+    let initialized = net::init();
+    logger.record("TCP wrapper initializes", initialized >= 0);
+    if initialized < 0 {
+        return;
+    }
+    let listener = net::socket(net::PF_INET, net::SOCK_STREAM, 0);
+    let client = net::socket(net::PF_INET, net::SOCK_STREAM, 0);
+    logger.record("TCP wrapper sockets open", listener >= 0 && client >= 0);
+    if listener >= 0 && client >= 0 {
+        let raw = net::socket_raw_fd(listener);
+        let flags = net::fcntl(listener, raw_network::F_GETFL, 0) == 0
+            && net::fcntl(listener, raw_network::F_SETFL, net::O_NONBLOCK) == 0
+            && net::fcntl(listener, raw_network::F_GETFL, 0) == net::O_NONBLOCK as i32
+            && net::fcntl(listener, raw_network::F_SETFL, 0) == 0;
+        logger.record("TCP wrapper changes socket flags", flags);
+        let mut address = net::SockaddrIn {
+            sin_len: size_of::<net::SockaddrIn>() as u8,
+            sin_family: net::AF_INET as u8,
+            sin_port: 0,
+            sin_addr: net::InAddr {
+                s_addr: 0x7f00_0001,
+            },
+            sin_zero: [0; 8],
+        };
+        let mut len = size_of::<net::SockaddrIn>() as u32;
+        // SAFETY: The address buffers and lengths are valid for these calls.
+        let bound = net::bind_addr(listener, &address) == 0
+            && unsafe {
+                net::getsockname(
+                    listener,
+                    (&mut address as *mut net::SockaddrIn).cast(),
+                    &mut len,
+                )
+            } == 0;
+        let mut raw_address = raw_network::SockaddrIn::default();
+        let mut raw_len = size_of::<raw_network::SockaddrIn>() as u32;
+        let raw_matches = raw.is_some_and(|fd| {
+            // SAFETY: The address and length are writable for this call.
+            unsafe {
+                raw_network::net_getsockname(
+                    fd,
+                    (&mut raw_address as *mut raw_network::SockaddrIn).cast(),
+                    &mut raw_len,
+                ) == 0
+            }
+        });
+        logger.record(
+            "TCP wrapper resolves raw socket",
+            bound
+                && raw_matches
+                && net::soc_get_fd(listener) == raw.unwrap_or(-1)
+                && raw_address.sin_port == address.sin_port
+                && raw_address.sin_addr.s_addr == 0x7f00_0001,
+        );
+        let listening = bound && address.sin_port != 0 && net::listen(listener, 2) == 0;
+        logger.record("TCP wrapper binds and listens", listening);
+        if listening {
+            let connected = net::connect_addr(client, &address) == 0;
+            logger.record("TCP wrapper typed connect", connected);
+            if connected && wrapper_readable(listener) {
+                let mut peer = net::SockaddrIn::default();
+                let accepted = net::accept_addr(listener, &mut peer);
+                logger.record(
+                    "TCP wrapper typed accept",
+                    accepted >= 0 && peer.sin_addr.s_addr == 0x7f00_0001 && peer.sin_port != 0,
+                );
+                if accepted >= 0 {
+                    let a = b"send slice";
+                    let sent = net::send_slice(client, a, 0);
+                    probe_socket_readiness(logger, accepted);
+                    let mut bytes = [0xa5; 32];
+                    let got = if sent == a.len() as i32 && wrapper_readable(accepted) {
+                        net::recv_slice(accepted, &mut bytes, 0)
+                    } else {
+                        -1
+                    };
+                    logger.record(
+                        "TCP wrapper slice send and receive",
+                        got == a.len() as i32
+                            && bytes[..a.len()] == *a
+                            && bytes[a.len()..].iter().all(|b| *b == 0xa5),
+                    );
+                    probe_socket_select_empty(logger, accepted);
+                    probe_socket_ioctl(logger, accepted);
+                    let b = b"write slice";
+                    let sent = net::write_slice(accepted, b);
+                    let mut bytes = [0xa5; 32];
+                    let got = if sent == b.len() as i32 && wrapper_readable(client) {
+                        net::read_slice(client, &mut bytes)
+                    } else {
+                        -1
+                    };
+                    logger.record(
+                        "TCP wrapper slice write and read",
+                        got == b.len() as i32
+                            && bytes[..b.len()] == *b
+                            && bytes[b.len()..].iter().all(|b| *b == 0xa5),
+                    );
+                    let c = b"raw send";
+                    let sent = unsafe { net::send(client, c.as_ptr().cast(), c.len() as i32, 0) };
+                    let mut bytes = [0xa5; 32];
+                    let got = if sent == c.len() as i32 && wrapper_readable(accepted) {
+                        unsafe {
+                            net::recv(accepted, bytes.as_mut_ptr().cast(), bytes.len() as i32, 0)
+                        }
+                    } else {
+                        -1
+                    };
+                    logger.record(
+                        "TCP wrapper raw send and receive",
+                        got == c.len() as i32
+                            && bytes[..c.len()] == *c
+                            && bytes[c.len()..].iter().all(|b| *b == 0xa5),
+                    );
+                    let d = b"raw write";
+                    let sent = unsafe { net::write(accepted, d.as_ptr().cast(), d.len() as i32) };
+                    let mut bytes = [0xa5; 32];
+                    let got = if sent == d.len() as i32 && wrapper_readable(client) {
+                        unsafe { net::read(client, bytes.as_mut_ptr().cast(), bytes.len() as i32) }
+                    } else {
+                        -1
+                    };
+                    logger.record(
+                        "TCP wrapper raw write and read",
+                        got == d.len() as i32
+                            && bytes[..d.len()] == *d
+                            && bytes[d.len()..].iter().all(|b| *b == 0xa5),
+                    );
+                    logger.record(
+                        "TCP wrapper releases accepted socket",
+                        net::socket_release_fd(accepted) == 0
+                            && net::socket_raw_fd(accepted).is_none(),
+                    );
+                }
+            } else {
+                logger.record("TCP wrapper listener ready", false);
+            }
+            let client2 = net::socket(net::PF_INET, net::SOCK_STREAM, 0);
+            let connected2 = client2 >= 0 && net::connect_addr(client2, &address) == 0;
+            let accepted2 = if connected2 && wrapper_readable(listener) {
+                net::accept_socket(listener)
+            } else {
+                -1
+            };
+            logger.record("TCP wrapper accepts without peer output", accepted2 >= 0);
+            if accepted2 >= 0 {
+                logger.record(
+                    "TCP wrapper second accepted socket closes",
+                    net::close(accepted2) == 0,
+                );
+            }
+            if client2 >= 0 {
+                logger.record("TCP wrapper second client closes", net::close(client2) == 0);
+            }
+
+            let client3 = net::socket(net::PF_INET, net::SOCK_STREAM, 0);
+            let mut peer = net::SockaddrIn::default();
+            let mut peer_len = size_of::<net::SockaddrIn>() as u32;
+            let accepted3 = if client3 >= 0
+                && net::connect_addr(client3, &address) == 0
+                && wrapper_readable(listener)
+            {
+                // SAFETY: The peer storage and length are valid writable outputs.
+                unsafe {
+                    net::accept(
+                        listener,
+                        (&mut peer as *mut net::SockaddrIn).cast(),
+                        &mut peer_len,
+                    )
+                }
+            } else {
+                -1
+            };
+            logger.record(
+                "TCP pointer accept returns loopback peer",
+                accepted3 >= 0 && peer.sin_addr.s_addr == 0x7f00_0001 && peer.sin_port != 0,
+            );
+            if accepted3 >= 0 {
+                logger.record(
+                    "TCP pointer accepted socket closes",
+                    net::close(accepted3) == 0,
+                );
+            }
+            if client3 >= 0 {
+                logger.record("TCP pointer accept client closes", net::close(client3) == 0);
+            }
+        }
+    }
+    if listener >= 0 {
+        logger.record("TCP wrapper listener closes", net::close(listener) == 0);
+    }
+    let client_was_open = client >= 0 && net::socket_raw_fd(client).is_some();
+    let exited = net::soc_exit() == 0;
+    logger.record(
+        "Socket table exit closes a live handle",
+        client_was_open && exited && net::socket_raw_fd(client).is_none() && net::close(client) < 0,
+    );
+    let reinitialized = net::soc_init() == 0;
+    let fresh = net::socket(net::PF_INET, net::SOCK_STREAM, 0);
+    logger.record(
+        "Socket table init permits fresh sockets",
+        reinitialized && fresh >= 0,
+    );
+    if fresh >= 0 {
+        logger.record("Fresh socket closes", net::close(fresh) == 0);
+    }
+    logger.record("TCP wrapper deinitializes", net::deinit() == 0);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_socket_readiness(logger: &mut ProbeLogger, fd: i32) {
+    use ogc_network as net;
+
+    let Some(raw) = net::socket_raw_fd(fd) else {
+        logger.record("Readiness probe maps a live socket", false);
+        return;
+    };
+    let events = net::POLLIN as u32;
+    let mut readset = net::FdSet::default();
+    net::fd_set(&mut readset, fd as usize);
+    let mut timeout = net::Timeval {
+        tv_sec: 0,
+        tv_usec: 0,
+    };
+    // SAFETY: The descriptor set and timeout are writable for the call.
+    let selected = unsafe {
+        net::select(
+            fd + 1,
+            &mut readset,
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            &mut timeout,
+        )
+    };
+    logger.record(
+        "Select reports queued stream data",
+        selected == 1 && net::fd_is_set(&readset, fd as usize),
+    );
+    let mut descriptor = net::PollSd {
+        socket: raw,
+        events,
+        revents: 0,
+    };
+    // SAFETY: The single descriptor remains live and writable.
+    let count = unsafe { net::poll_raw(&mut descriptor, 1, 3000) };
+    logger.record(
+        "Pointer poll reports queued stream data",
+        count == 1 && descriptor.revents & events != 0,
+    );
+    descriptor.revents = 0;
+    let count = net::poll_raw_slice(core::slice::from_mut(&mut descriptor), 0);
+    logger.record(
+        "Slice poll reports queued stream data",
+        count == 1 && descriptor.revents & events != 0,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_socket_select_empty(logger: &mut ProbeLogger, fd: i32) {
+    use ogc_network as net;
+    let mut readset = net::FdSet::default();
+    net::fd_set(&mut readset, fd as usize);
+    let mut timeout = net::Timeval {
+        tv_sec: 0,
+        tv_usec: 0,
+    };
+    // SAFETY: The descriptor set and timeout are writable for the call.
+    let selected = unsafe {
+        net::select(
+            fd + 1,
+            &mut readset,
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            &mut timeout,
+        )
+    };
+    logger.record(
+        "Select clears an empty stream",
+        selected == 0 && !net::fd_is_set(&readset, fd as usize),
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_socket_ioctl(logger: &mut ProbeLogger, fd: i32) {
+    use ogc_network as net;
+
+    let mut pending = u32::MAX;
+    // SAFETY: This ioctl accepts a pointer to one writable u32.
+    let rc = unsafe { net::ioctl(fd, net::FIONREAD, (&mut pending as *mut u32).cast()) };
+    logger.record(
+        "TCP FIONREAD is rejected without writing output",
+        rc == -1 && pending == u32::MAX,
+    );
+
+    let mut enabled = 1u32;
+    // SAFETY: FIONBIO reads a u32 from live storage.
+    let rc = unsafe { net::ioctl(fd, net::FIONBIO, (&mut enabled as *mut u32).cast()) };
+    logger.record("TCP FIONBIO enables nonblocking mode", rc == 0);
+    if rc == 0 {
+        let mut byte = [0xa5];
+        let empty = net::recv_slice(fd, &mut byte, 0);
+        logger.note_i32("TCP empty nonblocking receive result", empty);
+        logger.record(
+            "TCP nonblocking receive leaves empty buffer unchanged",
+            empty < 0 && byte == [0xa5],
+        );
+        enabled = 0;
+        // SAFETY: FIONBIO reads a u32 from live storage.
+        let restored = unsafe { net::ioctl(fd, net::FIONBIO, (&mut enabled as *mut u32).cast()) };
+        logger.record("TCP FIONBIO restores blocking mode", restored == 0);
+    }
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn wrapper_readable(socket: i32) -> bool {
+    use ogc_network as net;
+    let mut fd = net::PollFd {
+        fd: socket,
+        events: net::POLLIN,
+        revents: 0,
+    };
+    // SAFETY: The single descriptor remains writable for the duration of the call.
+    (unsafe { net::poll(&mut fd, 1, 3000) == 1 }) && fd.revents & net::POLLIN != 0
 }
 
 fn probe_hci_events(logger: &mut ProbeLogger) {
@@ -352,7 +5974,463 @@ fn probe_ui_adapters(logger: &mut ProbeLogger) {
     );
 }
 
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_sram_getters(logger: &mut ProbeLogger) {
+    logger.report_step("System SRAM getter values");
+    // SAFETY: The probe holds the SRAM lock while copying and changing the
+    // shared buffer. Unlock without writeback before calling the getters.
+    let sram = unsafe { system::lock_sram() };
+    if sram.is_null() {
+        logger.record("System SRAM lock acquired", false);
+        return;
+    }
+    let original = unsafe { *sram };
+    unsafe {
+        (*sram).counter_bias = 0x1234_5678;
+        (*sram).display_offset_h = -7;
+        (*sram).ntd = 0x40;
+        (*sram).lang = 4;
+        (*sram).flags = 0x86;
+        system::unlock_sram(false);
+    }
+    let fixture = system::SysSram {
+        counter_bias: 0x89ab_cdef,
+        display_offset_h: -120,
+        lang: 0xfe,
+        ..system::SysSram::default()
+    };
+    let other = system::SysSram {
+        counter_bias: 0x1020_3040,
+        display_offset_h: 75,
+        lang: 3,
+        ..system::SysSram::default()
+    };
+    logger.record(
+        "SRAM field getters read supplied signed and unsigned values",
+        system::sram_counter_bias(&fixture) == 0x89ab_cdef
+            && system::sram_display_offset_h(&fixture) == -120
+            && system::sram_language(&fixture) == 0xfe
+            && system::sram_counter_bias(&other) == 0x1020_3040
+            && system::sram_display_offset_h(&other) == 75
+            && system::sram_language(&other) == 3,
+    );
+    logger.record(
+        "System counter bias reads SRAM",
+        system::get_counter_bias() == 0x1234_5678,
+    );
+    logger.record(
+        "System display offset reads signed SRAM",
+        system::get_display_offset_h() == -7,
+    );
+    logger.record("System RGB60 reads SRAM bit", system::get_eu_rgb60() == 1);
+    logger.record("System language reads SRAM", system::get_language() == 4);
+    logger.record(
+        "System progressive scan reads SRAM bit",
+        system::get_progressive_scan() == 1,
+    );
+    logger.record(
+        "System sound mode reads SRAM bit",
+        system::get_sound_mode() == 1,
+    );
+    logger.record(
+        "System video mode reads SRAM bits",
+        system::get_video_mode() == 2,
+    );
+    logger.record(
+        "System SRAM getter snapshots record calls",
+        raw_system::snapshot_counter_bias_probe().get_called
+            && raw_system::snapshot_display_offset_probe().get_called
+            && raw_system::snapshot_eu_rgb60_probe().get_called
+            && raw_system::snapshot_language_probe().get_called
+            && raw_system::snapshot_progressive_scan_probe().get_called,
+    );
+    logger.record(
+        "System SRAM checksum wraps both sums",
+        raw_system::sram_checksum_words([0xffff, 2, 0x1234, 0xedcc]) == (1, 0xfffb)
+            && raw_system::sram_checksum_words([0; 4]) == (0, 0xfffc),
+    );
+    let config = system::snapshot_config();
+    logger.record(
+        "System configuration snapshot reflects SRAM fixture",
+        config.counter_bias == 0x1234_5678
+            && config.display_offset_h == -7
+            && config.eu_rgb60 == 1
+            && config.language == 4
+            && config.progressive_scan == 1
+            && config.sound_mode == 1
+            && config.video_mode == 2
+            && config.counter_bias_get_called
+            && config.display_offset_get_called
+            && config.eu_rgb60_get_called
+            && config.language_get_called
+            && config.progressive_scan_get_called,
+    );
+
+    // SAFETY: Reacquire before restoring all original fields. No writeback is
+    // requested; a failed lock is recorded and prevents dereferencing null.
+    let sram = unsafe { system::lock_sram() };
+    let restored = if sram.is_null() {
+        false
+    } else {
+        unsafe {
+            *sram = original;
+            system::unlock_sram(false);
+        }
+        let check = unsafe { system::lock_sram() };
+        if check.is_null() {
+            false
+        } else {
+            let matches = unsafe { *check == original };
+            unsafe {
+                system::unlock_sram(false);
+            }
+            matches
+        }
+    };
+    logger.record("System SRAM buffer is restored", restored);
+}
+
+fn probe_ipv4_values(logger: &mut ProbeLogger) {
+    use ogc_network as net;
+
+    logger.report_step("Raw IPv4 address and type-of-service values");
+    for (bytes, word) in [
+        ([1, 2, 3, 4], 0x0102_0304),
+        ([255, 0, 128, 254], 0xff00_80fe),
+        ([0, 0, 0, 0], 0),
+    ] {
+        logger.record(
+            "IPv4 wrapper packs and reads fixed network-order values",
+            net::ip4_addr(bytes[0], bytes[1], bytes[2], bytes[3]) == word
+                && net::ip4_addr1(word) == u32::from(bytes[0])
+                && net::ip4_addr2(word) == u32::from(bytes[1])
+                && net::ip4_addr3(word) == u32::from(bytes[2])
+                && net::ip4_addr4(word) == u32::from(bytes[3]),
+        );
+        let packed = raw_network::ip4_addr(bytes[0], bytes[1], bytes[2], bytes[3]);
+        logger.record(
+            "Raw IPv4 packing matches fixed network-order word",
+            packed == word,
+        );
+        logger.record(
+            "Raw IPv4 octet getters match fixed bytes",
+            raw_network::ip4_addr1(word) == u32::from(bytes[0])
+                && raw_network::ip4_addr2(word) == u32::from(bytes[1])
+                && raw_network::ip4_addr3(word) == u32::from(bytes[2])
+                && raw_network::ip4_addr4(word) == u32::from(bytes[3]),
+        );
+    }
+    for (input, tos, precedence) in [(0xff, 0x1e, 0xe0), (0x95, 0x14, 0x80), (0, 0, 0)] {
+        logger.record(
+            "IPv4 wrapper masks type of service and precedence",
+            net::iptost(input) == tos && net::iptos_prec(input) == precedence,
+        );
+        logger.record(
+            "Raw IPv4 TOS and precedence masks",
+            raw_network::iptost(input) == tos && raw_network::iptos_prec(input) == precedence,
+        );
+    }
+    // SAFETY: Each byte string has a terminating NUL and remains live.
+    let parsed = unsafe {
+        raw_network::inet_addr(c"192.0.2.1".as_ptr()) == 0xc000_0201
+            && raw_network::inet_addr(c"127.0.0.1".as_ptr()) == 0x7f00_0001
+            && raw_network::inet_addr(c"256.0.0.1".as_ptr()) == u32::MAX
+            && raw_network::inet_addr(core::ptr::null()) == u32::MAX
+    };
+    logger.record(
+        "Raw IPv4 parser accepts valid and rejects invalid input",
+        parsed,
+    );
+    // SAFETY: These C strings remain live and are NUL-terminated.
+    let parsed = unsafe {
+        net::inet_addr(c"192.0.2.1".as_ptr()) == 0xc000_0201
+            && net::inet_addr(c"127.0.0.1".as_ptr()) == 0x7f00_0001
+            && net::inet_addr(c"256.0.0.1".as_ptr()) == u32::MAX
+    };
+    logger.record("IPv4 wrapper parses valid and invalid input", parsed);
+
+    logger.record(
+        "Network resolver error text matches known and unknown codes",
+        [
+            (-3, c"temporary failure in name resolution"),
+            (42, c"unknown error"),
+        ]
+        .into_iter()
+        .all(|(code, expected)| {
+            let text = net::gai_strerror(code);
+            // SAFETY: This API returns a pointer to a static NUL-terminated string.
+            !text.is_null() && unsafe { core::ffi::CStr::from_ptr(text) } == expected
+        }),
+    );
+
+    let mut set = net::FdSet { fd_bits: [0xff; 2] };
+    net::fd_zero(&mut set);
+    logger.record("Descriptor set clears both bytes", set.fd_bits == [0, 0]);
+    for fd in [0, 7, 8, 15] {
+        net::fd_set(&mut set, fd);
+    }
+    logger.record(
+        "Descriptor set preserves bits across byte boundaries",
+        set.fd_bits == [0x81, 0x81]
+            && (0..16).all(|fd| net::fd_is_set(&set, fd) == [0, 7, 8, 15].contains(&fd)),
+    );
+    net::fd_clear(&mut set, 7);
+    net::fd_clear(&mut set, 8);
+    logger.record(
+        "Descriptor clear leaves neighboring bits unchanged",
+        set.fd_bits == [1, 0x80]
+            && (0..16).all(|fd| net::fd_is_set(&set, fd) == [0, 15].contains(&fd)),
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_alarms(logger: &mut ProbeLogger) {
+    logger.report_step("System alarm callbacks and cancellation");
+    ALARM_COUNT.store(0, Ordering::Relaxed);
+    let mut alarm = 0;
+    let created = system::create_alarm(&mut alarm) == 0 && alarm != 0;
+    logger.record("System alarm creation returns a handle", created);
+    if !created {
+        return;
+    }
+    let delay = system::TimeSpec {
+        tv_sec: 0,
+        tv_nsec: 30_000_000,
+    };
+    let arg = core::ptr::without_provenance_mut::<core::ffi::c_void>(0x1234);
+    // SAFETY: The callback treats its argument only as an opaque token.
+    let scheduled =
+        unsafe { system::set_alarm(alarm, &delay, Some(probe_alarm_callback), arg) } == 0;
+    for _ in 0..30 {
+        if ALARM_COUNT.load(Ordering::Acquire) >= 1 {
+            break;
+        }
+        if !ogc_video::wait_vsync_timeout_us(100_000) {
+            break;
+        }
+    }
+    let fired = scheduled
+        && ALARM_COUNT.load(Ordering::Acquire) == 1
+        && ALARM_ID.load(Ordering::Relaxed) == alarm
+        && ALARM_ARG.load(Ordering::Relaxed) == 0x1234;
+    logger.record("System one-shot alarm delivers handle and argument", fired);
+    let periodic = unsafe {
+        system::set_periodic_alarm(alarm, &delay, &delay, Some(probe_alarm_callback), arg)
+    } == 0;
+    let alarm_snapshot = system::snapshot_alarms();
+    logger.record(
+        "System alarm snapshot records handle and callbacks",
+        scheduled
+            && periodic
+            && alarm_snapshot.alarm == alarm as usize
+            && alarm_snapshot.callback == probe_alarm_callback as *const () as usize
+            && alarm_snapshot.periodic_callback == probe_alarm_callback as *const () as usize,
+    );
+    for _ in 0..30 {
+        if ALARM_COUNT.load(Ordering::Acquire) >= 4 {
+            break;
+        }
+        if !ogc_video::wait_vsync_timeout_us(100_000) {
+            break;
+        }
+    }
+    let repeated = periodic && ALARM_COUNT.load(Ordering::Acquire) >= 4;
+    logger.record(
+        "System periodic alarm delivers repeated callbacks",
+        repeated,
+    );
+    let canceled = system::cancel_alarm(alarm) == 0;
+    let after_cancel = ALARM_COUNT.load(Ordering::Acquire);
+    let mut waited = true;
+    for _ in 0..8 {
+        waited &= ogc_video::wait_vsync_timeout_us(100_000);
+    }
+    logger.record(
+        "System alarm cancellation stops callbacks",
+        canceled && waited && ALARM_COUNT.load(Ordering::Acquire) == after_cancel,
+    );
+    logger.record(
+        "System alarm removal succeeds",
+        system::remove_alarm(alarm) == 0,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_raw_system_alarms(logger: &mut ProbeLogger) {
+    logger.report_step("Raw system alarm callbacks and state");
+    ALARM_COUNT.store(0, Ordering::Relaxed);
+    let mut alarm = 0;
+    // SAFETY: The output pointer is valid and the callback uses its argument
+    // only as an opaque token. A created alarm is cancelled and removed below.
+    let created = unsafe { raw_system::sys_create_alarm(&mut alarm) } == 0 && alarm != 0;
+    logger.record("Raw system alarm creation returns a handle", created);
+    if !created {
+        return;
+    }
+    let delay = raw_system::TimeSpec {
+        tv_sec: 0,
+        tv_nsec: 30_000_000,
+    };
+    let arg = core::ptr::without_provenance_mut::<core::ffi::c_void>(0x5678);
+    let invalid = unsafe {
+        raw_system::sys_create_alarm(core::ptr::null_mut()) == -1
+            && raw_system::sys_set_alarm(alarm, core::ptr::null(), Some(probe_alarm_callback), arg)
+                == -1
+            && raw_system::sys_set_periodic_alarm(
+                alarm,
+                &delay,
+                core::ptr::null(),
+                Some(probe_alarm_callback),
+                arg,
+            ) == -1
+    };
+    logger.record("Raw system alarms reject invalid inputs", invalid);
+    let scheduled =
+        unsafe { raw_system::sys_set_alarm(alarm, &delay, Some(probe_alarm_callback), arg) } == 0;
+    for _ in 0..30 {
+        if ALARM_COUNT.load(Ordering::Acquire) >= 1 {
+            break;
+        }
+        if !ogc_video::wait_vsync_timeout_us(100_000) {
+            break;
+        }
+    }
+    let once = scheduled
+        && ALARM_COUNT.load(Ordering::Acquire) == 1
+        && ALARM_ID.load(Ordering::Relaxed) == alarm
+        && ALARM_ARG.load(Ordering::Relaxed) == 0x5678;
+    logger.record(
+        "Raw system one-shot alarm delivers handle and argument",
+        once,
+    );
+    let periodic = unsafe {
+        raw_system::sys_set_periodic_alarm(alarm, &delay, &delay, Some(probe_alarm_callback), arg)
+    } == 0;
+    for _ in 0..30 {
+        if ALARM_COUNT.load(Ordering::Acquire) >= 4 {
+            break;
+        }
+        if !ogc_video::wait_vsync_timeout_us(100_000) {
+            break;
+        }
+    }
+    logger.record(
+        "Raw system periodic alarm repeats",
+        periodic && ALARM_COUNT.load(Ordering::Acquire) >= 4,
+    );
+    let canceled = unsafe { raw_system::sys_cancel_alarm(alarm) } == 0;
+    let after_cancel = ALARM_COUNT.load(Ordering::Acquire);
+    let mut waited = true;
+    for _ in 0..8 {
+        waited &= ogc_video::wait_vsync_timeout_us(100_000);
+    }
+    logger.record(
+        "Raw system alarm cancellation stops callbacks",
+        canceled && waited && ALARM_COUNT.load(Ordering::Acquire) == after_cancel,
+    );
+    let removed = unsafe { raw_system::sys_remove_alarm(alarm) } == 0;
+    let state = raw_system::snapshot_alarms();
+    logger.record(
+        "Raw system alarm removal and state snapshot",
+        removed
+            && state.created
+            && state.cancelled
+            && state.removed
+            && state.alarm == alarm
+            && state.callback == probe_alarm_callback as *const () as usize
+            && state.periodic_callback == probe_alarm_callback as *const () as usize,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_sram_locks(logger: &mut ProbeLogger) {
+    logger.report_step("System SRAM lock exclusivity");
+    // SAFETY: The successful lock is paired with one unlock. Competing lock
+    // attempts return null and are not unlocked. No writeback is requested.
+    let first = unsafe { system::lock_sram() };
+    if first.is_null() {
+        logger.record("System standard SRAM lock acquired", false);
+        return;
+    }
+    let standard_busy =
+        unsafe { system::lock_sram().is_null() && system::lock_sram_ex().is_null() };
+    let expected_standard = unsafe { *first };
+    let snapshots_busy = system::snapshot_sram().is_none() && system::snapshot_sram_ex().is_none();
+    let standard_release = unsafe { system::unlock_sram(false) };
+    logger.record(
+        "System standard SRAM lock excludes both lock types",
+        standard_busy,
+    );
+    logger.record("System standard SRAM unlock completes", standard_release);
+    logger.record("SRAM snapshots reject a held lock", snapshots_busy);
+    let standard_snapshot = system::snapshot_sram();
+    let standard_unlock = system::snapshot_sram_unlock().standard;
+    logger.record(
+        "Standard SRAM snapshot matches locked data",
+        standard_snapshot == Some(expected_standard) && standard_unlock,
+    );
+
+    let extended = unsafe { system::lock_sram_ex() };
+    if extended.is_null() {
+        logger.record("System extended SRAM lock acquired after release", false);
+        return;
+    }
+    let extended_busy =
+        unsafe { system::lock_sram().is_null() && system::lock_sram_ex().is_null() };
+    let expected_extended = unsafe { *extended };
+    let extended_release = unsafe { system::unlock_sram_ex(false) };
+    logger.record(
+        "System extended SRAM lock excludes both lock types",
+        extended_busy,
+    );
+    logger.record("System extended SRAM unlock completes", extended_release);
+    let extended_snapshot = system::snapshot_sram_ex();
+    let extended_unlock = system::snapshot_sram_unlock().extended;
+    logger.record(
+        "Extended SRAM snapshot matches locked data",
+        extended_snapshot == Some(expected_extended) && extended_unlock,
+    );
+    let sync_result = system::sync_sram();
+    let sync_snapshot = system::snapshot_sram_sync();
+    logger.record(
+        "SRAM sync snapshot reports the actual result",
+        sync_snapshot.called && sync_snapshot.last_result == sync_result,
+    );
+    let reacquired = unsafe { system::lock_sram() };
+    let released = if reacquired.is_null() {
+        false
+    } else {
+        unsafe { system::unlock_sram(false) }
+    };
+    logger.record(
+        "System SRAM lock can be reacquired after release",
+        !reacquired.is_null() && released,
+    );
+}
+
 fn probe_system(logger: &mut ProbeLogger) {
+    #[cfg(feature = "dolphin-automation")]
+    {
+        let arenas = system::snapshot_arenas();
+        // SAFETY: These calls read the runtime arena bounds.
+        let raw = unsafe {
+            (
+                raw_system::sys_get_arena1_lo(),
+                raw_system::sys_get_arena1_hi(),
+                raw_system::sys_get_arena2_lo(),
+                raw_system::sys_get_arena2_hi(),
+            )
+        };
+        logger.record(
+            "System arena snapshot matches runtime bounds",
+            arenas.arena1_lo == raw.0
+                && arenas.arena1_hi == raw.1
+                && arenas.arena2_lo == raw.2
+                && arenas.arena2_hi == raw.3
+                && (raw.0 as usize) < raw.1 as usize
+                && (raw.2 as usize) < raw.3 as usize,
+        );
+    }
     // The runtime has already initialized IOS. Repeating pre_main closes
     // live descriptors and invalidates the services this probe must test.
     logger.note_hex32("hollywood revision", system::get_hollywood_revision());
@@ -361,6 +6439,60 @@ fn probe_system(logger: &mut ProbeLogger) {
         "core hollywood revision matches system",
         revision == system::get_hollywood_revision(),
     );
+    #[cfg(feature = "dolphin-automation")]
+    {
+        let proof = system::hardware_proof();
+        let snapshot = system::snapshot_hardware();
+        logger.record(
+            "System hardware getters match Dolphin default values",
+            system::get_font_encoding() == 0
+                && system::reset_button_down() == 0
+                && system::get_hollywood_revision() == 0x11
+                && system::get_hollywood_revision() == revision,
+        );
+        let hardware = raw_system::snapshot_hardware_probe();
+        logger.record(
+            "Raw system hardware snapshot records getter calls",
+            hardware.reset_button_called && hardware.hollywood_revision_called,
+        );
+        // SAFETY: The time query reads the monotonic system clock.
+        let before = unsafe { raw_system::sys_time() };
+        let after = unsafe { raw_system::sys_time() };
+        logger.record(
+            "Raw system clock advances monotonically",
+            before > 0 && after >= before && raw_system::snapshot_time_probe().called,
+        );
+        logger.note_u32("Proof font encoding", proof.font_encoding);
+        logger.note_u32("Proof reset button", proof.reset_button_down);
+        logger.note_hex32("Proof Hollywood revision", proof.hollywood_revision);
+        logger.note_u32(
+            "Snapshot font queried",
+            u32::from(snapshot.font_encoding_read_called),
+        );
+        logger.note_u32(
+            "Snapshot reset queried",
+            u32::from(snapshot.reset_button_read_called),
+        );
+        logger.note_u32(
+            "Snapshot Hollywood queried",
+            u32::from(snapshot.hollywood_revision_read_called),
+        );
+        logger.record(
+            "System hardware proof records Dolphin observations",
+            proof.hollywood_revision == 0x11
+                && proof.hollywood_revision == revision
+                && proof.font_encoding == 0
+                && proof.reset_button_down == 0
+                && proof.time_monotonic
+                && proof.time_after >= proof.time_before
+                && snapshot.hollywood_revision == 0x11
+                && snapshot.font_encoding == 0
+                && snapshot.reset_button_down == 0
+                && snapshot.hollywood_revision_read_called
+                && snapshot.font_encoding_read_called
+                && snapshot.reset_button_read_called,
+        );
+    }
     let timebase_before = ogc_core::powerpc::read_timebase();
     let immediate = ogc_core::powerpc::read_timebase();
     // A timebase tick need not occur between adjacent reads. Bound polling by
@@ -395,6 +6527,52 @@ fn probe_system(logger: &mut ProbeLogger) {
     logger.note_u32("pmc miss cycles", pmc.pmc2);
     logger.note_u32("pmc cycles", pmc.pmc3);
     logger.note_u32("pmc instructions", pmc.pmc4);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_ios_version_queries(logger: &mut ProbeLogger) {
+    use ogc_ios::sys as raw_ios;
+    logger.report_step("IOS version and preferred title");
+    // SAFETY: The uncached alias reads the IOS-owned low-memory version word.
+    let word = unsafe { core::ptr::read_volatile(0xc000_3140 as *const u32) };
+    let version = (word >> 16) as i32;
+    let revision = (word & 0xffff) as i32;
+    let valid = (1..=255).contains(&version) && revision > 0;
+    logger.record(
+        "IOS version matches low memory",
+        valid && raw_ios::get_version() == version,
+    );
+    logger.record(
+        "IOS revision matches low memory",
+        valid && raw_ios::get_revision() == revision,
+    );
+    logger.record(
+        "IOS revision major matches low memory",
+        valid && raw_ios::get_revision_major() == (revision >> 8),
+    );
+    logger.record(
+        "IOS revision minor matches low memory",
+        valid && raw_ios::get_revision_minor() == (revision & 0xff),
+    );
+
+    #[repr(align(32))]
+    struct Tmd([u8; 4096]);
+    let mut size = 0;
+    let title = 0x0000_0001_0000_003a;
+    let size_rc = unsafe { es::sys::get_stored_tmd_size(title, &mut size) };
+    let mut tmd = Tmd([0; 4096]);
+    let tmd_rc = if size_rc == 0 && (12..=4096).contains(&size) {
+        unsafe { es::sys::get_stored_tmd(title, tmd.0.as_mut_ptr().cast(), size) }
+    } else {
+        -1
+    };
+    logger.record(
+        "IOS preferred version selects installed IOS 58",
+        size_rc == 0
+            && tmd_rc == 0
+            && tmd.0[4..12].iter().any(|byte| *byte != 0)
+            && raw_ios::get_preferred_version() == 58,
+    );
 }
 
 fn probe_ios_stm(logger: &mut ProbeLogger) {
@@ -443,6 +6621,323 @@ fn probe_conf(logger: &mut ProbeLogger) {
     logger.note_u32("conf registered pads", pads.num_registered as u32);
 }
 
+#[cfg(feature = "dolphin-automation")]
+fn probe_conf_fixture(logger: &mut ProbeLogger) {
+    logger.report_step("Wii configuration fixture values and mutation");
+    let initialized = conf::init() == conf::CONF_ERR_OK;
+    logger.record("CONF initialization is repeatable", initialized);
+    if !initialized {
+        return;
+    }
+
+    let keys = [
+        "IPL.LNG", "IPL.SND", "IPL.AR", "IPL.PGS", "IPL.E60", "BT.BAR", "BT.SPKV", "BT.MOT",
+        "IPL.SSV",
+    ];
+    let expected = [4u8, 2, 0, 1, 1, 0, 42, 0, 0];
+    let mut original = [0u8; 9];
+    let mut readable = true;
+    for (index, key) in keys.iter().enumerate() {
+        readable &= conf::get(key, &mut original[index..index + 1]) == 1;
+    }
+    logger.record("CONF byte settings are readable", readable);
+    if !readable {
+        return;
+    }
+    let mut value = [0xa5; 1];
+    let metadata = conf::get_length("IPL.LNG") == 1
+        && conf::get_type("IPL.LNG") == i32::from(conf::CONF_BYTE)
+        && conf::get("IPL.LNG", &mut value) == 1
+        && value[0] == original[0];
+    logger.record("CONF generic length type and value", metadata);
+    let mut empty = [];
+    let missing = conf::get_length("NO.SUCH.KEY") == conf::CONF_ENOENT
+        && conf::get_type("NO.SUCH.KEY") == conf::CONF_ENOENT
+        && conf::get("NO.SUCH.KEY", &mut value) == conf::CONF_ENOENT
+        && conf::get("IPL.LNG", &mut empty) == conf::CONF_ETOOBIG
+        && conf::set("IPL.LNG", &[]) == conf::CONF_EBADVALUE;
+    logger.record("CONF missing and wrong length inputs fail", missing);
+
+    let mut changed = true;
+    for (key, byte) in keys.iter().zip(expected) {
+        changed &= conf::set(key, &[byte]) == 1;
+    }
+    logger.record("CONF known byte values are set in memory", changed);
+    logger.record(
+        "CONF language reads selected value",
+        conf::get_language() == 4,
+    );
+    logger.record(
+        "CONF sound mode reads selected value",
+        conf::get_sound_mode() == 2,
+    );
+    logger.record(
+        "CONF aspect ratio reads selected value",
+        conf::get_aspect_ratio() == 0,
+    );
+    logger.record(
+        "CONF progressive mode reads selected value",
+        conf::get_progressive_scan() == 1,
+    );
+    logger.record(
+        "CONF RGB60 mode reads selected value",
+        conf::get_eu_rgb60() == 1,
+    );
+    logger.record(
+        "CONF sensor bar reads selected value",
+        conf::get_sensor_bar_position() == 0,
+    );
+    logger.record(
+        "CONF speaker volume reads selected value",
+        conf::get_pad_speaker_volume() == 42,
+    );
+    logger.record(
+        "CONF motor mode reads selected value",
+        conf::get_pad_motor_mode() == 0,
+    );
+    logger.record(
+        "CONF screen saver reads selected value",
+        conf::get_screen_saver_mode() == 0,
+    );
+
+    // Restore every value, including after a failed check. Do not save changes.
+    let mut restored = true;
+    for (key, byte) in keys.iter().zip(original) {
+        restored &= conf::set(key, &[byte]) == 1;
+        let mut current = [0];
+        restored &= conf::get(key, &mut current) == 1 && current == [byte];
+    }
+    logger.record("CONF in-memory settings are restored", restored);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn check_conf_temporary(key: &str, value: &[u8], check: impl FnOnce() -> bool) -> bool {
+    let mut original = [0u8; 74];
+    if value.len() > original.len()
+        || conf::get(key, &mut original[..value.len()]) != value.len() as i32
+    {
+        return false;
+    }
+    let changed = conf::set(key, value) == value.len() as i32;
+    let checked = check();
+    let restored = conf::set(key, &original[..value.len()]) == value.len() as i32;
+    let mut actual = [0u8; 74];
+    let verified = conf::get(key, &mut actual[..value.len()]) == value.len() as i32
+        && actual[..value.len()] == original[..value.len()];
+    changed && checked && restored && verified
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_conf_typed_values(logger: &mut ProbeLogger) {
+    logger.report_step("Wii configuration typed values");
+    let idle = check_conf_temporary("IPL.IDL", &[1, 2], || {
+        conf::get_shutdown_mode() == 1 && conf::get_idle_led_mode() == 2
+    });
+    logger.record("CONF shutdown and LED decode two-byte setting", idle);
+    let bias = check_conf_temporary("IPL.CB", &[0x12, 0x34, 0x56, 0x78], || {
+        let mut value = 0;
+        conf::get_counter_bias(&mut value) == 0 && value == 0x1234_5678
+    });
+    logger.record("CONF counter bias decodes big endian word", bias);
+    let sensitivity = check_conf_temporary("BT.SENS", &[1, 2, 3, 4], || {
+        conf::get_ir_sensitivity() == 0x0102_0304
+    });
+    logger.record("CONF IR sensitivity decodes big endian word", sensitivity);
+    let network = check_conf_temporary("NET.WCFG", &[0x12, 0x34, 0x56, 0x78], || {
+        conf::get_wii_connect24() == 0x1234_5678
+    });
+    logger.record("CONF WiiConnect24 decodes big endian word", network);
+    let offset = check_conf_temporary("IPL.DH", &[0xfb], || {
+        let mut value = 0;
+        conf::get_display_offset_h(&mut value) == 0 && value == -5
+    });
+    logger.record("CONF horizontal display offset is signed", offset);
+    let eula = check_conf_temporary("IPL.EULA", &[1], || conf::get_eula() == 1);
+    logger.record("CONF EULA decodes boolean", eula);
+    let nickname = [
+        0, b'A', 0, b'B', 0, b'C', 0, b'D', 0, b'E', 0, b'F', 0, b'G', 0, b'H', 0, b'I', 0, b'J',
+        0, 0,
+    ];
+    let named = check_conf_temporary("IPL.NIK", &nickname, || {
+        let mut value = [0xa5; 11];
+        conf::get_nick_name(&mut value) == 22 && value == *b"ABCDEFGHIJ\0"
+    });
+    logger.record("CONF nickname decodes ten big endian characters", named);
+    let empty = check_conf_temporary("IPL.NIK", &[0; 22], || {
+        let mut value = [0x5a; 11];
+        conf::get_nick_name(&mut value) == conf::CONF_EBADVALUE && value == [0x5a; 11]
+    });
+    logger.record(
+        "CONF rejects an empty nickname without output changes",
+        empty,
+    );
+    let parental = check_conf_temporary("IPL.PC", &[0x41; 74], || {
+        let mut password = [7; 5];
+        let mut answer = [7; 33];
+        conf::get_parental_password(&mut password) == conf::CONF_EBADVALUE
+            && conf::get_parental_answer(&mut answer) == conf::CONF_EBADVALUE
+            && password == [7; 5]
+            && answer == [7; 33]
+    });
+    logger.record("CONF parental length error preserves outputs", parental);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_conf_pad_records(logger: &mut ProbeLogger) {
+    logger.report_step("Wii configuration controller records");
+    let mut original = conf::ConfPads::default();
+    let mut original_guests = conf::ConfPadGuests::default();
+    let ready = conf::get_pad_devices(&mut original) == 0
+        && conf::get_pad_guest_devices(&mut original_guests) == 0;
+    logger.record("CONF controller records are readable", ready);
+    if !ready {
+        return;
+    }
+
+    let mut pads = conf::ConfPads::default();
+    pads.num_registered = conf::CONF_PAD_MAX_REGISTERED as u8;
+    pads.registered[0].bdaddr = [1, 2, 3, 4, 5, 6];
+    pads.registered[0].name[0..4].copy_from_slice(b"TEST");
+    pads.active[3].bdaddr = [9, 8, 7, 6, 5, 4];
+    let mut actual = conf::ConfPads::default();
+    let set = conf::set_pad_devices(&pads) == core::mem::size_of::<conf::ConfPads>() as i32;
+    let read = conf::get_pad_devices(&mut actual) == 0 && actual == pads;
+    let mut raw = [0u8; core::mem::size_of::<conf::ConfPads>()];
+    let bytes = conf::get("BT.DINF", &mut raw) == raw.len() as i32
+        && raw[0] == 10
+        && raw[1..7] == [1, 2, 3, 4, 5, 6]
+        && raw[7..11] == *b"TEST";
+    logger.record(
+        "CONF registered controller records and byte layout",
+        set && read && bytes,
+    );
+    let mut invalid = pads;
+    invalid.num_registered = 11;
+    let rejected = conf::set_pad_devices(&invalid) == conf::CONF_EBADVALUE
+        && conf::get_pad_devices(&mut actual) == 0
+        && actual == pads;
+    logger.record("CONF rejects too many registered controllers", rejected);
+    let restored = conf::set_pad_devices(&original) == raw.len() as i32
+        && conf::get_pad_devices(&mut actual) == 0
+        && actual == original;
+    logger.record("CONF registered controller record is restored", restored);
+
+    let mut guests = conf::ConfPadGuests::default();
+    guests.num_guests = conf::CONF_PAD_MAX_ACTIVE as u8;
+    guests.guests[0].bdaddr = [6, 5, 4, 3, 2, 1];
+    guests.guests[0].name[0..4].copy_from_slice(b"GUES");
+    guests.guests[0].link_key = [0x5a; 16];
+    let mut actual_guests = conf::ConfPadGuests::default();
+    let size = core::mem::size_of::<conf::ConfPadGuests>();
+    let set = conf::set_pad_guest_devices(Some(&guests)) == size as i32;
+    let read = conf::get_pad_guest_devices(&mut actual_guests) == 0 && actual_guests == guests;
+    let mut raw_guests = [0u8; core::mem::size_of::<conf::ConfPadGuests>()];
+    let bytes = conf::get("BT.CDIF", &mut raw_guests) == size as i32
+        && raw_guests[0] == 4
+        && raw_guests[1..7] == [6, 5, 4, 3, 2, 1]
+        && raw_guests[7..11] == *b"GUES"
+        && raw_guests[71..87] == [0x5a; 16];
+    logger.record(
+        "CONF guest controller records and byte layout",
+        set && read && bytes,
+    );
+    let mut invalid_guests = guests;
+    invalid_guests.num_guests = 5;
+    let rejected = conf::set_pad_guest_devices(Some(&invalid_guests)) == conf::CONF_EBADVALUE
+        && conf::get_pad_guest_devices(&mut actual_guests) == 0
+        && actual_guests == guests;
+    logger.record("CONF rejects too many guest controllers", rejected);
+    let cleared = conf::set_pad_guest_devices(None) == size as i32
+        && conf::get_pad_guest_devices(&mut actual_guests) == 0
+        && actual_guests == conf::ConfPadGuests::default();
+    logger.record("CONF null guest input clears guest records", cleared);
+    let restored = conf::set_pad_guest_devices(Some(&original_guests)) == size as i32
+        && conf::get_pad_guest_devices(&mut actual_guests) == 0
+        && actual_guests == original_guests;
+    logger.record("CONF guest controller record is restored", restored);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_conf_text_settings(logger: &mut ProbeLogger) {
+    logger.report_step("Wii configuration text settings");
+    #[repr(align(32))]
+    struct Settings([u8; 256]);
+    let Ok(file) = conf::ipc::open_file(
+        c"/title/00000001/00000002/data/setting.txt",
+        conf::ipc::IPC_OPEN_READ,
+    ) else {
+        logger.record("CONF text settings file opens", false);
+        return;
+    };
+    let mut bytes = Settings([0; 256]);
+    let read = file.read(&mut bytes.0) == Ok(256);
+    let closed = file.close().is_ok();
+    logger.record("CONF text settings file reads and closes", read && closed);
+    if !read || !closed {
+        return;
+    }
+
+    // Decode an independent IOS read, rather than using the cached parser.
+    let mut key = 0x73b5_dbfau32;
+    for byte in &mut bytes.0 {
+        *byte ^= key as u8;
+        key = key.rotate_left(1);
+    }
+    let field = |prefix: &[u8]| {
+        bytes.0.split(|byte| *byte == b'\n').find_map(|line| {
+            let value = line.strip_prefix(prefix)?;
+            Some(
+                value
+                    .split(|byte| *byte == b'\r' || *byte == 0)
+                    .next()
+                    .unwrap_or(&[]),
+            )
+        })
+    };
+    let region = match field(b"GAME=") {
+        Some(b"JP") => Some(0),
+        Some(b"US") => Some(1),
+        Some(b"EU") => Some(2),
+        Some(b"KR") => Some(4),
+        Some(b"CN") => Some(5),
+        _ => None,
+    };
+    let area = match field(b"AREA=") {
+        Some(b"JPN") => Some(0),
+        Some(b"USA") => Some(1),
+        Some(b"EUR") => Some(2),
+        Some(b"AUS") => Some(3),
+        Some(b"BRA") => Some(4),
+        Some(b"TWN") => Some(5),
+        Some(b"ROC") => Some(6),
+        Some(b"KOR") => Some(7),
+        Some(b"HKG") => Some(8),
+        Some(b"ASI") => Some(9),
+        Some(b"LTN") => Some(10),
+        Some(b"SAF") => Some(11),
+        Some(b"CHN") => Some(12),
+        _ => None,
+    };
+    let video = match field(b"VIDEO=") {
+        Some(b"NTSC") => Some(0),
+        Some(b"PAL") => Some(1),
+        Some(b"MPAL") => Some(2),
+        _ => None,
+    };
+    logger.record(
+        "CONF region matches decoded GAME field",
+        region == Some(conf::get_region()),
+    );
+    logger.record(
+        "CONF area matches decoded AREA field",
+        area == Some(conf::get_area()),
+    );
+    logger.record(
+        "CONF video matches decoded VIDEO field",
+        video == Some(conf::get_video()),
+    );
+}
+
 fn probe_es(logger: &mut ProbeLogger) {
     logger.section("ES PROBE");
     let init = es::init();
@@ -468,6 +6963,212 @@ fn probe_es(logger: &mut ProbeLogger) {
     logger.note_u32("es boot2", boot2);
     logger.note_i32("es korean key rc", es::check_has_korean_key());
     logger.note_i32("es close rc", es::close());
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_raw_es_catalog(logger: &mut ProbeLogger) {
+    use es::sys;
+    const MENU: u64 = 0x0000_0001_0000_0002;
+    logger.section("RAW ES CATALOG");
+    let initialized = sys::init();
+    logger.record("Raw ES initializes", initialized == 0);
+    if initialized != 0 {
+        return;
+    }
+    let mut count = 0u32;
+    // SAFETY: Each buffer is writable for its stated capacity.
+    let rc = unsafe { sys::get_num_titles(&mut count) };
+    logger.note_u32("Raw ES title count", count);
+    logger.record(
+        "Raw ES title count is bounded and nonzero",
+        rc == 0 && count > 0 && count <= 512,
+    );
+    if rc == 0 && count > 0 && count <= 512 {
+        let mut titles = [u64::MAX; 513];
+        let list = unsafe { sys::get_titles(titles.as_mut_ptr(), count) };
+        logger.record(
+            "Raw ES title list includes system menu",
+            list == 0
+                && titles[..count as usize].contains(&MENU)
+                && titles[count as usize..].iter().all(|x| *x == u64::MAX),
+        );
+    }
+    let mut owned_count = 0u32;
+    let rc = unsafe { sys::get_num_owned_titles(&mut owned_count) };
+    logger.note_u32("Raw ES owned title count", owned_count);
+    logger.record(
+        "Raw ES owned title count is bounded and nonzero",
+        rc == 0 && owned_count > 0 && owned_count <= 512,
+    );
+    if rc == 0 && owned_count > 0 && owned_count <= 512 {
+        let mut titles = [u64::MAX; 513];
+        let list = unsafe { sys::get_owned_titles(titles.as_mut_ptr(), owned_count) };
+        logger.record(
+            "Raw ES owned title list includes system menu",
+            list == 0
+                && titles[..owned_count as usize].contains(&MENU)
+                && titles[owned_count as usize..]
+                    .iter()
+                    .all(|x| *x == u64::MAX),
+        );
+    }
+    let mut path = [0xa5u8; 32];
+    let dir = unsafe { sys::get_data_dir(MENU, path.as_mut_ptr()) };
+    logger.note_i32("Raw ES data path result", dir);
+    for chunk in path.chunks_exact(4) {
+        logger.note_hex32(
+            "Raw ES data path bytes",
+            u32::from_be_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]),
+        );
+    }
+    logger.record(
+        "Raw ES Dolphin writes 29 path bytes without terminator",
+        dir == 0 && &path[..29] == b"/title/00000001/00000002/data" && path[29..] == [0xa5; 3],
+    );
+    let mut size = 0u32;
+    let rc = unsafe { sys::get_stored_tmd_size(MENU, &mut size) };
+    logger.note_i32("Raw ES stored TMD size result", rc);
+    logger.note_u32("Raw ES stored TMD size", size);
+    logger.record(
+        "Raw ES system menu TMD size matches NAND fixture",
+        rc == 0 && size == 808,
+    );
+    let mut content_count = 0u32;
+    let rc = unsafe { sys::get_title_contents_count(MENU, &mut content_count) };
+    logger.note_i32("Raw ES title contents count result", rc);
+    logger.note_u32("Raw ES title contents count", content_count);
+    logger.record(
+        "Raw ES system menu content count matches TMD",
+        rc == 0 && content_count == 9,
+    );
+    if rc == 0 && content_count == 9 {
+        let mut ids = [u32::MAX; 10];
+        let listed = unsafe { sys::get_title_contents(MENU, ids.as_mut_ptr(), 9) };
+        logger.record(
+            "Raw ES system menu content IDs match TMD",
+            listed == 0
+                && ids[..9] == [0x96, 0x97, 9, 10, 11, 12, 0x59, 0x5a, 0x98]
+                && ids[9] == u32::MAX,
+        );
+    }
+    #[repr(align(64))]
+    struct TmdBytes([u8; 832]);
+    let mut tmd = TmdBytes([0xa5; 832]);
+    let tmd_rc = unsafe { sys::get_stored_tmd(MENU, tmd.0.as_mut_ptr().cast(), 808) };
+    logger.note_i32("Raw ES stored TMD result", tmd_rc);
+    let mut digest = [0u8; 20];
+    let hash_init = sha::init();
+    let hashed = hash_init == 0 && sha::calculate(&tmd.0[..808], &mut digest) == 0;
+    let hash_close = if hash_init == 0 { sha::close() } else { -1 };
+    logger.record(
+        "Raw ES stored TMD matches fixture digest and guard",
+        tmd_rc == 0
+            && hashed
+            && hash_close == 0
+            && digest
+                == [
+                    0x8f, 0x9e, 0x05, 0xf8, 0xd8, 0xd0, 0xb3, 0x41, 0x9e, 0xa4, 0xb8, 0x7e, 0x37,
+                    0xa4, 0x07, 0x4a, 0x3a, 0x32, 0x9a, 0xeb,
+                ]
+            && tmd.0[808..].iter().all(|b| *b == 0xa5),
+    );
+    if tmd_rc == 0 {
+        let mut stored_count = u32::MAX;
+        let rc = unsafe {
+            sys::get_num_stored_tmd_contents(tmd.0.as_ptr().cast(), 808, &mut stored_count)
+        };
+        logger.note_i32("Raw ES stored content count result", rc);
+        logger.note_u32("Raw ES stored content count", stored_count);
+        logger.record(
+            "Raw ES stored content count matches NAND files",
+            rc == 0 && stored_count == 9,
+        );
+        if rc == 0 && stored_count == 9 {
+            let mut ids = [u32::MAX; 10];
+            let listed = unsafe {
+                sys::get_stored_tmd_contents(tmd.0.as_ptr().cast(), 808, ids.as_mut_ptr(), 9)
+            };
+            logger.note_i32("Raw ES stored content list result", listed);
+            for id in ids {
+                logger.note_hex32("Raw ES stored content ID", id);
+            }
+            logger.record(
+                "Raw ES rejected TMD leaves stored ID buffer unchanged",
+                listed == -2011 && ids.iter().all(|id| *id == u32::MAX),
+            );
+        }
+    }
+    let mut shared_count = u32::MAX;
+    let rc = unsafe { sys::get_num_shared_contents(&mut shared_count) };
+    logger.note_i32("Raw ES shared content count result", rc);
+    logger.note_u32("Raw ES shared content count", shared_count);
+    logger.record(
+        "Raw ES shared content count matches NAND files",
+        rc == 0 && shared_count == 120,
+    );
+    if rc == 0 && shared_count == 120 {
+        #[repr(align(32))]
+        struct Hashes([[u8; 20]; 121]);
+        let mut hashes = Hashes([[0xa5; 20]; 121]);
+        let listed = unsafe { sys::get_shared_contents(hashes.0.as_mut_ptr(), 120) };
+        logger.record(
+            "Raw ES shared content list matches fixture and guard",
+            listed == 0
+                && hashes.0[0]
+                    == [
+                        0xfb, 0x30, 0x8a, 0x9a, 0x1d, 0x93, 0x41, 0xdf, 0x95, 0x17, 0xdb, 0x15,
+                        0x5f, 0x43, 0x83, 0x16, 0x23, 0x25, 0xdc, 0xc0,
+                    ]
+                && hashes.0[120] == [0xa5; 20],
+        );
+    }
+    let mut views_count = 0u32;
+    let ticket_rc = unsafe { sys::get_num_ticket_views(MENU, &mut views_count) };
+    logger.note_i32("Raw ES ticket count result", ticket_rc);
+    logger.note_u32("Raw ES ticket count", views_count);
+    logger.record(
+        "Raw ES system menu has one ticket view",
+        ticket_rc == 0 && views_count == 1,
+    );
+    if ticket_rc == 0 && views_count == 1 {
+        #[repr(align(32))]
+        struct View(sys::Tikview);
+        let mut view = View(sys::Tikview::default());
+        let rc = unsafe { sys::get_ticket_views(MENU, &mut view.0, 1) };
+        let title = view.0.titleid;
+        logger.record(
+            "Raw ES ticket view identifies system menu",
+            rc == 0 && title == MENU,
+        );
+    }
+    let mut view_size = 0u32;
+    let view_rc = unsafe { sys::get_tmd_view_size(MENU, &mut view_size) };
+    logger.note_i32("Raw ES TMD view size result", view_rc);
+    logger.note_u32("Raw ES TMD view size", view_size);
+    logger.record(
+        "Raw ES TMD view size fits system menu",
+        view_rc == 0 && view_size == 236,
+    );
+    if view_rc == 0 && view_size == 236 {
+        #[repr(align(32))]
+        struct ViewBytes([u8; 256]);
+        let mut view = ViewBytes([0xa5; 256]);
+        let rc = unsafe { sys::get_tmd_view(MENU, view.0.as_mut_ptr().cast(), view_size) };
+        logger.record(
+            "Raw ES TMD view identifies menu and content count",
+            rc == 0
+                && &view.0[12..20] == &MENU.to_be_bytes()
+                && &view.0[90..92] == &[0, 9]
+                && view.0[236..].iter().all(|b| *b == 0xa5),
+        );
+    }
+    let mut boot2 = 0u32;
+    let rc = unsafe { sys::get_boot2_version(&mut boot2) };
+    logger.record(
+        "Raw ES boot2 version matches Dolphin fixture",
+        rc == 0 && boot2 == 4,
+    );
+    logger.record("Raw ES closes", sys::close() == 0);
 }
 
 fn probe_crypto(logger: &mut ProbeLogger) {
@@ -1040,6 +7741,7 @@ fn probe_isfs_successful_file_cycle(logger: &mut ProbeLogger) {
         read_dir_result == filesystem::ISFS_OK && directory_count > 0 && entry_present,
     );
     probe_isfs_async_file_cycle(directory, logger);
+    probe_ipc_file_cycle(logger);
     probe_isfs_async_directory_cycle(directory, logger);
     probe_isfs_directory_rename_cycles(logger);
     probe_isfs_async_rename_cycle(logger);
@@ -1469,6 +8171,100 @@ fn probe_isfs_async_file_cycle(directory: &core::ffi::CStr, logger: &mut ProbeLo
     );
 }
 
+fn probe_ipc_file_cycle(logger: &mut ProbeLogger) {
+    use ogc_ipc as ipc;
+
+    logger.report_step("IPC synchronous and asynchronous file cycle");
+    let path = c"/tmp/ogc-rs-isfs-verify/ipc";
+    let created = filesystem::create_file(path, 0, 3, 3, 3) == filesystem::ISFS_OK;
+    let file = if created {
+        ipc::open_file(path, ipc::IPC_OPEN_RW).ok()
+    } else {
+        None
+    };
+    let Some(file) = file else {
+        for label in [
+            "IPC write persists bytes",
+            "IPC exact write persists bytes",
+            "IPC async write completes and persists",
+            "IPC async seek selects offset",
+            "IPC async read returns bytes",
+            "IPC async close completes and persists",
+        ] {
+            logger.record(label, false);
+        }
+        if created {
+            logger.record(
+                "IPC test file cleanup",
+                filesystem::delete(path) == filesystem::ISFS_OK,
+            );
+        }
+        return;
+    };
+    let first = AlignedIsfsBytes([0x13; 32]);
+    let second = AlignedIsfsBytes([0x57; 32]);
+    let third = AlignedIsfsBytes([0xa9; 32]);
+    let write = file.write(&first.0) == Ok(32);
+    let exact = file.write_exact(&second.0) == Ok(());
+    // SAFETY: The buffer and callback remain valid until completion.
+    let (write_submit, write_result) = run_isfs_async_and_wait(|| unsafe {
+        file.write_async(&third.0, Some(isfs_probe_callback), core::ptr::null_mut())
+    });
+    let (seek_submit, seek_result) = run_isfs_async_and_wait(|| unsafe {
+        file.seek_async(32, 0, Some(isfs_probe_callback), core::ptr::null_mut())
+    });
+    let mut read = AlignedIsfsBytes([0; 32]);
+    let (read_submit, read_result) = run_isfs_async_and_wait(|| unsafe {
+        file.read_async(
+            &mut read.0,
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    });
+    let raw = file.raw();
+    let (close_submit, close_result) = run_isfs_async_and_wait(|| unsafe {
+        file.close_async(Some(isfs_probe_callback), core::ptr::null_mut())
+    });
+    let close_ok = close_submit >= 0 && close_result == 0;
+    let fallback_close = close_ok || ipc::FileDescriptor::new(raw).close().is_ok();
+
+    let mut persisted = AlignedIsfsBytes([0; 96]);
+    let reopened = filesystem::open(path, filesystem::ISFS_OPEN_READ);
+    let persisted_ok = if let Ok(reopened) = reopened {
+        let result = reopened.read(&mut persisted.0) == Ok(96);
+        let closed = reopened.close() == filesystem::ISFS_OK;
+        result && closed
+    } else {
+        false
+    };
+    logger.record(
+        "IPC write persists bytes",
+        write && persisted_ok && persisted.0[..32] == first.0,
+    );
+    logger.record(
+        "IPC exact write persists bytes",
+        exact && persisted_ok && persisted.0[32..64] == second.0,
+    );
+    logger.record(
+        "IPC async write completes and persists",
+        write_submit >= 0 && write_result == 32 && persisted_ok && persisted.0[64..] == third.0,
+    );
+    logger.record(
+        "IPC async seek selects offset",
+        seek_submit >= 0 && seek_result == 32 && read_result == 32 && read.0 == second.0,
+    );
+    logger.record(
+        "IPC async read returns bytes",
+        read_submit >= 0 && read_result == 32 && read.0 == second.0,
+    );
+    logger.record(
+        "IPC async close completes and persists",
+        close_ok && persisted_ok,
+    );
+    let deleted = filesystem::delete(path) == filesystem::ISFS_OK;
+    logger.record("IPC test file cleanup", fallback_close && deleted);
+}
+
 fn probe_isfs_async_directory_cycle(directory: &core::ffi::CStr, logger: &mut ProbeLogger) {
     logger.section("ISFS ASYNC DIRECTORY CYCLE");
     let path = c"/tmp/ogc-rs-isfs-verify/async-dir";
@@ -1766,6 +8562,18 @@ fn probe_iso9660_files(logger: &mut ProbeLogger, mount_name: &core::ffi::CStr) {
     } else {
         c"isfs:/HELLO.TXT"
     };
+    let convenience = sysbase::DeviceFile::open_read(file_path);
+    let mut convenience_bytes = [0u8; 2];
+    let convenience_ok = convenience.as_ref().is_some_and(|file| {
+        file.read(&mut convenience_bytes) == Ok(2)
+            && convenience_bytes == *b"he"
+            && file.seek(1, sysbase::SEEK_SET) == Ok(1)
+    });
+    let convenience_closed = convenience.is_some_and(|file| file.close().is_ok());
+    logger.record(
+        "ISO9660 convenience open and seek work",
+        convenience_ok && convenience_closed,
+    );
     let device_found = sysbase::device_op_tab(file_path).is_some();
     let (file, open_error) = match sysbase::DeviceFile::open_checked(file_path, sysbase::O_RDONLY) {
         Ok(file) => (Some(file), 0),

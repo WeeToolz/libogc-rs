@@ -1,19 +1,25 @@
 use crate::probe_support::ProbeLogger;
+use core::sync::atomic::{AtomicU32, Ordering};
 use wpad_sys as wpad;
+
+static BLUETOOTH_POLL_MARKS: AtomicU32 = AtomicU32::new(0);
 
 /// Check the WPAD host lifecycle without starting a Bluetooth inquiry or
 /// changing saved controller configuration.
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("WPAD LIFECYCLE PROBE");
+    probe_invalid_channel_queries(logger);
     logger.record(
         "WPAD starts disabled",
         wpad::get_status() == wpad::WPAD_STATE_DISABLED,
     );
 
+    wpad::set_bluetooth_poll_hook(Some(count_bluetooth_poll_mark));
     let init = wpad::init();
     logger.note_i32("WPAD init result", init);
     logger.record("WPAD init succeeds", init == wpad::WPAD_ERR_NONE as i32);
     if init != wpad::WPAD_ERR_NONE as i32 {
+        wpad::set_bluetooth_poll_hook(None);
         return;
     }
 
@@ -25,17 +31,24 @@ pub fn run(logger: &mut ProbeLogger) {
             break;
         }
     }
+    wpad::set_bluetooth_poll_hook(None);
+    logger.record(
+        "WPAD Bluetooth poll hook observes scan boundary",
+        BLUETOOTH_POLL_MARKS.load(Ordering::Acquire) > 0,
+    );
     logger.record(
         "WPAD reports enabled",
         wpad::get_status() == wpad::WPAD_STATE_ENABLED,
     );
+    probe_invalid_channel_commands(logger);
+    probe_bluetooth_helpers(logger);
 
-    let mut expansion = u32::MAX;
+    let mut expansion = 0xfeed_beef;
     let no_controller = unsafe { wpad::probe(wpad::WPAD_CHAN_0, &mut expansion) };
     logger.note_i32("WPAD channel 0 probe result", no_controller);
     logger.record(
-        "empty channel reports no controller",
-        no_controller == wpad::WPAD_ERR_NO_CONTROLLER as i32 && expansion == 0,
+        "empty channel probe preserves output on no controller",
+        no_controller == wpad::WPAD_ERR_NO_CONTROLLER as i32 && expansion == 0xfeed_beef,
     );
 
     let invalid_channel = unsafe { wpad::probe(wpad::WPAD_MAX_WIIMOTES as i32, &mut expansion) };
@@ -67,7 +80,191 @@ pub fn run(logger: &mut ProbeLogger) {
         wpad::bluetooth_shutdown_complete(),
     );
     logger.record(
+        "WPAD Bluetooth shutdown query reports complete",
+        wpad::bluetooth_shutdown_complete(),
+    );
+    logger.record(
         "WPAD reports disabled after shutdown",
         wpad::get_status() == wpad::WPAD_STATE_DISABLED,
     );
+}
+
+fn probe_invalid_channel_queries(logger: &mut ProbeLogger) {
+    let invalid = wpad::WPAD_MAX_WIIMOTES as i32;
+    logger.record(
+        "WPAD invalid channel has no data pointer",
+        wpad::data(invalid).is_null(),
+    );
+    logger.record(
+        "WPAD invalid channel battery level is zero",
+        wpad::battery_level(invalid) == 0,
+    );
+    logger.record(
+        "WPAD invalid channel button edges are zero",
+        wpad::buttons_down(invalid) == 0 && wpad::buttons_up(invalid) == 0,
+    );
+    logger.record(
+        "WPAD invalid channel held buttons are zero",
+        wpad::buttons_held(invalid) == 0,
+    );
+
+    let mut accel = wpad::Vec3w {
+        x: 0x1234,
+        y: 0x2345,
+        z: 0x3456,
+    };
+    // SAFETY: The output points to a valid local value.
+    unsafe { wpad::accel(invalid, &mut accel) };
+    logger.record(
+        "WPAD invalid channel leaves acceleration output unchanged",
+        accel.x == 0x1234 && accel.y == 0x2345 && accel.z == 0x3456,
+    );
+
+    let mut ir = wpad::Ir {
+        num_dots: 9,
+        state: 7,
+        valid: 5,
+        ..wpad::Ir::default()
+    };
+    // SAFETY: The output points to a valid local value.
+    unsafe { wpad::ir(invalid, &mut ir) };
+    logger.record(
+        "WPAD invalid channel leaves infrared output unchanged",
+        ir.num_dots == 9 && ir.state == 7 && ir.valid == 5,
+    );
+
+    let mut orient = wpad::Orient {
+        roll: 1.25,
+        pitch: 2.5,
+        ..wpad::Orient::default()
+    };
+    // SAFETY: The output points to a valid local value.
+    unsafe { wpad::orientation(invalid, &mut orient) };
+    logger.record(
+        "WPAD invalid channel leaves orientation output unchanged",
+        orient.roll == 1.25 && orient.pitch == 2.5,
+    );
+
+    let mut force = wpad::GForce {
+        x: 3.5,
+        y: 4.5,
+        ..wpad::GForce::default()
+    };
+    // SAFETY: The output points to a valid local value.
+    unsafe { wpad::g_force(invalid, &mut force) };
+    logger.record(
+        "WPAD invalid channel leaves g-force output unchanged",
+        force.x == 3.5 && force.y == 4.5,
+    );
+
+    let mut expansion = wpad::Expansion {
+        type_: 0x1234,
+        ..wpad::Expansion::default()
+    };
+    // SAFETY: The output points to a valid local value.
+    unsafe { wpad::expansion(invalid, &mut expansion) };
+    logger.record(
+        "WPAD invalid channel leaves expansion output unchanged",
+        expansion.type_ == 0x1234,
+    );
+}
+
+fn probe_invalid_channel_commands(logger: &mut ProbeLogger) {
+    let invalid = wpad::WPAD_MAX_WIIMOTES as i32;
+    let bad_channel = wpad::WPAD_ERR_BAD_CHANNEL as i32;
+    logger.record(
+        "WPAD invalid channel rejects speaker control",
+        wpad::control_speaker(invalid, 1) == bad_channel,
+    );
+    logger.record(
+        "WPAD invalid channel rejects disconnect",
+        wpad::disconnect(invalid) == bad_channel,
+    );
+    logger.record(
+        "WPAD invalid channel rejects dropped-event query",
+        wpad::dropped_events(invalid) == bad_channel,
+    );
+    logger.record(
+        "WPAD invalid channel rejects event flush",
+        wpad::flush(invalid) == bad_channel,
+    );
+    logger.record(
+        "WPAD invalid channel rejects speaker query",
+        wpad::is_speaker_enabled(invalid) == bad_channel,
+    );
+
+    let mut event = wpad::WpadData {
+        err: 0x1234,
+        battery_level: 0x5a,
+        ..wpad::WpadData::default()
+    };
+    // SAFETY: The output points to a valid local value.
+    let read = unsafe { wpad::read_event(invalid, &mut event) };
+    logger.record(
+        "WPAD invalid channel rejects event read and preserves output",
+        read == bad_channel && event.err == 0x1234 && event.battery_level == 0x5a,
+    );
+
+    logger.record(
+        "WPAD invalid channel rejects rumble",
+        wpad::rumble(invalid, 1) == bad_channel,
+    );
+    let mut stream_data = [0x5a_u8];
+    // SAFETY: The pointer references one readable byte for this call.
+    let stream = unsafe { wpad::send_stream_data(invalid, stream_data.as_mut_ptr().cast(), 1) };
+    logger.record(
+        "WPAD invalid channel rejects speaker stream",
+        stream == bad_channel,
+    );
+    logger.record(
+        "WPAD invalid channel rejects data format",
+        wpad::set_data_format(invalid, wpad::WPAD_FMT_BTNS) == bad_channel,
+    );
+    let mut event_buffer = wpad::WpadData::default();
+    // SAFETY: The pointer references one writable event value.
+    let buffers = unsafe { wpad::set_event_bufs(invalid, &mut event_buffer, 1) };
+    logger.record(
+        "WPAD invalid channel rejects event buffers",
+        buffers == bad_channel,
+    );
+    logger.record(
+        "WPAD invalid channel rejects idle thresholds",
+        wpad::set_idle_thresholds(invalid, 0, 0, 0, 0, 0, 0) == bad_channel,
+    );
+    logger.record(
+        "WPAD invalid channel rejects MotionPlus configuration",
+        wpad::set_motion_plus(invalid, 1) == bad_channel,
+    );
+    logger.record(
+        "WPAD invalid channel rejects IR resolution",
+        wpad::set_v_res(invalid, 640, 480) == bad_channel,
+    );
+}
+
+fn probe_bluetooth_helpers(logger: &mut ProbeLogger) {
+    let diagnostics = wpad::bluetooth_diagnostics();
+    logger.record(
+        "WPAD Bluetooth diagnostics report ready adapter",
+        diagnostics.stage == ogc_bt_sync::HostStage::Ready,
+    );
+
+    let state = wpad::bluetooth_hid_state(usize::MAX);
+    logger.record(
+        "WPAD Bluetooth invalid HID slot is empty",
+        !state.connected && state.report_count == 0 && state.report_len == 0,
+    );
+    logger.record(
+        "WPAD Bluetooth event queue is empty without HID devices",
+        wpad::bluetooth_hid_next_event().is_none(),
+    );
+    logger.record(
+        "WPAD Switch calibration rejects invalid slot",
+        wpad::bluetooth_switch_calibration(usize::MAX).is_none(),
+    );
+}
+
+fn count_bluetooth_poll_mark(stage: &'static str) {
+    if stage == "WPAD adapter service state check starting" {
+        BLUETOOTH_POLL_MARKS.fetch_add(1, Ordering::AcqRel);
+    }
 }

@@ -1,0 +1,44 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "get_font_encoding",
+      "line": 820,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system",
+      "api_path": "system::get_font_encoding",
+      "checks": [
+        "System hardware getters match Dolphin default values"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "reset_button_down",
+      "line": 983,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system",
+      "api_path": "system::reset_button_down",
+      "checks": [
+        "System hardware getters match Dolphin default values"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "get_hollywood_revision",
+      "line": 998,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system",
+      "api_path": "system::get_hollywood_revision",
+      "checks": [
+        "System hardware getters match Dolphin default values"
+      ]
+    }
+  ],
+  "limits": [
+    "Default Dolphin configuration only. Pressed reset input, other font regions, and physical hardware need separate evidence."
+  ]
+}

@@ -2,7 +2,7 @@ use crate::io::{self, Read, Write};
 
 pub struct Stdin;
 pub struct Stdout;
-pub type Stderr = Stdout;
+pub struct Stderr;
 
 impl Stdin {
     pub const fn new() -> Self {
@@ -10,6 +10,11 @@ impl Stdin {
     }
 }
 impl Stdout {
+    pub const fn new() -> Self {
+        Self
+    }
+}
+impl Stderr {
     pub const fn new() -> Self {
         Self
     }
@@ -26,7 +31,7 @@ impl Read for Stdin {
 }
 impl Write for Stdout {
     fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
-        let result = unsafe { crate::sys::wii::output(bytes.as_ptr(), bytes.len(), false) };
+        let result = unsafe { crate::sys::wii::output_stream(1, bytes.as_ptr(), bytes.len(), false) };
         if result < 0 {
             Err(io::Error::from_raw_os_error((-result) as i32))
         } else {
@@ -34,7 +39,26 @@ impl Write for Stdout {
         }
     }
     fn flush(&mut self) -> io::Result<()> {
-        let result = unsafe { crate::sys::wii::output(core::ptr::null(), 0, true) };
+        let result = unsafe { crate::sys::wii::output_stream(1, core::ptr::null(), 0, true) };
+        if result < 0 {
+            Err(io::Error::from_raw_os_error((-result) as i32))
+        } else {
+            Ok(())
+        }
+    }
+}
+
+impl Write for Stderr {
+    fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
+        let result = unsafe { crate::sys::wii::output_stream(2, bytes.as_ptr(), bytes.len(), false) };
+        if result < 0 {
+            Err(io::Error::from_raw_os_error((-result) as i32))
+        } else {
+            Ok(result as usize)
+        }
+    }
+    fn flush(&mut self) -> io::Result<()> {
+        let result = unsafe { crate::sys::wii::output_stream(2, core::ptr::null(), 0, true) };
         if result < 0 {
             Err(io::Error::from_raw_os_error((-result) as i32))
         } else {

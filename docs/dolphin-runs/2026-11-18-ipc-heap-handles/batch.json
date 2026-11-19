@@ -1,0 +1,69 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "create",
+      "line": 209,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_heap_handles",
+      "api_path": "ipc::HeapId::create",
+      "checks": [
+        "IPC heap rejects nonpositive size",
+        "IPC created heap has valid ID"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "raw",
+      "line": 205,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_heap_handles",
+      "api_path": "heap.raw",
+      "checks": [
+        "IPC created heap has valid ID"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "default_heap",
+      "line": 222,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_heap_handles",
+      "api_path": "ipc::HeapId::default_heap",
+      "checks": [
+        "IPC default heap remains stable"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "alloc",
+      "line": 228,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_heap_handles",
+      "api_path": "heap.alloc",
+      "checks": [
+        "IPC allocations are aligned and distinct"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "free",
+      "line": 239,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_heap_handles",
+      "api_path": "heap.free",
+      "checks": [
+        "IPC freed space supports a larger allocation"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin single-threaded heap creation and allocation. Exhaustion, concurrent access and physical Wii remain unverified."
+  ]
+}

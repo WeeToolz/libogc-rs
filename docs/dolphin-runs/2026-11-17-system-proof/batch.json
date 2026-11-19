@@ -1,0 +1,44 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_alarms",
+      "line": 1194,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_alarms",
+      "api_path": "system::snapshot_alarms",
+      "checks": [
+        "System alarm snapshot records handle and callbacks"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "hardware_proof",
+      "line": 1241,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system",
+      "api_path": "system::hardware_proof",
+      "checks": [
+        "System hardware proof records Dolphin observations"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_hardware",
+      "line": 1213,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system",
+      "api_path": "system::snapshot_hardware",
+      "checks": [
+        "System hardware proof records Dolphin observations"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin alarm bookkeeping and default emulated hardware values. Physical reset input, font region, hardware registers, and failure paths require separate evidence."
+  ]
+}

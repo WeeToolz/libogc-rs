@@ -74,6 +74,7 @@ pub fn run(logger: &mut ProbeLogger) {
         logger.record("network udp socket close", network::close(udp) == 0);
     }
 
+    probe_udp_transfers(logger);
     probe_socket_edges(logger);
     probe_short_wii_sockaddr(logger);
     probe_bind_error_parity(logger);
@@ -82,6 +83,138 @@ pub fn run(logger: &mut ProbeLogger) {
     network::deinit();
     probe_wireless_scan(logger);
     network::wc24_cleanup();
+}
+
+fn probe_udp_transfers(logger: &mut ProbeLogger) {
+    logger.section("UDP LOOPBACK TRANSFERS");
+    let sender = network::socket(network::PF_INET, network::SOCK_DGRAM, 0);
+    let receiver = network::socket(network::PF_INET, network::SOCK_DGRAM, 0);
+    logger.record("UDP transfer sockets open", sender >= 0 && receiver >= 0);
+    if sender >= 0 && receiver >= 0 {
+        exercise_udp_pair(logger, sender, receiver);
+    }
+    if receiver >= 0 {
+        logger.record("UDP receiver closes", network::close(receiver) == 0);
+    }
+    if sender >= 0 {
+        logger.record("UDP sender closes", network::close(sender) == 0);
+    }
+}
+
+fn udp_readable(socket: i32) -> bool {
+    let mut descriptor = [network::PollFd {
+        fd: socket,
+        events: network::POLLIN,
+        revents: 0,
+    }];
+    network::poll_slice(&mut descriptor, 3000) == 1 && descriptor[0].revents & network::POLLIN != 0
+}
+
+fn exercise_udp_pair(logger: &mut ProbeLogger, sender: i32, receiver: i32) {
+    let bind = network::SockaddrIn {
+        sin_len: size_of::<network::SockaddrIn>() as u8,
+        sin_family: network::AF_INET as u8,
+        sin_port: 0,
+        sin_addr: network::InAddr {
+            s_addr: u32::from_be_bytes([127, 0, 0, 1]),
+        },
+        sin_zero: [0; 8],
+    };
+    let sender_bind = network::bind_addr(sender, &bind);
+    let receiver_bind = network::bind_addr(receiver, &bind);
+    logger.record(
+        "UDP sockets bind loopback ephemeral ports",
+        sender_bind == 0 && receiver_bind == 0,
+    );
+    if sender_bind != 0 || receiver_bind != 0 {
+        return;
+    }
+    let mut source = network::SockaddrIn::default();
+    let mut destination = network::SockaddrIn::default();
+    let source_result = network::getsockname_addr(sender, &mut source);
+    let destination_result = network::getsockname_addr(receiver, &mut destination);
+    let addresses_ok = source_result == 0
+        && destination_result == 0
+        && source.sin_port != 0
+        && destination.sin_port != 0
+        && source.sin_port != destination.sin_port
+        && source.sin_addr.s_addr == bind.sin_addr.s_addr
+        && destination.sin_addr.s_addr == bind.sin_addr.s_addr;
+    logger.record("UDP addresses report distinct assigned ports", addresses_ok);
+    if !addresses_ok {
+        return;
+    }
+    const FIRST: &[u8] = &[0, 0xff, b'U', b'D', b'P', 0x80, 0x01, 0];
+    const SECOND: &[u8] = b"second independent datagram";
+    let sent_first = network::send_to_slice(sender, FIRST, 0, &destination);
+    let sent_second = network::send_to_slice(sender, SECOND, 0, &destination);
+    logger.record(
+        "UDP sends complete datagrams",
+        sent_first == FIRST.len() as i32 && sent_second == SECOND.len() as i32,
+    );
+    if sent_first != FIRST.len() as i32 || sent_second != SECOND.len() as i32 {
+        return;
+    }
+    for (index, expected) in [FIRST, SECOND].iter().enumerate() {
+        let ready = udp_readable(receiver);
+        logger.record(
+            if index == 0 {
+                "UDP first datagram becomes readable"
+            } else {
+                "UDP second datagram becomes readable"
+            },
+            ready,
+        );
+        if !ready {
+            return;
+        }
+        let mut bytes = [0xa5; 64];
+        let mut peer = network::SockaddrIn::default();
+        let count = network::recv_from_slice(receiver, &mut bytes, 0, &mut peer);
+        logger.record(
+            if index == 0 {
+                "UDP first datagram bytes and sender match"
+            } else {
+                "UDP second datagram bytes and sender match"
+            },
+            count == expected.len() as i32
+                && bytes[..expected.len()] == **expected
+                && bytes[expected.len()..].iter().all(|byte| *byte == 0xa5)
+                && peer.sin_family == network::AF_INET as u8
+                && peer.sin_port == source.sin_port
+                && peer.sin_addr.s_addr == source.sin_addr.s_addr,
+        );
+    }
+    let mut empty = [network::PollFd {
+        fd: receiver,
+        events: network::POLLIN,
+        revents: 0,
+    }];
+    logger.record(
+        "UDP receive queue is empty after two packets",
+        network::poll_slice(&mut empty, 0) == 0,
+    );
+    const REPLY: &[u8] = b"UDP reply\0\xff";
+    let sent_reply = network::send_to_slice(receiver, REPLY, 0, &source);
+    logger.record(
+        "UDP reply sends complete bytes",
+        sent_reply == REPLY.len() as i32,
+    );
+    if sent_reply != REPLY.len() as i32 || !udp_readable(sender) {
+        logger.record("UDP reply becomes readable", false);
+        return;
+    }
+    logger.record("UDP reply becomes readable", true);
+    let mut bytes = [0xa5; 64];
+    let mut peer = network::SockaddrIn::default();
+    let count = network::recv_from_slice(sender, &mut bytes, 0, &mut peer);
+    logger.record(
+        "UDP reply bytes and sender match",
+        count == REPLY.len() as i32
+            && bytes[..REPLY.len()] == *REPLY
+            && peer.sin_port == destination.sin_port
+            && peer.sin_addr.s_addr == destination.sin_addr.s_addr,
+    );
 }
 
 fn probe_wireless_scan(logger: &mut ProbeLogger) {

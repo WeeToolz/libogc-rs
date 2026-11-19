@@ -718,6 +718,371 @@ mod wii {
         }
     }
 
+    static BROADCAST_READY: AtomicU32 = AtomicU32::new(0);
+    static BROADCAST_WOKEN: AtomicU32 = AtomicU32::new(0);
+    static BROADCAST_MUTEX: AtomicU32 = AtomicU32::new(0);
+    static BROADCAST_COND: AtomicU32 = AtomicU32::new(0);
+
+    unsafe extern "C" fn broadcast_worker(arg: *mut c_void) -> *mut c_void {
+        let mutex = BROADCAST_MUTEX.load(Ordering::Acquire);
+        let cond = BROADCAST_COND.load(Ordering::Acquire);
+        if lwp::mutex_lock(mutex) != 0 {
+            return ptr::null_mut();
+        }
+        BROADCAST_READY.fetch_add(1, Ordering::Release);
+        let rc = if arg as usize == 0 {
+            lwp::cond_wait(cond, mutex)
+        } else {
+            lwp::lwp_cond_wait_abi(cond, mutex)
+        };
+        if rc == 0 {
+            BROADCAST_WOKEN.fetch_add(1, Ordering::Release);
+        }
+        let unlocked = lwp::mutex_unlock(mutex) == 0;
+        if rc == 0 && unlocked {
+            0xc011usize as *mut c_void
+        } else {
+            ptr::null_mut()
+        }
+    }
+
+    fn wait_for_counter(counter: &AtomicU32, count: u32) -> bool {
+        let deadline = driver::now_ticks().wrapping_add(driver::TICKS_PER_SECOND);
+        while counter.load(Ordering::Acquire) < count && driver::now_ticks() < deadline {
+            driver::sleep_ticks(driver::TICKS_PER_SECOND / 100);
+        }
+        counter.load(Ordering::Acquire) >= count
+    }
+
+    fn run_condition_broadcast(logger: &mut ProbeLogger) {
+        logger.section("LWP CONDITION SIGNAL AND BROADCAST");
+        for raw_broadcast in [false, true] {
+            BROADCAST_READY.store(0, Ordering::Release);
+            BROADCAST_WOKEN.store(0, Ordering::Release);
+            let mut mutex = lwp::LWP_MUTEX_NULL;
+            let mut cond = lwp::LWP_COND_NULL;
+            // SAFETY: Both outputs are valid writable handles.
+            let mutex_rc = unsafe { lwp::mutex_init(&mut mutex, 0) };
+            logger.record("Broadcast mutex initializes", mutex_rc == 0);
+            if mutex_rc != 0 {
+                return;
+            }
+            let cond_rc = unsafe { lwp::cond_init(&mut cond) };
+            logger.record("Broadcast condition initializes", cond_rc == 0);
+            if cond_rc != 0 {
+                logger.record(
+                    "Broadcast unused mutex destroys",
+                    lwp::mutex_destroy(mutex) == 0,
+                );
+                return;
+            }
+            BROADCAST_MUTEX.store(mutex, Ordering::Release);
+            BROADCAST_COND.store(cond, Ordering::Release);
+            let mut a = lwp::LWP_THREAD_NULL;
+            let mut b = lwp::LWP_THREAD_NULL;
+            let ca = create_with_stack(
+                &mut a,
+                Some(broadcast_worker),
+                ptr::null_mut(),
+                core::ptr::addr_of_mut!(STACK_A),
+                80,
+            );
+            let cb = create_with_stack(
+                &mut b,
+                Some(broadcast_worker),
+                core::ptr::dangling_mut::<c_void>(),
+                core::ptr::addr_of_mut!(STACK_B),
+                80,
+            );
+            logger.record("Broadcast waiters create", ca == 0 && cb == 0);
+            if ca != 0 || cb != 0 {
+                return;
+            }
+            let ready = wait_for_counter(&BROADCAST_READY, 2);
+            logger.record("Broadcast waiters reach condition", ready);
+            if !ready {
+                return;
+            }
+            // The worker increments ready under this mutex immediately before it waits.
+            let locked = lwp::mutex_lock(mutex) == 0;
+            logger.record("Broadcast notifier acquires mutex", locked);
+            if !locked {
+                return;
+            }
+            if raw_broadcast {
+                logger.record("Raw condition broadcasts", lwp::cond_broadcast(cond) == 0);
+            } else {
+                logger.record("ABI condition signals", lwp::lwp_cond_signal_abi(cond) == 0);
+            }
+            logger.record("Broadcast notifier unlocks", lwp::mutex_unlock(mutex) == 0);
+            if raw_broadcast {
+                logger.record(
+                    "Raw broadcast wakes both waiters",
+                    wait_for_counter(&BROADCAST_WOKEN, 2),
+                );
+            } else {
+                let first = wait_for_counter(&BROADCAST_WOKEN, 1);
+                logger.record(
+                    "ABI signal wakes exactly one waiter",
+                    first && BROADCAST_WOKEN.load(Ordering::Acquire) == 1,
+                );
+                let locked = lwp::mutex_lock(mutex) == 0;
+                logger.record("ABI broadcast notifier locks", locked);
+                if locked {
+                    logger.record(
+                        "ABI condition broadcasts",
+                        lwp::lwp_cond_broadcast_abi(cond) == 0,
+                    );
+                    logger.record(
+                        "ABI broadcast notifier unlocks",
+                        lwp::mutex_unlock(mutex) == 0,
+                    );
+                }
+                logger.record(
+                    "ABI broadcast wakes remaining waiter",
+                    wait_for_counter(&BROADCAST_WOKEN, 2),
+                );
+            }
+            logger.record("Broadcast first waiter joins", join(a) == Ok(0xc011));
+            logger.record("Broadcast second waiter joins", join(b) == Ok(0xc011));
+            logger.record("Broadcast condition destroys", lwp::cond_destroy(cond) == 0);
+            logger.record("Broadcast mutex destroys", lwp::mutex_destroy(mutex) == 0);
+        }
+    }
+
+    static ABI_WORKER_RUN: AtomicU32 = AtomicU32::new(0);
+    static ABI_WORKER_COUNT: AtomicU32 = AtomicU32::new(0);
+    static ABI_WORKER_SELF: AtomicU32 = AtomicU32::new(0);
+    static ABI_WORKER_GATE: AtomicU32 = AtomicU32::new(0);
+
+    unsafe extern "C" fn abi_worker(_: *mut c_void) -> *mut c_void {
+        ABI_WORKER_SELF.store(lwp::lwp_get_self_abi(), Ordering::Release);
+        while lwp::sem_wait(ABI_WORKER_GATE.load(Ordering::Acquire)) == 0 {
+            if ABI_WORKER_RUN.load(Ordering::Acquire) == 0 {
+                break;
+            }
+            ABI_WORKER_COUNT.fetch_add(1, Ordering::Release);
+            lwp::lwp_yield_thread_abi();
+        }
+        0x7155usize as *mut c_void
+    }
+
+    fn run_legacy_thread_abi(logger: &mut ProbeLogger) {
+        logger.section("LWP LEGACY THREAD ABI");
+        ABI_WORKER_COUNT.store(0, Ordering::Relaxed);
+        ABI_WORKER_SELF.store(0, Ordering::Relaxed);
+        ABI_WORKER_RUN.store(1, Ordering::Release);
+        let mut gate = lwp::LWP_SEM_NULL;
+        // SAFETY: The gate is valid writable handle storage.
+        let gate_rc = unsafe { lwp::sem_init(&mut gate, 0, 1) };
+        logger.record("ABI worker gate initializes", gate_rc == 0);
+        if gate_rc != 0 {
+            return;
+        }
+        ABI_WORKER_GATE.store(gate, Ordering::Release);
+        let mut thread = lwp::LWP_THREAD_NULL;
+        // SAFETY: This stack is no longer used by the joined switch workers.
+        let created = unsafe {
+            lwp::lwp_create_thread_abi(
+                &mut thread,
+                Some(abi_worker),
+                ptr::null_mut(),
+                stack_base(core::ptr::addr_of_mut!(STACK_A)),
+                STACK_BYTES as u32,
+                80,
+            )
+        };
+        logger.record("ABI thread creates", created == 0);
+        if created != 0 {
+            logger.record(
+                "unused ABI worker gate destroys",
+                lwp::sem_destroy(gate) == 0,
+            );
+            return;
+        }
+        logger.record("ABI worker starts", lwp::sem_post(gate) == 0);
+        let deadline = driver::now_ticks().wrapping_add(driver::TICKS_PER_SECOND);
+        while ABI_WORKER_COUNT.load(Ordering::Acquire) == 0 && driver::now_ticks() < deadline {
+            driver::sleep_ticks(driver::TICKS_PER_SECOND / 100);
+        }
+        logger.record(
+            "ABI worker runs and reports its handle",
+            ABI_WORKER_COUNT.load(Ordering::Acquire) > 0
+                && ABI_WORKER_SELF.load(Ordering::Acquire) == thread,
+        );
+        let suspended = lwp::lwp_suspend_thread_abi(thread) == 0;
+        logger.record(
+            "ABI thread suspends",
+            suspended
+                && lwp::lwp_thread_is_suspended_abi(thread) != 0
+                && lwp::thread_is_suspended(thread) != 0,
+        );
+        if suspended {
+            let before = ABI_WORKER_COUNT.load(Ordering::Acquire);
+            logger.record(
+                "ABI suspended worker receives permit",
+                lwp::sem_post(gate) == 0,
+            );
+            driver::sleep_ticks(driver::TICKS_PER_SECOND / 50);
+            logger.record(
+                "ABI suspended worker stops",
+                ABI_WORKER_COUNT.load(Ordering::Acquire) == before,
+            );
+            let resumed = lwp::lwp_resume_thread_abi(thread) == 0;
+            driver::sleep_ticks(driver::TICKS_PER_SECOND / 50);
+            logger.record(
+                "ABI resumed worker runs",
+                resumed
+                    && lwp::lwp_thread_is_suspended_abi(thread) == 0
+                    && ABI_WORKER_COUNT.load(Ordering::Acquire) > before,
+            );
+        }
+        let suspended = lwp::suspend_thread(thread) == 0;
+        logger.record(
+            "Raw thread suspends",
+            suspended && lwp::thread_is_suspended(thread) != 0,
+        );
+        if suspended {
+            let before = ABI_WORKER_COUNT.load(Ordering::Acquire);
+            logger.record(
+                "Raw suspended worker receives permit",
+                lwp::sem_post(gate) == 0,
+            );
+            driver::sleep_ticks(driver::TICKS_PER_SECOND / 50);
+            let stopped = ABI_WORKER_COUNT.load(Ordering::Acquire) == before;
+            let resumed = lwp::resume_thread(thread) == 0;
+            driver::sleep_ticks(driver::TICKS_PER_SECOND / 50);
+            logger.record(
+                "Raw thread resumes",
+                stopped
+                    && resumed
+                    && lwp::thread_is_suspended(thread) == 0
+                    && ABI_WORKER_COUNT.load(Ordering::Acquire) > before,
+            );
+        }
+        ABI_WORKER_RUN.store(0, Ordering::Release);
+        logger.record("ABI worker exit permit posts", lwp::sem_post(gate) == 0);
+        let mut result = ptr::null_mut();
+        // SAFETY: `result` is valid writable storage for the join.
+        let joined = unsafe { lwp::lwp_join_thread_abi(thread, &mut result) };
+        logger.record(
+            "ABI thread joins with result",
+            joined == 0 && result as usize == 0x7155,
+        );
+        logger.record("ABI worker gate destroys", lwp::sem_destroy(gate) == 0);
+    }
+
+    fn run_legacy_sync_abi(logger: &mut ProbeLogger) {
+        logger.section("LWP LEGACY SYNC ABI");
+        let mut mutex = lwp::LWP_MUTEX_NULL;
+        // SAFETY: All output handles and values are valid local storage.
+        let initialized = unsafe { lwp::lwp_mutex_init_abi(&mut mutex, 0) };
+        logger.record("ABI mutex initializes", initialized == 0);
+        if initialized == 0 {
+            let locked = lwp::lwp_mutex_lock_abi(mutex) == 0;
+            logger.record("ABI mutex locks", locked);
+            if locked {
+                let busy = lwp::lwp_mutex_try_lock_abi(mutex);
+                logger.note_i32("ABI mutex held try-lock result", busy);
+                logger.record("ABI mutex held try-lock fails", busy != 0);
+                logger.record("ABI mutex unlocks", lwp::lwp_mutex_unlock_abi(mutex) == 0);
+            }
+            let acquired = lwp::lwp_mutex_try_lock_abi(mutex) == 0;
+            logger.record("ABI mutex try-lock acquires free mutex", acquired);
+            if acquired {
+                logger.record(
+                    "ABI try-lock releases",
+                    lwp::lwp_mutex_unlock_abi(mutex) == 0,
+                );
+            }
+            let mut cond = lwp::LWP_COND_NULL;
+            let cond_init = unsafe { lwp::lwp_cond_init_abi(&mut cond) };
+            logger.record("ABI condition initializes", cond_init == 0);
+            if cond_init == 0 {
+                let locked = lwp::lwp_mutex_lock_abi(mutex) == 0;
+                logger.record("ABI timed wait mutex locks", locked);
+                if locked {
+                    let timeout = lwp::TimeSpec {
+                        tv_sec: 0,
+                        tv_nsec: 25_000_000,
+                    };
+                    let start = driver::now_ticks();
+                    let rc = unsafe { lwp::lwp_cond_timed_wait_abi(cond, mutex, &timeout) };
+                    let elapsed = driver::now_ticks().wrapping_sub(start);
+                    logger.record(
+                        "ABI timed wait returns timeout after delay",
+                        rc == 116 && elapsed >= driver::TICKS_PER_SECOND / 50,
+                    );
+                    logger.record(
+                        "ABI timed wait returns mutex",
+                        lwp::lwp_mutex_unlock_abi(mutex) == 0,
+                    );
+                }
+                logger.record(
+                    "ABI condition destroys",
+                    lwp::lwp_cond_destroy_abi(cond) == 0,
+                );
+            }
+            logger.record("ABI mutex destroys", lwp::lwp_mutex_destroy_abi(mutex) == 0);
+        }
+        let mut sem = lwp::LWP_SEM_NULL;
+        let initialized = unsafe { lwp::lwp_sem_init_abi(&mut sem, 1, 2) };
+        logger.record("ABI semaphore initializes", initialized == 0);
+        if initialized == 0 {
+            let mut value = u32::MAX;
+            logger.record(
+                "ABI semaphore starts at one",
+                unsafe { lwp::lwp_sem_get_value_abi(sem, &mut value) } == 0 && value == 1,
+            );
+            logger.record(
+                "ABI semaphore wait consumes permit",
+                lwp::lwp_sem_wait_abi(sem) == 0,
+            );
+            logger.record(
+                "ABI semaphore reads zero",
+                unsafe { lwp::lwp_sem_get_value_abi(sem, &mut value) } == 0 && value == 0,
+            );
+            logger.record("ABI semaphore posts", lwp::lwp_sem_post_abi(sem) == 0);
+            logger.record(
+                "ABI semaphore reads posted permit",
+                unsafe { lwp::lwp_sem_get_value_abi(sem, &mut value) } == 0 && value == 1,
+            );
+            logger.record("ABI semaphore destroys", lwp::lwp_sem_destroy_abi(sem) == 0);
+        }
+        let mut queue = lwp::MQ_BOX_NULL;
+        let initialized = unsafe { lwp::mq_init_abi(&mut queue, 3) };
+        logger.record("ABI message queue initializes", initialized == 0);
+        if initialized == 0 {
+            let first = 0x1234usize as *mut c_void;
+            let second = 0x5678usize as *mut c_void;
+            let third = 0x9abcusize as *mut c_void;
+            let sent = lwp::mq_send_abi(queue, first, lwp::MQ_MSG_NOBLOCK) != 0;
+            let jammed = lwp::mq_jam_abi(queue, second, lwp::MQ_MSG_NOBLOCK) != 0;
+            let raw_jammed = lwp::mq_jam(queue, third, lwp::MQ_MSG_NOBLOCK) != 0;
+            logger.record(
+                "ABI queue sends and jams messages",
+                sent && jammed && raw_jammed,
+            );
+            let mut out = ptr::null_mut();
+            let a = unsafe { lwp::mq_receive_abi(queue, &mut out, lwp::MQ_MSG_NOBLOCK) } != 0
+                && out == third;
+            let b = unsafe { lwp::mq_receive_abi(queue, &mut out, lwp::MQ_MSG_NOBLOCK) } != 0
+                && out == second;
+            let c = unsafe { lwp::mq_receive_abi(queue, &mut out, lwp::MQ_MSG_NOBLOCK) } != 0
+                && out == first;
+            let empty = unsafe { lwp::mq_receive_abi(queue, &mut out, lwp::MQ_MSG_NOBLOCK) } == 0;
+            logger.record(
+                "ABI queue returns jammed messages first",
+                a && b && c && empty,
+            );
+            lwp::mq_close_abi(queue);
+            logger.record(
+                "ABI queue closes",
+                lwp::mq_send_abi(queue, first, lwp::MQ_MSG_NOBLOCK) == 0,
+            );
+        }
+    }
+
     fn run_timed_wait(logger: &mut ProbeLogger) {
         logger.section("LWP TIMED WAIT");
         let mut mutex = lwp::LWP_MUTEX_NULL;
@@ -1095,6 +1460,9 @@ mod wii {
         run_interrupt_frame_integrity(&mut logger);
         run_switch_and_join(&mut logger);
         run_synchronization(&mut logger);
+        run_legacy_sync_abi(&mut logger);
+        run_legacy_thread_abi(&mut logger);
+        run_condition_broadcast(&mut logger);
         run_timed_wait(&mut logger);
         run_message_and_deferred(&mut logger);
         run_tuxedo_compatibility(&mut logger);

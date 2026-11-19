@@ -1,0 +1,113 @@
+from argparse import Namespace
+import importlib.util
+import json
+from pathlib import Path
+import tempfile
+import unittest
+from unittest.mock import patch
+
+
+SPEC = importlib.util.spec_from_file_location(
+    "api_probe_batch", Path(__file__).resolve().parents[1] / "api-probe-batch.py"
+)
+batch = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(batch)
+
+
+class BatchTests(unittest.TestCase):
+    def test_selects_exact_entry_and_rejects_ambiguity(self):
+        case = {"crate": "example", "path": "src/lib.rs", "symbol": "operation"}
+        row = {
+            "crate": "example", "target_implementation_file": "crates/example/src/lib.rs",
+            "symbol": "operation", "line": "12", "implementation_class": "unverified",
+        }
+        second = {**row, "line": "30"}
+        with self.assertRaisesRegex(ValueError, "Select one"):
+            batch.select_cases({"cases": [case]}, [row, second])
+        case["line"] = 12
+        self.assertEqual(batch.select_cases({"cases": [case]}, [row, second]), [(case, row)])
+        with self.assertRaisesRegex(ValueError, "already verified"):
+            batch.select_cases({"cases": [case]}, [{**row, "implementation_class": "ios"}])
+
+    def test_manifest_fills_package_relative_path_and_rejects_ambiguity(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            package = root / "nested" / "package"
+            package.mkdir(parents=True)
+            (package / "Cargo.toml").write_text('[package]\nname = "example"\n')
+            row = {
+                "crate": "example", "target_implementation_file": "nested/package/src/test.rs",
+                "symbol": "operation", "line": "12", "implementation_class": "unverified",
+            }
+            args = Namespace(
+                crate="example", probe="runtime_probe", symbols=["operation"], source=None,
+                evidence_path="probes/main.rs", function="probe", api_prefix="example",
+            )
+            with patch.object(batch, "ROOT", root):
+                rows = [row, {**row, "line": "30"}]
+                with self.assertRaisesRegex(ValueError, "src/test.rs:30"):
+                    batch.manifest_draft(args, rows)
+                args.symbols = ["operation@12"]
+                case, = batch.manifest_draft(args, rows)["cases"]
+            self.assertEqual(case["path"], "src/test.rs")
+            self.assertEqual(case["line"], 12)
+            self.assertEqual(case["api_path"], "example::operation")
+            self.assertEqual(case["checks"], [])
+
+    def test_report_links_original_failure_and_compares_check_counts(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            probe = "runtime_probe"
+            manifest = {"probe": probe, "cases": [{
+                "crate": "example", "symbol": "api",
+                "checks": ["known check", "missing check"],
+            }], "limits": ["Dolphin only."]}
+            for name, status in [("old", "FAIL"), ("new", "PASS")]:
+                directory = root / name
+                directory.mkdir()
+                log = directory / "probe.log"
+                log.write_text(
+                    f"-- page 2 --\n{status} known check\n"
+                    "FAILED CHECKS (retained from all pages)\nFAIL known check\n"
+                )
+                screenshot = directory / "page-003.png"
+                screenshot.touch()
+                (directory / "suite.json").write_text(json.dumps({"results": [{
+                    "probe": probe, "status": "pass" if status == "PASS" else "probe_fail",
+                    "passes": int(status == "PASS"), "fails": int(status == "FAIL"),
+                    "probe_log": str(log), "pages_valid": True,
+                    "page_frames": [str(screenshot)],
+                    "page_capture_markers": ["OGC_DOLPHIN_PAGE_CAPTURE page=2 capture=3"],
+                }]}))
+            report = batch.evidence_report(root / "new", manifest, root / "old")
+            self.assertIn("[log L2](probe.log#L2), [page-003](page-003.png)", report)
+            self.assertIn("| known check | 0 pass, 1 fail | 1 pass, 0 fail |", report)
+            self.assertIn("missing check (Missing)", report)
+            self.assertIn("Dolphin only.", report)
+
+    def test_run_requires_exact_success_line(self):
+        with tempfile.TemporaryDirectory() as temp:
+            directory = Path(temp)
+            log = directory / "probe.log"
+            result = {
+                "probe": "runtime_probe", "status": "pass", "passes": 1, "fails": 0,
+                "dol_sha256": "example", "probe_log": str(log),
+            }
+            (directory / "suite.json").write_text(json.dumps({"passed": True, "results": [result]}))
+            manifest = {"probe": "runtime_probe", "cases": [{"symbol": "f", "checks": ["known label"]}]}
+            run_info = {"exit_code": 0, "dol_sha256": "example"}
+            log.write_text("PASS known label suffix\n")
+            with self.assertRaisesRegex(ValueError, "did not pass"):
+                batch.verify_run(directory, manifest, run_info)
+            log.write_text("PASS known label\n")
+            self.assertEqual(batch.verify_run(directory, manifest, run_info), result)
+            log.write_text("PASS known label\nFAIL known label\n")
+            with self.assertRaisesRegex(ValueError, "did not pass"):
+                batch.verify_run(directory, manifest, run_info)
+            run_info["exit_code"] = 1
+            with self.assertRaisesRegex(ValueError, "passing run"):
+                batch.verify_run(directory, manifest, run_info)
+
+
+if __name__ == "__main__":
+    unittest.main()

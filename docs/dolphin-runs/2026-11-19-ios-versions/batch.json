@@ -1,0 +1,68 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-ios-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_version",
+      "line": 395,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ios_version_queries",
+      "api_path": "raw_ios::get_version",
+      "checks": [
+        "IOS version matches low memory"
+      ]
+    },
+    {
+      "crate": "ogc-ios-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_revision",
+      "line": 407,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ios_version_queries",
+      "api_path": "raw_ios::get_revision",
+      "checks": [
+        "IOS revision matches low memory"
+      ]
+    },
+    {
+      "crate": "ogc-ios-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_revision_major",
+      "line": 420,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ios_version_queries",
+      "api_path": "raw_ios::get_revision_major",
+      "checks": [
+        "IOS revision major matches low memory"
+      ]
+    },
+    {
+      "crate": "ogc-ios-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_revision_minor",
+      "line": 428,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ios_version_queries",
+      "api_path": "raw_ios::get_revision_minor",
+      "checks": [
+        "IOS revision minor matches low memory"
+      ]
+    },
+    {
+      "crate": "ogc-ios-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_preferred_version",
+      "line": 340,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ios_version_queries",
+      "api_path": "raw_ios::get_preferred_version",
+      "checks": [
+        "IOS preferred version selects installed IOS 58"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin current IOS and a NAND fixture with installed IOS 58 only. Invalid version words, alternate title catalogs, and physical Wii remain unverified."
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "register_exi_callback",
+      "line": 197,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_callback_registry",
+      "api_path": "exi::register_exi_callback",
+      "checks": [
+        "EXI callback registry installs and restores callback"
+      ]
+    },
+    {
+      "crate": "ogc-exi-sys",
+      "path": "src/lib.rs",
+      "symbol": "register_exi_callback",
+      "line": 1249,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_callback_registry",
+      "api_path": "raw_exi::register_exi_callback",
+      "checks": [
+        "EXI callback registry installs and restores callback"
+      ]
+    },
+    {
+      "crate": "ogc-exi-sys",
+      "path": "src/lib.rs",
+      "symbol": "interrupts_ready",
+      "line": 585,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_callback_registry",
+      "api_path": "raw_exi::interrupts_ready",
+      "checks": [
+        "EXI callback registry installs and restores callback"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin EXI channel 1 callback replacement after startup. Interrupt dispatch, concurrent changes and physical Wii remain unverified."
+  ]
+}

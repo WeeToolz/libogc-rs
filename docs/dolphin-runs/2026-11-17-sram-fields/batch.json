@@ -1,0 +1,44 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "sram_counter_bias",
+      "line": 1678,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_getters",
+      "api_path": "system::sram_counter_bias",
+      "checks": [
+        "SRAM field getters read supplied signed and unsigned values"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "sram_display_offset_h",
+      "line": 1690,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_getters",
+      "api_path": "system::sram_display_offset_h",
+      "checks": [
+        "SRAM field getters read supplied signed and unsigned values"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "sram_language",
+      "line": 1715,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_getters",
+      "api_path": "system::sram_language",
+      "checks": [
+        "SRAM field getters read supplied signed and unsigned values"
+      ]
+    }
+  ],
+  "limits": [
+    "Checks fields of supplied SRAM records in Dolphin. Physical SRAM storage and persistence require separate evidence."
+  ]
+}

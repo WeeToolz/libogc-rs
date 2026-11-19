@@ -1,0 +1,73 @@
+{
+  "source_revision": "9896ddf1765be0b75d54940905a0350fba908499",
+  "source_fingerprint": "6bcdaacda9951e0de2a42e71e374a3b9c50ad7ea842362a0476c7dd9d84bbd10",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-18-device-registry",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "13276a8297380ee73a13cab6198daf17a043fd2c82a7b8fa8db33c7ff11c242c",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "c0318ba6d1cb377b80e0ce6abeed65a18607bab8aee9edea595f22782acf4724",
+  "suite_sha256": "2f0e631a311fe99e865aa3bf2fbdd64315a3dcb8204235f5a6899ac3cd95ea29",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/probe.log": "f26b80fb4a3b7f94cb5ebf00d00044330a72d1afc7dbb4891c6afda2686b5b32",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/stderr.log": "ba2f24f83f14a09e19169f9a25099cc73b4d65b12920c8fe0bb29f0c4bbebd0f",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/probe-transport.bin": "19bafb770707635be5969e338e591968b35c7cdcb9ccc72bbe77be1e1130393a",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-002.png": "5f947b9212cb392fb29390d46cc90c8f0127f278f75518e47898f43c3891c8e1",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-003.png": "1daa2287195337d699bf42676d44a87a04a5b89a949fd18ea8ab8a70f353ffbf",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-004.png": "ea439eb734efe6dbc3ed582af107da188bf8cf76ed273580cbbecefe5cf87fcf",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-005.png": "7f15156d8c904d3f96c0acf423a96b78b9d5c04e0964cbb2de00d936239925d1",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-006.png": "9b63d17c486ebe08d7c1e33b0929cf24fca92babfb71ca60bd3c0c6fa29503e3",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-007.png": "e1ceceaa860833199d3513f4c418da208d2999d0a29189090dba494b8a1268ba",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-008.png": "91cd3b42793c0948d486cf9588fd23eefe7fab8a1201c67bfcb77eeee6389cc2",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-009.png": "d4e84b86932b76884c5fe6d6097d7bddd2ed1a10d8ec627db058309c7ce3e5c5",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-010.png": "32a0b1b9cd1b33b84456981d3ab10fd0e8b8cb8bd5fc11be7a73439c419f81d8",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-011.png": "b082383c4afe1a1e4d9354e94d4321989538a3f176656c8fca29b4a2000fe209",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-012.png": "3ce91cdb3ea8862a50f43fe501dd76f674c851c7e065774af28c5d92e069f5e4",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-013.png": "1c5d73096a49f32f10958a3bd871eb99db5430a64d6c4178802a497b7fa58de5",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-014.png": "e1c9e41da2b02385308c583987157984dcd8398c1d7f025d556e0fbaabbcf814",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-015.png": "adba10561786e290bc32c4109b99fa0d35f24f32773cd99fb7476eaaeab02dc9",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-016.png": "3c2bae0bfb3620eed0fec492f7510c6580635016ad39943ea5b7765601435dfe",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-017.png": "57b2f589ad53cbf035e7a02d57f8f5abf450b0871687656d317de4cb63ef4d61",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-018.png": "f361af41aed2cba714f3132d1099d06124c80f7d6b05fafcb5e49ecd7569673b",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-019.png": "21561f9187310812ba676707d958899237845ad84b151e5de834753c00cb071f",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-020.png": "47322ed0fc74ade149d590d514e25eceb7eb2e4972b3f27822a4b1a9781ec990",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-021.png": "550d45e72449e5716ea59d2efa45772e5d821888a5a1f7425f8258f4eb614f3f",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-022.png": "feddfcdccbe29e0438027824da33580a4d0d4fba028badd8c2baf336c68fa95f",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-023.png": "ade389c92fad56736aadb630836663a4f66bc70cc033c51a23e4aaf46486c0b8",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-024.png": "5881c0004e8464e153573bff26626bc2498c6a28bae007da276eab971ab4f7e3",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-025.png": "8f89d6c18a3f0413b3e04d5338ac0ca9389ec5fcb93bb1e17b51b29f1b87cc89",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-026.png": "fc0e0f946882e0f333e7a6e6206aef2dc0ecd19c89b72c19867a57e0fe7d29a7",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-027.png": "3b8119f8e61852a76af67883b58b78584292e8856dac88af4039f8058b1bbab3",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-028.png": "b62035c0120ff38ef86a06322f41a5286293c876f74a9e6569e8d1022d1bd8e7",
+    "docs/dolphin-runs/2026-11-18-device-registry/runtime_probe/pages/page-029.png": "ffeea3a4d1ecd2ce0430a97fa4868a5cbc4ab39c87d1459594b6a75f0b6f207c"
+  },
+  "exit_code": 0
+}

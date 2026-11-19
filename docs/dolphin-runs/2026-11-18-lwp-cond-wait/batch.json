@@ -1,0 +1,32 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "timed_wait",
+      "line": 234,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_condition_wait",
+      "api_path": "cond.timed_wait",
+      "checks": [
+        "LWP condition timeout reacquires mutex"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "wait",
+      "line": 229,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_condition_worker",
+      "api_path": "probe.cond.wait",
+      "checks": [
+        "LWP condition signal wakes waiting worker"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin one timed wait and one signaled waiter. Multiple waiters, cancellation races and physical Wii remain unverified."
+  ]
+}

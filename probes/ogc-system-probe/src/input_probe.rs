@@ -80,6 +80,8 @@ impl TraceQueue {
 }
 
 static TRACE_QUEUE: TraceQueue = TraceQueue::new();
+#[cfg(feature = "dolphin-automation")]
+static PAD_SCAN_HOOKS: AtomicUsize = AtomicUsize::new(0);
 
 fn queue_trace_event(event: &InputTraceEvent<'_>) -> Result<(), TraceError> {
     let InputTraceEvent::RawReport {
@@ -238,6 +240,8 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
     #[cfg(feature = "dolphin-automation")]
     let mut automation = InputAutomationState::default();
     #[cfg(feature = "dolphin-automation")]
+    let mut pad_checks = PadAccessChecks::new();
+    #[cfg(feature = "dolphin-automation")]
     let mut automation_frames = 0u32;
     #[cfg(feature = "dolphin-automation")]
     let mut automation_finished = false;
@@ -266,6 +270,7 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
         #[cfg(feature = "dolphin-automation")]
         {
             automation.observe(&snapshot);
+            probe_pad_accessors(&mut pad_checks, &frame.pad_status[0]);
             automation_frames = automation_frames.saturating_add(1);
             if automation_frames >= AUTOMATION_FRAMES {
                 automation_finished = true;
@@ -295,6 +300,15 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
         logger.record("Start transition observed", automation.start_seen);
         logger.record("D-pad right transition observed", automation.right_seen);
         logger.record("main stick transition observed", automation.main_stick_seen);
+        logger.record(
+            "PAD accessors match button transitions from raw samples",
+            pad_checks.buttons_ok && pad_checks.saw_down && pad_checks.saw_up,
+        );
+        logger.record(
+            "PAD accessors match axes from raw samples",
+            pad_checks.axes_ok && pad_checks.saw_stick,
+        );
+        probe_controller_scan_modes(logger, &mut controllers);
     }
 
     let cleanup_complete =
@@ -325,6 +339,108 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
     loop {
         logger.display().wait_vsync();
     }
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn pad_scan_hook(stage: &'static str) {
+    let bit = match stage {
+        "PAD SCAN START" => 1,
+        "PAD SCAN DONE" => 2,
+        _ => 0,
+    };
+    PAD_SCAN_HOOKS.fetch_or(bit, Ordering::Relaxed);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_controller_scan_modes(logger: &mut ProbeLogger, controllers: &mut ControllerManager) {
+    fn has_pad(snapshot: &ControllerSnapshot) -> bool {
+        snapshot
+            .controllers()
+            .iter()
+            .any(|item| item.source == ControllerSource::GameCube(0) && item.connected)
+    }
+
+    PAD_SCAN_HOOKS.store(0, Ordering::Relaxed);
+    controllers.set_input_scan_hook(Some(pad_scan_hook));
+    logger.record(
+        "controller scan sees scripted pad",
+        has_pad(&controllers.scan()),
+    );
+    logger.record(
+        "controller timed scan sees scripted pad",
+        has_pad(&controllers.scan_at(system::time())),
+    );
+    let mut status = [pad::PadStatus::default(); MAX_GAMECUBE_CONTROLLERS];
+    let snapshot = controllers.scan_with_pad_status(&mut status);
+    logger.record(
+        "controller scan returns matching pad status",
+        has_pad(&snapshot) && status[0].err as i32 == pad::PAD_ERR_NONE,
+    );
+    let raw = controllers.scan_with_raw();
+    logger.record(
+        "controller raw scan returns matching pad status",
+        has_pad(&raw.snapshot) && raw.pad_status[0].err as i32 == pad::PAD_ERR_NONE,
+    );
+    let timed = controllers.scan_with_raw_at(system::time());
+    logger.record(
+        "controller timed raw scan returns matching pad status",
+        has_pad(&timed.snapshot) && timed.pad_status[0].err as i32 == pad::PAD_ERR_NONE,
+    );
+    controllers.set_input_scan_hook(None);
+    logger.record(
+        "controller scan hook observes PAD boundaries",
+        PAD_SCAN_HOOKS.load(Ordering::Relaxed) == 3,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+struct PadAccessChecks {
+    previous: Option<u16>,
+    buttons_ok: bool,
+    axes_ok: bool,
+    saw_down: bool,
+    saw_up: bool,
+    saw_stick: bool,
+}
+
+#[cfg(feature = "dolphin-automation")]
+impl PadAccessChecks {
+    fn new() -> Self {
+        Self {
+            previous: None,
+            buttons_ok: true,
+            axes_ok: true,
+            saw_down: false,
+            saw_up: false,
+            saw_stick: false,
+        }
+    }
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_pad_accessors(checks: &mut PadAccessChecks, sample: &pad::PadStatus) {
+    if sample.err as i32 == pad::PAD_ERR_NO_CONTROLLER {
+        checks.previous = None;
+    }
+    if sample.err as i32 != pad::PAD_ERR_NONE {
+        return;
+    }
+    checks.buttons_ok &= pad::buttons_held(0) == sample.button;
+    if let Some(previous) = checks.previous {
+        let down = sample.button & !previous;
+        let up = previous & !sample.button;
+        checks.buttons_ok &= pad::buttons_down(0) == down && pad::buttons_up(0) == up;
+        checks.saw_down |= down != 0;
+        checks.saw_up |= up != 0;
+    }
+    checks.previous = Some(sample.button);
+    checks.axes_ok &= pad::stick_x(0) == sample.stick_x
+        && pad::stick_y(0) == sample.stick_y
+        && pad::substick_x(0) == sample.substick_x
+        && pad::substick_y(0) == sample.substick_y
+        && pad::trigger_l(0) == sample.trigger_l
+        && pad::trigger_r(0) == sample.trigger_r;
+    checks.saw_stick |= sample.stick_x != 0 || sample.stick_y != 0;
 }
 
 #[cfg(feature = "dolphin-automation")]

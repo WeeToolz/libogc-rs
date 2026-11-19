@@ -1,0 +1,112 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "set_xy",
+      "line": 33,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_polling_registers",
+      "api_path": "si::set_xy",
+      "checks": [
+        "SI wrapper sets polling coordinates",
+        "SI polling and command registers restored"
+      ]
+    },
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "enable_polling",
+      "line": 37,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_polling_registers",
+      "api_path": "si::enable_polling",
+      "checks": [
+        "SI wrapper enables and disables polling",
+        "SI polling and command registers restored"
+      ]
+    },
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "disable_polling",
+      "line": 41,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_polling_registers",
+      "api_path": "si::disable_polling",
+      "checks": [
+        "SI wrapper enables and disables polling",
+        "SI polling and command registers restored"
+      ]
+    },
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "set_command",
+      "line": 68,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_polling_registers",
+      "api_path": "si::set_command",
+      "checks": [
+        "SI wrapper writes channel command",
+        "SI polling and command registers restored"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_xy",
+      "line": 1079,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_polling_registers",
+      "api_path": "raw_si::set_xy",
+      "checks": [
+        "SI raw sets polling coordinates",
+        "SI polling and command registers restored"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "enable_polling",
+      "line": 1090,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_polling_registers",
+      "api_path": "raw_si::enable_polling",
+      "checks": [
+        "SI raw enables and disables polling",
+        "SI polling and command registers restored"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "disable_polling",
+      "line": 1105,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_polling_registers",
+      "api_path": "raw_si::disable_polling",
+      "checks": [
+        "SI raw enables and disables polling",
+        "SI polling and command registers restored"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_command",
+      "line": 1181,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_polling_registers",
+      "api_path": "raw_si::set_command",
+      "checks": [
+        "SI raw writes channel command",
+        "SI polling and command registers restored"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin SI polling register transitions and channel 3 command register only. Controller response, sampling timing, and physical Wii remain unverified."
+  ]
+}

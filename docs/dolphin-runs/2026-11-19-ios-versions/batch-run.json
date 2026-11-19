@@ -1,0 +1,79 @@
+{
+  "source_revision": "2256580f672080385fe7046089d9737b9d559cc9",
+  "source_fingerprint": "50a587d5122f57724a2a0ed4f888571238bd95f86312307250785fb3cc574446",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-19-ios-versions",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "9638849fc7e603b5390974a96cea715de45d284e3cc9e059dacfe28747eacdd1",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "cc800cd683349b4a33e1d36ef8fac5d0ac89e7a1d085a8caf44d7d8ce1f4e998",
+  "suite_sha256": "df75e72d721b0fe22863bcb529d625de8b5cc46b661ef8d399be11ba4fd5bdca",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/probe.log": "517edf8035ffccd3a3b02198126bf0c3b1005a12564ff23f5ea7064a6666f5f5",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/stderr.log": "b00455dad527ab042bff282a44dc0ab7a0fd48a88fa1ce597121d45f6eae2163",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/probe-transport.bin": "c36e8bc95511a7b60316441a404daa37ad354e76d05338c8fef9295e916caf82",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-002.png": "5f947b9212cb392fb29390d46cc90c8f0127f278f75518e47898f43c3891c8e1",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-003.png": "1daa2287195337d699bf42676d44a87a04a5b89a949fd18ea8ab8a70f353ffbf",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-004.png": "32f622b17cd00bcd89f33cf96d1bbbb81cee0cbb15e710ca575a55953188a2b0",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-005.png": "5f89c76e2178c53255b4ac3948d5f48edb3a91895f2ef7d197c1e9d1d9ddd125",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-006.png": "eef70ace5a02eac328e243ad2d3c1f22ee1d153c84ab41300da5e04ab1f26cd6",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-007.png": "8ffceb851c62a458c4ad8ffd5bbbba59077d75f58d1c19fa9e184fa4a3fed263",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-008.png": "92b24674ba35283cb20080f8f4d61f683e2ca054278a46a2f7c5f682d54b9fe2",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-009.png": "4e07ee553e21bcd4a8ac436f3b8a74882b0f2ae7c958ea578991603c558b253a",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-010.png": "6c40a9bc369b21926b961ad322239dd2fcdfcb991c896736c3a0d42c1ce9e1dd",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-011.png": "36c4d188de8886777d43135e8f44a3ccc0420e632c2be663dfee08ba33000be5",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-012.png": "9890fb6ec6dc85bdb35931871237f81fd45d6854ca38c638e8a5777f8e6e354b",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-013.png": "f9548dd9d665fbd4791cbbc25743d11ca6218cc92eea31992a25b0b1f1d7d383",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-014.png": "18e66b215ecc4cd017e8e506c1a328b8d0cb89ce093a0600a346cdae4058ebf5",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-015.png": "187ffabdc7b43c10c1673ca8249f7e748f0f4a58a3b2af306371826384045c78",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-016.png": "5fcb452c559433369a31bc52d8c0984cf48a3807a464b04c56f64e60d9da9948",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-017.png": "f20e7cf0b1c1ce050e9a3c62ed3f976a39c7b4be0cde4ff4727ede3f201478ba",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-018.png": "6a3a2c6b459926c6586a1eb5352986e56027b0cb4214421dac88d457d819352c",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-019.png": "a8310a92a67c7324a80892aac3ef0cf9512918b777abf4299e153367a5c4501e",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-020.png": "1dccac8b095998be65886c70c8e2d924537c05350136f8803e6f7bc6b6b18e3d",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-021.png": "1c354b21785b7eac82ec1e777b98a67f15a2487fd3a417009de4c5552ac7fc37",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-022.png": "4cf37fad2f63c4853fe2cec8ee99c7c66f10d219a2d08f2a9781811da6d5e5ec",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-023.png": "705ce3545ab859af2108782a0d6385b749cdddd2fa0d258d407b313d75742edc",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-024.png": "c30978d4a644d1dcab876736aaa48067ff9618501558bbde81ce3e2bba84b3c7",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-025.png": "14fc3be2a767741a8c9732e500a171cf19ae6065ed5a1343e6ef039c1c368017",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-026.png": "7118dde9c64ec15aff2b2bb1fb629cc78b38577484c423b9be2dc9965cb5ac11",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-027.png": "40e8cba41638a2fce6d0b2871ed0e0bf298dabaa4e713516f76cb72c76042ef0",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-028.png": "43e8fc9bce3a59ece8619fe3920a58acf3073fd687e426975f10d9c56a048cca",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-029.png": "faf23fadd965a0df7f6cabb85f7abd6ebe05a6c5ed7be14b87b856266342cdd2",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-030.png": "0b8314cbb49d19c5442e31806ec2526ae17678693586043be902de27c1e82c20",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-031.png": "3b1e1e2a2bd391019faabf58ba775e25a3378008946ba0e5519288ac2da73d18",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-032.png": "32fb8e60d88cab14cbf4536d2eb42ea475821bc2c0a508b08fe8fd8ac140f364",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-033.png": "56ff95b89b3636c86e843063e67d96ded7165d54adfede58ada8dbbae6739ab7",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-034.png": "0f4455f03d8520c353d811e0798f6770605e0bb7aba5a7932a14f181d38d5db1",
+    "docs/dolphin-runs/2026-11-19-ios-versions/runtime_probe/pages/page-035.png": "b8c1a357315cdb2b038d269fb1c648559df7c45d989d946281b42d1a19177c9e"
+  },
+  "exit_code": 0
+}

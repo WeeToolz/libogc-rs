@@ -1,0 +1,32 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "enable_usb_hid",
+      "line": 1231,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_controller_usb_ownership",
+      "api_path": "first.enable_usb_hid",
+      "checks": [
+        "Controller USB ownership rejects contention and permits reuse"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "shutdown_usb_hid",
+      "line": 1258,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_controller_usb_ownership",
+      "api_path": "first.shutdown_usb_hid",
+      "checks": [
+        "Controller USB ownership rejects contention and permits reuse"
+      ]
+    }
+  ],
+  "limits": [
+    "Ownership lifecycle without initialized USB devices or outstanding IOS requests; no USB transfer, descriptor cleanup, or physical hardware is covered."
+  ]
+}

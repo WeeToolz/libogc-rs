@@ -1,0 +1,24 @@
+{
+  "source_revision": "f3ac13802c45b22e92500ca6d95a89af288342ed",
+  "dirty_worktree": true,
+  "source_sha256": {
+    "probes/ogc-system-probe/src/video_probe.rs": "4757f081bbe5bd1af0e09b5c57f7127e189833a7b3af66190788eec70493f1ec",
+    "probes/ogc-system-probe/Cargo.toml": "a2d70fd0059a17c4044993115ee3c4a6b15a547e9b02cf866530ef6a40ff83a9",
+    "crates/hardware/ogc-video-sys/src/lib.rs": "2dd872da8a4d88fd0670eec76c60233af5a94cdacb35229ee516b5d775dd3146",
+    "crates/hardware/ogc-video-sys/src/platform_timing.rs": "0d590324804a9a7ebfb5c8173ac81eaaf0052ea5f0c501e13f319df727e4b836",
+    "xtask/src/dolphin.rs": "1d917d97790a642f5a3e1952af62377a3d6582a221b2d56cfd3e1ab7293da255",
+    "/Volumes/SSD/WiiDev/C-sources/libogc/gc/ogc/video.h": "c5fdcec8cd4c8c30ca79f95ca03ffabf177a39a327c28ee0133a7bf64c0df096"
+  },
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "8f9324aafacecf0ab4ba2afaf5b1b6abea6129ae46d576151e364db3758ed0e8",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "fixture_sha256": {
+    "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73",
+    "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+  },
+  "nand_source_after_run": {
+    "file_count": 587,
+    "tree_sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc",
+    "method": "sorted relative POSIX paths; u64 big-endian UTF-8 path length, path bytes, raw SHA-256 file digest"
+  }
+}

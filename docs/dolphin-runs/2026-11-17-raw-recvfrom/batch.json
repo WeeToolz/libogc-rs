@@ -1,0 +1,21 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_recvfrom",
+      "line": 2137,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_udp",
+      "api_path": "net::net_recvfrom",
+      "checks": [
+        "Raw UDP recvfrom preserves bytes and sender",
+        "Raw UDP recvfrom leaves outputs unchanged on would-block"
+      ]
+    }
+  ],
+  "limits": [
+    "IPv4 loopback in Dolphin with full-size address storage. This run leaves truncated datagrams and physical Wii networking open."
+  ]
+}

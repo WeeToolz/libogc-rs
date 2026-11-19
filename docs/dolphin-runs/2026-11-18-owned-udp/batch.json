@@ -1,0 +1,146 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/std_net.rs",
+      "symbol": "initialize",
+      "line": 66,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_owned_udp_service",
+      "api_path": "service::initialize",
+      "checks": [
+        "Owned UDP service initializes",
+        "Owned UDP binds distinct loopback sockets"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/std_net.rs",
+      "symbol": "snapshot",
+      "line": 39,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_owned_udp_service",
+      "api_path": "service::snapshot",
+      "checks": [
+        "Owned UDP binds distinct loopback sockets",
+        "Owned UDP releases leases and closes sockets"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/std_net.rs",
+      "symbol": "bind",
+      "line": 309,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_owned_udp_service",
+      "api_path": "service::Socket::bind",
+      "checks": [
+        "Owned UDP binds distinct loopback sockets"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/std_net.rs",
+      "symbol": "address",
+      "line": 381,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_owned_udp_service",
+      "api_path": "sender.address",
+      "checks": [
+        "Owned UDP binds distinct loopback sockets",
+        "Owned UDP addressed transfer preserves payload and source"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/std_net.rs",
+      "symbol": "send",
+      "line": 446,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_owned_udp_service",
+      "api_path": "sender.send",
+      "checks": [
+        "Owned UDP addressed transfer preserves payload and source",
+        "Owned UDP connected transfer preserves payload"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/std_net.rs",
+      "symbol": "receive",
+      "line": 401,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_owned_udp_service",
+      "api_path": "receiver.receive",
+      "checks": [
+        "Owned UDP nonblocking empty receive preserves bytes",
+        "Owned UDP addressed transfer preserves payload and source",
+        "Owned UDP connected transfer preserves payload"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/std_net.rs",
+      "symbol": "udp_connect",
+      "line": 393,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_owned_udp_service",
+      "api_path": "sender.udp_connect",
+      "checks": [
+        "Owned UDP connected transfer preserves payload"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/std_net.rs",
+      "symbol": "set_nonblocking",
+      "line": 481,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_owned_udp_service",
+      "api_path": "receiver.set_nonblocking",
+      "checks": [
+        "Owned UDP nonblocking empty receive preserves bytes"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/std_net.rs",
+      "symbol": "set_timeout",
+      "line": 486,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_owned_udp_service",
+      "api_path": "receiver.set_timeout",
+      "checks": [
+        "Owned UDP timeout state validates values"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/std_net.rs",
+      "symbol": "timeout",
+      "line": 494,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_owned_udp_service",
+      "api_path": "receiver.timeout",
+      "checks": [
+        "Owned UDP timeout state validates values"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/std_net.rs",
+      "symbol": "release",
+      "line": 551,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_owned_udp_service",
+      "api_path": "sender.release",
+      "checks": [
+        "Owned UDP releases leases and closes sockets"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin IPv4 loopback UDP, single-threaded success path, empty nonblocking receive, timeout state and cleanup. Concurrent sockets, failure injection, external network and physical Wii remain unverified."
+  ]
+}

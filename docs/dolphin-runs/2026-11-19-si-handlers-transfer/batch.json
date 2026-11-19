@@ -1,0 +1,152 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "enable_polling_interrupt",
+      "line": 119,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_polling_handlers_and_transfer",
+      "api_path": "si::enable_polling_interrupt",
+      "checks": [
+        "SI wrapper polling interrupt changes and reports previous state"
+      ]
+    },
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "register_polling_handler",
+      "line": 111,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_polling_handlers_and_transfer",
+      "api_path": "si::register_polling_handler",
+      "checks": [
+        "SI wrapper polling handler registration and removal"
+      ]
+    },
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "unregister_polling_handler",
+      "line": 115,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_polling_handlers_and_transfer",
+      "api_path": "si::unregister_polling_handler",
+      "checks": [
+        "SI wrapper polling handler registration and removal"
+      ]
+    },
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "transfer",
+      "line": 79,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_polling_handlers_and_transfer",
+      "api_path": "si::transfer",
+      "checks": [
+        "SI wrapper transfer reports no controller and clears busy"
+      ]
+    },
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "busy",
+      "line": 25,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_polling_handlers_and_transfer",
+      "api_path": "si::busy",
+      "checks": [
+        "SI wrapper transfer reports no controller and clears busy"
+      ]
+    },
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "sync",
+      "line": 21,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_polling_handlers_and_transfer",
+      "api_path": "si::sync",
+      "checks": [
+        "SI wrapper transfer reports no controller and clears busy"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "enable_polling_interrupt",
+      "line": 1451,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_polling_handlers_and_transfer",
+      "api_path": "raw_si::enable_polling_interrupt",
+      "checks": [
+        "SI raw polling interrupt changes and reports previous state"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "register_polling_handler",
+      "line": 1394,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_polling_handlers_and_transfer",
+      "api_path": "raw_si::register_polling_handler",
+      "checks": [
+        "SI raw polling handler registration and removal"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "unregister_polling_handler",
+      "line": 1420,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_polling_handlers_and_transfer",
+      "api_path": "raw_si::unregister_polling_handler",
+      "checks": [
+        "SI raw polling handler registration and removal"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "transfer",
+      "line": 1211,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_polling_handlers_and_transfer",
+      "api_path": "raw_si::transfer",
+      "checks": [
+        "SI raw transfer reports no controller and clears busy"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "busy",
+      "line": 1067,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_polling_handlers_and_transfer",
+      "api_path": "raw_si::busy",
+      "checks": [
+        "SI raw transfer reports no controller and clears busy"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "sync",
+      "line": 1057,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_polling_handlers_and_transfer",
+      "api_path": "raw_si::sync",
+      "checks": [
+        "SI raw transfer reports no controller and clears busy"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin no-controller channel and masked polling interrupt registry checks only. Handler delivery, controller responses, concurrent transfers, and physical Wii remain unverified."
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "source_revision": "1ebdc0c2cdaeb493c635cd7713fc5257859af8ba",
+  "source_fingerprint": "38e010fe0fa5a633583c9347bd7fa5674728d1d5fa6a47a2785a86840f77ee33",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-18-controller-slots",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "1b3fc9151bae92fa7bc4daf6c8fd92cd092fc4eb5ae4173dadb92a75141c2007",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "359910b473b55e706d86bcb434019a51f863f416deb44caecba1cbc0baca5f96",
+  "suite_sha256": "c6d50b310083001efda0d38812a1f34139bf057cbafdc8a64d47ce3906108781",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/probe.log": "7db69ba08c08599b435f247dac6dcfdfa44a4188166b9300024f6ae4d0858392",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/stderr.log": "c69a7fa6ed7136e91dd58737d8dd300d6d4d1dade7bf5a6ade5ea78ab36101b3",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/probe-transport.bin": "d329386495887d40b37e3b05726574e60e1d813fee750bef1310533ca31bcb74",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-002.png": "5f947b9212cb392fb29390d46cc90c8f0127f278f75518e47898f43c3891c8e1",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-003.png": "1daa2287195337d699bf42676d44a87a04a5b89a949fd18ea8ab8a70f353ffbf",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-004.png": "75a0c6afeab4562b4868c0cd465b489f9b0993621f0fd59cdaf156d5d8ab5c35",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-005.png": "dea3b251f3871e8b0295039e36c3495fd4214a83d8611c80c7ca591988a686e6",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-006.png": "8d87823c19a88c20429af18fc9240d68c147bd9ae4fc4adf828adf0c1141ee05",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-007.png": "079bbf904b99de926230b22153672c093fb08f57845251b16fc3596a2b163b80",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-008.png": "09e9ea059aab6c2aef7c2323e3e9f383b8ae8b3c8db6f1bee8fa1ceaff3fde8b",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-009.png": "9a49b90c32e6718e1e9498e923d9b06d03b5fc2876e0dee54d984f2a5bb201c0",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-010.png": "61c5ebeb64501752130af619ad4930ccfd537249bd5475e5562f793d8e4a7359",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-011.png": "d5a39ca97480edf5e4c44aecd217917b2e6584bd9153238d3521f80126a94058",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-012.png": "9583429b2885a4f9f1eff2c65b295a4d24eae909a75e5c24390d0cdcccaaec91",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-013.png": "324995436054b8c9dfd1d8f085d942aa5ed4bc1348c56ff225b94b425da8d2bd",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-014.png": "0a197f104e94e4c9fb1b4297f61e3e7b8cc0357e090701b4ab9f57e139cb951f",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-015.png": "40fea0ae4f9f96857f5014ef19a672d1df30e12e26c432ff5651a0021027e600",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-016.png": "0ce087ec41acc9c7899ca1b6709f9c7fa814e8f96a8e83298ca5768e2c029852",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-017.png": "04b20caf8161fdd1dd9687c504b971c0efe12dbad3bc5b87a837d338cb483c28",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-018.png": "1bad0cff172bbe4275752afdd03c1946f98ab3deedc02142a67449fd3018adc7",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-019.png": "9325f45ece6f8afdd168f8733a2e9a651f2bec25744c414a5954cc9137f4c164",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-020.png": "0a35dd972a564473b83c3d9a1b1bee1932bf2f1f44700400c6d7fbbcd192abe2",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-021.png": "a704a9514ad472ef2afba0ab277ea9e5ee40dbc0bf1b8469d2e740f8d44d7c7c",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-022.png": "945284aafe4929bb80b47eb249c741372f2ecb0969d8c6bdf5e0a7ecd9ee04c6",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-023.png": "e4e6f47d287ea04babeadbeaa587abce9c27c52e636f2f285e87f510d9cf6653",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-024.png": "86ac14bfe3db97e9622f521d123d85865e649397a58b539cc40e603db23d702c",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-025.png": "e20df82679dc7fb82891a279c967a944716f6bcf26eb93695857979bfc68195d",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-026.png": "9b78d56d478b610c7b2b8aa126d4a0b38d197dd8f4f27a7046f40dc910bafd3d",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-027.png": "343ce879afb185cd55913d24a94db49c21e756f59ecab636abbcd645fa8a96c4",
+    "docs/dolphin-runs/2026-11-18-controller-slots/runtime_probe/pages/page-028.png": "37e5905dd7d5068c04be258468077ca417958b9e297406d30601264222294e0a"
+  },
+  "exit_code": 0
+}

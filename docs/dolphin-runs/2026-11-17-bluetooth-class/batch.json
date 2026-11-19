@@ -1,0 +1,80 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/protocol.rs",
+      "symbol": "new",
+      "line": 104,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_device_classes",
+      "api_path": "BluetoothAddress::new",
+      "checks": [
+        "Bluetooth address preserves HCI byte order"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/protocol.rs",
+      "symbol": "as_raw",
+      "line": 108,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_device_classes",
+      "api_path": "BluetoothAddress::as_raw",
+      "checks": [
+        "Bluetooth address preserves HCI byte order"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/protocol.rs",
+      "symbol": "new",
+      "line": 120,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_device_classes",
+      "api_path": "ClassOfDevice::new",
+      "checks": [
+        "Bluetooth class extracts major and minor fields"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/protocol.rs",
+      "symbol": "major",
+      "line": 124,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_device_classes",
+      "api_path": "ClassOfDevice::major",
+      "checks": [
+        "Bluetooth class extracts major and minor fields"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/protocol.rs",
+      "symbol": "minor",
+      "line": 129,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_device_classes",
+      "api_path": "ClassOfDevice::minor",
+      "checks": [
+        "Bluetooth class extracts major and minor fields"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/protocol.rs",
+      "symbol": "likely_game_controller",
+      "line": 133,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_device_classes",
+      "api_path": "ClassOfDevice::likely_game_controller",
+      "checks": [
+        "Bluetooth class recognizes peripheral devices"
+      ]
+    }
+  ],
+  "limits": [
+    "Protocol value checks in Dolphin. Bluetooth transport and physical hardware are outside this batch."
+  ]
+}

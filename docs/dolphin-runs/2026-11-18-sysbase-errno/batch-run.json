@@ -1,0 +1,76 @@
+{
+  "source_revision": "b06a734ae95a68b802d79746a8bbbf8afc40efd9",
+  "source_fingerprint": "86ed105ad9dad2f3b5bfa645fdb68e9b1385b4acb37a9735c79b24c1ef9ecca1",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "95f1e32702da2b169e692f1634ab8621f81e1bed7f9d5cf731980e9f8c426f16",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "0ddcfeed4b325f28ba320d68ed99d381696d2ee5a70b543ea0ed47f6d5b9aed3",
+  "suite_sha256": "22f756988508a52bea57744c4b19ac74adece5b91e225beeea7f1ec046f61143",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/probe.log": "dbcf70e49db4f94027de43d25e1b0a7ae55e1ec77a201b53defbc4754fefd2ba",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/stderr.log": "529418c5807505896c440655360da6a0bfafd3f884e98a0cd8f4c63351dedd4a",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/probe-transport.bin": "f1f9dfb8c724e401f0da440b3cb773178894e125be014e932d6e8b4455d57f94",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-002.png": "5f947b9212cb392fb29390d46cc90c8f0127f278f75518e47898f43c3891c8e1",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-003.png": "1daa2287195337d699bf42676d44a87a04a5b89a949fd18ea8ab8a70f353ffbf",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-004.png": "32f622b17cd00bcd89f33cf96d1bbbb81cee0cbb15e710ca575a55953188a2b0",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-005.png": "f24ff90f56a7e7ecd7f4708b9113bcb2b3428d47c3fd0f8315b1900f7281a559",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-006.png": "e630b205ad48635ca8e288b34e3bd34554cd56d165c0704d4197c3824172ce11",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-007.png": "debf4464220fdd263a719000b79a20ae0d743844aa9b827e784a3a2697f6424f",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-008.png": "6b556faf62e6e6d53c57ba22b4bbd11bb3fc92b974bd686f62d0f92a8c8c8163",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-009.png": "c5e80d4409454dbdb34b78e0ecc8950b1a94fec258cd45e487c2c4fd05539525",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-010.png": "d2fd78ac8cede5395744b61f5dfc6b4bdb9ad3b1f8777dedeb75d7560381f88c",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-011.png": "5f84489690ad1d0ecc390e7284820435f90538555ea3175860fe9401f101a7bf",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-012.png": "5b4f7c5fe5ee44924a1e2f6682da9d81ade8a1460d13f6300044b3fa369d3925",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-013.png": "c18ab61c823710a4761eddfaa4227ecbd24f3240591bfcf5f762f494e3bbe58d",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-014.png": "5cd3b24f400d369c3eb5f7f6337cb21875c2e85b7dda6d551ed1d449fae8990a",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-015.png": "1bcfd441fe313b17c0938f596d18daa4aefa09a7ceec1da76351a32c5eecda23",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-016.png": "00c5a98b1a88f896cc426fa63ebde3aab58d14715b003d6117f0fcdcfcfce486",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-017.png": "ead4df791bce0be8b0c75df17633d3c56f911825594100552705f9182783aae0",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-018.png": "381d9cb8e2a017869a5403c7571752df443d3ae9615a1de5d25c1b89130cd739",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-019.png": "fdd1edba44acdc75975914ab3a8fa210376fa33c501fc5dc98abc797bc1474a7",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-020.png": "de7a5a3e1f131cdad5fda5fc26693892e66cede159b7a47222c2a3944ddc95cf",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-021.png": "9ffc9367d8d14d8e5330ae300f84d8e8f9b9db84dd9b589ca619777b4ed83bef",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-022.png": "b154e1388bb5818dec375cf6d6fb38ac74dd28fb082248fc7e5a24c3a642a659",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-023.png": "ad5261adc90e0e187970aa037cf9608b4aad4c28399240a66139a5f172caeaef",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-024.png": "6860db509412ed892d209784f8dea68ea6dd09a5debe4a83e9a077bf2066fd7d",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-025.png": "a56c09362f63a487660948cda9b1ad92f79338af1d7fb231cf15667083036bfe",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-026.png": "593bd83a2f505fb323f7061cb5e7c073d8233cc61a1391213709c31f7822ca08",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-027.png": "15649d28e300f2de8cad2f099f61b99cfe06faff8e1c7eeaf323c8835927d604",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-028.png": "75ed6fc681ba62e8b669f21b5115f74674e4459df5b4b1b61d7331fbf0529915",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-029.png": "3bf9a0edd52ff1bcdb4e916b2726201c96c95012617951fe5a81093c439ea2e6",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-030.png": "a2062b9eda38f81540d4ab367650a8047a1c89cc217df3494ce8b5f6811db354",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-031.png": "a25a9d0a5f11c4ace488b258170cb43037e1e543eef6b5cf21205fed0a7a329e",
+    "docs/dolphin-runs/2026-11-18-sysbase-errno/runtime_probe/pages/page-032.png": "841b31dd2f782a087f6c404a0f7bcf28e8b300ad024e5ca50b9fce3d3fea0dd6"
+  },
+  "exit_code": 0
+}

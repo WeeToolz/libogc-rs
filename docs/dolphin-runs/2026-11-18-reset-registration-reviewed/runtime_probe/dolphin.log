@@ -1,0 +1,892 @@
+30:13:196 Core/Boot/DolReader.cpp:67 W[BOOT]: DolReader: Text section 0 size is not aligned to 32 bytes and can cause issues when loaded
+30:13:196 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 0 size is not aligned to 32 bytes and can cause issues when loaded
+30:13:196 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 1 size is not aligned to 32 bytes and can cause issues when loaded
+30:13:197 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+30:13:197 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+30:13:198 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+30:13:248 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+30:13:249 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
+30:13:249 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
+30:13:249 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
+30:13:367 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App name: org.dolphin-emu.dolphin
+30:13:367 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App version: <unspecified>
+30:13:367 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App ID: <unspecified>
+30:13:367 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: SDL revision: SDL-3.4.12-f87239e71
+30:13:383 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
+30:13:383 InputCommon/ControllerInterface/DualShockUDPClient/DualShockUDPClient.cpp:492 I[CI]: DualShockUDPClient PopulateDevices
+30:13:383 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:141 I[CI]: SteamDeck PopulateDevices
+30:13:396 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:171 I[CI]: No Steam Deck interface found
+30:13:413 Core/ConfigManager.cpp:279 N[CORE]: Active title: 
+30:13:414 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+30:13:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+30:13:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+30:13:416 Core/Core.cpp:237 I[BOOT]: Starting core = Wii mode
+30:13:416 Core/Core.cpp:238 I[BOOT]: CPU Thread separate = No
+30:13:450 InputCommon/ControllerInterface/ControllerInterface.cpp:310 N[CI]: Removed device: Quartz/0/Keyboard & Mouse
+30:13:456 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
+30:13:464 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 0000000100000050
+30:13:464 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+30:13:465 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
+30:13:465 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+30:13:465 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+30:13:469 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:b5:3c:28
+30:13:517 Core/Boot/Boot.cpp:546 N[BOOT]: Booting from executable: /Volumes/SSD/WiiDev/WeeToolz/libogc-rs/target/xtask/probes-dolphin/runtime_probe.dol
+30:13:517 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/sys/uid.sys): Result 0
+30:13:518 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/sys/uid.sys): Result 0
+30:13:518 Core/Boot/Boot_BS2Emu.cpp:435 I[BOOT]: Using serial number: 372730284
+30:13:518 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /title/00000001/00000002/data/setting.txt (NAND)
+30:13:518 Core/Boot/Boot_BS2Emu.cpp:463 I[BOOT]: Setup Wii Memory...
+30:13:518 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 000000010000003a
+30:13:519 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+30:13:519 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
+30:13:519 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+30:13:519 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+30:13:520 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:b5:3c:28
+30:13:635 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/es (mode 0, fd 0)
+30:13:638 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 1)
+30:13:642 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 2)
+30:13:650 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 3)
+30:13:654 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 4)
+30:13:664 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/SYSCONF (mode 1, fd 3)
+30:13:664 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/SYSCONF): Result 0
+30:13:668 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/SYSCONF, 0x006fcaea, 16384): Result 0
+30:13:671 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/SYSCONF): Result 0
+30:13:672 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/setting.txt (mode 1, fd 3)
+30:13:672 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/setting.txt): Result 0
+30:13:672 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/setting.txt, 0x00700aea, 256): Result 0
+30:13:675 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/setting.txt): Result 0
+30:13:681 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/state.dat (mode 1, fd 3)
+30:13:681 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/state.dat): Result 0
+30:13:685 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/state.dat, 0x017f8240, 32): Result 0
+30:13:690 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/state.dat): Result 0
+30:13:690 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/NANDBOOTINFO (mode 1, fd 3)
+30:13:690 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/NANDBOOTINFO): Result 0
+30:13:690 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/NANDBOOTINFO, 0x017f8240, 4128): Result 0
+30:13:690 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/NANDBOOTINFO): Result 0
+30:27:157 Core/HW/EXI/EXI_DeviceIPL.cpp:306 N[OSREPORT]: <0 load/stores / 0 miss cycles / 0 cycles / 0 instructions>
+30:31:829 Core/IOS/IOS.cpp:763 W[IOS]: Previous request to device /dev/es blocked emulation for 2303 microseconds.
+30:31:832 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/0000001c/content/title.tmd): Result 0
+30:31:832 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/0000001c/content/title.tmd): Result 0
+30:31:832 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/0000001c/content/title.tmd): Result 0
+30:31:832 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/0000001c/content/title.tmd): Result 0
+30:31:832 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/0000001c/content/title.tmd): Result 0
+30:31:832 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/0000001c/content/title.tmd): Result 0
+30:31:832 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/0000001e/content/title.tmd): Result 0
+30:31:832 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/0000001e/content/title.tmd): Result 0
+30:31:832 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/0000001e/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/0000001e/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/0000001e/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/0000001e/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/0000001f/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/0000001f/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/0000001f/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/0000001f/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/0000001f/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/0000001f/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000021/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000021/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000021/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000021/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000021/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000021/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000022/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000022/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000022/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000022/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000022/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000022/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000023/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000023/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000023/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000023/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000023/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000023/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000024/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000024/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000024/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000024/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000024/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000024/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000025/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000025/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000025/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000025/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000025/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000025/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000026/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000026/content/title.tmd): Result 0
+30:31:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000026/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000026/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000026/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000026/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/0000002e/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/0000002e/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/0000002e/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/0000002e/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/0000002e/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/0000002e/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000030/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000030/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000030/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000030/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000030/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000030/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000032/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000032/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000032/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000032/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000032/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000032/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000033/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000033/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000033/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000033/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000033/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000033/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000034/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000034/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000034/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000034/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000034/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000034/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000035/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000035/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000035/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000035/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000035/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000035/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000037/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000037/content/title.tmd): Result 0
+30:31:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000037/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000037/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000037/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000037/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000038/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000038/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000038/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000038/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000038/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000038/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000039/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000039/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000039/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000039/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000039/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000039/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/0000003a/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/0000003a/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/0000003a/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/0000003a/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/0000003a/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/0000003a/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/0000003c/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/0000003c/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/0000003c/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/0000003c/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/0000003c/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/0000003c/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/0000003d/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/0000003d/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/0000003d/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/0000003d/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/0000003d/content/title.tmd): Result 0
+30:31:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/0000003d/content/title.tmd): Result 0
+30:31:913 Core/IOS/STM/STM.cpp:57 I[IOS_STM]: /dev/stm/immediate - IOCtl:
+30:31:913 Core/IOS/STM/STM.cpp:58 I[IOS_STM]:     IOCTL_STM_LEDMODE
+30:35:068 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/setting.txt (mode 1, fd 3)
+30:35:068 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/setting.txt): Result 0
+30:35:068 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/setting.txt, 0x017f1d80, 256): Result 0
+30:35:069 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/setting.txt): Result 0
+30:36:491 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/es (mode 0, fd 0)
+30:36:509 Core/IOS/IOS.cpp:763 W[IOS]: Previous request to device /dev/es blocked emulation for 2159 microseconds.
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/57575245.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/57525045.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/574a4545.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/57494d43.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/57474f45.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/57464c45.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/57444d50.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/57444d45.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/554e454f.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/55474b32.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/55474354.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/55474253.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/55443433.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/50414145.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/4e494945.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/4e465245.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/4e454a45.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/4e434345.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/4e415345.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/4e414c45.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/4e414445.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/4e414150.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/4d434445.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/4d414845.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/4c554c5a.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/4a445a4a.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/4a435645.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/4a434445.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/4a434245.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/4a424345.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/4a414445.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/4a414145.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/48435245.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/48434745.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/46434555.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/46433345.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/46413845.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/44574641.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010001/39584758.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010008 (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010008/57494948.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010008/48414c45.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010008/48414b45.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010005 (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010005/77424c45.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010002 (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010002/48415941.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010002/48414745.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010002/48414741.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010002/48414645.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010002/48414641.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010002/48414341.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010002/48414241.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00010002/48414141.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001 (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000101.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000100.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/000000fe.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/000000fa.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/000000f9.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/000000ec.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000050.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000046.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/0000003e.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/0000003d.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/0000003c.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/0000003a.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000039.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000038.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000037.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000035.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000034.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000033.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000032.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000030.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/0000002e.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000026.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000025.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000024.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000023.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000022.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000021.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/0000001f.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/0000001e.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/0000001c.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000016.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000015.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000014.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000011.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000010.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/0000000f.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/0000000e.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/0000000d.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/0000000c.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/0000000b.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/0000000a.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000009.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000004.tik (NAND)
+30:36:560 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /ticket/00000001/00000002.tik (NAND)
+30:37:893 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
+30:37:893 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
+30:37:893 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
+30:37:944 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
+30:37:944 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
+30:37:944 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
+30:37:944 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared1/content.map): Result 0
+30:37:944 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared1/content.map): Result 0
+30:37:944 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared1/content.map): Result 0
+30:37:945 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared1/content.map): Result 0
+30:37:945 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared1/content.map): Result 0
+30:37:945 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared1/content.map): Result 0
+30:37:945 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared1/content.map): Result 0
+30:37:945 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared1/content.map): Result 0
+30:37:945 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared1/content.map): Result 0
+30:37:946 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared1/content.map): Result 0
+30:37:946 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared1/content.map): Result 0
+30:37:946 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared1/content.map): Result 0
+30:37:946 Core/IOS/IOS.cpp:763 W[IOS]: Previous request to device /dev/es blocked emulation for 2087 microseconds.
+30:37:992 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
+30:37:992 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
+30:37:992 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
+30:37:992 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared1/content.map): Result 0
+30:37:992 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared1/content.map): Result 0
+30:37:992 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared1/content.map): Result 0
+30:37:992 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared1/content.map): Result 0
+30:37:992 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared1/content.map): Result 0
+30:37:993 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared1/content.map): Result 0
+30:37:993 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared1/content.map): Result 0
+30:37:993 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared1/content.map): Result 0
+30:37:993 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared1/content.map): Result 0
+30:37:993 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared1/content.map): Result 0
+30:37:993 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared1/content.map): Result 0
+30:37:994 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared1/content.map): Result 0
+30:37:994 Core/IOS/IOS.cpp:763 W[IOS]: Previous request to device /dev/es blocked emulation for 2040 microseconds.
+30:38:010 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
+30:38:010 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
+30:38:010 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
+30:38:041 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared1/content.map): Result 0
+30:38:042 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared1/content.map): Result 0
+30:38:042 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared1/content.map): Result 0
+30:38:042 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared1/content.map): Result 0
+30:38:042 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared1/content.map): Result 0
+30:38:042 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared1/content.map): Result 0
+30:38:042 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared1/content.map): Result 0
+30:38:043 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared1/content.map): Result 0
+30:38:043 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared1/content.map): Result 0
+30:38:043 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared1/content.map): Result 0
+30:38:043 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared1/content.map): Result 0
+30:38:043 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared1/content.map): Result 0
+30:38:043 Core/IOS/IOS.cpp:763 W[IOS]: Previous request to device /dev/es blocked emulation for 2134 microseconds.
+30:39:215 Core/IOS/IOSC.cpp:421 W[IOS]: VerifyPublicKeySign: RSA verification failed (error -17280)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/content.map (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000077.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000076.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000075.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000074.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000073.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000072.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000071.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000070.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000006f.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000006e.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000006d.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000006c.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000006b.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000006a.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000069.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000068.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000067.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000066.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000065.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000064.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000063.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000062.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000061.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000060.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000005f.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000005e.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000005d.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000005c.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000005b.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000005a.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000059.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000058.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000057.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000056.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000055.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000054.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000053.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000052.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000051.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000050.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000004f.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000004e.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000004d.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000004c.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000004b.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000004a.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000049.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000048.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000047.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000046.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000045.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000044.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000043.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000042.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000041.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000040.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000003f.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000003e.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000003d.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000003c.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000003b.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000003a.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000039.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000038.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000037.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000036.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000035.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000034.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000033.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000032.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000031.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000030.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000002f.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000002e.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000002d.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000002c.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000002b.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000002a.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000029.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000028.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000027.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000026.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000025.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000024.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000023.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000022.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000021.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000020.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000001f.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000001e.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000001d.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000001c.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000001b.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000001a.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000019.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000018.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000017.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000016.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000015.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000014.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000013.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000012.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000011.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000010.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000000f.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000000e.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000000d.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000000c.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000000b.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/0000000a.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000009.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000008.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000007.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000006.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000005.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000004.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000003.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000002.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000001.app (NAND)
+30:39:415 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /shared1/00000000.app (NAND)
+30:39:464 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared1/content.map): Result 0
+30:39:465 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared1/content.map): Result 0
+30:39:548 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
+30:39:548 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
+30:39:548 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
+30:40:722 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
+30:40:722 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
+30:40:722 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
+30:40:919 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/aes (mode 0, fd 0)
+30:44:136 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/fs (mode 0, fd 0)
+30:44:216 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/fs (mode 0, fd 0)
+30:45:977 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetNandStats: Result 0
+30:45:977 Core/IOS/IOS.cpp:763 W[IOS]: Previous request to device /dev/fs blocked emulation for 6134 microseconds.
+30:46:002 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/ogc-rs-isfs-verify (NAND)
+30:46:002 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: CreateDirectory(/tmp/ogc-rs-isfs-verify): Result 0
+30:46:095 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/ogc-rs-isfs-verify/file (NAND)
+30:46:095 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: CreateFile(/tmp/ogc-rs-isfs-verify/file): Result 0
+30:46:119 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-isfs-verify/file (mode 3, fd 3)
+30:46:119 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-isfs-verify/file): Result 0
+30:46:120 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Write(/tmp/ogc-rs-isfs-verify/file, 0x017f18e0, 8): Result 0
+30:46:120 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Seek(/tmp/ogc-rs-isfs-verify/file, 0x00000000, 0): Result 0
+30:46:120 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/tmp/ogc-rs-isfs-verify/file, 0x017f1920, 8): Result 0
+30:46:120 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/tmp/ogc-rs-isfs-verify/file): Result 0
+30:46:120 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/tmp/ogc-rs-isfs-verify/file): Result 0
+30:46:144 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-isfs-verify/file (mode 1, fd 3)
+30:46:144 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-isfs-verify/file): Result 0
+30:46:144 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/tmp/ogc-rs-isfs-verify/file, 0x017f1b20, 8): Result 0
+30:46:147 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/tmp/ogc-rs-isfs-verify/file): Result 0
+30:46:168 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetMetadata(/tmp/ogc-rs-isfs-verify/file): Result 0
+30:46:169 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: SetMetadata(/tmp/ogc-rs-isfs-verify/file): Result 0
+30:46:242 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetMetadata(/tmp/ogc-rs-isfs-verify/file): Result 0
+30:46:242 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify): Result 0
+30:46:263 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: ReadDirectory(/tmp/ogc-rs-isfs-verify): Result 0
+30:46:408 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/ogc-rs-isfs-verify/async-file (NAND)
+30:46:408 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: CreateFile(/tmp/ogc-rs-isfs-verify/async-file): Result 0
+30:46:433 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-isfs-verify/async-file (mode 3, fd 3)
+30:46:433 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-isfs-verify/async-file): Result 0
+30:46:460 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Write(/tmp/ogc-rs-isfs-verify/async-file, 0x017f1a40, 8): Result 0
+30:46:460 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Seek(/tmp/ogc-rs-isfs-verify/async-file, 0x00000000, 0): Result 0
+30:46:460 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/tmp/ogc-rs-isfs-verify/async-file, 0x017f1a60, 8): Result 0
+30:46:460 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/tmp/ogc-rs-isfs-verify/async-file): Result 0
+30:46:484 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetMetadata(/tmp/ogc-rs-isfs-verify/async-file): Result 0
+30:46:485 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: SetMetadata(/tmp/ogc-rs-isfs-verify/async-file): Result 0
+30:46:560 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetMetadata(/tmp/ogc-rs-isfs-verify/async-file): Result 0
+30:46:561 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify): Result 0
+30:46:561 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: ReadDirectory(/tmp/ogc-rs-isfs-verify): Result 0
+30:46:582 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/tmp/ogc-rs-isfs-verify/async-file): Result 0
+30:46:582 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-isfs-verify/async-file (mode 1, fd 3)
+30:46:582 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-isfs-verify/async-file): Result 0
+30:46:582 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/tmp/ogc-rs-isfs-verify/async-file, 0x017f1ae0, 8): Result 0
+30:46:585 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/tmp/ogc-rs-isfs-verify/async-file): Result 0
+30:46:606 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Delete(/tmp/ogc-rs-isfs-verify/async-file): Result 0
+30:46:682 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-isfs-verify/async-file (mode 1, fd 3)
+30:46:682 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-isfs-verify/async-file): Result -106
+30:46:756 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetNandStats: Result 0
+30:46:756 Core/IOS/IOS.cpp:763 W[IOS]: Previous request to device /dev/fs blocked emulation for 5024 microseconds.
+30:46:780 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/ogc-rs-isfs-verify/async-dir (NAND)
+30:46:781 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: CreateDirectory(/tmp/ogc-rs-isfs-verify/async-dir): Result 0
+30:46:856 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/async-dir): Result 0
+30:46:856 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: ReadDirectory(/tmp/ogc-rs-isfs-verify): Result 0
+30:48:419 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Delete(/tmp/ogc-rs-isfs-verify/async-dir): Result 0
+30:48:494 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/async-dir): Result -106
+30:48:563 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/rename-dir-source): Result -106
+30:48:563 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/rename-dir-destination): Result -106
+30:48:564 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/rename-dir-source): Result -106
+30:48:564 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/rename-dir-destination): Result -106
+30:48:564 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/ogc-rs-isfs-verify/rename-dir-source (NAND)
+30:48:564 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: CreateDirectory(/tmp/ogc-rs-isfs-verify/rename-dir-source): Result 0
+30:48:637 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/ogc-rs-isfs-verify/rename-dir-destination (NAND)
+30:48:637 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Rename(/tmp/ogc-rs-isfs-verify/rename-dir-source, /tmp/ogc-rs-isfs-verify/rename-dir-destination): Result 0
+30:48:710 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/rename-dir-source): Result -106
+30:48:710 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/rename-dir-destination): Result 0
+30:48:751 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/rename-dir-source): Result -106
+30:48:751 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/rename-dir-destination): Result 0
+30:48:752 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Delete(/tmp/ogc-rs-isfs-verify/rename-dir-destination): Result 0
+30:48:824 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/rename-dir-source): Result -106
+30:48:824 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/rename-dir-destination): Result -106
+30:48:844 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/async-rename-dir-source): Result -106
+30:48:844 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/async-rename-dir-destination): Result -106
+30:48:844 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/async-rename-dir-source): Result -106
+30:48:844 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/async-rename-dir-destination): Result -106
+30:48:845 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/ogc-rs-isfs-verify/async-rename-dir-source (NAND)
+30:48:845 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: CreateDirectory(/tmp/ogc-rs-isfs-verify/async-rename-dir-source): Result 0
+30:48:918 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/ogc-rs-isfs-verify/async-rename-dir-destination (NAND)
+30:48:918 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Rename(/tmp/ogc-rs-isfs-verify/async-rename-dir-source, /tmp/ogc-rs-isfs-verify/async-rename-dir-destination): Result 0
+30:48:993 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/async-rename-dir-source): Result -106
+30:48:993 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/async-rename-dir-destination): Result 0
+30:49:059 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/async-rename-dir-source): Result -106
+30:49:060 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/async-rename-dir-destination): Result 0
+30:49:060 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Delete(/tmp/ogc-rs-isfs-verify/async-rename-dir-destination): Result 0
+30:49:133 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/async-rename-dir-source): Result -106
+30:49:133 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify/async-rename-dir-destination): Result -106
+30:49:201 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/ogc-rs-isfs-verify/async-rename-source (NAND)
+30:49:201 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: CreateFile(/tmp/ogc-rs-isfs-verify/async-rename-source): Result 0
+30:49:202 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: Rename(/tmp/ogc-rs-isfs-verify/async-rename-source, /tmp/ogc-rs-isfs-verify/async-rename-destination): Result -101
+30:49:297 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-isfs-verify/async-rename-source (mode 1, fd 3)
+30:49:297 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-isfs-verify/async-rename-source): Result 0
+30:49:298 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-isfs-verify/async-rename-destination (mode 1, fd 4)
+30:49:298 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-isfs-verify/async-rename-destination): Result -106
+30:49:298 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/tmp/ogc-rs-isfs-verify/async-rename-source): Result 0
+30:49:322 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-isfs-verify/async-rename-source (mode 1, fd 3)
+30:49:322 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-isfs-verify/async-rename-source): Result 0
+30:49:322 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/tmp/ogc-rs-isfs-verify/async-rename-source): Result 0
+30:49:322 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Delete(/tmp/ogc-rs-isfs-verify/async-rename-source): Result 0
+30:49:395 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-isfs-verify/async-rename-destination (mode 1, fd 3)
+30:49:395 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-isfs-verify/async-rename-destination): Result -106
+30:49:395 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-isfs-verify/async-rename-source (mode 1, fd 3)
+30:49:395 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-isfs-verify/async-rename-source): Result -106
+30:49:395 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-isfs-verify/async-rename-destination (mode 1, fd 3)
+30:49:395 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-isfs-verify/async-rename-destination): Result -106
+30:49:416 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: Rename(/tmp/ogc-rs-isfs-verify/file, /tmp/ogc-rs-isfs-verify/renamed): Result -101
+30:49:509 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-isfs-verify/file (mode 1, fd 3)
+30:49:509 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-isfs-verify/file): Result 0
+30:49:510 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-isfs-verify/renamed (mode 1, fd 4)
+30:49:510 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-isfs-verify/renamed): Result -106
+30:49:510 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/tmp/ogc-rs-isfs-verify/file): Result 0
+30:49:558 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-isfs-verify/file (mode 1, fd 3)
+30:49:558 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-isfs-verify/file): Result 0
+30:49:558 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/tmp/ogc-rs-isfs-verify/file): Result 0
+30:49:559 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Delete(/tmp/ogc-rs-isfs-verify/file): Result 0
+30:49:631 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-isfs-verify/renamed (mode 1, fd 3)
+30:49:631 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-isfs-verify/renamed): Result -106
+30:49:632 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-isfs-verify/file (mode 1, fd 3)
+30:49:632 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-isfs-verify/file): Result -106
+30:49:632 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-isfs-verify/renamed (mode 1, fd 3)
+30:49:632 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-isfs-verify/renamed): Result -106
+30:49:632 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Delete(/tmp/ogc-rs-isfs-verify): Result 0
+30:49:705 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-isfs-verify/file (mode 1, fd 3)
+30:49:705 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-isfs-verify/file): Result -106
+30:49:705 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-isfs-verify/renamed (mode 1, fd 3)
+30:49:705 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-isfs-verify/renamed): Result -106
+30:49:705 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-isfs-verify): Result -106
+30:51:359 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/ogc-rs-format-verify (NAND)
+30:51:359 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: CreateDirectory(/tmp/ogc-rs-format-verify): Result 0
+30:51:432 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/ogc-rs-format-verify/marker (NAND)
+30:51:432 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: CreateFile(/tmp/ogc-rs-format-verify/marker): Result 0
+30:51:470 Core/IOS/IOS.cpp:763 W[IOS]: Previous request to device /dev/fs blocked emulation for 37639 microseconds.
+30:51:585 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/fs (mode 0, fd 0)
+30:51:585 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-format-verify/marker (mode 1, fd 3)
+30:51:585 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-format-verify/marker): Result -106
+30:51:585 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-format-verify): Result -106
+30:51:658 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-format-verify/marker (mode 1, fd 3)
+30:51:658 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-format-verify/marker): Result -106
+30:51:659 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-format-verify): Result -106
+30:51:730 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp): Result -106
+30:51:730 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+30:51:731 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: CreateDirectory(/tmp): Result 0
+30:51:803 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-format-sync-verify/marker (mode 1, fd 3)
+30:51:803 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-format-sync-verify/marker): Result -106
+30:51:803 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-format-sync-verify): Result -106
+30:51:804 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/ogc-rs-format-sync-verify (NAND)
+30:51:804 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: CreateDirectory(/tmp/ogc-rs-format-sync-verify): Result 0
+30:51:876 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/ogc-rs-format-sync-verify/marker (NAND)
+30:51:877 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: CreateFile(/tmp/ogc-rs-format-sync-verify/marker): Result 0
+30:51:950 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/fs (mode 0, fd 0)
+30:51:950 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-format-sync-verify/marker (mode 1, fd 3)
+30:51:950 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-format-sync-verify/marker): Result -106
+30:51:950 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-format-sync-verify): Result -106
+30:52:158 Core/IOS/IOS.cpp:667 I[IOS]: Opening /tmp/ogc-rs-format-sync-verify/marker (mode 1, fd 3)
+30:52:158 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/tmp/ogc-rs-format-sync-verify/marker): Result -106
+30:52:159 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: GetDirectoryStats(/tmp/ogc-rs-format-sync-verify): Result -106
+30:52:207 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ncd/manage (mode 0, fd 3)
+30:52:208 Core/IOS/Network/NCD/Manage.cpp:112 I[IOS_NET]: NET_NCD_MANAGE: IOCTLV_NCD_GETLINKSTATUS
+30:52:208 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ip/top (mode 0, fd 3)
+30:52:209 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/kd/request (mode 0, fd 4)
+30:52:210 Core/IOS/Network/IP/Top.cpp:809 I[IOS_NET]: IOCTL_SO_GETHOSTID = 192.168.1.52
+30:52:233 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ncd/manage (mode 0, fd 4)
+30:52:234 Core/IOS/Network/NCD/Manage.cpp:119 I[IOS_NET]: NET_NCD_MANAGE: IOCTLV_NCD_GETWIRELESSMACADDRESS
+30:52:234 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:b5:3c:28
+30:52:234 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ncd/manage (mode 0, fd 4)
+30:52:235 Core/IOS/Network/NCD/Manage.cpp:119 I[IOS_NET]: NET_NCD_MANAGE: IOCTLV_NCD_GETWIRELESSMACADDRESS
+30:52:235 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:b5:3c:28
+30:53:847 Core/IOS/Network/IP/Top.cpp:1049 I[IOS_NET]: IOCTLV_SO_GETINTERFACEOPT(0000FFFE, 00004003, 0, C, 0) BufferIn: (008070e0, 8), BufferIn2: (00000000, 0) 
+30:53:848 Core/IOS/Network/IP/Top.cpp:809 I[IOS_NET]: IOCTL_SO_GETHOSTID = 192.168.1.52
+30:53:872 Core/IOS/Network/IP/Top.cpp:1049 I[IOS_NET]: IOCTLV_SO_GETINTERFACEOPT(0000FFFE, 00004003, 0, C, 0) BufferIn: (008070e0, 8), BufferIn2: (00000000, 0) 
+30:53:872 Core/IOS/Network/IP/Top.cpp:1049 I[IOS_NET]: IOCTLV_SO_GETINTERFACEOPT(0000FFFE, 00004005, 0, 4, 0) BufferIn: (008070e0, 8), BufferIn2: (00000000, 0) 
+30:53:873 Core/IOS/Network/IP/Top.cpp:1049 I[IOS_NET]: IOCTLV_SO_GETINTERFACEOPT(0000FFFE, 00004006, 0, 300, 0) BufferIn: (008070e0, 8), BufferIn2: (00000000, 0) 
+30:53:897 Core/IOS/Network/IP/Top.cpp:1049 I[IOS_NET]: IOCTLV_SO_GETINTERFACEOPT(0000FFFE, 00004003, 0, C, 0) BufferIn: (008070e0, 8), BufferIn2: (00000000, 0) 
+30:53:946 Core/IOS/Network/IP/Top.cpp:945 I[IOS_NET]: IOCTL_SO_GETHOSTBYNAME Address: 127.0.0.1, BufferIn: (008070e0, 10), BufferOut: (004fc2a0, 1120)
+30:53:970 Core/IOS/Network/IP/Top.cpp:945 I[IOS_NET]: IOCTL_SO_GETHOSTBYNAME Address: 127.0.0.1, BufferIn: (008070e0, 10), BufferOut: (004fc2a0, 1120)
+30:53:995 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,2,0), BufferIn: (008070e0, 12), BufferOut: (00000000, 0)
+30:53:995 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 0000ffff, 00001002, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 80 00 e8 8f cb 0c 76 00 00 00 28 0b c3 31 01 00 00 00
+30:53:995 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000001 (2,2,0), BufferIn: (008070e0, 12), BufferOut: (00000000, 0)
+30:53:995 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000001, 0000ffff, 00001002, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30:54:019 Core/IOS/Network/Socket.cpp:298 I[IOS_NET]: IOCTL_SO_BIND (00000000, 127.0.0.1:0) = 0
+30:54:020 Core/IOS/Network/Socket.cpp:298 I[IOS_NET]: IOCTL_SO_BIND (00000001, 127.0.0.1:0) = 0
+30:54:043 Core/IOS/Network/IP/Top.cpp:760 W[IOS_NET]: IOCTL_SO_GETSOCKNAME output buffer is too small. Truncating
+30:54:043 Core/IOS/Network/IP/Top.cpp:760 W[IOS_NET]: IOCTL_SO_GETSOCKNAME output buffer is too small. Truncating
+30:54:068 Core/IOS/Network/Socket.h:283 E[IOS_NET]: DoSock: Error, fd not found (-0000001, 133E0F40, 0000000D)
+30:54:093 Core/IOS/Network/Socket.h:283 E[IOS_NET]: DoSock: Error, fd not found (-0000001, 133E0F40, 0000000C)
+30:54:118 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000001, 00000003, 00000000)
+30:54:119 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000001, 00000004, 00000004)
+30:54:120 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
+30:54:120 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x1240a3120) Socket: 00000001, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (00807120, 1), BufferOut2: (00000000, 0)
+30:54:121 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000001, 00000003, 00000000)
+30:54:122 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000001, 00000004, 00000000)
+30:54:142 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000001, 00000003, 00000000)
+30:54:143 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000001, 00000004, 00000004)
+30:54:144 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000001, 00000003, 00000000)
+30:54:145 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000001, 00000004, 00000000)
+30:54:361 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SENDTO  = 4 Socket: 00000000, BufferIn: (008070e0, 4), BufferIn2: (00807120, 40), 127.0.0.1
+30:55:977 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x1240a3120) Socket: 00000001, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (00807120, 8), BufferOut2: (00000000, 0)
+30:56:001 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECVFROM failed with error 35: Resource temporarily unavailable, ret = -1
+30:56:001 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECVFROM (-6, 0x1240a3120) Socket: 00000001, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (00807120, 16), BufferOut2: (00807160, 8)
+30:56:074 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SENDTO  = 6 Socket: 00000000, BufferIn: (008070e0, 6), BufferIn2: (00807120, 40), 127.0.0.1
+30:56:098 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECVFROM (6, 0x123992a00) Socket: 00000001, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (000f6a00, 32), BufferOut2: (00807120, 8)
+30:56:316 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SENDTO  = 5 Socket: 00000000, BufferIn: (008070e0, 5), BufferIn2: (00807120, 40), 127.0.0.1
+30:56:318 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECVFROM (5, 0x1240a3120) Socket: 00000001, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (00807120, 24), BufferOut2: (00807160, 8)
+30:58:053 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000000, 127.0.0.1:62734) = 0
+30:58:077 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 13 Socket: 00000000, BufferIn: (008070e0, 13), BufferIn2: (00807120, 40), 0.0.0.0
+30:58:079 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (13, 0x123992a00) Socket: 00000001, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (000f6a00, 32), BufferOut2: (00000000, 0)
+30:58:101 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 9 Socket: 00000000, BufferIn: (008070e0, 9), BufferIn2: (00807120, 40), 0.0.0.0
+30:58:103 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (9, 0x123992a00) Socket: 00000001, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (000f6a00, 32), BufferOut2: (00000000, 0)
+30:58:125 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 14 Socket: 00000000, BufferIn: (008070e0, 14), BufferIn2: (00807120, 40), 0.0.0.0
+30:58:128 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (14, 0x1240a3120) Socket: 00000001, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (00807120, 24), BufferOut2: (00000000, 0)
+30:58:150 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 15 Socket: 00000000, BufferIn: (008070e0, 15), BufferIn2: (00807120, 40), 0.0.0.0
+30:58:152 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (15, 0x1240a3120) Socket: 00000001, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (00807120, 24), BufferOut2: (00000000, 0)
+30:58:174 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(0) 0
+30:58:198 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(1) 0
+30:58:271 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ncd/manage (mode 0, fd 3)
+30:58:271 Core/IOS/Network/NCD/Manage.cpp:112 I[IOS_NET]: NET_NCD_MANAGE: IOCTLV_NCD_GETLINKSTATUS
+30:58:271 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ip/top (mode 0, fd 3)
+30:58:271 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/kd/request (mode 0, fd 4)
+30:58:272 Core/IOS/Network/IP/Top.cpp:809 I[IOS_NET]: IOCTL_SO_GETHOSTID = 192.168.1.52
+30:58:285 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,2,0), BufferIn: (008070e0, 12), BufferOut: (00000000, 0)
+30:58:285 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 0000ffff, 00001002, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30:58:285 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(0) 0
+30:58:295 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ncd/manage (mode 0, fd 3)
+30:58:295 Core/IOS/Network/NCD/Manage.cpp:112 I[IOS_NET]: NET_NCD_MANAGE: IOCTLV_NCD_GETLINKSTATUS
+30:58:295 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ip/top (mode 0, fd 3)
+30:58:295 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/kd/request (mode 0, fd 4)
+30:58:296 Core/IOS/Network/IP/Top.cpp:809 I[IOS_NET]: IOCTL_SO_GETHOSTID = 192.168.1.52
+30:58:309 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,2,0), BufferIn: (008070e0, 12), BufferOut: (00000000, 0)
+30:58:309 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 0000ffff, 00001002, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 80 00 08 36 00 00 00 00 00 00 00 00 00 00 01 00 00 00
+30:58:310 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(0) 0
+30:58:344 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ncd/manage (mode 0, fd 3)
+30:58:344 Core/IOS/Network/NCD/Manage.cpp:112 I[IOS_NET]: NET_NCD_MANAGE: IOCTLV_NCD_GETLINKSTATUS
+30:58:344 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ip/top (mode 0, fd 3)
+30:58:344 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/kd/request (mode 0, fd 4)
+30:58:345 Core/IOS/Network/IP/Top.cpp:809 I[IOS_NET]: IOCTL_SO_GETHOSTID = 192.168.1.52
+30:58:368 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,2,0), BufferIn: (008070e0, 12), BufferOut: (00000000, 0)
+30:58:369 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 0000ffff, 00001002, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 80 00 88 e8 a4 70 01 00 00 00 40 6c a8 2e 7c 00 00 00
+30:58:370 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000003, 00000000)
+30:58:371 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000004, 00000004)
+30:58:372 Core/IOS/Network/Socket.cpp:298 I[IOS_NET]: IOCTL_SO_BIND (00000000, 127.0.0.1:0) = 0
+30:58:372 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000001 (2,2,0), BufferIn: (008070e0, 12), BufferOut: (00000000, 0)
+30:58:372 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000001, 0000ffff, 00001002, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30:58:373 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000001, 00000003, 00000000)
+30:58:374 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000001, 00000004, 00000004)
+30:58:375 Core/IOS/Network/Socket.cpp:298 I[IOS_NET]: IOCTL_SO_BIND (00000001, 127.0.0.1:0) = 0
+30:58:375 Core/IOS/Network/IP/Top.cpp:760 W[IOS_NET]: IOCTL_SO_GETSOCKNAME output buffer is too small. Truncating
+30:58:375 Core/IOS/Network/IP/Top.cpp:760 W[IOS_NET]: IOCTL_SO_GETSOCKNAME output buffer is too small. Truncating
+30:58:418 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000001, 00000003, 00000000)
+30:58:418 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000001, 00000004, 00000004)
+30:58:420 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECVFROM failed with error 35: Resource temporarily unavailable, ret = -1
+30:58:420 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECVFROM (-6, 0x1250975a0) Socket: 00000001, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (017fb5a0, 32), BufferOut2: (00807120, 8)
+30:58:421 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000001, 00000003, 00000000)
+30:58:422 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000001, 00000004, 00000004)
+30:58:442 Core/IOS/Network/IP/Top.cpp:1049 I[IOS_NET]: IOCTLV_SO_GETINTERFACEOPT(0000FFFE, 00004003, 0, C, 0) BufferIn: (008070e0, 8), BufferIn2: (00000000, 0) 
+30:58:444 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SENDTO  = 5 Socket: 00000000, BufferIn: (008070e0, 5), BufferIn2: (00807120, 40), 127.0.0.1
+30:58:445 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECVFROM (5, 0x1250975a0) Socket: 00000001, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (017fb5a0, 32), BufferOut2: (00807120, 8)
+30:58:467 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000000, 127.0.0.1:49265) = 0
+30:58:467 Core/IOS/Network/IP/Top.cpp:1049 I[IOS_NET]: IOCTLV_SO_GETINTERFACEOPT(0000FFFE, 00004003, 0, C, 0) BufferIn: (008070e0, 8), BufferIn2: (00000000, 0) 
+30:58:469 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 15 Socket: 00000000, BufferIn: (008070e0, 15), BufferIn2: (00807120, 40), 0.0.0.0
+30:58:470 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (15, 0x1250975a0) Socket: 00000001, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (017fb5a0, 32), BufferOut2: (00000000, 0)
+30:58:492 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(0) 0
+30:58:492 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(1) 0
+30:58:541 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ncd/manage (mode 0, fd 3)
+30:58:541 Core/IOS/Network/NCD/Manage.cpp:112 I[IOS_NET]: NET_NCD_MANAGE: IOCTLV_NCD_GETLINKSTATUS
+30:58:542 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ip/top (mode 0, fd 3)
+30:58:542 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/kd/request (mode 0, fd 4)
+30:58:543 Core/IOS/Network/IP/Top.cpp:809 I[IOS_NET]: IOCTL_SO_GETHOSTID = 192.168.1.52
+30:58:543 Core/IOS/Network/IP/Top.cpp:945 I[IOS_NET]: IOCTL_SO_GETHOSTBYNAME Address: 127.0.0.1, BufferIn: (008070e0, 10), BufferOut: (017f17e0, 1120)
+31:00:108 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,1,0), BufferIn: (008070e0, 12), BufferOut: (00000000, 0)
+31:00:108 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 0000ffff, 00001002, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+31:00:108 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000003, 00000000)
+31:00:109 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000004, 00000004)
+31:00:110 Core/IOS/Network/Socket.cpp:298 I[IOS_NET]: IOCTL_SO_BIND (00000000, 127.0.0.1:0) = 0
+31:00:111 Core/IOS/Network/IP/Top.cpp:760 W[IOS_NET]: IOCTL_SO_GETSOCKNAME output buffer is too small. Truncating
+31:00:111 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000001 (2,1,0), BufferIn: (008070e0, 12), BufferOut: (00000000, 0)
+31:00:111 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000001, 0000ffff, 00001002, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+31:00:111 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 36: Operation now in progress, ret = -1
+31:00:111 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000001, 127.0.0.1:52661) = -1
+31:00:112 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 56: Socket is already connected, ret = -1
+31:00:112 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000001, 127.0.0.1:52661) = -1
+31:00:113 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000001, 00000003, 00000000)
+31:00:114 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000001, 00000004, 00000004)
+31:00:116 Core/IOS/Device.cpp:109 I[IOS_NET]: IOCTL_SO_ACCEPT (fd 3) - IOCtl 0x1 (in_size=0x4, out_size=0x8)
+31:00:117 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000002, 00000003, 00000000)
+31:00:118 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000002, 00000004, 00000004)
+31:00:118 Core/IOS/Network/IP/Top.cpp:760 W[IOS_NET]: IOCTL_SO_GETSOCKNAME output buffer is too small. Truncating
+31:00:118 Core/IOS/Network/IP/Top.cpp:788 W[IOS_NET]: IOCTL_SO_GETPEERNAME output buffer is too small. Truncating
+31:00:118 Core/IOS/Network/IP/Top.cpp:800 I[IOS_NET]: IOCTL_SO_GETPEERNAME(2)
+31:00:133 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 11 Socket: 00000001, BufferIn: (008070e0, 11), BufferIn2: (00807120, 40), 0.0.0.0
+31:00:134 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (11, 0x1240a3120) Socket: 00000002, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (00807120, 32), BufferOut2: (00000000, 0)
+31:00:159 Core/IOS/Network/IP/Top.cpp:651 I[IOS_NET]: IOCTL_SO_SHUTDOWN(fd=1, how=1) = 0
+31:00:159 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (0, 0x1240a3120) Socket: 00000002, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (00807120, 32), BufferOut2: (00000000, 0)
+31:00:207 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(2) 0
+31:00:208 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(1) 0
+31:00:208 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(0) 0
+31:00:258 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ncd/manage (mode 0, fd 3)
+31:00:258 Core/IOS/Network/NCD/Manage.cpp:112 I[IOS_NET]: NET_NCD_MANAGE: IOCTLV_NCD_GETLINKSTATUS
+31:00:258 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ip/top (mode 0, fd 3)
+31:00:258 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/kd/request (mode 0, fd 4)
+31:00:259 Core/IOS/Network/IP/Top.cpp:809 I[IOS_NET]: IOCTL_SO_GETHOSTID = 192.168.1.52
+31:00:282 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,1,0), BufferIn: (008070e0, 12), BufferOut: (00000000, 0)
+31:00:283 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 0000ffff, 00001002, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+31:00:283 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000001 (2,1,0), BufferIn: (008070e0, 12), BufferOut: (00000000, 0)
+31:00:283 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000001, 0000ffff, 00001002, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+31:00:355 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 0000ffff, 00000004, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 00 01 28 4c d3 0c 76 00 00 00 cc f1 ca 31 01 00 00 00
+31:00:379 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 0000ffff, 00000004, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 00 00 00 00 20 0e 76 00 00 00 9c 05 02 80 00 00 00 00
+31:00:452 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 0000ffff, 00000004, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 00 01 02 00 00 00 00 00 00 00 5c 30 08 80 00 00 00 00
+31:00:501 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 0000ffff, 00000004, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 00 00 02 00 00 00 00 00 00 00 5c 30 08 80 00 00 00 00
+31:00:527 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000003, 00000000)
+31:00:527 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000004, 00000004)
+31:00:528 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000003, 00000000)
+31:00:529 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000004, 00000000)
+31:00:550 Core/IOS/Network/Socket.cpp:298 I[IOS_NET]: IOCTL_SO_BIND (00000000, 127.0.0.1:0) = 0
+31:00:550 Core/IOS/Network/IP/Top.cpp:760 W[IOS_NET]: IOCTL_SO_GETSOCKNAME output buffer is too small. Truncating
+31:00:599 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 36: Operation now in progress, ret = -1
+31:00:599 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000001, 127.0.0.1:52663) = -1
+31:00:600 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 56: Socket is already connected, ret = -1
+31:00:600 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000001, 127.0.0.1:52663) = -1
+31:02:192 Core/IOS/Device.cpp:109 I[IOS_NET]: IOCTL_SO_ACCEPT (fd 3) - IOCtl 0x1 (in_size=0x4, out_size=0x8)
+31:02:217 Core/IOS/Network/IP/Top.cpp:760 W[IOS_NET]: IOCTL_SO_GETSOCKNAME output buffer is too small. Truncating
+31:02:265 Core/IOS/Network/IP/Top.cpp:760 W[IOS_NET]: IOCTL_SO_GETSOCKNAME output buffer is too small. Truncating
+31:02:314 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 9 Socket: 00000001, BufferIn: (008070e0, 9), BufferIn2: (00807120, 40), 0.0.0.0
+31:02:316 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (9, 0x123992a00) Socket: 00000002, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (000f6a00, 32), BufferOut2: (00000000, 0)
+31:02:338 Core/IOS/Network/IP/Top.cpp:651 I[IOS_NET]: IOCTL_SO_SHUTDOWN(fd=1, how=1) = 0
+31:02:339 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (0, 0x123992a00) Socket: 00000002, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (000f6a00, 32), BufferOut2: (00000000, 0)
+31:02:362 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(2) 0
+31:02:387 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000002 (2,1,0), BufferIn: (008070e0, 12), BufferOut: (00000000, 0)
+31:02:387 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000002, 0000ffff, 00001002, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+31:02:388 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 36: Operation now in progress, ret = -1
+31:02:388 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000002, 127.0.0.1:52663) = -1
+31:02:389 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 56: Socket is already connected, ret = -1
+31:02:389 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000002, 127.0.0.1:52663) = -1
+31:02:390 Core/IOS/Device.cpp:109 I[IOS_NET]: IOCTL_SO_ACCEPT (fd 3) - IOCtl 0x1 (in_size=0x4, out_size=0x8)
+31:02:411 Core/IOS/Network/IP/Top.cpp:760 W[IOS_NET]: IOCTL_SO_GETSOCKNAME output buffer is too small. Truncating
+31:02:435 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(3) 0
+31:02:459 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(2) 0
+31:02:483 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(0) 0
+31:02:507 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(1) 0
+31:02:580 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ncd/manage (mode 0, fd 3)
+31:02:580 Core/IOS/Network/NCD/Manage.cpp:112 I[IOS_NET]: NET_NCD_MANAGE: IOCTLV_NCD_GETLINKSTATUS
+31:02:580 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ip/top (mode 0, fd 3)
+31:02:581 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/kd/request (mode 0, fd 4)
+31:02:581 Core/IOS/Network/IP/Top.cpp:809 I[IOS_NET]: IOCTL_SO_GETHOSTID = 192.168.1.52
+31:02:604 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,1,0), BufferIn: (008070e0, 12), BufferOut: (00000000, 0)
+31:02:604 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 0000ffff, 00001002, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 80 00 58 e8 a4 70 01 00 00 00 00 00 00 00 01 00 00 00
+31:02:605 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000001 (2,1,0), BufferIn: (008070e0, 12), BufferOut: (00000000, 0)
+31:02:605 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000001, 0000ffff, 00001002, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+31:02:629 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000003, 00000000)
+31:02:630 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000004, 00000004)
+31:02:631 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000003, 00000000)
+31:02:632 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000004, 00000000)
+31:02:653 Core/IOS/Network/Socket.cpp:298 I[IOS_NET]: IOCTL_SO_BIND (00000000, 127.0.0.1:0) = 0
+31:02:653 Core/IOS/Network/IP/Top.cpp:760 W[IOS_NET]: IOCTL_SO_GETSOCKNAME output buffer is too small. Truncating
+31:02:653 Core/IOS/Network/IP/Top.cpp:760 W[IOS_NET]: IOCTL_SO_GETSOCKNAME output buffer is too small. Truncating
+31:02:702 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 36: Operation now in progress, ret = -1
+31:02:702 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000001, 127.0.0.1:52666) = -1
+31:02:703 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 56: Socket is already connected, ret = -1
+31:02:703 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000001, 127.0.0.1:52666) = -1
+31:04:269 Core/IOS/Device.cpp:109 I[IOS_NET]: IOCTL_SO_ACCEPT (fd 3) - IOCtl 0x1 (in_size=0x4, out_size=0x8)
+31:04:293 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 10 Socket: 00000001, BufferIn: (008070e0, 10), BufferIn2: (00807120, 40), 0.0.0.0
+31:04:367 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (10, 0x123992a00) Socket: 00000002, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (000f6a00, 32), BufferOut2: (00000000, 0)
+31:04:441 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000002, 00000003, 00000000)
+31:04:441 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000002, 00000004, 00000004)
+31:04:465 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
+31:04:465 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x1240a3120) Socket: 00000002, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (00807120, 1), BufferOut2: (00000000, 0)
+31:04:514 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000002, 00000003, 00000000)
+31:04:515 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000002, 00000004, 00000000)
+31:04:538 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 11 Socket: 00000002, BufferIn: (008070e0, 11), BufferIn2: (00807120, 40), 0.0.0.0
+31:04:540 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (11, 0x123992a00) Socket: 00000001, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (000f6a00, 32), BufferOut2: (00000000, 0)
+31:04:562 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 8 Socket: 00000001, BufferIn: (008070e0, 8), BufferIn2: (00807120, 40), 0.0.0.0
+31:04:565 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (8, 0x123992a00) Socket: 00000002, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (000f6a00, 32), BufferOut2: (00000000, 0)
+31:04:586 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 9 Socket: 00000002, BufferIn: (008070e0, 9), BufferIn2: (00807120, 40), 0.0.0.0
+31:04:589 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (9, 0x123992a00) Socket: 00000001, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (000f6a00, 32), BufferOut2: (00000000, 0)
+31:04:610 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(2) 0
+31:04:634 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000002 (2,1,0), BufferIn: (008070e0, 12), BufferOut: (00000000, 0)
+31:04:634 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000002, 0000ffff, 00001002, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+31:04:635 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 36: Operation now in progress, ret = -1
+31:04:635 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000002, 127.0.0.1:52666) = -1
+31:04:636 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 56: Socket is already connected, ret = -1
+31:04:636 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000002, 127.0.0.1:52666) = -1
+31:04:638 Core/IOS/Device.cpp:109 I[IOS_NET]: IOCTL_SO_ACCEPT (fd 3) - IOCtl 0x1 (in_size=0x4, out_size=0x8)
+31:04:658 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(3) 0
+31:04:682 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(2) 0
+31:04:706 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000002 (2,1,0), BufferIn: (008070e0, 12), BufferOut: (00000000, 0)
+31:04:706 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000002, 0000ffff, 00001002, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+31:04:707 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 36: Operation now in progress, ret = -1
+31:04:707 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000002, 127.0.0.1:52666) = -1
+31:04:708 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 56: Socket is already connected, ret = -1
+31:04:708 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000002, 127.0.0.1:52666) = -1
+31:04:710 Core/IOS/Device.cpp:109 I[IOS_NET]: IOCTL_SO_ACCEPT (fd 3) - IOCtl 0x1 (in_size=0x4, out_size=0x8)
+31:04:730 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(3) 0
+31:04:754 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(2) 0
+31:04:778 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(0) 0
+31:04:803 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(1) 0
+31:06:369 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,1,0), BufferIn: (008070e0, 12), BufferOut: (00000000, 0)
+31:06:369 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 0000ffff, 00001002, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+31:06:393 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(0) 0
+31:06:466 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ncd/manage (mode 0, fd 3)
+31:06:466 Core/IOS/Network/NCD/Manage.cpp:112 I[IOS_NET]: NET_NCD_MANAGE: IOCTLV_NCD_GETLINKSTATUS
+31:06:467 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ip/top (mode 0, fd 3)
+31:06:467 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/kd/request (mode 0, fd 4)
+31:06:468 Core/IOS/Network/IP/Top.cpp:809 I[IOS_NET]: IOCTL_SO_GETHOSTID = 192.168.1.52
+31:06:492 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,2,0), BufferIn: (008070e0, 12), BufferOut: (00000000, 0)
+31:06:492 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 0000ffff, 00001002, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 80 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+31:06:492 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000001 (2,2,0), BufferIn: (008070e0, 12), BufferOut: (00000000, 0)
+31:06:492 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000001, 0000ffff, 00001002, 00000004) BufferIn: (008070e0, 36), BufferOut: (00000000, 0)00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+31:06:517 Core/IOS/Network/Socket.cpp:298 I[IOS_NET]: IOCTL_SO_BIND (00000000, 127.0.0.1:0) = 0
+31:06:518 Core/IOS/Network/Socket.cpp:298 I[IOS_NET]: IOCTL_SO_BIND (00000001, 127.0.0.1:0) = 0
+31:06:518 Core/IOS/Network/IP/Top.cpp:760 W[IOS_NET]: IOCTL_SO_GETSOCKNAME output buffer is too small. Truncating
+31:06:636 Core/IOS/Network/IP/Top.cpp:760 W[IOS_NET]: IOCTL_SO_GETSOCKNAME output buffer is too small. Truncating
+31:06:854 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SENDTO  = 6 Socket: 00000000, BufferIn: (008070e0, 6), BufferIn2: (00807120, 40), 127.0.0.1
+31:06:879 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECVFROM (6, 0x1240a3120) Socket: 00000001, Flags: 00000000, BufferIn: (008070e0, 8), BufferIn2: (00000000, 0), BufferOut: (00807120, 16), BufferOut2: (00807160, 8)
+31:08:542 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(0) 0
+31:08:566 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(1) 0

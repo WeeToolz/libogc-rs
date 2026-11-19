@@ -1,0 +1,37 @@
+{
+  "probe": "hid_descriptor_probe",
+  "cases": [
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "convert_hid_descriptor_lengths",
+      "line": 2314,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "run",
+      "api_path": "usb::sys::convert_hid_descriptor_lengths",
+      "checks": [
+        "HID lengths convert for every complete entry",
+        "HID truncated entry is left unchanged",
+        "HID short header remains unchanged"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "prepare_hid_v5_device_with",
+      "line": 1702,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "run",
+      "api_path": "usb::sys::prepare_hid_v5_device_with",
+      "checks": [
+        "HID v5 open checks and frees descriptors after best-effort resume",
+        "HID v5 open suspends and returns descriptor failure",
+        "HID v5 open accepts positive descriptor status",
+        "HID v5 open preserves descriptor error when suspend fails"
+      ]
+    }
+  ],
+  "limits": [
+    "Descriptor conversion and injected preflight policy only; no USB device, IOS transfer, or physical Wii behavior is covered."
+  ]
+}

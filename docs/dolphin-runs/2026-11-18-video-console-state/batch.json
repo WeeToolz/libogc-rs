@@ -1,0 +1,80 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "console_get_default",
+      "line": 676,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_console_state",
+      "api_path": "video::console_get_default",
+      "checks": [
+        "Video default console supplies its font"
+      ]
+    },
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "console_select",
+      "line": 688,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_console_state",
+      "api_path": "video::console_select",
+      "checks": [
+        "Video console selection exposes metrics and position"
+      ]
+    },
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "console_set_font",
+      "line": 700,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_console_state",
+      "api_path": "video::console_set_font",
+      "checks": [
+        "Video console window clips and font copies"
+      ]
+    },
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "console_set_window",
+      "line": 720,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_console_state",
+      "api_path": "video::console_set_window",
+      "checks": [
+        "Video console window clips and font copies"
+      ]
+    },
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "console_get_metrics",
+      "line": 763,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_console_state",
+      "api_path": "video::console_get_metrics",
+      "checks": [
+        "Video console selection exposes metrics and position"
+      ]
+    },
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "console_get_position",
+      "line": 772,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_console_state",
+      "api_path": "video::console_get_position",
+      "checks": [
+        "Video console selection exposes metrics and position"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin temporary console state and clipped window. Rendering, framebuffer writes, concurrent selection and physical Wii remain unverified."
+  ]
+}

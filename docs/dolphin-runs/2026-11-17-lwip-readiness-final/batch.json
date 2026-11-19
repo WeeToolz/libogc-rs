@@ -1,0 +1,114 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "ioctl",
+      "line": 1359,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_readiness",
+      "api_path": "lwip::ioctl",
+      "checks": [
+        "lwIP ioctl toggles socket nonblocking mode",
+        "lwIP ioctl rejects FIONREAD and preserves output"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "ioctl",
+      "line": 1722,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_readiness",
+      "api_path": "lwip::ioctl",
+      "checks": [
+        "lwIP ioctl toggles socket nonblocking mode",
+        "lwIP ioctl rejects FIONREAD and preserves output"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "poll",
+      "line": 1303,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_readiness",
+      "api_path": "lwip::poll",
+      "checks": [
+        "lwIP poll clears empty read readiness",
+        "lwIP poll reports queued read readiness",
+        "lwIP readiness corresponds to queued datagram"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "poll",
+      "line": 1711,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_readiness",
+      "api_path": "lwip::poll",
+      "checks": [
+        "lwIP poll clears empty read readiness",
+        "lwIP poll reports queued read readiness",
+        "lwIP readiness corresponds to queued datagram"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "select",
+      "line": 1219,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_readiness",
+      "api_path": "lwip::select",
+      "checks": [
+        "lwIP select clears empty read readiness",
+        "lwIP select reports queued read readiness",
+        "lwIP readiness corresponds to queued datagram"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "select",
+      "line": 1692,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_readiness",
+      "api_path": "lwip::select",
+      "checks": [
+        "lwIP select clears empty read readiness",
+        "lwIP select reports queued read readiness",
+        "lwIP readiness corresponds to queued datagram"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_ioctl",
+      "line": 1495,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_readiness",
+      "api_path": "net::net_ioctl",
+      "checks": [
+        "Raw ioctl and fcntl agree on nonblocking mode"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_ioctl",
+      "line": 2235,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_readiness",
+      "api_path": "net::net_ioctl",
+      "checks": [
+        "Raw ioctl and fcntl agree on nonblocking mode"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin IPv4 UDP loopback, one readable descriptor and FIONBIO/FIONREAD only. Multiple descriptors, timeout edge cases, other commands and physical Wii remain unverified."
+  ]
+}

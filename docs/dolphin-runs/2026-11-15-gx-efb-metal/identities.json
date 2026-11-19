@@ -1,0 +1,26 @@
+{
+  "source_revision": "b2569dd47a74b93fd3cd87612094828ad3e97731",
+  "source_sha256": {
+    "probes/ogc-system-probe/src/video_probe.rs": "2b3f09fbcde084cb079bf9dc3a20946d0e0f2327b56e635715df1e3a6247149d",
+    "xtask/src/dolphin.rs": "311a0cfa47ba57ee39e3d4d99a9bcb20f3a5c2962035bd8520052d715036eafa",
+    "docs/dolphin-runs/2026-11-15-gx-efb-metal/dolphin-metal.sh": "1f14a0cadbe0c50b27b419c411eaa1fee33d4933397e7fe3e26610671d07316a"
+  },
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "96ea9e12957829a1bae59f02f49716521a00dc4231454248378a612822c37e0f",
+  "elf_sha256": "ef2178123e2862babb0f8fe9c4861ffa80e7e6629e8d8ef4c91aafca4e431a2d",
+  "rustc": "rustc 1.101.0-nightly (ea137335b 2026-10-05)\nbinary: rustc\ncommit-hash: ea137335b78829b4514bf1b4c16302f74fab8581\ncommit-date: 2026-10-05\nhost: aarch64-apple-darwin\nrelease: 1.101.0-nightly\nLLVM version: 23.1.3\n",
+  "fixture_mp3_sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73",
+  "nand_fixture": {
+    "file_count": 587,
+    "tree_sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc",
+    "method": "sorted relative POSIX paths; u64 big-endian UTF-8 path length, path bytes, raw SHA-256 file digest"
+  },
+  "final_source_sha256": {
+    "probes/ogc-system-probe/src/video_probe.rs": "0cb3bd572d61e230af6873cdf13e71fcc183e6e2d46a60f29408c580cf618215",
+    "xtask/src/dolphin.rs": "b9810935de2b2ce8ce36fd928533fd253736a10ab0e5cdb26b793e766b3e13b9",
+    "docs/dolphin-runs/2026-11-15-gx-efb-metal/dolphin-metal.sh": "1f14a0cadbe0c50b27b419c411eaa1fee33d4933397e7fe3e26610671d07316a"
+  },
+  "final_source_note": "The final probe calls the EFB test only after successful FIFO initialization. The runner regression assertion has rustfmt layout. The rebuilt final DOL passed the saved final Metal run.",
+  "final_dol_sha256": "c15a156267c41b615ad0e800ee5e8e1115b48a699d625ae287d818169c8f352f",
+  "final_elf_sha256": "44894cd125291fa9cfa85ff7f35f80144ae1188cf47a68a09b6a3458ca475061"
+}

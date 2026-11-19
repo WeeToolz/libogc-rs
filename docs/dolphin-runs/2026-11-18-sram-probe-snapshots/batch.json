@@ -1,0 +1,80 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_counter_bias_probe",
+      "line": 3501,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_getters",
+      "api_path": "raw_system::snapshot_counter_bias_probe",
+      "checks": [
+        "System SRAM getter snapshots record calls"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_display_offset_probe",
+      "line": 3551,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_getters",
+      "api_path": "raw_system::snapshot_display_offset_probe",
+      "checks": [
+        "System SRAM getter snapshots record calls"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_eu_rgb60_probe",
+      "line": 3602,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_getters",
+      "api_path": "raw_system::snapshot_eu_rgb60_probe",
+      "checks": [
+        "System SRAM getter snapshots record calls"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_language_probe",
+      "line": 3652,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_getters",
+      "api_path": "raw_system::snapshot_language_probe",
+      "checks": [
+        "System SRAM getter snapshots record calls"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_progressive_scan_probe",
+      "line": 3703,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_getters",
+      "api_path": "raw_system::snapshot_progressive_scan_probe",
+      "checks": [
+        "System SRAM getter snapshots record calls"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sram_checksum_words",
+      "line": 1307,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_getters",
+      "api_path": "raw_system::sram_checksum_words",
+      "checks": [
+        "System SRAM checksum wraps both sums"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin SRAM getter call flags and synthetic checksum words. Setter flags, persistence and physical Wii remain unverified."
+  ]
+}

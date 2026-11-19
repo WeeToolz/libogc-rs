@@ -195,6 +195,7 @@ static SYS_POWER_CALLBACK: AtomicUsize = AtomicUsize::new(0);
 #[cfg(all(target_arch = "powerpc", any(not(gamecube), test)))]
 static SYS_STM_EVENT_CALLBACK: AtomicUsize = AtomicUsize::new(0);
 static SYS_POWER_ENABLE_TIME: AtomicU32 = AtomicU32::new(0);
+static SYS_POWER_COOLDOWN_ACTIVE: AtomicBool = AtomicBool::new(false);
 static SYS_POWER_DISPATCH_CALLED: AtomicBool = AtomicBool::new(false);
 static SYS_POWER_DISPATCH_RESULT: AtomicBool = AtomicBool::new(false);
 static SYS_ARENA1_LO: AtomicUsize = AtomicUsize::new(0);
@@ -858,7 +859,99 @@ pub struct TimeSpec {
 }
 
 pub fn sys_stdio_report(use_stdout: Bool) {
+    #[cfg(target_arch = "powerpc")]
+    unsafe {
+        let state = irq::irq_disable();
+        let table = core::ptr::addr_of_mut!(ogc_sysbase::devoptab_list)
+            .cast::<*const ogc_sysbase::Devoptab>();
+        table.add(2).write(core::ptr::addr_of!(UART_DEVOPTAB));
+        if use_stdout != 0 {
+            table.add(1).write(core::ptr::addr_of!(UART_DEVOPTAB));
+            SYS_STDIO_REPORT_USE_STDOUT.store(true, Ordering::Release);
+        }
+        irq::irq_restore(state);
+    }
+    #[cfg(not(target_arch = "powerpc"))]
     SYS_STDIO_REPORT_USE_STDOUT.store(use_stdout != 0, Ordering::Release);
+}
+
+#[cfg(target_arch = "powerpc")]
+static mut UART_DEVOPTAB: ogc_sysbase::Devoptab = ogc_sysbase::Devoptab {
+    name: c"uart".as_ptr(),
+    struct_size: 0,
+    open_r: None,
+    close_r: None,
+    write_r: Some(uart_devoptab_write),
+    read_r: None,
+    seek_r: None,
+    fstat_r: None,
+    stat_r: None,
+    link_r: None,
+    unlink_r: None,
+    chdir_r: None,
+    rename_r: None,
+    mkdir_r: None,
+    dir_state_size: 0,
+    diropen_r: None,
+    dirreset_r: None,
+    dirnext_r: None,
+    dirclose_r: None,
+    statvfs_r: None,
+    ftruncate_r: None,
+    fsync_r: None,
+    device_data: core::ptr::null_mut(),
+    chmod_r: None,
+    fchmod_r: None,
+    rmdir_r: None,
+    lstat_r: None,
+    utimes_r: None,
+    fpathconf_r: None,
+    pathconf_r: None,
+    symlink_r: None,
+    readlink_r: None,
+};
+
+#[cfg(target_arch = "powerpc")]
+unsafe extern "C" fn uart_devoptab_write(
+    reent: *mut ogc_sysbase::Reent,
+    _file: *mut c_void,
+    bytes: *const c_char,
+    length: usize,
+) -> isize {
+    if length > isize::MAX as usize || (length != 0 && bytes.is_null()) {
+        unsafe { ogc_sysbase::set_reent_errno(reent, ogc_sysbase::EINVAL) };
+        return -1;
+    }
+    if unsafe { write_report_uart(bytes.cast(), length) } {
+        length as isize
+    } else {
+        unsafe { ogc_sysbase::set_reent_errno(reent, ogc_sysbase::EIO) };
+        -1
+    }
+}
+
+/// Write a redirected standard stream through its registered device.
+///
+/// # Safety
+/// Nonempty input must point to readable bytes for the call.
+#[cfg(target_arch = "powerpc")]
+pub unsafe fn sys_stdio_write(stream: usize, bytes: *const u8, length: usize) -> Option<isize> {
+    if stream != 1 && stream != 2 {
+        return None;
+    }
+    let table =
+        core::ptr::addr_of!(ogc_sysbase::devoptab_list).cast::<*const ogc_sysbase::Devoptab>();
+    let device = unsafe { table.add(stream).read() };
+    if device != core::ptr::addr_of!(UART_DEVOPTAB) {
+        return None;
+    }
+    let reent = ogc_sysbase::current_reent();
+    let result = unsafe { uart_devoptab_write(reent, core::ptr::null_mut(), bytes.cast(), length) };
+    Some(if result < 0 {
+        -(ogc_sysbase::errno() as isize)
+    } else {
+        result
+    })
 }
 
 #[cfg(not(target_arch = "powerpc"))]
@@ -922,9 +1015,9 @@ unsafe fn set_argv_arena1_lo(value: *mut u8) {
 }
 
 #[cfg(target_arch = "powerpc")]
-unsafe fn write_report_uart(buffer: *const u8, length: usize) {
+unsafe fn write_report_uart(buffer: *const u8, length: usize) -> bool {
     if buffer.is_null() || length == 0 {
-        return;
+        return length == 0;
     }
     let devkit_register: usize = if unsafe { sys_get_hollywood_revision() } != 0 {
         0xCD00_6024
@@ -935,18 +1028,18 @@ unsafe fn write_report_uart(buffer: *const u8, length: usize) {
     if (devkit_register == 0xCC00_6024 && devkit_id == 0xff)
         || (devkit_register == 0xCD00_6024 && devkit_id != 1)
     {
-        return;
+        return false;
     }
     if unsafe { exi::lock(EXI_CHANNEL_0, EXI_DEVICE_1, None) } == 0 {
-        return;
+        return false;
     }
     if exi::select(EXI_CHANNEL_0, EXI_DEVICE_1, EXI_SPEED8MHZ) == 0 {
-        let _ = exi::unlock(EXI_CHANNEL_0);
-        return;
+        exi::unlock(EXI_CHANNEL_0);
+        return false;
     }
 
     let mut command = 0xA001_0000u32;
-    let _ = unsafe {
+    let command_started = unsafe {
         exi::imm(
             EXI_CHANNEL_0,
             core::ptr::addr_of_mut!(command).cast::<c_void>(),
@@ -954,8 +1047,8 @@ unsafe fn write_report_uart(buffer: *const u8, length: usize) {
             EXI_WRITE as i32,
             None,
         )
-    };
-    let _ = exi::sync(EXI_CHANNEL_0);
+    } != 0;
+    let mut success = command_started && exi::sync(EXI_CHANNEL_0) != 0;
 
     let mut output = [0u8; 256];
     let mut output_len = 0usize;
@@ -967,7 +1060,7 @@ unsafe fn write_report_uart(buffer: *const u8, length: usize) {
             output_len += 1;
             pending_carriage_return = false;
             if output_len == output.len() {
-                unsafe { write_report_chunk(&mut output, output_len) };
+                success = success && unsafe { write_report_chunk(&mut output, output_len) };
                 output_len = 0;
             }
             if byte == b'\n' {
@@ -984,7 +1077,7 @@ unsafe fn write_report_uart(buffer: *const u8, length: usize) {
         output[output_len] = byte;
         output_len += 1;
         if output_len == output.len() {
-            unsafe { write_report_chunk(&mut output, output_len) };
+            success = success && unsafe { write_report_chunk(&mut output, output_len) };
             output_len = 0;
         }
     }
@@ -993,27 +1086,28 @@ unsafe fn write_report_uart(buffer: *const u8, length: usize) {
         output_len += 1;
     }
     if output_len != 0 {
-        unsafe { write_report_chunk(&mut output, output_len) };
+        success = success && unsafe { write_report_chunk(&mut output, output_len) };
     }
-    let _ = exi::deselect(EXI_CHANNEL_0);
-    let _ = exi::unlock(EXI_CHANNEL_0);
+    let deselected = exi::deselect(EXI_CHANNEL_0) != 0;
+    let unlocked = exi::unlock(EXI_CHANNEL_0) != 0;
+    success && deselected && unlocked
 }
 
 #[cfg(target_arch = "powerpc")]
-unsafe fn write_report_chunk(buffer: &mut [u8], length: usize) {
-    let _ = unsafe {
+unsafe fn write_report_chunk(buffer: &mut [u8], length: usize) -> bool {
+    (unsafe {
         exi::imm_ex(
             EXI_CHANNEL_0,
             buffer.as_mut_ptr().cast::<c_void>(),
             length as u32,
             EXI_WRITE as i32,
         )
-    };
+    }) != 0
 }
 
 #[cfg(target_arch = "powerpc")]
 unsafe extern "C" fn default_diet_print(buf: *const c_char, size: usize) {
-    unsafe { write_report_uart(buf.cast::<u8>(), size) };
+    let _ = unsafe { write_report_uart(buf.cast::<u8>(), size) };
 }
 
 #[cfg(target_arch = "powerpc")]
@@ -1978,6 +2072,7 @@ fn sys_pre_main_with_operations(operations: &PreMainOperations) -> i32 {
 
     SYS_RUNTIME_POWER_STATE.store(0, Ordering::Release);
     SYS_POWER_ENABLE_TIME.store(0, Ordering::Release);
+    SYS_POWER_COOLDOWN_ACTIVE.store(false, Ordering::Release);
     report_pre_main_progress(7);
     let (failed_stage, result) = first_failure.unwrap_or((0, 0));
     finish_pre_main(result, failed_stage, failed_stage == 0)
@@ -4030,6 +4125,7 @@ pub unsafe fn sys_alloc_arena1_mem_lo(_size: u32, _align: u32) -> *mut c_void {
 ///
 /// Matches the reset-button ABI. The unreachable non-PowerPC fallback reports no button press.
 pub unsafe fn sys_reset_button_down() -> u32 {
+    SYS_RESET_BUTTON_DOWN_CALLED.store(true, Ordering::Release);
     unsafe {
         const PI_RESET_BUTTON_REG: usize = PI_REG_BASE;
         u32::from((core::ptr::read_volatile(PI_RESET_BUTTON_REG as *const u32) & 0x0001_0000) == 0)
@@ -4234,7 +4330,8 @@ pub unsafe fn sys_do_power_cb() {
     if cfg!(target_arch = "powerpc") {
         let now = read_timebase() as u32;
         let enable_time = SYS_POWER_ENABLE_TIME.load(Ordering::Acquire);
-        let due = power_callback_due(now, enable_time);
+        let due = !SYS_POWER_COOLDOWN_ACTIVE.swap(true, Ordering::AcqRel)
+            || power_callback_due(now, enable_time);
         SYS_POWER_ENABLE_TIME.store(
             now.wrapping_add(sys_millisecs_to_ticks(POWER_CALLBACK_COOLDOWN_MS)),
             Ordering::Release,

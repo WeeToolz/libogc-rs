@@ -1,0 +1,21 @@
+{
+  "probe": "wii_std_fs_probe",
+  "cases": [
+    {
+      "crate": "ogc-std-runtime",
+      "path": "src/stdio.rs",
+      "symbol": "__wii_std_output_stream",
+      "line": 53,
+      "evidence_path": "probes/lwp-probe/src/std_fs_entry.rs",
+      "function": "probe_stdio_streams",
+      "api_path": "__wii_std_output_stream",
+      "checks": [
+        "Wii std stream ABI writes and validates inputs",
+        "Wii std routes stdout and stderr by stream"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin UART and console routing. Physical UART and transport failure injection require separate evidence."
+  ]
+}

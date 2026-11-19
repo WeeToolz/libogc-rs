@@ -1,0 +1,32 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-input",
+      "path": "src/lib.rs",
+      "symbol": "clamp",
+      "line": 46,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_pad_clamp",
+      "api_path": "pad::clamp",
+      "checks": [
+        "PAD clamp applies bounds and preserves error samples"
+      ]
+    },
+    {
+      "crate": "ogc-input-sys",
+      "path": "src/lib.rs",
+      "symbol": "pad_clamp",
+      "line": 1438,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_pad_clamp",
+      "api_path": "raw_pad::pad_clamp",
+      "checks": [
+        "PAD clamp applies bounds and preserves error samples"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin synthetic PAD samples on default clamp settings. Diagonal edges, alternate clamp settings and physical Wii remain unverified."
+  ]
+}

@@ -1,0 +1,659 @@
+
+
+BOOT 1/3: system and video initialized
+INFO Wiiload arguments source=entry count=0
+PASS SYS_Init completed
+INFO startup stage=0 completed_mask=0x7ff failed_stage=0
+BOOT watchdog arm starting
+INFO recovery reset watchdog not armed
+BOOT watchdog arm complete
+BOOT Wiiload report argument check
+INFO Wiiload report check disabled for this probe build
+BOOT before first vsync
+BOOT 2/3: entering IOS pre-main
+PRE 0/7: closing inherited IOS descriptors
+IPC: sync state ready
+IPC: command=0x00000002 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000002 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 1/7: IOS startup
+PRE 2/7: IOS subsystems
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 3/7: STM handler
+PRE 4/7: STM devices
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+PRE 5/7: configuration
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 6/7: Wii launch state
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 7/7: complete
+OGC_DOLPHIN_PAGE_CAPTURE page=1 capture=1 addr=0x80863f00 width=640 height=480 stride=640
+-- page 2 --
+BOOT 3/3: IOS pre-main completed
+PASS display initialized
+INFO boot stage: system/video initialized
+INFO boot stage: IOS pre-main completed
+INFO log backend disabled
+INFO argv0 unavailable
+INFO argv raw magic=0x00000000 len=0 argc=0 cmd=0x00000000 argv=0x00000000 end=0x00000000
+PASS power button callback installed
+INFO stm init deferred until shutdown
+INFO fat mount sd=not-selected usb=not-selected
+INFO previous stm handler chained=0
+INFO previous power callback replaced
+
+== RUNTIME PROBE ==
+PASS inet_addr dotted decimal
+PASS inet_addr abbreviated hexadecimal
+PASS inet_addr rejects overflow
+PASS inet_addr rejects invalid octal
+INFO STEP 1 Raw IPv4 address and type-of-service values; vi_frame=85 frame_increment=17 passes=6 fails=0
+PASS IPv4 wrapper packs and reads fixed network-order values
+PASS Raw IPv4 packing matches fixed network-order word
+OGC_DOLPHIN_PAGE_CAPTURE page=2 capture=2 addr=0x80863f00 width=640 height=480 stride=640
+-- page 3 --
+PASS Raw IPv4 octet getters match fixed bytes
+PASS IPv4 wrapper packs and reads fixed network-order values
+PASS Raw IPv4 packing matches fixed network-order word
+PASS Raw IPv4 octet getters match fixed bytes
+PASS IPv4 wrapper packs and reads fixed network-order values
+PASS Raw IPv4 packing matches fixed network-order word
+PASS Raw IPv4 octet getters match fixed bytes
+PASS IPv4 wrapper masks type of service and precedence
+PASS Raw IPv4 TOS and precedence masks
+PASS IPv4 wrapper masks type of service and precedence
+PASS Raw IPv4 TOS and precedence masks
+PASS IPv4 wrapper masks type of service and precedence
+PASS Raw IPv4 TOS and precedence masks
+PASS Raw IPv4 parser accepts valid and rejects invalid input
+PASS IPv4 wrapper parses valid and invalid input
+PASS Network resolver error text matches known and unknown codes
+PASS Descriptor set clears both bytes
+PASS Descriptor set preserves bits across byte boundaries
+PASS Descriptor clear leaves neighboring bits unchanged
+
+== OWNED AUDIO BUFFER ==
+PASS owned audio buffers preserve aligned copied bytes
+PASS audio voice handle pointer roundtrip
+OGC_DOLPHIN_PAGE_CAPTURE page=3 capture=3 addr=0x80863f00 width=640 height=480 stride=640
+-- page 4 --
+PASS L2CAP connection request bytes
+PASS L2CAP configuration request bytes
+PASS L2CAP configuration MTU bytes
+PASS L2CAP connection response bytes and errors
+PASS L2CAP configuration response bytes and errors
+PASS L2CAP disconnection response bytes and errors
+PASS L2CAP command reject bytes and errors
+PASS L2CAP invalid CID reject bytes and errors
+PASS L2CAP data bytes and errors
+PASS ACL parsing fields and truncation
+PASS L2CAP parsing fields and truncation
+PASS L2CAP signal parsing and payload
+PASS L2CAP signal iteration and error cursor
+PASS HIDP parsing fields and empty input
+PASS HCI command events and truncated packets
+PASS HCI connection and disconnection events
+PASS HCI unknown and malformed events
+PASS Bluetooth address preserves HCI byte order
+PASS Bluetooth class extracts major and minor fields
+PASS Bluetooth class recognizes peripheral devices
+PASS Bluetooth queue preserves connection report and disconnect order
+PASS Bluetooth queue applies backpressure without losing state
+PASS Bluetooth discovery classifies controller names
+OGC_DOLPHIN_PAGE_CAPTURE page=4 capture=4 addr=0x80863f00 width=640 height=480 stride=640
+-- page 5 --
+PASS Bluetooth HCI endpoints validate direction and distinct inputs
+PASS L2CAP channel readiness requires a remote channel
+PASS L2CAP HID state tracks both configured channels
+PASS Bluetooth host startup and failure lifecycle
+PASS Bluetooth link key requests preserve keys and reject unknown peers
+PASS System runtime state tracks Wii and GameCube input
+PASS System runtime power cooldown extends after attempts
+PASS System runtime reset plan reflects target and requested action
+PASS System startup snapshots report completed initialization
+PASS System startup validation preserves failed stage and incomplete state
+PASS Checked initialization preserves completed startup
+PASS System framebuffer snapshot matches preferred mode allocation
+
+== UI INPUT ADAPTERS ==
+PASS UI PAD edges reset and reconnect
+PASS UI WPAD edges pointer and errors
+PASS System arena snapshot matches runtime bounds
+INFO hollywood revision=0x00000011
+PASS core hollywood revision matches system
+PASS System hardware getters match Dolphin default values
+INFO Proof font encoding=0
+INFO Proof reset button=0
+OGC_DOLPHIN_PAGE_CAPTURE page=5 capture=5 addr=0x80863f00 width=640 height=480 stride=640
+-- page 6 --
+INFO Proof Hollywood revision=0x00000011
+INFO Snapshot font queried=1
+INFO Snapshot reset queried=1
+INFO Snapshot Hollywood queried=1
+PASS System hardware proof records Dolphin observations
+INFO PowerPC immediate delta=0
+INFO PowerPC timebase=51532390095769181
+INFO PowerPC timebase delta=3
+PASS PowerPC timebase advances
+INFO font encoding=0
+INFO arena1 size=15139072
+INFO arena2 size=67108864
+INFO system time=51532385807896468
+PASS performance counters read
+INFO pmc load/stores=0
+INFO pmc miss cycles=0
+INFO pmc cycles=0
+INFO pmc instructions=0
+INFO STEP 2 System alarm callbacks and cancellation; vi_frame=422 frame_increment=337 passes=72 fails=0
+PASS System alarm creation returns a handle
+PASS System one-shot alarm delivers handle and argument
+PASS System alarm snapshot records handle and callbacks
+OGC_DOLPHIN_PAGE_CAPTURE page=6 capture=6 addr=0x80863f00 width=640 height=480 stride=640
+-- page 7 --
+PASS System periodic alarm delivers repeated callbacks
+PASS System alarm cancellation stops callbacks
+PASS System alarm removal succeeds
+INFO STEP 3 Raw system alarm callbacks and state; vi_frame=506 frame_increment=84 passes=78 fails=0
+PASS Raw system alarm creation returns a handle
+PASS Raw system alarms reject invalid inputs
+PASS Raw system one-shot alarm delivers handle and argument
+PASS Raw system periodic alarm repeats
+PASS Raw system alarm cancellation stops callbacks
+PASS Raw system alarm removal and state snapshot
+INFO STEP 4 System SRAM getter values; vi_frame=529 frame_increment=23 passes=84 fails=0
+PASS SRAM field getters read supplied signed and unsigned values
+PASS System counter bias reads SRAM
+PASS System display offset reads signed SRAM
+PASS System RGB60 reads SRAM bit
+PASS System language reads SRAM
+PASS System progressive scan reads SRAM bit
+PASS System sound mode reads SRAM bit
+PASS System video mode reads SRAM bits
+PASS System configuration snapshot reflects SRAM fixture
+PASS System SRAM buffer is restored
+OGC_DOLPHIN_PAGE_CAPTURE page=7 capture=7 addr=0x80863f00 width=640 height=480 stride=640
+-- page 8 --
+INFO STEP 5 System SRAM lock exclusivity; vi_frame=540 frame_increment=11 passes=94 fails=0
+PASS System standard SRAM lock excludes both lock types
+PASS System standard SRAM unlock completes
+PASS SRAM snapshots reject a held lock
+PASS Standard SRAM snapshot matches locked data
+PASS System extended SRAM lock excludes both lock types
+PASS System extended SRAM unlock completes
+PASS Extended SRAM snapshot matches locked data
+PASS SRAM sync snapshot reports the actual result
+PASS System SRAM lock can be reacquired after release
+PASS Wireless ID getter reads each extended SRAM channel
+PASS GBS getter reads extended SRAM
+PASS Extended SRAM fixture lock and restoration
+
+== IOS STM PROBE ==
+INFO ios preferred=58
+INFO ios version=58
+INFO ios revision=6176
+INFO ios revision major=24
+INFO ios revision minor=32
+INFO stm led rc=0
+PASS stm reachable
+OGC_DOLPHIN_PAGE_CAPTURE page=8 capture=8 addr=0x80863f00 width=640 height=480 stride=640
+-- page 9 --
+
+== CONF PROBE ==
+INFO conf init rc=0
+INFO conf video=0
+INFO conf region=1
+INFO conf area=1
+INFO conf language=1
+INFO conf sound=1
+INFO conf aspect=1
+INFO conf progressive=0
+INFO conf sensorbar=1
+INFO conf counter bias rc=0
+INFO conf counter bias=0
+INFO conf display offset rc=0
+INFO conf display offset=0
+INFO conf pad devices rc=0
+INFO conf registered pads=5
+INFO STEP 6 Wii configuration fixture values and mutation; vi_frame=703 frame_increment=163 passes=107 fails=0
+PASS CONF initialization is repeatable
+PASS CONF byte settings are readable
+PASS CONF generic length type and value
+PASS CONF missing and wrong length inputs fail
+OGC_DOLPHIN_PAGE_CAPTURE page=9 capture=9 addr=0x80863f00 width=640 height=480 stride=640
+-- page 10 --
+PASS CONF known byte values are set in memory
+PASS CONF language reads selected value
+PASS CONF sound mode reads selected value
+PASS CONF aspect ratio reads selected value
+PASS CONF progressive mode reads selected value
+PASS CONF RGB60 mode reads selected value
+PASS CONF sensor bar reads selected value
+PASS CONF speaker volume reads selected value
+PASS CONF motor mode reads selected value
+PASS CONF screen saver reads selected value
+PASS CONF in-memory settings are restored
+INFO STEP 7 Wii configuration typed values; vi_frame=781 frame_increment=78 passes=122 fails=0
+PASS CONF shutdown and LED decode two-byte setting
+PASS CONF counter bias decodes big endian word
+PASS CONF IR sensitivity decodes big endian word
+PASS CONF WiiConnect24 decodes big endian word
+PASS CONF horizontal display offset is signed
+PASS CONF EULA decodes boolean
+PASS CONF nickname decodes ten big endian characters
+PASS CONF rejects an empty nickname without output changes
+PASS CONF parental length error preserves outputs
+INFO STEP 8 Wii configuration controller records; vi_frame=791 frame_increment=10 passes=131 fails=0
+OGC_DOLPHIN_PAGE_CAPTURE page=10 capture=10 addr=0x80863f00 width=640 height=480 stride=640
+-- page 11 --
+PASS CONF controller records are readable
+PASS CONF registered controller records and byte layout
+PASS CONF rejects too many registered controllers
+PASS CONF registered controller record is restored
+PASS CONF guest controller records and byte layout
+PASS CONF rejects too many guest controllers
+PASS CONF null guest input clears guest records
+PASS CONF guest controller record is restored
+INFO STEP 9 Wii configuration text settings; vi_frame=862 frame_increment=71 passes=139 fails=0
+PASS CONF text settings file reads and closes
+PASS CONF region matches decoded GAME field
+PASS CONF area matches decoded AREA field
+PASS CONF video matches decoded VIDEO field
+
+== ES PROBE ==
+INFO es init rc=0
+INFO es title id rc=-1017
+INFO es title hi=0x00000000
+INFO es title lo=0x00000000
+INFO es device id rc=0
+INFO es device id=0x06eeed45
+INFO es boot2 rc=0
+OGC_DOLPHIN_PAGE_CAPTURE page=11 capture=11 addr=0x80863f00 width=640 height=480 stride=640
+-- page 12 --
+INFO es boot2=4
+INFO es korean key rc=-1017
+INFO es close rc=0
+
+== RAW ES CATALOG ==
+PASS Raw ES initializes
+INFO Raw ES title count=83
+PASS Raw ES title count is bounded and nonzero
+PASS Raw ES title list includes system menu
+INFO Raw ES owned title count=96
+PASS Raw ES owned title count is bounded and nonzero
+PASS Raw ES owned title list includes system menu
+INFO Raw ES data path result=0
+INFO Raw ES data path bytes=0x2f746974
+INFO Raw ES data path bytes=0x6c652f30
+INFO Raw ES data path bytes=0x30303030
+INFO Raw ES data path bytes=0x3030312f
+INFO Raw ES data path bytes=0x30303030
+INFO Raw ES data path bytes=0x30303032
+INFO Raw ES data path bytes=0x2f646174
+INFO Raw ES data path bytes=0x61a5a5a5
+PASS Raw ES Dolphin writes 29 path bytes without terminator
+INFO Raw ES stored TMD size result=0
+OGC_DOLPHIN_PAGE_CAPTURE page=12 capture=12 addr=0x80863f00 width=640 height=480 stride=640
+-- page 13 --
+INFO Raw ES stored TMD size=808
+PASS Raw ES system menu TMD size matches NAND fixture
+INFO Raw ES title contents count result=0
+INFO Raw ES title contents count=9
+PASS Raw ES system menu content count matches TMD
+PASS Raw ES system menu content IDs match TMD
+INFO Raw ES stored TMD result=0
+PASS Raw ES stored TMD matches fixture digest and guard
+INFO Raw ES stored content count result=0
+INFO Raw ES stored content count=9
+PASS Raw ES stored content count matches NAND files
+INFO Raw ES stored content list result=-2011
+INFO Raw ES stored content ID=0xffffffff
+INFO Raw ES stored content ID=0xffffffff
+INFO Raw ES stored content ID=0xffffffff
+INFO Raw ES stored content ID=0xffffffff
+INFO Raw ES stored content ID=0xffffffff
+INFO Raw ES stored content ID=0xffffffff
+INFO Raw ES stored content ID=0xffffffff
+INFO Raw ES stored content ID=0xffffffff
+INFO Raw ES stored content ID=0xffffffff
+INFO Raw ES stored content ID=0xffffffff
+PASS Raw ES rejected TMD leaves stored ID buffer unchanged
+OGC_DOLPHIN_PAGE_CAPTURE page=13 capture=13 addr=0x80863f00 width=640 height=480 stride=640
+-- page 14 --
+INFO Raw ES shared content count result=0
+INFO Raw ES shared content count=120
+PASS Raw ES shared content count matches NAND files
+PASS Raw ES shared content list matches fixture and guard
+INFO Raw ES ticket count result=0
+INFO Raw ES ticket count=1
+PASS Raw ES system menu has one ticket view
+PASS Raw ES ticket view identifies system menu
+INFO Raw ES TMD view size result=0
+INFO Raw ES TMD view size=236
+PASS Raw ES TMD view size fits system menu
+PASS Raw ES TMD view identifies menu and content count
+PASS Raw ES boot2 version matches Dolphin fixture
+PASS Raw ES closes
+
+== CRYPTO PROBE ==
+PASS sha init
+PASS sha context helpers
+PASS sha calculate
+PASS sha abc vector
+PASS sha close
+INFO aes bad key rc=-4
+PASS aes rejects bad key size
+OGC_DOLPHIN_PAGE_CAPTURE page=14 capture=14 addr=0x80863f00 width=640 height=480 stride=640
+-- page 15 --
+INFO aes init rc=0
+PASS aes encrypt/decrypt roundtrip
+INFO aes close rc=0
+
+== ISO9660 PROBE ==
+PASS ISO9660 C exports reject null arguments
+PASS iso descriptor read failure
+PASS iso path table read failure
+PASS iso truncated path table
+PASS ISO9660 Rust C wrappers mount read the label and unmount the volume
+INFO ISO9660 mounted device lookup=1
+INFO ISO9660 file open error=0
+INFO ISO9660 stat callback result=0
+PASS ISO9660 mounted file opens
+PASS ISO9660 file read returns expected bytes
+PASS ISO9660 file seek returns expected position
+PASS ISO9660 read after seek returns expected bytes
+PASS ISO9660 EOF preserves the output buffer
+PASS ISO9660 rejects writes to a mounted file
+PASS ISO9660 missing file returns ENOENT
+PASS ISO9660 file close completes
+PASS ISO9660 stat reports file metadata
+PASS ISO9660 chdir accepts the root directory
+OGC_DOLPHIN_PAGE_CAPTURE page=15 capture=15 addr=0x80863f00 width=640 height=480 stride=640
+-- page 16 --
+PASS iso mount after failures
+INFO ISO9660 mounted device lookup=1
+INFO ISO9660 file open error=0
+INFO ISO9660 stat callback result=0
+PASS ISO9660 mounted file opens
+PASS ISO9660 file read returns expected bytes
+PASS ISO9660 file seek returns expected position
+PASS ISO9660 read after seek returns expected bytes
+PASS ISO9660 EOF preserves the output buffer
+PASS ISO9660 rejects writes to a mounted file
+PASS ISO9660 missing file returns ENOENT
+PASS ISO9660 file close completes
+PASS ISO9660 stat reports file metadata
+PASS ISO9660 chdir accepts the root directory
+INFO Rust filesystem ISO mount=1
+INFO Rust filesystem ISO volume label=1
+INFO Rust filesystem ISO unmount=1
+INFO Rust filesystem ISO label cleared=1
+PASS Rust filesystem ISO mount
+PASS Rust filesystem ISO volume label
+PASS Rust filesystem ISO unmount
+PASS Rust filesystem ISO cleanup
+
+OGC_DOLPHIN_PAGE_CAPTURE page=16 capture=16 addr=0x80863f00 width=640 height=480 stride=640
+-- page 17 --
+== ISFS INVALID-STATE API PROBE ==
+PASS ISFS sync path APIs reject overlong paths and preserve outputs
+PASS ISFS async path APIs reject overlong paths before callback
+INFO ISFS deinitialize result=0
+INFO ISFS repeated deinitialize result=-101
+INFO ISFS reinitialize result=0
+PASS ISFS service deinitialize and reinitialize
+PASS ISFS uninitialized synchronous APIs reject and preserve outputs
+PASS ISFS get_stats_async rejects a closed service and preserves output
+PASS ISFS uninitialized async APIs reject without destructive submission
+
+== ISFS SUCCESSFUL FILE CYCLE ==
+PASS ISFS get volume stats
+PASS ISFS create test directory
+PASS ISFS create test file
+PASS ISFS file write seek read stats and close
+PASS ISFS sync file data persists after close and reopen
+PASS ISFS get set get attributes and usage
+INFO ISFS successful readdir result=0
+INFO ISFS successful readdir count=1
+INFO ISFS successful readdir file entry=1
+PASS ISFS read directory lists test file
+
+OGC_DOLPHIN_PAGE_CAPTURE page=17 capture=17 addr=0x80863f00 width=640 height=480 stride=640
+-- page 18 --
+== ISFS ASYNC FILE CYCLE ==
+PASS ISFS create_file_async completes successfully
+PASS ISFS open_async returns an open descriptor
+PASS ISFS async write seek read and file stats
+PASS ISFS async attributes usage and directory listing
+PASS ISFS async file data persists after close and reopen
+PASS ISFS async close delete and cleanup
+
+== ISFS ASYNC DIRECTORY CYCLE ==
+PASS ISFS get_stats_async returns service stats
+PASS ISFS create_dir_async usage and read_dir_async
+PASS ISFS delete_async removes directory and preserves error outputs
+
+== ISFS DIRECTORY RENAME CYCLES ==
+INFO ISFS sync directory rename result=0
+PASS ISFS sync rename moves an empty directory
+PASS ISFS sync directory rename cleanup removes both paths
+INFO ISFS async directory rename submit result=0
+INFO ISFS async directory rename callback result=0
+PASS ISFS async rename completes and moves an empty directory
+PASS ISFS async directory rename cleanup removes both paths
+
+== ISFS ASYNC RENAME CYCLE ==
+OGC_DOLPHIN_PAGE_CAPTURE page=18 capture=18 addr=0x80863f00 width=640 height=480 stride=640
+-- page 19 --
+INFO ISFS rename_async callback result=-101
+PASS ISFS rename_async callback matches file state
+PASS ISFS async rename test files are cleaned up
+INFO ISFS successful rename result=-101
+PASS ISFS sync rename result matches file state
+INFO ISFS renamed-file reopen skipped because Dolphin rejected rename
+INFO ISFS usage after directory delete result=-106
+PASS ISFS delete test file and directory
+PASS ISFS file and directory are absent after delete
+
+== ISFS FORMAT API PROBE ==
+INFO ISFS format_async submission result=0
+INFO ISFS format_async callback result=0
+PASS ISFS format_async removes the marker file
+PASS ISFS format_async removes the marker directory
+PASS ISFS format_async completes and removes marker state
+PASS ISFS format_async marker cleanup
+
+== ISFS SYNCHRONOUS FORMAT PROBE ==
+INFO ISFS synchronous format initialize result=0
+PASS ISFS synchronous format prepares the temporary root
+INFO ISFS synchronous format marker directory result=0
+INFO ISFS synchronous format marker file result=0
+OGC_DOLPHIN_PAGE_CAPTURE page=19 capture=19 addr=0x80863f00 width=640 height=480 stride=640
+-- page 20 --
+INFO ISFS synchronous format result=0
+INFO ISFS synchronous format deinitialize result=0
+INFO ISFS synchronous format reinitialize result=0
+PASS ISFS synchronous format creates isolated marker state
+PASS ISFS synchronous format clears marker state after service restart
+PASS ISFS synchronous format cleanup succeeds
+INFO STEP 10 Raw UDP loopback operations; vi_frame=1691 frame_increment=829 passes=239 fails=0
+PASS Raw network initializes and reports status
+PASS Raw UDP sockets open
+PASS Raw UDP sockets bind loopback
+PASS Raw UDP names report distinct loopback ports
+PASS lwIP ioctl toggles socket nonblocking mode
+INFO Raw ioctl set result=0
+INFO Raw fcntl flags after ioctl=2048
+INFO Raw ioctl clear result=0
+INFO Raw fcntl flags after clear=0
+PASS Raw ioctl and fcntl agree on nonblocking mode
+PASS lwIP ioctl rejects FIONREAD and preserves output
+PASS lwIP poll clears empty read readiness
+PASS lwIP select clears empty read readiness
+PASS lwIP poll reports queued read readiness
+PASS lwIP select reports queued read readiness
+OGC_DOLPHIN_PAGE_CAPTURE page=20 capture=20 addr=0x80863f00 width=640 height=480 stride=640
+-- page 21 --
+PASS lwIP readiness corresponds to queued datagram
+INFO Raw UDP empty recvfrom result=-6
+INFO Raw UDP empty recvfrom address length=16
+PASS Raw UDP recvfrom leaves outputs unchanged on would-block
+PASS Raw UDP sendto and poll deliver readiness
+INFO Raw UDP recvfrom count=6
+INFO Raw UDP recvfrom peer length=16
+INFO Raw UDP expected peer address=0x7f000001
+INFO Raw UDP actual peer address=0x7f000001
+INFO Raw UDP expected peer port=50924
+INFO Raw UDP actual peer port=50924
+INFO Raw UDP received first four bytes=0x00ff5241
+INFO Raw UDP received next four bytes=0x5780a5a5
+PASS Raw UDP recvfrom preserves bytes and sender
+INFO lwIP datagram sent=5
+INFO lwIP datagram received=5
+INFO lwIP datagram peer length=16
+INFO lwIP datagram peer address=0x7f000001
+INFO lwIP datagram peer port=50924
+INFO lwIP datagram expected port=50924
+INFO lwIP datagram first bytes=0x6100fe37
+PASS lwIP send_to and receive_from preserve datagram and source
+PASS Raw UDP connect succeeds
+OGC_DOLPHIN_PAGE_CAPTURE page=21 capture=21 addr=0x80863f00 width=640 height=480 stride=640
+-- page 22 --
+PASS Raw UDP send and recv preserve connected datagram
+PASS Raw UDP write and read preserve connected datagram
+PASS lwIP send and recv preserve connected datagram
+PASS lwIP write and read preserve connected datagram
+PASS Raw UDP sender closes
+PASS Raw UDP receiver closes
+PASS Raw network deinitializes
+INFO STEP 11 Raw TCP loopback operations; vi_frame=1861 frame_increment=170 passes=263 fails=0
+PASS Raw TCP network initializes
+INFO Raw TCP listener descriptor=0
+INFO Raw TCP client descriptor=1
+PASS Raw TCP sockets open
+PASS lwIP reuse option set and read
+PASS lwIP reuse option clears
+PASS lwIP zero-length option read preserves output
+PASS lwIP oversized option write rejected
+INFO Raw TCP reuse option=67108864
+PASS Raw TCP reuse option is enabled
+PASS Raw TCP nonblocking flags set and clear
+PASS Raw TCP listener binds and listens
+PASS lwIP unconnected peer query preserves output
+PASS Raw TCP client connects
+OGC_DOLPHIN_PAGE_CAPTURE page=22 capture=22 addr=0x80863f00 width=640 height=480 stride=640
+-- page 23 --
+PASS Raw TCP listener becomes ready
+PASS Raw TCP accept reports loopback peer
+PASS lwIP listener local address matches bind
+PASS lwIP client peer matches listener
+PASS lwIP client local address matches accepted peer
+PASS lwIP accepted peer matches client
+PASS Raw TCP accepted socket receives bytes
+PASS Raw TCP write shutdown delivers EOF
+PASS Raw TCP accepted socket closes
+PASS Raw TCP wrapper relistens and accepts
+PASS Raw TCP second accepted socket closes
+PASS Raw TCP second client closes
+PASS Raw TCP listener closes
+PASS Raw TCP client closes
+PASS Raw TCP network deinitializes
+INFO STEP 12 Network TCP wrapper operations; vi_frame=1953 frame_increment=92 passes=289 fails=0
+PASS TCP wrapper initializes
+PASS TCP wrapper sockets open
+PASS TCP wrapper changes socket flags
+PASS TCP wrapper resolves raw socket
+PASS TCP wrapper binds and listens
+PASS TCP wrapper typed connect
+OGC_DOLPHIN_PAGE_CAPTURE page=23 capture=23 addr=0x80863f00 width=640 height=480 stride=640
+-- page 24 --
+PASS TCP wrapper typed accept
+PASS Select reports queued stream data
+PASS Pointer poll reports queued stream data
+PASS Slice poll reports queued stream data
+PASS TCP wrapper slice send and receive
+PASS Select clears an empty stream
+PASS TCP FIONREAD is rejected without writing output
+PASS TCP FIONBIO enables nonblocking mode
+INFO TCP empty nonblocking receive result=-6
+PASS TCP nonblocking receive leaves empty buffer unchanged
+PASS TCP FIONBIO restores blocking mode
+PASS TCP wrapper slice write and read
+PASS TCP wrapper raw send and receive
+PASS TCP wrapper raw write and read
+PASS TCP wrapper releases accepted socket
+PASS TCP wrapper accepts without peer output
+PASS TCP wrapper second accepted socket closes
+PASS TCP wrapper second client closes
+PASS TCP pointer accept returns loopback peer
+PASS TCP pointer accepted socket closes
+PASS TCP pointer accept client closes
+PASS TCP wrapper listener closes
+PASS Socket table exit closes a live handle
+OGC_DOLPHIN_PAGE_CAPTURE page=24 capture=24 addr=0x80863f00 width=640 height=480 stride=640
+-- page 25 --
+PASS Socket table init permits fresh sockets
+PASS Fresh socket closes
+PASS TCP wrapper deinitializes
+INFO STEP 13 Network UDP wrapper operations; vi_frame=2110 frame_increment=157 passes=320 fails=0
+PASS UDP wrapper initializes
+PASS UDP wrapper sockets open
+INFO UDP getsockname result=0
+INFO UDP getsockname address length=8
+INFO UDP getsockname address family=2
+INFO UDP getsockname address=0x7f000001
+INFO UDP getsockname port=49305
+INFO UDP getsockname result=0
+INFO UDP getsockname address length=8
+INFO UDP getsockname address family=2
+INFO UDP getsockname address=0x7f000001
+INFO UDP getsockname port=63435
+PASS UDP wrapper binds loopback sockets
+PASS UDP recvfrom rejects an invalid handle and preserves output
+PASS UDP wrapper binds distinct loopback ports
+PASS UDP sendto rejects an invalid handle
+PASS UDP sendto reports byte count and queues datagram
+INFO UDP wrapper received byte count=6
+OGC_DOLPHIN_PAGE_CAPTURE page=25 capture=25 addr=0x80863f00 width=640 height=480 stride=640
+-- page 26 --
+INFO UDP wrapper received address length=16
+INFO UDP wrapper expected source port=49305
+INFO UDP wrapper received source port=49305
+PASS UDP recvfrom returns the payload and source address
+PASS UDP wrapper sender closes
+PASS UDP wrapper receiver closes
+PASS UDP wrapper deinitializes
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+INFO summary_candidate passes=333 fails=0
+PASS summary passes=333 fails=0
+OGC_DOLPHIN_PAGE_CAPTURE page=26 capture=26 addr=0x80863f00 width=640 height=480 stride=640
+OGC_DOLPHIN_CAPTURE_COMPLETE

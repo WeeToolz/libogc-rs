@@ -1,0 +1,68 @@
+{
+  "source_revision": "70023f86d080fed9c82be66688ef73b3271a7101",
+  "source_fingerprint": "0ec7240359f374ea9dc6a8fdc4aed284ba581a3b1d2aee7e14dee0d862c56cbb",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-17-system-startup-status",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "51609253eb87eae2583dd8facbe5a575d9c9403b0ab236114b2d92caf3b583cd",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "df949646a82889d2b3ada8db69af584731962eed3fa9f682d18084ca578edd44",
+  "suite_sha256": "a4cd9a22140fe73b7b4a52469a7e4d0d72efc3eb2412446c81f2ed4bd4db69ae",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/probe.log": "4bd2ec23550c8c2a5b6bb3ae87208f1b04b78ecc6553dd8e7b5d9e223e7d4147",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/stderr.log": "3155045fd26b6a6d4da9eb65eb3eb1f4ed31dad7a381fbf31895bcecbc6ce7b8",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/probe-transport.bin": "b74cbc65711075498c7c66f65245650893395815c6a3f47a18c912ed325ff93f",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-002.png": "7420bccc59797e0abd9dcacd00b73045d077c3e3b3dadf6b6ff847fc21f9c4d0",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-003.png": "ed2ef86d0af3a748e18185fbbd46b80f8271fd44c3949ff0d39f4fb85ae42a92",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-004.png": "1f4c351aeaa292177e1056ca96999cc4b4983f91f5a9c5f2f7966589aafdb135",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-005.png": "768ad4cbfab7dc57010d0faaea883fcd227d209af24d1fc6ac45bbde9ad41448",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-006.png": "738c11a35373bfde6c96f70bb2fb4b74b31a60200940934c274b820e411951e3",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-007.png": "12cde6c9d85e9e726a11542d47d72276d62c546ffd155d44e357a992cc206938",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-008.png": "e0ba9c2153f6d675b90c6b47df536b50ef11437e1e9bcba4111f8dd5f1e8bab6",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-009.png": "d81f8483168960ba7d14482a511bae1c58c4dc9ef4299636e230fc27483f3c67",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-010.png": "a7fe975eaa0e8efd96b42a3713ec68c5ab4f94c041397c99d4d3bbd031590a38",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-011.png": "d2ee7c76f905dc903c6807c10906d5516b503194562aae039ec0e3c900efb246",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-012.png": "741481e9eeb2c67a0b5e92e65ca8635fc815a045595b478801fe140ea9d663dc",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-013.png": "b6d51f18db7a58b2d0c1a4d7dbbe0c0e5e7737f2393dc8c54423552d30459785",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-014.png": "851303a32d25597d517ee5a1f5ebda71f9ce306f33b7debb5aafc2d59823126e",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-015.png": "d035c57e9191268af5dd4099f14f9202a53c2a8ac9538e03d53d56c9de63931f",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-016.png": "adbf8061dd6277715794ba651b72f66be18cfd45a3fd9d22634677217bbeb174",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-017.png": "d7f11d466795f44a3f0277bc0100482027a9bc489455b1e32d1448b31e5c6529",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-018.png": "8b8b9100f97ff8c3aedad9aebc258f7173695c31a776b3312b02482cbc52c98b",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-019.png": "c20702e6fb3728b1ed8605256905978358fe289c3d1019f65c854e27dfe4fc94",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-020.png": "a99ef641108276fdd0d7652f7191ed6fcea7351493672e679b95deb51f9c01e4",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-021.png": "faf5fdf781eac77ad1f2c1fcf13c49d4f1a7900613f8c447940fcccbdc7a1e94",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-022.png": "70678d91e53e1b1165ca0ee783726f77c5e0a602c620720d949f984f707b90ab",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-023.png": "8f236124699b7445e651d847204260aa9b1405de00c63fe28454621ad009f2d0",
+    "docs/dolphin-runs/2026-11-17-system-startup-status/runtime_probe/pages/page-024.png": "318abefd26ecc3c61ce457ba145ad339516f4b8ee4b3defe01485b2b7c2d4cde"
+  },
+  "exit_code": 0
+}

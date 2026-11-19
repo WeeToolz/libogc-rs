@@ -1,0 +1,44 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "load_link_key",
+      "line": 349,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_key_requests",
+      "api_path": "host.load_link_key",
+      "checks": [
+        "Bluetooth link key requests preserve keys and reject unknown peers"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "reset_preserving_keys",
+      "line": 343,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_key_requests",
+      "api_path": "host.reset_preserving_keys",
+      "checks": [
+        "Bluetooth link key requests preserve keys and reject unknown peers"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "receive_event",
+      "line": 785,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_key_requests",
+      "api_path": "host.receive_event",
+      "checks": [
+        "Bluetooth link key requests preserve keys and reject unknown peers"
+      ]
+    }
+  ],
+  "limits": [
+    "Controlled HCI events and host state in Dolphin. Persistent storage and physical Bluetooth transport require separate evidence."
+  ]
+}

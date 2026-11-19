@@ -1,0 +1,32 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_framebuffer",
+      "line": 405,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_framebuffer_status",
+      "api_path": "system::snapshot_framebuffer",
+      "checks": [
+        "System framebuffer snapshot matches preferred mode allocation"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "last_framebuffer_bytes",
+      "line": 393,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_framebuffer_status",
+      "api_path": "system::last_framebuffer_bytes",
+      "checks": [
+        "System framebuffer snapshot matches preferred mode allocation"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin preferred-mode allocation at startup. Allocation failure, other video modes, and physical hardware need separate evidence."
+  ]
+}

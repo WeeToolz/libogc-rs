@@ -879,6 +879,9 @@ const GX_CP_FIFO_LINK: u16 = 1 << 4;
 static GX_FIFO_ACTIVE: AtomicBool = AtomicBool::new(false);
 static GX_DRAW_DONE: AtomicBool = AtomicBool::new(false);
 static GX_WAIT_FINISH_QUEUE: AtomicU32 = AtomicU32::new(0);
+static GX_AUTO_TEX_DIRTY: AtomicBool = AtomicBool::new(false);
+static GX_TEX_MAP_SIZE: [AtomicU32; 8] = [const { AtomicU32::new(0) }; 8];
+static GX_TEX_MAP_WRAP: [AtomicU32; 8] = [const { AtomicU32::new(0) }; 8];
 static GX_TEX_DIRTY: AtomicBool = AtomicBool::new(false);
 static GX_TEX_DIRTY_S: AtomicU32 = AtomicU32::new(0);
 static GX_TEX_DIRTY_T: AtomicU32 = AtomicU32::new(0);
@@ -1075,6 +1078,9 @@ static GX_VAT_DIRTY: AtomicU32 = AtomicU32::new(0);
 
 #[derive(Copy, Clone)]
 struct GxShadowSnapshot {
+    auto_tex_dirty: bool,
+    tex_map_size: [u32; 8],
+    tex_map_wrap: [u32; 8],
     tex_dirty: bool,
     tex_dirty_s: u32,
     tex_dirty_t: u32,
@@ -1144,6 +1150,9 @@ fn store_atomic_array<const N: usize>(target: &[AtomicU32; N], values: [u32; N])
 
 fn capture_gx_shadow() -> GxShadowSnapshot {
     GxShadowSnapshot {
+        auto_tex_dirty: GX_AUTO_TEX_DIRTY.load(Ordering::Relaxed),
+        tex_map_size: load_atomic_array(&GX_TEX_MAP_SIZE),
+        tex_map_wrap: load_atomic_array(&GX_TEX_MAP_WRAP),
         tex_dirty: GX_TEX_DIRTY.load(Ordering::Relaxed),
         tex_dirty_s: GX_TEX_DIRTY_S.load(Ordering::Relaxed),
         tex_dirty_t: GX_TEX_DIRTY_T.load(Ordering::Relaxed),
@@ -1203,6 +1212,9 @@ fn capture_gx_shadow() -> GxShadowSnapshot {
 }
 
 fn restore_gx_shadow(saved: GxShadowSnapshot) {
+    GX_AUTO_TEX_DIRTY.store(saved.auto_tex_dirty, Ordering::Relaxed);
+    store_atomic_array(&GX_TEX_MAP_SIZE, saved.tex_map_size);
+    store_atomic_array(&GX_TEX_MAP_WRAP, saved.tex_map_wrap);
     GX_TEX_DIRTY.store(saved.tex_dirty, Ordering::Relaxed);
     GX_TEX_DIRTY_S.store(saved.tex_dirty_s, Ordering::Relaxed);
     GX_TEX_DIRTY_T.store(saved.tex_dirty_t, Ordering::Relaxed);
@@ -2528,7 +2540,8 @@ fn flush_texture_state() {
 }
 
 fn tex_region_ismipmap(region: &GxTexRegion) -> bool {
-    region.val[3] != 0 && (region.val[2] as u8) != 0
+    // The C layout stores ismipmap as the first byte of the fourth word.
+    region.val[3].to_ne_bytes()[0] != 0
 }
 
 fn tex_region_invalidation_words(region: &GxTexRegion) -> (u32, Option<u32>) {
@@ -2763,7 +2776,12 @@ unsafe fn configure_2d_state(projection: &Mtx44, textured: bool) {
         load_bp_reg(0x00, gen_mode);
 
         let tev_order = tev_order_word();
-        GX_TEV_RAS_ORDER[3].store(tev_order, Ordering::Relaxed);
+        GX_TEV_RAS_ORDER[3].store(
+            (u32::from(GX_BP_TEV_ORDER) << 24) | tev_order,
+            Ordering::Relaxed,
+        );
+        GX_TEV_TEX_MAP[0].store(0, Ordering::Relaxed);
+        GX_TEV_TEX_COORD_ENABLE.fetch_or(1, Ordering::Relaxed);
         load_bp_reg(GX_BP_TEV_ORDER, tev_order);
         load_xf_regs(0x103f, &[TEXTURE_GENERATOR_COUNT]);
         load_xf_regs(POST_IDENTITY_ADDRESS, &position_identity);
@@ -2951,6 +2969,7 @@ pub unsafe fn load_tex_obj_preloaded(
             tlut.val[1] = (tlut.val[1] & 0x00ff_ffff) | (u32::from(tlut_reg) << 24);
             write_bp_word(tlut.val[1]);
         }
+        record_texture_map(map_id, ptr.tex_size, ptr.tex_filt);
         Ok(())
     }
 }
@@ -3080,6 +3099,7 @@ pub unsafe fn load_tex_obj(obj: *mut GxTexObj, map_id: u8) -> Result<(), GxTextu
     for word in words {
         load_bp_reg((word >> 24) as u8, word & 0x00ff_ffff);
     }
+    record_texture_map(map_id, snapshot.tex_size, snapshot.tex_filt);
     Ok(())
 }
 
@@ -3883,9 +3903,9 @@ pub unsafe fn set_field_mode(field_mode: u8, half_aspect_ratio: u8) {
     let word = update_bits(current, 0x0040_0000, u32::from(half_aspect_ratio & 1) << 22);
     GX_LP_WIDTH.store(word, Ordering::Relaxed);
     load_bp_reg((word >> 24) as u8, word & 0x00ff_ffff);
-    load_bp_reg(0x0f, 0x00ff);
+    write_bp_word(GX_TEV_IND_MASK.load(Ordering::Relaxed));
     load_bp_reg(0x68, u32::from(field_mode & 1));
-    load_bp_reg(0x0f, 0x00ff);
+    write_bp_word(GX_TEV_IND_MASK.load(Ordering::Relaxed));
 }
 
 /// Copy the EFB to the configured XFB. When `clear` is true, clear the EFB after the copy.
@@ -4699,6 +4719,7 @@ fn flush_pending_vertex_state() {
 }
 
 fn flush_pending_gx_state() {
+    flush_pending_auto_texture_scale();
     flush_pending_texture_dirty_state();
     flush_pending_gen_mode();
     flush_pending_indirect_texture_mask();
@@ -5012,6 +5033,68 @@ fn flush_pending_texgen_state() {
     }
 }
 
+fn record_texture_map(map: u8, size: u32, wrap: u32) {
+    GX_TEX_MAP_SIZE[usize::from(map)].store(size, Ordering::Relaxed);
+    GX_TEX_MAP_WRAP[usize::from(map)].store(wrap, Ordering::Relaxed);
+    GX_AUTO_TEX_DIRTY.store(true, Ordering::Release);
+}
+
+fn update_automatic_texture_scale(map: usize, coord: usize) {
+    if GX_TEX_COORD_MANUAL.load(Ordering::Relaxed) & (1 << coord) != 0 {
+        return;
+    }
+    let size = GX_TEX_MAP_SIZE[map].load(Ordering::Relaxed);
+    let wrap = GX_TEX_MAP_WRAP[map].load(Ordering::Relaxed);
+    let s = update_bits(
+        GX_SU_SSIZE[coord].load(Ordering::Relaxed),
+        0x1ffff,
+        (size & 0x3ff) | ((wrap & 1) << 16),
+    );
+    let t = update_bits(
+        GX_SU_TSIZE[coord].load(Ordering::Relaxed),
+        0x1ffff,
+        ((size >> 10) & 0x3ff) | (((wrap >> 2) & 1) << 16),
+    );
+    GX_SU_SSIZE[coord].store(s, Ordering::Relaxed);
+    GX_SU_TSIZE[coord].store(t, Ordering::Relaxed);
+    write_bp_word(s);
+    write_bp_word(t);
+}
+
+fn flush_pending_auto_texture_scale() {
+    if !GX_AUTO_TEX_DIRTY.swap(false, Ordering::Acquire) {
+        return;
+    }
+    let generation = GX_GEN_MODE.load(Ordering::Relaxed);
+    let order = GX_TEV_RAS_ORDER[2].load(Ordering::Relaxed);
+    for stage in 0..((generation >> 16) & 7) {
+        let shift = stage * 6;
+        let (map, coord) = if stage < 4 {
+            (
+                ((order >> shift) & 7) as usize,
+                ((order >> (shift + 3)) & 7) as usize,
+            )
+        } else {
+            (0, 0)
+        };
+        update_automatic_texture_scale(map, coord);
+    }
+    let enabled = GX_TEV_TEX_COORD_ENABLE.load(Ordering::Relaxed);
+    for stage in 0..(((generation >> 10) & 15) + 1) as usize {
+        let map = GX_TEV_TEX_MAP[stage].load(Ordering::Relaxed) & 0xff;
+        if map == 0xff || enabled & (1 << stage) == 0 {
+            continue;
+        }
+        // Invalid maps are undefined in C; avoid indexing outside the table.
+        if map >= 8 {
+            continue;
+        }
+        let order = GX_TEV_RAS_ORDER[3 + stage / 2].load(Ordering::Relaxed);
+        let shift = if stage & 1 == 0 { 3 } else { 15 };
+        update_automatic_texture_scale(map as usize, ((order >> shift) & 7) as usize);
+    }
+}
+
 fn flush_pending_texture_dirty_state() {
     let pending = GX_TEX_DIRTY.swap(false, Ordering::Acquire);
     let Some([scale_s, scale_t]) = pending_texture_dirty_words(
@@ -5051,11 +5134,9 @@ pub unsafe fn position3u16(x: u16, y: u16, z: u16) {
 /// The caller must ensure every raw pointer is valid for the required reads and writes.
 /// Any in-place aliasing must only be used where the routine explicitly handles it.
 pub unsafe fn position3s16(x: i16, y: i16, z: i16) {
-    unsafe {
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, x);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, y);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, z);
-    }
+    pipe_u16(x as u16);
+    pipe_u16(y as u16);
+    pipe_u16(z as u16);
 }
 
 /// # Safety
@@ -5071,11 +5152,9 @@ pub unsafe fn position3u8(x: u8, y: u8, z: u8) {
 /// The caller must ensure every raw pointer is valid for the required reads and writes.
 /// Any in-place aliasing must only be used where the routine explicitly handles it.
 pub unsafe fn position3s8(x: i8, y: i8, z: i8) {
-    unsafe {
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, x);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, y);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, z);
-    }
+    pipe_u8(x as u8);
+    pipe_u8(y as u8);
+    pipe_u8(z as u8);
 }
 
 /// # Safety
@@ -5098,10 +5177,8 @@ pub unsafe fn position2u16(x: u16, y: u16) {
 /// The caller must ensure every raw pointer is valid for the required reads and writes.
 /// Any in-place aliasing must only be used where the routine explicitly handles it.
 pub unsafe fn position2s16(x: i16, y: i16) {
-    unsafe {
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, x);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, y);
-    }
+    pipe_u16(x as u16);
+    pipe_u16(y as u16);
 }
 
 /// # Safety
@@ -5116,10 +5193,8 @@ pub unsafe fn position2u8(x: u8, y: u8) {
 /// The caller must ensure every raw pointer is valid for the required reads and writes.
 /// Any in-place aliasing must only be used where the routine explicitly handles it.
 pub unsafe fn position2s8(x: i8, y: i8) {
-    unsafe {
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, x);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, y);
-    }
+    pipe_u8(x as u8);
+    pipe_u8(y as u8);
 }
 
 /// # Safety
@@ -5149,22 +5224,18 @@ pub unsafe fn normal3f32(nx: f32, ny: f32, nz: f32) {
 /// The caller must ensure every raw pointer is valid for the required reads and writes.
 /// Any in-place aliasing must only be used where the routine explicitly handles it.
 pub unsafe fn normal3s16(nx: i16, ny: i16, nz: i16) {
-    unsafe {
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, nx);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, ny);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, nz);
-    }
+    pipe_u16(nx as u16);
+    pipe_u16(ny as u16);
+    pipe_u16(nz as u16);
 }
 
 /// # Safety
 /// The caller must ensure every raw pointer is valid for the required reads and writes.
 /// Any in-place aliasing must only be used where the routine explicitly handles it.
 pub unsafe fn normal3s8(nx: i8, ny: i8, nz: i8) {
-    unsafe {
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, nx);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, ny);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, nz);
-    }
+    pipe_u8(nx as u8);
+    pipe_u8(ny as u8);
+    pipe_u8(nz as u8);
 }
 
 /// # Safety
@@ -5257,10 +5328,8 @@ pub unsafe fn tex_coord2u16(s: u16, t: u16) {
 /// The caller must ensure every raw pointer is valid for the required reads and writes.
 /// Any in-place aliasing must only be used where the routine explicitly handles it.
 pub unsafe fn tex_coord2s16(s: i16, t: i16) {
-    unsafe {
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, s);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, t);
-    }
+    pipe_u16(s as u16);
+    pipe_u16(t as u16);
 }
 
 /// # Safety
@@ -5275,10 +5344,8 @@ pub unsafe fn tex_coord2u8(s: u8, t: u8) {
 /// The caller must ensure every raw pointer is valid for the required reads and writes.
 /// Any in-place aliasing must only be used where the routine explicitly handles it.
 pub unsafe fn tex_coord2s8(s: i8, t: i8) {
-    unsafe {
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, s);
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, t);
-    }
+    pipe_u8(s as u8);
+    pipe_u8(t as u8);
 }
 
 /// # Safety
@@ -5299,9 +5366,7 @@ pub unsafe fn tex_coord1u16(s: u16) {
 /// The caller must ensure every raw pointer is valid for the required reads and writes.
 /// Any in-place aliasing must only be used where the routine explicitly handles it.
 pub unsafe fn tex_coord1s16(s: i16) {
-    unsafe {
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i16, s);
-    }
+    pipe_u16(s as u16);
 }
 
 /// # Safety
@@ -5315,9 +5380,7 @@ pub unsafe fn tex_coord1u8(s: u8) {
 /// The caller must ensure every raw pointer is valid for the required reads and writes.
 /// Any in-place aliasing must only be used where the routine explicitly handles it.
 pub unsafe fn tex_coord1s8(s: i8) {
-    unsafe {
-        ptr::write_volatile(GP_PIPE_ADDR as *mut i8, s);
-    }
+    pipe_u8(s as u8);
 }
 
 /// # Safety
@@ -6814,6 +6877,7 @@ pub unsafe fn set_tev_order(tevstage: u8, texcoord: u8, texmap: u32, color: u8) 
     }
     GX_TEV_RAS_ORDER[reg].store(word, Ordering::Relaxed);
     write_bp_word(word);
+    GX_AUTO_TEX_DIRTY.store(true, Ordering::Release);
 }
 
 /// # Safety
@@ -7630,6 +7694,7 @@ pub unsafe fn set_ind_tex_order(indtexstage: u8, texcoord: u8, texmap: u8) {
     word = update_bits(word, 0x38 << shift, u32::from(texcoord & 7) << (shift + 3));
     GX_TEV_RAS_ORDER[2].store(word, Ordering::Relaxed);
     write_bp_word(word);
+    GX_AUTO_TEX_DIRTY.store(true, Ordering::Release);
     GX_TEV_IND_MASK_DIRTY.store(true, Ordering::Release);
 }
 
@@ -8543,8 +8608,8 @@ mod tests {
             val: [
                 0x0000_0000 | (4 << 15) | (4 << 18),
                 0x0000_0400 | (3 << 15) | (3 << 18),
-                GX_TRUE as u32,
-                1,
+                0,
+                u32::from_ne_bytes([GX_TRUE, 1, 0, 0]),
             ],
         };
         let (even, odd) = tex_region_invalidation_words(&region);

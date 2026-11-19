@@ -1,0 +1,21 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-network",
+      "path": "src/lib.rs",
+      "symbol": "select",
+      "line": 820,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_socket_readiness",
+      "api_path": "net::select",
+      "checks": [
+        "Select reports queued stream data",
+        "Select clears an empty stream"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin TCP loopback read readiness with zero timeout. Write and exception sets, invalid handles, and physical Wii behavior require separate checks."
+  ]
+}

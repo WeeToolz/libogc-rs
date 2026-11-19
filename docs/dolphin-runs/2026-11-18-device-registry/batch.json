@@ -1,0 +1,104 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-sysbase",
+      "path": "src/lib.rs",
+      "symbol": "add_device",
+      "line": 522,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_device_registry",
+      "api_path": "base::add_device",
+      "checks": [
+        "Device registry finds the exact prefix"
+      ]
+    },
+    {
+      "crate": "ogc-sysbase",
+      "path": "src/lib.rs",
+      "symbol": "find_device",
+      "line": 527,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_device_registry",
+      "api_path": "base::find_device",
+      "checks": [
+        "Device registry finds the exact prefix"
+      ]
+    },
+    {
+      "crate": "ogc-sysbase",
+      "path": "src/lib.rs",
+      "symbol": "FindDevice",
+      "line": 560,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_device_registry",
+      "api_path": "base::FindDevice",
+      "checks": [
+        "Device registry finds the exact prefix"
+      ]
+    },
+    {
+      "crate": "ogc-sysbase",
+      "path": "src/lib.rs",
+      "symbol": "device_op_tab",
+      "line": 511,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_device_registry",
+      "api_path": "base::device_op_tab",
+      "checks": [
+        "Device registry returns the registered table"
+      ]
+    },
+    {
+      "crate": "ogc-sysbase",
+      "path": "src/lib.rs",
+      "symbol": "GetDeviceOpTab",
+      "line": 664,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_device_registry",
+      "api_path": "base::GetDeviceOpTab",
+      "checks": [
+        "Device registry returns the registered table"
+      ]
+    },
+    {
+      "crate": "ogc-sysbase",
+      "path": "src/lib.rs",
+      "symbol": "remove_device",
+      "line": 532,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_device_registry",
+      "api_path": "base::remove_device",
+      "checks": [
+        "Device registry removes the registered name"
+      ]
+    },
+    {
+      "crate": "ogc-sysbase",
+      "path": "src/lib.rs",
+      "symbol": "AddDevice",
+      "line": 621,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_device_registry",
+      "api_path": "base::AddDevice",
+      "checks": [
+        "Device C registry removes by path"
+      ]
+    },
+    {
+      "crate": "ogc-sysbase",
+      "path": "src/lib.rs",
+      "symbol": "RemoveDevice",
+      "line": 589,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_device_registry",
+      "api_path": "base::RemoveDevice",
+      "checks": [
+        "Device C registry removes by path"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin serialized registration of one synthetic device with no callbacks. Concurrent access, full table, file operations and physical Wii remain unverified."
+  ]
+}

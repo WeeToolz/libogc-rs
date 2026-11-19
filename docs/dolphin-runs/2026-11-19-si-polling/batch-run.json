@@ -1,0 +1,79 @@
+{
+  "source_revision": "fb88c34aed94f919721e4432e6c3eb452daa3d7e",
+  "source_fingerprint": "3e79768aa4741deb10489d52ecb00f6a65bc9f543ec4ad960053ba147cc01acb",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-19-si-polling",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "32f00cc142123bc5c3b5cb34c0f1d05c67bfdde8097b95101be1fe8bb050aa5a",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "088ef2bd5dcd46a54d632448d6a06aa23a93eb67eaa84b70ff9460fe60df2df7",
+  "suite_sha256": "0a78832304a045846a597e50c92b643bb58555d4ba2570a96d101c307e555cf9",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/probe.log": "f57da26a93a1e11ddeb556bd34ec532a0ff7a1ac4d1c620af41b58020bec883e",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/stderr.log": "a561abc360ad695833e87464edf64e31b32b0551ebe9744d91b874f25b558d5f",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/probe-transport.bin": "3bce029f08b47343185301355f1cbf7c7e9764b06c3bd7708c065bc2cc6161ec",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-002.png": "5f947b9212cb392fb29390d46cc90c8f0127f278f75518e47898f43c3891c8e1",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-003.png": "1daa2287195337d699bf42676d44a87a04a5b89a949fd18ea8ab8a70f353ffbf",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-004.png": "32f622b17cd00bcd89f33cf96d1bbbb81cee0cbb15e710ca575a55953188a2b0",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-005.png": "5f89c76e2178c53255b4ac3948d5f48edb3a91895f2ef7d197c1e9d1d9ddd125",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-006.png": "eef70ace5a02eac328e243ad2d3c1f22ee1d153c84ab41300da5e04ab1f26cd6",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-007.png": "8ffceb851c62a458c4ad8ffd5bbbba59077d75f58d1c19fa9e184fa4a3fed263",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-008.png": "92b24674ba35283cb20080f8f4d61f683e2ca054278a46a2f7c5f682d54b9fe2",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-009.png": "4e07ee553e21bcd4a8ac436f3b8a74882b0f2ae7c958ea578991603c558b253a",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-010.png": "6c40a9bc369b21926b961ad322239dd2fcdfcb991c896736c3a0d42c1ce9e1dd",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-011.png": "4ba3607c2280d2c9696ec7c0cf375d4ba88ffc4cabdc57855d06c31bdc20036a",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-012.png": "3ce1ddf82772cd81152f96e344c9da1710ef0bfb4564a32d56a9657faeab20cf",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-013.png": "0ebf8a52a76e27bb796e42615d35a0eb60d5080eb3504da628573114ab7f06d5",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-014.png": "ef464ac0404d60ab5b80ff703ea1c9498b2d2c0429f2451c11a9d13371650dbc",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-015.png": "43165f8fca6027cb81cb99684da7c4f2cadfd7c664f54d7823d293afe9ed59a0",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-016.png": "784db8455793c74ab84e6aba9e7a2de7509ae920d6c3020c9d7b2b9165578881",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-017.png": "20c5eab9fbf61866938d8dcc0ec746c81048200518892b40f5b2d48a64a74c8f",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-018.png": "05f8b1831f4513f6b57decf0ee45121f7eba141931edfd9b5b16a381b9b75a34",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-019.png": "d8fe664a5894bff7b34e05b28fa29176a8c625985b9cf7fc2669cc77d21649ed",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-020.png": "37270b8223e9627f720fb11216f7bb1bfb2d275057bc3824bc205d79e36832ef",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-021.png": "b9513a1f0e23da9f5a67d9c21d061291b6d2cb2163694b22b7b8ea5bfb0e2a4f",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-022.png": "dfe6d3851b5b1f2c12ddb3a008137ea0644e6023ab81fb81ee055671af202926",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-023.png": "8ed7da9fd599d2a11039a74c80ec415f7661f7e467426a7ea4ce2d8a400d74c3",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-024.png": "bc1061d77b604ad41ecf0c3e60b77844ec7a82f9cc5a3169286798d7843bd87c",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-025.png": "ccb7b6c7d49a15cf8dd902fe154660ac6320bc44f9e686a486b9febe8339ab71",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-026.png": "42cbc92e8813bcda816b7fd65fa2fc0edc056064f8461c7d00e5099fee49c682",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-027.png": "36ee9ead2d2457dbf22d745e3264a82a80b7ff124e01bc0a687b5c6f0f674aeb",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-028.png": "46665eec55e54729e0eb6f99ac1e28c9562f60cd498d7767c4c0aaf8b3672bf2",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-029.png": "91e9a537dc950513b19e1527497b2f165b578bf7a4aa9c431b17a2c3d442d954",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-030.png": "77664f4b1ea91519c96481882c8d2f510cf1343f506c03ac4236effdc356ae6e",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-031.png": "de92b71ba661f4399f0db5578d951a56b2e8f30f4c6fbb3ee39c015be8065f8b",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-032.png": "9e153f7e866fd5b56cb48c9907bab5e09c67ca95f3b9564742f69968ec54816c",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-033.png": "37e95bde1405e69974889eebdfbd2d38119b86740c0b9a55b862b4602d9fedd2",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-034.png": "190ef5459470491ce4aa69734c69988d0187c5db2df5b25d826bf3bca89aae0f",
+    "docs/dolphin-runs/2026-11-19-si-polling/runtime_probe/pages/page-035.png": "da96059df7d306052c6586beebc4d4cefebc67b6fe8cd1a8d41de52c9913b322"
+  },
+  "exit_code": 0
+}

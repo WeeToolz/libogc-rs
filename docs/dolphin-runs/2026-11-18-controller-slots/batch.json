@@ -1,0 +1,181 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "empty",
+      "line": 826,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_controller_slots",
+      "api_path": "BluetoothHidSlot::empty",
+      "checks": [
+        "Controller empty slot keeps source"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "new",
+      "line": 897,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_controller_slots",
+      "api_path": "ControllerManager::new",
+      "checks": [
+        "Controller manager starts with empty slots"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "bluetooth_slots",
+      "line": 1823,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_controller_slots",
+      "api_path": "manager.bluetooth_slots",
+      "checks": [
+        "Controller manager starts with empty slots",
+        "Controller left slot needs a right partner",
+        "Controller right slot retains address and handle"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "usb_slots",
+      "line": 1834,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_controller_slots",
+      "api_path": "manager.usb_slots",
+      "checks": [
+        "Controller manager starts with empty slots"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "joycon_pair",
+      "line": 1828,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_controller_slots",
+      "api_path": "manager.joycon_pair",
+      "checks": [
+        "Controller pairs left and right by role",
+        "Controller split keeps both devices"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "bind_usb_hid_button",
+      "line": 1840,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_controller_slots",
+      "api_path": "manager.bind_usb_hid_button",
+      "checks": [
+        "Controller USB profile checks identity and usage"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "set_bluetooth_connected",
+      "line": 1887,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_controller_slots",
+      "api_path": "manager.set_bluetooth_connected",
+      "checks": [
+        "Controller left slot needs a right partner"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "set_bluetooth_connected_with_handle",
+      "line": 1897,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_controller_slots",
+      "api_path": "manager.set_bluetooth_connected_with_handle",
+      "checks": [
+        "Controller right slot retains address and handle"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "pair_joycons",
+      "line": 2140,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_controller_slots",
+      "api_path": "manager.pair_joycons",
+      "checks": [
+        "Controller left slot needs a right partner",
+        "Controller pairs left and right by role"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "clear_joycon_pair",
+      "line": 2163,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_controller_slots",
+      "api_path": "manager.clear_joycon_pair",
+      "checks": [
+        "Controller split keeps both devices"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "clear_bluetooth_slot",
+      "line": 2123,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_controller_slots",
+      "api_path": "manager.clear_bluetooth_slot",
+      "checks": [
+        "Controller disconnect clears pair and one device"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "set_bluetooth_report",
+      "line": 1962,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_controller_slots",
+      "api_path": "manager.set_bluetooth_report",
+      "checks": [
+        "Controller guide report sets HOME"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "set_bluetooth_report_checked",
+      "line": 1974,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_controller_slots",
+      "api_path": "manager.set_bluetooth_report_checked",
+      "checks": [
+        "Controller guide release clears HOME",
+        "Controller short guide report invalidates sample"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "set_bluetooth_calibration_checked",
+      "line": 1937,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_controller_slots",
+      "api_path": "manager.set_bluetooth_calibration_checked",
+      "checks": [
+        "Controller rejects missing or incompatible calibration"
+      ]
+    }
+  ],
+  "limits": [
+    "Synthetic controller slots and reports in Dolphin. USB profile validation only. Radio pairing, physical devices, calibrated samples and USB reconnects remain unverified."
+  ]
+}

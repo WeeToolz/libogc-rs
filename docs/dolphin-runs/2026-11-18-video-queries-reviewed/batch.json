@@ -1,0 +1,33 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "get_frame_buffer_size",
+      "line": 409,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_queries",
+      "api_path": "video::get_frame_buffer_size",
+      "checks": [
+        "Video framebuffer size aligns width and adds AA rows"
+      ]
+    },
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "snapshot",
+      "line": 611,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_queries",
+      "api_path": "video::snapshot",
+      "checks": [
+        "Video snapshot retains last queried state"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin preferred mode and synthetic framebuffer dimensions. Video standards, timing transitions, physical output and hardware remain unverified.",
+    "Snapshot check compares values from the wrapper queries. It does not independently verify live VI query results."
+  ]
+}

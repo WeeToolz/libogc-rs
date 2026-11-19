@@ -1,0 +1,46 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "suspend_thread",
+      "line": 2465,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_suspend",
+      "api_path": "driver::suspend_thread",
+      "checks": [
+        "LWP driver nested suspension stops worker"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "resume_thread",
+      "line": 2494,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_suspend",
+      "api_path": "driver::resume_thread",
+      "checks": [
+        "LWP driver nested suspension stops worker",
+        "LWP driver final resume lets worker finish"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "thread_is_suspended",
+      "line": 2514,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_driver_suspend",
+      "api_path": "driver::thread_is_suspended",
+      "checks": [
+        "LWP driver nested suspension stops worker",
+        "LWP driver final resume lets worker finish"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin nested suspension of one cooperating worker. Detach, scheduling contention and physical Wii remain unverified."
+  ]
+}

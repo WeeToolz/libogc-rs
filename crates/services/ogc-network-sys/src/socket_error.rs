@@ -128,3 +128,17 @@ const IOS_ERRNO: &[i32] = &[
     62,  // 75 ETIME
     116, // 76 ETIMEDOUT
 ];
+
+pub(crate) fn convert_ios_error(value: i32) -> i32 {
+    if value >= 0 {
+        return value;
+    }
+    match value
+        .checked_neg()
+        .and_then(|n| IOS_ERRNO.get(n as usize))
+        .copied()
+    {
+        Some(errno) if errno != 0 => -errno,
+        _ => value.wrapping_sub(10_000),
+    }
+}

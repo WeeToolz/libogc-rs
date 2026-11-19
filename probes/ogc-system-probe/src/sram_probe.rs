@@ -1,4 +1,5 @@
 use ogc_system::{self as system, SysSram, SysSramEx};
+use ogc_system_sys as raw;
 
 use crate::probe_support::ProbeLogger;
 
@@ -28,6 +29,14 @@ pub fn run(logger: &mut ProbeLogger) {
     logger.record("video mode setter restore", test_video_mode(&sram));
     logger.record("wireless id setter restore", test_wireless_id(&sram_ex));
     logger.record("gbs setter restore", test_gbs_mode(&sram_ex));
+    logger.record(
+        "raw standard SRAM values restore",
+        raw_standard_values(&sram),
+    );
+    logger.record(
+        "raw extended SRAM values restore",
+        raw_extended_values(&sram_ex),
+    );
     logger.record(
         "final sram restore",
         system::snapshot_sram() == Some(sram) && system::snapshot_sram_ex() == Some(sram_ex),
@@ -147,4 +156,89 @@ fn test_gbs_mode(original: &SysSramEx) -> bool {
     let ok = system::get_gbs_mode() == system::sram_ex_gbs_mode(&expected);
     system::set_gbs_mode(system::sram_ex_gbs_mode(original));
     ok && system::get_gbs_mode() == system::sram_ex_gbs_mode(original)
+}
+
+// The Dolphin runner uses a private profile. Each changed field is restored
+// before the next field is changed, even if a comparison fails.
+fn raw_standard_values(original: &SysSram) -> bool {
+    // SAFETY: This probe owns the SRAM operations and uses the saved values
+    // to restore every field after the check.
+    unsafe {
+        let mut ok = true;
+        let bias = original.counter_bias;
+        ok &= raw::sys_get_counter_bias() == bias;
+        raw::sys_set_counter_bias(bias ^ 1);
+        ok &= raw::sys_get_counter_bias() == bias ^ 1;
+        raw::sys_set_counter_bias(bias);
+        ok &= raw::sys_get_counter_bias() == bias;
+
+        let offset = original.display_offset_h;
+        ok &= raw::sys_get_display_offset_h() == offset;
+        raw::sys_set_display_offset_h(offset.wrapping_add(1));
+        ok &= raw::sys_get_display_offset_h() == offset.wrapping_add(1);
+        raw::sys_set_display_offset_h(offset);
+        ok &= raw::sys_get_display_offset_h() == offset;
+
+        let rgb60 = (original.ntd >> 6) & 1;
+        ok &= raw::sys_get_eu_rgb60() == rgb60;
+        raw::sys_set_eu_rgb60(rgb60 ^ 1);
+        ok &= raw::sys_get_eu_rgb60() == rgb60 ^ 1;
+        raw::sys_set_eu_rgb60(rgb60);
+        ok &= raw::sys_get_eu_rgb60() == rgb60;
+
+        let language = original.lang;
+        let changed_language = language.wrapping_add(1) % 6;
+        ok &= raw::sys_get_language() == language;
+        raw::sys_set_language(changed_language);
+        ok &= raw::sys_get_language() == changed_language;
+        raw::sys_set_language(language);
+        ok &= raw::sys_get_language() == language;
+
+        let progressive = (original.flags >> 7) & 1;
+        ok &= raw::sys_get_progressive_scan() == progressive;
+        raw::sys_set_progressive_scan(progressive ^ 1);
+        ok &= raw::sys_get_progressive_scan() == progressive ^ 1;
+        raw::sys_set_progressive_scan(progressive);
+        ok &= raw::sys_get_progressive_scan() == progressive;
+
+        let sound = (original.flags >> 2) & 1;
+        ok &= raw::sys_get_sound_mode() == sound;
+        raw::sys_set_sound_mode(sound ^ 1);
+        ok &= raw::sys_get_sound_mode() == sound ^ 1;
+        raw::sys_set_sound_mode(sound);
+        ok &= raw::sys_get_sound_mode() == sound;
+
+        let video = original.flags & 3;
+        let changed_video = (video + 1) & 3;
+        ok &= raw::sys_get_video_mode() == video;
+        raw::sys_set_video_mode(changed_video);
+        ok &= raw::sys_get_video_mode() == changed_video;
+        raw::sys_set_video_mode(video);
+        ok &= raw::sys_get_video_mode() == video;
+        ok
+    }
+}
+
+fn raw_extended_values(original: &SysSramEx) -> bool {
+    // SAFETY: Packed fields are read without creating unaligned references.
+    // Each setter is followed by restoration of the saved value.
+    unsafe {
+        let wireless = core::ptr::read_unaligned(core::ptr::addr_of!(original.wireless_pad_id[0]));
+        let gbs = core::ptr::read_unaligned(core::ptr::addr_of!(original.gbs));
+        let valid_gbs = ((gbs >> 10) & 0x1f) < 20 && ((gbs >> 6) & 3) != 3 && (gbs & 0x3f) < 60;
+        let mut ok = raw::sys_get_wireless_id(0) == wireless && raw::sys_get_wireless_id(4) == 0;
+        raw::sys_set_wireless_id(0, wireless ^ 0x55aa);
+        ok &= raw::sys_get_wireless_id(0) == wireless ^ 0x55aa;
+        raw::sys_set_wireless_id(0, wireless);
+        ok &= raw::sys_get_wireless_id(0) == wireless;
+        ok &= raw::sys_get_gbs_mode() == gbs && valid_gbs;
+        if valid_gbs {
+            let changed = u16::from(gbs == 0);
+            raw::sys_set_gbs_mode(changed);
+            ok &= raw::sys_get_gbs_mode() == changed;
+            raw::sys_set_gbs_mode(gbs);
+            ok &= raw::sys_get_gbs_mode() == gbs;
+        }
+        ok
+    }
 }

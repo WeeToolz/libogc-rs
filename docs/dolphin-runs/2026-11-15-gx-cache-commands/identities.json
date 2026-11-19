@@ -1,0 +1,25 @@
+{
+  "source_revision": "ab54d7b81233f150af745f5184e5cf2a4b2f7f4c",
+  "source_note": "Final probe change on this revision. Trace probe source SHA-256 8faeb1b6969d37d0d6344446d4e4ab328a2709b337d620afdb613d9546ddb5c0; initial and trace used the incorrect pre-initialization mask expectation. The final verified probe changes the vertex-cache function pointer to an explicit call; the preceding corrected run is under final/.",
+  "source_sha256": {
+    "probes/ogc-system-probe/src/video_probe.rs": "a8ab17e30bf3df0b74a0acea3e6e312fddd023100c740e6c3a071d99301caff0",
+    "crates/hardware/ogc-gx/src/lib.rs": "d74e907b4fefc25a92ddaf7680a076b856b9ab0f71fa288e948c17665b66f82e",
+    "xtask/src/dolphin.rs": "b9810935de2b2ce8ce36fd928533fd253736a10ab0e5cdb26b793e766b3e13b9",
+    "docs/dolphin-runs/2026-11-15-gx-efb-metal/dolphin-metal.sh": "1f14a0cadbe0c50b27b419c411eaa1fee33d4933397e7fe3e26610671d07316a"
+  },
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "83e068ea71b9675a9ab10b30b3088c978b6ccdecf85c1560bc213bad36b4879d",
+  "elf_sha256": "11bee8c6230563045c79a18fe92dc31be47db200a90fd3d6b48b2f9e0fe741fc",
+  "c_reference_sha256": "5c2a95c97fb3a7aa23d5a035c31d38b039b8639edfe861218d2a44e98bbb41d0",
+  "fixtures": {
+    "layer3-stereo.mp3": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a",
+    "libmad-stereo-mpeg1.mp3": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+  },
+  "nand_fixture": {
+    "file_count": 587,
+    "tree_sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc",
+    "method": "sorted relative POSIX paths; u64 big-endian UTF-8 path length, path bytes, raw SHA-256 file digest"
+  },
+  "prior_corrected_dol_sha256": "83e068ea71b9675a9ab10b30b3088c978b6ccdecf85c1560bc213bad36b4879d"
+}

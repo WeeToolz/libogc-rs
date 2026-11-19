@@ -1,0 +1,80 @@
+{
+  "probe": "input_probe",
+  "cases": [
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "scan",
+      "line": 1443,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_controller_scan_modes",
+      "api_path": "controllers.scan",
+      "checks": [
+        "controller scan sees scripted pad"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "scan_at",
+      "line": 1448,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_controller_scan_modes",
+      "api_path": "controllers.scan_at",
+      "checks": [
+        "controller timed scan sees scripted pad"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "scan_with_pad_status",
+      "line": 1461,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_controller_scan_modes",
+      "api_path": "controllers.scan_with_pad_status",
+      "checks": [
+        "controller scan returns matching pad status"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "scan_with_raw",
+      "line": 1473,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_controller_scan_modes",
+      "api_path": "controllers.scan_with_raw",
+      "checks": [
+        "controller raw scan returns matching pad status"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "scan_with_raw_at",
+      "line": 1478,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_controller_scan_modes",
+      "api_path": "controllers.scan_with_raw_at",
+      "checks": [
+        "controller timed raw scan returns matching pad status"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "set_input_scan_hook",
+      "line": 979,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_controller_scan_modes",
+      "api_path": "controllers.set_input_scan_hook",
+      "checks": [
+        "controller scan hook observes PAD boundaries"
+      ]
+    }
+  ],
+  "limits": [
+    "Scripted GameCube port 0 connection and scan hook boundaries; timestamp contents, other sources and physical controllers are not covered."
+  ]
+}

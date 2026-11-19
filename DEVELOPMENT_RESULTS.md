@@ -1,5 +1,272 @@
 # Development results
 
+## 2026-11-17: Raw UDP loopback
+
+Two instrumented Dolphin 2609a OpenGL runs passed 187 checks. An earlier run
+failed a combined recvfrom comparison for an unknown reason. The
+[report](docs/dolphin-runs/2026-11-17-raw-udp-repeat/README.md) records the
+failure, the passing checks, and limits. Physical Wii remains untested.
+
+## 2026-11-17: Raw IPv4 values
+
+Dolphin 2609a with OpenGL passed 175 checks with zero failures. The probe checks
+IPv4 packing, octets, masks, and selected parsing. See the
+[report](docs/dolphin-runs/2026-11-17-ipv4-values/README.md) for evidence and
+limits. Packet transport and physical Wii remain untested by these checks.
+
+## 2026-11-17: Raw system alarms
+
+Dolphin 2609a with OpenGL passed 165 checks with zero failures. The probe checks
+raw alarm callbacks, cancellation, removal, and state. See the
+[report](docs/dolphin-runs/2026-11-17-alarms-raw/README.md) for evidence and
+limits. Physical Wii remains untested.
+
+## 2026-11-17: Raw SRAM getters and setters
+
+Dolphin 2609a with OpenGL passed 18 checks with zero failures. The probe checks
+raw standard and extended SRAM values and restores the saved snapshots. See
+the [report](docs/dolphin-runs/2026-11-17-sram-raw/README.md) for evidence and
+limits. Physical Wii remains untested.
+
+## 2026-11-17: Raw and C ABI arena operations
+
+Dolphin 2609a with OpenGL passed 13 checks with zero failures. The probe checks
+raw MEM1 and MEM2 bounds and allocation, and the MEM2 C ABI entry points.
+See the [report](docs/dolphin-runs/2026-11-17-arena-raw/README.md) for the
+evidence and limits. Physical Wii remains untested.
+
+## 2026-11-17: GX texture region callback
+
+Dolphin 2609a with Metal passed 338 checks with zero failures. The probe checks
+texture callback arguments, region words, and replacement. See the
+[report](docs/dolphin-runs/2026-11-17-gx-tex-region-callback/README.md) for
+evidence and limits. Physical Wii remains untested.
+
+## 2026-11-17: GX TLUT callback and load commands
+
+Dolphin 2609a with Metal passed 335 checks with zero failures. The probe checks
+TLUT callback handling, region updates, and load command words. See the
+[report](docs/dolphin-runs/2026-11-17-gx-tlut-load/README.md) for evidence and
+limits. Physical Wii remains untested.
+
+## 2026-11-17: GX texture preload commands
+
+Dolphin 2609a with Metal passed 332 checks with zero failures. The probe checks
+base and mip-level preload command words and null arguments. The
+[report](docs/dolphin-runs/2026-11-17-gx-texture-preload-fixed/README.md)
+records the initial probe error, evidence, and limits. Physical Wii remains
+untested.
+
+## 2026-11-16: GX texture region invalidation
+
+Dolphin 2609a with Metal passed 329 checks with zero failures after the mipmap
+flag fix. The [report](docs/dolphin-runs/2026-11-16-gx-region-fixed/README.md)
+records the failing run, passing command checks, and limits. Physical Wii
+remains untested.
+
+## 2026-11-16: GX preloaded texture commands
+
+Dolphin 2609a with Metal passed 325 checks with zero failures. The probe checks
+preloaded texture and region command words and invalid arguments. See the
+[report](docs/dolphin-runs/2026-11-16-gx-preloaded-commands/README.md) for the
+evidence and limits. Physical Wii remains untested.
+
+## 2026-11-16: GX TEV order and automatic texture scale
+
+Dolphin 2609a with Metal passed 323 checks with zero failures after the TEV
+order register and automatic scale fixes. The [report](docs/dolphin-runs/2026-11-16-gx-tev-order-preloaded/README.md)
+links the failed traces and records selected cases and limits. Physical Wii
+remains untested.
+
+## 2026-11-16: GX pixel format and TEV default commands
+
+Dolphin 2609a with Metal passed 317 checks with zero failures. The probe checks
+selected pixel format and TEV default command words. See the
+[report](docs/dolphin-runs/2026-11-16-gx-pixel-tev/README.md) for evidence and
+limits. Rendered effects and physical Wii remain untested.
+
+## 2026-11-16: GX texture generator commands
+
+Dolphin 2609a with Metal passed 313 checks with zero failures. The probe checks
+texture generator and matrix-index command words. See the
+[report](docs/dolphin-runs/2026-11-16-gx-texgen/README.md) for evidence and
+limits. Rendered texture coordinates and physical Wii remain untested.
+
+## 2026-11-16: GX fog commands
+
+Dolphin 2609a with Metal passed 312 checks with zero failures. The probe checks
+fog coefficients and range adjustment command words. See the
+[report](docs/dolphin-runs/2026-11-16-gx-fog/README.md) for evidence and limits.
+Rendered fog and physical Wii remain untested.
+
+## 2026-11-16: GX generation mode commands
+
+Dolphin 2609a with Metal passed 307 checks with zero failures. The probe checks
+cull, co-planar, stage-count, and texture-offset command words. See the
+[report](docs/dolphin-runs/2026-11-16-gx-generation-mode/README.md) for evidence
+and limits. Physical Wii remains untested.
+
+## 2026-11-16: GX lighting channel commands
+
+Dolphin 2609a with Metal passed 303 checks with zero failures. The probe
+checks ambient color, material color, and lighting control command words.
+See the [report](docs/dolphin-runs/2026-11-16-gx-lighting-channels/README.md)
+for evidence and limits. Physical Wii remains untested.
+
+## 2026-11-16: GX vertex format commands
+
+Dolphin 2609a with Metal passed 302 checks with zero failures. The probe
+checks deferred vertex-format CP words and list termination. See the
+[report](docs/dolphin-runs/2026-11-16-gx-vertex-format/README.md) for evidence
+and limits. Physical Wii remains untested.
+
+## 2026-11-16: GX pixel-engine control commands
+
+Dolphin 2609a with Metal passed 301 checks with zero failures. The probe
+checks alpha, dither, and depth-location command words. See the [report](docs/dolphin-runs/2026-11-16-gx-pe-control/README.md)
+for evidence and limits. Physical Wii remains untested.
+
+## 2026-11-16: GX vertex array commands
+
+Dolphin 2609a with Metal passed 298 checks with zero failures. The probe
+checks vertex array and primitive command bytes. See the [report](docs/dolphin-runs/2026-11-16-gx-vertex-array/README.md)
+for evidence and limits. Physical Wii remains untested.
+
+## 2026-11-16: System SRAM locks
+
+Dolphin 2609a with OpenGL passed 159 checks with zero failures. The probe
+checks standard and extended SRAM lock exclusion and release. See the
+[report](docs/dolphin-runs/2026-11-16-sram-locks/README.md) for evidence and
+limits. Physical Wii remains untested.
+
+## 2026-11-16: System alarm callbacks
+
+Dolphin 2609a with OpenGL passed 154 checks with zero failures. The probe
+checks one-shot and periodic alarms, cancellation, and removal. See the
+[report](docs/dolphin-runs/2026-11-16-system-alarms/README.md) for evidence
+and limits. Physical Wii remains untested.
+
+## 2026-11-16: GX indirect texture matrix and tile
+
+Dolphin 2609a with Metal passed 294 checks with zero failures. The probe
+checks matrix and tile command words. See the [report](docs/dolphin-runs/2026-11-16-gx-indirect-matrix/README.md)
+for evidence and limits. Physical Wii remains untested.
+
+## 2026-11-16: GX indirect TEV helpers
+
+Dolphin 2609a with Metal passed 291 checks with zero failures. The probe
+checks bump, repeat, and warp command words. See the [report](docs/dolphin-runs/2026-11-16-gx-indirect-helpers/README.md)
+for evidence and limits. Physical Wii remains untested.
+
+## 2026-11-16: GX indirect texture scale and order
+
+Dolphin 2609a with Metal passed 287 checks with zero failures. The probe
+checks indirect scale and order command words. See the [report](docs/dolphin-runs/2026-11-16-gx-indirect-scale/README.md)
+for evidence and limits. Physical Wii remains untested.
+
+## 2026-11-16: GX indirect TEV commands
+
+Dolphin 2609a with Metal passed 285 checks with zero failures. The probe
+checks indirect and direct TEV command words. See the [report](docs/dolphin-runs/2026-11-16-gx-indirect-tev/README.md)
+for evidence and limits. Physical Wii remains untested.
+
+## 2026-11-16: System SRAM getters
+
+Dolphin 2609a with OpenGL passed 149 checks with zero failures. The probe
+checks seven getters against fixed SRAM buffer values and restores the buffer.
+See the [report](docs/dolphin-runs/2026-11-16-sram-getters/README.md) for
+evidence and limits. Physical Wii remains untested.
+
+## 2026-11-16: Wii text configuration values
+
+Dolphin 2609a with OpenGL passed 141 checks with zero failures. The probe
+checks region, area, and video against an independent IOS file read. See the
+[report](docs/dolphin-runs/2026-11-16-conf-text/README.md) for evidence and
+limits. Physical Wii remains untested.
+
+## 2026-11-16: Controller configuration records
+
+Dolphin 2609a with OpenGL passed 137 checks with zero failures. The probe
+checks registered and guest records, count limits, and in-memory restoration.
+See the [report](docs/dolphin-runs/2026-11-16-conf-pads/README.md) for
+evidence and limits. Physical Wii remains untested.
+
+## 2026-11-16: Typed Wii configuration values
+
+Dolphin 2609a with OpenGL passed 129 checks with zero failures. The probe
+checks typed in-memory settings, nickname behavior, and parental error paths.
+See the [report](docs/dolphin-runs/2026-11-16-conf-typed/README.md) for
+evidence and limits. Physical Wii remains untested.
+
+## 2026-11-16: Wii configuration values
+
+Dolphin 2609a with OpenGL passed 120 checks with zero failures. The probe
+checks configuration byte access, errors, nine getters, and in-memory
+restoration. See the [report](docs/dolphin-runs/2026-11-16-conf-values/README.md)
+for the earlier failed run and limits. Physical Wii remains untested.
+
+## 2026-11-16: GX TEV selectors
+
+Dolphin 2609a with Metal passed 283 checks with zero failures. The probe
+checks constant selector and swap command words. The first run failed due to
+uncleared shared selector fields. See the [report](docs/dolphin-runs/2026-11-16-gx-tev-selectors-final/README.md)
+for both runs and their limits. Physical Wii remains untested.
+
+## 2026-11-16: GX completion callbacks
+
+Dolphin 2609a with Metal passed 281 checks with zero failures. The new
+probe checks finish and token callbacks and completed-event waits. The runner
+now enables EFB copies to RAM; the earlier texture-copy byte check passes with
+the standard wrapper. See the [report](docs/dolphin-runs/2026-11-16-gx-completion/README.md)
+for evidence and limits. Physical Wii remains untested.
+
+## 2026-11-16: GX EFB texture copy
+
+Dolphin 2609a with Metal and EFB copies to RAM enabled passed 277 checks.
+The probe checks copied RGBA8 bytes and rendered pixels. The default-mode run
+failed its byte check. See the [report](docs/dolphin-runs/2026-11-16-gx-texture-copy-ram/README.md)
+for both runs and their limits. Physical Wii remains untested.
+
+## 2026-11-16: GX texture coordinate commands
+
+Dolphin 2609a with Metal passed 273 checks with zero failures. The new
+checks cover manual texture scale, wrap, and bias command words. See the
+[report](docs/dolphin-runs/2026-11-16-gx-texcoord-scale/README.md) for evidence
+and limits. Physical Wii remains untested.
+
+## 2026-11-16: GX TEV combiner commands
+
+Dolphin 2609a with Metal passed 271 checks with zero failures. The new
+check covers four TEV input and operation command words. See the [report](docs/dolphin-runs/2026-11-16-gx-tev-combiner/README.md)
+for evidence and limits. Physical Wii remains untested.
+
+## 2026-11-16: GX vertex descriptors
+
+Dolphin 2609a with Metal passed 270 checks with zero failures. The new
+checks cover descriptor state and list behavior. See the [report](docs/dolphin-runs/2026-11-16-gx-vertex-descriptors/README.md)
+for evidence and limits. Physical Wii remains untested.
+
+## 2026-11-16: GX textured rectangle
+
+Dolphin 2609a with Metal passed 266 checks with zero failures. The new
+probe checks two tiled RGBA8 textures with fixed EFB pixel values and checks
+invalid inputs. See the [report](docs/dolphin-runs/2026-11-16-gx-textured-render/README.md)
+for the run, logs, identities, and limits. Physical Wii remains untested.
+
+## 2026-11-15: GX EFB color and depth checks
+
+The rebuilt `video_probe` passed 67 checks with zero failures in Dolphin
+2609a on macOS with Metal. Six captured pages were valid. New checks cover
+`poke_argb`, `peek_argb`, `poke_z`, `peek_z`, and `poke_alpha_read` with fixed
+color and depth values at distinct X/Y coordinates, replacement, and alpha
+read mode changes. The runner now enables CPU EFB access explicitly.
+
+With the same DOL and CPU access enabled, OpenGL passed 65 checks and failed
+two depth-related checks. Those failures remain open. Earlier failed runs are
+retained. See the [EFB report](docs/dolphin-runs/2026-11-15-gx-efb-metal/README.md)
+for commands, hashes, logs, screenshots, and the controlled backend comparison.
+This is Dolphin evidence only; physical Wii behavior remains untested.
+
 ## 2026-11-03: Wii FAT file and path probe
 
 `wii_std_fs_probe` passed 99 checks in Dolphin 2609a on the private virtual
@@ -1400,3 +1667,242 @@ Dolphin probe confirmed that the opt-in path was enabled but still could not
 claim the flash drive. No sector read was reached. The volume was remounted.
 The patch, build identity, logs, and privilege and recovery limits are recorded
 in the [custom Dolphin report](docs/dolphin-runs/2026-11-04-usb-custom-dolphin/README.md).
+
+## 2026-11-15: GX display-list API validation
+
+The Metal Dolphin 2609a `video_probe` run passed 77 checks with zero failures
+and seven valid captured pages. Ten new checks cover six production APIs:
+`begin_disp_list`, `end_disp_list`, `call_disp_list`, `set_draw_sync`,
+`get_draw_sync`, and `tex_mode_sync`. The checks verify exact command bytes,
+zero padding, buffer guards, two GPU replay tokens, capture without execution,
+overflow rejection, and FIFO use after overflow. No production GX code changed.
+This is Dolphin evidence. Texture sync is checked for command encoding only;
+rendered geometry and physical Wii behavior remain open. See the
+[display-list report](docs/dolphin-runs/2026-11-15-gx-display-list/README.md)
+for run identity, logs, screenshots, commands, and limits.
+
+## 2026-11-15: GX viewport, scissor, and projection command validation
+
+The Metal Dolphin 2609a `video_probe` run passed 89 checks with zero failures
+and eight valid captured pages. Twelve new checks call `set_viewport`,
+`set_viewport_jitter`, `set_scissor`, `set_scissor_box_offset`, and
+`load_projection_mtx`. Fixed command bytes check nonzero origins, reversed
+depth, both jitter fields, scissor boundary cases, signed offsets, and both
+projection types. The shared check verifies padded size, zero padding,
+untouched storage, and an unchanged GPU token. The initial run failed all
+12 new checks because the helper incorrectly expected extra flush bytes;
+that run is retained. The corrected helper passed the same cases. No
+production GX code changed. These results cover Dolphin command encoding;
+rendered clipping, projected geometry, and physical Wii behavior remain
+open. See the [transform command report](docs/dolphin-runs/2026-11-15-gx-transform-commands/README.md)
+for commands, source and DOL identities, logs, screenshots, and limits.
+
+## 2026-11-15: GX matrix-loading API validation
+
+The Metal Dolphin 2609a `video_probe` run passed 107 checks with zero failures
+and ten valid captured pages. Eighteen new checks call seven position, normal,
+and texture matrix APIs, including immediate and indexed forms. Fixed headers
+and IEEE-754 words check source indices, destination slots, memory banks,
+transfer counts, row order, omitted normal translation, and both texture
+matrix formats. The shared capture check also verifies padding and guards.
+No production GX or runner code changed. This is Dolphin command-encoding
+evidence. The captured indexed commands are not replayed, so indexed fetches,
+rendered transforms, and physical Wii behavior remain open. See the
+[matrix-loading report](docs/dolphin-runs/2026-11-15-gx-matrix-loads/README.md)
+for commands, source and DOL identities, logs, screenshots, and limits.
+
+## 2026-11-15: Signed GX vertex capture defect and fix
+
+Dolphin confirmed that ten signed position, normal, and texture-coordinate
+writers bypassed display-list capture. A new probe reported 107 prior passes
+and ten zero-capture failures; ten signed-value cases did not run after those
+failures. The fix reuses the existing byte/halfword pipe writers with
+same-width unsigned casts. With identical probe source, the corrected DOL
+passed 127 checks with zero failures and eleven valid captured pages. Checks
+cover zero capture, signed limits or minus one, exact byte order and width,
+padding, guards, and an unchanged GPU token. The failed and final runs are
+retained. Rendered signed geometry and physical Wii behavior remain open.
+See the [signed vertex report](docs/dolphin-runs/2026-11-15-gx-signed-vertices/README.md)
+for commands, identities, logs, screenshots, and limits.
+
+## 2026-11-15: GX color and vertex-index API validation
+
+The Metal Dolphin 2609a `video_probe` passed 155 checks with zero failures
+and twelve valid captured pages. Twenty-eight new checks call fourteen
+color and vertex-index APIs. Fixed bytes verify channel order, packed color
+width/order, normalized float conversion, and 8-/16-bit index values. The
+shared capture check also verifies padding, guards, and an unchanged GPU
+token. Both the initial function-pointer probe and final explicit-call probe
+passed. No production or runner code changed. These results cover capture
+and encoding; indexed array reads, rendered colors, and physical Wii behavior
+remain open. See the [color and index report](docs/dolphin-runs/2026-11-15-gx-colors-indices/README.md)
+for commands, source and DOL identities, logs, screenshots, and limits.
+
+## 2026-11-15: GX float and unsigned vertex-data API validation
+
+The Metal Dolphin 2609a `video_probe` passed 181 checks with zero failures
+and fourteen valid captured pages. Twenty-six new checks call thirteen
+position, normal, and texture-coordinate APIs. Fixed bytes verify float
+values and negative zero, unsigned high-bit/maximum values, channel order,
+and data width. The shared capture check also verifies padding, guards,
+and an unchanged GPU token. No production or runner code changed. These
+results cover capture and encoding; rendered geometry and physical Wii
+behavior remain open. See the [float and unsigned vertex report](docs/dolphin-runs/2026-11-15-gx-float-unsigned-vertices/README.md)
+for commands, source and DOL identities, logs, screenshots, and limits.
+
+## 2026-11-15: GX TEV color, alpha, fog, and clip commands
+
+The Metal Dolphin 2609a `video_probe` passed 196 checks with zero failures
+and fifteen valid captured pages. Fifteen new checks call seven production
+APIs: the four TEV color setters, `set_alpha_compare`, `set_fog_color`, and
+`set_clip_mode`. Fixed command words check register IDs, signed eleven-bit
+fields, constant-color bank selection, three repeated BG writes, alpha
+comparison fields, RGB-only fog color, and XF clip values. The shared capture
+check verifies padding, guards, and an unchanged GPU token. No production or
+runner code changed. Rendered TEV/alpha/fog/clip effects and physical Wii
+behavior remain open. See the [TEV command report](docs/dolphin-runs/2026-11-15-gx-tev-colors/README.md)
+for commands, identities, logs, screenshots, and limits.
+
+## 2026-11-15: GX copy and depth command API validation
+
+The Metal Dolphin 2609a `video_probe` passed 213 checks with zero failures
+and seventeen valid captured pages. Seventeen new checks call five APIs:
+`set_copy_clear`, `set_copy_filter`, `set_field_mask`, `clear_bounding_box`,
+and `set_z_texture`. Fixed register words check color/depth packing, all
+filter enable combinations, sample/coefficient masks, null-table rejection,
+independent field bits, repeated bounding-box reset, and Z-texture formats
+and operations. The shared BP helper now supports the six-word filter
+sequence. No production or runner code changed. Results cover command
+encoding; rendered copy/depth effects, bounding-box readback, and physical
+Wii behavior remain open. See the [copy and depth report](docs/dolphin-runs/2026-11-15-gx-copy-depth/README.md)
+for commands, source/DOL identities, logs, screenshots, and limits.
+
+## 2026-11-15: GX depth-mode command validation
+
+Dolphin 2609a on Metal passed 216 checks with zero failures. Three new
+checks call `set_z_mode` and verify the exact disabled, maximum comparison,
+and restored setting command words. This covers command encoding; depth
+comparison effects and physical Wii behavior remain open. See the
+[depth-mode report](docs/dolphin-runs/2026-11-15-gx-depth-mode/README.md)
+for the run and its limits.
+
+## 2026-11-15: GX cache command validation
+
+Dolphin 2609a on Metal passed 223 checks with zero failures. Seven new checks
+cover `inv_vtx_cache`, `invalidate_tex_all`, and `invalidate_texture_cache`.
+They check exact captured commands and a subsequent GPU completion token.
+The first two runs failed four checks because the probe expected the mask
+before initialization. A trace captured the actual words, and the expected
+post-initialization mask was corrected against the C initialization. Those
+runs remain saved. Rendered cache effects and physical Wii behavior remain
+open. See the [cache report](docs/dolphin-runs/2026-11-15-gx-cache-commands/README.md).
+
+## 2026-11-15/16: GX line, point, and field-mode validation
+
+Dolphin 2609a on Metal passed 232 checks with zero failures. New checks cover
+`set_line_width`, `set_point_size`, and `set_field_mode`. Two earlier runs
+failed the field checks: trace showed `0x0f0000ff` where the initialized
+current mask was `0x0f000000`. The fix uses the current mask at both flush
+points. The final run checks both zero and nonzero masks, restores test state,
+and passes. The failed and passing runs remain saved. Rendered effects and
+physical Wii behavior remain open. See the [field-mode report](docs/dolphin-runs/2026-11-15-gx-line-point-field/README.md)
+for commands, hashes, logs, and limits.
+
+## 2026-11-16: GX pixel-engine register readback
+
+Dolphin 2609a on Metal passed 250 checks with zero failures. Eighteen new
+checks call seven PE configuration APIs and read back their registers. They
+cover alpha mode and destination alpha, color/alpha updates, dithering,
+blend/logic/subtract fields, the C `GX_PokeZMode` update-bit behavior, and
+restoration of all four saved registers. No production GX code changed.
+Effects on rendered pixels and physical Wii behavior remain open. See the
+[pixel-engine report](docs/dolphin-runs/2026-11-16-gx-pe-registers/README.md)
+for commands, hashes, logs, screenshots, and limits.
+
+## 2026-11-16: GX solid rectangle rendered-pixel validation
+
+Dolphin 2609a on Metal passed 260 checks with zero failures. The new probe
+checks EFB pixels after solid pipeline setup and rectangle drawing, with a
+changed-combiner precondition, disabled color writes, disabled and enabled
+blending, and scissor clipping. It adds direct evidence for
+`configure_solid_2d`, `draw_solid_rect`, `set_color_update`, and
+`set_blend_mode`. The sample uses RGB8, three coordinates, and full-alpha
+readback; other formats and physical Wii behavior remain open. No production
+GX code changed. See the [solid-render report](docs/dolphin-runs/2026-11-16-gx-solid-render/README.md)
+for commands, identities, logs, screenshots, and limits.
+
+## 2026-11-17: Raw TCP loopback
+
+Dolphin passed 201 checks. The probe checks six raw socket APIs with a local
+TCP connection, including options, flags, accept, and write shutdown. Two
+earlier protocol 6 socket attempts failed; their cause is unknown. The passing
+run uses protocol 0. See the [TCP report](docs/dolphin-runs/2026-11-17-raw-tcp-default/README.md)
+for evidence and limits.
+
+## 2026-11-17: TCP network wrappers
+
+Dolphin passed 219 checks. The probe checks 18 network APIs with local TCP
+connections, payloads, socket flags, handle lookup, and cleanup. See the
+[TCP wrapper report](docs/dolphin-runs/2026-11-17-network-tcp-wrappers-final/README.md)
+for evidence and limits.
+
+## 2026-11-17: LWP synchronization ABI
+
+Dolphin passed 172 checks. New checks cover 19 synchronization and queue APIs,
+including a timed wait, semaphore values, and message order. See the
+[LWP report](docs/dolphin-runs/2026-11-17-lwp-sync-abi/README.md) for evidence
+and limits.
+
+## 2026-11-17: LWP thread ABI
+
+Dolphin passed 186 checks. New checks cover nine thread APIs with a gated
+worker. An earlier continuous-yield test timed out for an unknown reason.
+See the [thread report](docs/dolphin-runs/2026-11-17-lwp-thread-abi-gated/README.md)
+for evidence and limits.
+
+## 2026-11-17: LWP condition signal and broadcast
+
+Dolphin passed 214 checks. The probe checks five condition APIs with two
+waiting workers. See the [condition report](docs/dolphin-runs/2026-11-17-lwp-cond-broadcast/README.md)
+for evidence and limits.
+
+## 2026-11-17: Raw video API checks
+
+The new Dolphin checks passed for 13 APIs. The full video suite and the
+unchanged control each failed three GX EFB checks for an unknown reason. See
+the [video report](docs/dolphin-runs/2026-11-17-raw-video/README.md) for
+evidence and limits.
+
+## 2026-11-17: GX backend comparison
+
+The same video DOL passed all 349 checks on Metal. On OpenGL it had three
+GX EFB failures; the cause remains open. See the [comparison](docs/dolphin-runs/2026-11-17-gx-metal-comparison/README.md).
+
+## 2026-11-17: Raw ES catalog
+
+Ten ES API checks passed in Dolphin. Two earlier runs failed a data-directory
+terminator expectation. A revised check records Dolphin’s unterminated bytes;
+that API remains unverified. See the [ES report](docs/dolphin-runs/2026-11-17-raw-es-catalog-final/README.md)
+for evidence and limits.
+
+## 2026-11-17: Raw ES TMD and ticket views
+
+Dolphin passed 235 checks. New checks cover five raw ES APIs with a stored
+TMD and ticket view. See the [ES view report](docs/dolphin-runs/2026-11-17-raw-es-views/README.md)
+for evidence and limits.
+
+## 2026-11-17: ES stored and shared content
+
+The probe checks three ES APIs against the Dolphin NAND fixture. The supplied
+TMD list call returned an error and preserved its output buffer. See the
+[ES content report](docs/dolphin-runs/2026-11-17-raw-es-stored-final/README.md).
+
+## 2026-11-17: IPv4 and descriptor-set helpers
+
+Dolphin passed 249 checks. Twelve network APIs gained direct evidence.
+See the [network report](docs/dolphin-runs/2026-11-17-network-ipv4-fdset/README.md).
+
+## 2026-11-17: TCP readiness and socket lifecycle
+
+Dolphin passed 260 checks. Six network APIs gained direct evidence.
+See the [TCP report](docs/dolphin-runs/2026-11-17-tcp-socket-readiness-final/README.md).

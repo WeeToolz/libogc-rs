@@ -1,0 +1,34 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "get_wireless_id",
+      "line": 759,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_extended_sram_getters",
+      "api_path": "system::get_wireless_id",
+      "checks": [
+        "Wireless ID getter reads each extended SRAM channel",
+        "Extended SRAM fixture lock and restoration"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "get_gbs_mode",
+      "line": 798,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_extended_sram_getters",
+      "api_path": "system::get_gbs_mode",
+      "checks": [
+        "GBS getter reads extended SRAM",
+        "Extended SRAM fixture lock and restoration"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin extended SRAM buffer reads and invalid channel handling. Persistent writes and physical hardware require separate checks."
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "source_revision": "185e1279bc38c85daa5cdfe5d8ccb55addade7d2",
+  "source_fingerprint": "244f5ffd01113302f03a7a6bbe0dc1d04b3409927d9f4725d599e55b0e2f8aea",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "897d7cf068635c81e4949fd03f20848a2461309208b64e26171248512c7ae164",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "1accd03b84f546135c5e98a3e70f8063dac9cb5c87401c96416daa7f01c41331",
+  "suite_sha256": "265b0ce97337fec431c8da547efbd52d31f241ce9bf881c9454061f824683876",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/probe.log": "8da4f4d5d162c5b5b89dcc4db00a343eccd960026b2a10e5aa4447cee8bb0b07",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/stderr.log": "c56ff64dae1d3a5925978cbe3219f8e7cefb30c4dc3c48161fb208300d320d79",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/probe-transport.bin": "561b9b823f573e5a80c4b754075d727a97984d1142a591889a0d295bdc3ae140",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-002.png": "5f947b9212cb392fb29390d46cc90c8f0127f278f75518e47898f43c3891c8e1",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-003.png": "1daa2287195337d699bf42676d44a87a04a5b89a949fd18ea8ab8a70f353ffbf",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-004.png": "32f622b17cd00bcd89f33cf96d1bbbb81cee0cbb15e710ca575a55953188a2b0",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-005.png": "f24ff90f56a7e7ecd7f4708b9113bcb2b3428d47c3fd0f8315b1900f7281a559",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-006.png": "e630b205ad48635ca8e288b34e3bd34554cd56d165c0704d4197c3824172ce11",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-007.png": "debf4464220fdd263a719000b79a20ae0d743844aa9b827e784a3a2697f6424f",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-008.png": "6164a9ca09268342ae8bb02265d8ebaacd010647773fe9e15f3681215942ab82",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-009.png": "babf4692112f410cd0be8eba9af8c1bf2ed903f983a329891863343fb2002013",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-010.png": "ba889c8eaa95b68093c61051fb9993cba872f1cce14eff6af4d3f2ee78364fb7",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-011.png": "37c1b407dcd3deff1e41c2904131992ea438b421ba2200fc35c400625f13c825",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-012.png": "d46c1f89c2fbee5f150727c123696f8b3c7ce1255556f98da877d652029cba63",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-013.png": "e1f79c8c0991a507ad15ae6686dcfd3db652fa9d8613b062d92f90d7f9be0a92",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-014.png": "afbc7aa75f2ee56fa11289339e439ec22dca54b910f16ca7a3007208d8cf3c53",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-015.png": "9b3cd389855d16ecdd257db2033c47fc39ca6cb09da63124f871ecf9efa9dac7",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-016.png": "0c6c7bfdebaf0868260a5d14a97533805cfc3c627f333d580d6ddbc33f333ab3",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-017.png": "189f4882d658bc0d498e4b597ffef281a32dc04861820eb0b943a55a1811fc2c",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-018.png": "0d0c8e7d1f2be018433f186f78867c72f09b139a69542fa2adaaccb5ceb729f2",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-019.png": "ce85323aea4bb185407548390d73312281c214a283dfea3493b7661a1d31fa9a",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-020.png": "3bbe863ce002546bedfc22169add4772250122747e0b9cd6df8dbc42ce727348",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-021.png": "ddbe0e87e9f2d6e41a68eaf4b193595d5fcd12fdaa617ca0a301ef152ea19045",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-022.png": "d1f1e31acd93c3dda0ae6f47df4ee88609981879f959ed9a2531dc8d66735329",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-023.png": "e43983bc0faf0370f01b455607bf716139a65d0e694984aaef60ce7336b1bb9b",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-024.png": "935d7b1b23bc9e23e121405fe38c4f1e0fcac306784c2db95ee6025680c5689f",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-025.png": "40442ed0c1f0d67a80e381c026154c76f8f8544ff96a2e1f97c65224ad33f4cc",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-026.png": "bff9fc6bc01f165a97a6323ce3643b1801b91026b743b9f2aef1b062d15ccdfc",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-027.png": "a24facf1892b4159c86d25cbf3936a042c1dee2cada49d6861dde36921b4fd86",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-028.png": "f93fcf381ff721c063860b458f528a0356d01dab02fc4ecfb8dc597e8a0c706b",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-029.png": "ae4cb7b80b762cd049a1a0070e6e097e3ce5d6e7390b1283bbaf4160573f65ae",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-030.png": "4d983f021d045f493030f74a0b85db153bd75f84a8d0db43d43143245ad668c2",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-031.png": "20887b867cb78aea0a8da35b6ad5d644385551ca43d9814c87bdb98d567c27b3",
+    "docs/dolphin-runs/2026-11-18-wiilaunch-errors/runtime_probe/pages/page-032.png": "72f3f3503029d5f8d6a58cca4f366819ee13a00e9371e5ff22c4b95b350d570e"
+  },
+  "exit_code": 0
+}

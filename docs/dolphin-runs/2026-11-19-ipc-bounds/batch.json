@@ -1,0 +1,120 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "get_buffer_lo",
+      "line": 1716,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_buffer_bounds",
+      "api_path": "ipc::get_buffer_lo",
+      "checks": [
+        "IPC Rust buffer setters and getters update bounds",
+        "IPC C buffer setters and getters update bounds",
+        "IPC buffer bounds restored"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "get_buffer_hi",
+      "line": 1722,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_buffer_bounds",
+      "api_path": "ipc::get_buffer_hi",
+      "checks": [
+        "IPC Rust buffer setters and getters update bounds",
+        "IPC C buffer setters and getters update bounds",
+        "IPC buffer bounds restored"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "set_buffer_lo",
+      "line": 1731,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_buffer_bounds",
+      "api_path": "ipc::set_buffer_lo",
+      "checks": [
+        "IPC Rust buffer setters and getters update bounds",
+        "IPC C buffer setters and getters update bounds",
+        "IPC buffer bounds restored"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "set_buffer_hi",
+      "line": 1744,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_buffer_bounds",
+      "api_path": "ipc::set_buffer_hi",
+      "checks": [
+        "IPC Rust buffer setters and getters update bounds",
+        "IPC C buffer setters and getters update bounds",
+        "IPC buffer bounds restored"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "IPC_GetBufferLo",
+      "line": 1756,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_buffer_bounds",
+      "api_path": "ipc::IPC_GetBufferLo",
+      "checks": [
+        "IPC Rust buffer setters and getters update bounds",
+        "IPC C buffer setters and getters update bounds",
+        "IPC buffer bounds restored"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "IPC_GetBufferHi",
+      "line": 1762,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_buffer_bounds",
+      "api_path": "ipc::IPC_GetBufferHi",
+      "checks": [
+        "IPC Rust buffer setters and getters update bounds",
+        "IPC C buffer setters and getters update bounds",
+        "IPC buffer bounds restored"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "IPC_SetBufferLo",
+      "line": 1771,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_buffer_bounds",
+      "api_path": "ipc::IPC_SetBufferLo",
+      "checks": [
+        "IPC Rust buffer setters and getters update bounds",
+        "IPC C buffer setters and getters update bounds",
+        "IPC buffer bounds restored"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "IPC_SetBufferHi",
+      "line": 1780,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_buffer_bounds",
+      "api_path": "ipc::IPC_SetBufferHi",
+      "checks": [
+        "IPC Rust buffer setters and getters update bounds",
+        "IPC C buffer setters and getters update bounds",
+        "IPC buffer bounds restored"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin IPC buffer bounds within the initial free range only. Heap allocations while bounds move, invalid boundaries, concurrency, and physical Wii remain unverified."
+  ]
+}

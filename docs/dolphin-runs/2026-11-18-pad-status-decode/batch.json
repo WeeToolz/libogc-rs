@@ -1,0 +1,20 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-input-sys",
+      "path": "src/lib.rs",
+      "symbol": "pad_debug_make_status",
+      "line": 1193,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_pad_status_decode",
+      "api_path": "raw_pad::pad_debug_make_status",
+      "checks": [
+        "PAD diagnostic decoder handles neutral sample and invalid channels"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin default PAD mode and neutral synthetic sample. Calibrated origins, other controller modes and physical Wii remain unverified."
+  ]
+}

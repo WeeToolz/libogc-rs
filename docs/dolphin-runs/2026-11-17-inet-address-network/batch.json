@@ -1,0 +1,23 @@
+{
+  "probe": "network_probe",
+  "cases": [
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "inet_addr",
+      "line": 1317,
+      "evidence_path": "probes/ogc-system-probe/src/network_probe.rs",
+      "function": "probe_inet_addr",
+      "api_path": "inet_addr",
+      "checks": [
+        "inet_addr dotted decimal",
+        "inet_addr abbreviated hexadecimal",
+        "inet_addr rejects overflow",
+        "inet_addr rejects invalid octal"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin PowerPC parser cases only; other address forms and physical Wii remain unverified."
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "probe": "callback_probe",
+  "cases": [
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "stdio_report",
+      "line": 574,
+      "evidence_path": "probes/ogc-system-probe/src/callback_probe.rs",
+      "function": "test_stdio_report_writers",
+      "api_path": "system::stdio_report",
+      "checks": [
+        "stdio report installs UART stream writers"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin stdio redirection. Physical UART availability needs separate evidence."
+  ]
+}

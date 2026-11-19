@@ -1,0 +1,32 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-sysbase",
+      "path": "src/lib.rs",
+      "symbol": "open_read",
+      "line": 332,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_iso9660_files",
+      "api_path": "sysbase::DeviceFile::open_read",
+      "checks": [
+        "ISO9660 convenience open and seek work"
+      ]
+    },
+    {
+      "crate": "ogc-sysbase",
+      "path": "src/lib.rs",
+      "symbol": "seek",
+      "line": 445,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_iso9660_files",
+      "api_path": "file.seek",
+      "checks": [
+        "ISO9660 convenience open and seek work"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin ISO9660 fixture, read and absolute seek. Other devices, seek modes, errors and physical Wii remain unverified."
+  ]
+}

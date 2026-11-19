@@ -1127,7 +1127,7 @@ mod wii_backend {
             block.fill(0);
             let received = ioctlv_recvfrom_block(block, &mut params, from_out.as_deref_mut());
 
-            if !fromlen.is_null() && !from.is_null() {
+            if received >= 0 && !fromlen.is_null() && !from.is_null() {
                 unsafe {
                     *fromlen = (*(from as *const SockAddr)).sa_len as SockLenT;
                 }

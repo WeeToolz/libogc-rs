@@ -1,0 +1,126 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_accept",
+      "line": 1345,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_tcp",
+      "api_path": "net::net_accept",
+      "checks": [
+        "Raw TCP wrapper relistens and accepts",
+        "Raw TCP accepted peer matches second client",
+        "Raw TCP second accepted socket closes"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_listen",
+      "line": 1334,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_tcp",
+      "api_path": "net::net_listen",
+      "checks": [
+        "Raw TCP wrapper relistens and accepts",
+        "Raw TCP accepted peer matches second client"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_fcntl",
+      "line": 1841,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_tcp",
+      "api_path": "net::net_fcntl",
+      "checks": [
+        "Raw TCP nonblocking flags set and clear"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_getsockopt",
+      "line": 1443,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_tcp",
+      "api_path": "net::net_getsockopt",
+      "checks": [
+        "Raw TCP reuse option is enabled",
+        "Raw TCP reuse option can be cleared"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_setsockopt",
+      "line": 1467,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_tcp",
+      "api_path": "net::net_setsockopt",
+      "checks": [
+        "Raw TCP reuse option is enabled",
+        "Raw TCP reuse option can be cleared"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_poll",
+      "line": 1626,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_tcp",
+      "api_path": "net::net_poll",
+      "checks": [
+        "Raw TCP listener becomes ready",
+        "Raw TCP accepted socket receives bytes"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_shutdown",
+      "line": 1507,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_tcp",
+      "api_path": "net::net_shutdown",
+      "checks": [
+        "Raw TCP write shutdown delivers EOF"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_select",
+      "line": 1531,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_readiness",
+      "api_path": "net::net_select",
+      "checks": [
+        "Raw select clears empty UDP readiness",
+        "Raw select reports queued UDP readiness",
+        "lwIP readiness corresponds to queued datagram"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_select",
+      "line": 2266,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_readiness",
+      "api_path": "net::net_select",
+      "checks": [
+        "Raw select clears empty UDP readiness",
+        "Raw select reports queued UDP readiness",
+        "lwIP readiness corresponds to queued datagram"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin IPv4 loopback: TCP listener, SO_REUSEADDR, shutdown and one UDP read descriptor. Other socket options, multi-descriptor selection, error paths and physical Wii remain unverified."
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "set_sampling_rate",
+      "line": 45,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_sampling_rates",
+      "api_path": "si::set_sampling_rate",
+      "checks": [
+        "SI wrapper sets sampling rate one",
+        "SI sampling rate fixture restored"
+      ]
+    },
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "refresh_sampling_rate",
+      "line": 49,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_sampling_rates",
+      "api_path": "si::refresh_sampling_rate",
+      "checks": [
+        "SI wrapper refresh restores selected sampling rate",
+        "SI sampling rate fixture restored"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_sampling_rate",
+      "line": 1114,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_sampling_rates",
+      "api_path": "raw_si::set_sampling_rate",
+      "checks": [
+        "SI raw clamps and sets sampling rate",
+        "SI sampling rate fixture restored"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "refresh_sampling_rate",
+      "line": 1125,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_sampling_rates",
+      "api_path": "raw_si::refresh_sampling_rate",
+      "checks": [
+        "SI raw refresh restores selected sampling rate",
+        "SI sampling rate fixture restored"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin current video mode, rate one and clamped rate eleven. Controller polling timing, other video modes, and physical Wii remain unverified."
+  ]
+}

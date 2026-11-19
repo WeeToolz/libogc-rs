@@ -1,0 +1,128 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "decode_type",
+      "line": 1345,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_raw_queries",
+      "api_path": "raw_si::decode_type",
+      "checks": [
+        "SI raw decodes known device and errors"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "is_chan_busy",
+      "line": 1071,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_raw_queries",
+      "api_path": "raw_si::is_chan_busy",
+      "checks": [
+        "SI raw rejects invalid channels without output writes"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_status",
+      "line": 1130,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_raw_queries",
+      "api_path": "raw_si::get_status",
+      "checks": [
+        "SI raw rejects invalid channels without output writes"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_response_raw",
+      "line": 1144,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_raw_queries",
+      "api_path": "raw_si::get_response_raw",
+      "checks": [
+        "SI raw rejects invalid channels without output writes"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_response",
+      "line": 1163,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_raw_queries",
+      "api_path": "raw_si::get_response",
+      "checks": [
+        "SI raw rejects invalid channels without output writes"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "debug_last_response",
+      "line": 1200,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_raw_queries",
+      "api_path": "raw_si::debug_last_response",
+      "checks": [
+        "SI raw rejects invalid channels without output writes"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_command",
+      "line": 1191,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_raw_queries",
+      "api_path": "raw_si::get_command",
+      "checks": [
+        "SI raw rejects invalid channels without output writes"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_type",
+      "line": 1248,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_raw_queries",
+      "api_path": "raw_si::get_type",
+      "checks": [
+        "SI raw rejects invalid channels without output writes"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_type_async",
+      "line": 1288,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_raw_queries",
+      "api_path": "raw_si::get_type_async",
+      "checks": [
+        "SI raw rejects invalid channels without output writes"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "probe",
+      "line": 1384,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_si_raw_queries",
+      "api_path": "raw_si::probe",
+      "checks": [
+        "SI raw rejects invalid channels without output writes"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin device type decoding and invalid-channel behavior. Valid-channel device communication, async completion and physical Wii remain unverified."
+  ]
+}

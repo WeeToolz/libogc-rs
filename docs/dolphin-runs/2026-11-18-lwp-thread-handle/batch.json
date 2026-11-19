@@ -1,0 +1,57 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "current_thread",
+      "line": 371,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_thread_handle",
+      "api_path": "api::current_thread",
+      "checks": [
+        "LWP current thread handle is live"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "create",
+      "line": 72,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_thread_handle",
+      "api_path": "api::ThreadHandle::create",
+      "checks": [
+        "LWP created thread returns its handle",
+        "LWP thread runs and returns its argument"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "raw",
+      "line": 56,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_thread_handle",
+      "api_path": "thread.raw",
+      "checks": [
+        "LWP created thread returns its handle"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "into_raw",
+      "line": 64,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_thread_handle",
+      "api_path": "thread.into_raw",
+      "checks": [
+        "LWP created thread returns its handle"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin one worker thread with driver-owned stack. Suspension, detach, scheduling contention and physical Wii remain unverified."
+  ]
+}

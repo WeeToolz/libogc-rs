@@ -1,0 +1,68 @@
+{
+  "source_revision": "73de5e50e78bdd147b6134243c85ead866f81835",
+  "source_fingerprint": "0b042bb38d33b0b481df25d02dbe43fffefa28528733d8a23794b691ca0e32c5",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "6daf6e2ea9da9c9a379294dcbeb42d722ff94659a31a3b40680773eefa10bc9b",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "1da0a2ae4b654495ba198bbd4f2e5a6d20335da5d82f2a5c7057fd091c2864d2",
+  "suite_sha256": "adecb5836490a281c2116a3ed88e30d24838925d479434836446a85e569ba3bc",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/probe.log": "d8cc68f6295b4025b3ec728144128c811c24b4ae614cb81a4db7a8ed32d25b4d",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/stderr.log": "ee828eb38fe12614b5f5e1e150ae8e7a059f19face2bf078d456e9037feb9032",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/probe-transport.bin": "594519e76cceee6217eff45e7dbcc512aa9da1e64bc41587ef26e63a0bad8757",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-002.png": "7420bccc59797e0abd9dcacd00b73045d077c3e3b3dadf6b6ff847fc21f9c4d0",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-003.png": "ed2ef86d0af3a748e18185fbbd46b80f8271fd44c3949ff0d39f4fb85ae42a92",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-004.png": "1f4c351aeaa292177e1056ca96999cc4b4983f91f5a9c5f2f7966589aafdb135",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-005.png": "e577ca6d796b1683cef26310dfdf5bd0ebce0656498175f192804fa0c75619b5",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-006.png": "0d6a4c889259846a1c6b028b508b0430c0a600ff58b9e790ffae285bc636f167",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-007.png": "195077fbf2741949ca669cc60996e44b66827affcf6f99008f6039c2b4617534",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-008.png": "fd2d29b912f8a512c7264b46041cc86a266d3ec0c0748c1b40c8e615ef475bcc",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-009.png": "e0835ace30b8e2ef5e76cb81d09d6e96a9455e973346eca9260597083a991df3",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-010.png": "ec6d71f197cb91e6f3d19d52ae78ce70f456b5897ece9bd7598c0350ba71f7e5",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-011.png": "fa9fa77499a0b469e15569dfcd7a718197c0938a017638732d8ec0d73c02b864",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-012.png": "2a10cda4712aecc3730a3ba228d8a40bbf5af0cbba6ed8d56a031e8aba7e69f6",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-013.png": "676f452b9aaef91c03994d101e35fb6aad0219d450655a2aec5740acf03ff77b",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-014.png": "8db403fd57adacc216dfd29423303f02077736f76e7f1883ad3483aee8f8505b",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-015.png": "fa77eaececd8f746d8a4381ad4ede019561033fabcea9027c2e71503d2a930bb",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-016.png": "a6f6a77b8b8f45dffa7b17228dd0ce0548f763a3491719c29cb7b696beb813ff",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-017.png": "a3e02fc03b18eef5041e195212626e4d903771f6ff7cc12d4d33e283fcf3370a",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-018.png": "e43b9e20447d65c447080636d831b181940ca8c86da88d2c6f804fc5ced469f6",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-019.png": "0092f111affa1ad80724c0d173ae394613dd1f8d1014f71cfef2370a77e02bd4",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-020.png": "5e08a4073d1da3bf494a272ca7b2ead3dc6de2cd78733eef37b53f0f24593a1c",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-021.png": "e13ea79582e1b50f9e1ed9f8ce53c5e305b1c5601f5d320abf60dea0acd71a16",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-022.png": "0136333098cd8488633ee50e31da23f46af422eb48f265c79676e3b1fbe7ada5",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-023.png": "0a1470be677b8478b41ada813ac7da84ede23eedbd225a1ee38e3a4f276e123f",
+    "docs/dolphin-runs/2026-11-17-extended-sram-getters/runtime_probe/pages/page-024.png": "bd0e717876919d3cb0e12f325c0b634ade480966d7947b06a2860b6eca5c4630"
+  },
+  "exit_code": 0
+}
