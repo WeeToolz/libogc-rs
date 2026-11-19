@@ -78,6 +78,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_lwp_abi_queue_wake(logger);
     probe_controller_slots(logger);
     probe_pad_clamp(logger);
+    probe_pad_status_decode(logger);
     probe_owned_audio_buffer(logger);
     probe_l2cap_packets(logger);
     probe_l2cap_parsers(logger);
@@ -153,6 +154,25 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_network_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_udp(logger);
+}
+
+fn probe_pad_status_decode(logger: &mut ProbeLogger) {
+    use ogc_input::sys as raw_pad;
+    let invalid_low = raw_pad::pad_debug_make_status(-1, [0, 0]);
+    let invalid_high = raw_pad::pad_debug_make_status(4, [0, 0]);
+    let decoded = raw_pad::pad_debug_make_status(0, [0x0100_8080, 0x8080_0000]);
+    logger.record(
+        "PAD diagnostic decoder handles neutral sample and invalid channels",
+        invalid_low.err == -1
+            && invalid_high.err == -1
+            && decoded.button == 0x0100
+            && decoded.stick_x == 0
+            && decoded.stick_y == 0
+            && decoded.substick_x == 0
+            && decoded.substick_y == 0
+            && decoded.trigger_l == 0
+            && decoded.trigger_r == 0,
+    );
 }
 
 fn probe_pad_clamp(logger: &mut ProbeLogger) {

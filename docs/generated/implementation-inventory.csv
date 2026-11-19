@@ -1786,7 +1786,7 @@ ogc-input-sys,pad_clamp,rust-function,crates/services/ogc-input-sys/src/lib.rs,1
 ogc-input-sys,pad_control_motor,rust-function,crates/services/ogc-input-sys/src/lib.rs,1380,unverified,hardware,none,input-probe,declared `hardware` without exact API test or probe evidence
 ogc-input-sys,pad_debug_counters,rust-function,crates/services/ogc-input-sys/src/lib.rs,1166,unverified,hardware,none,input-probe,declared `hardware` without exact API test or probe evidence
 ogc-input-sys,pad_debug_drain,rust-function,crates/services/ogc-input-sys/src/lib.rs,1139,unverified,hardware,none,input-probe,declared `hardware` without exact API test or probe evidence
-ogc-input-sys,pad_debug_make_status,rust-function,crates/services/ogc-input-sys/src/lib.rs,1193,unverified,hardware,none,input-probe,declared `hardware` without exact API test or probe evidence
+ogc-input-sys,pad_debug_make_status,rust-function,crates/services/ogc-input-sys/src/lib.rs,1193,hardware,hardware,hardware-probe:probes/ogc-system-probe/src/runtime_probe.rs::probe_pad_status_decode calls pad_debug_make_status through `raw_pad::pad_debug_make_status`,input-probe,See crate contract for input-driver-abi role and hardware validation status
 ogc-input-sys,pad_debug_origin_byte,rust-function,crates/services/ogc-input-sys/src/lib.rs,1605,unverified,hardware,none,input-probe,declared `hardware` without exact API test or probe evidence
 ogc-input-sys,pad_debug_state,rust-function,crates/services/ogc-input-sys/src/lib.rs,1174,unverified,hardware,none,input-probe,declared `hardware` without exact API test or probe evidence
 ogc-input-sys,pad_init,rust-function,crates/services/ogc-input-sys/src/lib.rs,1076,unverified,hardware,none,input-probe,declared `hardware` without exact API test or probe evidence
