@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-19 GX light commands and pixel state
+
+The [GX light and pixel batch](docs/dolphin-runs/2026-11-19-gx-light-state/README.md)
+checks four APIs against fixed command bytes and pixel-engine registers.
+Dolphin Metal passed 377 checks. The completeness audit reports 635
+unverified APIs. Light rendering and physical Wii behavior remain open.
+
 ## 2026-11-19 GX metrics
 
 The [GX metric batch](docs/dolphin-runs/2026-11-19-gx-metric-final/README.md)

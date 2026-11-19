@@ -1054,6 +1054,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_frame_commands(logger, rmode);
     probe_gx_thread_and_status(logger);
     probe_gx_metric_registers(logger);
+    probe_gx_light_and_pixel_state(logger);
 }
 
 fn probe_frame_lifecycle(logger: &mut ProbeLogger, rmode: *mut video::GxrModeObj) {
@@ -1369,6 +1370,110 @@ fn probe_gx_metric_registers(logger: &mut ProbeLogger) {
     let mut none = u32::MAX;
     unsafe { gx::read_gp_metric(&mut none, core::ptr::null_mut()) };
     logger.record("GX disabled metric returns zero", none == 0);
+}
+
+fn probe_gx_light_and_pixel_state(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX light commands and pixel state");
+    let light = gx::GxLightObj {
+        val: [
+            0xaaaa_aaaa,
+            0xbbbb_bbbb,
+            0xcccc_cccc,
+            0x1234_5678,
+            0x3f80_0000,
+            0x4000_0000,
+            0x4040_0000,
+            0x4080_0000,
+            0x40a0_0000,
+            0x40c0_0000,
+            0x40e0_0000,
+            0x4100_0000,
+            0x4110_0000,
+            0x4120_0000,
+            0x4130_0000,
+            0x4140_0000,
+        ],
+    };
+    let expected_words: [u32; 16] = [
+        0,
+        0,
+        0,
+        0x1234_5678,
+        0x3f80_0000,
+        0x4000_0000,
+        0x4040_0000,
+        0x4080_0000,
+        0x40a0_0000,
+        0x40c0_0000,
+        0x40e0_0000,
+        0x4100_0000,
+        0x4110_0000,
+        0x4120_0000,
+        0x4130_0000,
+        0x4140_0000,
+    ];
+    let mut expected = [0u8; 69];
+    expected[..5].copy_from_slice(&[0x10, 0x00, 0x0f, 0x06, 0x30]);
+    for (bytes, word) in expected[5..].chunks_exact_mut(4).zip(expected_words) {
+        bytes.copy_from_slice(&word.to_be_bytes());
+    }
+    // SAFETY: The complete light object remains live during command capture.
+    let immediate = check_gx_command_bytes(&expected, || unsafe {
+        gx::load_light_obj(&light, gx::GX_LIGHT3);
+    });
+    expected[4] = 0;
+    let fallback = check_gx_command_bytes(&expected, || unsafe {
+        gx::load_light_obj(&light, 0xffff);
+    });
+    logger.record(
+        "GX immediate light loads all words and selects slot",
+        immediate && fallback,
+    );
+
+    // Indexed light commands are recorded and never submitted to the GPU.
+    let indexed = check_gx_command_bytes(&[0x38, 0x12, 0x34, 0xf6, 0x70], || unsafe {
+        gx::load_light_obj_idx(0x1234, gx::GX_LIGHT7);
+    });
+    let indexed_fallback = check_gx_command_bytes(&[0x38, 0xab, 0xcd, 0xf6, 0x00], || unsafe {
+        gx::load_light_obj_idx(0xabcd, 0xffff);
+    });
+    logger.record(
+        "GX indexed light encodes index and slot",
+        indexed && indexed_fallback,
+    );
+
+    // SAFETY: This probe owns the initialized GX command stream.
+    unsafe {
+        gx::set_z_comp_loc(1);
+        gx::set_pixel_fmt(gx::GX_PF_RGB565_Z16, gx::GX_ZC_MID);
+    }
+    let pixel_sync = check_gx_bp_words(&[0x4300_0052], || unsafe { gx::pix_mode_sync() });
+    logger.record("GX pixel mode sync emits current pixel control", pixel_sync);
+
+    let mut bounds = [0xffffu16; 4];
+    // SAFETY: The PE bounding box registers are readable. The output array
+    // contains four distinct writable u16 values.
+    let (before, after) = unsafe {
+        let pe = 0xcc00_1000 as *const u16;
+        let read = || {
+            [
+                core::ptr::read_volatile(pe.add(10)),
+                core::ptr::read_volatile(pe.add(11)),
+                core::ptr::read_volatile(pe.add(8)),
+                core::ptr::read_volatile(pe.add(9)),
+            ]
+        };
+        let before = read();
+        let out = bounds.as_mut_ptr();
+        gx::read_bounding_box(out, out.add(1), out.add(2), out.add(3));
+        (before, read())
+    };
+    logger.record(
+        "GX bounding box outputs match stable PE registers",
+        before == after && bounds == before,
+    );
 }
 
 fn probe_gx_completion_callbacks(logger: &mut ProbeLogger) {

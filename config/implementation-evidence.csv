@@ -2750,3 +2750,7 @@ ogc-gx,src/lib.rs,set_gp_metric,7428,compatibility-forwarder,hardware-probe,prob
 ogc-gx,src/lib.rs,read_xf_ras_metric,7483,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_metric_registers,gx::read_xf_ras_metric
 ogc-gx,src/lib.rs,read_v_cache_metric,7516,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_metric_registers,gx::read_v_cache_metric
 ogc-gx,src/lib.rs,read_gp_metric,7557,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_metric_registers,gx::read_gp_metric
+ogc-gx,src/lib.rs,load_light_obj,7718,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_light_and_pixel_state,gx::load_light_obj
+ogc-gx,src/lib.rs,load_light_obj_idx,7746,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_light_and_pixel_state,gx::load_light_obj_idx
+ogc-gx,src/lib.rs,pix_mode_sync,3878,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_light_and_pixel_state,gx::pix_mode_sync
+ogc-gx,src/lib.rs,read_bounding_box,7577,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_light_and_pixel_state,gx::read_bounding_box

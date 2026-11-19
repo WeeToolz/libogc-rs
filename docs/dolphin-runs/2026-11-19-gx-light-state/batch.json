@@ -1,0 +1,56 @@
+{
+  "probe": "video_probe",
+  "cases": [
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "load_light_obj",
+      "line": 7718,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_light_and_pixel_state",
+      "api_path": "gx::load_light_obj",
+      "checks": [
+        "GX immediate light loads all words and selects slot"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "load_light_obj_idx",
+      "line": 7746,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_light_and_pixel_state",
+      "api_path": "gx::load_light_obj_idx",
+      "checks": [
+        "GX indexed light encodes index and slot"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "pix_mode_sync",
+      "line": 3878,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_light_and_pixel_state",
+      "api_path": "gx::pix_mode_sync",
+      "checks": [
+        "GX pixel mode sync emits current pixel control"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "read_bounding_box",
+      "line": 7577,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_light_and_pixel_state",
+      "api_path": "gx::read_bounding_box",
+      "checks": [
+        "GX bounding box outputs match stable PE registers"
+      ]
+    }
+  ],
+  "limits": [
+    "Captured light and pixel control commands and stable Dolphin bounding-box registers. Light rendering, active bounding-box updates, other pixel formats, and physical Wii behavior remain open."
+  ]
+}
