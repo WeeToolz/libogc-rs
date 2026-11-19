@@ -224,6 +224,8 @@ ogc-video,src/lib.rs,clear_frame_buffer,433,compatibility-forwarder,hardware-pro
 ogc-video,src/lib.rs,configure,398,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,init_display
 ogc-video,src/lib.rs,console_write,1076,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/probe_support.rs,screen_write
 ogc-video,src/lib.rs,flush,345,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,init_display
+ogc-video,src/lib.rs,get_frame_buffer_size,409,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_video_framebuffer_layout,video::get_frame_buffer_size
+ogc-video,src/lib.rs,get_video_scan_mode,547,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_video_scan_mode,video::get_video_scan_mode
 ogc-video,src/lib.rs,get_preferred_mode,534,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,init_display
 ogc-video,src/lib.rs,hardware_proof,643,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,run
 ogc-video,src/lib.rs,have_component_cable,518,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,run
@@ -864,6 +866,9 @@ ogc-gx,src/lib.rs,get_tex_obj_wrap_s,5778,compatibility-forwarder,hardware-probe
 ogc-gx,src/lib.rs,get_tex_obj_wrap_t,5785,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_descriptors
 ogc-gx,src/lib.rs,get_y_scale_factor,3706,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_descriptors
 ogc-usbstorage-sys,src/startup.rs,probe_status,67,pure,host-test,crates/services/ogc-usbstorage-sys/src/startup.rs,startup_checks_both_operation_results,probe_status
+ogc-video-sys,src/lib.rs,clear_frame_buffer,966,hardware,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_video_framebuffer_layout,video::sys::clear_frame_buffer
+ogc-video-sys,src/lib.rs,get_frame_buffer_size,950,hardware,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_video_framebuffer_layout,video::sys::get_frame_buffer_size
+ogc-video-sys,src/lib.rs,get_video_scan_mode,1190,hardware,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_video_scan_mode,video::sys::get_video_scan_mode
 ogc-video-sys,src/retrace_wait.rs,sleep_if_unchanged,4,protocol,host-test,crates/hardware/ogc-video-sys/src/retrace_wait.rs,retrace_between_check_and_sleep_cannot_be_delivered_before_registration
 wiiuse-rs,src/nunchuk.rs,decode,20,protocol,host-test,crates/services/wiiuse-rs/src/nunchuk.rs,decodes_nunchuk_calibration_and_applies_wiiuse_defaults
 wiiuse-rs,src/nunchuk.rs,requires_retry,63,protocol,host-test,crates/services/wiiuse-rs/src/nunchuk.rs,handles_nunchuk_calibration_prefix_and_retry_marker

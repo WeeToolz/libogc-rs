@@ -47,6 +47,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_overscan(logger);
     probe_fog_table(logger);
     probe_fifo_pointers(logger);
+    probe_video_framebuffer_layout(logger);
 
     let rmode = init_display(logger);
     logger.record("video init display", !rmode.is_null());
@@ -80,11 +81,8 @@ pub fn run(logger: &mut ProbeLogger) {
         "video framebuffer register readback",
         initial_proof.next_framebuffer_registers_match,
     );
-    let expected_scan_mode = unsafe { (*rmode).vi_tv_mode & 0x3 };
-    logger.record(
-        "video scan mode matches selected VI mode",
-        video::get_video_scan_mode() == expected_scan_mode,
-    );
+    // SAFETY: The preferred render mode remains live after initialization.
+    probe_video_scan_mode(logger, unsafe { &*rmode });
     check_selected_mode_retrace(logger, unsafe { (*rmode).vi_tv_mode });
 
     let previous_pre = video::set_pre_retrace_callback(Some(pre_callback));
@@ -1010,6 +1008,79 @@ fn probe_texture_descriptors(logger: &mut ProbeLogger) {
     logger.record(
         "GX display copy scale rejects unsupported dimensions",
         gx::get_y_scale_factor(480, 240) == 1.0,
+    );
+}
+
+fn probe_video_framebuffer_layout(logger: &mut ProbeLogger) {
+    let mut mode = video::sys::TV_NTSC_480_INT_DF;
+    mode.fb_width = 17;
+    mode.xfb_height = 1;
+    mode.aa = 0;
+
+    // A 17-pixel row pads to 32 pixels at two bytes each. AA adds four rows.
+    // SAFETY: The mode is initialized and lives throughout the size queries.
+    let (non_aa, sys_non_aa) = unsafe {
+        (
+            video::get_frame_buffer_size(&mut mode),
+            video::sys::get_frame_buffer_size(&mut mode),
+        )
+    };
+    mode.aa = 1;
+    let (aa, sys_aa) = unsafe {
+        (
+            video::get_frame_buffer_size(&mut mode),
+            video::sys::get_frame_buffer_size(&mut mode),
+        )
+    };
+    logger.record(
+        "VI framebuffer wrapper sizes include row and AA padding",
+        non_aa == 64 && aa == 320,
+    );
+    logger.record(
+        "VI framebuffer sys sizes include row and AA padding",
+        sys_non_aa == 64 && sys_aa == 320,
+    );
+    // SAFETY: Both APIs accept a null render mode.
+    let (null_size, sys_null_size) = unsafe {
+        (
+            video::get_frame_buffer_size(null_mut()),
+            video::sys::get_frame_buffer_size(null_mut()),
+        )
+    };
+    logger.record(
+        "VI framebuffer sizes return zero for null mode",
+        null_size == 0 && sys_null_size == 0,
+    );
+
+    if sys_aa != 320 {
+        logger.record("VI framebuffer clear writes only the padded extent", false);
+        return;
+    }
+
+    const SENTINEL: u32 = 0xa5a5_a5a5;
+    const COLOR: u32 = 0x1234_abcd;
+    let mut words = [SENTINEL; 82];
+    // SAFETY: The middle 80 words are aligned, exclusive storage for
+    // the mode's 320-byte XFB. The first and last words are guards.
+    unsafe { video::sys::clear_frame_buffer(&mut mode, words[1..81].as_mut_ptr().cast(), COLOR) };
+    logger.record(
+        "VI framebuffer clear writes only the padded extent",
+        words[0] == SENTINEL
+            && words[81] == SENTINEL
+            && words[1..81].iter().all(|&word| word == COLOR),
+    );
+}
+
+fn probe_video_scan_mode(logger: &mut ProbeLogger, mode: &video::GxrModeObj) {
+    // The low two bits of the configured mode select the scan type.
+    let expected = mode.vi_tv_mode & 3;
+    logger.record(
+        "video scan mode matches selected VI mode",
+        video::get_video_scan_mode() == expected,
+    );
+    logger.record(
+        "VI sys scan mode matches selected VI mode",
+        video::sys::get_video_scan_mode() == expected,
     );
 }
 
