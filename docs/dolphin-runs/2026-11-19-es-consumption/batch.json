@@ -1,0 +1,34 @@
+{
+  "probe": "general_probe",
+  "cases": [
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "get_consumption_count",
+      "line": 1013,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_es_consumption",
+      "api_path": "es::get_consumption_count",
+      "checks": [
+        "ES consumption count returns zero and rejects null",
+        "ES consumption queries reject closed service"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "get_consumption",
+      "line": 1048,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_es_consumption",
+      "api_path": "es::get_consumption",
+      "checks": [
+        "ES consumption validates output and preserves empty results",
+        "ES consumption queries reject closed service"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin returns zero limits for the selected ticket ID. Populated consumption records, real-ticket authorization, and physical hardware remain untested."
+  ]
+}

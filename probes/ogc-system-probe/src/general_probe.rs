@@ -10,6 +10,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_es_certificate_chain(logger);
     probe_es_catalog_paths(logger);
     probe_es_disc_views(logger);
+    probe_es_consumption(logger);
     probe_es_device_identity(logger);
     probe_es_content_invalid(logger);
     probe_es_crypto_inputs(logger);
@@ -325,6 +326,54 @@ fn probe_es_device_identity(logger: &mut ProbeLogger) {
         es::check_has_korean_key() == -1017,
     );
     logger.record("ES identity probe closes service", es::close() == 0);
+}
+
+fn probe_es_consumption(logger: &mut ProbeLogger) {
+    const TICKET: u64 = 0x0123_4567_89ab_cdef;
+    #[repr(align(32))]
+    struct Output([u8; 32]);
+    let initialized = es::init();
+    logger.record("ES consumption probe opens service", initialized == 0);
+    if initialized != 0 {
+        return;
+    }
+
+    let mut count = u32::MAX;
+    // SAFETY: Count points to a writable scalar, and null is checked by ES.
+    let count_rc = unsafe { es::get_consumption_count(TICKET, &mut count) };
+    let null_count = unsafe { es::get_consumption_count(TICKET, core::ptr::null_mut()) };
+    logger.record(
+        "ES consumption count returns zero and rejects null",
+        count_rc == 0 && count == 0 && null_count == es::ES_EINVAL,
+    );
+
+    let mut limits = Output([0xa5; 32]);
+    // SAFETY: The aligned buffer has space for two limit records and guards.
+    let limits_rc = unsafe { es::get_consumption(TICKET, limits.0.as_mut_ptr().cast(), 2) };
+    let null_limits = unsafe { es::get_consumption(TICKET, core::ptr::null_mut(), 2) };
+    let no_limits = unsafe { es::get_consumption(TICKET, limits.0.as_mut_ptr().cast(), 0) };
+    let unaligned = unsafe { es::get_consumption(TICKET, limits.0.as_mut_ptr().add(1).cast(), 2) };
+    logger.record(
+        "ES consumption validates output and preserves empty results",
+        limits_rc == 0
+            && limits.0 == [0xa5; 32]
+            && null_limits == es::ES_EINVAL
+            && no_limits == es::ES_EINVAL
+            && unaligned == es::ES_EALIGN,
+    );
+    let closed = es::close();
+    let mut closed_count = u32::MAX;
+    // SAFETY: Both outputs remain live and writable after ES closes.
+    let closed_count_rc = unsafe { es::get_consumption_count(TICKET, &mut closed_count) };
+    let closed_limits_rc = unsafe { es::get_consumption(TICKET, limits.0.as_mut_ptr().cast(), 2) };
+    logger.record(
+        "ES consumption queries reject closed service",
+        closed == 0
+            && closed_count_rc == es::ES_ENOTINIT
+            && closed_count == u32::MAX
+            && closed_limits_rc == es::ES_ENOTINIT
+            && limits.0 == [0xa5; 32],
+    );
 }
 
 fn probe_es_disc_views(logger: &mut ProbeLogger) {

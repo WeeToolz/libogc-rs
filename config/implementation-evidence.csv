@@ -2704,3 +2704,5 @@ ogc-es-sys,src/imp.rs,decrypt,2229,ios,hardware-probe,probes/ogc-system-probe/sr
 ogc-es-sys,src/imp.rs,di_get_tmd_view_size,1086,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_disc_views,es::di_get_tmd_view_size
 ogc-es-sys,src/imp.rs,di_get_tmd_view,1136,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_disc_views,es::di_get_tmd_view
 ogc-es-sys,src/imp.rs,get_ticket_view,1184,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_disc_views,es::get_ticket_view
+ogc-es-sys,src/imp.rs,get_consumption_count,1013,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_consumption,es::get_consumption_count
+ogc-es-sys,src/imp.rs,get_consumption,1048,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_consumption,es::get_consumption
