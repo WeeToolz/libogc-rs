@@ -310,6 +310,7 @@ mod wii {
     static SWITCH_B: AtomicU32 = AtomicU32::new(0);
     static PRIORITY_ORDER: AtomicU32 = AtomicU32::new(0);
     static PRIORITY_POSITION: AtomicU32 = AtomicU32::new(0);
+    static CHILD_REENT: AtomicU32 = AtomicU32::new(0);
     static ROTATION_ABI: AtomicU32 = AtomicU32::new(0);
     static SHARED_VALUE: AtomicU32 = AtomicU32::new(0);
     static SEM_RELEASED: AtomicU32 = AtomicU32::new(0);
@@ -341,6 +342,18 @@ mod wii {
     static COND: AtomicU32 = AtomicU32::new(lwp::LWP_COND_NULL);
     static SEM: AtomicU32 = AtomicU32::new(lwp::LWP_SEM_NULL);
     static MQ: AtomicU32 = AtomicU32::new(lwp::MQ_BOX_NULL);
+
+    unsafe extern "C" {
+        fn __getreent() -> *mut c_void;
+    }
+
+    unsafe extern "C" fn reent_worker(_: *mut c_void) -> *mut c_void {
+        let local = driver::current_reent();
+        // SAFETY: The newlib hook has no arguments and returns the current thread's storage.
+        let abi = unsafe { __getreent() };
+        CHILD_REENT.store(local as u32, Ordering::Release);
+        usize::from(!local.is_null() && local == abi) as *mut c_void
+    }
 
     unsafe extern "C" fn rotation_worker(argument: *mut c_void) -> *mut c_void {
         let id = argument as u32;
@@ -609,6 +622,58 @@ mod wii {
         } else {
             Err(rc)
         }
+    }
+
+    fn probe_scheduler_critical_sections(logger: &mut ProbeLogger) {
+        fn msr() -> u32 {
+            let value: u32;
+            unsafe {
+                core::arch::asm!("mfmsr {value}", value = out(reg) value, options(nomem, nostack))
+            };
+            value
+        }
+        let before = msr();
+        let outer = driver::critical_enter();
+        let first = msr();
+        let inner = driver::critical_enter();
+        let second = msr();
+        driver::critical_exit(inner);
+        let after_inner = msr();
+        driver::critical_exit(outer);
+        let after = msr();
+        logger.record(
+            "LWP nested critical sections restore interrupt state",
+            before & 0x8000 != 0
+                && first & 0x8000 == 0
+                && second & 0x8000 == 0
+                && after_inner & 0x8000 == 0
+                && after & 0x8000 == before & 0x8000,
+        );
+    }
+
+    fn probe_reentrancy_storage(logger: &mut ProbeLogger) {
+        let parent = driver::current_reent();
+        // SAFETY: The newlib hook returns the current thread's storage.
+        let parent_abi = unsafe { __getreent() };
+        CHILD_REENT.store(0, Ordering::Release);
+        let mut child = lwp::LWP_THREAD_NULL;
+        let rc = create_with_stack(
+            &mut child,
+            Some(reent_worker),
+            ptr::null_mut(),
+            core::ptr::addr_of_mut!(STACK_A),
+            20,
+        );
+        let result = if rc == 0 { join(child) } else { Err(rc) };
+        logger.record(
+            "LWP newlib storage is stable and thread local",
+            !parent.is_null()
+                && parent == parent_abi
+                && result == Ok(1)
+                && CHILD_REENT.load(Ordering::Acquire) != 0
+                && CHILD_REENT.load(Ordering::Acquire) != parent as u32
+                && driver::current_reent() == parent,
+        );
     }
 
     fn probe_reschedule_rotation(logger: &mut ProbeLogger) {
@@ -1648,6 +1713,8 @@ mod wii {
         run_switch_and_join(&mut logger);
         probe_priority_order(&mut logger);
         probe_reschedule_rotation(&mut logger);
+        probe_scheduler_critical_sections(&mut logger);
+        probe_reentrancy_storage(&mut logger);
         run_synchronization(&mut logger);
         run_legacy_sync_abi(&mut logger);
         run_legacy_thread_abi(&mut logger);

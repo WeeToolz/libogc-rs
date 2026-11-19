@@ -1,0 +1,56 @@
+{
+  "probe": "lwp_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "critical_enter",
+      "line": 1764,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_scheduler_critical_sections",
+      "api_path": "driver::critical_enter",
+      "checks": [
+        "LWP nested critical sections restore interrupt state"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "critical_exit",
+      "line": 1770,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_scheduler_critical_sections",
+      "api_path": "driver::critical_exit",
+      "checks": [
+        "LWP nested critical sections restore interrupt state"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "current_reent",
+      "line": 2111,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_reentrancy_storage",
+      "api_path": "driver::current_reent",
+      "checks": [
+        "LWP newlib storage is stable and thread local"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "__getreent",
+      "line": 2406,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_reentrancy_storage",
+      "api_path": "__getreent",
+      "checks": [
+        "LWP newlib storage is stable and thread local"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin main and one child thread; exception-context reentrancy and physical Wii interrupt timing are not covered."
+  ]
+}

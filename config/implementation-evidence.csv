@@ -2698,3 +2698,7 @@ ogc-lwp-sys,src/lib.rs,set_thread_priority,130,compatibility-forwarder,hardware-
 ogc-lwp-sys,src/lib.rs,lwp_set_thread_priority_abi,406,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_priority_order,lwp::lwp_set_thread_priority_abi
 ogc-lwp-sys,src/lib.rs,reschedule,162,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,rotation_worker,lwp::reschedule
 ogc-lwp-sys,src/lib.rs,lwp_reschedule_abi,414,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,rotation_worker,lwp::lwp_reschedule_abi
+ogc-lwp-driver,src/runtime.rs,critical_enter,1764,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_scheduler_critical_sections,driver::critical_enter
+ogc-lwp-driver,src/runtime.rs,critical_exit,1770,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_scheduler_critical_sections,driver::critical_exit
+ogc-lwp-driver,src/runtime.rs,current_reent,2111,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_reentrancy_storage,driver::current_reent
+ogc-lwp-driver,src/runtime.rs,__getreent,2406,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_reentrancy_storage,__getreent
