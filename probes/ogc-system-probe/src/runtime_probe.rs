@@ -107,6 +107,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_irq_handler_registry(logger);
     probe_irq_raw_handler_registry(logger);
     probe_irq_delivery_state(logger);
+    probe_irq_mask_state(logger);
     probe_si_queries(logger);
     probe_si_raw_queries(logger);
     probe_ui_adapters(logger);
@@ -1703,6 +1704,35 @@ fn probe_si_queries(logger: &mut ProbeLogger) {
 }
 
 unsafe extern "C" fn probe_irq_handler(_: u32, _: *mut core::ffi::c_void) {}
+
+fn probe_irq_mask_state(logger: &mut ProbeLogger) {
+    use ogc_irq as irq;
+    use ogc_irq::sys as raw_irq;
+    let mask = 1u32 << irq::IRQ_PI_DEBUG;
+    let saved = irq::irq_disable();
+    let original = raw_irq::mask();
+    irq::disable(mask);
+    let disabled = raw_irq::mask() & mask == 0;
+    irq::enable(mask);
+    let enabled = raw_irq::mask() & mask == mask;
+    irq::mask(mask);
+    let masked = raw_irq::mask() & mask == 0;
+    irq::unmask(mask);
+    let unmasked = raw_irq::mask() & mask == mask;
+    raw_irq::k_irq_disable(mask);
+    let raw_disabled = raw_irq::mask() & mask == 0;
+    raw_irq::k_irq_enable(mask);
+    let raw_enabled = raw_irq::mask() & mask == mask;
+    if original & mask == 0 {
+        raw_irq::k_irq_disable(mask);
+    }
+    let restored = raw_irq::mask() == original;
+    irq::irq_restore(saved);
+    logger.record(
+        "IRQ mask operations update and restore debug bit",
+        disabled && enabled && masked && unmasked && raw_disabled && raw_enabled && restored,
+    );
+}
 
 fn probe_irq_delivery_state(logger: &mut ProbeLogger) {
     use ogc_irq as irq;

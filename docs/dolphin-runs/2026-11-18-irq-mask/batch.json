@@ -1,0 +1,92 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-irq",
+      "path": "src/lib.rs",
+      "symbol": "disable",
+      "line": 43,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_irq_mask_state",
+      "api_path": "irq::disable",
+      "checks": [
+        "IRQ mask operations update and restore debug bit"
+      ]
+    },
+    {
+      "crate": "ogc-irq",
+      "path": "src/lib.rs",
+      "symbol": "enable",
+      "line": 39,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_irq_mask_state",
+      "api_path": "irq::enable",
+      "checks": [
+        "IRQ mask operations update and restore debug bit"
+      ]
+    },
+    {
+      "crate": "ogc-irq",
+      "path": "src/lib.rs",
+      "symbol": "mask",
+      "line": 59,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_irq_mask_state",
+      "api_path": "irq::mask",
+      "checks": [
+        "IRQ mask operations update and restore debug bit"
+      ]
+    },
+    {
+      "crate": "ogc-irq",
+      "path": "src/lib.rs",
+      "symbol": "unmask",
+      "line": 63,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_irq_mask_state",
+      "api_path": "irq::unmask",
+      "checks": [
+        "IRQ mask operations update and restore debug bit"
+      ]
+    },
+    {
+      "crate": "ogc-irq-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_irq_disable",
+      "line": 741,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_irq_mask_state",
+      "api_path": "raw_irq::k_irq_disable",
+      "checks": [
+        "IRQ mask operations update and restore debug bit"
+      ]
+    },
+    {
+      "crate": "ogc-irq-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_irq_enable",
+      "line": 726,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_irq_mask_state",
+      "api_path": "raw_irq::k_irq_enable",
+      "checks": [
+        "IRQ mask operations update and restore debug bit"
+      ]
+    },
+    {
+      "crate": "ogc-irq-sys",
+      "path": "src/lib.rs",
+      "symbol": "mask",
+      "line": 783,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_irq_mask_state",
+      "api_path": "raw_irq::mask",
+      "checks": [
+        "IRQ mask operations update and restore debug bit"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin debug interrupt software mask with external delivery disabled during the check. Hardware delivery, concurrent changes and physical Wii remain unverified."
+  ]
+}

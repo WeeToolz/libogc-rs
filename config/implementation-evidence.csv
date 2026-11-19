@@ -2447,3 +2447,10 @@ ogc-irq,src/lib.rs,irq_disable,50,compatibility-forwarder,hardware-probe,probes/
 ogc-irq,src/lib.rs,irq_restore,55,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_delivery_state,irq::irq_restore
 ogc-irq-sys,src/lib.rs,k_irq_disable_all,336,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_delivery_state,raw_irq::k_irq_disable_all
 ogc-irq-sys,src/lib.rs,k_irq_restore_all,342,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_delivery_state,raw_irq::k_irq_restore_all
+ogc-irq,src/lib.rs,disable,43,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_mask_state,irq::disable
+ogc-irq,src/lib.rs,enable,39,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_mask_state,irq::enable
+ogc-irq,src/lib.rs,mask,59,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_mask_state,irq::mask
+ogc-irq,src/lib.rs,unmask,63,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_mask_state,irq::unmask
+ogc-irq-sys,src/lib.rs,k_irq_disable,741,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_mask_state,raw_irq::k_irq_disable
+ogc-irq-sys,src/lib.rs,k_irq_enable,726,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_mask_state,raw_irq::k_irq_enable
+ogc-irq-sys,src/lib.rs,mask,783,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_mask_state,raw_irq::mask
