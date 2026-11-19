@@ -1,0 +1,74 @@
+{
+  "source_revision": "caa0e02a3f9ae41efbebd4334cd7e9b6175df3f6",
+  "source_fingerprint": "b14dd1d9340d90828e03c2ea731ca64a7b94d6c4f5ecc11afbf0102fb548316c",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "video_probe",
+    "--dolphin",
+    "/private/tmp/dolphin-metal-wrapper",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "90c1fe1917385bf86f288fefec2c785ddb32845a9f42ae560b9b2fffa1889ca3",
+  "dol_sha256": "ef98a522d5c1971b507d0244448f29b35c45d2500cdcaa103a757bd34301421c",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "b2dea75052073da96676300c1c017c2ab588c92902d3ce623deb271b398ad29a",
+  "suite_sha256": "081c082da75e861f94464fe9c7c7544e2acfea5ce003f8b88544d234f69504b0",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/probe.log": "318bdfd78658c3dd2683186a1f4f6c2d5da7e0a2829144437a15e3b5b2fa4660",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/stderr.log": "d0bf087c2d7d6cb461f4b9e6a745e5ba94aa40ef633a983d0553d637545fdfe1",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/probe-transport.bin": "9b5c9569325c62bb8f076d7674019f4eeabcb60aa1cd058cc7157f5d566cd92f",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-002.png": "320607dd113e5a5dfab9312b19f84eaa4ab8a65c09dee9554ec48090bb88ebda",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-003.png": "3fbdb6c4e30a3d8b92766338b096f49381750d988cd76a2b7c6dfba205af1748",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-004.png": "9074bb66069e6cab0ae1a9687c2cf997cf0b08c792c3a9650aa91cd6368fc1df",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-005.png": "d06a398e9ee9362225d3ff78eb84372aa9ff950138215db21b493b172861d5ca",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-006.png": "5c9d53062419132971253f4fd718b5f83f3c262a5d416082d3c668543717e7eb",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-007.png": "f3520a8fd53fb37e3e5f87c20eb208d6ebb208839296f2e93f3d3f550d55bab5",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-008.png": "afa44993c22e408d77342ab51c9266fac849986626aeb8543372d3d0671b2bed",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-009.png": "1db806d17998c8a4c74920a07ec9768060035416a7d44c965c85120248d3c283",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-010.png": "4558e79bd92eb88d65cd18858e26864c450caaa9ba39500569722e292b59b910",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-011.png": "c41306e73dd5e1ec21a847178727042280854dc81b18412dd2ea6b1b86c9ff5d",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-012.png": "151377c7aac19805d1d794522098103fe4715b0d4c4ed4f06061ce98e5f6864a",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-013.png": "cf559645cb93cf697938b1a9227c5c0feea7304cbca83cffa5b2e9a1bc5c6928",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-014.png": "f4005794093e16bf21d4677004773cdcf9de85768bb86a6ac44c38436cac3b76",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-015.png": "c8fa7e1f562ce19522901722ebcf3178771f06ee4a1cd35e86ddc7a685c621d3",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-016.png": "05c6c305d89302167273a3b1fe8fb9d26f4e1d0988102023f055828617cef55e",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-017.png": "49930be2b2c7b855adbd97fddb2686ccf86b54d95c9d1c96d2d82209750b54d7",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-018.png": "b1a32e1d2c4e0dc67dea6e22dfa5ce9ac542bcbc315baa20a5b425d1753a0614",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-019.png": "6d1ede56cc8860916afcc94282ea61f061123674249a2d2e79dc6f40991dc088",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-020.png": "a66a1efee725a5f1ab21ffcd153c045e79ed1042be0534a952062a476cd9d388",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-021.png": "1e8af70bf8ad212d7c589086f5029757f590ad0751dccc0b2f87bcd69b0446dd",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-022.png": "4a00e8eca7217ac5c96c1dad4f8c99bd283dc4fbe29b86838330d9d578b68d6b",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-023.png": "f5974fe854117f409c1d389d08999e25da82e2f9710fc279f3d0a601a6cc2b0c",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-024.png": "d7d795662cab8f9f4a31767d7fe62b020262e9651500233cdc2ace9655907106",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-025.png": "f4bad1757e0fc42af399f1b29396d88e36a20700c75865436033aaf2d0871ba6",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-026.png": "6d9e10b6b2519ecb60ea59b04b273a4afe22776c26a776010a45eb4bb6503c31",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-027.png": "7da163480853369f207780198256e91f0af97ddfdfd93afac57411087b0c23c6",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-028.png": "e95266cc4a1ea68d2cc6f875de03367f93c3bebada96e94e07c46d3427e0c24a",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-029.png": "e3e61b70797153865385428939dd7f55deb26a409dc3c45fe52ef8d3e68f5ef1",
+    "docs/dolphin-runs/2026-11-19-gx-metric-final/video_probe/pages/page-030.png": "38204e3d4ab297cbb7cb10066070dbf2c1a776058b93d75228f8ddb8a0050e7f"
+  },
+  "exit_code": 0
+}

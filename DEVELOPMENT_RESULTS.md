@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-19 GX metrics
+
+The [GX metric batch](docs/dolphin-runs/2026-11-19-gx-metric-final/README.md)
+checks six APIs against command bytes and stable registers. Dolphin Metal
+passed 373 checks. The completeness audit reports 639 unverified APIs.
+Counter progression and physical Wii behavior remain open.
+
 ## 2026-11-19 GX thread and status
 
 The [GX thread and status batch](docs/dolphin-runs/2026-11-19-gx-thread-status-fixed/README.md)

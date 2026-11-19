@@ -2744,3 +2744,9 @@ ogc-gx,src/lib.rs,set_current_gx_thread,7424,compatibility-forwarder,hardware-pr
 ogc-gx,src/lib.rs,get_overflow_count,7412,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_thread_and_status,gx::get_overflow_count
 ogc-gx,src/lib.rs,reset_overflow_count,7416,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_thread_and_status,gx::reset_overflow_count
 ogc-gx,src/lib.rs,get_gp_status,7534,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_thread_and_status,gx::get_gp_status
+ogc-gx,src/lib.rs,init_xf_ras_metric,7476,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_metric_registers,gx::init_xf_ras_metric
+ogc-gx,src/lib.rs,clear_v_cache_metric,7510,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_metric_registers,gx::clear_v_cache_metric
+ogc-gx,src/lib.rs,set_gp_metric,7428,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_metric_registers,gx::set_gp_metric
+ogc-gx,src/lib.rs,read_xf_ras_metric,7483,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_metric_registers,gx::read_xf_ras_metric
+ogc-gx,src/lib.rs,read_v_cache_metric,7516,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_metric_registers,gx::read_v_cache_metric
+ogc-gx,src/lib.rs,read_gp_metric,7557,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_metric_registers,gx::read_gp_metric

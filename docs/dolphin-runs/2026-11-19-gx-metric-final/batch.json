@@ -1,0 +1,81 @@
+{
+  "probe": "video_probe",
+  "cases": [
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "init_xf_ras_metric",
+      "line": 7476,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_metric_registers",
+      "api_path": "gx::init_xf_ras_metric",
+      "checks": [
+        "GX XF raster metric initialization commands"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "clear_v_cache_metric",
+      "line": 7510,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_metric_registers",
+      "api_path": "gx::clear_v_cache_metric",
+      "checks": [
+        "GX vertex cache metric clear command"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "set_gp_metric",
+      "line": 7428,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_metric_registers",
+      "api_path": "gx::set_gp_metric",
+      "checks": [
+        "GX metric selector emits fixed vertex and texel commands"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "read_xf_ras_metric",
+      "line": 7483,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_metric_registers",
+      "api_path": "gx::read_xf_ras_metric",
+      "checks": [
+        "GX XF raster metric outputs match stable CP registers"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "read_v_cache_metric",
+      "line": 7516,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_metric_registers",
+      "api_path": "gx::read_v_cache_metric",
+      "checks": [
+        "GX vertex cache metric outputs match stable CP registers"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "read_gp_metric",
+      "line": 7557,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_metric_registers",
+      "api_path": "gx::read_gp_metric",
+      "checks": [
+        "GX vertex metric matches CP register and preserves second output",
+        "GX disabled metric returns zero"
+      ]
+    }
+  ],
+  "limits": [
+    "Selected command encodings and stable Dolphin CP register values. Counter progression, other selector modes, reset behavior, and physical Wii hardware remain untested."
+  ]
+}

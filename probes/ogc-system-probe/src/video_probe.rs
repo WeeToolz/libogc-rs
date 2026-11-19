@@ -1053,6 +1053,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_frame_lifecycle(logger, rmode);
     probe_frame_commands(logger, rmode);
     probe_gx_thread_and_status(logger);
+    probe_gx_metric_registers(logger);
 }
 
 fn probe_frame_lifecycle(logger: &mut ProbeLogger, rmode: *mut video::GxrModeObj) {
@@ -1282,6 +1283,92 @@ fn probe_gx_thread_and_status(logger: &mut ProbeLogger) {
         "GX status matches stable command processor register",
         raw_before & 31 == raw_after & 31 && outputs == expected,
     );
+}
+
+fn probe_gx_metric_registers(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX metric commands and register outputs");
+    // These bytes follow the C command encodings for BP 0x24 and XF 0x1006.
+    let init_commands = [
+        0x61, 0x24, 0x02, 0xc0, 0x22, 0x10, 0x00, 0x00, 0x10, 0x06, 0x00, 0x03, 0x10, 0x00,
+    ];
+    logger.record(
+        "GX XF raster metric initialization commands",
+        check_gx_command_bytes(&init_commands, || gx::init_xf_ras_metric()),
+    );
+    logger.record(
+        "GX vertex cache metric clear command",
+        check_gx_command_bytes(&[0x08, 0x00, 0, 0, 0, 0], || gx::clear_v_cache_metric()),
+    );
+
+    // Reset the metric selectors before recording the transition from NONE.
+    gx::set_gp_metric(gx::GX_PERF0_NONE, gx::GX_PERF1_NONE);
+    let ready = unsafe { gx::finish_frame_and_wait() };
+    let selection = [
+        0x10, 0x00, 0x00, 0x10, 0x06, 0x00, 0x00, 0x01, 0x4a, 0x61, 0x67, 0x00, 0x00, 0x84,
+    ];
+    let selected = check_gx_command_bytes(&selection, || {
+        gx::set_gp_metric(gx::GX_PERF0_VERTICES, gx::GX_PERF1_TEXELS);
+    });
+    logger.record(
+        "GX metric selector emits fixed vertex and texel commands",
+        ready && selected,
+    );
+
+    // The CP metric counters are compared with independently read register
+    // pairs before and after the API call, so changing counters cannot pass.
+    let read_pair = |index: usize| unsafe {
+        let cp = 0xcc00_0000 as *const u16;
+        u32::from(core::ptr::read_volatile(cp.add(index)))
+            | (u32::from(core::ptr::read_volatile(cp.add(index + 1))) << 16)
+    };
+    let before = [
+        read_pair(32),
+        read_pair(34),
+        read_pair(36),
+        read_pair(38),
+        read_pair(40),
+        read_pair(42),
+        read_pair(44),
+    ];
+    let mut xf = [u32::MAX; 4];
+    let mut cache = [u32::MAX; 3];
+    let mut gp0 = u32::MAX;
+    let mut gp1 = 0x1234_5678;
+    unsafe {
+        let x = xf.as_mut_ptr();
+        gx::read_xf_ras_metric(x, x.add(1), x.add(2), x.add(3));
+        let c = cache.as_mut_ptr();
+        gx::read_v_cache_metric(c, c.add(1), c.add(2));
+        gx::read_gp_metric(&mut gp0, &mut gp1);
+    }
+    let after = [
+        read_pair(32),
+        read_pair(34),
+        read_pair(36),
+        read_pair(38),
+        read_pair(40),
+        read_pair(42),
+        read_pair(44),
+    ];
+    let stable = before == after;
+    logger.record(
+        "GX XF raster metric outputs match stable CP registers",
+        stable && xf == [before[2], before[3], before[0], before[1]],
+    );
+    logger.record(
+        "GX vertex cache metric outputs match stable CP registers",
+        stable && cache == [before[4], before[5], before[6]],
+    );
+    logger.record(
+        "GX vertex metric matches CP register and preserves second output",
+        stable && gp0 == before[0] && gp1 == 0x1234_5678,
+    );
+    gx::set_gp_metric(gx::GX_PERF0_NONE, gx::GX_PERF1_NONE);
+    let mut none = u32::MAX;
+    unsafe { gx::read_gp_metric(&mut none, core::ptr::null_mut()) };
+    logger.record("GX disabled metric returns zero", none == 0);
 }
 
 fn probe_gx_completion_callbacks(logger: &mut ProbeLogger) {
