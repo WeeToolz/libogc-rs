@@ -2695,3 +2695,6 @@ ogc-es-sys,src/imp.rs,get_stored_tmd_contents,757,ios,hardware-probe,probes/ogc-
 ogc-es-sys,src/imp.rs,get_device_id,2407,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_device_identity,es::get_device_id
 ogc-es-sys,src/imp.rs,get_title_id,459,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_device_identity,es::get_title_id
 ogc-es-sys,src/imp.rs,check_has_korean_key,2454,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_device_identity,es::check_has_korean_key
+ogc-es-sys,src/imp.rs,read_content,2076,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_content_invalid,es::read_content
+ogc-es-sys,src/imp.rs,seek_content,2103,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_content_invalid,es::seek_content
+ogc-es-sys,src/imp.rs,close_content,2127,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_content_invalid,es::close_content

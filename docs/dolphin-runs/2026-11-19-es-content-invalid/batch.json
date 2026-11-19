@@ -1,0 +1,44 @@
+{
+  "probe": "general_probe",
+  "cases": [
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "read_content",
+      "line": 2076,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_es_content_invalid",
+      "api_path": "es::read_content",
+      "checks": [
+        "ES content read rejects invalid inputs and preserves output"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "seek_content",
+      "line": 2103,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_es_content_invalid",
+      "api_path": "es::seek_content",
+      "checks": [
+        "ES content seek rejects negative descriptor"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "close_content",
+      "line": 2127,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_es_content_invalid",
+      "api_path": "es::close_content",
+      "checks": [
+        "ES content close rejects negative descriptor"
+      ]
+    }
+  ],
+  "limits": [
+    "Checks input rejection with ES initialized. Successful content handles, reads, seeks, and close operations remain open."
+  ]
+}

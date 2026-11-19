@@ -10,6 +10,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_es_certificate_chain(logger);
     probe_es_catalog_paths(logger);
     probe_es_device_identity(logger);
+    probe_es_content_invalid(logger);
     probe_wpad_speaker_encoder(logger);
     probe_bluetooth_idle_host(logger);
     probe_break_callback(logger);
@@ -48,6 +49,41 @@ pub fn run(logger: &mut ProbeLogger) {
         "console footer write",
         crate::probe_support::screen_write(b"general probe uses direct runtime calls\n").is_ok(),
     );
+}
+
+fn probe_es_content_invalid(logger: &mut ProbeLogger) {
+    let initialized = es::init();
+    logger.record("ES content validation opens service", initialized == 0);
+    if initialized != 0 {
+        return;
+    }
+
+    #[repr(align(32))]
+    struct Buffer([u8; 64]);
+    let mut buffer = Buffer([0xa5; 64]);
+    // SAFETY: The aligned buffer and its one-byte-offset pointer have
+    // sufficient writable storage for every requested read.
+    let invalid_fd = unsafe { es::read_content(-1, buffer.0.as_mut_ptr(), 32) };
+    let null = unsafe { es::read_content(1, core::ptr::null_mut(), 32) };
+    let empty = unsafe { es::read_content(1, buffer.0.as_mut_ptr(), 0) };
+    let unaligned = unsafe { es::read_content(1, buffer.0.as_mut_ptr().add(1), 32) };
+    logger.record(
+        "ES content read rejects invalid inputs and preserves output",
+        invalid_fd == es::ES_EINVAL
+            && null == es::ES_EINVAL
+            && empty == es::ES_EINVAL
+            && unaligned == es::ES_EALIGN
+            && buffer.0 == [0xa5; 64],
+    );
+    logger.record(
+        "ES content seek rejects negative descriptor",
+        es::seek_content(-1, 0, 0) == es::ES_EINVAL,
+    );
+    logger.record(
+        "ES content close rejects negative descriptor",
+        es::close_content(-1) == es::ES_EINVAL,
+    );
+    logger.record("ES content validation closes service", es::close() == 0);
 }
 
 fn probe_es_device_identity(logger: &mut ProbeLogger) {
