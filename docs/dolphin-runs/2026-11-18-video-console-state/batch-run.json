@@ -1,0 +1,77 @@
+{
+  "source_revision": "fb577ed0e0645aa1eed22f528687bd7dca24d87b",
+  "source_fingerprint": "1cbe3b84744069650da5bacb76360d3827b210452c9f68510912a2f64d388c39",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-18-video-console-state",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "08e58a875fdc226415df74c2750c14ec2439a7ff14a5b0f2b98e6e02892073d3",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "e76b52b5cf39479f42fc59162d8deab00a7909d4eb79951fc20665da3b0d67a9",
+  "suite_sha256": "b1f645ee4048e2cab375b57f44b40bb6c3b8cb40552ab853c3ab9679bfcc9c27",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/probe.log": "fafd041492d506a9a56ec45fc076844289f9b41a290b13bf008babd8433a33bb",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/stderr.log": "d9ed2f9dea2aeff80ca9b3c30b564b8fbf3e7a883071447c47c0049fedf02a50",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/probe-transport.bin": "70e8f030206e9ecf206cfa5c391ecf9ba9afa177f16f65014e8cd0fffa4c0580",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-002.png": "5f947b9212cb392fb29390d46cc90c8f0127f278f75518e47898f43c3891c8e1",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-003.png": "1daa2287195337d699bf42676d44a87a04a5b89a949fd18ea8ab8a70f353ffbf",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-004.png": "32f622b17cd00bcd89f33cf96d1bbbb81cee0cbb15e710ca575a55953188a2b0",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-005.png": "5f89c76e2178c53255b4ac3948d5f48edb3a91895f2ef7d197c1e9d1d9ddd125",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-006.png": "9853eb094b4e4cdf4f83074ce10c4b2eb8c406701f274fc8307cfd4a70ba50a0",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-007.png": "249a2263008b0375aea7ea7072bfc96dfe76cad253a039125cc27c499dc08eb0",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-008.png": "5e13bb3a4cebdb91ff2912742ab7ea8e69541b8350f9eb4e89679a1dca86c79a",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-009.png": "f7122d680f52521376f72c74a7c1444589344b17128eeb3307f9fd81ef721c05",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-010.png": "7eb7f3452d64983d2a9675306e4b80404f5dad2c9e02b943bf8fe89d855d6a37",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-011.png": "902aefbaf976feed975f8b5a661c7e32076bbb9fe5d0c1ec3dde57c0948ec686",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-012.png": "52b75a08d2d52ad0a022d4d5c4c107b55f12bc7ac92f61ae1e8ea902dc2f304b",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-013.png": "77693a31fab797a7ed15bdca990d1cbc28aebe8c74b8519e140cefd6ef243ea7",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-014.png": "d54c3466b81c3631ad64d6b392e4b5dbcee313b8700025f405907dd8b02a3b73",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-015.png": "03ba28828348bc4c2193f292e27bcd40e3d63535f3d058da428aee78daad5950",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-016.png": "99b15d1c05df238a4a4dbbfcaa45051b023ae757bd46da7a218bdfd018f87d62",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-017.png": "16a66ffa65cda10aec051873c31dcf42af09b3794a44db449669c76a164162fb",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-018.png": "31e884f597ddc3b338b691514f40a2e85702bfbe18552858e789db2d181eb5a0",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-019.png": "b0b89861b5a0d335d73b03ddd0a9cbcab8368951c1589c96bf564c7a75a37041",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-020.png": "962fb82a560658dd04ed72be73838fa34e807d407ce0c72704f05b68df2dae1e",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-021.png": "f5289d7118e0790d07166122bf1c7d0d45a8d22beabf5bc13a630e7e575e3de2",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-022.png": "88aa3e583e25821a353999dd5cb5a3d394c9c955748757d433b3c3aad6de2f51",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-023.png": "e59ccabef3e6a90c74ebca6267353c187fb78127d979741f88dbac12bc81e42c",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-024.png": "d1b917ab9140da0e50dbb3783ad71d3eec3f9443ecfb15954063b4daad00be50",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-025.png": "e2c3d592307ae2a98917156cbf5453c7cd5e1af015bf3a6e07ad0e37228a3340",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-026.png": "28609b68a397ca8bef4a2cc3bac2c52852112de5b95eca6d64604555862fd378",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-027.png": "3dd86d5f0cf655a40f344d43227cee2dded0022a0316f986965342e029def1d9",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-028.png": "796280d7fd4f33076c839d81bf8aff3c9a7cf26dbbae22c8fecda28c0c87e69c",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-029.png": "38138507777da3acdac4f65f1826513e607cc05bd35aa2c6970aab91b9bac56f",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-030.png": "e5ebf8a7082e7ad1b409304c5aaccb5414cf08b464508ec79df2c7bcbe9b175f",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-031.png": "e9f8c5625951f6912ae35d72bf0c49ffd4a6070224cd004904f28f290ddd879c",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-032.png": "05910c1044d0055cc2dbcdcc36ed15654ba37331af058bb0ad08066796072fe6",
+    "docs/dolphin-runs/2026-11-18-video-console-state/runtime_probe/pages/page-033.png": "a6f60d163f3b0f4a8d241728080e073ade19997501f6acfac42edf795fe27216"
+  },
+  "exit_code": 0
+}

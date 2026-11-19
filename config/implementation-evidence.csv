@@ -2454,3 +2454,9 @@ ogc-irq,src/lib.rs,unmask,63,compatibility-forwarder,hardware-probe,probes/ogc-s
 ogc-irq-sys,src/lib.rs,k_irq_disable,741,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_mask_state,raw_irq::k_irq_disable
 ogc-irq-sys,src/lib.rs,k_irq_enable,726,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_mask_state,raw_irq::k_irq_enable
 ogc-irq-sys,src/lib.rs,mask,783,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_mask_state,raw_irq::mask
+ogc-video,src/lib.rs,console_get_default,676,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_console_state,video::console_get_default
+ogc-video,src/lib.rs,console_select,688,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_console_state,video::console_select
+ogc-video,src/lib.rs,console_set_font,700,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_console_state,video::console_set_font
+ogc-video,src/lib.rs,console_set_window,720,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_console_state,video::console_set_window
+ogc-video,src/lib.rs,console_get_metrics,763,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_console_state,video::console_get_metrics
+ogc-video,src/lib.rs,console_get_position,772,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_console_state,video::console_get_position

@@ -99,6 +99,7 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_reset_registration(logger);
     probe_video_queries(logger);
+    probe_video_console_state(logger);
     probe_wd_information_elements(logger);
     probe_wd_scan_defaults(logger);
     probe_ipc_heap_handles(logger);
@@ -2077,6 +2078,59 @@ fn probe_wd_information_elements(logger: &mut ProbeLogger) {
         unsafe { wd::get_ie_length(ptr, HEADER, 1) } == -1
             && wd::number_of_ies(&bytes[..HEADER]) == 0,
     );
+}
+
+fn probe_video_console_state(logger: &mut ProbeLogger) {
+    use ogc_video as video;
+    let default = video::console_get_default();
+    // SAFETY: Zero is valid for the console's pointer, callback, and scalar fields.
+    let mut console: video::PrintConsole = unsafe { core::mem::zeroed() };
+    console.con_cols = 80;
+    console.con_rows = 30;
+    console.cursor_x = 9;
+    console.cursor_y = 6;
+    let mut glyph = [0x5au8; 1];
+    let font = video::ConsoleFont {
+        gfx: glyph.as_mut_ptr(),
+        ascii_offset: 32,
+        num_chars: 96,
+    };
+    // SAFETY: The local console is live until the previous selection is restored.
+    let previous = unsafe { video::console_select(&mut console) };
+    let mut cols = 0;
+    let mut rows = 0;
+    let mut col = 0;
+    let mut row = 0;
+    video::console_get_metrics(&mut cols, &mut rows);
+    video::console_get_position(&mut col, &mut row);
+    // SAFETY: The selected console and font remain live for these calls.
+    unsafe {
+        video::console_set_font(core::ptr::null_mut(), &font);
+        video::console_set_window(core::ptr::null_mut(), 75, 25, 20, 20);
+    }
+    let mut window_col = 0;
+    let mut window_row = 0;
+    video::console_get_position(&mut window_col, &mut window_row);
+    // SAFETY: Restore the selection returned by console_select.
+    let selected = unsafe { video::console_select(previous) };
+    let default_ok = !default.is_null() && unsafe { (*default).font.num_chars == 256 };
+    logger.record(
+        "Video console selection exposes metrics and position",
+        selected == &mut console as *mut _ && cols == 80 && rows == 30 && col == 9 && row == 6,
+    );
+    logger.record(
+        "Video console window clips and font copies",
+        console.window_x == 75
+            && console.window_y == 25
+            && console.window_width == 6
+            && console.window_height == 6
+            && window_col == 1
+            && window_row == 1
+            && console.font.gfx == glyph.as_mut_ptr()
+            && console.font.ascii_offset == 32
+            && console.font.num_chars == 96,
+    );
+    logger.record("Video default console supplies its font", default_ok);
 }
 
 fn probe_video_queries(logger: &mut ProbeLogger) {
