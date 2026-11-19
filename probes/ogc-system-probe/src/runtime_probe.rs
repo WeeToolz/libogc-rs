@@ -118,6 +118,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_exi_selection(logger);
     probe_exi_callback_registry(logger);
     probe_exi_immediate_write(logger);
+    probe_exi_dma_write(logger);
     probe_si_queries(logger);
     probe_si_raw_queries(logger);
     probe_ui_adapters(logger);
@@ -1805,6 +1806,71 @@ fn probe_exi_raw_lock_queue(logger: &mut ProbeLogger) {
             && released == 1
             && EXI_UNLOCK_CALLS.load(Ordering::Acquire) == 1,
     );
+}
+
+fn probe_exi_dma_write(logger: &mut ProbeLogger) {
+    use ogc_exi as exi;
+    use ogc_exi::sys as raw_exi;
+    #[repr(align(32))]
+    struct DmaBuffer([u8; 32]);
+    let mut data = DmaBuffer([0x5a; 32]);
+    // SAFETY: The aligned live buffer is published before DMA, and remains owned until sync.
+    unsafe {
+        ogc_cache::dc_store_range(data.0.as_ptr().cast(), 32);
+    }
+    let locked = unsafe { exi::lock(1, 1, None) };
+    if locked == 1 {
+        let selected = exi::select(1, 1, 0);
+        let first = unsafe {
+            exi::dma(
+                1,
+                data.0.as_mut_ptr().cast(),
+                32,
+                exi::EXI_WRITE as i32,
+                None,
+            )
+        };
+        let pending = exi::get_state(1) as u32 & exi::EXI_FLAG_DMA != 0;
+        let first_sync = exi::try_sync(1);
+        let second = unsafe {
+            exi::try_dma(
+                1,
+                data.0.as_mut_ptr().cast(),
+                32,
+                exi::EXI_WRITE as i32,
+                None,
+            )
+        };
+        let second_sync = exi::try_sync(1);
+        let raw = unsafe {
+            raw_exi::dma(
+                1,
+                data.0.as_mut_ptr().cast(),
+                32,
+                exi::EXI_WRITE as i32,
+                None,
+            )
+        };
+        let raw_sync = exi::try_sync(1);
+        let deselected = exi::deselect(1);
+        let unlocked = exi::unlock(1);
+        logger.record(
+            "EXI DMA writes complete and preserve source",
+            selected == 1
+                && first == 1
+                && pending
+                && first_sync.is_ok()
+                && second.is_ok()
+                && second_sync.is_ok()
+                && raw == 1
+                && raw_sync.is_ok()
+                && data.0 == [0x5a; 32]
+                && deselected == 1
+                && unlocked == 1,
+        );
+    } else {
+        logger.record("EXI DMA writes complete and preserve source", false);
+    }
 }
 
 fn probe_exi_immediate_write(logger: &mut ProbeLogger) {
