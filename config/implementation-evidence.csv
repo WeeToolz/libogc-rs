@@ -2627,3 +2627,7 @@ ogc-usb,src/lib.rs,get_generic_descriptor,124,compatibility-forwarder,hardware-p
 ogc-usb,src/lib.rs,get_hid_descriptor,157,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_invalid_arguments,usb::get_hid_descriptor
 ogc-usb,src/lib.rs,get_report_descriptor,190,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_invalid_arguments,usb::get_report_descriptor
 ogc-usb,src/lib.rs,get_configuration,487,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_invalid_arguments,usb::get_configuration
+ogc-input,src/lib.rs,recalibrate,41,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,run_state,pad::recalibrate
+ogc-input,src/lib.rs,reset,37,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,run_state,pad::reset
+ogc-input,src/lib.rs,sync,28,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,run_state,pad::sync
+ogc-input,src/lib.rs,read,33,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,run_state,pad::read

@@ -1,0 +1,63 @@
+{
+  "probe": "pad_state_probe",
+  "cases": [
+    {
+      "crate": "ogc-input",
+      "path": "src/lib.rs",
+      "symbol": "recalibrate",
+      "line": 41,
+      "evidence_path": "probes/ogc-system-probe/src/pad_diagnostics_probe.rs",
+      "function": "run_state",
+      "api_path": "pad::recalibrate",
+      "checks": [
+        "mask-channel-0",
+        "mask-channel-1",
+        "mask-channel-2",
+        "mask-channel-3",
+        "mask-all",
+        "mask-mixed-0-2",
+        "invalid-mask-filter",
+        "return-busy-read-lifecycle"
+      ]
+    },
+    {
+      "crate": "ogc-input",
+      "path": "src/lib.rs",
+      "symbol": "reset",
+      "line": 37,
+      "evidence_path": "probes/ogc-system-probe/src/pad_diagnostics_probe.rs",
+      "function": "run_state",
+      "api_path": "pad::reset",
+      "checks": [
+        "transfer-submission-failure-recovery"
+      ]
+    },
+    {
+      "crate": "ogc-input",
+      "path": "src/lib.rs",
+      "symbol": "sync",
+      "line": 28,
+      "evidence_path": "probes/ogc-system-probe/src/pad_diagnostics_probe.rs",
+      "function": "run_state",
+      "api_path": "pad::sync",
+      "checks": [
+        "return-busy-read-lifecycle"
+      ]
+    },
+    {
+      "crate": "ogc-input",
+      "path": "src/lib.rs",
+      "symbol": "read",
+      "line": 33,
+      "evidence_path": "probes/ogc-system-probe/src/pad_diagnostics_probe.rs",
+      "function": "run_state",
+      "api_path": "pad::read",
+      "checks": [
+        "return-busy-read-lifecycle"
+      ]
+    }
+  ],
+  "limits": [
+    "Deterministic SI fault fixtures exercise reset and recalibration scheduling and a busy read; physical controllers and normal input samples are not covered."
+  ]
+}
