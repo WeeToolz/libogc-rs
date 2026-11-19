@@ -1,0 +1,92 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "imm",
+      "line": 96,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_immediate_write",
+      "api_path": "exi::imm",
+      "checks": [
+        "EXI immediate writes complete and preserve source"
+      ]
+    },
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "try_imm",
+      "line": 110,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_immediate_write",
+      "api_path": "exi::try_imm",
+      "checks": [
+        "EXI immediate writes complete and preserve source"
+      ]
+    },
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "imm_ex",
+      "line": 123,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_immediate_write",
+      "api_path": "exi::imm_ex",
+      "checks": [
+        "EXI immediate writes complete and preserve source"
+      ]
+    },
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "try_imm_ex",
+      "line": 130,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_immediate_write",
+      "api_path": "exi::try_imm_ex",
+      "checks": [
+        "EXI immediate writes complete and preserve source"
+      ]
+    },
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "try_sync",
+      "line": 89,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_immediate_write",
+      "api_path": "exi::try_sync",
+      "checks": [
+        "EXI immediate writes complete and preserve source"
+      ]
+    },
+    {
+      "crate": "ogc-exi-sys",
+      "path": "src/lib.rs",
+      "symbol": "imm",
+      "line": 949,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_immediate_write",
+      "api_path": "raw_exi::imm",
+      "checks": [
+        "EXI immediate writes complete and preserve source"
+      ]
+    },
+    {
+      "crate": "ogc-exi-sys",
+      "path": "src/lib.rs",
+      "symbol": "imm_ex",
+      "line": 1005,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_immediate_write",
+      "api_path": "raw_exi::imm_ex",
+      "checks": [
+        "EXI immediate writes complete and preserve source"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin EXI immediate writes on channel 1 device 1. Device response, reads, asynchronous callbacks, DMA and physical Wii remain unverified."
+  ]
+}

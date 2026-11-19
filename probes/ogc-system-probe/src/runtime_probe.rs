@@ -117,6 +117,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_exi_raw_lock_queue(logger);
     probe_exi_selection(logger);
     probe_exi_callback_registry(logger);
+    probe_exi_immediate_write(logger);
     probe_si_queries(logger);
     probe_si_raw_queries(logger);
     probe_ui_adapters(logger);
@@ -1804,6 +1805,55 @@ fn probe_exi_raw_lock_queue(logger: &mut ProbeLogger) {
             && released == 1
             && EXI_UNLOCK_CALLS.load(Ordering::Acquire) == 1,
     );
+}
+
+fn probe_exi_immediate_write(logger: &mut ProbeLogger) {
+    use ogc_exi as exi;
+    use ogc_exi::sys as raw_exi;
+    // SAFETY: No callback is installed and the lock is released below.
+    let locked = unsafe { exi::lock(1, 1, None) };
+    if locked == 1 {
+        let selected = exi::select(1, 1, 0);
+        let mut bytes = [0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc];
+        // SAFETY: The byte buffer remains live until each synchronous completion.
+        let first =
+            unsafe { exi::imm(1, bytes.as_mut_ptr().cast(), 4, exi::EXI_WRITE as i32, None) };
+        let pending = exi::get_state(1) as u32 & exi::EXI_FLAG_IMM != 0;
+        let first_sync = exi::try_sync(1);
+        let second =
+            unsafe { exi::try_imm(1, bytes.as_mut_ptr().cast(), 2, exi::EXI_WRITE as i32, None) };
+        let second_sync = exi::try_sync(1);
+        let extended =
+            unsafe { exi::imm_ex(1, bytes.as_mut_ptr().cast(), 6, exi::EXI_WRITE as i32) };
+        let try_extended =
+            unsafe { exi::try_imm_ex(1, bytes.as_mut_ptr().cast(), 6, exi::EXI_WRITE as i32) };
+        let raw =
+            unsafe { raw_exi::imm(1, bytes.as_mut_ptr().cast(), 4, exi::EXI_WRITE as i32, None) };
+        let raw_sync = exi::try_sync(1);
+        let raw_extended =
+            unsafe { raw_exi::imm_ex(1, bytes.as_mut_ptr().cast(), 6, exi::EXI_WRITE as i32) };
+        let deselected = exi::deselect(1);
+        let unlocked = exi::unlock(1);
+        logger.record(
+            "EXI immediate writes complete and preserve source",
+            selected == 1
+                && first == 1
+                && pending
+                && first_sync.is_ok()
+                && second.is_ok()
+                && second_sync.is_ok()
+                && extended == 1
+                && try_extended.is_ok()
+                && raw == 1
+                && raw_sync.is_ok()
+                && raw_extended == 1
+                && bytes == [0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc]
+                && deselected == 1
+                && unlocked == 1,
+        );
+    } else {
+        logger.record("EXI immediate writes complete and preserve source", false);
+    }
 }
 
 fn probe_exi_callback_registry(logger: &mut ProbeLogger) {

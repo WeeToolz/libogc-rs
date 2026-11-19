@@ -2485,3 +2485,10 @@ ogc-exi-sys,src/lib.rs,select_sd,832,hardware,hardware-probe,probes/ogc-system-p
 ogc-exi,src/lib.rs,register_exi_callback,197,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_callback_registry,exi::register_exi_callback
 ogc-exi-sys,src/lib.rs,register_exi_callback,1249,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_callback_registry,raw_exi::register_exi_callback
 ogc-exi-sys,src/lib.rs,interrupts_ready,585,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_callback_registry,raw_exi::interrupts_ready
+ogc-exi,src/lib.rs,imm,96,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_immediate_write,exi::imm
+ogc-exi,src/lib.rs,try_imm,110,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_immediate_write,exi::try_imm
+ogc-exi,src/lib.rs,imm_ex,123,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_immediate_write,exi::imm_ex
+ogc-exi,src/lib.rs,try_imm_ex,130,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_immediate_write,exi::try_imm_ex
+ogc-exi,src/lib.rs,try_sync,89,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_immediate_write,exi::try_sync
+ogc-exi-sys,src/lib.rs,imm,949,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_immediate_write,raw_exi::imm
+ogc-exi-sys,src/lib.rs,imm_ex,1005,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_immediate_write,raw_exi::imm_ex
