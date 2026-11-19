@@ -140,6 +140,8 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_system_sram_setters(logger);
     probe_ios_stm(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_ios_version_queries(logger);
     probe_conf(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_conf_fixture(logger);
@@ -5944,6 +5946,52 @@ fn probe_system(logger: &mut ProbeLogger) {
     logger.note_u32("pmc miss cycles", pmc.pmc2);
     logger.note_u32("pmc cycles", pmc.pmc3);
     logger.note_u32("pmc instructions", pmc.pmc4);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_ios_version_queries(logger: &mut ProbeLogger) {
+    use ogc_ios::sys as raw_ios;
+    logger.report_step("IOS version and preferred title");
+    // SAFETY: The uncached alias reads the IOS-owned low-memory version word.
+    let word = unsafe { core::ptr::read_volatile(0xc000_3140 as *const u32) };
+    let version = (word >> 16) as i32;
+    let revision = (word & 0xffff) as i32;
+    let valid = (1..=255).contains(&version) && revision > 0;
+    logger.record(
+        "IOS version matches low memory",
+        valid && raw_ios::get_version() == version,
+    );
+    logger.record(
+        "IOS revision matches low memory",
+        valid && raw_ios::get_revision() == revision,
+    );
+    logger.record(
+        "IOS revision major matches low memory",
+        valid && raw_ios::get_revision_major() == (revision >> 8),
+    );
+    logger.record(
+        "IOS revision minor matches low memory",
+        valid && raw_ios::get_revision_minor() == (revision & 0xff),
+    );
+
+    #[repr(align(32))]
+    struct Tmd([u8; 4096]);
+    let mut size = 0;
+    let title = 0x0000_0001_0000_003a;
+    let size_rc = unsafe { es::sys::get_stored_tmd_size(title, &mut size) };
+    let mut tmd = Tmd([0; 4096]);
+    let tmd_rc = if size_rc == 0 && (12..=4096).contains(&size) {
+        unsafe { es::sys::get_stored_tmd(title, tmd.0.as_mut_ptr().cast(), size) }
+    } else {
+        -1
+    };
+    logger.record(
+        "IOS preferred version selects installed IOS 58",
+        size_rc == 0
+            && tmd_rc == 0
+            && tmd.0[4..12].iter().any(|byte| *byte != 0)
+            && raw_ios::get_preferred_version() == 58,
+    );
 }
 
 fn probe_ios_stm(logger: &mut ProbeLogger) {

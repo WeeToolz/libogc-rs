@@ -2529,3 +2529,8 @@ ogc-system,src/lib.rs,set_sound_mode,731,compatibility-forwarder,hardware-probe,
 ogc-system,src/lib.rs,set_video_mode,750,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_setters,system::set_video_mode
 ogc-system,src/lib.rs,set_wireless_id,784,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_setters,system::set_wireless_id
 ogc-system,src/lib.rs,set_gbs_mode,811,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_setters,system::set_gbs_mode
+ogc-ios-sys,src/lib.rs,get_version,395,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ios_version_queries,raw_ios::get_version
+ogc-ios-sys,src/lib.rs,get_revision,407,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ios_version_queries,raw_ios::get_revision
+ogc-ios-sys,src/lib.rs,get_revision_major,420,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ios_version_queries,raw_ios::get_revision_major
+ogc-ios-sys,src/lib.rs,get_revision_minor,428,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ios_version_queries,raw_ios::get_revision_minor
+ogc-ios-sys,src/lib.rs,get_preferred_version,340,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ios_version_queries,raw_ios::get_preferred_version
