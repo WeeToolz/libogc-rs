@@ -2583,3 +2583,12 @@ ogc-video-sys,src/lib.rs,flush,852,hardware,hardware-probe,probes/ogc-system-pro
 ogc-video-sys,src/lib.rs,set_black,881,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_framebuffer_updates,raw_video::set_black
 ogc-video-sys,src/lib.rs,have_component_cable,1116,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_framebuffer_updates,raw_video::have_component_cable
 ogc-video-sys,src/lib.rs,get_preferred_mode,1144,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_framebuffer_updates,raw_video::get_preferred_mode
+wpad-sys,src/lib.rs,accel,1851,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_queries,wpad::accel
+wpad-sys,src/lib.rs,data,1604,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_queries,wpad::data
+wpad-sys,src/lib.rs,expansion,1875,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_queries,wpad::expansion
+wpad-sys,src/lib.rs,g_force,1827,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_queries,wpad::g_force
+wpad-sys,src/lib.rs,ir,1779,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_queries,wpad::ir
+wpad-sys,src/lib.rs,battery_level,1721,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_queries,wpad::battery_level
+wpad-sys,src/lib.rs,buttons_down,1747,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_queries,wpad::buttons_down
+wpad-sys,src/lib.rs,buttons_held,1760,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_queries,wpad::buttons_held
+wpad-sys,src/lib.rs,buttons_up,1734,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_queries,wpad::buttons_up

@@ -1,0 +1,116 @@
+{
+  "probe": "wpad_probe",
+  "cases": [
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "accel",
+      "line": 1851,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_queries",
+      "api_path": "wpad::accel",
+      "checks": [
+        "WPAD invalid channel leaves acceleration output unchanged"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "data",
+      "line": 1604,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_queries",
+      "api_path": "wpad::data",
+      "checks": [
+        "WPAD invalid channel has no data pointer"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "expansion",
+      "line": 1875,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_queries",
+      "api_path": "wpad::expansion",
+      "checks": [
+        "WPAD invalid channel leaves expansion output unchanged"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "g_force",
+      "line": 1827,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_queries",
+      "api_path": "wpad::g_force",
+      "checks": [
+        "WPAD invalid channel leaves g-force output unchanged"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "ir",
+      "line": 1779,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_queries",
+      "api_path": "wpad::ir",
+      "checks": [
+        "WPAD invalid channel leaves infrared output unchanged"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "battery_level",
+      "line": 1721,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_queries",
+      "api_path": "wpad::battery_level",
+      "checks": [
+        "WPAD invalid channel battery level is zero"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "buttons_down",
+      "line": 1747,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_queries",
+      "api_path": "wpad::buttons_down",
+      "checks": [
+        "WPAD invalid channel button edges are zero"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "buttons_held",
+      "line": 1760,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_queries",
+      "api_path": "wpad::buttons_held",
+      "checks": [
+        "WPAD invalid channel held buttons are zero"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "buttons_up",
+      "line": 1734,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_queries",
+      "api_path": "wpad::buttons_up",
+      "checks": [
+        "WPAD invalid channel button edges are zero"
+      ]
+    }
+  ],
+  "limits": [
+    "Only invalid channel WPAD_MAX_WIIMOTES was tested. Valid channel output, connected controller behavior and physical Wii remain unverified."
+  ]
+}

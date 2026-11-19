@@ -208,6 +208,11 @@ const PROBES: &[ProbeSpec] = &[
         input_pipe: true,
     },
     ProbeSpec {
+        name: "wpad_probe",
+        timeout_seconds: 90,
+        input_pipe: false,
+    },
+    ProbeSpec {
         name: "hid_probe",
         timeout_seconds: 90,
         input_pipe: false,
@@ -678,6 +683,18 @@ fn select_probes(names: &[String]) -> Result<Vec<ProbeSpec>, String> {
                 .ok_or_else(|| format!("unknown Dolphin probe: {name}"))
         })
         .collect()
+}
+
+#[cfg(test)]
+mod wpad_probe_selection_tests {
+    #[test]
+    fn selects_wpad_probe() {
+        let selected = super::select_probes(&["wpad_probe".to_string()]).unwrap();
+        assert_eq!(selected.len(), 1);
+        assert_eq!(selected[0].name, "wpad_probe");
+        assert_eq!(selected[0].timeout_seconds, 90);
+        assert!(!selected[0].input_pipe);
+    }
 }
 
 fn validate_usb_read_selection(names: &[String], device: Option<&str>) -> Result<(), String> {
