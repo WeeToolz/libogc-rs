@@ -131,6 +131,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_si_polling_registers(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_si_polling_handlers_and_transfer(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_si_sampling_rates(logger);
     probe_ui_adapters(logger);
     probe_system(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -1800,6 +1802,68 @@ fn probe_si_polling_registers(logger: &mut ProbeLogger) {
 
 #[cfg(feature = "dolphin-automation")]
 unsafe extern "C" fn probe_si_polling_handler(_: u32, _: *mut core::ffi::c_void) {}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_si_sampling_rates(logger: &mut ProbeLogger) {
+    use ogc_si as si;
+    use ogc_si::sys as raw_si;
+    logger.report_step("SI sampling rate configuration");
+    let base = if ogc_core::powerpc::hollywood_revision() == 0 {
+        0xcc00_6400usize
+    } else {
+        0xcd00_6400usize
+    };
+    let poll = (base + 12 * 4) as *const u32;
+    let video_control = (base + 54 * 4) as *const u32;
+    let pal = ogc_video::get_current_tv_mode() == 1;
+    let saved_irq = ogc_irq::irq_disable();
+    // SAFETY: The initialized SI registers are read while interrupts are masked.
+    let original = unsafe { core::ptr::read_volatile(poll) };
+    let multiplier = if unsafe { core::ptr::read_volatile(video_control) } & 1 != 0 {
+        2
+    } else {
+        1
+    };
+    let xy = |line: u32, count: u32| (line * multiplier << 16) | (count << 8);
+    let original_xy = if pal { xy(0x128, 2) } else { xy(0xf6, 2) };
+    if original & 0x03ff_ff00 != original_xy {
+        ogc_irq::irq_restore(saved_irq);
+        logger.record("SI sampling fixture starts at rate zero", false);
+        return;
+    }
+    let rate1 = if pal { xy(15, 21) } else { xy(15, 18) };
+    let rate11 = if pal { xy(156, 2) } else { xy(131, 2) };
+    si::set_sampling_rate(1);
+    let set = unsafe { core::ptr::read_volatile(poll) };
+    si::set_xy(7, 7);
+    si::refresh_sampling_rate();
+    let refreshed = unsafe { core::ptr::read_volatile(poll) };
+    raw_si::set_sampling_rate(u32::MAX);
+    let raw_set = unsafe { core::ptr::read_volatile(poll) };
+    raw_si::set_xy(9, 9);
+    raw_si::refresh_sampling_rate();
+    let raw_refreshed = unsafe { core::ptr::read_volatile(poll) };
+    si::set_sampling_rate(0);
+    let restored = unsafe { core::ptr::read_volatile(poll) };
+    ogc_irq::irq_restore(saved_irq);
+    logger.record(
+        "SI wrapper sets sampling rate one",
+        set & 0x03ff_ff00 == rate1 && set & !0x03ff_ff00 == original & !0x03ff_ff00,
+    );
+    logger.record(
+        "SI wrapper refresh restores selected sampling rate",
+        refreshed == set,
+    );
+    logger.record(
+        "SI raw clamps and sets sampling rate",
+        raw_set & 0x03ff_ff00 == rate11 && raw_set & !0x03ff_ff00 == original & !0x03ff_ff00,
+    );
+    logger.record(
+        "SI raw refresh restores selected sampling rate",
+        raw_refreshed == raw_set,
+    );
+    logger.record("SI sampling rate fixture restored", restored == original);
+}
 
 #[cfg(feature = "dolphin-automation")]
 fn probe_si_polling_handlers_and_transfer(logger: &mut ProbeLogger) {

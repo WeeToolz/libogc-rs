@@ -2562,3 +2562,7 @@ ogc-ipc,src/lib.rs,IPC_GetBufferLo,1756,ios,hardware-probe,probes/ogc-system-pro
 ogc-ipc,src/lib.rs,IPC_GetBufferHi,1762,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_buffer_bounds,ipc::IPC_GetBufferHi
 ogc-ipc,src/lib.rs,IPC_SetBufferLo,1771,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_buffer_bounds,ipc::IPC_SetBufferLo
 ogc-ipc,src/lib.rs,IPC_SetBufferHi,1780,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_buffer_bounds,ipc::IPC_SetBufferHi
+ogc-si,src/lib.rs,set_sampling_rate,45,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_sampling_rates,si::set_sampling_rate
+ogc-si,src/lib.rs,refresh_sampling_rate,49,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_sampling_rates,si::refresh_sampling_rate
+ogc-si-sys,src/lib.rs,set_sampling_rate,1114,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_sampling_rates,raw_si::set_sampling_rate
+ogc-si-sys,src/lib.rs,refresh_sampling_rate,1125,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_sampling_rates,raw_si::refresh_sampling_rate
