@@ -308,6 +308,15 @@ mod wii {
 
     static SWITCH_A: AtomicU32 = AtomicU32::new(0);
     static SWITCH_B: AtomicU32 = AtomicU32::new(0);
+    static PRIORITY_ORDER: AtomicU32 = AtomicU32::new(0);
+    static PRIORITY_POSITION: AtomicU32 = AtomicU32::new(0);
+    static CHILD_REENT: AtomicU32 = AtomicU32::new(0);
+    static EXTERNAL_SETUP_RAN: AtomicU32 = AtomicU32::new(0);
+    static EXTERNAL_WAIT_READY: AtomicU32 = AtomicU32::new(0);
+    static EXTERNAL_WATCHDOG: AtomicU32 = AtomicU32::new(0);
+    const EXTERNAL_KEY: usize = 0x4558_5457;
+    const EXTERNAL_TIMER: usize = 0x4558_5454;
+    static ROTATION_ABI: AtomicU32 = AtomicU32::new(0);
     static SHARED_VALUE: AtomicU32 = AtomicU32::new(0);
     static SEM_RELEASED: AtomicU32 = AtomicU32::new(0);
     static SEM_WAIT_RC: AtomicU32 = AtomicU32::new(u32::MAX);
@@ -315,6 +324,11 @@ mod wii {
     static SYNC_COND_SIGNAL_RC: AtomicU32 = AtomicU32::new(u32::MAX);
     static SYNC_MUTEX_UNLOCK_RC: AtomicU32 = AtomicU32::new(u32::MAX);
     static DEFERRED_RAN: AtomicU32 = AtomicU32::new(0);
+    static IRQ_RESERVATION: AtomicU32 = AtomicU32::new(u32::MAX);
+    static IRQ_DEFERRED_RESULT: AtomicU32 = AtomicU32::new(u32::MAX);
+    static IRQ_RESERVED_RESULT: AtomicU32 = AtomicU32::new(u32::MAX);
+    static IRQ_DEFERRED_RAN: AtomicU32 = AtomicU32::new(0);
+    static IRQ_CONTEXT: AtomicU32 = AtomicU32::new(0);
     #[unsafe(export_name = "lwp_probe_debug_hook_count")]
     static DEBUG_HOOK_COUNT: AtomicU32 = AtomicU32::new(0);
     #[unsafe(export_name = "lwp_probe_debug_last_event")]
@@ -333,6 +347,58 @@ mod wii {
     static COND: AtomicU32 = AtomicU32::new(lwp::LWP_COND_NULL);
     static SEM: AtomicU32 = AtomicU32::new(lwp::LWP_SEM_NULL);
     static MQ: AtomicU32 = AtomicU32::new(lwp::MQ_BOX_NULL);
+
+    unsafe extern "C" {
+        fn __getreent() -> *mut c_void;
+    }
+
+    unsafe extern "C" fn external_setup_worker(storage: *mut c_void) -> *mut c_void {
+        let matches = !storage.is_null() && driver::current_reent() == storage;
+        EXTERNAL_SETUP_RAN.store(u32::from(matches), Ordering::Release);
+        driver::thread_exit(if matches {
+            0x5a17usize as *mut c_void
+        } else {
+            ptr::null_mut()
+        })
+    }
+
+    unsafe extern "C" fn external_wait_worker(_: *mut c_void) -> *mut c_void {
+        EXTERNAL_WAIT_READY.store(1, Ordering::Release);
+        driver::block_current_external(EXTERNAL_KEY, 0x15) as usize as *mut c_void
+    }
+
+    unsafe extern "C" fn external_wait_watchdog(_: u32, _: *mut c_void) {
+        EXTERNAL_WATCHDOG.store(1, Ordering::Release);
+        driver::broadcast_external(EXTERNAL_KEY);
+    }
+
+    unsafe extern "C" fn reent_worker(_: *mut c_void) -> *mut c_void {
+        let local = driver::current_reent();
+        // SAFETY: The newlib hook has no arguments and returns the current thread's storage.
+        let abi = unsafe { __getreent() };
+        CHILD_REENT.store(local as u32, Ordering::Release);
+        usize::from(!local.is_null() && local == abi) as *mut c_void
+    }
+
+    unsafe extern "C" fn rotation_worker(argument: *mut c_void) -> *mut c_void {
+        let id = argument as u32;
+        let position = PRIORITY_POSITION.fetch_add(1, Ordering::AcqRel);
+        PRIORITY_ORDER.fetch_or(id << (position * 4), Ordering::AcqRel);
+        if ROTATION_ABI.load(Ordering::Acquire) != 0 {
+            lwp::lwp_reschedule_abi(20);
+        } else {
+            lwp::reschedule(20);
+        }
+        let position = PRIORITY_POSITION.fetch_add(1, Ordering::AcqRel);
+        PRIORITY_ORDER.fetch_or(id << (position * 4), Ordering::AcqRel);
+        argument
+    }
+
+    unsafe extern "C" fn priority_worker(argument: *mut c_void) -> *mut c_void {
+        let position = PRIORITY_POSITION.fetch_add(1, Ordering::AcqRel);
+        PRIORITY_ORDER.fetch_or((argument as u32) << (position * 4), Ordering::AcqRel);
+        argument
+    }
 
     unsafe extern "C" fn switch_worker(argument: *mut c_void) -> *mut c_void {
         let counter = if argument as usize == 0 {
@@ -392,6 +458,85 @@ mod wii {
 
     unsafe fn deferred_callback(_: *mut c_void) {
         DEFERRED_RAN.store(1, Ordering::Release);
+    }
+
+    unsafe fn irq_deferred_callback(_: *mut c_void) {
+        IRQ_DEFERRED_RAN.fetch_or(1, Ordering::AcqRel);
+    }
+
+    unsafe fn irq_reserved_callback(_: *mut c_void) {
+        IRQ_DEFERRED_RAN.fetch_or(2, Ordering::AcqRel);
+    }
+
+    unsafe extern "C" fn irq_deferred_submit(_: u32, _: *mut c_void) {
+        let msr: u32;
+        unsafe { core::arch::asm!("mfmsr {value}", value = out(reg) msr, options(nomem, nostack)) };
+        IRQ_CONTEXT.store(u32::from(msr & 0x8000 == 0), Ordering::Release);
+        let reservation = IRQ_RESERVATION.load(Ordering::Acquire);
+        // SAFETY: The callbacks ignore their null arguments and the reservation
+        // is owned by this one-shot interrupt until it is consumed here.
+        let ordinary = unsafe {
+            lwp::deferred_call_from_interrupt(Some(irq_deferred_callback), ptr::null_mut())
+        };
+        let reserved = unsafe {
+            lwp::deferred_call_reserved_from_interrupt(
+                reservation,
+                Some(irq_reserved_callback),
+                ptr::null_mut(),
+            )
+        };
+        IRQ_DEFERRED_RESULT.store(ordinary as u32, Ordering::Release);
+        IRQ_RESERVED_RESULT.store(reserved as u32, Ordering::Release);
+    }
+
+    fn probe_interrupt_deferred(logger: &mut ProbeLogger) {
+        let Some(cancelled) = lwp::deferred_reserve_interrupt_slot() else {
+            logger.record("LWP interrupt reservation cancels once", false);
+            return;
+        };
+        logger.record(
+            "LWP interrupt reservation cancels once",
+            lwp::deferred_cancel_interrupt_slot(cancelled) == 0
+                && lwp::deferred_cancel_interrupt_slot(cancelled) == lwp::LWP_CLOSED,
+        );
+        let Some(reservation) = lwp::deferred_reserve_interrupt_slot() else {
+            logger.record("LWP interrupt deferred submission completes", false);
+            return;
+        };
+        IRQ_RESERVATION.store(reservation, Ordering::Release);
+        IRQ_DEFERRED_RESULT.store(u32::MAX, Ordering::Release);
+        IRQ_RESERVED_RESULT.store(u32::MAX, Ordering::Release);
+        IRQ_DEFERRED_RAN.store(0, Ordering::Release);
+        IRQ_CONTEXT.store(0, Ordering::Release);
+        let started = driver::now_ticks();
+        // SAFETY: This one-shot timer uses only static state in its callback.
+        let rc = unsafe {
+            driver::timer_start_with_key(
+                0x4952_5144,
+                Some(irq_deferred_submit),
+                ptr::null_mut(),
+                driver::TICKS_PER_SECOND / 100,
+                0,
+            )
+        };
+        while rc == 0
+            && IRQ_DEFERRED_RAN.load(Ordering::Acquire) != 3
+            && driver::now_ticks().wrapping_sub(started) < driver::TICKS_PER_SECOND
+        {
+            lwp::yield_thread();
+        }
+        driver::timer_cancel(0x4952_5144);
+        if IRQ_RESERVED_RESULT.load(Ordering::Acquire) != 0 {
+            let _ = lwp::deferred_cancel_interrupt_slot(reservation);
+        }
+        logger.record(
+            "LWP interrupt deferred submission completes",
+            rc == 0
+                && IRQ_CONTEXT.load(Ordering::Acquire) == 1
+                && IRQ_DEFERRED_RESULT.load(Ordering::Acquire) == 0
+                && IRQ_RESERVED_RESULT.load(Ordering::Acquire) == 0
+                && IRQ_DEFERRED_RAN.load(Ordering::Acquire) == 3,
+        );
     }
 
     unsafe extern "C" fn tuxedo_queue_worker(_: *mut c_void) -> isize {
@@ -501,6 +646,294 @@ mod wii {
             Ok(value as usize)
         } else {
             Err(rc)
+        }
+    }
+
+    fn probe_external_thread_setup(logger: &mut ProbeLogger) {
+        let mut storage = [u64::MAX; 64];
+        let storage_ptr = storage.as_mut_ptr().cast::<c_void>();
+        // SAFETY: The aligned storage has 512 writable bytes and remains live until join.
+        let initialized = unsafe { driver::initialize_external_reent(storage_ptr) };
+        let errno = unsafe { storage_ptr.cast::<u32>().read() };
+        logger.record(
+            "LWP external reentrancy storage initializes",
+            initialized && errno == 0,
+        );
+        if !initialized {
+            return;
+        }
+
+        EXTERNAL_SETUP_RAN.store(0, Ordering::Release);
+        let mut thread = lwp::LWP_THREAD_NULL;
+        // SAFETY: The aligned static stack is unique to this worker until join;
+        // storage and the handle output remain live for the worker's lifetime.
+        let stack_top = unsafe {
+            core::ptr::addr_of_mut!(STACK_A.0)
+                .cast::<u8>()
+                .add(STACK_BYTES)
+                .cast()
+        };
+        let created = unsafe {
+            driver::create_thread_at_top(
+                &mut thread,
+                Some(external_setup_worker),
+                storage_ptr,
+                stack_top,
+                20,
+                true,
+            )
+        };
+        if created != 0 {
+            logger.record("LWP stack-top worker starts suspended", false);
+            return;
+        }
+        logger.record(
+            "LWP stack-top worker starts suspended",
+            lwp::thread_is_suspended(thread) != 0
+                && EXTERNAL_SETUP_RAN.load(Ordering::Acquire) == 0,
+        );
+        // SAFETY: The initialized storage remains live until the worker is joined.
+        let attached = unsafe { driver::set_thread_reent_storage(thread, storage_ptr) };
+        let Some(mut mirror) = driver::thread_context_snapshot(thread) else {
+            let _ = lwp::resume_thread(thread);
+            let _ = join(thread);
+            logger.record("LWP suspended thread context mirror is writable", false);
+            return;
+        };
+        mirror.gpr[0] = 0x1357_2468;
+        // SAFETY: The copied context has the required layout and outlives the worker.
+        let mirrored = unsafe {
+            driver::set_thread_context_mirror(
+                thread,
+                (&mut mirror as *mut driver::LwpContext).cast(),
+            )
+        };
+        let mirrored_value =
+            driver::thread_context_snapshot(thread).is_some_and(|ctx| ctx.gpr[0] == 0x1357_2468);
+        logger.record(
+            "LWP suspended thread context mirror is writable",
+            mirrored && mirrored_value,
+        );
+        let resumed = lwp::resume_thread(thread) == 0;
+        let result = join(thread);
+        logger.record(
+            "LWP external reentrancy reaches worker",
+            attached && resumed && EXTERNAL_SETUP_RAN.load(Ordering::Acquire) == 1,
+        );
+        logger.record(
+            "LWP explicit thread exit returns value",
+            result == Ok(0x5a17),
+        );
+    }
+
+    fn probe_external_wait_paths(logger: &mut ProbeLogger) {
+        for scenario in 0..5 {
+            EXTERNAL_WAIT_READY.store(0, Ordering::Release);
+            EXTERNAL_WATCHDOG.store(0, Ordering::Release);
+            let mut thread = lwp::LWP_THREAD_NULL;
+            let created = create_with_stack(
+                &mut thread,
+                Some(external_wait_worker),
+                ptr::null_mut(),
+                core::ptr::addr_of_mut!(STACK_A),
+                80,
+            );
+            if created != 0 {
+                logger.record("LWP external wait worker starts", false);
+                return;
+            }
+            // SAFETY: The watchdog uses only static state and is cancelled after the join.
+            let timer = unsafe {
+                driver::timer_start_with_key(
+                    EXTERNAL_TIMER,
+                    Some(external_wait_watchdog),
+                    ptr::null_mut(),
+                    driver::TICKS_PER_SECOND,
+                    0,
+                )
+            };
+            lwp::yield_thread();
+            let ready = EXTERNAL_WAIT_READY.load(Ordering::Acquire) == 1;
+            let (label, expected, submitted) = match scenario {
+                0 => (
+                    "LWP external direct wake returns token",
+                    0x55,
+                    driver::wake_thread_with_token(thread, 0x55),
+                ),
+                1 => {
+                    driver::wake_external_by_value(EXTERNAL_KEY, 0x15, false);
+                    ("LWP external value wake returns signal", 1, true)
+                }
+                2 => {
+                    driver::wake_external_by_mask(EXTERNAL_KEY, 0x04, false);
+                    ("LWP external mask wake returns matched bits", 4, true)
+                }
+                3 => {
+                    driver::broadcast_external(EXTERNAL_KEY);
+                    ("LWP external broadcast wakes waiter", 1, true)
+                }
+                _ => {
+                    driver::cancel_external_wait(EXTERNAL_KEY, thread);
+                    ("LWP external cancellation returns zero", 0, true)
+                }
+            };
+            if timer != 0 {
+                let _ = driver::wake_thread_with_token(thread, 0);
+            }
+            let result = join(thread);
+            driver::timer_cancel(EXTERNAL_TIMER);
+            logger.note_u32("external wait scenario", scenario);
+            logger.note_u32("external wait worker ready", u32::from(ready));
+            logger.note_i32("external wait timer result", timer);
+            logger.note_u32("external wait submitted", u32::from(submitted));
+            logger.note_i32(
+                "external wait join result",
+                result.map_or_else(|error| error, |value| value as i32),
+            );
+            logger.note_u32(
+                "external wait watchdog ran",
+                EXTERNAL_WATCHDOG.load(Ordering::Acquire),
+            );
+            logger.record(
+                label,
+                ready
+                    && timer == 0
+                    && submitted
+                    && result == Ok(expected)
+                    && EXTERNAL_WATCHDOG.load(Ordering::Acquire) == 0,
+            );
+        }
+    }
+
+    fn probe_scheduler_critical_sections(logger: &mut ProbeLogger) {
+        fn msr() -> u32 {
+            let value: u32;
+            unsafe {
+                core::arch::asm!("mfmsr {value}", value = out(reg) value, options(nomem, nostack))
+            };
+            value
+        }
+        let before = msr();
+        let outer = driver::critical_enter();
+        let first = msr();
+        let inner = driver::critical_enter();
+        let second = msr();
+        driver::critical_exit(inner);
+        let after_inner = msr();
+        driver::critical_exit(outer);
+        let after = msr();
+        logger.record(
+            "LWP nested critical sections restore interrupt state",
+            before & 0x8000 != 0
+                && first & 0x8000 == 0
+                && second & 0x8000 == 0
+                && after_inner & 0x8000 == 0
+                && after & 0x8000 == before & 0x8000,
+        );
+    }
+
+    fn probe_reentrancy_storage(logger: &mut ProbeLogger) {
+        let parent = driver::current_reent();
+        // SAFETY: The newlib hook returns the current thread's storage.
+        let parent_abi = unsafe { __getreent() };
+        CHILD_REENT.store(0, Ordering::Release);
+        let mut child = lwp::LWP_THREAD_NULL;
+        let rc = create_with_stack(
+            &mut child,
+            Some(reent_worker),
+            ptr::null_mut(),
+            core::ptr::addr_of_mut!(STACK_A),
+            20,
+        );
+        let result = if rc == 0 { join(child) } else { Err(rc) };
+        logger.record(
+            "LWP newlib storage is stable and thread local",
+            !parent.is_null()
+                && parent == parent_abi
+                && result == Ok(1)
+                && CHILD_REENT.load(Ordering::Acquire) != 0
+                && CHILD_REENT.load(Ordering::Acquire) != parent as u32
+                && driver::current_reent() == parent,
+        );
+    }
+
+    fn probe_reschedule_rotation(logger: &mut ProbeLogger) {
+        for abi in [false, true] {
+            PRIORITY_ORDER.store(0, Ordering::Release);
+            PRIORITY_POSITION.store(0, Ordering::Release);
+            ROTATION_ABI.store(u32::from(abi), Ordering::Release);
+            let mut a = lwp::LWP_THREAD_NULL;
+            let mut b = lwp::LWP_THREAD_NULL;
+            let a_rc = create_with_stack(
+                &mut a,
+                Some(rotation_worker),
+                1usize as *mut c_void,
+                core::ptr::addr_of_mut!(STACK_A),
+                20,
+            );
+            let b_rc = create_with_stack(
+                &mut b,
+                Some(rotation_worker),
+                2usize as *mut c_void,
+                core::ptr::addr_of_mut!(STACK_B),
+                20,
+            );
+            let a_result = if a_rc == 0 { join(a) } else { Err(a_rc) };
+            let b_result = if b_rc == 0 { join(b) } else { Err(b_rc) };
+            let order = PRIORITY_ORDER.load(Ordering::Acquire);
+            logger.note_hex32("LWP reschedule worker order", order);
+            logger.record(
+                if abi {
+                    "LWP ABI reschedule rotates equal priority workers"
+                } else {
+                    "LWP reschedule rotates equal priority workers"
+                },
+                a_result == Ok(1)
+                    && b_result == Ok(2)
+                    && PRIORITY_POSITION.load(Ordering::Acquire) == 4
+                    && (order == 0x2121 || order == 0x1212),
+            );
+        }
+    }
+
+    fn probe_priority_order(logger: &mut ProbeLogger) {
+        for abi in [false, true] {
+            PRIORITY_ORDER.store(0, Ordering::Release);
+            PRIORITY_POSITION.store(0, Ordering::Release);
+            let mut a = lwp::LWP_THREAD_NULL;
+            let mut b = lwp::LWP_THREAD_NULL;
+            let a_rc = create_with_stack(
+                &mut a,
+                Some(priority_worker),
+                1usize as *mut c_void,
+                core::ptr::addr_of_mut!(STACK_A),
+                if abi { 30 } else { 20 },
+            );
+            let b_rc = create_with_stack(
+                &mut b,
+                Some(priority_worker),
+                2usize as *mut c_void,
+                core::ptr::addr_of_mut!(STACK_B),
+                if abi { 20 } else { 30 },
+            );
+            if abi {
+                lwp::lwp_set_thread_priority_abi(b, 50);
+            } else {
+                lwp::set_thread_priority(a, 40);
+            }
+            let a_result = if a_rc == 0 { join(a) } else { Err(a_rc) };
+            let b_result = if b_rc == 0 { join(b) } else { Err(b_rc) };
+            logger.record(
+                if abi {
+                    "LWP ABI priority change selects higher worker"
+                } else {
+                    "LWP priority change selects higher worker"
+                },
+                a_result == Ok(1)
+                    && b_result == Ok(2)
+                    && PRIORITY_POSITION.load(Ordering::Acquire) == 2
+                    && PRIORITY_ORDER.load(Ordering::Acquire) == if abi { 0x12 } else { 0x21 },
+            );
         }
     }
 
@@ -1459,12 +1892,19 @@ mod wii {
 
         run_interrupt_frame_integrity(&mut logger);
         run_switch_and_join(&mut logger);
+        probe_priority_order(&mut logger);
+        probe_reschedule_rotation(&mut logger);
+        probe_scheduler_critical_sections(&mut logger);
+        probe_reentrancy_storage(&mut logger);
+        probe_external_thread_setup(&mut logger);
+        probe_external_wait_paths(&mut logger);
         run_synchronization(&mut logger);
         run_legacy_sync_abi(&mut logger);
         run_legacy_thread_abi(&mut logger);
         run_condition_broadcast(&mut logger);
         run_timed_wait(&mut logger);
         run_message_and_deferred(&mut logger);
+        probe_interrupt_deferred(&mut logger);
         run_tuxedo_compatibility(&mut logger);
         run_ipc_wakeup(&mut logger);
         run_std_foundation(&mut logger);

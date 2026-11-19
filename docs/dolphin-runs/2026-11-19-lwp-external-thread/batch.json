@@ -1,0 +1,68 @@
+{
+  "probe": "lwp_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "create_thread_at_top",
+      "line": 1878,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_external_thread_setup",
+      "api_path": "driver::create_thread_at_top",
+      "checks": [
+        "LWP stack-top worker starts suspended"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "initialize_external_reent",
+      "line": 2046,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_external_thread_setup",
+      "api_path": "driver::initialize_external_reent",
+      "checks": [
+        "LWP external reentrancy storage initializes"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "set_thread_context_mirror",
+      "line": 2069,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_external_thread_setup",
+      "api_path": "driver::set_thread_context_mirror",
+      "checks": [
+        "LWP suspended thread context mirror is writable"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "set_thread_reent_storage",
+      "line": 2091,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_external_thread_setup",
+      "api_path": "driver::set_thread_reent_storage",
+      "checks": [
+        "LWP external reentrancy reaches worker"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "thread_exit",
+      "line": 2627,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "external_setup_worker",
+      "api_path": "driver::thread_exit",
+      "checks": [
+        "LWP explicit thread exit returns value"
+      ]
+    }
+  ],
+  "limits": [
+    "One suspended worker using caller-owned stack, context and newlib state in Dolphin; concurrent mutation, physical Wii timing and all newlib fields are not covered."
+  ]
+}

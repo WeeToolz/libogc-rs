@@ -10,10 +10,17 @@ mod sys {
             pub result: isize,
             pub bytes: Vec<u8>,
             pub flushes: usize,
+            pub stream: i32,
         }
         thread_local! { pub static STATE: RefCell<State> = RefCell::new(State::default()); }
-        pub unsafe fn output(bytes: *const u8, length: usize, flush: bool) -> isize {
+        pub unsafe fn output_stream(
+            stream: i32,
+            bytes: *const u8,
+            length: usize,
+            flush: bool,
+        ) -> isize {
             STATE.with_borrow_mut(|state| {
+                state.stream = stream;
                 if flush {
                     state.flushes += 1;
                 } else if length != 0 {
@@ -34,7 +41,10 @@ fn writes_pass_actual_bytes_and_partial_counts() {
     STATE.with_borrow_mut(|state| state.result = 3);
     let count = adapter::Stdout::new().write(b"abcde").unwrap();
     assert_eq!(count, 3);
-    STATE.with_borrow(|state| assert_eq!(state.bytes, b"abcde"));
+    STATE.with_borrow(|state| {
+        assert_eq!(state.bytes, b"abcde");
+        assert_eq!(state.stream, 1);
+    });
 }
 #[test]
 fn write_and_flush_preserve_transport_errors() {
@@ -60,7 +70,10 @@ fn default_panic_sink_uses_the_same_checked_transport() {
         .expect("real panic sink")
         .write_all(b"panic marker")
         .unwrap();
-    STATE.with_borrow(|state| assert_eq!(state.bytes, b"panic marker"));
+    STATE.with_borrow(|state| {
+        assert_eq!(state.bytes, b"panic marker");
+        assert_eq!(state.stream, 2);
+    });
 }
 #[test]
 fn stdin_has_no_false_input_success() {

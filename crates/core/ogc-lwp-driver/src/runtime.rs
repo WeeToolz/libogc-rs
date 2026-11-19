@@ -1020,7 +1020,7 @@ unsafe fn rotate_priority_locked(priority: u8) {
             if matches!(thread.state, ThreadState::Ready | ThreadState::Running)
                 && thread.effective_priority == priority
             {
-                LAST_SELECTED_BY_PRIORITY[priority as usize] = index;
+                LAST_SELECTED_BY_PRIORITY[priority as usize] = (index + capacity - 1) % capacity;
                 break;
             }
         }

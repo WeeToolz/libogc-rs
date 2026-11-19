@@ -1,0 +1,84 @@
+{
+  "probe": "lwp_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "wake_thread_with_token",
+      "line": 3504,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_external_wait_paths",
+      "api_path": "driver::wake_thread_with_token",
+      "checks": [
+        "LWP external direct wake returns token"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "wake_external_by_value",
+      "line": 3562,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_external_wait_paths",
+      "api_path": "driver::wake_external_by_value",
+      "checks": [
+        "LWP external value wake returns signal"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "wake_external_by_mask",
+      "line": 3565,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_external_wait_paths",
+      "api_path": "driver::wake_external_by_mask",
+      "checks": [
+        "LWP external mask wake returns matched bits"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "broadcast_external",
+      "line": 3568,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_external_wait_paths",
+      "api_path": "driver::broadcast_external",
+      "checks": [
+        "LWP external broadcast wakes waiter"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "cancel_external_wait",
+      "line": 3585,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_external_wait_paths",
+      "api_path": "driver::cancel_external_wait",
+      "checks": [
+        "LWP external cancellation returns zero"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "block_current_external",
+      "line": 3480,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "external_wait_worker",
+      "api_path": "driver::block_current_external",
+      "checks": [
+        "LWP external direct wake returns token",
+        "LWP external value wake returns signal",
+        "LWP external mask wake returns matched bits",
+        "LWP external broadcast wakes waiter",
+        "LWP external cancellation returns zero"
+      ]
+    }
+  ],
+  "limits": [
+    "Single blocked waiter in Dolphin; multi-waiter selection, pending-wake races and physical Wii timing are not covered."
+  ]
+}

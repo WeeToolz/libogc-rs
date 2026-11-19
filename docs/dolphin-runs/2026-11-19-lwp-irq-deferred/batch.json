@@ -1,0 +1,58 @@
+{
+  "probe": "lwp_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "deferred_reserve_interrupt_slot",
+      "line": 327,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_interrupt_deferred",
+      "api_path": "lwp::deferred_reserve_interrupt_slot",
+      "checks": [
+        "LWP interrupt reservation cancels once",
+        "LWP interrupt deferred submission completes"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "deferred_cancel_interrupt_slot",
+      "line": 331,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_interrupt_deferred",
+      "api_path": "lwp::deferred_cancel_interrupt_slot",
+      "checks": [
+        "LWP interrupt reservation cancels once",
+        "LWP interrupt deferred submission completes"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "deferred_call_from_interrupt",
+      "line": 323,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "irq_deferred_submit",
+      "api_path": "lwp::deferred_call_from_interrupt",
+      "checks": [
+        "LWP interrupt deferred submission completes"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "deferred_call_reserved_from_interrupt",
+      "line": 337,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "irq_deferred_submit",
+      "api_path": "lwp::deferred_call_reserved_from_interrupt",
+      "checks": [
+        "LWP interrupt deferred submission completes"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin decrementer interrupt and deferred worker; queue saturation, concurrent hardware interrupts and physical Wii timing are not covered."
+  ]
+}

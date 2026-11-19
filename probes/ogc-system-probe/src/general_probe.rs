@@ -578,6 +578,23 @@ fn probe_es_certificate_chain(logger: &mut ProbeLogger) {
         "ES next certificate follows all supported ABI layouts",
         passed,
     );
+    bytes.fill(0);
+    bytes[..4].copy_from_slice(&es::ES_SIG_RSA2048.to_be_bytes());
+    bytes[0x140 + 64..0x140 + 68].copy_from_slice(&u32::MAX.to_be_bytes());
+    // SAFETY: The signature and complete certificate header are readable.
+    let invalid_type = unsafe { es::next_cert(bytes.as_ptr().cast()) };
+    logger.record(
+        "ES next certificate rejects unknown certificate type",
+        invalid_type.is_null(),
+    );
+    bytes[..4].copy_from_slice(&u32::MAX.to_be_bytes());
+    // SAFETY: The signature type is readable, and null is allowed.
+    let invalid_signature = unsafe { es::next_cert(bytes.as_ptr().cast()) };
+    let null_chain = unsafe { es::next_cert(core::ptr::null()) };
+    logger.record(
+        "ES next certificate rejects invalid signature and null",
+        invalid_signature.is_null() && null_chain.is_null(),
+    );
 }
 
 fn probe_bluetooth_idle_host(logger: &mut ProbeLogger) {

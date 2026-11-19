@@ -1,0 +1,32 @@
+{
+  "probe": "lwp_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "reschedule",
+      "line": 162,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "rotation_worker",
+      "api_path": "lwp::reschedule",
+      "checks": [
+        "LWP reschedule rotates equal priority workers"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "lwp_reschedule_abi",
+      "line": 414,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "rotation_worker",
+      "api_path": "lwp::lwp_reschedule_abi",
+      "checks": [
+        "LWP ABI reschedule rotates equal priority workers"
+      ]
+    }
+  ],
+  "limits": [
+    "Two ready threads at equal priority in Dolphin; other priorities, interruption and physical Wii timing are not covered."
+  ]
+}
