@@ -1209,7 +1209,7 @@ ogc-es-sys,is_valid_cert,rust-function,crates/core/ogc-es-sys/src/imp.rs,388,ios
 ogc-es-sys,is_valid_signature,rust-function,crates/core/ogc-es-sys/src/imp.rs,380,ios,ios,hardware-probe:probes/ogc-system-probe/src/general_probe.rs::probe_es_layout calls is_valid_signature through `es::is_valid_signature`,system-probe,See crate contract for es-abi-driver role and hardware validation status
 ogc-es-sys,launch_title,rust-function,crates/core/ogc-es-sys/src/imp.rs,1282,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,launch_title_background,rust-function,crates/core/ogc-es-sys/src/imp.rs,1314,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
-ogc-es-sys,next_cert,rust-function,crates/core/ogc-es-sys/src/imp.rs,2470,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
+ogc-es-sys,next_cert,rust-function,crates/core/ogc-es-sys/src/imp.rs,2470,ios,ios,hardware-probe:probes/ogc-system-probe/src/general_probe.rs::probe_es_certificate_chain calls next_cert through `es::next_cert`,system-probe,See crate contract for es-abi-driver role and hardware validation status
 ogc-es-sys,open_content,rust-function,crates/core/ogc-es-sys/src/imp.rs,2026,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,open_title_content,rust-function,crates/core/ogc-es-sys/src/imp.rs,2046,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-es-sys,patch_ahbprot_reset,rust-function,crates/core/ogc-es-sys/src/lib.rs,41,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence

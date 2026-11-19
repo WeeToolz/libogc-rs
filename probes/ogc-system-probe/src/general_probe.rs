@@ -7,6 +7,7 @@ use crate::probe_support::ProbeLogger;
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("GENERAL PROBE");
     probe_es_layout(logger);
+    probe_es_certificate_chain(logger);
     probe_wpad_speaker_encoder(logger);
     probe_bluetooth_idle_host(logger);
 
@@ -43,6 +44,42 @@ pub fn run(logger: &mut ProbeLogger) {
     logger.record(
         "console footer write",
         crate::probe_support::screen_write(b"general probe uses direct runtime calls\n").is_ok(),
+    );
+}
+
+fn probe_es_certificate_chain(logger: &mut ProbeLogger) {
+    // Values are the public C ABI sizes, not calculated by the Rust helpers.
+    let signatures = [
+        (es::ES_SIG_RSA4096, 0x240usize),
+        (es::ES_SIG_RSA2048, 0x140),
+        (es::ES_SIG_ECDSA, 0x80),
+    ];
+    let certificates = [
+        (es::ES_CERT_RSA4096, 0x2c0usize),
+        (es::ES_CERT_RSA2048, 0x1c0),
+        (es::ES_CERT_ECDSA, 0x100),
+    ];
+    let mut chain = [0u32; 321];
+    let bytes = unsafe {
+        core::slice::from_raw_parts_mut(chain.as_mut_ptr().cast::<u8>(), chain.len() * 4)
+    };
+    let mut passed = true;
+    for (signature, signature_len) in signatures {
+        for (certificate, certificate_len) in certificates {
+            bytes.fill(0);
+            bytes[..4].copy_from_slice(&signature.to_be_bytes());
+            bytes[signature_len + 64..signature_len + 68]
+                .copy_from_slice(&certificate.to_be_bytes());
+            let first = bytes.as_ptr().cast::<es::SignedBlob>();
+            // SAFETY: The initialized buffer contains a complete signed certificate,
+            // and the expected next pointer remains inside the allocation.
+            let next = unsafe { es::next_cert(first) };
+            passed &= next as usize == first as usize + signature_len + certificate_len;
+        }
+    }
+    logger.record(
+        "ES next certificate follows all supported ABI layouts",
+        passed,
     );
 }
 
