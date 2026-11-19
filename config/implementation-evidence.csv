@@ -2631,3 +2631,5 @@ ogc-input,src/lib.rs,recalibrate,41,compatibility-forwarder,hardware-probe,probe
 ogc-input,src/lib.rs,reset,37,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,run_state,pad::reset
 ogc-input,src/lib.rs,sync,28,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,run_state,pad::sync
 ogc-input,src/lib.rs,read,33,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,run_state,pad::read
+ogc-usb-sys,src/lib.rs,convert_hid_descriptor_lengths,2314,ios,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,run,usb::sys::convert_hid_descriptor_lengths
+ogc-usb-sys,src/lib.rs,prepare_hid_v5_device_with,1702,ios,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,run,usb::sys::prepare_hid_v5_device_with

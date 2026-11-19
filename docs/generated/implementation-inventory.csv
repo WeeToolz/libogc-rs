@@ -2864,7 +2864,7 @@ ogc-usb-events,unavailable_status,rust-method-or-module-function,crates/services
 ogc-usb-sys,clear_halt,rust-function,crates/services/ogc-usb-sys/src/lib.rs,4308,unverified,ios,none,usb-probe,declared `ios` without exact API test or probe evidence
 ogc-usb-sys,close_device,rust-function,crates/services/ogc-usb-sys/src/lib.rs,1802,unverified,ios,none,usb-probe,declared `ios` without exact API test or probe evidence
 ogc-usb-sys,close_device_async,rust-function,crates/services/ogc-usb-sys/src/lib.rs,1852,unverified,ios,none,usb-probe,declared `ios` without exact API test or probe evidence
-ogc-usb-sys,convert_hid_descriptor_lengths,rust-function,crates/services/ogc-usb-sys/src/lib.rs,2314,unverified,ios,none,usb-probe,declared `ios` without exact API test or probe evidence
+ogc-usb-sys,convert_hid_descriptor_lengths,rust-function,crates/services/ogc-usb-sys/src/lib.rs,2314,ios,ios,hardware-probe:probes/ogc-system-probe/src/hid_descriptor_probe.rs::run calls convert_hid_descriptor_lengths through `usb::sys::convert_hid_descriptor_lengths`,usb-probe,See crate contract for usb-ios-driver role and hardware validation status
 ogc-usb-sys,deinitialize,rust-function,crates/services/ogc-usb-sys/src/lib.rs,1600,unverified,ios,none,usb-probe,declared `ios` without exact API test or probe evidence
 ogc-usb-sys,deinitialize_vendor,rust-function,crates/services/ogc-usb-sys/src/lib.rs,1613,unverified,ios,none,usb-probe,declared `ios` without exact API test or probe evidence
 ogc-usb-sys,device_change_notify_async,rust-function,crates/services/ogc-usb-sys/src/lib.rs,3210,unverified,ios,none,usb-probe,declared `ios` without exact API test or probe evidence
@@ -2882,7 +2882,7 @@ ogc-usb-sys,get_report_descriptor_size,rust-function,crates/services/ogc-usb-sys
 ogc-usb-sys,initialize,rust-function,crates/services/ogc-usb-sys/src/lib.rs,1585,unverified,ios,none,usb-probe,declared `ios` without exact API test or probe evidence
 ogc-usb-sys,initialize_vendor,rust-function,crates/services/ogc-usb-sys/src/lib.rs,1590,unverified,ios,none,usb-probe,declared `ios` without exact API test or probe evidence
 ogc-usb-sys,open_device,rust-function,crates/services/ogc-usb-sys/src/lib.rs,1739,unverified,ios,none,usb-probe,declared `ios` without exact API test or probe evidence
-ogc-usb-sys,prepare_hid_v5_device_with,rust-function,crates/services/ogc-usb-sys/src/lib.rs,1702,unverified,ios,none,usb-probe,source review: discards 2 operation result(s) with a wildcard binding; declared `ios` without exact API test or probe evidence
+ogc-usb-sys,prepare_hid_v5_device_with,rust-function,crates/services/ogc-usb-sys/src/lib.rs,1702,ios,ios,hardware-probe:probes/ogc-system-probe/src/hid_descriptor_probe.rs::run calls prepare_hid_v5_device_with through `usb::sys::prepare_hid_v5_device_with`,usb-probe,See crate contract for usb-ios-driver role and hardware validation status; source review: discards 2 operation result(s) with a wildcard binding
 ogc-usb-sys,read_blk_msg,rust-function,crates/services/ogc-usb-sys/src/lib.rs,3525,unverified,ios,none,usb-probe,declared `ios` without exact API test or probe evidence
 ogc-usb-sys,read_blk_msg_async,rust-function,crates/services/ogc-usb-sys/src/lib.rs,3556,unverified,ios,none,usb-probe,declared `ios` without exact API test or probe evidence
 ogc-usb-sys,read_ctrl_msg,rust-function,crates/services/ogc-usb-sys/src/lib.rs,3615,unverified,ios,none,usb-probe,declared `ios` without exact API test or probe evidence

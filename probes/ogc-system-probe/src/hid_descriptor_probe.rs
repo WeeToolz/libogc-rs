@@ -70,6 +70,11 @@ pub fn run(logger: &mut ProbeLogger) {
         truncated_descriptor[10..14] == [0x56, 0x78, 0x22, 0xbc],
     );
 
+    let mut short = [9, 0x21, 0x11, 0x01, 0, 1, 0x22, 0x34];
+    let original = short;
+    usb::sys::convert_hid_descriptor_lengths(&mut short);
+    logger.record("HID short header remains unchanged", short == original);
+
     let phase = Cell::new(0u8);
     let free_called = Cell::new(false);
     let suspend_called = Cell::new(false);
@@ -127,6 +132,29 @@ pub fn run(logger: &mut ProbeLogger) {
             && phase.get() == 3
             && !free_called.get()
             && suspend_called.get(),
+    );
+
+    let freed = Cell::new(false);
+    let suspended = Cell::new(false);
+    let result = usb::sys::prepare_hid_v5_device_with(
+        42,
+        |_| -1,
+        |_, _| 7,
+        |_| freed.set(true),
+        |_| {
+            suspended.set(true);
+            -2
+        },
+    );
+    logger.record(
+        "HID v5 open accepts positive descriptor status",
+        result == 0 && freed.get() && !suspended.get(),
+    );
+
+    let result = usb::sys::prepare_hid_v5_device_with(42, |_| 0, |_, _| -23, |_| {}, |_| -9);
+    logger.record(
+        "HID v5 open preserves descriptor error when suspend fails",
+        result == -23,
     );
 }
 
