@@ -2671,3 +2671,12 @@ ogc-bt-sync,src/wii_host.rs,next_event,130,ios,hardware-probe,probes/ogc-system-
 ogc-bt-sync,src/wii_host.rs,poll,178,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_bluetooth_idle_host,host.poll
 ogc-bt-sync,src/wii_host.rs,shutdown,136,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_bluetooth_idle_host,host.shutdown
 ogc-bt-sync,src/wii_host.rs,shutdown_complete,175,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_bluetooth_idle_host,host.shutdown_complete
+ogc-input,src/lib.rs,buttons_down,71,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_accessors,pad::buttons_down
+ogc-input,src/lib.rs,buttons_held,75,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_accessors,pad::buttons_held
+ogc-input,src/lib.rs,buttons_up,67,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_accessors,pad::buttons_up
+ogc-input,src/lib.rs,stick_x,87,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_accessors,pad::stick_x
+ogc-input,src/lib.rs,stick_y,91,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_accessors,pad::stick_y
+ogc-input,src/lib.rs,substick_x,79,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_accessors,pad::substick_x
+ogc-input,src/lib.rs,substick_y,83,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_accessors,pad::substick_y
+ogc-input,src/lib.rs,trigger_l,95,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_accessors,pad::trigger_l
+ogc-input,src/lib.rs,trigger_r,99,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_accessors,pad::trigger_r

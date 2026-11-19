@@ -1,0 +1,116 @@
+{
+  "probe": "input_probe",
+  "cases": [
+    {
+      "crate": "ogc-input",
+      "path": "src/lib.rs",
+      "symbol": "buttons_down",
+      "line": 71,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_accessors",
+      "api_path": "pad::buttons_down",
+      "checks": [
+        "PAD accessors match button transitions from raw samples"
+      ]
+    },
+    {
+      "crate": "ogc-input",
+      "path": "src/lib.rs",
+      "symbol": "buttons_held",
+      "line": 75,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_accessors",
+      "api_path": "pad::buttons_held",
+      "checks": [
+        "PAD accessors match button transitions from raw samples"
+      ]
+    },
+    {
+      "crate": "ogc-input",
+      "path": "src/lib.rs",
+      "symbol": "buttons_up",
+      "line": 67,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_accessors",
+      "api_path": "pad::buttons_up",
+      "checks": [
+        "PAD accessors match button transitions from raw samples"
+      ]
+    },
+    {
+      "crate": "ogc-input",
+      "path": "src/lib.rs",
+      "symbol": "stick_x",
+      "line": 87,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_accessors",
+      "api_path": "pad::stick_x",
+      "checks": [
+        "PAD accessors match axes from raw samples"
+      ]
+    },
+    {
+      "crate": "ogc-input",
+      "path": "src/lib.rs",
+      "symbol": "stick_y",
+      "line": 91,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_accessors",
+      "api_path": "pad::stick_y",
+      "checks": [
+        "PAD accessors match axes from raw samples"
+      ]
+    },
+    {
+      "crate": "ogc-input",
+      "path": "src/lib.rs",
+      "symbol": "substick_x",
+      "line": 79,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_accessors",
+      "api_path": "pad::substick_x",
+      "checks": [
+        "PAD accessors match axes from raw samples"
+      ]
+    },
+    {
+      "crate": "ogc-input",
+      "path": "src/lib.rs",
+      "symbol": "substick_y",
+      "line": 83,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_accessors",
+      "api_path": "pad::substick_y",
+      "checks": [
+        "PAD accessors match axes from raw samples"
+      ]
+    },
+    {
+      "crate": "ogc-input",
+      "path": "src/lib.rs",
+      "symbol": "trigger_l",
+      "line": 95,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_accessors",
+      "api_path": "pad::trigger_l",
+      "checks": [
+        "PAD accessors match axes from raw samples"
+      ]
+    },
+    {
+      "crate": "ogc-input",
+      "path": "src/lib.rs",
+      "symbol": "trigger_r",
+      "line": 99,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_accessors",
+      "api_path": "pad::trigger_r",
+      "checks": [
+        "PAD accessors match axes from raw samples"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin GameCube port 0 with scripted button and main-stick input. Substick and trigger checks cover observed neutral samples only; physical controllers are not covered."
+  ]
+}

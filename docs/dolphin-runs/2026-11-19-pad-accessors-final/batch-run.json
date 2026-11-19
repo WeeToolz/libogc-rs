@@ -1,0 +1,47 @@
+{
+  "source_revision": "72f63c3f37d572c332778f82025870e026bea6b1",
+  "source_fingerprint": "d147ff7646b60d9f8f5f49701bcc33d3a56fbf2a9df153087dc68515ccadad29",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "input_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-19-pad-accessors-final",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "7428d89e7fdb3acc97ac5f302383a1496ed81181d32ad2007b81651e6ca31fe7",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "5b3db27bb61806c6f9102d38e440e7ac5476ec48bca07277d2e3deea2d4b3bde",
+  "suite_sha256": "b0dca2fbe8963bcf231f4e7c122d3e3e4093062731cb270798ca7674940981f9",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-19-pad-accessors-final/input_probe/probe.log": "a2d21fa618ec7d1a77691d6f94662cc2f0fcfc7eae8f15e3f1edbd7962d63b6b",
+    "docs/dolphin-runs/2026-11-19-pad-accessors-final/input_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-19-pad-accessors-final/input_probe/stderr.log": "70a79617ddefe58794f4144d98263d1051b477e4a38372fd6cb4e01e2eadce5c",
+    "docs/dolphin-runs/2026-11-19-pad-accessors-final/input_probe/probe-transport.bin": "700bc1195649cba33ddd0e57b80cb4dcfec336ea1a048a6bc1f82596e3e8d4db",
+    "docs/dolphin-runs/2026-11-19-pad-accessors-final/input_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-19-pad-accessors-final/input_probe/pages/page-002.png": "bebf13ec599465c32cd7c024847603047c0440ecb21eebc08953d1edb1b5880c",
+    "docs/dolphin-runs/2026-11-19-pad-accessors-final/input_probe/pages/page-003.png": "53ed6aa233d18d92488ac0bdc796b17299e68cfddf8957ae38096c40b09e2239"
+  },
+  "exit_code": 0
+}
