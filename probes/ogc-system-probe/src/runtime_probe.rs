@@ -114,6 +114,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_irq_delivery_state(logger);
     probe_irq_mask_state(logger);
     probe_exi_locking(logger);
+    probe_exi_raw_lock_queue(logger);
     probe_si_queries(logger);
     probe_si_raw_queries(logger);
     probe_ui_adapters(logger);
@@ -1768,6 +1769,40 @@ fn probe_si_queries(logger: &mut ProbeLogger) {
 }
 
 unsafe extern "C" fn probe_irq_handler(_: u32, _: *mut core::ffi::c_void) {}
+
+static EXI_UNLOCK_CALLS: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+static EXI_UNLOCK_ARGS: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+
+unsafe extern "C" fn probe_exi_unlock_callback(channel: i32, device: i32) -> i32 {
+    EXI_UNLOCK_ARGS.store(((channel as u32) << 16) | device as u32, Ordering::Release);
+    EXI_UNLOCK_CALLS.fetch_add(1, Ordering::Release);
+    1
+}
+
+fn probe_exi_raw_lock_queue(logger: &mut ProbeLogger) {
+    use ogc_exi::sys as raw_exi;
+    EXI_UNLOCK_CALLS.store(0, Ordering::Release);
+    EXI_UNLOCK_ARGS.store(0, Ordering::Release);
+    let locked = raw_exi::lock(1, 1, None);
+    let blocked = raw_exi::lock(1, 2, Some(probe_exi_unlock_callback));
+    let duplicate = raw_exi::lock(1, 2, Some(probe_exi_unlock_callback));
+    let unlocked = raw_exi::unlock(1);
+    let callback = EXI_UNLOCK_CALLS.load(Ordering::Acquire) == 1
+        && EXI_UNLOCK_ARGS.load(Ordering::Acquire) == 0x0001_0002;
+    let relocked = raw_exi::lock(1, 2, None);
+    let released = raw_exi::unlock(1);
+    logger.record(
+        "Raw EXI lock delivers queued callback once",
+        locked == 1
+            && blocked == 0
+            && duplicate == 0
+            && unlocked == 1
+            && callback
+            && relocked == 1
+            && released == 1
+            && EXI_UNLOCK_CALLS.load(Ordering::Acquire) == 1,
+    );
+}
 
 fn probe_exi_locking(logger: &mut ProbeLogger) {
     use ogc_exi as exi;

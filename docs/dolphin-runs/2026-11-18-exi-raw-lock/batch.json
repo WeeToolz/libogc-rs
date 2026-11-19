@@ -1,0 +1,32 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-exi-sys",
+      "path": "src/lib.rs",
+      "symbol": "lock",
+      "line": 597,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_raw_lock_queue",
+      "api_path": "raw_exi::lock",
+      "checks": [
+        "Raw EXI lock delivers queued callback once"
+      ]
+    },
+    {
+      "crate": "ogc-exi-sys",
+      "path": "src/lib.rs",
+      "symbol": "unlock",
+      "line": 633,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_raw_lock_queue",
+      "api_path": "raw_exi::unlock",
+      "checks": [
+        "Raw EXI lock delivers queued callback once"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin one EXI channel with one queued callback and duplicate request. Multiple waiting devices, transfers and physical Wii remain unverified."
+  ]
+}

@@ -2471,3 +2471,5 @@ ogc-exi,src/lib.rs,lock,42,compatibility-forwarder,hardware-probe,probes/ogc-sys
 ogc-exi,src/lib.rs,try_lock,49,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_locking,exi::try_lock
 ogc-exi,src/lib.rs,unlock,53,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_locking,exi::unlock
 ogc-exi,src/lib.rs,try_unlock,57,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_locking,exi::try_unlock
+ogc-exi-sys,src/lib.rs,lock,597,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_raw_lock_queue,raw_exi::lock
+ogc-exi-sys,src/lib.rs,unlock,633,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_raw_lock_queue,raw_exi::unlock
