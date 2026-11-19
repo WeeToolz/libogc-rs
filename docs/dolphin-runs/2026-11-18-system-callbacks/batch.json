@@ -1,0 +1,56 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_set_power_callback",
+      "line": 4315,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_callbacks",
+      "api_path": "raw_system::sys_set_power_callback",
+      "checks": [
+        "System power callback dispatch observes cooldown"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_do_power_cb",
+      "line": 4327,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_callbacks",
+      "api_path": "raw_system::sys_do_power_cb",
+      "checks": [
+        "System power callback dispatch observes cooldown"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_power_dispatch",
+      "line": 4362,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_callbacks",
+      "api_path": "raw_system::snapshot_power_dispatch",
+      "checks": [
+        "System power callback dispatch observes cooldown"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_set_reset_callback",
+      "line": 4044,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_callbacks",
+      "api_path": "raw_system::sys_set_reset_callback",
+      "checks": [
+        "System reset callback setter returns previous handler"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin synchronous callback dispatch and one cooldown interval. Hardware button events, concurrent callback replacement and physical Wii remain unverified."
+  ]
+}

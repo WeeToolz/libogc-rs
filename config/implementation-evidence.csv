@@ -2463,3 +2463,7 @@ ogc-video,src/lib.rs,console_get_position,772,compatibility-forwarder,hardware-p
 ogc-input,src/lib.rs,clamp,46,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_pad_clamp,pad::clamp
 ogc-input-sys,src/lib.rs,pad_clamp,1438,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_pad_clamp,raw_pad::pad_clamp
 ogc-input-sys,src/lib.rs,pad_debug_make_status,1193,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_pad_status_decode,raw_pad::pad_debug_make_status
+ogc-system-sys,src/lib.rs,sys_set_power_callback,4315,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_callbacks,raw_system::sys_set_power_callback
+ogc-system-sys,src/lib.rs,sys_do_power_cb,4327,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_callbacks,raw_system::sys_do_power_cb
+ogc-system-sys,src/lib.rs,snapshot_power_dispatch,4362,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_callbacks,raw_system::snapshot_power_dispatch
+ogc-system-sys,src/lib.rs,sys_set_reset_callback,4044,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_callbacks,raw_system::sys_set_reset_callback

@@ -99,6 +99,8 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_system_font_snapshot(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_system_callbacks(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_reset_registration(logger);
     probe_video_queries(logger);
     probe_video_console_state(logger);
@@ -2279,6 +2281,56 @@ fn probe_reset_registration(logger: &mut ProbeLogger) {
             && registered.register_ptr == second_ptr as usize
             && removed.unregister_called
             && removed.unregister_ptr == second_ptr as usize,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+static SYSTEM_POWER_CALLBACK_COUNT: core::sync::atomic::AtomicU32 =
+    core::sync::atomic::AtomicU32::new(0);
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn probe_power_callback() {
+    SYSTEM_POWER_CALLBACK_COUNT.fetch_add(1, Ordering::Release);
+}
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn probe_reset_callback(_: u32, _: *mut core::ffi::c_void) {}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_callbacks(logger: &mut ProbeLogger) {
+    SYSTEM_POWER_CALLBACK_COUNT.store(0, Ordering::Release);
+    // SAFETY: The callbacks have static lifetime and the previous handlers are restored.
+    let previous = unsafe { raw_system::sys_set_power_callback(Some(probe_power_callback)) };
+    ogc_lwp::sys::sleep_ticks(ogc_lwp::sys::TICKS_PER_SECOND / 10);
+    unsafe {
+        raw_system::sys_do_power_cb();
+    }
+    let first = raw_system::snapshot_power_dispatch();
+    unsafe {
+        raw_system::sys_do_power_cb();
+    }
+    let second = raw_system::snapshot_power_dispatch();
+    let replaced = unsafe { raw_system::sys_set_power_callback(previous) };
+    let power_ok = first.called
+        && first.result
+        && second.called
+        && !second.result
+        && SYSTEM_POWER_CALLBACK_COUNT.load(Ordering::Acquire) == 1
+        && replaced.is_some_and(|handler| {
+            core::ptr::fn_addr_eq(handler, probe_power_callback as unsafe extern "C" fn())
+        });
+    logger.record("System power callback dispatch observes cooldown", power_ok);
+
+    let previous = unsafe { raw_system::sys_set_reset_callback(Some(probe_reset_callback)) };
+    let replaced = unsafe { raw_system::sys_set_reset_callback(previous) };
+    logger.record(
+        "System reset callback setter returns previous handler",
+        replaced.is_some_and(|handler| {
+            core::ptr::fn_addr_eq(
+                handler,
+                probe_reset_callback as unsafe extern "C" fn(u32, *mut core::ffi::c_void),
+            )
+        }),
     );
 }
 
