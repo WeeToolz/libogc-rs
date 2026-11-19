@@ -79,6 +79,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_controller_slots(logger);
     probe_pad_clamp(logger);
     probe_pad_status_decode(logger);
+    probe_controller_usb_ownership(logger);
     probe_owned_audio_buffer(logger);
     probe_l2cap_packets(logger);
     probe_l2cap_parsers(logger);
@@ -240,6 +241,26 @@ fn probe_pad_clamp(logger: &mut ProbeLogger) {
     logger.record(
         "PAD clamp applies bounds and preserves error samples",
         expected(&status) && expected(&raw_status),
+    );
+}
+
+fn probe_controller_usb_ownership(logger: &mut ProbeLogger) {
+    use ogc_controller::{ControllerManager, InputFailure};
+
+    let mut first = ControllerManager::new();
+    let mut second = ControllerManager::new();
+    first.enable_usb_hid();
+    first.enable_usb_hid();
+    second.enable_usb_hid();
+    let denied = matches!(second.shutdown_usb_hid(), Err(error)
+        if error.failure == InputFailure::AlreadyOwned && error.operation == "USB bus ownership");
+    let released = first.shutdown_usb_hid() == Ok(true);
+    second.enable_usb_hid();
+    let reacquired = second.shutdown_usb_hid() == Ok(true);
+    let idle = first.shutdown_usb_hid() == Ok(true);
+    logger.record(
+        "Controller USB ownership rejects contention and permits reuse",
+        denied && released && reacquired && idle,
     );
 }
 

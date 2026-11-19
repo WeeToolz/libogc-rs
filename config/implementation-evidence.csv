@@ -2641,3 +2641,5 @@ ogc-bt-sync,src/transport.rs,acl_in_endpoint,480,ios,hardware-probe,probes/ogc-s
 ogc-bt-sync,src/transport.rs,parse_event,886,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_transport_metadata,host.parse_event
 ogc-bt-sync,src/transport.rs,pin_code_request_reply,850,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_transport_metadata,host.pin_code_request_reply
 ogc-bt-sync,src/transport.rs,open_with_endpoints,429,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_transport_metadata,BtSyncHost::open_with_endpoints
+ogc-controller,src/hardware.rs,enable_usb_hid,1231,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_controller_usb_ownership,first.enable_usb_hid
+ogc-controller,src/hardware.rs,shutdown_usb_hid,1258,protocol,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_controller_usb_ownership,first.shutdown_usb_hid
