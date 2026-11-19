@@ -1,0 +1,33 @@
+{
+  "probe": "general_probe",
+  "cases": [
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "open_content",
+      "line": 2026,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_es_open_content",
+      "api_path": "es::open_content",
+      "checks": [
+        "ES active content rejects absent title"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "open_title_content",
+      "line": 2046,
+      "evidence_path": "probes/ogc-system-probe/src/general_probe.rs",
+      "function": "probe_es_open_content",
+      "api_path": "es::open_title_content",
+      "checks": [
+        "ES title content opens and rejects null view",
+        "ES title content reads fixture after seek and closes"
+      ]
+    }
+  ],
+  "limits": [
+    "Uses system-menu content and a ticket view from the private Dolphin NAND. Active-title success, other content, ticket permissions, and physical hardware remain open."
+  ]
+}

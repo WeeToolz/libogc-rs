@@ -13,6 +13,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_es_consumption(logger);
     probe_es_device_identity(logger);
     probe_es_content_invalid(logger);
+    probe_es_open_content(logger);
     probe_es_crypto_inputs(logger);
     probe_es_crypto_vector(logger);
     probe_wpad_speaker_encoder(logger);
@@ -261,6 +262,63 @@ fn probe_es_crypto_inputs(logger: &mut ProbeLogger) {
     );
     logger.note_i32("ES decrypt invalid key result", invalid_key_decrypt);
     logger.record("ES crypto probe closes service", es::close() == 0);
+}
+
+fn probe_es_open_content(logger: &mut ProbeLogger) {
+    const MENU: u64 = 0x0000_0001_0000_0002;
+    const PREFIX: &[u8; 32] = b"systemmenu.rvl.1004200546\0\0\0\0\0\0\0";
+    #[repr(align(32))]
+    struct Ticket(es::Tikview);
+    #[repr(align(32))]
+    struct Buffer([u8; 64]);
+
+    let initialized = es::init();
+    logger.record("ES content open probe starts service", initialized == 0);
+    if initialized != 0 {
+        return;
+    }
+    logger.record(
+        "ES active content rejects absent title",
+        es::open_content(0) == -1017,
+    );
+
+    let mut ticket = Ticket(es::Tikview::default());
+    // SAFETY: The ticket output is aligned and writable for one view.
+    let ticket_rc = unsafe { es::get_ticket_views(MENU, &mut ticket.0, 1) };
+    // SAFETY: ES must reject a null ticket view before reading it.
+    let null_rc = unsafe { es::open_title_content(MENU, core::ptr::null(), 0) };
+    // SAFETY: The initialized ticket view remains live through the call.
+    let content = if ticket_rc == 0 {
+        unsafe { es::open_title_content(MENU, &ticket.0, 0) }
+    } else {
+        ticket_rc
+    };
+    logger.record(
+        "ES title content opens and rejects null view",
+        ticket_rc == 0 && null_rc == es::ES_EINVAL && content >= 0,
+    );
+
+    if content >= 0 {
+        let mut buffer = Buffer([0xa5; 64]);
+        // SAFETY: The aligned buffer has 32 writable bytes plus guard bytes.
+        let read = unsafe { es::read_content(content, buffer.0.as_mut_ptr(), 32) };
+        let first_ok = read == 32 && &buffer.0[..32] == PREFIX && buffer.0[32..] == [0xa5; 32];
+        let seek = es::seek_content(content, 0, 0);
+        buffer.0.fill(0xa5);
+        let reread = unsafe { es::read_content(content, buffer.0.as_mut_ptr(), 32) };
+        let second_ok = reread == 32 && &buffer.0[..32] == PREFIX && buffer.0[32..] == [0xa5; 32];
+        let closed = es::close_content(content);
+        logger.record(
+            "ES title content reads fixture after seek and closes",
+            first_ok && seek == 0 && second_ok && closed == 0,
+        );
+    } else {
+        logger.record(
+            "ES title content reads fixture after seek and closes",
+            false,
+        );
+    }
+    logger.record("ES content open probe closes service", es::close() == 0);
 }
 
 fn probe_es_content_invalid(logger: &mut ProbeLogger) {

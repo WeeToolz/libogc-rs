@@ -2046,6 +2046,9 @@ pub fn open_content(index: u16) -> i32 {
 pub unsafe fn open_title_content(title_id: u64, views: *const Tikview, index: u16) -> i32 {
     unsafe {
         with_state(|state| {
+            if views.is_null() {
+                return ES_EINVAL;
+            }
             if !is_aligned(views.cast(), 4) {
                 return ES_EALIGN;
             }

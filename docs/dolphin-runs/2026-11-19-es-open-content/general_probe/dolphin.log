@@ -1,0 +1,100 @@
+27:01:483 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+27:01:483 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+27:01:484 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+27:01:491 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+27:01:491 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
+27:01:491 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
+27:01:491 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
+27:01:626 InputCommon/ControllerInterface/evdev/evdev.cpp:329 N[CI]: evdev hotplug thread started
+27:01:627 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: XInput2/0/Virtual core pointer
+27:01:628 InputCommon/ControllerInterface/DualShockUDPClient/DualShockUDPClient.cpp:487 I[CI]: DualShockUDPClient PopulateDevices
+27:01:628 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:143 I[CI]: SteamDeck PopulateDevices
+27:01:628 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:173 I[CI]: No Steam Deck interface found
+27:01:652 Core/ConfigManager.cpp:228 N[CORE]: Active title: 
+27:01:653 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+27:01:654 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+27:01:654 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+27:01:654 Core/Core.cpp:258 I[BOOT]: Starting core = Wii mode
+27:01:654 Core/Core.cpp:259 I[BOOT]: CPU Thread separate = Yes
+27:01:712 InputCommon/ControllerInterface/ControllerInterface.cpp:314 N[CI]: Removed device: XInput2/0/Virtual core pointer
+27:01:713 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: XInput2/0/Virtual core pointer
+27:01:896 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 0000000100000050
+27:01:897 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+27:01:897 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
+27:01:897 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+27:01:898 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+27:01:899 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+27:01:900 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+27:01:900 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+27:01:905 Core/IOS/Network/MACUtils.cpp:48 I[IOS_NET]: Using MAC address: 00:17:ab:41:b1:e5
+27:01:966 Core/Boot/Boot.cpp:559 N[BOOT]: Booting from executable: /workspace/libogc-rs/target/xtask/probes-dolphin/general_probe.dol
+27:01:968 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /title/00000001 (NAND)
+27:01:968 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /title/00000001/00000002 (NAND)
+27:01:968 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /title/00000001/00000002/content (NAND)
+27:01:969 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /title/00000001/00000002/data (NAND)
+27:01:969 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: OpenFile(/sys/uid.sys): Result 0
+27:01:969 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: Close(/sys/uid.sys): Result 0
+27:01:970 Core/Boot/Boot_BS2Emu.cpp:421 I[BOOT]: Using serial number: 372730284
+27:01:970 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /title/00000001/00000002/data/setting.txt (NAND)
+27:01:970 Core/Boot/Boot_BS2Emu.cpp:449 I[BOOT]: Setup Wii Memory...
+27:01:970 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 000000010000003a
+27:01:971 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+27:01:971 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
+27:01:971 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+27:01:971 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+27:01:972 Core/IOS/Network/MACUtils.cpp:48 I[IOS_NET]: Using MAC address: 00:17:ab:41:b1:e5
+27:01:973 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /shared2/wc24 (NAND)
+27:01:973 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /shared2/wc24/mbox (NAND)
+27:01:973 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /shared2/wc24/mbox/Readme.txt (NAND)
+27:01:973 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /shared2/wc24/mbox/wc24recv.ctl (NAND)
+27:01:973 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /shared2/wc24/mbox/wc24recv.mbx (NAND)
+27:01:973 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /shared2/wc24/mbox/wc24send.ctl (NAND)
+27:01:973 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /shared2/wc24/mbox/wc24send.mbx (NAND)
+27:01:973 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /shared2/wc24/misc.bin (NAND)
+27:01:973 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /shared2/wc24/nwc24dl.bin (NAND)
+27:01:973 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /shared2/wc24/nwc24fl.bin (NAND)
+27:01:973 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /shared2/wc24/nwc24fls.bin (NAND)
+27:01:973 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /shared2/wc24/nwc24msg.cbk (NAND)
+27:01:973 Core/IOS/FS/HostBackend/FS.cpp:268 I[IOS_FS]: Creating a default entry for /shared2/wc24/nwc24msg.cfg (NAND)
+27:02:126 Core/IOS/IOS.cpp:666 I[IOS]: Opening /dev/es (mode 0, fd 0)
+27:02:134 Core/IOS/IOS.cpp:666 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 1)
+27:02:142 Core/IOS/IOS.cpp:666 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 2)
+27:02:164 Core/IOS/IOS.cpp:666 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 3)
+27:02:171 Core/IOS/IOS.cpp:666 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 4)
+27:02:193 Core/IOS/IOS.cpp:666 I[IOS]: Opening /shared2/sys/SYSCONF (mode 1, fd 3)
+27:02:193 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: OpenFile(/shared2/sys/SYSCONF): Result 0
+27:02:201 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: Read(/shared2/sys/SYSCONF, 0x006b4182, 16384): Result 0
+27:02:210 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: Close(/shared2/sys/SYSCONF): Result 0
+27:02:210 Core/IOS/IOS.cpp:666 I[IOS]: Opening /title/00000001/00000002/data/setting.txt (mode 1, fd 3)
+27:02:211 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/setting.txt): Result 0
+27:02:211 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/setting.txt, 0x006b8182, 256): Result 0
+27:02:217 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/setting.txt): Result 0
+27:02:231 Core/IOS/IOS.cpp:666 I[IOS]: Opening /title/00000001/00000002/data/state.dat (mode 1, fd 3)
+27:02:231 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/state.dat): Result 0
+27:02:238 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/state.dat, 0x017f8240, 32): Result 0
+27:02:250 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/state.dat): Result 0
+27:02:250 Core/IOS/IOS.cpp:666 I[IOS]: Opening /shared2/sys/NANDBOOTINFO (mode 1, fd 3)
+27:02:250 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: OpenFile(/shared2/sys/NANDBOOTINFO): Result 0
+27:02:250 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: Read(/shared2/sys/NANDBOOTINFO, 0x017f8240, 4128): Result 0
+27:02:252 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: Close(/shared2/sys/NANDBOOTINFO): Result 0
+28:01:618 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
+28:01:618 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
+28:01:618 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
+28:01:619 Core/IOS/IOSC.cpp:421 W[IOS]: VerifyPublicKeySign: RSA verification failed (error -17280)
+28:01:650 Core/IOS/IOS.cpp:666 I[IOS]: Opening /dev/es (mode 0, fd 0)
+28:01:667 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
+28:01:667 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
+28:01:667 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
+28:01:750 Core/IOS/IOS.cpp:666 I[IOS]: Opening /dev/es (mode 0, fd 0)
+28:01:817 Core/IOS/IOS.cpp:666 I[IOS]: Opening /dev/es (mode 0, fd 0)
+28:01:900 Core/IOS/IOS.cpp:666 I[IOS]: Opening /dev/es (mode 0, fd 0)
+28:31:300 Core/IOS/IOS.cpp:666 I[IOS]: Opening /dev/es (mode 0, fd 0)
+28:31:334 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
+28:31:334 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
+28:31:334 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
+28:31:334 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/00000096.app): Result 0
+28:31:352 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: Seek(/title/00000001/00000002/content/00000096.app, 0x00000000, 0): Result 0
+28:31:354 Core/IOS/FS/FileSystemProxy.cpp:122 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/00000096.app): Result 0
+28:31:383 Core/IOS/IOS.cpp:666 I[IOS]: Opening /dev/es (mode 0, fd 0)
+28:31:430 Core/IOS/IOS.cpp:762 W[IOS]: Previous request to device /dev/es blocked emulation for 30591 microseconds.
+28:31:558 Core/IOS/IOS.cpp:666 I[IOS]: Opening /dev/es (mode 0, fd 0)
