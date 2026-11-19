@@ -2739,3 +2739,8 @@ ogc-gx,src/lib.rs,copy_display,3916,compatibility-forwarder,hardware-probe,probe
 ogc-gx,src/lib.rs,finish_frame,3990,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_frame_commands,gx::finish_frame
 ogc-gx,src/lib.rs,flush,4060,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_frame_commands,gx::flush
 ogc-gx,src/lib.rs,present_frame,4041,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_frame_commands,gx::present_frame
+ogc-gx,src/lib.rs,get_current_gx_thread,7420,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_thread_and_status,gx::get_current_gx_thread
+ogc-gx,src/lib.rs,set_current_gx_thread,7424,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_thread_and_status,gx::set_current_gx_thread
+ogc-gx,src/lib.rs,get_overflow_count,7412,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_thread_and_status,gx::get_overflow_count
+ogc-gx,src/lib.rs,reset_overflow_count,7416,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_thread_and_status,gx::reset_overflow_count
+ogc-gx,src/lib.rs,get_gp_status,7534,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_thread_and_status,gx::get_gp_status

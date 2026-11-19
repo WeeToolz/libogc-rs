@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-19 GX thread and status
+
+The [GX thread and status batch](docs/dolphin-runs/2026-11-19-gx-thread-status-fixed/README.md)
+checks five APIs with one thread and an idle FIFO. Dolphin Metal passed 366
+checks. The completeness audit reports 645 unverified APIs. Contention,
+nonzero overflow, and physical Wii behavior remain open.
+
 ## 2026-11-19 GX frame commands
 
 The [frame command batch](docs/dolphin-runs/2026-11-19-gx-frame-commands/README.md)

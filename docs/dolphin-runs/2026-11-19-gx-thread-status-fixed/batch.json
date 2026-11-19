@@ -1,0 +1,68 @@
+{
+  "probe": "video_probe",
+  "cases": [
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "get_current_gx_thread",
+      "line": 7420,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_thread_and_status",
+      "api_path": "gx::get_current_gx_thread",
+      "checks": [
+        "GX current thread setter returns previous owner"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "set_current_gx_thread",
+      "line": 7424,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_thread_and_status",
+      "api_path": "gx::set_current_gx_thread",
+      "checks": [
+        "GX current thread setter returns previous owner"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "get_overflow_count",
+      "line": 7412,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_thread_and_status",
+      "api_path": "gx::get_overflow_count",
+      "checks": [
+        "GX overflow counter reset returns prior idle count"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "reset_overflow_count",
+      "line": 7416,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_thread_and_status",
+      "api_path": "gx::reset_overflow_count",
+      "checks": [
+        "GX overflow counter reset returns prior idle count"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "get_gp_status",
+      "line": 7534,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_thread_and_status",
+      "api_path": "gx::get_gp_status",
+      "checks": [
+        "GX status matches stable command processor register"
+      ]
+    }
+  ],
+  "limits": [
+    "One Dolphin thread and an idle FIFO. Nonzero overflow, thread handoff under contention, active status transitions, and physical Wii behavior remain untested."
+  ]
+}

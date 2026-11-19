@@ -1052,6 +1052,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_texture_copy_render(logger, width, height);
     probe_frame_lifecycle(logger, rmode);
     probe_frame_commands(logger, rmode);
+    probe_gx_thread_and_status(logger);
 }
 
 fn probe_frame_lifecycle(logger: &mut ProbeLogger, rmode: *mut video::GxrModeObj) {
@@ -1235,6 +1236,52 @@ fn probe_frame_commands(logger: &mut ProbeLogger, rmode: *mut video::GxrModeObj)
             && framebuffer_word(48, sample_y) == Some(0x1080_1080),
     );
     gx::set_draw_done_callback(old_done);
+}
+
+fn probe_gx_thread_and_status(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX thread ownership and idle status");
+    let previous = gx::get_current_gx_thread();
+    let current = ogc_lwp::current_thread().raw();
+    let replaced = gx::set_current_gx_thread();
+    let stored = gx::get_current_gx_thread();
+    let replaced_again = gx::set_current_gx_thread();
+    logger.record(
+        "GX current thread setter returns previous owner",
+        current != 0 && replaced == previous && stored == current && replaced_again == current,
+    );
+
+    // The FIFO is idle in this probe and has not reached its high watermark.
+    let before = gx::get_overflow_count();
+    let reset = gx::reset_overflow_count();
+    let after = gx::get_overflow_count();
+    logger.record(
+        "GX overflow counter reset returns prior idle count",
+        before == 0 && reset == before && after == 0,
+    );
+
+    let mut outputs = [0xff; 5];
+    // SAFETY: The command processor status register is readable and all
+    // five output bytes are distinct and writable.
+    let (raw_before, raw_after) = unsafe {
+        let status = 0xcc00_0000 as *const u16;
+        let first = core::ptr::read_volatile(status);
+        let out = outputs.as_mut_ptr();
+        gx::get_gp_status(out, out.add(1), out.add(2), out.add(3), out.add(4));
+        (first, core::ptr::read_volatile(status))
+    };
+    let expected = [
+        (raw_before & 1 != 0) as u8,
+        (raw_before & 2 != 0) as u8,
+        (raw_before & 4 != 0) as u8,
+        (raw_before & 8 != 0) as u8,
+        (raw_before & 16 != 0) as u8,
+    ];
+    logger.record(
+        "GX status matches stable command processor register",
+        raw_before & 31 == raw_after & 31 && outputs == expected,
+    );
 }
 
 fn probe_gx_completion_callbacks(logger: &mut ProbeLogger) {
