@@ -11,6 +11,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_es_catalog_paths(logger);
     probe_es_device_identity(logger);
     probe_es_content_invalid(logger);
+    probe_es_crypto_inputs(logger);
     probe_wpad_speaker_encoder(logger);
     probe_bluetooth_idle_host(logger);
     probe_break_callback(logger);
@@ -49,6 +50,109 @@ pub fn run(logger: &mut ProbeLogger) {
         "console footer write",
         crate::probe_support::screen_write(b"general probe uses direct runtime calls\n").is_ok(),
     );
+}
+
+fn probe_es_crypto_inputs(logger: &mut ProbeLogger) {
+    let initialized = es::init();
+    logger.record("ES crypto probe opens service", initialized == 0);
+    if initialized != 0 {
+        return;
+    }
+
+    #[repr(align(32))]
+    struct Bytes([u8; 416]);
+    let mut cert = Bytes([0xa5; 416]);
+    // SAFETY: The buffer contains 0x180 writable bytes followed by a guard.
+    let cert_rc = unsafe { es::get_device_cert(cert.0.as_mut_ptr()) };
+    let null_cert = unsafe { es::get_device_cert(core::ptr::null_mut()) };
+    let unaligned_cert = unsafe { es::get_device_cert(cert.0.as_mut_ptr().add(1)) };
+    logger.record(
+        "ES device certificate has ECC format and bounded output",
+        cert_rc == 0
+            && cert.0[..4] == [0, 1, 0, 2]
+            && cert.0[0xc0..0xc4] == [0, 0, 0, 2]
+            && &cert.0[0xc4..0xce] == b"NG06eeed45"
+            && cert.0[0x180..].iter().all(|&byte| byte == 0xa5)
+            && null_cert == es::ES_EINVAL
+            && unaligned_cert == es::ES_EALIGN,
+    );
+
+    let mut iv = [0x1234_5678u32; 4];
+    let source = Bytes([0x3c; 416]);
+    let mut dest = Bytes([0xa5; 416]);
+    // SAFETY: The pointers are live and the 16-byte input and output ranges
+    // are valid. Each call is rejected before IOS uses those ranges.
+    let encrypt_empty = unsafe {
+        es::encrypt(
+            0,
+            iv.as_mut_ptr(),
+            source.0.as_ptr(),
+            0,
+            dest.0.as_mut_ptr(),
+        )
+    };
+    let encrypt_size = unsafe {
+        es::encrypt(
+            0,
+            iv.as_mut_ptr(),
+            source.0.as_ptr(),
+            15,
+            dest.0.as_mut_ptr(),
+        )
+    };
+    let encrypt_null = unsafe {
+        es::encrypt(
+            0,
+            core::ptr::null_mut(),
+            source.0.as_ptr(),
+            16,
+            dest.0.as_mut_ptr(),
+        )
+    };
+    logger.record(
+        "ES encrypt rejects invalid buffers without mutation",
+        encrypt_empty == es::ES_EINVAL
+            && encrypt_size == es::ES_EALIGN
+            && encrypt_null == es::ES_EINVAL
+            && iv == [0x1234_5678; 4]
+            && dest.0 == [0xa5; 416],
+    );
+    let decrypt_empty = unsafe {
+        es::decrypt(
+            0,
+            iv.as_mut_ptr(),
+            source.0.as_ptr(),
+            0,
+            dest.0.as_mut_ptr(),
+        )
+    };
+    let decrypt_size = unsafe {
+        es::decrypt(
+            0,
+            iv.as_mut_ptr(),
+            source.0.as_ptr(),
+            15,
+            dest.0.as_mut_ptr(),
+        )
+    };
+    let decrypt_null = unsafe {
+        es::decrypt(
+            0,
+            core::ptr::null_mut(),
+            source.0.as_ptr(),
+            16,
+            dest.0.as_mut_ptr(),
+        )
+    };
+    logger.record(
+        "ES decrypt rejects invalid buffers without mutation",
+        decrypt_empty == es::ES_EINVAL
+            && decrypt_size == es::ES_EALIGN
+            && decrypt_null == es::ES_EINVAL
+            && iv == [0x1234_5678; 4]
+            && dest.0 == [0xa5; 416],
+    );
+    logger.record("ES crypto probe closes service", es::close() == 0);
 }
 
 fn probe_es_content_invalid(logger: &mut ProbeLogger) {

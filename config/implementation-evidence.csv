@@ -2698,3 +2698,6 @@ ogc-es-sys,src/imp.rs,check_has_korean_key,2454,ios,hardware-probe,probes/ogc-sy
 ogc-es-sys,src/imp.rs,read_content,2076,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_content_invalid,es::read_content
 ogc-es-sys,src/imp.rs,seek_content,2103,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_content_invalid,es::seek_content
 ogc-es-sys,src/imp.rs,close_content,2127,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_content_invalid,es::close_content
+ogc-es-sys,src/imp.rs,get_device_cert,2381,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_crypto_inputs,es::get_device_cert
+ogc-es-sys,src/imp.rs,encrypt,2180,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_crypto_inputs,es::encrypt
+ogc-es-sys,src/imp.rs,decrypt,2229,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_crypto_inputs,es::decrypt
