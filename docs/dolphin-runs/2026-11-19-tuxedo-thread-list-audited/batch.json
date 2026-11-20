@@ -1,0 +1,188 @@
+{
+  "probe": "lwp_probe",
+  "cases": [
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "empty",
+      "line": 134,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_thread_list",
+      "api_path": "tuxedo::KThread::empty",
+      "checks": [
+        "Tuxedo thread list finds suspended worker and current thread"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_thread_context_snapshot",
+      "line": 589,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_thread_list",
+      "api_path": "tuxedo::k_thread_context_snapshot",
+      "checks": [
+        "Tuxedo suspended thread context has expected initial stack"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_thread_find_physical",
+      "line": 761,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_thread_list",
+      "api_path": "tuxedo::k_thread_find_physical",
+      "checks": [
+        "Tuxedo thread list finds suspended worker and current thread"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_thread_first",
+      "line": 728,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_thread_list",
+      "api_path": "tuxedo::k_thread_first",
+      "checks": [
+        "Tuxedo thread list finds suspended worker and current thread"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_thread_get_self",
+      "line": 720,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_thread_list",
+      "api_path": "tuxedo::k_thread_get_self",
+      "checks": [
+        "Tuxedo thread list finds suspended worker and current thread"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_thread_next",
+      "line": 741,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_thread_list",
+      "api_path": "tuxedo::k_thread_next",
+      "checks": [
+        "Tuxedo thread list finds suspended worker and current thread"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_thread_set_prio",
+      "line": 660,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_thread_list",
+      "api_path": "tuxedo::k_thread_set_prio",
+      "checks": [
+        "Tuxedo suspended thread priority resume and exit"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_thread_suspend",
+      "line": 638,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_thread_list",
+      "api_path": "tuxedo::k_thread_suspend",
+      "checks": [
+        "Tuxedo suspended thread priority resume and exit"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_thread_sleep_ticks",
+      "line": 715,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_thread_list",
+      "api_path": "tuxedo::k_thread_sleep_ticks",
+      "checks": [
+        "Tuxedo sleep units delay and yield returns"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_thread_sleep_us",
+      "line": 778,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_thread_list",
+      "api_path": "tuxedo::k_thread_sleep_us",
+      "checks": [
+        "Tuxedo sleep units delay and yield returns"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_thread_sleep_ms",
+      "line": 782,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_thread_list",
+      "api_path": "tuxedo::k_thread_sleep_ms",
+      "checks": [
+        "Tuxedo sleep units delay and yield returns"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_thread_yield",
+      "line": 712,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_thread_list",
+      "api_path": "tuxedo::k_thread_yield",
+      "checks": [
+        "Tuxedo sleep units delay and yield returns"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "thread_prepare",
+      "line": 1288,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_thread_list",
+      "api_path": "tuxedo::thread_prepare",
+      "checks": [
+        "Tuxedo thread list finds suspended worker and current thread"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "thread_resume",
+      "line": 1299,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_thread_list",
+      "api_path": "tuxedo::thread_resume",
+      "checks": [
+        "Tuxedo suspended thread priority resume and exit"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_thread_exit",
+      "line": 785,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "tuxedo_enumeration_worker",
+      "api_path": "tuxedo::k_thread_exit",
+      "checks": [
+        "Tuxedo suspended thread priority resume and exit"
+      ]
+    }
+  ],
+  "limits": [
+    "One suspended worker and main thread in Dolphin. Multi-thread list ordering, priority contention, register preservation, and physical Wii timing remain open."
+  ]
+}

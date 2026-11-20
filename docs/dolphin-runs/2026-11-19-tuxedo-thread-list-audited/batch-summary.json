@@ -1,0 +1,7 @@
+{
+  "probe_passes": 242,
+  "unverified_before": 620,
+  "unverified_after": 605,
+  "cases": 15,
+  "remaining_audit_entries": 605
+}

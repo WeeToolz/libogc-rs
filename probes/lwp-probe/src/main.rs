@@ -294,11 +294,13 @@ mod wii {
     static mut STACK_TUXEDO: Stack = Stack([0; STACK_BYTES]);
     static mut STACK_TUXEDO_CV_A: Stack = Stack([0; STACK_BYTES]);
     static mut STACK_TUXEDO_CV_B: Stack = Stack([0; STACK_BYTES]);
+    static mut STACK_TUXEDO_ENUM: Stack = Stack([0; STACK_BYTES]);
     static mut STACK_IPC_LOW: Stack = Stack([0; STACK_BYTES]);
     static mut STACK_IPC_HIGH: Stack = Stack([0; STACK_BYTES]);
     static mut TUXEDO_THREAD: tuxedo::KThread = tuxedo::KThread::empty();
     static mut TUXEDO_CV_A: tuxedo::KThread = tuxedo::KThread::empty();
     static mut TUXEDO_CV_B: tuxedo::KThread = tuxedo::KThread::empty();
+    static mut TUXEDO_ENUM: tuxedo::KThread = tuxedo::KThread::empty();
     static mut TUXEDO_CV: tuxedo::KCondVar = tuxedo::KCondVar { dummy: 0 };
     static mut TUXEDO_CV_MUTEX: tuxedo::KMutex = tuxedo::KMutex {
         owner: ptr::null_mut(),
@@ -578,6 +580,10 @@ mod wii {
                 0
             }
         }
+    }
+
+    unsafe extern "C" fn tuxedo_enumeration_worker(_: *mut c_void) -> isize {
+        tuxedo::k_thread_exit(0x2a)
     }
 
     fn fpu_owner_register() -> usize {
@@ -1795,6 +1801,108 @@ mod wii {
         }
     }
 
+    fn probe_tuxedo_thread_list(logger: &mut ProbeLogger) {
+        logger.section("TUXEDO THREAD ENUMERATION");
+        let thread = core::ptr::addr_of_mut!(TUXEDO_ENUM);
+        let mut unused = tuxedo::KThread::empty();
+        let empty = unused.state == tuxedo::KTHR_STATE_UNINIT
+            && unused.next.is_null()
+            && unused.suspend == 0;
+        let main = tuxedo::k_thread_get_self();
+        // SAFETY: Thread object and stack stay live through the join.
+        unsafe {
+            let stack_top = core::ptr::addr_of_mut!(STACK_TUXEDO_ENUM.0)
+                .cast::<u8>()
+                .add(STACK_BYTES)
+                .cast();
+            tuxedo::thread_prepare(
+                thread,
+                Some(tuxedo_enumeration_worker),
+                ptr::null_mut(),
+                stack_top,
+                0x30,
+            );
+        }
+        let prepared =
+            unsafe { (*thread).state == tuxedo::KTHR_STATE_WAITING && (*thread).suspend == 1 };
+        let mut node = tuxedo::k_thread_first();
+        let mut saw_main = false;
+        let mut saw_worker = false;
+        for _ in 0..32 {
+            if node.is_null() {
+                break;
+            }
+            saw_main |= node == main;
+            saw_worker |= node == thread;
+            node = unsafe { tuxedo::k_thread_next(node) };
+        }
+        let physical = (thread as usize as u32) & 0x3fff_ffff;
+        let lookup = tuxedo::k_thread_find_physical(physical) == thread
+            && tuxedo::k_thread_find_physical(0).is_null()
+            && unsafe { tuxedo::k_thread_next(&mut unused) }.is_null()
+            && unsafe { tuxedo::k_thread_next(ptr::null_mut()) } == tuxedo::k_thread_first();
+        logger.record(
+            "Tuxedo thread list finds suspended worker and current thread",
+            empty
+                && prepared
+                && !main.is_null()
+                && saw_main
+                && saw_worker
+                && node.is_null()
+                && lookup,
+        );
+
+        let snapshot = unsafe { tuxedo::k_thread_context_snapshot(thread) };
+        let stack_top = unsafe {
+            core::ptr::addr_of_mut!(STACK_TUXEDO_ENUM.0)
+                .cast::<u8>()
+                .add(STACK_BYTES) as usize
+        };
+        logger.record(
+            "Tuxedo suspended thread context has expected initial stack",
+            snapshot.is_some_and(|ctx| ctx.gpr[1] == ((stack_top & !7) - 8) as u32)
+                && unsafe { tuxedo::k_thread_context_snapshot(ptr::null_mut()) }.is_none(),
+        );
+        unsafe {
+            tuxedo::k_thread_set_prio(thread, 0x20);
+            tuxedo::k_thread_suspend(thread);
+        }
+        let changed = unsafe {
+            (*thread).prio == 0x20 && (*thread).baseprio == 0x20 && (*thread).suspend == 2
+        };
+        unsafe { tuxedo::thread_resume(thread) };
+        let still_suspended =
+            unsafe { (*thread).suspend == 1 && (*thread).state == tuxedo::KTHR_STATE_WAITING };
+        unsafe { tuxedo::thread_resume(thread) };
+        let result = unsafe { tuxedo::k_thread_join(thread) };
+        logger.record(
+            "Tuxedo suspended thread priority resume and exit",
+            changed
+                && still_suspended
+                && result == 0x2a
+                && tuxedo::k_thread_find_physical(physical).is_null(),
+        );
+
+        let minimum = driver::TICKS_PER_SECOND / 2000;
+        let maximum = driver::TICKS_PER_SECOND;
+        let start = driver::now_ticks();
+        tuxedo::k_thread_sleep_ticks(driver::TICKS_PER_SECOND / 1000);
+        let a = driver::now_ticks().wrapping_sub(start);
+        let start = driver::now_ticks();
+        tuxedo::k_thread_sleep_us(1000);
+        let b = driver::now_ticks().wrapping_sub(start);
+        let start = driver::now_ticks();
+        tuxedo::k_thread_sleep_ms(1);
+        let c = driver::now_ticks().wrapping_sub(start);
+        tuxedo::k_thread_yield();
+        logger.record(
+            "Tuxedo sleep units delay and yield returns",
+            [a, b, c]
+                .iter()
+                .all(|elapsed| *elapsed >= minimum && *elapsed < maximum),
+        );
+    }
+
     fn run_tuxedo_compatibility(logger: &mut ProbeLogger) {
         logger.section("TUXEDO OVER LWP");
         unsafe {
@@ -2096,6 +2204,7 @@ mod wii {
         run_tuxedo_compatibility(&mut logger);
         probe_tuxedo_mutexes(&mut logger);
         probe_tuxedo_condition_wake(&mut logger);
+        probe_tuxedo_thread_list(&mut logger);
         run_ipc_wakeup(&mut logger);
         run_std_foundation(&mut logger);
         crate::futex_probe::run(&mut logger);

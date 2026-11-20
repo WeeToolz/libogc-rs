@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-19 Tuxedo thread lifecycle
+
+The [thread lifecycle batch](docs/dolphin-runs/2026-11-19-tuxedo-thread-list-audited/README.md)
+checks 15 APIs with one suspended worker. Dolphin passed 242 checks. The
+completeness audit reports 605 unverified APIs. Priority contention and
+physical Wii timing remain open.
+
 ## 2026-11-19 Tuxedo condition wake
 
 The [condition wake batch](docs/dolphin-runs/2026-11-19-tuxedo-condition-wake/README.md)
