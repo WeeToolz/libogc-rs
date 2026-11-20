@@ -124,6 +124,14 @@ pub(crate) fn run(logger: &mut ProbeLogger) {
     let fixture = Fixture::detect();
     logger.record("exFAT SD fixture geometry recognized", fixture.is_some());
     if let Some(fixture) = fixture {
+        let device_sectors = ogc_wiisd::sector_count();
+        logger.note(&alloc::format!(
+            "Wii SD CSD capacity sectors={device_sectors:?}"
+        ));
+        logger.record(
+            "Wii SD CSD capacity is valid or unavailable in Dolphin",
+            device_sectors.is_none_or(|sectors| sectors >= fixture.card_sectors),
+        );
         logger.note(&alloc::format!(
             "fixture start={} sectors={} cluster-bytes={}",
             fixture.start,
@@ -132,6 +140,7 @@ pub(crate) fn run(logger: &mut ProbeLogger) {
         ));
         probe_exfat_apis(logger, &fixture);
         if fixture.card_sectors == SMALL_CARD {
+            probe_newlib_mount(logger);
             probe_mount_errors(logger, &fixture);
         }
     }
@@ -142,6 +151,45 @@ pub(crate) fn run(logger: &mut ProbeLogger) {
 
     // SAFETY: The probe finished all reads and dropped the volume.
     logger.record("Wii SD shut down after exFAT", unsafe { shutdown() });
+}
+
+fn probe_newlib_mount(logger: &mut ProbeLogger) {
+    let mounted = ogc_blockfs::mount_sd();
+    logger.record(
+        "blockfs selects and registers the exFAT SD volume",
+        mounted == Ok(ogc_blockfs::Format::Exfat),
+    );
+    if mounted.is_err() {
+        return;
+    }
+
+    let opened = ogc_sysbase::DeviceFile::open_checked(c"sd:/ReadMe.txt", ogc_sysbase::O_RDONLY);
+    logger.record("Newlib opens a file on the exFAT SD mount", opened.is_ok());
+    let Ok(file) = opened else {
+        let _ = ogc_blockfs::unmount_sd();
+        return;
+    };
+    let mut bytes = [0; PAYLOAD.len()];
+    let read = file.read(&mut bytes);
+    logger.record(
+        "Newlib reads the expected exFAT file bytes",
+        read == Ok(PAYLOAD.len()) && bytes == *PAYLOAD,
+    );
+    let write = ogc_sysbase::DeviceFile::open_checked(c"sd:/ReadMe.txt", ogc_sysbase::O_WRONLY);
+    logger.record(
+        "Newlib rejects write access to exFAT",
+        matches!(write, Err(error) if error == -ogc_sysbase::EROFS),
+    );
+    logger.record(
+        "Newlib open handle keeps exFAT mounted",
+        ogc_blockfs::unmount_sd() == Err(ogc_blockfs::Error::Busy),
+    );
+    let closed = file.close().is_ok();
+    logger.record("Newlib closes the exFAT file handle", closed);
+    logger.record(
+        "Newlib exFAT mount unmounts after close",
+        ogc_blockfs::unmount_sd().is_ok() && !ogc_blockfs::exfat_is_mounted(),
+    );
 }
 
 fn probe_exfat_apis(logger: &mut ProbeLogger, fixture: &Fixture) {
@@ -160,8 +208,69 @@ fn probe_exfat_apis(logger: &mut ProbeLogger, fixture: &Fixture) {
         return;
     }
     probe_listing(logger, &mut volume);
+    probe_multiple_handles(logger, &mut volume, fixture);
     probe_contiguous_file(logger, &mut volume);
     probe_fragmented_file(logger, &mut volume, fixture.cluster_bytes);
+}
+
+fn probe_multiple_handles(logger: &mut ProbeLogger, volume: &mut Volume, fixture: &Fixture) {
+    let readme = volume.open_handle("ReadMe.txt");
+    let fragmented = volume.open_handle("Fragment.dat");
+    let both_open = readme.is_ok() && fragmented.is_ok();
+    logger.record("exFAT opens two independent file handles", both_open);
+    let (Ok(mut readme), Ok(mut fragmented)) = (readme, fragmented) else {
+        return;
+    };
+
+    let mut first = [0; 4];
+    let mut second = [0; 4];
+    let independent_reads = volume.read_handle(&mut readme, &mut first) == Ok(4)
+        && volume.read_handle(&mut fragmented, &mut second) == Ok(4)
+        && &first == b"libo"
+        && second == *b"AAAA";
+    logger.record(
+        "exFAT reads both open handles with independent cursors",
+        independent_reads,
+    );
+
+    let length = volume.handle_len(&fragmented);
+    let seek = volume.seek_handle(&mut fragmented, fixture.cluster_bytes - 2);
+    let mut boundary = [0xa5; 8];
+    let fragmented_read = seek.is_ok()
+        && length == Ok(2 * fixture.cluster_bytes)
+        && volume.read_handle(&mut fragmented, &mut boundary) == Ok(8)
+        && boundary == *b"ABCD\0\0\0\0";
+    logger.record(
+        "exFAT detached handle seeks across fragmented clusters",
+        fragmented_read,
+    );
+
+    let mut root_a = volume.open_dir_handle("/");
+    let mut root_b = volume.open_dir_handle("/");
+    let independent_dirs = match (root_a.as_mut(), root_b.as_mut()) {
+        (Ok(a), Ok(b)) => match (volume.next_dir_handle(a), volume.next_dir_handle(b)) {
+            (Ok(Some(first)), Ok(Some(second))) => first == second,
+            _ => false,
+        },
+        _ => false,
+    };
+    logger.record(
+        "exFAT opens independent directory handles",
+        independent_dirs,
+    );
+
+    // SAFETY: Both mounts read the same immutable test image. The second
+    // volume exists only to verify that its methods reject the first volume's
+    // handle.
+    let other = unsafe { Volume::mount(&READ_ONLY_SD, fixture.card_sectors, 512) };
+    let wrong_owner_rejected = match other {
+        Ok(mut other) => other.read_handle(&mut readme, &mut first) == Err(Error::InvalidHandle),
+        Err(_) => false,
+    };
+    logger.record(
+        "exFAT rejects a file handle from another volume",
+        wrong_owner_rejected,
+    );
 }
 
 fn probe_listing(logger: &mut ProbeLogger, volume: &mut Volume) {
@@ -278,6 +387,20 @@ fn probe_large_file(logger: &mut ProbeLogger, volume: &mut Volume) {
         "exFAT can seek back from above 4 GiB",
         file.read(&mut out[..4]) == Ok(4) && out[..4] == *b"HEAD",
     );
+    drop(file);
+
+    let detached = volume.open_handle("Large.dat");
+    logger.record("exFAT opens a detached large-file handle", detached.is_ok());
+    if let Ok(mut detached) = detached {
+        let seek = volume.seek_handle(&mut detached, LARGE_MARKER);
+        let mut marker = [0xa5; 8];
+        logger.record(
+            "exFAT detached handle seeks and reads above 4 GiB",
+            seek.is_ok()
+                && volume.read_handle(&mut detached, &mut marker) == Ok(8)
+                && marker == *b"OVER4G\0\0",
+        );
+    }
 }
 
 fn probe_mount_errors(logger: &mut ProbeLogger, fixture: &Fixture) {

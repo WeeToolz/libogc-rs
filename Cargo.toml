@@ -12,6 +12,7 @@ members = [
     "crates/services/ogc-controller",
     "crates/services/ogc-filesystem-sys",
     "crates/services/ogc-filesystem",
+    "crates/services/ogc-blockfs",
     "crates/services/ogc-exfat",
     "crates/services/ogc-fat",
     "crates/core/ogc-runtime",
@@ -123,7 +124,7 @@ implementation_inventory = "docs/generated/implementation-inventory.csv"
 
 [workspace.metadata.libogc.groups]
 core = ["ogc", "ogc-aes-sys", "ogc-cache", "ogc-conf", "ogc-conf-sys", "ogc-core", "ogc-es", "ogc-es-sys", "ogc-ios", "ogc-ios-sys", "ogc-ipc", "ogc-irq", "ogc-irq-sys", "ogc-lwp", "ogc-lwp-driver", "ogc-lwp-sys", "ogc-runtime", "ogc-std-runtime", "ogc-sha", "ogc-stm", "ogc-sysbase", "ogc-wiilaunch", "ogc-wiilaunch-state", "tuxedo-sys"]
-storage = ["iso9660", "ogc-card", "ogc-card-metadata", "ogc-card-sys", "ogc-di", "ogc-dvd", "ogc-dvd-sys", "ogc-exfat", "ogc-fat", "ogc-filesystem", "ogc-filesystem-sys", "ogc-gcsd", "ogc-usbstorage", "ogc-usbstorage-lifecycle", "ogc-usbstorage-sys", "ogc-wiisd"]
+storage = ["iso9660", "ogc-blockfs", "ogc-card", "ogc-card-metadata", "ogc-card-sys", "ogc-di", "ogc-dvd", "ogc-dvd-sys", "ogc-exfat", "ogc-fat", "ogc-filesystem", "ogc-filesystem-sys", "ogc-gcsd", "ogc-usbstorage", "ogc-usbstorage-lifecycle", "ogc-usbstorage-sys", "ogc-wiisd"]
 input = ["ogc-controller", "lwbt-sys", "ogc-bt-sync", "ogc-input", "ogc-input-sys", "ogc-si", "ogc-si-sys", "ogc-usb", "ogc-usb-events", "ogc-usb-sys", "wiiuse-rs", "wiikeyboard-sys", "wpad-sys"]
 network = ["lwip-sys", "ogc-network", "ogc-network-sys", "ogc-wd", "tinysmb-sys"]
 ui = ["ogc-ui"]

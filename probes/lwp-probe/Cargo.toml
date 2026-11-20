@@ -19,6 +19,7 @@ ogc-conf = { path = "../../crates/core/ogc-conf" }
 ogc-system-sys = { path = "../../crates/core/ogc-system-sys" }
 ogc-usb = { path = "../../crates/services/ogc-usb" }
 ogc-fat = { path = "../../crates/services/ogc-fat" }
+ogc-blockfs = { path = "../../crates/services/ogc-blockfs" }
 ogc-sys = { path = "../../crates/abi/ogc-sys" }
 ogc-alloc = { path = "../../crates/core/ogc-alloc" }
 ogc-sysbase = { path = "../../crates/core/ogc-sysbase" }
@@ -56,6 +57,11 @@ required-features = ["wii-std-sync"]
 [[bin]]
 name = "wii_std_fs_probe"
 path = "src/std_fs_entry.rs"
+required-features = ["wii-std-sync"]
+
+[[bin]]
+name = "wii_std_exfat_probe"
+path = "src/std_exfat_entry.rs"
 required-features = ["wii-std-sync"]
 
 [[bin]]

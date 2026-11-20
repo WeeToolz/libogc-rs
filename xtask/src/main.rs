@@ -1107,6 +1107,8 @@ fn build_lwp_probe_with_std(with_std: bool) -> Result<(), String> {
             "--bin",
             "wii_std_fs_probe",
             "--bin",
+            "wii_std_exfat_probe",
+            "--bin",
             "wii_std_services_probe",
             "--bin",
             "wii_std_panic_probe",
@@ -1144,6 +1146,7 @@ fn build_lwp_probe_with_std(with_std: bool) -> Result<(), String> {
             ("wii_std_clock_probe", "wii_std_clock_probe.dol"),
             ("wii_std_network_probe", "wii_std_network_probe.dol"),
             ("wii_std_fs_probe", "wii_std_fs_probe.dol"),
+            ("wii_std_exfat_probe", "wii_std_exfat_probe.dol"),
             ("wii_std_services_probe", "wii_std_services_probe.dol"),
             ("wii_std_panic_probe", "wii_std_panic_probe.dol"),
             ("wii_std_usb_probe", "wii_std_usb_probe.dol"),
@@ -1186,11 +1189,14 @@ fn build_wii_std_fs_dolphin_probe() -> Result<(), String> {
     run_command(
         Command::new(&rustup)
             .args(["run", "nightly", "cargo", "build"])
+            .args(["--jobs", "1"])
             .args([
                 "--features",
                 "wii-std-sync,ogc-system-probe/dolphin-automation",
                 "--bin",
                 "wii_std_fs_probe",
+                "--bin",
+                "wii_std_exfat_probe",
                 "-Z",
                 "json-target-spec",
                 "--target",
@@ -1205,12 +1211,15 @@ fn build_wii_std_fs_dolphin_probe() -> Result<(), String> {
             .current_dir(&root),
     )?;
 
-    gc_elf::convert_elf_file(
-        &target_dir.join("powerpc-nintendo-none/release/wii_std_fs_probe"),
-        &output_dir.join("wii_std_fs_probe.dol"),
-        gc_elf::DolProfile::Libogc,
-    )
-    .map_err(|error| error.to_string())
+    for name in ["wii_std_fs_probe", "wii_std_exfat_probe"] {
+        gc_elf::convert_elf_file(
+            &target_dir.join("powerpc-nintendo-none/release").join(name),
+            &output_dir.join(format!("{name}.dol")),
+            gc_elf::DolProfile::Libogc,
+        )
+        .map_err(|error| error.to_string())?;
+    }
+    Ok(())
 }
 
 fn build_storage_probe() -> Result<(), String> {
@@ -1347,7 +1356,10 @@ fn selected_probe_invocations(binaries: &[&'static str]) -> Vec<Vec<&'static str
 }
 
 fn build_selected_dolphin_probes(names: &[&'static str]) -> Result<(), String> {
-    if names.iter().all(|name| *name == "wii_std_fs_probe") {
+    if names
+        .iter()
+        .all(|name| matches!(*name, "wii_std_fs_probe" | "wii_std_exfat_probe"))
+    {
         return Ok(());
     }
     build_probe_selection(false, ProbeBuildMode::Dolphin, Some(names))

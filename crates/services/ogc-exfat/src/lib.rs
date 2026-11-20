@@ -14,7 +14,7 @@ mod reader;
 mod disc;
 
 #[cfg(target_arch = "powerpc")]
-pub use disc::{File, FileInfo, Volume};
+pub use disc::{DirectoryHandle, File, FileInfo, ReadHandle, Volume};
 /// Result of a read-only filesystem operation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Error {
@@ -34,4 +34,6 @@ pub enum Error {
     IsDirectory,
     /// A path has an invalid name component.
     InvalidPath,
+    /// A file or directory handle belongs to another volume.
+    InvalidHandle,
 }

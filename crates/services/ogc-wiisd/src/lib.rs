@@ -545,6 +545,45 @@ mod imp {
         ((csd[9] as u16) << 4) | (((csd[10] >> 4) & 0x0f) as u16)
     }
 
+    fn csd_bits(csd: &[u8; 16], msb: u32, lsb: u32) -> Option<u32> {
+        if msb >= 128 || lsb > msb || msb - lsb >= 32 {
+            return None;
+        }
+        let mut value = 0;
+        for bit in (lsb..=msb).rev() {
+            let byte = csd[(127 - bit) as usize];
+            value = (value << 1) | u32::from((byte >> (bit % 8)) & 1);
+        }
+        Some(value)
+    }
+
+    fn decode_sector_count(csd: &[u8; 16]) -> Option<u64> {
+        match csd_bits(csd, 127, 126)? {
+            0 => {
+                let c_size = u64::from(csd_bits(csd, 73, 62)?);
+                let c_size_mult = csd_bits(csd, 49, 47)?;
+                let read_bl_len = csd_bits(csd, 83, 80)?;
+                // Convert the CSD capacity in bytes to 512-byte sectors.
+                let shift = c_size_mult.checked_add(read_bl_len)?.checked_sub(7)?;
+                (c_size + 1).checked_shl(shift)
+            }
+            1 => {
+                let c_size = u64::from(csd_bits(csd, 69, 48)?);
+                (c_size + 1).checked_mul(1024)
+            }
+            _ => None,
+        }
+    }
+
+    pub(super) fn sector_count() -> Option<u64> {
+        if !INITIALIZED.load(Ordering::Acquire) {
+            return None;
+        }
+        let csd = unsafe { static_bytes(addr_of!(CSD)) };
+        let csd: &[u8; 16] = csd.try_into().ok()?;
+        decode_sector_count(csd)
+    }
+
     fn init_io() -> bool {
         let _ = reset_card();
         let status = get_status();
@@ -925,8 +964,8 @@ mod imp {
     #[cfg(test)]
     mod tests {
         use super::{
-            FD, SDIO_RETRY_DELAY_TICKS, SDIO_STATUS_CARD_INSERTED, deinitialize, delay_10ms,
-            status_has_card, transfer_request_valid, transfer_succeeded,
+            FD, SDIO_RETRY_DELAY_TICKS, SDIO_STATUS_CARD_INSERTED, csd_bits, decode_sector_count,
+            deinitialize, delay_10ms, status_has_card, transfer_request_valid, transfer_succeeded,
         };
         use ogc_core::powerpc::read_timebase;
 
@@ -961,6 +1000,40 @@ mod imp {
             let start = read_timebase();
             delay_10ms();
             assert!(read_timebase().wrapping_sub(start) >= SDIO_RETRY_DELAY_TICKS);
+        }
+
+        #[test]
+        fn decodes_csd_v1_sector_capacity() {
+            let mut csd = [0; 16];
+            let set_bits = |csd: &mut [u8; 16], msb: u32, lsb: u32, value: u32| {
+                for (index, bit) in (lsb..=msb).enumerate() {
+                    let source_bit = (msb - lsb) as usize - index;
+                    if value & (1 << source_bit) != 0 {
+                        let byte = (127 - bit) as usize;
+                        csd[byte] |= 1 << (bit % 8);
+                    }
+                }
+            };
+            set_bits(&mut csd, 127, 126, 0);
+            set_bits(&mut csd, 83, 80, 9);
+            set_bits(&mut csd, 73, 62, 1023);
+            set_bits(&mut csd, 49, 47, 0);
+            assert_eq!(csd_bits(&csd, 73, 62), Some(1023));
+            assert_eq!(decode_sector_count(&csd), Some(2048));
+        }
+
+        #[test]
+        fn decodes_csd_v2_sector_capacity() {
+            let mut csd = [0; 16];
+            for (msb, lsb, value) in [(127, 126, 1), (69, 48, 7)] {
+                for index in 0..=(msb - lsb) {
+                    if value & (1 << ((msb - lsb) - index)) != 0 {
+                        let bit = lsb + index;
+                        csd[(127 - bit) as usize] |= 1 << (bit % 8);
+                    }
+                }
+            }
+            assert_eq!(decode_sector_count(&csd), Some(8192));
         }
     }
 }
@@ -1033,6 +1106,21 @@ pub static WII_SD_INTERFACE: DiscInterface = DiscInterface {
     clear_status: Some(clear_status),
     shutdown: Some(shutdown),
 };
+
+/// Return the initialized SD card capacity in 512-byte sectors.
+///
+/// This reads the capacity from the card's CSD register. It returns `None`
+/// when the card is not initialized or its CSD format is unsupported.
+pub fn sector_count() -> Option<u64> {
+    #[cfg(target_arch = "powerpc")]
+    {
+        imp::sector_count()
+    }
+    #[cfg(not(target_arch = "powerpc"))]
+    {
+        None
+    }
+}
 
 #[cfg(all(test, target_arch = "powerpc"))]
 mod tests {

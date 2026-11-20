@@ -1,0 +1,16 @@
+[package]
+name = "ogc-blockfs"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ogc-exfat = { path = "../ogc-exfat" }
+ogc-fat = { path = "../ogc-fat" }
+ogc-filesystem-sys = { path = "../ogc-filesystem-sys" }
+ogc-lwp-sys = { path = "../../core/ogc-lwp-sys" }
+ogc-sysbase = { path = "../../core/ogc-sysbase" }
+ogc-wiisd = { path = "../ogc-wiisd" }
+
+[lints]
+workspace = true

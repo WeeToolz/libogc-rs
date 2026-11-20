@@ -11,6 +11,7 @@ std = ["ogc-lwp-driver/std"]
 [dependencies]
 ogc-video = { path = "../../hardware/ogc-video" }
 ogc-fat = { path = "../ogc-fat" }
+ogc-blockfs = { path = "../ogc-blockfs" }
 ogc-alloc = { path = "../../core/ogc-alloc" }
 ogc-lwp-driver = { path = "../../core/ogc-lwp-driver" }
 ogc-sysbase = { path = "../../core/ogc-sysbase" }

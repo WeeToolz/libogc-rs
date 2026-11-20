@@ -490,10 +490,19 @@ pub fn validate(root: &Path, args: &[String]) -> Result<(), String> {
         if options.probes.is_empty() {
             super::build_dolphin_probes()?;
         } else {
-            let names: Vec<_> = selected.iter().map(|spec| spec.name).collect();
-            super::build_selected_dolphin_probes(&names)?;
+            let names: Vec<_> = selected
+                .iter()
+                .map(|spec| spec.name)
+                .filter(|name| !matches!(*name, "wii_std_fs_probe" | "wii_std_exfat_probe"))
+                .collect();
+            if !names.is_empty() {
+                super::build_selected_dolphin_probes(&names)?;
+            }
         }
-        if selected.iter().any(|spec| spec.name == "wii_std_fs_probe") {
+        if selected
+            .iter()
+            .any(|spec| matches!(spec.name, "wii_std_fs_probe" | "wii_std_exfat_probe"))
+        {
             super::build_wii_std_fs_dolphin_probe()?;
         }
     }
@@ -577,7 +586,10 @@ pub fn validate(root: &Path, args: &[String]) -> Result<(), String> {
 }
 
 fn validate_sd_image_selection(options: &Options) -> Result<Option<PathBuf>, String> {
-    let exfat_selected = options.probes.iter().any(|name| name == "exfat_sd_probe");
+    let exfat_selected = options
+        .probes
+        .iter()
+        .any(|name| matches!(name.as_str(), "exfat_sd_probe" | "wii_std_exfat_probe"));
     let Some(path) = options.sd_image.as_ref() else {
         return if exfat_selected {
             Err("exfat_sd_probe requires --sd-image".to_string())
@@ -712,6 +724,13 @@ fn select_probes(names: &[String]) -> Result<Vec<ProbeSpec>, String> {
                 return Ok(ProbeSpec {
                     name: "exfat_sd_probe",
                     timeout_seconds: 90,
+                    input_pipe: false,
+                });
+            }
+            if name == "wii_std_exfat_probe" {
+                return Ok(ProbeSpec {
+                    name: "wii_std_exfat_probe",
+                    timeout_seconds: 120,
                     input_pipe: false,
                 });
             }
@@ -859,7 +878,7 @@ fn dolphin_probe_elf_path(root: &Path, spec: ProbeSpec) -> PathBuf {
             .join("target/xtask/gamecube-system-probe-build/powerpc-nintendo-gamecube/release")
             .join(spec.name);
     }
-    let directory = if spec.name == "wii_std_fs_probe" {
+    let directory = if matches!(spec.name, "wii_std_fs_probe" | "wii_std_exfat_probe") {
         "target/xtask/wii-std-fs-dolphin-build/powerpc-nintendo-none/release"
     } else {
         "target/xtask/system-probe-build/powerpc-nintendo-none/release"

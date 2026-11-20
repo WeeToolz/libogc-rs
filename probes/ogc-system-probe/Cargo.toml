@@ -43,6 +43,7 @@ wpad-sys = { path = "../../crates/services/wpad-sys" }
 
 # ogc
 iso9660 = { path = "../../crates/media/iso9660" }
+ogc-blockfs = { path = "../../crates/services/ogc-blockfs" }
 ogc-audio = { path = "../../crates/hardware/ogc-audio" }
 ogc-audio-sys = { path = "../../crates/hardware/ogc-audio-sys" }
 ogc-aram = { path = "../../crates/hardware/ogc-aram" }
