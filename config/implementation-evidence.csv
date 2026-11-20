@@ -2861,3 +2861,8 @@ ogc-lwp-driver,src/runtime.rs,deferred_cancel_interrupt_slot,3627,scheduler,hard
 ogc-lwp-driver,src/runtime.rs,timer_start,3683,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_driver_deferred,driver::timer_start
 ogc-lwp-driver,src/runtime.rs,deferred_enqueue_from_interrupt,3642,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,driver_timer_callback,driver::deferred_enqueue_from_interrupt
 ogc-lwp-driver,src/runtime.rs,deferred_enqueue_reserved_from_interrupt,3660,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,driver_timer_callback,driver::deferred_enqueue_reserved_from_interrupt
+ogc-bt-sync,src/hid_host.rs,search,613,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_unavailable_protocol_calls,hid.search
+ogc-bt-sync,src/hid_host.rs,stop_search,664,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_unavailable_protocol_calls,hid.stop_search
+ogc-bt-sync,src/hid_host.rs,send_report,1338,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_unavailable_protocol_calls,hid.send_report
+ogc-bt-sync,src/hid_host.rs,tick,533,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_unavailable_protocol_calls,hid.tick
+ogc-bt-sync,src/hid_host.rs,receive_acl,1454,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_unavailable_protocol_calls,hid.receive_acl

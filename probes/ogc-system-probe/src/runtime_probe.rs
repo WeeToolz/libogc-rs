@@ -90,6 +90,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_bt_transport_metadata(logger);
     probe_bt_l2cap_state(logger);
     probe_bt_host_startup(logger);
+    probe_bt_unavailable_protocol_calls(logger);
     probe_bt_opcode_and_disconnected(logger);
     probe_bt_key_requests(logger);
     probe_system_runtime_state(logger);
@@ -3687,6 +3688,29 @@ fn probe_bt_opcode_and_disconnected(logger: &mut ProbeLogger) {
             && host.diagnostics().stage == HostStage::Disabled
             && host.next_event().is_none()
             && host.next_outgoing(0).is_none(),
+    );
+}
+
+fn probe_bt_unavailable_protocol_calls(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::{HidHost, HostStage};
+
+    let mut hid = HidHost::new();
+    let search_started = hid.search(0);
+    hid.stop_search();
+    let report_queued = hid.send_report(0, &[1]);
+    hid.tick(1);
+    let before_acl = hid.diagnostics();
+    hid.receive_acl(&[]);
+    let after_acl = hid.diagnostics();
+
+    logger.record(
+        "Bluetooth disabled protocol calls reject work and count malformed ACL",
+        !search_started
+            && !report_queued
+            && before_acl.stage == HostStage::Disabled
+            && after_acl.stage == HostStage::Disabled
+            && after_acl.acl_packets == before_acl.acl_packets + 1
+            && after_acl.malformed == before_acl.malformed + 1,
     );
 }
 
