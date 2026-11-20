@@ -1,4 +1,4 @@
-# exFAT through Rust `std::fs` in Dolphin
+# Initial read-only exFAT through Rust `std::fs` in Dolphin
 
 The read-only `ogc-blockfs` mount coordinator was exercised through the
 public Rust `std::fs` APIs in Dolphin 2609a.
@@ -20,13 +20,14 @@ The complete runner, probe, image hashes, logs, and screen captures are saved
 in the three sibling directories. Dolphin uses a private image copy and has
 Wii SD writes disabled.
 
-The implementation inventory has direct probe evidence for all 12 public
-`ogc-blockfs` functions. This work adds no unverified API entries; the repo
-still has the same 575 pre-existing unverified entries.
+This is the initial read-only evidence. Writable behavior, including direct
+`ogc-blockfs` write APIs and the 64-bit overwrite, is recorded in the
+[writable exFAT report](../2026-11-20-exfat-writable/README.md).
 
 Run with `cargo xtask dolphin-validate --probe wii_std_exfat_probe
 --sd-image IMAGE` and pass the Dolphin executable with `--dolphin PATH`.
-The probe build needs the MP3 fixtures in `docs/dependencies.md`.
+The original read-only probe build needs the MP3 fixture in
+`docs/dependencies.md`.
 
 This evidence covers Dolphin's virtual Wii SD. It does not prove physical SD
 controller behavior or media removal on a console.

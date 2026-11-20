@@ -111,7 +111,7 @@ fn read_sector(lba: u32, sector: &mut Sector) -> Option<()> {
 }
 
 pub(crate) fn run(logger: &mut ProbeLogger) {
-    logger.section("READ-ONLY EXFAT");
+    logger.section("EXFAT SD ACCESS");
     let startup = WII_SD_INTERFACE.startup.expect("Wii SD startup callback");
     let shutdown = WII_SD_INTERFACE.shutdown.expect("Wii SD shutdown callback");
     // SAFETY: The probe has exclusive access to the private Dolphin SD image.
@@ -140,17 +140,107 @@ pub(crate) fn run(logger: &mut ProbeLogger) {
         ));
         probe_exfat_apis(logger, &fixture);
         if fixture.card_sectors == SMALL_CARD {
+            probe_exfat_write_apis(logger, &fixture);
             probe_newlib_mount(logger);
             probe_mount_errors(logger, &fixture);
         }
     }
     logger.record(
-        "exFAT never requested a device write",
+        "exFAT read-only test mount never requested a device write",
         !WRITE_ATTEMPTED.load(Ordering::Relaxed),
     );
 
     // SAFETY: The probe finished all reads and dropped the volume.
     logger.record("Wii SD shut down after exFAT", unsafe { shutdown() });
+}
+
+fn probe_exfat_write_apis(logger: &mut ProbeLogger, fixture: &Fixture) {
+    let mounted = unsafe { Volume::mount_writable(&WII_SD_INTERFACE, fixture.card_sectors, 512) };
+    logger.record(
+        "exFAT writable mount uses the Wii SD writer",
+        mounted.is_ok(),
+    );
+    let Ok(mut volume) = mounted else { return };
+    let mut handle = match volume.create_file("backend-api.txt") {
+        Ok(handle) => handle,
+        Err(error) => {
+            logger.record("exFAT creates a file entry", false);
+            logger.note(&alloc::format!("create_file error: {error:?}"));
+            return;
+        }
+    };
+    logger.record(
+        "exFAT reports the stored read-only attribute on a handle",
+        volume
+            .open_handle("Fragment.dat")
+            .is_ok_and(|handle| handle.is_readonly())
+            && !handle.is_readonly(),
+    );
+    let mut observer = match volume.open_handle("backend-api.txt") {
+        Ok(handle) => handle,
+        Err(error) => {
+            logger.record("exFAT opens a second handle before writing", false);
+            logger.note(&alloc::format!("open_handle error: {error:?}"));
+            return;
+        }
+    };
+    let created =
+        volume.write_handle(&mut handle, b"direct") == Ok(6) && volume.sync_handle(&handle).is_ok();
+    logger.record("exFAT writes and syncs through a file handle", created);
+    let truncate = volume.truncate_handle(&mut handle, 1024).is_ok()
+        && volume.seek_handle(&mut handle, 1020).is_ok()
+        && volume.write_handle(&mut handle, b"TAIL") == Ok(4)
+        && volume.sync_handle(&handle).is_ok();
+    logger.record("exFAT truncates, grows and zero-fills a file", truncate);
+    logger.record(
+        "exFAT refreshes stale file length across open handles",
+        volume.handle_len(&mut observer) == Ok(1024),
+    );
+    drop(handle);
+    drop(observer);
+
+    let borrowed_file = match volume.create_file("borrowed-api.txt") {
+        Ok(handle) => handle,
+        Err(error) => {
+            logger.record("exFAT creates a file for the borrowed writer", false);
+            logger.note(&alloc::format!("create_file error: {error:?}"));
+            return;
+        }
+    };
+    drop(borrowed_file);
+    let borrowed_write = volume
+        .open("borrowed-api.txt")
+        .is_ok_and(|mut file| file.write(b"borrowed") == Ok(8));
+    logger.record(
+        "exFAT borrowed file writes through the writable volume",
+        borrowed_write,
+    );
+    drop(volume);
+
+    let reopened = unsafe { Volume::mount(&WII_SD_INTERFACE, fixture.card_sectors, 512) };
+    let persisted = reopened.is_ok_and(|mut volume| {
+        let info = volume.stat("backend-api.txt");
+        let mut handle = volume.open_handle("backend-api.txt");
+        let mut bytes = [0xa5; 1024];
+        let read = handle
+            .as_mut()
+            .is_ok_and(|handle| volume.read_handle(handle, &mut bytes) == Ok(1024));
+        info.is_ok_and(|info| info.size == 1024)
+            && read
+            && bytes[..6] == *b"direct"
+            && bytes[6..1020].iter().all(|&byte| byte == 0)
+            && bytes[1020..] == *b"TAIL"
+            && volume
+                .open_handle("borrowed-api.txt")
+                .is_ok_and(|mut handle| {
+                    let mut bytes = [0; 8];
+                    volume.read_handle(&mut handle, &mut bytes) == Ok(8) && bytes == *b"borrowed"
+                })
+    });
+    logger.record(
+        "exFAT write and truncate data survive volume remount",
+        persisted,
+    );
 }
 
 fn probe_newlib_mount(logger: &mut ProbeLogger) {
@@ -163,22 +253,76 @@ fn probe_newlib_mount(logger: &mut ProbeLogger) {
         return;
     }
 
-    let opened = ogc_sysbase::DeviceFile::open_checked(c"sd:/ReadMe.txt", ogc_sysbase::O_RDONLY);
-    logger.record("Newlib opens a file on the exFAT SD mount", opened.is_ok());
-    let Ok(file) = opened else {
+    use ogc_sysbase::{DeviceFile, EACCES, EBADF, O_RDONLY, O_RDWR, O_TRUNC, O_WRONLY};
+    let mut byte = [0];
+    let write_only = DeviceFile::open_checked(c"sd:/ReadMe.txt", O_WRONLY)
+        .is_ok_and(|file| file.read(&mut byte) == Err(-EBADF));
+    let read_only = DeviceFile::open_checked(c"sd:/ReadMe.txt", O_RDONLY)
+        .is_ok_and(|file| file.write_all(b"x") == Err(-EBADF));
+    let read_write = DeviceFile::open_checked(c"sd:/ReadMe.txt", O_RDWR)
+        .is_ok_and(|file| file.read(&mut byte) == Ok(1) && file.write_all(b"i").is_ok());
+    logger.record(
+        "Newlib enforces the exFAT handle access mode",
+        write_only && read_only && read_write,
+    );
+    logger.record(
+        "Newlib refuses to truncate a read-only exFAT file",
+        DeviceFile::open_checked(c"sd:/Fragment.dat", O_WRONLY | O_TRUNC)
+            .is_err_and(|error| error == -EACCES)
+            && DeviceFile::open_checked(c"sd:/Fragment.dat", O_RDONLY)
+                .is_ok_and(|file| file.read(&mut byte) == Ok(1) && byte == *b"A"),
+    );
+
+    let write = ogc_sysbase::DeviceFile::open_checked(
+        c"sd:/ReadMe.txt",
+        ogc_sysbase::O_WRONLY | ogc_sysbase::O_TRUNC,
+    )
+    .and_then(|file| {
+        file.write_all(b"newlib write")?;
+        file.sync()?;
+        file.close()
+    });
+    logger.record(
+        "Newlib truncates, writes and syncs an exFAT file",
+        write.is_ok(),
+    );
+    let append = ogc_sysbase::DeviceFile::open_append(c"sd:/ReadMe.txt").is_some_and(|file| {
+        file.write_all(b"+append").is_ok() && file.sync().is_ok() && file.close().is_ok()
+    });
+    logger.record("Newlib appends to an exFAT file", append);
+    let created = ogc_sysbase::DeviceFile::open_checked(
+        c"sd:/newlib-created.txt",
+        ogc_sysbase::O_WRONLY | ogc_sysbase::O_CREAT | ogc_sysbase::O_EXCL,
+    )
+    .and_then(|file| {
+        file.write_all(b"created")?;
+        file.sync()?;
+        file.close()
+    });
+    logger.record("Newlib creates and writes an exFAT file", created.is_ok());
+    logger.record(
+        "Newlib create-new rejects an existing exFAT file",
+        ogc_sysbase::DeviceFile::open_checked(
+            c"sd:/newlib-created.txt",
+            ogc_sysbase::O_WRONLY | ogc_sysbase::O_CREAT | ogc_sysbase::O_EXCL,
+        )
+        .is_err_and(|error| error == -ogc_sysbase::EEXIST),
+    );
+
+    let opened = ogc_sysbase::DeviceFile::open_read(c"sd:/ReadMe.txt");
+    logger.record(
+        "Newlib opens a file on the exFAT SD mount",
+        opened.is_some(),
+    );
+    let Some(file) = opened else {
         let _ = ogc_blockfs::unmount_sd();
         return;
     };
-    let mut bytes = [0; PAYLOAD.len()];
+    let mut bytes = [0; 19];
     let read = file.read(&mut bytes);
     logger.record(
-        "Newlib reads the expected exFAT file bytes",
-        read == Ok(PAYLOAD.len()) && bytes == *PAYLOAD,
-    );
-    let write = ogc_sysbase::DeviceFile::open_checked(c"sd:/ReadMe.txt", ogc_sysbase::O_WRONLY);
-    logger.record(
-        "Newlib rejects write access to exFAT",
-        matches!(write, Err(error) if error == -ogc_sysbase::EROFS),
+        "Newlib reads bytes persisted by truncate, write and append",
+        read == Ok(bytes.len()) && bytes == *b"newlib write+append",
     );
     logger.record(
         "Newlib open handle keeps exFAT mounted",
@@ -186,9 +330,17 @@ fn probe_newlib_mount(logger: &mut ProbeLogger) {
     );
     let closed = file.close().is_ok();
     logger.record("Newlib closes the exFAT file handle", closed);
+    let unmounted = ogc_blockfs::unmount_sd().is_ok() && !ogc_blockfs::exfat_is_mounted();
+    let remounted = ogc_blockfs::mount_sd() == Ok(ogc_blockfs::Format::Exfat);
+    let persisted =
+        ogc_sysbase::DeviceFile::open_read(c"sd:/newlib-created.txt").is_some_and(|file| {
+            let mut bytes = [0; 7];
+            file.read(&mut bytes) == Ok(7) && bytes == *b"created" && file.close().is_ok()
+        });
+    let closed_again = ogc_blockfs::unmount_sd().is_ok() && !ogc_blockfs::exfat_is_mounted();
     logger.record(
-        "Newlib exFAT mount unmounts after close",
-        ogc_blockfs::unmount_sd().is_ok() && !ogc_blockfs::exfat_is_mounted(),
+        "Newlib file creation and data survive exFAT unmount and remount",
+        unmounted && remounted && persisted && closed_again,
     );
 }
 
@@ -233,7 +385,7 @@ fn probe_multiple_handles(logger: &mut ProbeLogger, volume: &mut Volume, fixture
         independent_reads,
     );
 
-    let length = volume.handle_len(&fragmented);
+    let length = volume.handle_len(&mut fragmented);
     let seek = volume.seek_handle(&mut fragmented, fixture.cluster_bytes - 2);
     let mut boundary = [0xa5; 8];
     let fragmented_read = seek.is_ok()
@@ -325,6 +477,11 @@ fn probe_contiguous_file(logger: &mut ProbeLogger, volume: &mut Volume) {
         }
     };
     logger.record("exFAT opened the expected file", true);
+    logger.record(
+        "exFAT rejects writes through a read-only mount",
+        file.write(b"no")
+            .is_err_and(|error| error == Error::ReadOnly),
+    );
     let mut bytes = [0u8; 64];
     logger.record(
         "exFAT read matches the independent payload",

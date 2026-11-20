@@ -1,6 +1,6 @@
 #![no_std]
 
-//! Read-only exFAT volumes on Wii and GameCube block devices.
+//! exFAT volumes on Wii and GameCube block devices.
 
 extern crate alloc;
 
@@ -15,7 +15,7 @@ mod disc;
 
 #[cfg(target_arch = "powerpc")]
 pub use disc::{DirectoryHandle, File, FileInfo, ReadHandle, Volume};
-/// Result of a read-only filesystem operation.
+/// Result of a filesystem operation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Error {
     /// The boot record or partition geometry is invalid.
@@ -36,4 +36,12 @@ pub enum Error {
     InvalidPath,
     /// A file or directory handle belongs to another volume.
     InvalidHandle,
+    /// The device or volume does not permit writes.
+    ReadOnly,
+    /// The volume has no free clusters for the requested operation.
+    NoSpace,
+    /// The volume was not cleanly closed and needs external recovery.
+    Dirty,
+    /// A file with this name already exists.
+    AlreadyExists,
 }

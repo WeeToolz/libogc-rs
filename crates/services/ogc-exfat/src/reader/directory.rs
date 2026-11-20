@@ -1,6 +1,6 @@
 //! Directory entry sets and root metadata.
 
-use alloc::vec::Vec;
+use alloc::{vec, vec::Vec};
 
 use crate::Error;
 
@@ -14,9 +14,16 @@ pub(crate) struct Entry {
     pub(crate) name: Vec<u16>,
     pub(crate) name_hash: u16,
     pub(crate) stream: Stream,
+    pub(crate) parent: Stream,
+    pub(crate) entry_offset: u64,
+    pub(crate) secondary_count: u8,
 }
 
 impl Entry {
+    pub(crate) fn readonly(&self) -> bool {
+        self.attributes & 1 != 0
+    }
+
     pub(crate) fn directory(&self) -> bool {
         self.attributes & 0x10 != 0
     }
@@ -108,6 +115,9 @@ fn file_entry(
         name,
         name_hash: le16(&stream_slot, 4),
         stream: Stream::new(first_cluster, length, valid_length, contiguous),
+        parent: Stream::new(0, 0, 0, false),
+        entry_offset: 0,
+        secondary_count: primary[1],
     };
     if expected != checksum
         || valid_length > length
@@ -128,6 +138,54 @@ pub(crate) fn valid_name(name: &[u16]) -> bool {
             .iter()
             .any(|&unit| matches!(unit, 0..=31 | 34 | 42 | 47 | 58 | 60 | 62 | 63 | 92 | 124))
         && char::decode_utf16(name.iter().copied()).all(|ch| ch.is_ok())
+}
+
+pub(crate) fn update_file_set(record: &mut [u8], stream: Stream) -> Result<(), Error> {
+    if record.len() < 96 || record.len() != (usize::from(record[1]) + 1) * 32 {
+        return Err(Error::Corrupt);
+    }
+    let stream_entry = &mut record[32..64];
+    stream_entry[1] = (stream_entry[1] & !2) | if stream.contiguous { 2 } else { 0 };
+    stream_entry[8..16].copy_from_slice(&stream.valid_length.to_le_bytes());
+    stream_entry[20..24].copy_from_slice(&stream.first_cluster.to_le_bytes());
+    stream_entry[24..32].copy_from_slice(&stream.length.to_le_bytes());
+    let checksum = record[..2]
+        .iter()
+        .chain(&record[4..])
+        .fold(0u16, |sum, &byte| {
+            sum.rotate_right(1).wrapping_add(u16::from(byte))
+        });
+    record[2..4].copy_from_slice(&checksum.to_le_bytes());
+    Ok(())
+}
+
+pub(crate) fn new_file_set(name: &[u16], name_hash: u16) -> Result<Vec<u8>, Error> {
+    if name.is_empty() || name.len() > 255 || !valid_name(name) {
+        return Err(Error::InvalidPath);
+    }
+    let name_slots = name.len().div_ceil(15);
+    let secondary_count = 1 + name_slots;
+    let mut record = vec![0; (secondary_count + 1) * 32];
+    record[..2].copy_from_slice(&[0x85, secondary_count as u8]);
+    record[4..6].copy_from_slice(&0x20u16.to_le_bytes());
+    record[32..36].copy_from_slice(&[0xc0, 1, 0, name.len() as u8]);
+    record[36..38].copy_from_slice(&name_hash.to_le_bytes());
+    for (index, chunk) in name.chunks(15).enumerate() {
+        let start = (index + 2) * 32;
+        record[start] = 0xc1;
+        for (unit_index, unit) in chunk.iter().enumerate() {
+            let at = start + 2 + unit_index * 2;
+            record[at..at + 2].copy_from_slice(&unit.to_le_bytes());
+        }
+    }
+    let checksum = record[..2]
+        .iter()
+        .chain(&record[4..])
+        .fold(0u16, |sum, &byte| {
+            sum.rotate_right(1).wrapping_add(u16::from(byte))
+        });
+    record[2..4].copy_from_slice(&checksum.to_le_bytes());
+    Ok(record)
 }
 
 fn metadata_stream(slot: &Slot) -> Stream {
@@ -225,5 +283,23 @@ mod tests {
             )))
         );
         assert_eq!(next_record(&mut read), Ok(None));
+    }
+
+    #[test]
+    fn test_new_file_set_encodes_name_and_valid_checksum() {
+        let record = new_file_set(&[97, 46, 116, 120, 116], 0x1cb8).unwrap();
+        assert_eq!(record.len(), 96);
+        assert_eq!(&record[..2], &[0x85, 2]);
+        assert_eq!(&record[32..38], &[0xc0, 1, 0, 5, 0xb8, 0x1c]);
+        let mut slots = record.chunks_exact(32).map(|slot| {
+            let mut result = [0; 32];
+            result.copy_from_slice(slot);
+            result
+        });
+        let Some(Record::File(entry)) = next_record(&mut || Ok(slots.next())).unwrap() else {
+            panic!("new file set was not parsed");
+        };
+        assert_eq!(entry.name, [97, 46, 116, 120, 116]);
+        assert_eq!(entry.stream, Stream::new(0, 0, 0, false));
     }
 }

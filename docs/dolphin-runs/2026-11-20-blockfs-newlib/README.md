@@ -1,4 +1,4 @@
-# exFAT through Newlib in Dolphin
+# Initial read-only exFAT mount through Newlib
 
 The `ogc-blockfs` coordinator selected exFAT, registered `sd:`, and served
 Newlib file calls on sector-zero and MBR images in Dolphin 2609a.
@@ -14,3 +14,6 @@ runner JSON, logs, and screen captures are stored in each image directory.
 
 This evidence covers Dolphin's virtual Wii SD. It does not prove physical SD
 controller behavior or card removal on a console.
+
+The later writable Newlib and blockfs results are in the
+[writable exFAT report](../2026-11-20-exfat-writable/README.md).

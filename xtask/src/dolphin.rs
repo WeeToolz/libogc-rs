@@ -240,6 +240,7 @@ struct Options {
     artifact_dir: Option<PathBuf>,
     timeout_seconds: Option<u64>,
     disable_wii_sd_card: bool,
+    allow_sd_image_writes: bool,
     format_private_card: bool,
 }
 
@@ -370,6 +371,7 @@ struct SdImageEvidence {
     bytes: u64,
     sha256_before: String,
     sha256_after: String,
+    writes_allowed: bool,
 }
 
 #[derive(Serialize)]
@@ -542,6 +544,7 @@ pub fn validate(root: &Path, args: &[String]) -> Result<(), String> {
                 wii_sd_card_enabled: !options.disable_wii_sd_card,
                 disc_image: disc_image.as_deref(),
                 sd_image: sd_image.as_deref(),
+                allow_sd_image_writes: options.allow_sd_image_writes,
                 format_private_card: options.format_private_card,
             },
         )?;
@@ -591,6 +594,9 @@ fn validate_sd_image_selection(options: &Options) -> Result<Option<PathBuf>, Str
         .iter()
         .any(|name| matches!(name.as_str(), "exfat_sd_probe" | "wii_std_exfat_probe"));
     let Some(path) = options.sd_image.as_ref() else {
+        if options.allow_sd_image_writes {
+            return Err("--allow-sd-image-writes requires --sd-image".to_string());
+        }
         return if exfat_selected {
             Err("exfat_sd_probe requires --sd-image".to_string())
         } else {
@@ -627,6 +633,10 @@ fn parse_options(args: &[String]) -> Result<Options, String> {
             }
             "--disable-wii-sd-card" => {
                 options.disable_wii_sd_card = true;
+                index += 1;
+            }
+            "--allow-sd-image-writes" => {
+                options.allow_sd_image_writes = true;
                 index += 1;
             }
             "--dolphin" | "--nand-dir" | "--disc-image" | "--probe" | "--artifact-dir"
@@ -670,7 +680,8 @@ pub fn print_help() {
     eprintln!(
         "  --format-private-card   format a private card copy with storage_probe or card_probe"
     );
-    eprintln!("  --sd-image PATH         attach a read-only copy of a raw Wii SD image");
+    eprintln!("  --sd-image PATH         attach a private copy of a raw Wii SD image");
+    eprintln!("  --allow-sd-image-writes allow writes to that private image copy");
     eprintln!("  --artifact-dir PATH     result directory");
     eprintln!("  --timeout-seconds N     override every probe timeout");
     eprintln!("  --disable-wii-sd-card   run probes without Dolphin's virtual Wii SD card");
@@ -895,6 +906,7 @@ struct ProbeMedia<'a> {
     wii_sd_card_enabled: bool,
     disc_image: Option<&'a Path>,
     sd_image: Option<&'a Path>,
+    allow_sd_image_writes: bool,
     format_private_card: bool,
 }
 
@@ -982,6 +994,7 @@ fn run_probe(
         media.wii_sd_card_enabled,
         media.disc_image,
         private_sd.as_ref().map(|(path, _, _)| path.as_path()),
+        media.allow_sd_image_writes,
     );
     if spec.name == "usbstorage_transport_probe" {
         let device = std::env::var("LIBOGC_DOLPHIN_USB_READ_DEVICE")
@@ -1193,6 +1206,7 @@ fn run_probe(
                 bytes,
                 sha256_after: sha256_file(&path)?,
                 sha256_before,
+                writes_allowed: media.allow_sd_image_writes,
             })
         })
         .transpose()?;
@@ -1262,9 +1276,10 @@ fn run_probe(
         status = "fail";
         detail = "card format did not verify marker removal and final unmount".to_string();
     }
-    if sd_image
-        .as_ref()
-        .is_some_and(|image| image.sha256_before != image.sha256_after)
+    if !media.allow_sd_image_writes
+        && sd_image
+            .as_ref()
+            .is_some_and(|image| image.sha256_before != image.sha256_after)
     {
         status = "fail";
         detail = "the read-only SD image changed during the probe".to_string();
@@ -1445,6 +1460,7 @@ fn dolphin_arguments(
     wii_sd_card_enabled: bool,
     disc_image: Option<&Path>,
     sd_image: Option<&Path>,
+    allow_sd_image_writes: bool,
 ) -> Vec<String> {
     let speed = "1.0";
     let mut arguments = [
@@ -1510,7 +1526,7 @@ fn dolphin_arguments(
         "-C".to_string(),
         format!(
             "Dolphin.Core.WiiSDCardAllowWrites={}",
-            wii_sd_card_enabled && sd_image.is_none()
+            wii_sd_card_enabled && (sd_image.is_none() || allow_sd_image_writes)
         ),
     ]
     .into_iter()
@@ -2424,6 +2440,7 @@ mod tests {
             true,
             None,
             Some(std::path::Path::new("private-user/Wii/libogc-probe-sd.raw")),
+            false,
         );
         assert!(
             arguments
@@ -2845,6 +2862,7 @@ mod tests {
             true,
             Some(image),
             None,
+            false,
         );
         assert!(args.windows(2).any(|pair| {
             pair[0] == "-C" && pair[1] == format!("Dolphin.Core.DefaultISO={}", image.display())
@@ -2859,6 +2877,7 @@ mod tests {
             true,
             None,
             None,
+            false,
         );
         assert!(
             !without_disc
@@ -2897,6 +2916,7 @@ mod tests {
             true,
             None,
             None,
+            false,
         );
 
         assert!(
@@ -2916,6 +2936,7 @@ mod tests {
             true,
             None,
             None,
+            false,
         );
         assert!(
             !args_without_card
@@ -2939,6 +2960,7 @@ mod tests {
             true,
             None,
             None,
+            false,
         );
         assert!(
             args.windows(2).any(|pair| {
@@ -2957,6 +2979,7 @@ mod tests {
             true,
             None,
             None,
+            false,
         );
         assert!(args.windows(2).any(|pair| {
             pair[0] == "-C" && pair[1] == "Graphics.Hacks.EFBToTextureEnable=False"
@@ -2970,8 +2993,8 @@ mod tests {
     fn dolphin_args_disable_virtual_sd_only_when_requested() {
         let profile = Path::new("/run/profile");
         let dol = Path::new("/run/wiisd_probe.dol");
-        let enabled = dolphin_arguments(profile, dol, 1234, None, true, None, None);
-        let disabled = dolphin_arguments(profile, dol, 1234, None, false, None, None);
+        let enabled = dolphin_arguments(profile, dol, 1234, None, true, None, None, false);
+        let disabled = dolphin_arguments(profile, dol, 1234, None, false, None, None, false);
         assert!(
             enabled
                 .windows(2)

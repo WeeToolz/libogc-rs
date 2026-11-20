@@ -1,6 +1,6 @@
 use ogc_system_probe::probe_support::ProbeLogger;
 use std::fs::{self, File, OpenOptions};
-use std::io::{Read, Seek, SeekFrom};
+use std::io::{Read, Seek, SeekFrom, Write};
 
 const LARGE_MARKER: u64 = (1 << 32) + 17;
 
@@ -53,35 +53,15 @@ pub(crate) fn run(logger: &mut ProbeLogger) {
 
     if names.iter().any(|name| name == "Large.dat") {
         probe_large_file(logger);
+        probe_writes(logger, true);
     } else {
         probe_fragmented_file(logger, &names);
+        probe_writes(logger, false);
     }
 
-    let test_file = if names.iter().any(|name| name == "Large.dat") {
-        "sd:/Large.dat"
-    } else {
-        "sd:/ReadMe.txt"
-    };
-    let readonly_open = OpenOptions::new().write(true).open(test_file);
-    logger.record(
-        "std rejects write access to exFAT with EROFS",
-        readonly_open
-            .err()
-            .is_some_and(|error| error.raw_os_error() == Some(ogc_sysbase::EROFS)),
-    );
-    let create = OpenOptions::new()
-        .write(true)
-        .create_new(true)
-        .open("sd:/std-exfat-must-not-exist.tmp");
-    logger.record(
-        "std rejects exFAT file creation with EROFS",
-        create
-            .err()
-            .is_some_and(|error| error.raw_os_error() == Some(ogc_sysbase::EROFS)),
-    );
     logger.record(
         "std rejects exFAT file removal",
-        fs::remove_file(test_file)
+        fs::remove_file("sd:/ReadMe.txt")
             .err()
             .is_some_and(|error| error.raw_os_error() == Some(ogc_sysbase::EROFS)),
     );
@@ -90,14 +70,174 @@ pub(crate) fn run(logger: &mut ProbeLogger) {
         fs::metadata(if names.iter().any(|name| name == "Large.dat") {
             "sd:/Large.dat"
         } else {
-            "sd:/Fragment.dat"
+            "sd:/std-created.txt"
         })
-        .is_ok_and(|metadata| metadata.is_file() && metadata.permissions().readonly()),
+        .is_ok_and(|metadata| metadata.is_file() && !metadata.permissions().readonly()),
     );
 
     logger.record(
         "exFAT std mount closes after all std handles drop",
         ogc_blockfs::unmount_sd().is_ok() && !ogc_blockfs::exfat_is_mounted(),
+    );
+}
+
+fn probe_writes(logger: &mut ProbeLogger, large: bool) {
+    if large {
+        let mut file = match ogc_blockfs::open_write("Large.dat") {
+            Ok(file) => file,
+            Err(error) => {
+                logger.record("blockfs opens an exFAT writer", false);
+                logger.note(&format!("open_write error: {error:?}"));
+                return;
+            }
+        };
+        let old_length = file.len().unwrap_or(0);
+        let wrote = file.seek(LARGE_MARKER + 6).is_ok()
+            && file.write(b"WRIT").is_ok_and(|count| count == 4)
+            && file.flush().is_ok()
+            && file.len().is_ok_and(|length| length == old_length);
+        logger.record("blockfs writes above 4 GiB and flushes writes", wrote);
+        drop(file);
+        let remounted = ogc_blockfs::unmount_sd().is_ok()
+            && ogc_blockfs::mount_sd() == Ok(ogc_blockfs::Format::Exfat);
+        let mut prefix = [0; 4];
+        let persisted = File::open("sd:/Large.dat")
+            .and_then(|mut file| {
+                file.seek(SeekFrom::Start(LARGE_MARKER + 6))?;
+                file.read_exact(&mut prefix)
+            })
+            .is_ok()
+            && prefix == *b"WRIT";
+        logger.record(
+            "large-file overwrite survives SD unmount and remount",
+            remounted && persisted,
+        );
+        return;
+    }
+
+    probe_access_modes(logger);
+
+    let base_write = fs::write("sd:/ReadMe.txt", b"new exFAT data").is_ok();
+    let append = OpenOptions::new()
+        .append(true)
+        .open("sd:/ReadMe.txt")
+        .and_then(|mut file| {
+            file.write_all(b"+append")?;
+            file.sync_all()
+        })
+        .is_ok();
+    let readback = fs::read("sd:/ReadMe.txt").is_ok_and(|bytes| bytes == b"new exFAT data+append");
+    logger.record(
+        "std truncates, writes, appends and reads exFAT data",
+        base_write && append && readback,
+    );
+
+    let create = fs::write("sd:/std-created.txt", b"created").is_ok();
+    let grow = OpenOptions::new()
+        .write(true)
+        .truncate(true)
+        .open("sd:/std-created.txt")
+        .and_then(|mut file| {
+            file.set_len(1024)?;
+            file.seek(SeekFrom::Start(1018))?;
+            file.write_all(b"TAIL")?;
+            file.sync_all()
+        })
+        .is_ok();
+    let created = fs::read("sd:/std-created.txt").is_ok_and(|bytes| {
+        bytes.len() == 1024
+            && bytes[..1018].iter().all(|&byte| byte == 0)
+            && bytes[1018..1022] == *b"TAIL"
+            && bytes[1022..].iter().all(|&byte| byte == 0)
+    });
+    let duplicate = OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open("sd:/std-created.txt")
+        .err()
+        .is_some_and(|error| error.raw_os_error() == Some(ogc_sysbase::EEXIST));
+    logger.record(
+        "std creates, truncates, extends with zeroes, and rejects create-new collisions",
+        create && grow && created && duplicate,
+    );
+
+    let mut direct = match ogc_blockfs::create_file("blockfs-created.txt") {
+        Ok(file) => file,
+        Err(error) => {
+            logger.record("blockfs creates a writable exFAT handle", false);
+            logger.note(&format!("create_file error: {error:?}"));
+            return;
+        }
+    };
+    let direct_ok = direct.write(b"blockfs").is_ok_and(|count| count == 7)
+        && direct.truncate(512).is_ok()
+        && direct.flush().is_ok()
+        && direct.len().is_ok_and(|length| length == 512);
+    drop(direct);
+    let append = ogc_blockfs::open_append("blockfs-created.txt").is_ok_and(|mut file| {
+        file.write(b"+append").is_ok_and(|count| count == 7)
+            && file.flush().is_ok()
+            && file.len().is_ok_and(|length| length == 519)
+    });
+    let remounted = ogc_blockfs::unmount_sd().is_ok()
+        && ogc_blockfs::mount_sd() == Ok(ogc_blockfs::Format::Exfat);
+    let durable = fs::read("sd:/std-created.txt")
+        .is_ok_and(|bytes| bytes.len() == 1024 && bytes[1018..1022] == *b"TAIL")
+        && ogc_blockfs::stat("blockfs-created.txt").is_ok_and(|info| info.size == 519);
+    logger.record(
+        "blockfs writes, truncates, syncs, and survives an exFAT remount",
+        direct_ok && append && remounted && durable,
+    );
+}
+
+fn probe_access_modes(logger: &mut ProbeLogger) {
+    let path = "sd:/ReadMe.txt";
+    let mut byte = [0];
+    let write_only = OpenOptions::new()
+        .write(true)
+        .open(path)
+        .is_ok_and(|mut file| {
+            file.read(&mut byte)
+                .is_err_and(|error| error.raw_os_error() == Some(ogc_sysbase::EBADF))
+        });
+    let read_only = File::open(path).is_ok_and(|mut file| {
+        file.write_all(b"x")
+            .is_err_and(|error| error.raw_os_error() == Some(ogc_sysbase::EBADF))
+    });
+    let read_write = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(path)
+        .is_ok_and(|mut file| file.read_exact(&mut byte).is_ok() && file.write_all(b"i").is_ok());
+    logger.record(
+        "std enforces the exFAT handle access mode",
+        write_only && read_only && read_write,
+    );
+
+    let protected = "sd:/Fragment.dat";
+    let metadata = fs::metadata(protected).is_ok_and(|info| info.permissions().readonly())
+        && File::open(protected)
+            .and_then(|file| file.metadata())
+            .is_ok_and(|info| info.permissions().readonly());
+    let denied = OpenOptions::new()
+        .write(true)
+        .truncate(true)
+        .open(protected)
+        .is_err_and(|error| error.raw_os_error() == Some(ogc_sysbase::EACCES));
+    logger.record(
+        "std reports and honors the exFAT read-only attribute",
+        metadata && denied,
+    );
+
+    let checked = ogc_blockfs::open_with_flags("Fragment.dat", ogc_sysbase::O_RDONLY).is_ok_and(
+        |mut file| {
+            file.metadata()
+                .is_ok_and(|(size, readonly)| size > 0 && readonly)
+        },
+    );
+    logger.record(
+        "blockfs reports the read-only attribute on an open file",
+        checked,
     );
 }
 

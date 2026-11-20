@@ -134,6 +134,8 @@ class Fixture:
         self.write(self.fat + second * 4, struct.pack("<I", 0xFFFFFFFF))
         self.write(self.cluster_offset(first), b"A" * (self.cluster_bytes - 1) + b"B")
         self.write(self.cluster_offset(second), b"CD" + b"\xa5" * (self.cluster_bytes - 2))
+        # Keep a fragmented file readable while testing write protection.
+        record[4] |= 1
         self.update_entry(
             offset, record, first, self.cluster_bytes * 2, self.cluster_bytes + 2, False
         )
@@ -188,6 +190,9 @@ def create(output, layout, large):
             fixture.make_large()
         else:
             fixture.make_fragmented()
+            # The backup flag may be stale. Leave the main boot sector clean.
+            flag = fixture.base + 12 * SECTOR_BYTES + 106
+            fixture.write(flag, bytes([fixture.read(flag, 1)[0] | 2]))
         fixture.save_bitmap()
     print(f"{output}: exFAT at LBA {fixture.base // SECTOR_BYTES}, cluster bytes {fixture.cluster_bytes}")
 

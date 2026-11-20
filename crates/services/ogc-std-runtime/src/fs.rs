@@ -36,7 +36,7 @@ struct FsDirEntry {
 }
 
 impl FsFile {
-    fn len(&self) -> Result<u64, i32> {
+    fn len(&mut self) -> Result<u64, i32> {
         match self {
             Self::Fat(file) => Ok(u64::from(file.len())),
             Self::Exfat(file) => file.len().map_err(|error| ogc_blockfs::errno(&error)),
@@ -60,7 +60,9 @@ impl FsFile {
     fn write(&mut self, input: &[u8]) -> Result<usize, i32> {
         match self {
             Self::Fat(file) => file.write(input).map_err(fat_errno),
-            Self::Exfat(_) => Err(EROFS),
+            Self::Exfat(file) => file
+                .write(input)
+                .map_err(|error| ogc_blockfs::errno(&error)),
         }
     }
 
@@ -78,7 +80,7 @@ impl FsFile {
     fn flush(&mut self) -> Result<(), i32> {
         match self {
             Self::Fat(file) => file.flush().map_err(fat_errno),
-            Self::Exfat(_) => Ok(()),
+            Self::Exfat(file) => file.flush().map_err(|error| ogc_blockfs::errno(&error)),
         }
     }
 
@@ -87,7 +89,9 @@ impl FsFile {
             Self::Fat(file) => file
                 .truncate(u32::try_from(size).map_err(|_| EFBIG)?)
                 .map_err(fat_errno),
-            Self::Exfat(_) => Err(EROFS),
+            Self::Exfat(file) => file
+                .truncate(size)
+                .map_err(|error| ogc_blockfs::errno(&error)),
         }
     }
 
@@ -108,7 +112,8 @@ impl FsFile {
     fn close(self) -> Result<(), i32> {
         match self {
             Self::Fat(file) => file.close().map_err(fat_errno),
-            Self::Exfat(file) => {
+            Self::Exfat(mut file) => {
+                file.flush().map_err(|error| ogc_blockfs::errno(&error))?;
                 drop(file);
                 Ok(())
             }
@@ -187,10 +192,7 @@ fn reject_exfat_mutation(path: &CStr) -> Result<(), i32> {
 
 fn open_fs_file(path: &CStr, flags: i32) -> Result<FsFile, i32> {
     if let Some(relative) = exfat_path(path)? {
-        if flags != ogc_sysbase::O_RDONLY {
-            return Err(EROFS);
-        }
-        return ogc_blockfs::open(relative)
+        return ogc_blockfs::open_with_flags(relative, flags)
             .map(FsFile::Exfat)
             .map_err(|error| ogc_blockfs::errno(&error));
     }
@@ -449,10 +451,9 @@ unsafe fn dispatch(r: &mut FsRequest) -> Result<i64, i32> {
                     return_times(r, file.timestamps().map_err(fat_errno)?);
                     (u64::from(size), readonly)
                 }
-                FsFile::Exfat(file) => (
-                    file.len().map_err(|error| ogc_blockfs::errno(&error))?,
-                    true,
-                ),
+                FsFile::Exfat(file) => file
+                    .metadata()
+                    .map_err(|error| ogc_blockfs::errno(&error))?,
             };
             r.size = size;
             r.mode = 0o100000 | if readonly { 0o444 } else { 0o666 };
@@ -464,7 +465,8 @@ unsafe fn dispatch(r: &mut FsRequest) -> Result<i64, i32> {
                 let info =
                     ogc_blockfs::stat(relative).map_err(|error| ogc_blockfs::errno(&error))?;
                 r.size = info.size;
-                r.mode = (if info.is_dir { 0o040000 } else { 0o100000 }) | 0o444;
+                r.mode = (if info.is_dir { 0o040000 } else { 0o100000 })
+                    | if info.readonly { 0o444 } else { 0o666 };
                 return Ok(0);
             }
             let info = ogc_fat::stat(&path).map_err(fat_errno)?;

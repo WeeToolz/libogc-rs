@@ -1,6 +1,6 @@
 #![no_std]
 
-//! Read-only mount routing for block-backed filesystems.
+//! Mount routing for block-backed filesystems.
 
 #[cfg(not(target_arch = "powerpc"))]
 compile_error!(
@@ -27,7 +27,7 @@ use ogc_exfat::{
 pub enum Format {
     /// The existing FAT12/16/32 backend owns the mount.
     Fat,
-    /// The read-only exFAT backend owns the mount.
+    /// The exFAT backend owns the mount.
     Exfat,
 }
 
@@ -48,10 +48,18 @@ pub enum Error {
     NotMounted,
     /// The handle belongs to an old or different mount.
     InvalidHandle,
+    /// The requested open flags are invalid.
+    InvalidFlags,
+    /// The file has the exFAT read-only attribute.
+    PermissionDenied,
     /// The medium was removed after it was mounted.
     MediaRemoved,
     /// exFAT rejected its on-disk metadata.
     Exfat(ExfatError),
+    /// The mounted volume or open file does not permit writes.
+    ReadOnly,
+    /// The volume has no free clusters for the requested operation.
+    NoSpace,
 }
 
 struct Lock<T> {
@@ -252,7 +260,7 @@ fn exfat_extent(disc: &'static DiscInterface) -> Result<Option<u64>, Error> {
     Ok(None)
 }
 
-/// Start Wii SD and mount either the existing FAT backend or the exFAT reader.
+/// Start Wii SD and mount either the existing FAT backend or the exFAT backend.
 ///
 /// exFAT uses the validated volume extent as its read bound. If the card CSD
 /// reports a capacity, the extent must also fit inside that capacity.
@@ -310,7 +318,7 @@ pub fn mount_sd() -> Result<Format, Error> {
     // The extent includes the partition start and volume length.
     // SAFETY: this function starts the Wii SD device and the count was bounded
     // by the CSD when available, otherwise by the validated volume extent.
-    let volume = match unsafe { Volume::mount(disc, sectors, 512) } {
+    let volume = match unsafe { Volume::mount_writable(disc, sectors, 512) } {
         Ok(volume) => volume,
         Err(error) => {
             stop_started_device(disc, started_device)?;
@@ -384,17 +392,88 @@ pub fn stat(path: &str) -> Result<FileInfo, Error> {
     mount.volume.stat(path).map_err(Error::Exfat)
 }
 
-/// Open an exFAT file. Dropping the handle releases one mount reference.
+/// Open an exFAT file for reading.
 pub fn open(path: &str) -> Result<File, Error> {
+    open_with_flags(path, ogc_sysbase::O_RDONLY)
+}
+
+/// Open an exFAT file for writing. Writes can grow the file and allocate clusters.
+pub fn open_write(path: &str) -> Result<File, Error> {
+    open_with_flags(path, ogc_sysbase::O_WRONLY)
+}
+
+/// Open a file and append each write at its current end.
+pub fn open_append(path: &str) -> Result<File, Error> {
+    open_with_flags(path, ogc_sysbase::O_WRONLY | ogc_sysbase::O_APPEND)
+}
+
+/// Create an empty exFAT file and open it for reading and writing.
+pub fn create_file(path: &str) -> Result<File, Error> {
+    open_with_flags(
+        path,
+        ogc_sysbase::O_RDWR | ogc_sysbase::O_CREAT | ogc_sysbase::O_EXCL,
+    )
+}
+
+/// Open an exFAT file with Newlib access and creation flags.
+pub fn open_with_flags(path: &str, flags: i32) -> Result<File, Error> {
+    use ogc_sysbase::{O_ACCMODE, O_APPEND, O_CREAT, O_EXCL, O_RDONLY, O_RDWR, O_TRUNC, O_WRONLY};
+
+    let access = flags & O_ACCMODE;
+    let readable = matches!(access, O_RDONLY | O_RDWR);
+    let writable = matches!(access, O_WRONLY | O_RDWR);
+    let create = flags & O_CREAT != 0;
+    let exclusive = flags & O_EXCL != 0;
+    let truncate = flags & O_TRUNC != 0;
+    let append = flags & O_APPEND != 0;
+    if flags & !(O_ACCMODE | O_CREAT | O_EXCL | O_TRUNC | O_APPEND) != 0
+        || !(readable || writable)
+        || (!writable && (create || truncate || append))
+        || (exclusive && !create)
+    {
+        return Err(Error::InvalidFlags);
+    }
+
     let mut slot = MOUNT.lock();
     let mount = slot.as_mut().ok_or(Error::NotMounted)?;
     ensure_online(mount)?;
-    let handle = mount.volume.open_handle(path).map_err(Error::Exfat)?;
-    mount.open_handles = mount.open_handles.checked_add(1).ok_or(Error::Busy)?;
+    let next_handles = mount.open_handles.checked_add(1).ok_or(Error::Busy)?;
+    let mut handle = if exclusive {
+        mount.volume.create_file(path)
+    } else {
+        match mount.volume.open_handle(path) {
+            Err(ExfatError::NotFound) if create => mount.volume.create_file(path),
+            result => result,
+        }
+    }
+    .map_err(Error::Exfat)?;
+    if writable && handle.is_readonly() {
+        return Err(Error::PermissionDenied);
+    }
+    if truncate {
+        mount
+            .volume
+            .truncate_handle(&mut handle, 0)
+            .map_err(Error::Exfat)?;
+    }
+    let position = if append {
+        let length = mount.volume.handle_len(&mut handle).map_err(Error::Exfat)?;
+        mount
+            .volume
+            .seek_handle(&mut handle, length)
+            .map_err(Error::Exfat)?;
+        length
+    } else {
+        0
+    };
+    mount.open_handles = next_handles;
     Ok(File {
         generation: mount.generation,
         handle: Some(handle),
-        position: 0,
+        position,
+        readable,
+        writable,
+        append,
     })
 }
 
@@ -419,26 +498,33 @@ fn release(generation: u32) {
     }
 }
 
-/// An open read-only exFAT file.
+/// An open exFAT file.
 pub struct File {
     generation: u32,
     handle: Option<ReadHandle>,
     position: u64,
+    readable: bool,
+    writable: bool,
+    append: bool,
 }
 
 impl File {
     /// Return the file size in bytes.
-    pub fn len(&self) -> Result<u64, Error> {
+    pub fn len(&mut self) -> Result<u64, Error> {
+        self.metadata().map(|(size, _)| size)
+    }
+
+    /// Return the current file size and read-only attribute.
+    pub fn metadata(&mut self) -> Result<(u64, bool), Error> {
         let mut slot = MOUNT.lock();
         let mount = slot.as_mut().ok_or(Error::MediaRemoved)?;
         if mount.generation != self.generation {
             return Err(Error::InvalidHandle);
         }
         ensure_online(mount)?;
-        mount
-            .volume
-            .handle_len(self.handle.as_ref().ok_or(Error::InvalidHandle)?)
-            .map_err(Error::Exfat)
+        let handle = self.handle.as_mut().ok_or(Error::InvalidHandle)?;
+        let size = mount.volume.handle_len(handle).map_err(Error::Exfat)?;
+        Ok((size, handle.is_readonly()))
     }
 
     /// Return the current file offset.
@@ -464,6 +550,9 @@ impl File {
 
     /// Read from the current byte offset.
     pub fn read(&mut self, out: &mut [u8]) -> Result<usize, Error> {
+        if !self.readable {
+            return Err(Error::InvalidHandle);
+        }
         let mut slot = MOUNT.lock();
         let mount = slot.as_mut().ok_or(Error::MediaRemoved)?;
         if mount.generation != self.generation {
@@ -479,6 +568,68 @@ impl File {
             .checked_add(count as u64)
             .ok_or(Error::InvalidHandle)?;
         Ok(count)
+    }
+
+    /// Write bytes at the current offset, growing the file when required.
+    pub fn write(&mut self, input: &[u8]) -> Result<usize, Error> {
+        if !self.writable {
+            return Err(Error::InvalidHandle);
+        }
+        let mut slot = MOUNT.lock();
+        let mount = slot.as_mut().ok_or(Error::MediaRemoved)?;
+        if mount.generation != self.generation {
+            return Err(Error::InvalidHandle);
+        }
+        ensure_online(mount)?;
+        let handle = self.handle.as_mut().ok_or(Error::InvalidHandle)?;
+        if self.append {
+            let end = mount.volume.handle_len(handle).map_err(Error::Exfat)?;
+            mount
+                .volume
+                .seek_handle(handle, end)
+                .map_err(Error::Exfat)?;
+            self.position = end;
+        }
+        let count = mount
+            .volume
+            .write_handle(handle, input)
+            .map_err(Error::Exfat)?;
+        self.position = self
+            .position
+            .checked_add(count as u64)
+            .ok_or(Error::InvalidHandle)?;
+        Ok(count)
+    }
+
+    /// Set the file length and return errors from allocation and metadata writes.
+    pub fn truncate(&mut self, length: u64) -> Result<(), Error> {
+        if !self.writable {
+            return Err(Error::InvalidHandle);
+        }
+        let mut slot = MOUNT.lock();
+        let mount = slot.as_mut().ok_or(Error::MediaRemoved)?;
+        if mount.generation != self.generation {
+            return Err(Error::InvalidHandle);
+        }
+        ensure_online(mount)?;
+        mount
+            .volume
+            .truncate_handle(self.handle.as_mut().ok_or(Error::InvalidHandle)?, length)
+            .map_err(Error::Exfat)
+    }
+
+    /// Check that the medium remains online after synchronous sector writes.
+    pub fn flush(&mut self) -> Result<(), Error> {
+        let mut slot = MOUNT.lock();
+        let mount = slot.as_mut().ok_or(Error::MediaRemoved)?;
+        if mount.generation != self.generation {
+            return Err(Error::InvalidHandle);
+        }
+        ensure_online(mount)?;
+        mount
+            .volume
+            .sync_handle(self.handle.as_ref().ok_or(Error::InvalidHandle)?)
+            .map_err(Error::Exfat)
     }
 }
 
@@ -518,7 +669,7 @@ impl Drop for Directory {
     }
 }
 
-/// Map the read-only mount error to a Newlib errno value.
+/// Map a mount error to a Newlib errno value.
 pub fn errno(error: &Error) -> i32 {
     match error {
         Error::DeviceUnavailable | Error::MediaRemoved => ogc_sysbase::ENODEV,
@@ -526,6 +677,8 @@ pub fn errno(error: &Error) -> i32 {
         Error::InvalidGeometry | Error::Exfat(ExfatError::InvalidBoot) => ogc_sysbase::EBADMSG,
         Error::AlreadyMounted | Error::Busy => ogc_sysbase::EBUSY,
         Error::NotMounted => ogc_sysbase::ENODEV,
+        Error::InvalidFlags => ogc_sysbase::EINVAL,
+        Error::PermissionDenied => ogc_sysbase::EACCES,
         Error::InvalidHandle => ogc_sysbase::EBADF,
         Error::Exfat(ExfatError::NotFound) => ogc_sysbase::ENOENT,
         Error::Exfat(ExfatError::Io) => ogc_sysbase::EIO,
@@ -534,6 +687,10 @@ pub fn errno(error: &Error) -> i32 {
         Error::Exfat(ExfatError::IsDirectory) => ogc_sysbase::EISDIR,
         Error::Exfat(ExfatError::InvalidPath) => ogc_sysbase::EINVAL,
         Error::Exfat(ExfatError::Unsupported | ExfatError::Corrupt) => ogc_sysbase::EIO,
+        Error::ReadOnly | Error::Exfat(ExfatError::ReadOnly) => ogc_sysbase::EROFS,
+        Error::NoSpace | Error::Exfat(ExfatError::NoSpace) => ogc_sysbase::ENOSPC,
+        Error::Exfat(ExfatError::Dirty) => ogc_sysbase::EIO,
+        Error::Exfat(ExfatError::AlreadyExists) => ogc_sysbase::EEXIST,
     }
 }
 
@@ -572,8 +729,8 @@ fn make_devoptab() -> alloc::boxed::Box<ogc_sysbase::Devoptab> {
         dirnext_r: Some(dirnext_r),
         dirclose_r: Some(dirclose_r),
         statvfs_r: None,
-        ftruncate_r: None,
-        fsync_r: None,
+        ftruncate_r: Some(ftruncate_r),
+        fsync_r: Some(fsync_r),
         device_data: null_mut(),
         chmod_r: None,
         fchmod_r: None,
@@ -652,17 +809,7 @@ unsafe extern "C" fn open_r(
         set_errno(r, ogc_sysbase::EBADF);
         return -1;
     }
-    if flags
-        & (ogc_sysbase::O_ACCMODE
-            | ogc_sysbase::O_CREAT
-            | ogc_sysbase::O_TRUNC
-            | ogc_sysbase::O_APPEND)
-        != ogc_sysbase::O_RDONLY
-    {
-        set_errno(r, ogc_sysbase::EROFS);
-        return -1;
-    }
-    match open(relative_path(path)) {
+    match open_with_flags(relative_path(path), flags) {
         Ok(file) => {
             // SAFETY: Newlib provided uninitialized storage of `struct_size`.
             unsafe {
@@ -680,12 +827,63 @@ unsafe extern "C" fn open_r(
     }
 }
 
+unsafe extern "C" fn ftruncate_r(r: *mut ogc_sysbase::Reent, ptr: *mut c_void, length: i64) -> i32 {
+    if length < 0 {
+        set_errno(r, ogc_sysbase::EINVAL);
+        return -1;
+    }
+    let state = match unsafe { file_state(ptr) } {
+        Ok(state) => state,
+        Err(errno) => {
+            set_errno(r, errno);
+            return -1;
+        }
+    };
+    match state
+        .file
+        .as_mut()
+        .expect("validated file state")
+        .truncate(length as u64)
+    {
+        Ok(()) => 0,
+        Err(error) => {
+            set_errno(r, errno(&error));
+            -1
+        }
+    }
+}
+
+unsafe extern "C" fn fsync_r(r: *mut ogc_sysbase::Reent, ptr: *mut c_void) -> i32 {
+    let state = match unsafe { file_state(ptr) } {
+        Ok(state) => state,
+        Err(errno) => {
+            set_errno(r, errno);
+            return -1;
+        }
+    };
+    match state.file.as_mut().expect("validated file state").flush() {
+        Ok(()) => 0,
+        Err(error) => {
+            set_errno(r, errno(&error));
+            -1
+        }
+    }
+}
+
 unsafe extern "C" fn close_r(r: *mut ogc_sysbase::Reent, ptr: *mut c_void) -> i32 {
     match unsafe { file_state(ptr) } {
         Ok(state) => {
             state.magic = 0;
-            drop(state.file.take());
-            0
+            let mut file = state.file.take().expect("validated file state");
+            let flushed = file.flush();
+            drop(file);
+            match flushed {
+                Ok(()) => 0,
+                Err(error) => {
+                    set_errno(r, errno(&error));
+                    -1
+                }
+            }
         }
         Err(errno) => {
             set_errno(r, errno);
@@ -735,15 +933,39 @@ unsafe extern "C" fn read_r(
 unsafe extern "C" fn write_r(
     r: *mut ogc_sysbase::Reent,
     ptr: *mut c_void,
-    _data: *const c_char,
-    _length: usize,
+    data: *const c_char,
+    length: usize,
 ) -> isize {
-    if unsafe { file_state(ptr) }.is_err() {
-        set_errno(r, ogc_sysbase::EBADF);
-    } else {
-        set_errno(r, ogc_sysbase::EROFS);
+    if length > isize::MAX as usize || (length != 0 && data.is_null()) {
+        set_errno(r, ogc_sysbase::EINVAL);
+        return -1;
     }
-    -1
+    let state = match unsafe { file_state(ptr) } {
+        Ok(state) => state,
+        Err(errno) => {
+            set_errno(r, errno);
+            return -1;
+        }
+    };
+    let input_ptr = if length == 0 {
+        core::ptr::NonNull::<u8>::dangling().as_ptr()
+    } else {
+        data.cast::<u8>()
+    };
+    // SAFETY: Newlib provides a readable buffer with the requested length.
+    let input = unsafe { core::slice::from_raw_parts(input_ptr, length) };
+    match state
+        .file
+        .as_mut()
+        .expect("validated file state")
+        .write(input)
+    {
+        Ok(count) => count as isize,
+        Err(error) => {
+            set_errno(r, errno(&error));
+            -1
+        }
+    }
 }
 
 unsafe extern "C" fn seek_r(
@@ -792,7 +1014,13 @@ unsafe extern "C" fn seek_r(
 
 fn fill_stat(stat: &mut ogc_sysbase::Stat, info: &FileInfo) -> Result<(), i32> {
     stat.st_size = i64::try_from(info.size).map_err(|_| ogc_sysbase::EOVERFLOW)?;
-    stat.st_mode = if info.is_dir { 0o040555 } else { 0o100444 };
+    stat.st_mode = if info.is_dir {
+        0o040555
+    } else if info.readonly {
+        0o100444
+    } else {
+        0o100666
+    };
     stat.st_nlink = 1;
     stat.st_blksize = 512;
     stat.st_blocks = i32::try_from(info.size.div_ceil(512)).unwrap_or(i32::MAX);
@@ -815,12 +1043,13 @@ unsafe extern "C" fn fstat_r(
             return -1;
         }
     };
-    let file = state.file.as_ref().expect("validated file state");
-    let info = match file.len() {
-        Ok(size) => FileInfo {
+    let file = state.file.as_mut().expect("validated file state");
+    let info = match file.metadata() {
+        Ok((size, readonly)) => FileInfo {
             name: String::new(),
             size,
             is_dir: false,
+            readonly,
         },
         Err(error) => {
             set_errno(r, errno(&error));

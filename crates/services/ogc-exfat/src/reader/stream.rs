@@ -1,6 +1,6 @@
 //! Read exFAT streams by extent or FAT chain.
 
-use alloc::{vec, vec::Vec};
+use alloc::{boxed::Box, vec, vec::Vec};
 
 use crate::Error;
 
@@ -34,7 +34,10 @@ impl Stream {
 
 /// Keep one position in a FAT chain. Each stream needs its own cursor.
 #[derive(Default)]
-pub(crate) struct Cursor(Option<(u64, u32)>);
+pub(crate) struct Cursor {
+    position: Option<(u64, u32)>,
+    fat_revision: u64,
+}
 
 /// Detect repeats in a chain without an extra FAT lookup or a visited set.
 struct CycleCheck {
@@ -66,22 +69,52 @@ impl CycleCheck {
     }
 }
 
-pub(crate) struct Data<R> {
+pub(crate) type WriteSector = Box<dyn FnMut(u64, &[u8]) -> Result<(), Error> + Send>;
+
+pub(crate) struct Data<R, W = WriteSector> {
     base: u64,
     geometry: Geometry,
     read_sector: R,
+    write_sector: Option<W>,
     sector: Vec<u8>,
     cached_lba: Option<u64>,
+    fat_revision: u64,
 }
 
-impl<R: FnMut(u64, &mut [u8]) -> Result<(), Error>> Data<R> {
+impl<R: FnMut(u64, &mut [u8]) -> Result<(), Error>> Data<R, WriteSector> {
     pub(crate) fn new(base: u64, geometry: Geometry, sector_size: usize, read_sector: R) -> Self {
         Self {
             base,
             geometry,
             read_sector,
+            write_sector: None,
             sector: vec![0; sector_size],
             cached_lba: None,
+            fat_revision: 0,
+        }
+    }
+}
+
+impl<R, W> Data<R, W>
+where
+    R: FnMut(u64, &mut [u8]) -> Result<(), Error>,
+    W: FnMut(u64, &[u8]) -> Result<(), Error>,
+{
+    pub(crate) fn new_writable(
+        base: u64,
+        geometry: Geometry,
+        sector_size: usize,
+        read_sector: R,
+        write_sector: W,
+    ) -> Self {
+        Self {
+            base,
+            geometry,
+            read_sector,
+            write_sector: Some(write_sector),
+            sector: vec![0; sector_size],
+            cached_lba: None,
+            fat_revision: 0,
         }
     }
 
@@ -96,6 +129,120 @@ impl<R: FnMut(u64, &mut [u8]) -> Result<(), Error>> Data<R> {
             self.cached_lba = Some(relative_lba);
         }
         Ok(&self.sector)
+    }
+
+    pub(crate) fn write(
+        &mut self,
+        stream: Stream,
+        cursor: &mut Cursor,
+        offset: u64,
+        input: &[u8],
+    ) -> Result<usize, Error> {
+        if self.write_sector.is_none() {
+            return Err(Error::ReadOnly);
+        }
+        let cluster_bytes = self.cluster_bytes();
+        let sector_bytes = self.sector.len();
+        let end = offset
+            .checked_add(input.len() as u64)
+            .ok_or(Error::Corrupt)?;
+        if end > stream.length {
+            return Err(Error::NoSpace);
+        }
+        let mut copied = 0;
+        while copied < input.len() {
+            let position = offset + copied as u64;
+            let cluster = self.cluster_at(stream, cursor, position / cluster_bytes)?;
+            let cluster_sector = self
+                .geometry
+                .cluster_sector(cluster)
+                .ok_or(Error::Corrupt)?;
+            let within_cluster = position % cluster_bytes;
+            let relative_lba = cluster_sector + within_cluster / sector_bytes as u64;
+            let start = (within_cluster % sector_bytes as u64) as usize;
+            let count = (input.len() - copied).min(sector_bytes - start);
+            if start != 0 || count != sector_bytes {
+                self.sector(relative_lba)?;
+            }
+            self.sector[start..start + count].copy_from_slice(&input[copied..copied + count]);
+            let lba = self.base.checked_add(relative_lba).ok_or(Error::Corrupt)?;
+            self.cached_lba = None;
+            self.write_sector
+                .as_mut()
+                .expect("writable data has a sector callback")(lba, &self.sector)?;
+            copied += count;
+        }
+        Ok(copied)
+    }
+
+    pub(crate) fn write_raw(
+        &mut self,
+        relative_lba: u64,
+        offset: usize,
+        input: &[u8],
+    ) -> Result<(), Error> {
+        if self.write_sector.is_none()
+            || offset
+                .checked_add(input.len())
+                .is_none_or(|end| end > self.sector.len())
+        {
+            return Err(if self.write_sector.is_none() {
+                Error::ReadOnly
+            } else {
+                Error::Corrupt
+            });
+        }
+        if offset != 0 || input.len() != self.sector.len() {
+            self.sector(relative_lba)?;
+        }
+        self.sector[offset..offset + input.len()].copy_from_slice(input);
+        let lba = self.base.checked_add(relative_lba).ok_or(Error::Corrupt)?;
+        self.cached_lba = None;
+        self.write_sector
+            .as_mut()
+            .expect("writable data has a sector callback")(lba, &self.sector)
+    }
+
+    pub(crate) fn read_raw(
+        &mut self,
+        relative_lba: u64,
+        offset: usize,
+        out: &mut [u8],
+    ) -> Result<(), Error> {
+        if offset
+            .checked_add(out.len())
+            .is_none_or(|end| end > self.sector.len())
+        {
+            return Err(Error::Corrupt);
+        }
+        let sector = self.sector(relative_lba)?;
+        out.copy_from_slice(&sector[offset..offset + out.len()]);
+        Ok(())
+    }
+
+    pub(crate) fn geometry(&self) -> Geometry {
+        self.geometry
+    }
+
+    pub(crate) fn sector_size(&self) -> usize {
+        self.sector.len()
+    }
+
+    pub(crate) fn next_cluster(&mut self, cluster: u32) -> Result<Option<u32>, Error> {
+        self.next(cluster)
+    }
+
+    pub(crate) fn set_fat_entry(&mut self, cluster: u32, value: u32) -> Result<(), Error> {
+        if self.geometry.cluster_sector(cluster).is_none() {
+            return Err(Error::Corrupt);
+        }
+        let byte = u64::from(cluster) * 4;
+        let sector_size = self.sector.len() as u64;
+        let lba = u64::from(self.geometry.fat_sector) + byte / sector_size;
+        let offset = (byte % sector_size) as usize;
+        // A failed callback may also have changed the FAT on disk.
+        self.fat_revision = self.fat_revision.wrapping_add(1);
+        self.write_raw(lba, offset, &value.to_le_bytes())
     }
 
     fn cluster_bytes(&self) -> u64 {
@@ -197,14 +344,18 @@ impl<R: FnMut(u64, &mut [u8]) -> Result<(), Error>> Data<R> {
                 .checked_add(u32::try_from(index).map_err(|_| Error::Corrupt)?)
                 .ok_or(Error::Corrupt);
         }
+        if cursor.fat_revision != self.fat_revision {
+            cursor.position = None;
+            cursor.fat_revision = self.fat_revision;
+        }
         let (from, mut cluster) = cursor
-            .0
+            .position
             .filter(|&(i, _)| i <= index)
             .unwrap_or((0, stream.first_cluster));
         for _ in from..index {
             cluster = self.next(cluster)?.ok_or(Error::Corrupt)?;
         }
-        cursor.0 = Some((index, cluster));
+        cursor.position = Some((index, cluster));
         Ok(cluster)
     }
 
@@ -313,6 +464,94 @@ mod tests {
         assert_eq!(
             io.validate(Stream::new(2, 512, 512, false), |_, _, _| Ok(())),
             Err(Error::Corrupt)
+        );
+    }
+
+    #[test]
+    fn test_write_stream_preserves_neighbor_bytes_and_persists() {
+        use core::cell::RefCell;
+
+        let geometry = Geometry {
+            volume_sectors: 4096,
+            fat_sector: 24,
+            heap_sector: 32,
+            cluster_count: 4040,
+            sectors_per_cluster: 1,
+            root_cluster: 2,
+        };
+        let sectors = RefCell::new(std::vec![0x5au8; 4096 * 512]);
+        let mut io = Data::new_writable(
+            0,
+            geometry,
+            512,
+            |_, out: &mut [u8]| {
+                out.fill(0x5a);
+                Ok(())
+            },
+            |lba, bytes: &[u8]| {
+                let start = lba as usize * 512;
+                sectors.borrow_mut()[start..start + bytes.len()].copy_from_slice(bytes);
+                Ok(())
+            },
+        );
+        let stream = Stream::new(2, 512, 512, true);
+        assert_eq!(io.write(stream, &mut Cursor::default(), 10, b"abc"), Ok(3));
+        let persisted = sectors.borrow();
+        assert_eq!(&persisted[32 * 512..32 * 512 + 10], &[0x5a; 10]);
+        assert_eq!(&persisted[32 * 512 + 10..32 * 512 + 13], b"abc");
+        assert_eq!(&persisted[32 * 512 + 13..33 * 512], &[0x5a; 499]);
+    }
+
+    #[test]
+    fn test_write_stream_rejects_read_only_and_out_of_range_writes() {
+        let geometry = geometry();
+        let mut readonly = Data::new(0, geometry, 512, |_, out: &mut [u8]| {
+            out.fill(0);
+            Ok(())
+        });
+        let stream = Stream::new(2, 512, 512, true);
+        assert_eq!(
+            readonly.write(stream, &mut Cursor::default(), 0, b"x"),
+            Err(Error::ReadOnly)
+        );
+
+        let mut writable = Data::new_writable(
+            0,
+            geometry,
+            512,
+            |_, out: &mut [u8]| {
+                out.fill(0);
+                Ok(())
+            },
+            |_, _| Ok(()),
+        );
+        assert_eq!(
+            writable.write(stream, &mut Cursor::default(), 512, b"x"),
+            Err(Error::NoSpace)
+        );
+    }
+
+    #[test]
+    fn test_write_stream_returns_device_failure() {
+        let geometry = geometry();
+        let mut io = Data::new_writable(
+            0,
+            geometry,
+            512,
+            |_, out: &mut [u8]| {
+                out.fill(0);
+                Ok(())
+            },
+            |_, _| Err(Error::Io),
+        );
+        assert_eq!(
+            io.write(
+                Stream::new(2, 512, 512, true),
+                &mut Cursor::default(),
+                0,
+                &[1; 512]
+            ),
+            Err(Error::Io)
         );
     }
 }
