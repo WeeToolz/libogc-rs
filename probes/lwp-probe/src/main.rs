@@ -306,6 +306,11 @@ mod wii {
         owner: ptr::null_mut(),
     };
     static TUXEDO_CV_DONE: AtomicU32 = AtomicU32::new(0);
+    static DRIVER_DEFERRED_BITS: AtomicU32 = AtomicU32::new(0);
+    static DRIVER_IRQ_RESULT: AtomicU32 = AtomicU32::new(u32::MAX);
+    static DRIVER_RESERVED_RESULT: AtomicU32 = AtomicU32::new(u32::MAX);
+    static DRIVER_RESERVATION: AtomicU32 = AtomicU32::new(0);
+    static DRIVER_TIMER_IRQ: AtomicU32 = AtomicU32::new(0);
     static mut TUXEDO_QUEUE: tuxedo::KThrQueue = tuxedo::KThrQueue {
         next: ptr::null_mut(),
         prev: ptr::null_mut(),
@@ -471,6 +476,34 @@ mod wii {
         DEFERRED_RAN.store(1, Ordering::Release);
     }
 
+    unsafe fn driver_deferred_callback(arg: *mut c_void) {
+        DRIVER_DEFERRED_BITS.fetch_or(arg as usize as u32, Ordering::AcqRel);
+    }
+
+    unsafe fn driver_timer_callback(_: *mut c_void) {
+        let msr: u32;
+        unsafe { core::arch::asm!("mfmsr {value}", value = out(reg) msr, options(nomem, nostack)) };
+        DRIVER_TIMER_IRQ.store(u32::from(msr & 0x8000 == 0), Ordering::Release);
+        let reservation = DRIVER_RESERVATION.load(Ordering::Acquire);
+        // SAFETY: Both callbacks use fixed integer arguments and the timer owns
+        // the reservation until it is consumed.
+        let ordinary = unsafe {
+            driver::deferred_enqueue_from_interrupt(
+                Some(driver_deferred_callback),
+                2usize as *mut c_void,
+            )
+        };
+        let reserved = unsafe {
+            driver::deferred_enqueue_reserved_from_interrupt(
+                reservation,
+                Some(driver_deferred_callback),
+                4usize as *mut c_void,
+            )
+        };
+        DRIVER_IRQ_RESULT.store(ordinary as u32, Ordering::Release);
+        DRIVER_RESERVED_RESULT.store(reserved as u32, Ordering::Release);
+    }
+
     unsafe fn irq_deferred_callback(_: *mut c_void) {
         IRQ_DEFERRED_RAN.fetch_or(1, Ordering::AcqRel);
     }
@@ -498,6 +531,75 @@ mod wii {
         };
         IRQ_DEFERRED_RESULT.store(ordinary as u32, Ordering::Release);
         IRQ_RESERVED_RESULT.store(reserved as u32, Ordering::Release);
+    }
+
+    fn probe_driver_deferred(logger: &mut ProbeLogger) {
+        logger.section("LWP DRIVER DEFERRED CALLBACKS");
+        let current = lwp::get_self();
+        driver::initialize();
+        logger.record(
+            "LWP driver repeat initialization preserves current thread",
+            current != lwp::LWP_THREAD_NULL && lwp::get_self() == current,
+        );
+        let Some(cancelled) = driver::deferred_reserve_interrupt_slot() else {
+            logger.record("LWP driver reservation cancels once", false);
+            return;
+        };
+        logger.record(
+            "LWP driver reservation cancels once",
+            driver::deferred_cancel_interrupt_slot(cancelled) == 0
+                && driver::deferred_cancel_interrupt_slot(cancelled) == lwp::LWP_CLOSED,
+        );
+        let Some(reservation) = driver::deferred_reserve_interrupt_slot() else {
+            logger.record("LWP driver timer submits interrupt callbacks", false);
+            return;
+        };
+        DRIVER_RESERVATION.store(reservation, Ordering::Release);
+        DRIVER_DEFERRED_BITS.store(0, Ordering::Release);
+        DRIVER_IRQ_RESULT.store(u32::MAX, Ordering::Release);
+        DRIVER_RESERVED_RESULT.store(u32::MAX, Ordering::Release);
+        DRIVER_TIMER_IRQ.store(0, Ordering::Release);
+        // SAFETY: Callbacks use fixed integer arguments and static state.
+        let queued = unsafe {
+            driver::deferred_enqueue(Some(driver_deferred_callback), 1usize as *mut c_void)
+        };
+        let rejected = unsafe { driver::deferred_enqueue(None, ptr::null_mut()) };
+        let invalid_timer =
+            unsafe { driver::timer_start(0x4452_5658, None, ptr::null_mut(), 1, 0) };
+        let timer = unsafe {
+            driver::timer_start(
+                0x4452_5654,
+                Some(driver_timer_callback),
+                ptr::null_mut(),
+                driver::TICKS_PER_SECOND / 100,
+                0,
+            )
+        };
+        let started = driver::now_ticks();
+        while DRIVER_DEFERRED_BITS.load(Ordering::Acquire) != 7
+            && driver::now_ticks().wrapping_sub(started) < driver::TICKS_PER_SECOND
+        {
+            lwp::yield_thread();
+        }
+        driver::timer_cancel(0x4452_5654);
+        if DRIVER_RESERVED_RESULT.load(Ordering::Acquire) != 0 {
+            let _ = driver::deferred_cancel_interrupt_slot(reservation);
+        }
+        logger.record(
+            "LWP driver deferred worker runs and rejects empty callback",
+            queued == 0
+                && rejected == lwp::LWP_CLOSED
+                && DRIVER_DEFERRED_BITS.load(Ordering::Acquire) & 1 != 0,
+        );
+        logger.record(
+            "LWP driver timer submits interrupt callbacks",
+            timer == 0
+                && invalid_timer == lwp::LWP_CLOSED
+                && DRIVER_TIMER_IRQ.load(Ordering::Acquire) == 1
+                && DRIVER_IRQ_RESULT.load(Ordering::Acquire) == 0
+                && DRIVER_RESERVED_RESULT.load(Ordering::Acquire) == 0
+                && DRIVER_DEFERRED_BITS.load(Ordering::Acquire) == 7,
+        );
     }
 
     fn probe_interrupt_deferred(logger: &mut ProbeLogger) {
@@ -2324,6 +2426,7 @@ mod wii {
         run_timed_wait(&mut logger);
         run_message_and_deferred(&mut logger);
         probe_interrupt_deferred(&mut logger);
+        probe_driver_deferred(&mut logger);
         run_tuxedo_compatibility(&mut logger);
         probe_tuxedo_mutexes(&mut logger);
         probe_tuxedo_condition_wake(&mut logger);

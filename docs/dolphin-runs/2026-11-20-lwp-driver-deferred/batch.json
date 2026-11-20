@@ -1,0 +1,92 @@
+{
+  "probe": "lwp_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "initialize",
+      "line": 979,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_driver_deferred",
+      "api_path": "driver::initialize",
+      "checks": [
+        "LWP driver repeat initialization preserves current thread"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "deferred_enqueue",
+      "line": 3604,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_driver_deferred",
+      "api_path": "driver::deferred_enqueue",
+      "checks": [
+        "LWP driver deferred worker runs and rejects empty callback"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "deferred_reserve_interrupt_slot",
+      "line": 3618,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_driver_deferred",
+      "api_path": "driver::deferred_reserve_interrupt_slot",
+      "checks": [
+        "LWP driver reservation cancels once"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "deferred_cancel_interrupt_slot",
+      "line": 3627,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_driver_deferred",
+      "api_path": "driver::deferred_cancel_interrupt_slot",
+      "checks": [
+        "LWP driver reservation cancels once"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "timer_start",
+      "line": 3683,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_driver_deferred",
+      "api_path": "driver::timer_start",
+      "checks": [
+        "LWP driver timer submits interrupt callbacks"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "deferred_enqueue_from_interrupt",
+      "line": 3642,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "driver_timer_callback",
+      "api_path": "driver::deferred_enqueue_from_interrupt",
+      "checks": [
+        "LWP driver timer submits interrupt callbacks"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "deferred_enqueue_reserved_from_interrupt",
+      "line": 3660,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "driver_timer_callback",
+      "api_path": "driver::deferred_enqueue_reserved_from_interrupt",
+      "checks": [
+        "LWP driver timer submits interrupt callbacks"
+      ]
+    }
+  ],
+  "limits": [
+    "One deferred callback and one timer interrupt with reserved and unreserved submissions in Dolphin. Queue saturation, cancellation races, and physical Wii timing remain open."
+  ]
+}

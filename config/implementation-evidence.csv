@@ -2854,3 +2854,10 @@ ogc-exfat,src/disc.rs,visit_dir,163,protocol,hardware-probe,probes/ogc-system-pr
 ogc-exfat,src/disc.rs,open,177,protocol,hardware-probe,probes/ogc-system-probe/src/exfat_sd_probe.rs,probe_contiguous_file,volume.open
 ogc-exfat,src/disc.rs,read,358,protocol,hardware-probe,probes/ogc-system-probe/src/exfat_sd_probe.rs,probe_contiguous_file,file.read
 ogc-exfat,src/disc.rs,seek,349,protocol,hardware-probe,probes/ogc-system-probe/src/exfat_sd_probe.rs,probe_contiguous_file,file.seek
+ogc-lwp-driver,src/runtime.rs,initialize,979,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_driver_deferred,driver::initialize
+ogc-lwp-driver,src/runtime.rs,deferred_enqueue,3604,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_driver_deferred,driver::deferred_enqueue
+ogc-lwp-driver,src/runtime.rs,deferred_reserve_interrupt_slot,3618,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_driver_deferred,driver::deferred_reserve_interrupt_slot
+ogc-lwp-driver,src/runtime.rs,deferred_cancel_interrupt_slot,3627,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_driver_deferred,driver::deferred_cancel_interrupt_slot
+ogc-lwp-driver,src/runtime.rs,timer_start,3683,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_driver_deferred,driver::timer_start
+ogc-lwp-driver,src/runtime.rs,deferred_enqueue_from_interrupt,3642,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,driver_timer_callback,driver::deferred_enqueue_from_interrupt
+ogc-lwp-driver,src/runtime.rs,deferred_enqueue_reserved_from_interrupt,3660,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,driver_timer_callback,driver::deferred_enqueue_reserved_from_interrupt

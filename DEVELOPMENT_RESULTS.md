@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-20 LWP driver deferred callbacks
+
+The [driver deferred batch](docs/dolphin-runs/2026-11-20-lwp-driver-deferred/README.md)
+checks seven APIs. Dolphin passed 250 LWP checks. The completeness audit
+reports 568 unverified APIs. Queue saturation and physical Wii timing
+remain open.
+
 ## 2026-11-20: Read-only exFAT
 
 Dolphin 2609a passed 27 checks on each 64 MiB sector-zero and MBR image, and
