@@ -5,10 +5,12 @@ use core::ptr::null_mut;
 use crate::probe_support::ProbeLogger;
 
 use ogc_network as network;
+use tinysmb_sys as smb;
 
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("NETWORK PROBE");
 
+    probe_smb_invalid_arguments(logger);
     probe_cleanup_before_init(logger);
 
     let init_rc = network::init();
@@ -83,6 +85,94 @@ pub fn run(logger: &mut ProbeLogger) {
     network::deinit();
     probe_wireless_scan(logger);
     network::wc24_cleanup();
+}
+
+pub(super) fn probe_smb_invalid_arguments(logger: &mut ProbeLogger) {
+    logger.section("TINYSMB INVALID ARGUMENTS");
+    let mut connection = 0;
+    let mut entry = smb::SmbDirEntry::default();
+
+    // SAFETY: Null path arguments are accepted as invalid-input probes. All
+    // output pointers are valid. Each call fails before opening an SMB socket.
+    unsafe {
+        logger.record(
+            "TinySMB device init rejects null name",
+            !smb::init_device(
+                core::ptr::null(),
+                core::ptr::null(),
+                core::ptr::null(),
+                core::ptr::null(),
+                core::ptr::null(),
+            ),
+        );
+        logger.record(
+            "TinySMB connection query rejects null name",
+            !smb::check_connection(core::ptr::null()),
+        );
+        logger.record(
+            "TinySMB init rejects missing credentials",
+            !smb::init(
+                core::ptr::null(),
+                core::ptr::null(),
+                core::ptr::null(),
+                core::ptr::null(),
+            ),
+        );
+        logger.record(
+            "TinySMB connect rejects missing credentials",
+            smb::connect(
+                &mut connection,
+                core::ptr::null(),
+                core::ptr::null(),
+                core::ptr::null(),
+                core::ptr::null(),
+            ) == smb::SMB_BAD_LOGINDATA,
+        );
+        logger.record(
+            "TinySMB reconnect rejects an unknown handle",
+            smb::reconnect(&mut connection, true) == smb::SMB_ERROR,
+        );
+        logger.record(
+            "TinySMB path query rejects null path",
+            smb::path_info(core::ptr::null(), &mut entry, 0) == smb::SMB_ERROR,
+        );
+        logger.record(
+            "TinySMB first search rejects null path",
+            smb::find_first(core::ptr::null(), 0, &mut entry, 0) == smb::SMB_ERROR,
+        );
+        logger.record(
+            "TinySMB next search rejects unknown handle",
+            smb::find_next(&mut entry, 0) == smb::SMB_ERROR,
+        );
+        logger.record(
+            "TinySMB search close rejects unknown handle",
+            smb::find_close(&mut entry, 0) == smb::SMB_ERROR,
+        );
+        logger.record(
+            "TinySMB file open rejects null path",
+            smb::open_file(core::ptr::null(), 0, 0, 0).is_null(),
+        );
+        logger.record(
+            "TinySMB directory create rejects null path",
+            smb::create_directory(core::ptr::null(), 0) == smb::SMB_ERROR,
+        );
+        logger.record(
+            "TinySMB directory delete rejects null path",
+            smb::delete_directory(core::ptr::null(), 0) == smb::SMB_ERROR,
+        );
+        logger.record(
+            "TinySMB file delete rejects null path",
+            smb::delete_file(core::ptr::null(), 0) == smb::SMB_ERROR,
+        );
+        logger.record(
+            "TinySMB rename rejects null path",
+            smb::rename(core::ptr::null(), core::ptr::null(), 0) == smb::SMB_ERROR,
+        );
+        logger.record(
+            "TinySMB disk query rejects null output",
+            smb::disk_information(core::ptr::null_mut(), 0) == smb::SMB_ERROR,
+        );
+    }
 }
 
 fn probe_udp_transfers(logger: &mut ProbeLogger) {

@@ -1924,7 +1924,7 @@ fn connect_session(session: &mut Session) -> bool {
     false
 }
 
-pub unsafe fn smb_init_device(
+pub(crate) unsafe fn smb_init_device(
     name: *const c_char,
     user: *const c_char,
     password: *const c_char,
@@ -1976,7 +1976,7 @@ pub unsafe fn smb_init_device(
     false
 }
 
-pub unsafe fn smb_init(
+pub(crate) unsafe fn smb_init(
     user: *const c_char,
     password: *const c_char,
     share: *const c_char,
@@ -1985,7 +1985,7 @@ pub unsafe fn smb_init(
     unsafe { smb_init_device(c"smb".as_ptr(), user, password, share, ip) }
 }
 
-pub unsafe fn smb_close(name: *const c_char) {
+pub(crate) unsafe fn smb_close(name: *const c_char) {
     if name.is_null() {
         return;
     }
@@ -2012,7 +2012,7 @@ pub unsafe fn smb_close(name: *const c_char) {
     }
 }
 
-pub unsafe fn smb_check_connection(name: *const c_char) -> bool {
+pub(crate) unsafe fn smb_check_connection(name: *const c_char) -> bool {
     if name.is_null() {
         return false;
     }
@@ -2028,11 +2028,11 @@ pub unsafe fn smb_check_connection(name: *const c_char) -> bool {
     false
 }
 
-pub fn smb_set_search_flags(flags: u16) {
+pub(crate) fn smb_set_search_flags(flags: u16) {
     SMB_SEARCH_FLAGS.store(flags, Ordering::Release);
 }
 
-pub unsafe fn connect(
+pub(crate) unsafe fn connect(
     smbhndl: *mut SmbConn,
     user: *const c_char,
     password: *const c_char,
@@ -2080,7 +2080,7 @@ pub unsafe fn connect(
     SMB_SUCCESS
 }
 
-pub fn close_connection(smbhndl: SmbConn) {
+pub(crate) fn close_connection(smbhndl: SmbConn) {
     free_session(smbhndl);
 }
 
@@ -2139,7 +2139,7 @@ mod tests {
     }
 }
 
-pub unsafe fn reconnect(smbhndl: *mut SmbConn, test_conn: Bool) -> i32 {
+pub(crate) unsafe fn reconnect(smbhndl: *mut SmbConn, test_conn: Bool) -> i32 {
     if smbhndl.is_null() {
         return SMB_ERROR;
     }
@@ -2159,7 +2159,7 @@ pub unsafe fn reconnect(smbhndl: *mut SmbConn, test_conn: Bool) -> i32 {
     }
 }
 
-pub unsafe fn path_info(
+pub(crate) unsafe fn path_info(
     _filename: *const c_char,
     _sdir: *mut SmbDirEntry,
     mut _smbhndl: SmbConn,
@@ -2254,7 +2254,7 @@ pub unsafe fn path_info(
     SMB_SUCCESS
 }
 
-pub unsafe fn find_first(
+pub(crate) unsafe fn find_first(
     _filename: *const c_char,
     _flags: u16,
     _sdir: *mut SmbDirEntry,
@@ -2351,7 +2351,7 @@ pub unsafe fn find_first(
     )
 }
 
-pub unsafe fn find_next(_sdir: *mut SmbDirEntry, _smbhndl: SmbConn) -> i32 {
+pub(crate) unsafe fn find_next(_sdir: *mut SmbDirEntry, _smbhndl: SmbConn) -> i32 {
     if _sdir.is_null() {
         return SMB_ERROR;
     }
@@ -2437,7 +2437,7 @@ pub unsafe fn find_next(_sdir: *mut SmbDirEntry, _smbhndl: SmbConn) -> i32 {
     )
 }
 
-pub fn find_close(_sdir: *mut SmbDirEntry, _smbhndl: SmbConn) -> i32 {
+pub(crate) fn find_close(_sdir: *mut SmbDirEntry, _smbhndl: SmbConn) -> i32 {
     if _sdir.is_null() {
         return SMB_ERROR;
     }
@@ -2478,7 +2478,7 @@ pub fn find_close(_sdir: *mut SmbDirEntry, _smbhndl: SmbConn) -> i32 {
     rc
 }
 
-pub unsafe fn open_file(
+pub(crate) unsafe fn open_file(
     _filename: *const c_char,
     _access: u16,
     _creation: u16,
@@ -2566,7 +2566,7 @@ pub unsafe fn open_file(
     alloc_file_handle(_smbhndl, sfid)
 }
 
-pub fn close_file(_sfid: SmbFile) {
+pub(crate) fn close_file(_sfid: SmbFile) {
     let Some(handle) = file_handle_mut(_sfid) else {
         return;
     };
@@ -2599,7 +2599,12 @@ pub fn close_file(_sfid: SmbFile) {
     *handle = FileHandle::new();
 }
 
-pub unsafe fn read_file(_buffer: *mut c_char, _size: usize, _offset: isize, _sfid: SmbFile) -> i32 {
+pub(crate) unsafe fn read_file(
+    _buffer: *mut c_char,
+    _size: usize,
+    _offset: isize,
+    _sfid: SmbFile,
+) -> i32 {
     if _buffer.is_null() || _size == 0 {
         return SMB_ERROR;
     }
@@ -2690,7 +2695,7 @@ pub unsafe fn read_file(_buffer: *mut c_char, _size: usize, _offset: isize, _sfi
     total_read as i32
 }
 
-pub unsafe fn write_file(
+pub(crate) unsafe fn write_file(
     _buffer: *const c_char,
     _size: usize,
     _offset: isize,
@@ -2772,7 +2777,7 @@ pub unsafe fn write_file(
     read_u16_le(&packet, SMB_HEADER_SIZE + 5) as i32
 }
 
-pub unsafe fn create_directory(_dirname: *const c_char, mut _smbhndl: SmbConn) -> i32 {
+pub(crate) unsafe fn create_directory(_dirname: *const c_char, mut _smbhndl: SmbConn) -> i32 {
     if _dirname.is_null() {
         return SMB_ERROR;
     }
@@ -2820,7 +2825,7 @@ pub unsafe fn create_directory(_dirname: *const c_char, mut _smbhndl: SmbConn) -
     rc
 }
 
-pub unsafe fn delete_directory(_dirname: *const c_char, mut _smbhndl: SmbConn) -> i32 {
+pub(crate) unsafe fn delete_directory(_dirname: *const c_char, mut _smbhndl: SmbConn) -> i32 {
     if _dirname.is_null() {
         return SMB_ERROR;
     }
@@ -2868,7 +2873,7 @@ pub unsafe fn delete_directory(_dirname: *const c_char, mut _smbhndl: SmbConn) -
     rc
 }
 
-pub unsafe fn delete_file(_filename: *const c_char, mut _smbhndl: SmbConn) -> i32 {
+pub(crate) unsafe fn delete_file(_filename: *const c_char, mut _smbhndl: SmbConn) -> i32 {
     if _filename.is_null() {
         return SMB_ERROR;
     }
@@ -2918,7 +2923,7 @@ pub unsafe fn delete_file(_filename: *const c_char, mut _smbhndl: SmbConn) -> i3
     rc
 }
 
-pub unsafe fn rename(
+pub(crate) unsafe fn rename(
     _filename: *const c_char,
     _newname: *const c_char,
     mut _smbhndl: SmbConn,
@@ -2987,7 +2992,7 @@ pub unsafe fn rename(
     rc
 }
 
-pub unsafe fn disk_information(_buf: *mut c_void, mut _smbhndl: SmbConn) -> i32 {
+pub(crate) unsafe fn disk_information(_buf: *mut c_void, mut _smbhndl: SmbConn) -> i32 {
     if _buf.is_null() {
         return SMB_ERROR;
     }

@@ -1,5 +1,15 @@
 # Development results
 
+## 2026-11-20 TinySMB invalid inputs
+
+The [TinySMB batch](docs/dolphin-runs/2026-11-20-tinysmb-invalid-inputs-final/README.md)
+checks 15 public APIs with invalid inputs that return before an SMB session
+opens. Dolphin passed 19 checks. The inventory fell from 456 to 441 unverified
+entries. It also stopped counting 21 crate-private backend functions as public
+APIs and removed two evidence rows that matched unrelated network calls.
+Successful SMB sessions, file I/O, directory operations, and server
+interoperability remain open.
+
 ## 2026-11-20 Cache safe ranges
 
 The [cache batch](docs/dolphin-runs/2026-11-20-cache-safe-ranges/README.md)

@@ -431,6 +431,7 @@ const PROBE_BINARIES: &[&str] = &[
     "aesnd_native_probe",
     "startup_probe",
     "network_probe",
+    "tinysmb_probe",
     "debugger_probe",
     "font_probe",
     "storage_probe",
@@ -677,6 +678,14 @@ mod probe_artifact_tests {
         assert!(super::PROBE_BINARIES.contains(&"hid_descriptor_probe"));
         let manifest = include_str!("../../probes/ogc-system-probe/Cargo.toml");
         assert!(manifest.contains("name = \"hid_descriptor_probe\""));
+    }
+
+    #[test]
+    fn tinysmb_probe_is_built_as_a_dol() {
+        assert!(super::PROBE_BINARIES.contains(&"tinysmb_probe"));
+        let manifest = include_str!("../../probes/ogc-system-probe/Cargo.toml");
+        assert!(manifest.contains("name = \"tinysmb_probe\""));
+        assert!(manifest.contains("path = \"src/tinysmb_probe/main.rs\""));
     }
 }
 

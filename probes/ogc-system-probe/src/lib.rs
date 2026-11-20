@@ -806,6 +806,16 @@ pub fn run_network_probe_bin() -> i32 {
 }
 
 #[cfg(target_arch = "powerpc")]
+/// Checks TinySMB argument guards without opening an SMB session.
+pub fn run_tinysmb_probe_bin() -> i32 {
+    configure_probe_app_dir("tinysmb-probe");
+    let mut logger = init_probe_logger();
+    network_probe::probe_smb_invalid_arguments(&mut logger);
+    logger.summary();
+    finish_probe()
+}
+
+#[cfg(target_arch = "powerpc")]
 /// Runs only debugger/USB Gecko probes.
 pub fn run_debugger_probe_bin() -> i32 {
     configure_probe_app_dir("debugger-probe");
