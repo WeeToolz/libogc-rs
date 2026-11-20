@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-20 USB system invalid-pointer guards
+
+The [USB system batch](docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/README.md)
+checks 11 public `ogc-usb-sys` APIs with rejected null pointers and buffers.
+Dolphin passed all 600 runtime probe checks. The inventory fell from 392 to
+381 unverified entries. Successful USB device traffic remains untested.
+
 ## 2026-11-20 System hardware snapshots and hooks
 
 The [system API batch](docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/README.md)

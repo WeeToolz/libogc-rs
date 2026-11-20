@@ -1,0 +1,83 @@
+{
+  "source_revision": "742a0fda51be5f01cdd82941848cd19cc08e73ef",
+  "source_fingerprint": "5ee7908f29dcaa0daf854f37abc0a59b6a41929de62f3ebf5b28d2f54fcd67eb",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "5e5464d2248156af2fc2207f9770b4c1d75c29da03c434c0bf846918020b09cf",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "2a0190dbdaec152432ce0d8180cde5a87b63c39d8a0c717e91d9f4aa3aad6fc5",
+  "suite_sha256": "7a11f05b26cdfd4c88dd06bee23ecb93bfc33d82a76ab52f447b032a1fd56f1d",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/probe.log": "1fa337d18aa97531e83a8dc8044e067973ea31bc1df771c637696292fbf9f9f0",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/stderr.log": "00d9def72a805cd647f1f4450864e1ed0e19408eea792bcf1073fe32e5f403bd",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/probe-transport.bin": "cf80cea5e35944b781aa43c39d978e3ee21958732c67763fb7873760fd8ea925",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-002.png": "5f947b9212cb392fb29390d46cc90c8f0127f278f75518e47898f43c3891c8e1",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-003.png": "1daa2287195337d699bf42676d44a87a04a5b89a949fd18ea8ab8a70f353ffbf",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-004.png": "32f622b17cd00bcd89f33cf96d1bbbb81cee0cbb15e710ca575a55953188a2b0",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-005.png": "5f89c76e2178c53255b4ac3948d5f48edb3a91895f2ef7d197c1e9d1d9ddd125",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-006.png": "d836389ed6a61327e7811d8ff6ecdb7b00934ce5a05f734cea950e98e1c9ab53",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-007.png": "b505ce793be7e32cfd3499fde6b612a6c9a43faa45bd928a753c085df2472dd0",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-008.png": "cdd1256d3317db1a76f8b6eda4ee0d42940d1f095dc29f45b92cf294f4232f1a",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-009.png": "4d8d3222921a15b45476b3c48f8853bb1e6958e59ca6e27ee9bea8b23edf80eb",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-010.png": "8791e27ab2209f80e453de1c90c4dba4a050b4b9b101217a49ff11dea9c54056",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-011.png": "1d575395cd962f5b7c975de6affefb061c68f34c852e579faa8fc2be14e985d0",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-012.png": "c5f7dfc030b89966896a993f315fd47f8e4e491d355adcb8b526e2ab8b0ddb05",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-013.png": "31d6a96fa70915215811b0fa897926eb20576148e95778e2f394ffae981feb5c",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-014.png": "ea34b84e79d896f715aada567133b973077555a4f556d87b64314ddd39b882e3",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-015.png": "f09dddd0625ac147f8e11acdc8892bd414bb5444354707e35b9130cec6ef8fd9",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-016.png": "a86abd38950560a4391fffc852dfe37c691b27828ca89cea01c72c614a42e7b6",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-017.png": "fdbdb0963447bcb59c298e2718aa702512869354f1e4447e2556d3bf315fdd78",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-018.png": "4e19b9e2fc3277cb44e7d8dd9df7601aa4e0f8aeb35ae688f91094b2287969a9",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-019.png": "2fa3dec23415ecb661bf59c63c76f595f51180641cbb8aa1f82fa298d13a927d",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-020.png": "8b65d3fd84e67ccd7b37c7238d40164b7a84a36b3dcfb6a59dbcdc00bc21621e",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-021.png": "8145f15910ee4daa7a45dd2eb4e62acfdda8a82fb47bdf280b7f11f9587cd93a",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-022.png": "9f12dd721c47cd0164e3392d3b213b9f463a1f00b7c5e2c46a1cd2fea1deb843",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-023.png": "5f014a58231031ee60757020833aba7c9a4c6706614883a576103a4fa3255caf",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-024.png": "76c5e7b0812b0da87338d153f00cc23e2686ad4c22afcbdb1cad1b7f1ab93634",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-025.png": "0750ff62f0bc78a93556f8e73c744bc9b52b575a1c16bd5b9c3b8032c318a8db",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-026.png": "fd7f21e849b3cbb90d62fc72c68b96c2adc4f31446eaf3c8bc17e5dff98e0fa5",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-027.png": "471df352a875bd4c5ff8772813d99de50b13830fcf49afe872815dfc93836f09",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-028.png": "4149b35d510090979aeedc85afbfec578eccb41394ae220cf5f280ba23360b07",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-029.png": "e06e66ce2162a6effb3f43c60f45f3531af19a9adadc42d2336cd480b15d6e08",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-030.png": "db22cb8fa7f7010ac81b3db46a4ad7f3eeea7422b37a380373d7db63602709f9",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-031.png": "458d75ea70a6e095d9667b00e622416313d0d0286d1f5de7f2048d39594b5eea",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-032.png": "129e45cba14382df325e6e84ae05ca71df2b8a77da0cbc796bf0812baff42393",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-033.png": "416ad4131e4151d59857cdb793433b84779938eeb7a391c1671b6f5db4b9636c",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-034.png": "8dfca2f07dd41630d84d97160c17533d10ece18220b37c35cd3b5e1966214bf1",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-035.png": "20675d921da649a15473909c594e9b27d31645ec058af27ce5dc232dfa1d34dc",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-036.png": "6db0940521afdec4c45958b0462c66db8ebc29d763300d615c47fdd39d262f53",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-037.png": "3c9c5e1327b7244f530da039cb18234499134c92d8de1d9611cee2d1fc1fffc6",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/pages/page-038.png": "92bf91897a312421e2675d47e08106847997cf739d1b00efd2f2043db43c952e",
+    "docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/runtime_probe/dolphin.log": "6c14d3e322f21737a5d6a233047ba0c3aa0cc59fd267e79049b3292f8c2a16e2"
+  },
+  "exit_code": 0
+}

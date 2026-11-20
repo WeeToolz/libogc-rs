@@ -2990,3 +2990,14 @@ ogc-system-sys,src/lib.rs,sys_hbc_reload_stub_present,1840,hardware,hardware-pro
 ogc-system-sys,src/lib.rs,sys_reset_button_down,4127,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_api_batch,raw_system::sys_reset_button_down
 ogc-system-sys,src/lib.rs,sys_runtime_fp_disabled_stage,1684,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_api_batch,raw_system::sys_runtime_fp_disabled_stage
 ogc-system-sys,src/lib.rs,sys_stdio_report_uses_stdout,1116,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_api_batch,raw_system::sys_stdio_report_uses_stdout
+ogc-usb-sys,src/lib.rs,open_device,1739,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_api_batch,usb_sys::open_device
+ogc-usb-sys,src/lib.rs,close_device,1802,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_api_batch,usb_sys::close_device
+ogc-usb-sys,src/lib.rs,close_device_async,1852,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_api_batch,usb_sys::close_device_async
+ogc-usb-sys,src/lib.rs,free_descriptors,2180,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_api_batch,usb_sys::free_descriptors
+ogc-usb-sys,src/lib.rs,get_ascii_string,4534,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_api_batch,usb_sys::get_ascii_string
+ogc-usb-sys,src/lib.rs,get_device_description,2072,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_api_batch,usb_sys::get_device_description
+ogc-usb-sys,src/lib.rs,get_descriptors,2132,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_api_batch,usb_sys::get_descriptors
+ogc-usb-sys,src/lib.rs,get_device_list,4327,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_api_batch,usb_sys::get_device_list
+ogc-usb-sys,src/lib.rs,get_generic_descriptor,2221,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_api_batch,usb_sys::get_generic_descriptor
+ogc-usb-sys,src/lib.rs,get_hid_descriptor,2294,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_api_batch,usb_sys::get_hid_descriptor
+ogc-usb-sys,src/lib.rs,get_report_descriptor,2384,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_api_batch,usb_sys::get_report_descriptor

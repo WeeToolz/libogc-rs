@@ -115,6 +115,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_reset_registration(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_system_api_batch(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_usb_api_batch(logger);
     probe_video_queries(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_video_register_checks(logger);
@@ -3328,6 +3330,81 @@ fn probe_system_api_batch(logger: &mut ProbeLogger) {
             core::ptr::fn_addr_eq(hook, probe_reset_debug_hook as unsafe fn(u32, u32, i32))
         }),
     );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_usb_api_batch(logger: &mut ProbeLogger) {
+    use core::ffi::c_void;
+    use ogc_usb::sys as usb_sys;
+
+    let open_rc = unsafe { usb_sys::open_device(0, 0, 0, core::ptr::null_mut()) };
+    logger.record(
+        "USB open rejects a null output descriptor",
+        open_rc == usb_sys::USB_FAILED,
+    );
+
+    let close_rc = unsafe { usb_sys::close_device(core::ptr::null_mut()) };
+    logger.record(
+        "USB close rejects a null descriptor pointer",
+        close_rc == usb_sys::USB_FAILED,
+    );
+
+    let close_async_rc =
+        unsafe { usb_sys::close_device_async(core::ptr::null_mut(), None, core::ptr::null_mut()) };
+    logger.record(
+        "USB async close rejects a null descriptor pointer",
+        close_async_rc < 0,
+    );
+
+    let description_rc = unsafe { usb_sys::get_device_description(0, core::ptr::null_mut()) };
+    logger.record(
+        "USB device description rejects a null output",
+        description_rc == usb_sys::USB_FAILED,
+    );
+
+    let descriptors_rc = unsafe { usb_sys::get_descriptors(0, core::ptr::null_mut()) };
+    logger.record(
+        "USB descriptor query rejects a null output",
+        descriptors_rc == usb_sys::USB_FAILED,
+    );
+
+    // SAFETY: The null data pointer is an explicitly rejected input.
+    let generic_rc = unsafe {
+        usb_sys::get_generic_descriptor(0, usb_sys::USB_DT_DEVICE, 0, 0, core::ptr::null_mut(), 18)
+    };
+    logger.record(
+        "USB generic descriptor rejects a null buffer",
+        generic_rc == usb_sys::USB_FAILED,
+    );
+
+    // SAFETY: The null descriptor pointer is an explicitly rejected input.
+    let hid_rc = unsafe { usb_sys::get_hid_descriptor(0, 0, core::ptr::null_mut(), 9) };
+    logger.record("USB HID descriptor rejects a null output", hid_rc < 0);
+
+    // SAFETY: The null report buffer is an explicitly rejected input.
+    let report_rc =
+        unsafe { usb_sys::get_report_descriptor(0, 0, core::ptr::null_mut::<c_void>(), 8) };
+    logger.record("USB report descriptor rejects a null buffer", report_rc < 0);
+
+    let mut count = u8::MAX;
+    // SAFETY: A null descriptor array with a nonzero capacity is rejected
+    // before it is read or written; `count` is a valid writable output.
+    let list_rc = unsafe { usb_sys::get_device_list(core::ptr::null_mut(), 1, 0, &mut count) };
+    logger.record(
+        "USB device list rejects a null array without changing count",
+        list_rc == usb_sys::USB_FAILED && count == u8::MAX,
+    );
+
+    // SAFETY: This query rejects a null destination before it accesses it.
+    let string_rc = unsafe { usb_sys::get_ascii_string(0, 1, 0x0409, 1, core::ptr::null_mut()) };
+    logger.record(
+        "USB ASCII string query rejects a null buffer",
+        string_rc < 0,
+    );
+
+    // SAFETY: The null descriptor is explicitly accepted as a no-op.
+    unsafe { usb_sys::free_descriptors(core::ptr::null_mut()) };
+    logger.record("USB descriptor free accepts a null descriptor", true);
 }
 
 #[cfg(feature = "dolphin-automation")]
