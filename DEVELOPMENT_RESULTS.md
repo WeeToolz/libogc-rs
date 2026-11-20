@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-20 PAD origin bytes
+
+The [PAD origin batch](docs/dolphin-runs/2026-11-20-pad-origin/README.md)
+checks calibration bytes and invalid inputs. Dolphin passed 19 checks. The
+completeness audit reports 576 unverified APIs. Real-controller calibration
+and physical Wii behavior remain open.
+
 ## 2026-11-19 PAD reset and recalibration
 
 The [PAD reset batch](docs/dolphin-runs/2026-11-19-pad-sys-reset/README.md)

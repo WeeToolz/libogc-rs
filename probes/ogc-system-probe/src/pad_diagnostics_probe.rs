@@ -619,6 +619,9 @@ pub fn run_command(logger: &mut ProbeLogger, spec: u32) {
             ));
             origin_ok &= actual == *expected_byte;
         }
+        origin_ok &= pad::pad_debug_origin_byte(-1, 2) == 0
+            && pad::pad_debug_origin_byte(4, 2) == 0
+            && pad::pad_debug_origin_byte(0, 10) == 0;
         let status = pad::pad_debug_make_status(0, [0x0000_8080, 0x8080_1e28]);
         logger.note(&format!(
             "status sx={} sy={} cx={} cy={} l={} r={} aa={} ab={}",

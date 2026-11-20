@@ -1,0 +1,56 @@
+{
+  "source_revision": "da9746b3f6696417ae7c3498dfc7428ac648af56",
+  "source_fingerprint": "f70455b92e516bae961c36fad6a185cae25a518796f1a9f275aab8eb66d69f9f",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "pad_command_spec5",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-20-pad-origin",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "d2a196fc8fcc360d88b4633a78be9782019b37fb2fffa7699cd339353b12e890",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "3f699c1aa2258bd6bc300bab64dacf617d728e753ebc7908a66a3c84af39bc5b",
+  "suite_sha256": "0a2dad0cedfc5f2ddd382ada92c7199a5e67115b1a66b971d4ab35c4df891180",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-20-pad-origin/pad_command_spec5/probe.log": "0b1d6f580da7b761c19a28d988395ff163f13fe0b40dd0799afce7912cd78b8b",
+    "docs/dolphin-runs/2026-11-20-pad-origin/pad_command_spec5/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-20-pad-origin/pad_command_spec5/stderr.log": "567b64267fadd770b111dac7b9a6d7375b12874d2b02a5467e6e0715368a5be9",
+    "docs/dolphin-runs/2026-11-20-pad-origin/pad_command_spec5/probe-transport.bin": "b4ba5b9316a8147b0214c2e3caa262a10b8850195baafe6b79723cb3b689d53a",
+    "docs/dolphin-runs/2026-11-20-pad-origin/pad_command_spec5/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-20-pad-origin/pad_command_spec5/pages/page-002.png": "cf8c9d4e3c67b5fcfaa1c3f6715bb6a352345dce4b774ebefd6b5949444a91c1",
+    "docs/dolphin-runs/2026-11-20-pad-origin/pad_command_spec5/pages/page-003.png": "e47a71ae46429791af229623635fa56447eea59045c40fba27d7d4d6544f1ba0",
+    "docs/dolphin-runs/2026-11-20-pad-origin/pad_command_spec5/pages/page-004.png": "42a712c9402e5e3335546b521f1b7ea5322ca1b775d1299a9360ee95d9e44b4f",
+    "docs/dolphin-runs/2026-11-20-pad-origin/pad_command_spec5/pages/page-005.png": "08dfc0907573b134f9b8d00d2e043bf1e0d70802240d169576e67b11f3a5e6f2",
+    "docs/dolphin-runs/2026-11-20-pad-origin/pad_command_spec5/pages/page-006.png": "1065c9775869977cf5364ed8f113764809159d9f752fb698cd303bed4679363a",
+    "docs/dolphin-runs/2026-11-20-pad-origin/pad_command_spec5/pages/page-007.png": "a71832ba96e383fc070f19a5f3cc9cf45a0f3531c046358f9a3e9377ad6faf1b",
+    "docs/dolphin-runs/2026-11-20-pad-origin/pad_command_spec5/pages/page-008.png": "cb97364f9c0f9815b02a4e5be68c13db62102b809671027aca668da64dc77cbb",
+    "docs/dolphin-runs/2026-11-20-pad-origin/pad_command_spec5/pages/page-009.png": "3f5c4f9c185cc2eb809d80093506e52af2685b2df9c5cdd1b8863c749139b69c",
+    "docs/dolphin-runs/2026-11-20-pad-origin/pad_command_spec5/pages/page-010.png": "8da8a44f98aa06d987ffb857dabc86a2b5a484da228c4dce683540c2cf6b9029",
+    "docs/dolphin-runs/2026-11-20-pad-origin/pad_command_spec5/pages/page-011.png": "b246823594b907c4274d1f09197fd6adea6dbe49037683ae4751e2f99c3710bf",
+    "docs/dolphin-runs/2026-11-20-pad-origin/pad_command_spec5/pages/page-012.png": "964fda574ee1cd16cdf867480b3679704d3c72149b31e1b7fde889f40aa1a4e4"
+  },
+  "exit_code": 0
+}

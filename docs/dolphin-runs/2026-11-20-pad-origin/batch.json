@@ -1,0 +1,21 @@
+{
+  "probe": "pad_command_spec5",
+  "cases": [
+    {
+      "crate": "ogc-input-sys",
+      "path": "src/lib.rs",
+      "symbol": "pad_debug_origin_byte",
+      "line": 1605,
+      "evidence_path": "probes/ogc-system-probe/src/pad_diagnostics_probe.rs",
+      "function": "run_command",
+      "api_path": "pad::pad_debug_origin_byte",
+      "checks": [
+        "full-origin-payload-transform",
+        "main-stick-x-patch"
+      ]
+    }
+  ],
+  "limits": [
+    "One deterministic calibration payload and X-axis patch in Dolphin; invalid channel and offset are rejected. Real-controller calibration and physical Wii behavior remain open."
+  ]
+}
