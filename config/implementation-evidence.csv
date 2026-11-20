@@ -2788,3 +2788,12 @@ tuxedo-sys,src/lib.rs,k_thr_queue_unblock_one_by_mask,899,compatibility-forwarde
 tuxedo-sys,src/lib.rs,k_thr_queue_unblock_all_by_mask,909,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_tuxedo_queue_wakes,tuxedo::k_thr_queue_unblock_all_by_mask
 tuxedo-sys,src/lib.rs,k_thr_queue_unblock_all_by_value,904,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_tuxedo_queue_wakes,tuxedo::k_thr_queue_unblock_all_by_value
 tuxedo-sys,src/lib.rs,k_thr_queue_cancel,915,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_tuxedo_queue_wakes,tuxedo::k_thr_queue_cancel
+ogc-input-sys,src/lib.rs,pad_buttons_down,1529,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_accessors,sys::pad_buttons_down
+ogc-input-sys,src/lib.rs,pad_buttons_held,1537,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_accessors,sys::pad_buttons_held
+ogc-input-sys,src/lib.rs,pad_buttons_up,1521,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_accessors,sys::pad_buttons_up
+ogc-input-sys,src/lib.rs,pad_stick_x,1561,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_accessors,sys::pad_stick_x
+ogc-input-sys,src/lib.rs,pad_stick_y,1569,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_accessors,sys::pad_stick_y
+ogc-input-sys,src/lib.rs,pad_sub_stick_x,1545,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_accessors,sys::pad_sub_stick_x
+ogc-input-sys,src/lib.rs,pad_sub_stick_y,1553,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_accessors,sys::pad_sub_stick_y
+ogc-input-sys,src/lib.rs,pad_trigger_l,1577,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_accessors,sys::pad_trigger_l
+ogc-input-sys,src/lib.rs,pad_trigger_r,1585,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_accessors,sys::pad_trigger_r

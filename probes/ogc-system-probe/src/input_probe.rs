@@ -419,17 +419,22 @@ impl PadAccessChecks {
 
 #[cfg(feature = "dolphin-automation")]
 fn probe_pad_accessors(checks: &mut PadAccessChecks, sample: &pad::PadStatus) {
+    use ogc_input_sys as sys;
     if sample.err as i32 == pad::PAD_ERR_NO_CONTROLLER {
         checks.previous = None;
     }
     if sample.err as i32 != pad::PAD_ERR_NONE {
         return;
     }
-    checks.buttons_ok &= pad::buttons_held(0) == sample.button;
+    checks.buttons_ok &=
+        pad::buttons_held(0) == sample.button && sys::pad_buttons_held(0) == sample.button;
     if let Some(previous) = checks.previous {
         let down = sample.button & !previous;
         let up = previous & !sample.button;
-        checks.buttons_ok &= pad::buttons_down(0) == down && pad::buttons_up(0) == up;
+        checks.buttons_ok &= pad::buttons_down(0) == down
+            && pad::buttons_up(0) == up
+            && sys::pad_buttons_down(0) == down
+            && sys::pad_buttons_up(0) == up;
         checks.saw_down |= down != 0;
         checks.saw_up |= up != 0;
     }
@@ -439,7 +444,13 @@ fn probe_pad_accessors(checks: &mut PadAccessChecks, sample: &pad::PadStatus) {
         && pad::substick_x(0) == sample.substick_x
         && pad::substick_y(0) == sample.substick_y
         && pad::trigger_l(0) == sample.trigger_l
-        && pad::trigger_r(0) == sample.trigger_r;
+        && pad::trigger_r(0) == sample.trigger_r
+        && sys::pad_stick_x(0) == sample.stick_x
+        && sys::pad_stick_y(0) == sample.stick_y
+        && sys::pad_sub_stick_x(0) == sample.substick_x
+        && sys::pad_sub_stick_y(0) == sample.substick_y
+        && sys::pad_trigger_l(0) == sample.trigger_l
+        && sys::pad_trigger_r(0) == sample.trigger_r;
     checks.saw_stick |= sample.stick_x != 0 || sample.stick_y != 0;
 }
 

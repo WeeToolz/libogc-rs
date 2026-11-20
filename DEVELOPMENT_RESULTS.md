@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-19 PAD low-level accessors
+
+The [PAD accessor batch](docs/dolphin-runs/2026-11-19-pad-sys-accessors/README.md)
+checks nine APIs against raw samples. Dolphin passed 28 checks. The
+completeness audit reports 592 unverified APIs. Physical controllers and
+nonzero trigger and substick input remain open.
+
 ## 2026-11-19 Tuxedo queue wake and thread reuse
 
 The [queue batch](docs/dolphin-runs/2026-11-19-tuxedo-queue-fixed/README.md)

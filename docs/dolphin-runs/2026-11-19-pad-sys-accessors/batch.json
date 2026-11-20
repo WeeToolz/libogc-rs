@@ -1,0 +1,116 @@
+{
+  "probe": "input_probe",
+  "cases": [
+    {
+      "crate": "ogc-input-sys",
+      "path": "src/lib.rs",
+      "symbol": "pad_buttons_down",
+      "line": 1529,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_accessors",
+      "api_path": "sys::pad_buttons_down",
+      "checks": [
+        "PAD accessors match button transitions from raw samples"
+      ]
+    },
+    {
+      "crate": "ogc-input-sys",
+      "path": "src/lib.rs",
+      "symbol": "pad_buttons_held",
+      "line": 1537,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_accessors",
+      "api_path": "sys::pad_buttons_held",
+      "checks": [
+        "PAD accessors match button transitions from raw samples"
+      ]
+    },
+    {
+      "crate": "ogc-input-sys",
+      "path": "src/lib.rs",
+      "symbol": "pad_buttons_up",
+      "line": 1521,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_accessors",
+      "api_path": "sys::pad_buttons_up",
+      "checks": [
+        "PAD accessors match button transitions from raw samples"
+      ]
+    },
+    {
+      "crate": "ogc-input-sys",
+      "path": "src/lib.rs",
+      "symbol": "pad_stick_x",
+      "line": 1561,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_accessors",
+      "api_path": "sys::pad_stick_x",
+      "checks": [
+        "PAD accessors match axes from raw samples"
+      ]
+    },
+    {
+      "crate": "ogc-input-sys",
+      "path": "src/lib.rs",
+      "symbol": "pad_stick_y",
+      "line": 1569,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_accessors",
+      "api_path": "sys::pad_stick_y",
+      "checks": [
+        "PAD accessors match axes from raw samples"
+      ]
+    },
+    {
+      "crate": "ogc-input-sys",
+      "path": "src/lib.rs",
+      "symbol": "pad_sub_stick_x",
+      "line": 1545,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_accessors",
+      "api_path": "sys::pad_sub_stick_x",
+      "checks": [
+        "PAD accessors match axes from raw samples"
+      ]
+    },
+    {
+      "crate": "ogc-input-sys",
+      "path": "src/lib.rs",
+      "symbol": "pad_sub_stick_y",
+      "line": 1553,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_accessors",
+      "api_path": "sys::pad_sub_stick_y",
+      "checks": [
+        "PAD accessors match axes from raw samples"
+      ]
+    },
+    {
+      "crate": "ogc-input-sys",
+      "path": "src/lib.rs",
+      "symbol": "pad_trigger_l",
+      "line": 1577,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_accessors",
+      "api_path": "sys::pad_trigger_l",
+      "checks": [
+        "PAD accessors match axes from raw samples"
+      ]
+    },
+    {
+      "crate": "ogc-input-sys",
+      "path": "src/lib.rs",
+      "symbol": "pad_trigger_r",
+      "line": 1585,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_accessors",
+      "api_path": "sys::pad_trigger_r",
+      "checks": [
+        "PAD accessors match axes from raw samples"
+      ]
+    }
+  ],
+  "limits": [
+    "Scripted Dolphin channel zero input compared with raw scanned samples. Other channels, nonzero trigger and substick coverage, physical controllers, and transition races remain open."
+  ]
+}
