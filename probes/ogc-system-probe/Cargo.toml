@@ -183,6 +183,10 @@ name = "video_probe"
 path = "src/video_probe/main.rs"
 
 [[bin]]
+name = "gx_api_probe"
+path = "src/gx_api_probe/main.rs"
+
+[[bin]]
 name = "wpad_probe"
 path = "src/wpad_probe/main.rs"
 

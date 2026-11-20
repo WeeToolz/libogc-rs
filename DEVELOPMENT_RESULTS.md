@@ -1,5 +1,13 @@
 # Development results
 
+## 2026-11-20 GX public APIs
+
+The [GX API batch](docs/dolphin-runs/2026-11-20-ogc-gx-api-focused-run4/README.md)
+checks 13 public `ogc-gx` APIs with a focused Dolphin probe. Dolphin passed all
+22 probe checks. The inventory fell from 424 to 411 unverified entries. The
+broader video probe still has five EFB failures; this focused run does not cover
+those checks or physical Wii behavior.
+
 ## 2026-11-20 Wireless driver APIs
 
 The [wireless driver batch](docs/dolphin-runs/2026-11-20-ogc-wd-direct-apis/README.md)

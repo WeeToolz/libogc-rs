@@ -423,6 +423,7 @@ const PROBE_BINARIES: &[&str] = &[
     "runtime_probe",
     "sram_probe",
     "video_probe",
+    "gx_api_probe",
     "wpad_probe",
     "wii_remote_stability_probe",
     "sound_probe",

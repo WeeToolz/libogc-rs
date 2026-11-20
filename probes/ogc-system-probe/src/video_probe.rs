@@ -195,6 +195,29 @@ pub fn run(logger: &mut ProbeLogger) {
     PREVIOUS_POST_CALLBACK.store(0, Ordering::Release);
 }
 
+/// Runs the focused GX public API checks with the display and GX FIFO live.
+pub fn run_gx_api_probe(logger: &mut ProbeLogger) {
+    use ogc_gx::GxFifo;
+
+    logger.section("GX API PROBE");
+    let rmode = init_display(logger);
+    if rmode.is_null() {
+        logger.record("GX API probe display initialization", false);
+        logger.summary();
+        return;
+    }
+    // SAFETY: This focused probe owns GX and keeps the FIFO alive until it exits.
+    if let Err(error) = unsafe { GxFifo::initialize_default_mem2() } {
+        logger.note_u32("GX API probe FIFO error", error as u32);
+        logger.record("GX API probe FIFO initialization", false);
+        logger.summary();
+        return;
+    }
+    logger.record("GX API probe FIFO initialization", true);
+    probe_gx_unverified_apis(logger);
+    logger.summary();
+}
+
 fn probe_raw_video(logger: &mut ProbeLogger, rmode: *mut video::GxrModeObj) {
     use video::sys;
     logger.section("RAW VIDEO API");
@@ -1055,6 +1078,248 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_gx_thread_and_status(logger);
     probe_gx_metric_registers(logger);
     probe_gx_light_and_pixel_state(logger);
+    probe_gx_unverified_apis(logger);
+}
+
+fn probe_gx_unverified_apis(logger: &mut ProbeLogger) {
+    use core::ffi::c_void;
+    use core::ptr::null_mut;
+    use ogc_gx as gx;
+
+    logger.report_step("GX focused public API checks");
+
+    // Invalid inputs must return before GX reserves its live FIFO or IRQs.
+    // SAFETY: Both invalid inputs are rejected before the function reads them.
+    let null_fifo = unsafe { gx::init(null_mut(), gx::GX_FIFO_MINSIZE) };
+    let misaligned_fifo = unsafe {
+        gx::init(
+            core::ptr::without_provenance_mut::<c_void>(1),
+            gx::GX_FIFO_MINSIZE,
+        )
+    };
+    logger.record(
+        "GX init rejects null and misaligned FIFO storage",
+        null_fifo.is_null() && misaligned_fifo.is_null(),
+    );
+
+    let mut brkpt_before = 0xff;
+    let mut brkpt_after_null = 0xff;
+    let mut brkpt_after_disable = 0xff;
+    // SAFETY: The one-byte status outputs are valid and writable.
+    unsafe {
+        gx::get_gp_status(
+            null_mut(),
+            null_mut(),
+            null_mut(),
+            null_mut(),
+            &mut brkpt_before,
+        )
+    };
+    gx::enable_break_pt(null_mut());
+    // SAFETY: The one-byte status output is valid and writable.
+    unsafe {
+        gx::get_gp_status(
+            null_mut(),
+            null_mut(),
+            null_mut(),
+            null_mut(),
+            &mut brkpt_after_null,
+        )
+    };
+    logger.record(
+        "GX null breakpoint enable leaves status unchanged",
+        brkpt_before == brkpt_after_null,
+    );
+    gx::disable_break_pt();
+    // SAFETY: The one-byte status output is valid and writable.
+    unsafe {
+        gx::get_gp_status(
+            null_mut(),
+            null_mut(),
+            null_mut(),
+            null_mut(),
+            &mut brkpt_after_disable,
+        )
+    };
+    logger.record(
+        "GX breakpoint disable clears status",
+        brkpt_after_disable == 0,
+    );
+
+    let mut file = gx::TplFile {
+        type_: 7,
+        ntextures: 8,
+        texdesc: core::ptr::without_provenance_mut(9),
+        tpl_file: core::ptr::without_provenance_mut(10),
+    };
+    let before = (file.type_, file.ntextures, file.texdesc, file.tpl_file);
+    // SAFETY: `file` is writable; the null filename is accepted as an early return.
+    let empty_name = unsafe { gx::tpl_open_tpl_from_file(&mut file, core::ptr::null()) };
+    // SAFETY: A null TPL descriptor is explicitly rejected before it is read.
+    let null_file = unsafe { gx::tpl_open_tpl_from_file(null_mut(), core::ptr::null()) };
+    logger.record(
+        "GX TPL file open handles null inputs",
+        empty_name == 0
+            && null_file == -1
+            && (file.type_, file.ntextures, file.texdesc, file.tpl_file) == before,
+    );
+
+    // Save and restore GX FIFO snapshots so these setter calls preserve the live pipeline.
+    let mut cpu_fifo = gx::GxFifoObj::default();
+    let mut gp_fifo = gx::GxFifoObj::default();
+    let mut cpu_after = gx::GxFifoObj::default();
+    let mut gp_after = gx::GxFifoObj::default();
+    // SAFETY: All four FIFO objects are writable snapshots with the required ABI layout.
+    unsafe {
+        gx::get_cpu_fifo(&mut cpu_fifo);
+        gx::get_gp_fifo(&mut gp_fifo);
+    }
+    let fifo_ready = unsafe {
+        gx::get_fifo_size(&cpu_fifo) >= gx::GX_FIFO_MINSIZE
+            && gx::get_fifo_size(&gp_fifo) >= gx::GX_FIFO_MINSIZE
+    };
+    if fifo_ready {
+        // SAFETY: These snapshots describe the live, initialized GX FIFOs.
+        unsafe {
+            gx::set_cpu_fifo(&mut cpu_fifo);
+            gx::set_gp_fifo(&mut gp_fifo);
+            gx::get_cpu_fifo(&mut cpu_after);
+            gx::get_gp_fifo(&mut gp_after);
+        }
+    }
+    logger.record(
+        "GX CPU FIFO setter preserves the active FIFO",
+        fifo_ready
+            && unsafe { gx::get_fifo_base(&cpu_fifo) == gx::get_fifo_base(&cpu_after) }
+            && unsafe { gx::get_fifo_size(&cpu_fifo) == gx::get_fifo_size(&cpu_after) },
+    );
+    logger.record(
+        "GX GP FIFO setter preserves the active FIFO",
+        fifo_ready
+            && unsafe { gx::get_fifo_base(&gp_fifo) == gx::get_fifo_base(&gp_after) }
+            && unsafe { gx::get_fifo_size(&gp_fifo) == gx::get_fifo_size(&gp_after) },
+    );
+
+    let draw_buffer = unsafe { DRAW_FRAMEBUFFER };
+    let redirect_result = if !draw_buffer.is_null() && draw_buffer as usize & 31 == 0 {
+        // SAFETY: The probe owns this aligned framebuffer, which is DMA-visible memory.
+        unsafe { gx::redirect_write_gather_pipe(draw_buffer.cast()) }
+    } else {
+        null_mut()
+    };
+    gx::restore_write_gather_pipe();
+    logger.record(
+        "GX write gather redirect selects its aperture",
+        redirect_result == core::ptr::without_provenance_mut(0x0c00_8000),
+    );
+    let mut cpu_restored = gx::GxFifoObj::default();
+    // SAFETY: `cpu_restored` is a writable FIFO snapshot.
+    unsafe { gx::get_cpu_fifo(&mut cpu_restored) };
+    logger.record(
+        "GX write gather restore keeps the CPU FIFO live",
+        fifo_ready
+            && unsafe { gx::get_fifo_size(&cpu_restored) == gx::get_fifo_size(&cpu_fifo) }
+            && unsafe { gx::get_fifo_base(&cpu_restored) == gx::get_fifo_base(&cpu_fifo) },
+    );
+
+    // Test both public DL-save modes through observable vertex descriptor state.
+    const N: usize = gx::GX_MAX_VTXDESC_LISTSIZE;
+    let empty = gx::GxVtxDesc {
+        attr: gx::GX_VA_NULL,
+        ty: 0,
+    };
+    let mut saved_desc = [empty; N];
+    let mut after_saved = [empty; N];
+    let mut after_unsaved = [empty; N];
+    // SAFETY: Each descriptor array has the exact required capacity.
+    unsafe { gx::get_vtx_descv(saved_desc.as_mut_ptr()) };
+    #[repr(align(32))]
+    struct DisplayList([u8; 128]);
+    let mut list = DisplayList([0; 128]);
+    gx::set_misc(u32::from(gx::GX_MT_DL_SAVE_CTX), 1);
+    // SAFETY: The aligned display-list buffer remains writable through end_disp_list.
+    unsafe {
+        gx::begin_disp_list(list.0.as_mut_ptr().cast(), list.0.len() as u32);
+        gx::clear_vtx_desc();
+        gx::begin(gx::GX_TRIANGLESTRIP, 0, 0);
+        gx::end();
+    }
+    let saved_size = gx::end_disp_list();
+    // SAFETY: `after_saved` has the required capacity.
+    unsafe { gx::get_vtx_descv(after_saved.as_mut_ptr()) };
+    logger.record(
+        "GX misc DL save mode restores vertex descriptors",
+        saved_size > 0 && after_saved == saved_desc,
+    );
+
+    gx::set_misc(u32::from(gx::GX_MT_DL_SAVE_CTX), 0);
+    // SAFETY: The same aligned display-list buffer is reusable after end_disp_list.
+    unsafe {
+        gx::begin_disp_list(list.0.as_mut_ptr().cast(), list.0.len() as u32);
+        gx::clear_vtx_desc();
+        gx::begin(gx::GX_TRIANGLESTRIP, 0, 0);
+        gx::end();
+    }
+    let unsaved_size = gx::end_disp_list();
+    // SAFETY: `after_unsaved` has the required capacity.
+    unsafe { gx::get_vtx_descv(after_unsaved.as_mut_ptr()) };
+    logger.record(
+        "GX misc DL no-save mode keeps vertex descriptor changes",
+        unsaved_size > 0 && after_unsaved.iter().all(|item| *item == empty),
+    );
+    gx::set_misc(u32::from(gx::GX_MT_DL_SAVE_CTX), 1);
+    // SAFETY: The saved list is complete and GX remains owned by this probe.
+    unsafe { gx::set_vtx_descv(saved_desc.as_ptr()) };
+
+    gx::set_gp_metric(gx::GX_PERF0_VERTICES, gx::GX_PERF1_TEXELS);
+    gx::clear_gp_metric();
+    let mut metric0 = u32::MAX;
+    let mut metric1 = 0x5a5a_a5a5;
+    // SAFETY: Both metric outputs are valid and writable.
+    unsafe { gx::read_gp_metric(&mut metric0, &mut metric1) };
+    logger.record(
+        "GX GP metric clear resets counter zero and leaves unsupported counter one untouched",
+        metric0 == 0 && metric1 == 0x5a5a_a5a5,
+    );
+
+    let clocks_per_vertex = gx::read_clks_per_vtx();
+    logger.record(
+        "GX clocks per vertex query returns its documented byte range",
+        clocks_per_vertex <= u32::from(u8::MAX),
+    );
+
+    let mut cache_before = [u32::MAX; 3];
+    let mut cache_after = [u32::MAX; 3];
+    // SAFETY: Both arrays contain three writable u32 outputs.
+    unsafe {
+        gx::read_v_cache_metric(
+            cache_before.as_mut_ptr(),
+            cache_before.as_mut_ptr().add(1),
+            cache_before.as_mut_ptr().add(2),
+        )
+    };
+    gx::set_v_cache_metric(u32::MAX);
+    // SAFETY: Both arrays contain three writable u32 outputs.
+    unsafe {
+        gx::read_v_cache_metric(
+            cache_after.as_mut_ptr(),
+            cache_after.as_mut_ptr().add(1),
+            cache_after.as_mut_ptr().add(2),
+        )
+    };
+    logger.record(
+        "GX vertex cache metric setter preserves the current counters",
+        cache_before == cache_after,
+    );
+
+    gx::abort_frame();
+    let mut after_abort = gx::GxFifoObj::default();
+    // SAFETY: `after_abort` is a writable FIFO snapshot.
+    unsafe { gx::get_gp_fifo(&mut after_abort) };
+    logger.record(
+        "GX abort frame empties pending GP FIFO work",
+        fifo_ready && unsafe { gx::get_fifo_count(&after_abort) == 0 },
+    );
 }
 
 fn probe_frame_lifecycle(logger: &mut ProbeLogger, rmode: *mut video::GxrModeObj) {

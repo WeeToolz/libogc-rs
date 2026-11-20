@@ -138,6 +138,11 @@ const PROBES: &[ProbeSpec] = &[
         input_pipe: false,
     },
     ProbeSpec {
+        name: "gx_api_probe",
+        timeout_seconds: 90,
+        input_pipe: false,
+    },
+    ProbeSpec {
         name: "aesnd_native_probe",
         timeout_seconds: 90,
         input_pipe: false,

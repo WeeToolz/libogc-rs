@@ -597,6 +597,15 @@ pub fn run_video_probe_bin() -> i32 {
     finish_probe()
 }
 
+#[cfg(all(target_arch = "powerpc", not(feature = "gamecube-card-probe")))]
+/// Runs only focused GX public API probes.
+pub fn run_gx_api_probe_bin() -> i32 {
+    configure_probe_app_dir("gx-api-probe");
+    let mut logger = init_probe_logger();
+    video_probe::run_gx_api_probe(&mut logger);
+    finish_probe()
+}
+
 #[cfg(target_arch = "powerpc")]
 /// Sends a small report and framebuffer to the host to check the return path.
 pub fn run_report_smoke_probe_bin() -> i32 {
