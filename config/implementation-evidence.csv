@@ -2808,3 +2808,7 @@ ogc-input-sys,src/lib.rs,pad_sync,1351,hardware,hardware-probe,probes/ogc-system
 ogc-input-sys,src/lib.rs,pad_scan_pads,1466,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_low_level_state,sys::pad_scan_pads
 ogc-input-sys,src/lib.rs,pad_scan_pads_with_status,1473,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_low_level_state,sys::pad_scan_pads_with_status
 ogc-input-sys,src/lib.rs,pad_read,1213,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_low_level_state,sys::pad_read
+ogc-input-sys,src/lib.rs,pad_reset,1318,hardware,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,probe_pad_sys_reset,sys::pad_reset
+ogc-input-sys,src/lib.rs,pad_recalibrate,1333,hardware,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,probe_pad_sys_reset,sys::pad_recalibrate
+ogc-input-sys,src/lib.rs,pad_set_spec,1371,hardware,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,probe_pad_sys_reset,sys::pad_set_spec
+ogc-input-sys,src/lib.rs,_pad_disable_recalibration,1593,hardware,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,probe_pad_sys_reset,sys::_pad_disable_recalibration

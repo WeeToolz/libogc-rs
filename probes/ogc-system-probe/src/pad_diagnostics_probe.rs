@@ -228,6 +228,78 @@ fn wait_sync(logger: &mut ProbeLogger, summary: &mut TraceSummary, frames: u32) 
     false
 }
 
+fn probe_pad_sys_reset(logger: &mut ProbeLogger, summary: &mut TraceSummary) {
+    use ogc_input_sys as sys;
+
+    begin(logger, "sys-reset-channel-0");
+    let before = summary.selected_count;
+    si::si_fault_install(&[type_step(
+        0,
+        si::SI_ERROR_NO_RESPONSE,
+        si::SI_FAULT_COMPLETE,
+    )]);
+    let accepted = sys::pad_reset(sys::PAD_CHAN0_BIT);
+    let completed = wait_sync(logger, summary, SYNC_FRAMES);
+    let report = si::si_fault_report();
+    end(
+        logger,
+        summary,
+        "sys-reset-channel-0",
+        accepted == 1
+            && completed
+            && report.consumed == 1
+            && summary.selected_count[0] == before[0] + 1
+            && state_clean(),
+    );
+
+    begin(logger, "sys-recalibrate-channel-1");
+    let before = summary.selected_count;
+    si::si_fault_install(&[type_step(
+        1,
+        si::SI_ERROR_NO_RESPONSE,
+        si::SI_FAULT_COMPLETE,
+    )]);
+    let accepted = sys::pad_recalibrate(sys::PAD_CHAN1_BIT);
+    let completed = wait_sync(logger, summary, SYNC_FRAMES);
+    let report = si::si_fault_report();
+    end(
+        logger,
+        summary,
+        "sys-recalibrate-channel-1",
+        accepted == 1
+            && completed
+            && report.consumed == 1
+            && summary.selected_count[1] == before[1] + 1
+            && state_clean(),
+    );
+
+    let spec_before = sys::pad_debug_state().spec;
+    sys::pad_set_spec(0);
+    logger.record(
+        "PAD post-init specification remains unchanged",
+        spec_before == 5 && sys::pad_debug_state().spec == spec_before,
+    );
+
+    // SAFETY: This is the documented PAD recalibration flag in low memory.
+    // Restore its original value before returning.
+    let flag = 0x8000_30e3 as *const u8;
+    let original = unsafe { core::ptr::read_volatile(flag) };
+    let old = sys::_pad_disable_recalibration(1);
+    let set = unsafe { core::ptr::read_volatile(flag) };
+    let old_set = sys::_pad_disable_recalibration(0);
+    let cleared = unsafe { core::ptr::read_volatile(flag) };
+    let _ = sys::_pad_disable_recalibration(i32::from(original & 0x40 != 0));
+    let restored = unsafe { core::ptr::read_volatile(flag) };
+    logger.record(
+        "PAD recalibration flag changes and restores low memory",
+        old == u32::from(original & 0x40 != 0)
+            && old_set == 1
+            && set == original | 0x40
+            && cleared == original & !0x40
+            && restored == original,
+    );
+}
+
 fn run_mask_case(logger: &mut ProbeLogger, summary: &mut TraceSummary, id: &str, mask: u32) {
     begin(logger, id);
     let before = summary.selected_count;
@@ -277,6 +349,7 @@ pub fn run_state(logger: &mut ProbeLogger) {
     );
     drain_trace(logger, &mut summary);
     si::si_fault_clear();
+    probe_pad_sys_reset(logger, &mut summary);
 
     run_mask_case(logger, &mut summary, "mask-channel-0", pad::PAD_CHAN0_BIT);
     run_mask_case(logger, &mut summary, "mask-channel-1", pad::PAD_CHAN1_BIT);

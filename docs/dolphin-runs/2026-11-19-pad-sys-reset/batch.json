@@ -1,0 +1,56 @@
+{
+  "probe": "pad_state_probe",
+  "cases": [
+    {
+      "crate": "ogc-input-sys",
+      "path": "src/lib.rs",
+      "symbol": "pad_reset",
+      "line": 1318,
+      "evidence_path": "probes/ogc-system-probe/src/pad_diagnostics_probe.rs",
+      "function": "probe_pad_sys_reset",
+      "api_path": "sys::pad_reset",
+      "checks": [
+        "sys-reset-channel-0"
+      ]
+    },
+    {
+      "crate": "ogc-input-sys",
+      "path": "src/lib.rs",
+      "symbol": "pad_recalibrate",
+      "line": 1333,
+      "evidence_path": "probes/ogc-system-probe/src/pad_diagnostics_probe.rs",
+      "function": "probe_pad_sys_reset",
+      "api_path": "sys::pad_recalibrate",
+      "checks": [
+        "sys-recalibrate-channel-1"
+      ]
+    },
+    {
+      "crate": "ogc-input-sys",
+      "path": "src/lib.rs",
+      "symbol": "pad_set_spec",
+      "line": 1371,
+      "evidence_path": "probes/ogc-system-probe/src/pad_diagnostics_probe.rs",
+      "function": "probe_pad_sys_reset",
+      "api_path": "sys::pad_set_spec",
+      "checks": [
+        "PAD post-init specification remains unchanged"
+      ]
+    },
+    {
+      "crate": "ogc-input-sys",
+      "path": "src/lib.rs",
+      "symbol": "_pad_disable_recalibration",
+      "line": 1593,
+      "evidence_path": "probes/ogc-system-probe/src/pad_diagnostics_probe.rs",
+      "function": "probe_pad_sys_reset",
+      "api_path": "sys::_pad_disable_recalibration",
+      "checks": [
+        "PAD recalibration flag changes and restores low memory"
+      ]
+    }
+  ],
+  "limits": [
+    "Deterministic SI error fixtures for one reset and one recalibration, post-init specification, and restored low-memory flag in Dolphin. Real controller calibration, transfer races, and physical Wii behavior remain open."
+  ]
+}

@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-19 PAD reset and recalibration
+
+The [PAD reset batch](docs/dolphin-runs/2026-11-19-pad-sys-reset/README.md)
+checks four low-level APIs with deterministic SI fixtures. Dolphin passed
+67 checks. The completeness audit reports 577 unverified APIs. Real
+controller calibration and physical Wii behavior remain open.
+
 ## 2026-11-19 PAD low-level state
 
 The [PAD state batch](docs/dolphin-runs/2026-11-19-pad-low-level-state-wait/README.md)
