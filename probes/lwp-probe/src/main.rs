@@ -292,9 +292,18 @@ mod wii {
     static mut STACK_SEM: Stack = Stack([0; STACK_BYTES]);
     static mut STACK_MQ: Stack = Stack([0; STACK_BYTES]);
     static mut STACK_TUXEDO: Stack = Stack([0; STACK_BYTES]);
+    static mut STACK_TUXEDO_CV_A: Stack = Stack([0; STACK_BYTES]);
+    static mut STACK_TUXEDO_CV_B: Stack = Stack([0; STACK_BYTES]);
     static mut STACK_IPC_LOW: Stack = Stack([0; STACK_BYTES]);
     static mut STACK_IPC_HIGH: Stack = Stack([0; STACK_BYTES]);
     static mut TUXEDO_THREAD: tuxedo::KThread = tuxedo::KThread::empty();
+    static mut TUXEDO_CV_A: tuxedo::KThread = tuxedo::KThread::empty();
+    static mut TUXEDO_CV_B: tuxedo::KThread = tuxedo::KThread::empty();
+    static mut TUXEDO_CV: tuxedo::KCondVar = tuxedo::KCondVar { dummy: 0 };
+    static mut TUXEDO_CV_MUTEX: tuxedo::KMutex = tuxedo::KMutex {
+        owner: ptr::null_mut(),
+    };
+    static TUXEDO_CV_DONE: AtomicU32 = AtomicU32::new(0);
     static mut TUXEDO_QUEUE: tuxedo::KThrQueue = tuxedo::KThrQueue {
         next: ptr::null_mut(),
         prev: ptr::null_mut(),
@@ -552,6 +561,23 @@ mod wii {
             );
         }
         result
+    }
+
+    unsafe extern "C" fn tuxedo_condition_worker(_: *mut c_void) -> isize {
+        let mutex = core::ptr::addr_of_mut!(TUXEDO_CV_MUTEX);
+        let cv = core::ptr::addr_of_mut!(TUXEDO_CV);
+        unsafe {
+            tuxedo::k_mutex_lock(mutex);
+            tuxedo::k_cond_var_wait(cv, mutex);
+            let owns = tuxedo::k_mutex_is_locked_by_current_thread(mutex);
+            tuxedo::k_mutex_unlock(mutex);
+            if owns {
+                TUXEDO_CV_DONE.fetch_add(1, Ordering::Release);
+                1
+            } else {
+                0
+            }
+        }
     }
 
     fn fpu_owner_register() -> usize {
@@ -1687,6 +1713,88 @@ mod wii {
         }
     }
 
+    fn probe_tuxedo_condition_wake(logger: &mut ProbeLogger) {
+        logger.section("TUXEDO CONDITION WAKE");
+        TUXEDO_CV_DONE.store(0, Ordering::Release);
+        let a = core::ptr::addr_of_mut!(TUXEDO_CV_A);
+        let b = core::ptr::addr_of_mut!(TUXEDO_CV_B);
+        let cv = core::ptr::addr_of_mut!(TUXEDO_CV);
+        // SAFETY: Both thread objects, stacks, mutex, and condition are static.
+        unsafe {
+            let stack_a = core::ptr::addr_of_mut!(STACK_TUXEDO_CV_A.0)
+                .cast::<u8>()
+                .add(STACK_BYTES)
+                .cast();
+            let stack_b = core::ptr::addr_of_mut!(STACK_TUXEDO_CV_B.0)
+                .cast::<u8>()
+                .add(STACK_BYTES)
+                .cast();
+            tuxedo::k_thread_prepare(
+                a,
+                Some(tuxedo_condition_worker),
+                ptr::null_mut(),
+                stack_a,
+                0x30,
+            );
+            tuxedo::k_thread_prepare(
+                b,
+                Some(tuxedo_condition_worker),
+                ptr::null_mut(),
+                stack_b,
+                0x30,
+            );
+            tuxedo::k_thread_resume(a);
+            tuxedo::k_thread_resume(b);
+        }
+        let start = driver::now_ticks();
+        let mut both_waiting = false;
+        while driver::now_ticks().wrapping_sub(start) < driver::TICKS_PER_SECOND {
+            both_waiting = unsafe {
+                (*a).state == tuxedo::KTHR_STATE_WAITING
+                    && (*b).state == tuxedo::KTHR_STATE_WAITING
+                    && !(*a).data.wait.queue.is_null()
+                    && !(*b).data.wait.queue.is_null()
+            };
+            if both_waiting {
+                break;
+            }
+            lwp::yield_thread();
+        }
+        unsafe { tuxedo::k_cond_var_signal(cv) };
+        let start = driver::now_ticks();
+        while TUXEDO_CV_DONE.load(Ordering::Acquire) == 0
+            && driver::now_ticks().wrapping_sub(start) < driver::TICKS_PER_SECOND
+        {
+            lwp::yield_thread();
+        }
+        let one_woke = TUXEDO_CV_DONE.load(Ordering::Acquire) == 1;
+        logger.record(
+            "Tuxedo condition signal wakes one mutex owner",
+            both_waiting && one_woke,
+        );
+        unsafe { tuxedo::k_cond_var_broadcast(cv) };
+        let start = driver::now_ticks();
+        while TUXEDO_CV_DONE.load(Ordering::Acquire) < 2
+            && driver::now_ticks().wrapping_sub(start) < driver::TICKS_PER_SECOND
+        {
+            lwp::yield_thread();
+        }
+        let both_woke = TUXEDO_CV_DONE.load(Ordering::Acquire) == 2;
+        logger.record(
+            "Tuxedo condition broadcast wakes remaining mutex owner",
+            both_waiting && one_woke && both_woke,
+        );
+        if both_woke {
+            let results = unsafe { (tuxedo::k_thread_join(a), tuxedo::k_thread_join(b)) };
+            logger.record(
+                "Tuxedo condition workers join after wake",
+                results == (1, 1),
+            );
+        } else {
+            logger.record("Tuxedo condition workers join after wake", false);
+        }
+    }
+
     fn run_tuxedo_compatibility(logger: &mut ProbeLogger) {
         logger.section("TUXEDO OVER LWP");
         unsafe {
@@ -1987,6 +2095,7 @@ mod wii {
         probe_interrupt_deferred(&mut logger);
         run_tuxedo_compatibility(&mut logger);
         probe_tuxedo_mutexes(&mut logger);
+        probe_tuxedo_condition_wake(&mut logger);
         run_ipc_wakeup(&mut logger);
         run_std_foundation(&mut logger);
         crate::futex_probe::run(&mut logger);

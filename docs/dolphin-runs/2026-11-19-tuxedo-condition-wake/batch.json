@@ -1,0 +1,46 @@
+{
+  "probe": "lwp_probe",
+  "cases": [
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_cond_var_signal",
+      "line": 1069,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_condition_wake",
+      "api_path": "tuxedo::k_cond_var_signal",
+      "checks": [
+        "Tuxedo condition signal wakes one mutex owner"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_cond_var_broadcast",
+      "line": 1080,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_condition_wake",
+      "api_path": "tuxedo::k_cond_var_broadcast",
+      "checks": [
+        "Tuxedo condition broadcast wakes remaining mutex owner"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_cond_var_wait",
+      "line": 1091,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "tuxedo_condition_worker",
+      "api_path": "tuxedo::k_cond_var_wait",
+      "checks": [
+        "Tuxedo condition signal wakes one mutex owner",
+        "Tuxedo condition broadcast wakes remaining mutex owner",
+        "Tuxedo condition workers join after wake"
+      ]
+    }
+  ],
+  "limits": [
+    "Two waiting workers and one signal followed by broadcast in Dolphin. Other queue ordering, multiple conditions, wake races, and physical Wii timing remain open."
+  ]
+}

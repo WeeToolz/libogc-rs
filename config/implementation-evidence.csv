@@ -2766,3 +2766,6 @@ tuxedo-sys,src/lib.rs,k_cond_var_wait_timeout_ticks,1108,compatibility-forwarder
 tuxedo-sys,src/lib.rs,k_cond_var_wait_ns,1137,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_tuxedo_mutexes,tuxedo::k_cond_var_wait_ns
 tuxedo-sys,src/lib.rs,k_cond_var_wait_us,1143,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_tuxedo_mutexes,tuxedo::k_cond_var_wait_us
 tuxedo-sys,src/lib.rs,k_cond_var_wait_ms,1149,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_tuxedo_mutexes,tuxedo::k_cond_var_wait_ms
+tuxedo-sys,src/lib.rs,k_cond_var_signal,1069,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_tuxedo_condition_wake,tuxedo::k_cond_var_signal
+tuxedo-sys,src/lib.rs,k_cond_var_broadcast,1080,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_tuxedo_condition_wake,tuxedo::k_cond_var_broadcast
+tuxedo-sys,src/lib.rs,k_cond_var_wait,1091,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,tuxedo_condition_worker,tuxedo::k_cond_var_wait

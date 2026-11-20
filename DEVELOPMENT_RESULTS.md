@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-19 Tuxedo condition wake
+
+The [condition wake batch](docs/dolphin-runs/2026-11-19-tuxedo-condition-wake/README.md)
+checks wait, signal, and broadcast with two workers. Dolphin passed 238
+checks. The completeness audit reports 620 unverified APIs. Wake races and
+physical Wii timing remain open.
+
 ## 2026-11-19 Tuxedo mutexes and condition timeouts
 
 The [Tuxedo batch](docs/dolphin-runs/2026-11-19-tuxedo-mutex-timeouts/README.md)
