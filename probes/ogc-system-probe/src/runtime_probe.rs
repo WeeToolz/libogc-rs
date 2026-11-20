@@ -2897,6 +2897,28 @@ fn probe_video_console_state(logger: &mut ProbeLogger) {
             && console.font.num_chars == 96,
     );
     logger.record("Video default console supplies its font", default_ok);
+    // SAFETY: `previous` is the live console that was active before the local selection.
+    let clear_ready = unsafe { !previous.is_null() && !(*previous).destbuffer.is_null() };
+    if clear_ready {
+        unsafe {
+            (*previous).cursor_x = 9;
+            (*previous).cursor_y = 6;
+        }
+    }
+    video::console_clear();
+    let mut clear_col = 0;
+    let mut clear_row = 0;
+    video::console_get_position(&mut clear_col, &mut clear_row);
+    logger.record(
+        "Video console clear resets the cursor",
+        clear_ready && clear_col == 1 && clear_row == 1,
+    );
+
+    let short_image = [0u8; 3];
+    let invalid_blits = video::console_blit_rgba(0, 0, 0, 1, 1, 1, &[0; 4]) == Err(-1)
+        && video::console_blit_rgba(0, 0, 1, 1, 0, 1, &[0; 4]) == Err(-1)
+        && video::console_blit_rgba(0, 0, 1, 1, 1, 1, &short_image) == Err(-1);
+    logger.record("Video RGBA blit rejects invalid image sizes", invalid_blits);
 }
 
 #[cfg(feature = "dolphin-automation")]
@@ -3152,6 +3174,8 @@ fn probe_video_queries(logger: &mut ProbeLogger) {
             && snapshot.next_field == field
             && field <= 1,
     );
+    logger.record("Video current line query returns", line <= 1_000);
+    logger.record("Video next field query returns", field <= 1);
 }
 
 #[cfg(feature = "dolphin-automation")]

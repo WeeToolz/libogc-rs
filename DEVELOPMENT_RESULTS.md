@@ -1,5 +1,13 @@
 # Development results
 
+## 2026-11-20 Video console and query APIs
+
+The [video batch](docs/dolphin-runs/2026-11-20-ogc-video-core-final-verified-v2/README.md)
+checks four public APIs: console clearing, RGBA image-size rejection, current
+scan-line queries, and next-field queries. Dolphin passed all 582 runtime checks
+and all four selected API checks. The inventory fell from 441 to 437 unverified
+entries. Successful image drawing and physical video behavior remain open.
+
 ## 2026-11-20 TinySMB invalid inputs
 
 The [TinySMB batch](docs/dolphin-runs/2026-11-20-tinysmb-invalid-inputs-final/README.md)
