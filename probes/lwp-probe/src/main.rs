@@ -7,6 +7,8 @@ extern crate std;
 
 #[cfg(target_arch = "powerpc")]
 mod futex_probe;
+#[cfg(target_arch = "powerpc")]
+mod runtime_contract_probe;
 #[cfg(all(target_arch = "powerpc", feature = "wii-std-sync"))]
 mod std_sync_probe;
 
@@ -2411,6 +2413,7 @@ mod wii {
             ogc_system::runtime_fp_disabled_stage() == 0,
         );
 
+        super::runtime_contract_probe::run(&mut logger);
         run_interrupt_frame_integrity(&mut logger);
         run_switch_and_join(&mut logger);
         probe_priority_order(&mut logger);

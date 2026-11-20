@@ -1,5 +1,13 @@
 # Development results
 
+## 2026-11-20 Shared scheduler contracts
+
+The [scheduler batch](docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/README.md)
+checks eight `ogc-runtime` scheduler APIs through the LWP driver adapters.
+Dolphin passed all 258 LWP probe checks. The inventory fell from 407 to 399
+unverified entries. This run covers scheduler contracts and does not prove
+physical Wii timing.
+
 ## 2026-11-20 STM lifecycle and LED APIs
 
 The [STM API batch](docs/dolphin-runs/2026-11-20-ogc-stm-led-apis-retry/README.md)

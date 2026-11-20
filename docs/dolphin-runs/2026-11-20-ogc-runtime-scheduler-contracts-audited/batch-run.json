@@ -1,0 +1,64 @@
+{
+  "source_revision": "858008bacd4a284b6396c34acda0af1bd3435541",
+  "source_fingerprint": "08cf25a6d4c63fcd3b6ad476ba87ce9b4735c4a5193483daa715a8f1067da83e",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "lwp_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "c561aa476eb9ab545bd27b2a47a9eb1fa0e89a8a5d07cbe18bb01cd7907d0b83",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "9e75d7d5a075e2c1efadbe2ed002d832264dddc2d6ec1f9280907f2fa75f52ef",
+  "suite_sha256": "7136394a4cd820dc798c5169e9df2320ac189c53623ae7e9993e122f5f47b45b",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/probe.log": "04fda835007b851c723dd2ff228471120ea2fe82f3b88994a9e823ce745a8135",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/stderr.log": "e52ee81b8f69f9acb35941d6ef3e07a471716e3599ab31648d8bab1be4516201",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/probe-transport.bin": "10b79077351d4b4fc0e82012f7fd1453a22ff1c3c86ff6922f3e46bacef4d3a8",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/pages/page-002.png": "509c19c5f8441ea20de3155724cb811a16f7473b493060b59f9962ab8442574a",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/pages/page-003.png": "9c543fcfe76f2b8ee804b6cba9b0292cff42eee988c24ef6d516acfc5e853055",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/pages/page-004.png": "b20554a938416488eed69cd3684c974942f82e9d2fa7879cadfc0b2987487bbe",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/pages/page-005.png": "6dd5c604422bd3eea69e510dd41780e33b99a7693eb6368b4c8bfcb5a5ca8a0a",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/pages/page-006.png": "fb2d24228f7b1745477e977e0918def7d2ad2eea44bd8439b906726b5842b77c",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/pages/page-007.png": "b4c862df13706548f44cb7caa4b65b9e0de2b9361677dc4de48f465d38a03639",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/pages/page-008.png": "f4325dca6e04f8afd69eafbca5d50f2b93f972355d94c11fb4f0dd15a50da51e",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/pages/page-009.png": "de9803b9ff79a293f2fce39a29126974314d88c7302eaecd4943017c93c5d806",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/pages/page-010.png": "979006660504d62adbcc815344eef0b1930a117e26c8d29341f73e989f3805b8",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/pages/page-011.png": "4cd570839cb010d09248dc91401a90191ae986f6c80328886b7fd1953a747871",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/pages/page-012.png": "cc2f250200e01f77da6e272473bdc4be68bac74836ecf0e89b36e7b978e77beb",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/pages/page-013.png": "b291d3a5d00d7fa3566438e73b0ea4d5e4edb44353f49794d76edd69af207583",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/pages/page-014.png": "056ddcaa0ffe96ba2fdfafcffeed19d60d0fddcab9fe84a012c16c15413b58ad",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/pages/page-015.png": "631b28f0574828e3e961513bd24b74f324603d9fd28569bd739367afcd45d408",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/pages/page-016.png": "4daa1500058014baf7754f07e9388a1ad779f4acfdf4fba5a059f5cf06d14e19",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/pages/page-017.png": "3d437c6354dd956cb525704bc7188502a8a66c2e33a4f76367a06c87fe10f1e1",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/pages/page-018.png": "ab96fc442bb6de73f0ca2fdf3cc1ae2da042da40614b1d76a54852bdaaa09ab3",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/pages/page-019.png": "06ed79c7cda9af9857a3efd91698fb9957490a58c04a6771c1b7b74b95cfd13e",
+    "docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/lwp_probe/dolphin.log": "45c1f1f32fb6d4eb70d922c29c3f86cbe482f7ba5b65bdd2a18e55dae2011fb8"
+  },
+  "exit_code": 0
+}

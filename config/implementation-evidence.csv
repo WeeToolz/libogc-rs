@@ -2975,3 +2975,11 @@ ogc-stm,src/lib.rs,init_without_event_hook,271,ios,hardware-probe,probes/ogc-sys
 ogc-stm,src/lib.rs,register_event_handler,453,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::register_event_handler
 ogc-stm,src/lib.rs,set_led_mode,506,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::set_led_mode
 ogc-stm,src/lib.rs,try_set_led_mode,522,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::try_set_led_mode
+ogc-runtime,src/scheduler.rs,get,24,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,run,thread.get
+ogc-runtime,src/scheduler.rs,now,56,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,run,clock.now
+ogc-runtime,src/scheduler.rs,ticks_per_second,57,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,run,clock.ticks_per_second
+ogc-runtime,src/scheduler.rs,register,62,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,run,timer.register
+ogc-runtime,src/scheduler.rs,cancel,63,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,run,timer.cancel
+ogc-runtime,src/scheduler.rs,enqueue,71,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,run,executor.enqueue
+ogc-runtime,src/scheduler.rs,wake,72,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,run,executor.wake
+ogc-runtime,src/scheduler.rs,wake_from_interrupt,79,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,run,interrupt_wake.wake_from_interrupt

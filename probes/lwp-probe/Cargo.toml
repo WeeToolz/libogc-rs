@@ -28,6 +28,7 @@ ogc-video = { path = "../../crates/hardware/ogc-video" }
 ogc-ipc = { path = "../../crates/core/ogc-ipc" }
 ogc-lwp = { path = "../../crates/core/ogc-lwp" }
 ogc-lwp-driver = { path = "../../crates/core/ogc-lwp-driver" }
+ogc-runtime = { path = "../../crates/core/ogc-runtime" }
 ogc-system = { path = "../../crates/core/ogc-system" }
 ogc-system-probe = { path = "../ogc-system-probe" }
 tuxedo-sys = { path = "../../crates/compatibility/tuxedo-sys" }
