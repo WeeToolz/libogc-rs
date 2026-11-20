@@ -48,6 +48,12 @@ python3 scripts/api-probe-batch.py run /tmp/libogc-api-batch.json docs/dolphin-r
 python3 scripts/api-probe-batch.py finish docs/dolphin-runs/new-batch
 ```
 
+On macOS, the shell sandbox can prevent Qt from using desktop services. If
+Dolphin aborts during `--version` with a Qt NEON or pasteboard error, use the
+normal approval path to run that check with desktop access. If it passes,
+run the batch helper with the same access and a new artifact directory. The
+helper uses a private Dolphin profile.
+
 Use `report` to regenerate a report from a saved run. It prints Markdown.
 For an older run without `batch.json`, add `--manifest PATH`.
 

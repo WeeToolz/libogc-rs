@@ -117,6 +117,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_system_api_batch(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_usb_api_batch(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_usb_safe_result_wrappers(logger);
     probe_video_queries(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_video_register_checks(logger);
@@ -3405,6 +3407,40 @@ fn probe_usb_api_batch(logger: &mut ProbeLogger) {
     // SAFETY: The null descriptor is explicitly accepted as a no-op.
     unsafe { usb_sys::free_descriptors(core::ptr::null_mut()) };
     logger.record("USB descriptor free accepts a null descriptor", true);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_usb_safe_result_wrappers(logger: &mut ProbeLogger) {
+    use ogc_usb as usb;
+
+    logger.record(
+        "USB device description maps invalid handle to error",
+        usb::device_description(-1).is_err(),
+    );
+    logger.record(
+        "USB descriptor query maps invalid handle to error",
+        usb::descriptors(-1).is_err(),
+    );
+    logger.record(
+        "USB generic descriptor maps invalid handle to error",
+        usb::generic_descriptor(-1, usb::USB_DT_DEVICE, 0, 0, &mut [0; 18]).is_err(),
+    );
+    logger.record(
+        "USB HID descriptor maps invalid handle to error",
+        usb::hid_descriptor(-1, 0).is_err(),
+    );
+    logger.record(
+        "USB report descriptor size maps invalid handle to error",
+        usb::report_descriptor_size(-1, 0).is_err(),
+    );
+    logger.record(
+        "USB report descriptor maps invalid handle to error",
+        usb::report_descriptor(-1, 0, &mut [0; 8]).is_err(),
+    );
+    logger.record(
+        "USB ASCII string maps invalid handle to error",
+        usb::ascii_string(-1, 1, 0x0409, &mut [0; 32]).is_err(),
+    );
 }
 
 #[cfg(feature = "dolphin-automation")]

@@ -3001,3 +3001,10 @@ ogc-usb-sys,src/lib.rs,get_device_list,4327,ios,hardware-probe,probes/ogc-system
 ogc-usb-sys,src/lib.rs,get_generic_descriptor,2221,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_api_batch,usb_sys::get_generic_descriptor
 ogc-usb-sys,src/lib.rs,get_hid_descriptor,2294,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_api_batch,usb_sys::get_hid_descriptor
 ogc-usb-sys,src/lib.rs,get_report_descriptor,2384,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_api_batch,usb_sys::get_report_descriptor
+ogc-usb,src/lib.rs,device_description,97,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_safe_result_wrappers,usb::device_description
+ogc-usb,src/lib.rs,descriptors,109,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_safe_result_wrappers,usb::descriptors
+ogc-usb,src/lib.rs,generic_descriptor,135,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_safe_result_wrappers,usb::generic_descriptor
+ogc-usb,src/lib.rs,hid_descriptor,161,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_safe_result_wrappers,usb::hid_descriptor
+ogc-usb,src/lib.rs,report_descriptor_size,178,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_safe_result_wrappers,usb::report_descriptor_size
+ogc-usb,src/lib.rs,report_descriptor,199,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_safe_result_wrappers,usb::report_descriptor
+ogc-usb,src/lib.rs,ascii_string,558,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_safe_result_wrappers,usb::ascii_string

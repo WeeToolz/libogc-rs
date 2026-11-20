@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-20 USB wrapper errors for invalid handles
+
+The [USB wrapper batch](docs/dolphin-runs/2026-11-20-ogc-usb-safe-result-wrappers-verified/README.md)
+checks seven `ogc-usb` queries with an invalid handle. Dolphin passed all
+607 runtime probe checks. The inventory fell from 381 to 374 unverified
+entries. Successful queries on an open USB device still need verification.
+
 ## 2026-11-20 USB system invalid-pointer guards
 
 The [USB system batch](docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/README.md)
