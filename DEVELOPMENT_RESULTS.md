@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-20 PAD sampling callback
+
+The [PAD sampling batch](docs/dolphin-runs/2026-11-20-pad-sampling/README.md)
+checks callback delivery, replacement, and removal. Dolphin passed 35 checks.
+The completeness audit reports 575 unverified APIs and no unverified entries
+in `ogc-input-sys`. Physical Wii behavior remains open.
+
 ## 2026-11-20 PAD origin bytes
 
 The [PAD origin batch](docs/dolphin-runs/2026-11-20-pad-origin/README.md)

@@ -1,0 +1,20 @@
+{
+  "probe": "input_probe",
+  "cases": [
+    {
+      "crate": "ogc-input-sys",
+      "path": "src/lib.rs",
+      "symbol": "pad_set_sampling_callback",
+      "line": 1404,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_sampling_callback",
+      "api_path": "sys::pad_set_sampling_callback",
+      "checks": [
+        "PAD sampling callback replaces delivers and removes"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin SI polling callback replacement and removal with one scripted controller. Timing under interrupt contention and physical Wii behavior remain open."
+  ]
+}

@@ -310,6 +310,7 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
         );
         probe_controller_scan_modes(logger, &mut controllers);
         probe_pad_low_level_state(logger);
+        probe_pad_sampling_callback(logger);
     }
 
     let cleanup_complete =
@@ -346,6 +347,72 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
 static PAD_INIT_STAGES: AtomicUsize = AtomicUsize::new(0);
 #[cfg(feature = "dolphin-automation")]
 static PAD_TRACE_MOTOR_SEEN: AtomicUsize = AtomicUsize::new(0);
+#[cfg(feature = "dolphin-automation")]
+static PAD_SAMPLING_A: AtomicUsize = AtomicUsize::new(0);
+#[cfg(feature = "dolphin-automation")]
+static PAD_SAMPLING_B: AtomicUsize = AtomicUsize::new(0);
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn pad_sampling_a() {
+    PAD_SAMPLING_A.fetch_add(1, Ordering::Relaxed);
+}
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn pad_sampling_b() {
+    PAD_SAMPLING_B.fetch_add(1, Ordering::Relaxed);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_pad_sampling_callback(logger: &mut ProbeLogger) {
+    use ogc_input_sys as sys;
+
+    logger.section("PAD SAMPLING CALLBACK");
+    PAD_SAMPLING_A.store(0, Ordering::Relaxed);
+    PAD_SAMPLING_B.store(0, Ordering::Relaxed);
+    let original = sys::pad_set_sampling_callback(Some(pad_sampling_a));
+    for _ in 0..60 {
+        if PAD_SAMPLING_A.load(Ordering::Relaxed) != 0 {
+            break;
+        }
+        if !video::wait_vsync_timeout_us(100_000) {
+            break;
+        }
+    }
+    let a_called = PAD_SAMPLING_A.load(Ordering::Relaxed) != 0;
+    let replaced = sys::pad_set_sampling_callback(Some(pad_sampling_b));
+    for _ in 0..60 {
+        if PAD_SAMPLING_B.load(Ordering::Relaxed) != 0 {
+            break;
+        }
+        if !video::wait_vsync_timeout_us(100_000) {
+            break;
+        }
+    }
+    let b_called = PAD_SAMPLING_B.load(Ordering::Relaxed) != 0;
+    let removed = sys::pad_set_sampling_callback(None);
+    let _ = video::wait_vsync_timeout_us(100_000);
+    let stopped = PAD_SAMPLING_B.load(Ordering::Relaxed);
+    let mut waited = true;
+    for _ in 0..3 {
+        waited &= video::wait_vsync_timeout_us(100_000);
+    }
+    let unchanged = PAD_SAMPLING_B.load(Ordering::Relaxed) == stopped;
+    let previous = sys::pad_set_sampling_callback(original);
+    logger.record(
+        "PAD sampling callback replaces delivers and removes",
+        a_called
+            && b_called
+            && waited
+            && unchanged
+            && previous.is_none()
+            && replaced.is_some_and(|f| {
+                core::ptr::fn_addr_eq(f, pad_sampling_a as unsafe extern "C" fn())
+            })
+            && removed.is_some_and(|f| {
+                core::ptr::fn_addr_eq(f, pad_sampling_b as unsafe extern "C" fn())
+            }),
+    );
+}
 
 #[cfg(feature = "dolphin-automation")]
 unsafe fn pad_init_debug_hook(stage: u32) {

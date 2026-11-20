@@ -2813,3 +2813,4 @@ ogc-input-sys,src/lib.rs,pad_recalibrate,1333,hardware,hardware-probe,probes/ogc
 ogc-input-sys,src/lib.rs,pad_set_spec,1371,hardware,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,probe_pad_sys_reset,sys::pad_set_spec
 ogc-input-sys,src/lib.rs,_pad_disable_recalibration,1593,hardware,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,probe_pad_sys_reset,sys::_pad_disable_recalibration
 ogc-input-sys,src/lib.rs,pad_debug_origin_byte,1605,hardware,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,run_command,pad::pad_debug_origin_byte
+ogc-input-sys,src/lib.rs,pad_set_sampling_callback,1404,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_sampling_callback,sys::pad_set_sampling_callback
