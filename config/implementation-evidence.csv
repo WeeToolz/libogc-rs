@@ -3024,3 +3024,10 @@ ogc-es-sys,src/imp.rs,launch_title,1282,ios,hardware-probe,probes/ogc-system-pro
 ogc-es-sys,src/imp.rs,launch_title_background,1314,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_argument_guards,es::launch_title_background
 ogc-es-sys,src/imp.rs,identify,1349,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_argument_guards,es::identify
 ogc-es-sys,src/imp.rs,verify_with_ticket_view,1452,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_argument_guards,es::verify_with_ticket_view
+lwbt-sys,src/lib.rs,disconnect,792,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_invalid_pcbs,bte::disconnect
+lwbt-sys,src/lib.rs,listenasync,855,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_invalid_pcbs,bte::listenasync
+lwbt-sys,src/lib.rs,connectasync,898,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_invalid_pcbs,bte::connectasync
+lwbt-sys,src/lib.rs,listenasync_step2,875,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_invalid_pcbs,bte::listenasync_step2
+lwbt-sys,src/lib.rs,connectasync_step2,918,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_invalid_pcbs,bte::connectasync_step2
+lwbt-sys,src/lib.rs,senddata,934,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_invalid_pcbs,bte::senddata
+lwbt-sys,src/lib.rs,sendmessage,959,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_invalid_pcbs,bte::sendmessage

@@ -101,6 +101,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_bt_unavailable_protocol_calls(logger);
     probe_bt_opcode_and_disconnected(logger);
     probe_bt_key_requests(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_lwbt_invalid_pcbs(logger);
     probe_system_runtime_state(logger);
     probe_wiilaunch_error_codes(logger);
     probe_system_startup_status(logger);
@@ -4312,6 +4314,42 @@ fn probe_bt_unavailable_protocol_calls(logger: &mut ProbeLogger) {
             && after_acl.stage == HostStage::Disabled
             && after_acl.acl_packets == before_acl.acl_packets + 1
             && after_acl.malformed == before_acl.malformed + 1,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_lwbt_invalid_pcbs(logger: &mut ProbeLogger) {
+    use lwbt_sys as bte;
+    let null = core::ptr::null_mut();
+    // SAFETY: Each API checks the PCB pointer before reading it.
+    let disconnect = unsafe { bte::disconnect(null) };
+    logger.record(
+        "Bluetooth disconnect rejects null PCB",
+        disconnect == bte::ERR_ARG,
+    );
+    let listen = unsafe { bte::listenasync(null, core::ptr::null_mut(), None) };
+    logger.record("Bluetooth listen rejects null PCB", listen == bte::ERR_ARG);
+    let connect = unsafe { bte::connectasync(null, core::ptr::null_mut(), None) };
+    logger.record(
+        "Bluetooth connect rejects null PCB",
+        connect == bte::ERR_ARG,
+    );
+    let listen_step = unsafe { bte::listenasync_step2(null, None) };
+    logger.record(
+        "Bluetooth listen step rejects null PCB",
+        listen_step == bte::ERR_ARG,
+    );
+    let connect_step = unsafe { bte::connectasync_step2(null, None) };
+    logger.record(
+        "Bluetooth connect step rejects null PCB",
+        connect_step == bte::ERR_ARG,
+    );
+    let send = unsafe { bte::senddata(null, core::ptr::null_mut(), 1) };
+    logger.record("Bluetooth send data rejects null PCB", send == bte::ERR_ARG);
+    let message = unsafe { bte::sendmessage(null, core::ptr::null_mut(), 1) };
+    logger.record(
+        "Bluetooth send message rejects null PCB",
+        message == bte::ERR_ARG,
     );
 }
 

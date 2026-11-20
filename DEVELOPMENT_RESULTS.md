@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-20 Bluetooth invalid PCB guards
+
+The [Bluetooth batch](docs/dolphin-runs/2026-11-20-lwbt-invalid-pcb-guards/README.md)
+checks seven raw connection and send APIs with a null PCB. Dolphin passed all
+629 runtime probe checks. The inventory fell from 358 to 351 unverified
+entries. Successful Bluetooth transport still needs device testing.
+
 ## 2026-11-20 ES invalid argument guards
 
 The [ES batch](docs/dolphin-runs/2026-11-20-ogc-es-invalid-arguments/README.md)

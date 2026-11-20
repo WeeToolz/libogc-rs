@@ -1,0 +1,89 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "disconnect",
+      "line": 792,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_invalid_pcbs",
+      "api_path": "bte::disconnect",
+      "checks": [
+        "Bluetooth disconnect rejects null PCB"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "listenasync",
+      "line": 855,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_invalid_pcbs",
+      "api_path": "bte::listenasync",
+      "checks": [
+        "Bluetooth listen rejects null PCB"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "connectasync",
+      "line": 898,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_invalid_pcbs",
+      "api_path": "bte::connectasync",
+      "checks": [
+        "Bluetooth connect rejects null PCB"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "listenasync_step2",
+      "line": 875,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_invalid_pcbs",
+      "api_path": "bte::listenasync_step2",
+      "checks": [
+        "Bluetooth listen step rejects null PCB"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "connectasync_step2",
+      "line": 918,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_invalid_pcbs",
+      "api_path": "bte::connectasync_step2",
+      "checks": [
+        "Bluetooth connect step rejects null PCB"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "senddata",
+      "line": 934,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_invalid_pcbs",
+      "api_path": "bte::senddata",
+      "checks": [
+        "Bluetooth send data rejects null PCB"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "sendmessage",
+      "line": 959,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_invalid_pcbs",
+      "api_path": "bte::sendmessage",
+      "checks": [
+        "Bluetooth send message rejects null PCB"
+      ]
+    }
+  ]
+}
