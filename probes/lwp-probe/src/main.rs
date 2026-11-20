@@ -586,6 +586,13 @@ mod wii {
         tuxedo::k_thread_exit(0x2a)
     }
 
+    unsafe extern "C" fn tuxedo_mask_queue_worker(arg: *mut c_void) -> isize {
+        unsafe {
+            tuxedo::k_thr_queue_block(core::ptr::addr_of_mut!(TUXEDO_QUEUE), arg as usize as u32)
+                as isize
+        }
+    }
+
     fn fpu_owner_register() -> usize {
         let owner: usize;
         unsafe {
@@ -1801,6 +1808,122 @@ mod wii {
         }
     }
 
+    fn probe_tuxedo_queue_wakes(logger: &mut ProbeLogger) {
+        logger.section("TUXEDO QUEUE WAKE AND CANCEL");
+        let a = core::ptr::addr_of_mut!(TUXEDO_CV_A);
+        let b = core::ptr::addr_of_mut!(TUXEDO_CV_B);
+        let q = core::ptr::addr_of_mut!(TUXEDO_QUEUE);
+        for mode in 0..4 {
+            logger.note_u32(
+                "Tuxedo reused A handle",
+                driver::thread_handle_by_argument(a.cast()).unwrap_or(0),
+            );
+            logger.note_u32(
+                "Tuxedo reused B handle",
+                driver::thread_handle_by_argument(b.cast()).unwrap_or(0),
+            );
+            let token_b = if mode == 2 { 0x15 } else { 0x24 };
+            // SAFETY: Previous workers have joined and these static stacks
+            // and objects stay live through both joins in this iteration.
+            unsafe {
+                let sa = core::ptr::addr_of_mut!(STACK_TUXEDO_CV_A.0)
+                    .cast::<u8>()
+                    .add(STACK_BYTES)
+                    .cast();
+                let sb = core::ptr::addr_of_mut!(STACK_TUXEDO_CV_B.0)
+                    .cast::<u8>()
+                    .add(STACK_BYTES)
+                    .cast();
+                tuxedo::k_thread_prepare(
+                    a,
+                    Some(tuxedo_mask_queue_worker),
+                    0x15usize as *mut c_void,
+                    sa,
+                    0x30,
+                );
+                tuxedo::k_thread_prepare(
+                    b,
+                    Some(tuxedo_mask_queue_worker),
+                    token_b as usize as *mut c_void,
+                    sb,
+                    0x30,
+                );
+                tuxedo::k_thread_resume(a);
+                tuxedo::k_thread_resume(b);
+            }
+            let start = driver::now_ticks();
+            let mut waiting = false;
+            while driver::now_ticks().wrapping_sub(start) < driver::TICKS_PER_SECOND {
+                waiting = unsafe {
+                    (*a).state == tuxedo::KTHR_STATE_WAITING
+                        && (*b).state == tuxedo::KTHR_STATE_WAITING
+                        && (*a).data.wait.queue == q
+                        && (*b).data.wait.queue == q
+                };
+                if waiting {
+                    break;
+                }
+                lwp::yield_thread();
+            }
+            if !waiting {
+                logger.note_u32("Tuxedo queue A state", unsafe { (*a).state as u32 });
+                logger.note_u32("Tuxedo queue B state", unsafe { (*b).state as u32 });
+                logger.note_u32("Tuxedo queue A suspend", unsafe { (*a).suspend as u32 });
+                logger.note_u32("Tuxedo queue B suspend", unsafe { (*b).suspend as u32 });
+                logger.record("Tuxedo queue workers reached wait", false);
+                return;
+            }
+            unsafe {
+                match mode {
+                    0 => {
+                        tuxedo::k_thr_queue_unblock_one_by_mask(q, 0x01);
+                        tuxedo::k_thr_queue_cancel(q, b);
+                    }
+                    1 => tuxedo::k_thr_queue_unblock_all_by_mask(q, 0x04),
+                    2 => tuxedo::k_thr_queue_unblock_all_by_value(q, 0x15),
+                    _ => {
+                        tuxedo::k_thr_queue_cancel(q, a);
+                        tuxedo::k_thr_queue_cancel(q, b);
+                    }
+                }
+            }
+            let start = driver::now_ticks();
+            while unsafe {
+                (*a).state != tuxedo::KTHR_STATE_FINISHED
+                    || (*b).state != tuxedo::KTHR_STATE_FINISHED
+            } && driver::now_ticks().wrapping_sub(start) < driver::TICKS_PER_SECOND
+            {
+                lwp::yield_thread();
+            }
+            let finished = unsafe {
+                (*a).state == tuxedo::KTHR_STATE_FINISHED
+                    && (*b).state == tuxedo::KTHR_STATE_FINISHED
+            };
+            let results = if finished {
+                unsafe { (tuxedo::k_thread_join(a), tuxedo::k_thread_join(b)) }
+            } else {
+                (-1, -1)
+            };
+            let expected = match mode {
+                0 => (1, 0),
+                1 => (4, 4),
+                2 => (1, 1),
+                _ => (0, 0),
+            };
+            let empty = unsafe { (*q).next.is_null() && (*q).prev.is_null() };
+            let label = match mode {
+                0 => "Tuxedo queue mask wakes one and cancels other",
+                1 => "Tuxedo queue mask wakes all matching tokens",
+                2 => "Tuxedo queue value wakes all matching tokens",
+                _ => "Tuxedo queue cancellation wakes both with zero",
+            };
+            logger.record(label, finished && results == expected && empty);
+            if !finished {
+                return;
+            }
+        }
+    }
+
     fn probe_tuxedo_thread_list(logger: &mut ProbeLogger) {
         logger.section("TUXEDO THREAD ENUMERATION");
         let thread = core::ptr::addr_of_mut!(TUXEDO_ENUM);
@@ -2205,6 +2328,7 @@ mod wii {
         probe_tuxedo_mutexes(&mut logger);
         probe_tuxedo_condition_wake(&mut logger);
         probe_tuxedo_thread_list(&mut logger);
+        probe_tuxedo_queue_wakes(&mut logger);
         run_ipc_wakeup(&mut logger);
         run_std_foundation(&mut logger);
         crate::futex_probe::run(&mut logger);

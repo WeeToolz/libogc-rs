@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-19 Tuxedo queue wake and thread reuse
+
+The [queue batch](docs/dolphin-runs/2026-11-19-tuxedo-queue-fixed/README.md)
+checks four APIs and a completed-thread join fix. Dolphin passed 246 LWP
+checks. The completeness audit reports 601 unverified APIs. Cancellation
+races and physical Wii scheduling remain open.
+
 ## 2026-11-19 Tuxedo thread lifecycle
 
 The [thread lifecycle batch](docs/dolphin-runs/2026-11-19-tuxedo-thread-list-audited/README.md)

@@ -1,0 +1,56 @@
+{
+  "probe": "lwp_probe",
+  "cases": [
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_thr_queue_unblock_one_by_mask",
+      "line": 890,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_queue_wakes",
+      "api_path": "tuxedo::k_thr_queue_unblock_one_by_mask",
+      "checks": [
+        "Tuxedo queue mask wakes one and cancels other"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_thr_queue_unblock_all_by_mask",
+      "line": 900,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_queue_wakes",
+      "api_path": "tuxedo::k_thr_queue_unblock_all_by_mask",
+      "checks": [
+        "Tuxedo queue mask wakes all matching tokens"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_thr_queue_unblock_all_by_value",
+      "line": 895,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_queue_wakes",
+      "api_path": "tuxedo::k_thr_queue_unblock_all_by_value",
+      "checks": [
+        "Tuxedo queue value wakes all matching tokens"
+      ]
+    },
+    {
+      "crate": "tuxedo-sys",
+      "path": "src/lib.rs",
+      "symbol": "k_thr_queue_cancel",
+      "line": 906,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_tuxedo_queue_wakes",
+      "api_path": "tuxedo::k_thr_queue_cancel",
+      "checks": [
+        "Tuxedo queue cancellation wakes both with zero"
+      ]
+    }
+  ],
+  "limits": [
+    "Two Dolphin workers with selected masks and tokens. Queue priority ordering, repeated cancellation races, and physical Wii scheduling remain open."
+  ]
+}

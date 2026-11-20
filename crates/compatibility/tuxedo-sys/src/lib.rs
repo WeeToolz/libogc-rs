@@ -694,6 +694,15 @@ pub unsafe fn k_thread_join(t: *mut KThread) -> isize {
     }
     unsafe {
         if let Some(result) = join_completed_result((*t).state, finish_result(t)) {
+            if (*t).state == KTHR_STATE_FINISHED
+                && let Some(handle) = lwp_handle_for_object(t)
+            {
+                let mut value = ptr::null_mut();
+                if lwp::join_thread(handle, &mut value) != lwp::LWP_SUCCESSFUL {
+                    return -1;
+                }
+                return value as isize;
+            }
             return result;
         }
         let Some(handle) = lwp_handle_for_object(t) else {
