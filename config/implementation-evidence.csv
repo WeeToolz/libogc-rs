@@ -2945,3 +2945,16 @@ ogc-video,src/lib.rs,console_clear,781,compatibility-forwarder,hardware-probe,pr
 ogc-video,src/lib.rs,console_blit_rgba,791,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_console_state,video::console_blit_rgba
 ogc-video,src/lib.rs,get_current_line,369,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_queries,video::get_current_line
 ogc-video,src/lib.rs,get_next_field,356,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_queries,video::get_next_field
+ogc-wd,src/lib.rs,get_info,333,ios,hardware-probe,probes/ogc-system-probe/src/wd_probe.rs,run,wd::get_info
+ogc-wd,src/lib.rs,get_info_result,554,ios,hardware-probe,probes/ogc-system-probe/src/wd_probe.rs,run,wd::get_info_result
+ogc-wd,src/lib.rs,get_radio_level,565,ios,hardware-probe,probes/ogc-system-probe/src/wd_probe.rs,run,wd::get_radio_level
+ogc-wd,src/lib.rs,ncd_lock_wireless_driver,243,ios,hardware-probe,probes/ogc-system-probe/src/wd_probe.rs,run,wd::ncd_lock_wireless_driver
+ogc-wd,src/lib.rs,ncd_unlock_wireless_driver,264,ios,hardware-probe,probes/ogc-system-probe/src/wd_probe.rs,run,wd::ncd_unlock_wireless_driver
+ogc-wd,src/lib.rs,scan,384,ios,hardware-probe,probes/ogc-system-probe/src/wd_probe.rs,run,wd::scan
+ogc-wd,src/lib.rs,scan_once,486,ios,hardware-probe,probes/ogc-system-probe/src/wd_probe.rs,run,wd::scan_once
+ogc-wd,src/lib.rs,scan_once_detailed,431,ios,hardware-probe,probes/ogc-system-probe/src/wd_probe.rs,run,wd::scan_once_detailed
+ogc-wd,src/lib.rs,scan_once_detailed_result,625,ios,hardware-probe,probes/ogc-system-probe/src/wd_probe.rs,run,wd::scan_once_detailed_result
+ogc-wd,src/lib.rs,scan_once_result,615,ios,hardware-probe,probes/ogc-system-probe/src/wd_probe.rs,run,wd::scan_once_result
+ogc-wd,src/lib.rs,scan_result,605,ios,hardware-probe,probes/ogc-system-probe/src/wd_probe.rs,run,wd::scan_result
+ogc-wd,src/lib.rs,try_wd_deinit,550,ios,hardware-probe,probes/ogc-system-probe/src/wd_probe.rs,run,wd::try_wd_deinit
+ogc-wd,src/lib.rs,try_wd_init,546,ios,hardware-probe,probes/ogc-system-probe/src/wd_probe.rs,run,wd::try_wd_init

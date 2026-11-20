@@ -168,6 +168,11 @@ const PROBES: &[ProbeSpec] = &[
         input_pipe: false,
     },
     ProbeSpec {
+        name: "wd_probe",
+        timeout_seconds: 90,
+        input_pipe: false,
+    },
+    ProbeSpec {
         name: "tinysmb_probe",
         timeout_seconds: 90,
         input_pipe: false,

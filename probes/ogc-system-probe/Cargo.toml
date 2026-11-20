@@ -130,6 +130,10 @@ name = "network_probe"
 path = "src/network_probe/main.rs"
 
 [[bin]]
+name = "wd_probe"
+path = "src/wd_probe/main.rs"
+
+[[bin]]
 name = "tinysmb_probe"
 path = "src/tinysmb_probe/main.rs"
 

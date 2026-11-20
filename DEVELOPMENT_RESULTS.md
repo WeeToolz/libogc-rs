@@ -1,5 +1,13 @@
 # Development results
 
+## 2026-11-20 Wireless driver APIs
+
+The [wireless driver batch](docs/dolphin-runs/2026-11-20-ogc-wd-direct-apis/README.md)
+checks 13 public APIs for driver lock and lifecycle results, six scan paths,
+driver information, and RSSI bucket boundaries. Dolphin passed all 17 probe
+checks. The inventory fell from 437 to 424 unverified entries. Real Wii wireless
+hardware and networks remain open.
+
 ## 2026-11-20 Video console and query APIs
 
 The [video batch](docs/dolphin-runs/2026-11-20-ogc-video-core-final-verified-v2/README.md)

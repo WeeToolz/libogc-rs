@@ -1,0 +1,161 @@
+{
+  "probe": "wd_probe",
+  "cases": [
+    {
+      "crate": "ogc-wd",
+      "path": "src/lib.rs",
+      "symbol": "get_info",
+      "line": 333,
+      "evidence_path": "probes/ogc-system-probe/src/wd_probe.rs",
+      "function": "run",
+      "api_path": "wd::get_info",
+      "checks": [
+        "WD raw info query returns a valid record"
+      ]
+    },
+    {
+      "crate": "ogc-wd",
+      "path": "src/lib.rs",
+      "symbol": "get_info_result",
+      "line": 554,
+      "evidence_path": "probes/ogc-system-probe/src/wd_probe.rs",
+      "function": "run",
+      "api_path": "wd::get_info_result",
+      "checks": [
+        "WD info result wrapper returns a valid record"
+      ]
+    },
+    {
+      "crate": "ogc-wd",
+      "path": "src/lib.rs",
+      "symbol": "get_radio_level",
+      "line": 565,
+      "evidence_path": "probes/ogc-system-probe/src/wd_probe.rs",
+      "function": "run",
+      "api_path": "wd::get_radio_level",
+      "checks": [
+        "WD radio level buckets match RSSI boundaries"
+      ]
+    },
+    {
+      "crate": "ogc-wd",
+      "path": "src/lib.rs",
+      "symbol": "ncd_lock_wireless_driver",
+      "line": 243,
+      "evidence_path": "probes/ogc-system-probe/src/wd_probe.rs",
+      "function": "run",
+      "api_path": "wd::ncd_lock_wireless_driver",
+      "checks": [
+        "WD driver lock succeeds"
+      ]
+    },
+    {
+      "crate": "ogc-wd",
+      "path": "src/lib.rs",
+      "symbol": "ncd_unlock_wireless_driver",
+      "line": 264,
+      "evidence_path": "probes/ogc-system-probe/src/wd_probe.rs",
+      "function": "run",
+      "api_path": "wd::ncd_unlock_wireless_driver",
+      "checks": [
+        "WD driver unlock succeeds"
+      ]
+    },
+    {
+      "crate": "ogc-wd",
+      "path": "src/lib.rs",
+      "symbol": "scan",
+      "line": 384,
+      "evidence_path": "probes/ogc-system-probe/src/wd_probe.rs",
+      "function": "run",
+      "api_path": "wd::scan",
+      "checks": [
+        "WD raw scan succeeds with a valid result count"
+      ]
+    },
+    {
+      "crate": "ogc-wd",
+      "path": "src/lib.rs",
+      "symbol": "scan_once",
+      "line": 486,
+      "evidence_path": "probes/ogc-system-probe/src/wd_probe.rs",
+      "function": "run",
+      "api_path": "wd::scan_once",
+      "checks": [
+        "WD raw scan once succeeds"
+      ]
+    },
+    {
+      "crate": "ogc-wd",
+      "path": "src/lib.rs",
+      "symbol": "scan_once_detailed",
+      "line": 431,
+      "evidence_path": "probes/ogc-system-probe/src/wd_probe.rs",
+      "function": "run",
+      "api_path": "wd::scan_once_detailed",
+      "checks": [
+        "WD detailed scan once succeeds"
+      ]
+    },
+    {
+      "crate": "ogc-wd",
+      "path": "src/lib.rs",
+      "symbol": "scan_once_detailed_result",
+      "line": 625,
+      "evidence_path": "probes/ogc-system-probe/src/wd_probe.rs",
+      "function": "run",
+      "api_path": "wd::scan_once_detailed_result",
+      "checks": [
+        "WD detailed scan result wrapper succeeds"
+      ]
+    },
+    {
+      "crate": "ogc-wd",
+      "path": "src/lib.rs",
+      "symbol": "scan_once_result",
+      "line": 615,
+      "evidence_path": "probes/ogc-system-probe/src/wd_probe.rs",
+      "function": "run",
+      "api_path": "wd::scan_once_result",
+      "checks": [
+        "WD scan once result wrapper succeeds"
+      ]
+    },
+    {
+      "crate": "ogc-wd",
+      "path": "src/lib.rs",
+      "symbol": "scan_result",
+      "line": 605,
+      "evidence_path": "probes/ogc-system-probe/src/wd_probe.rs",
+      "function": "run",
+      "api_path": "wd::scan_result",
+      "checks": [
+        "WD scan result wrapper succeeds"
+      ]
+    },
+    {
+      "crate": "ogc-wd",
+      "path": "src/lib.rs",
+      "symbol": "try_wd_deinit",
+      "line": 550,
+      "evidence_path": "probes/ogc-system-probe/src/wd_probe.rs",
+      "function": "run",
+      "api_path": "wd::try_wd_deinit",
+      "checks": [
+        "WD fallible deinit succeeds"
+      ]
+    },
+    {
+      "crate": "ogc-wd",
+      "path": "src/lib.rs",
+      "symbol": "try_wd_init",
+      "line": 546,
+      "evidence_path": "probes/ogc-system-probe/src/wd_probe.rs",
+      "function": "run",
+      "api_path": "wd::try_wd_init",
+      "checks": [
+        "WD fallible init succeeds"
+      ]
+    }
+  ]
+}
