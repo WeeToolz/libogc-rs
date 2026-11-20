@@ -3015,3 +3015,8 @@ ogc-usb,src/lib.rs,try_set_alternative_interface,508,compatibility-forwarder,har
 ogc-usb,src/lib.rs,try_clear_halt,516,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_invalid_handle_operations,usb::try_clear_halt
 ogc-system-sys,src/lib.rs,sys_protect_range,3162,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_protect_range_snapshot,raw_system::sys_protect_range
 ogc-system-sys,src/lib.rs,snapshot_protect_range,4543,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_protect_range_snapshot,raw_system::snapshot_protect_range
+ogc-system-sys,src/lib.rs,sys_start_pmc,3214,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_pmc_lifecycle,raw_system::sys_start_pmc
+ogc-system-sys,src/lib.rs,sys_dump_pmc,3240,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_pmc_lifecycle,raw_system::sys_dump_pmc
+ogc-system-sys,src/lib.rs,sys_stop_pmc,3265,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_pmc_lifecycle,raw_system::sys_stop_pmc
+ogc-system-sys,src/lib.rs,sys_reset_pmc,3285,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_pmc_lifecycle,raw_system::sys_reset_pmc
+ogc-system-sys,src/lib.rs,snapshot_pmc,4568,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_pmc_lifecycle,raw_system::snapshot_pmc

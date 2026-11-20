@@ -1,0 +1,65 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_start_pmc",
+      "line": 3214,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_pmc_lifecycle",
+      "api_path": "raw_system::sys_start_pmc",
+      "checks": [
+        "PMC start stores control values"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_dump_pmc",
+      "line": 3240,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_pmc_lifecycle",
+      "api_path": "raw_system::sys_dump_pmc",
+      "checks": [
+        "PMC dump marks counters read"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_stop_pmc",
+      "line": 3265,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_pmc_lifecycle",
+      "api_path": "raw_system::sys_stop_pmc",
+      "checks": [
+        "PMC stop marks counters stopped"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_reset_pmc",
+      "line": 3285,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_pmc_lifecycle",
+      "api_path": "raw_system::sys_reset_pmc",
+      "checks": [
+        "PMC reset clears started state"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_pmc",
+      "line": 4568,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_pmc_lifecycle",
+      "api_path": "raw_system::snapshot_pmc",
+      "checks": [
+        "PMC reset clears started state"
+      ]
+    }
+  ]
+}

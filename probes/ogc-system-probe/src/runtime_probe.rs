@@ -118,6 +118,8 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_system_protect_range_snapshot(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_system_pmc_lifecycle(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_usb_api_batch(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_usb_safe_result_wrappers(logger);
@@ -3356,6 +3358,38 @@ fn probe_system_protect_range_snapshot(logger: &mut ProbeLogger) {
     logger.record(
         "System protection snapshot returns recorded arguments",
         reread == snapshot,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_pmc_lifecycle(logger: &mut ProbeLogger) {
+    // SAFETY: Dolphin supports these performance monitor register operations.
+    unsafe { raw_system::sys_start_pmc(0x1234, 0x5678) };
+    let started = raw_system::snapshot_pmc();
+    logger.record(
+        "PMC start stores control values",
+        started.started
+            && !started.dumped
+            && started.mcr0val == 0x1234
+            && started.mcr1val == 0x5678,
+    );
+    // SAFETY: Read the counters configured above.
+    unsafe { raw_system::sys_dump_pmc() };
+    let dumped = raw_system::snapshot_pmc();
+    logger.record(
+        "PMC dump marks counters read",
+        dumped.started && dumped.dumped,
+    );
+    // SAFETY: Stop and reset the counters configured above.
+    unsafe { raw_system::sys_stop_pmc() };
+    let stopped = raw_system::snapshot_pmc();
+    logger.record("PMC stop marks counters stopped", stopped.stopped);
+    // SAFETY: Reset the performance counters configured above.
+    unsafe { raw_system::sys_reset_pmc() };
+    let reset = raw_system::snapshot_pmc();
+    logger.record(
+        "PMC reset clears started state",
+        reset.reset && !reset.started,
     );
 }
 

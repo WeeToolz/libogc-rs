@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-20 System performance monitor lifecycle
+
+The [PMC batch](docs/dolphin-runs/2026-11-20-ogc-system-pmc-lifecycle/README.md)
+checks start, dump, stop, reset, and the recorded snapshot. Dolphin passed all
+618 runtime probe checks. The inventory fell from 367 to 362 unverified
+entries. Counter values are Dolphin-only evidence.
+
 ## 2026-11-20 System protection call snapshot
 
 The [system snapshot batch](docs/dolphin-runs/2026-11-20-ogc-system-protect-range-retry/README.md)
