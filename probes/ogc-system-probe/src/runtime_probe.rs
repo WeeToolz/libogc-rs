@@ -116,6 +116,8 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_system_api_batch(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_es_argument_guards(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_system_protect_range_snapshot(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_system_pmc_lifecycle(logger);
@@ -3337,6 +3339,49 @@ fn probe_system_api_batch(logger: &mut ProbeLogger) {
         restored.is_some_and(|hook| {
             core::ptr::fn_addr_eq(hook, probe_reset_debug_hook as unsafe fn(u32, u32, i32))
         }),
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_es_argument_guards(logger: &mut ProbeLogger) {
+    let launch = unsafe { es::launch_title(0, core::ptr::null()) };
+    logger.record(
+        "ES launch rejects null ticket view",
+        launch == es::ES_EINVAL,
+    );
+    let background = unsafe { es::launch_title_background(0, core::ptr::null()) };
+    logger.record(
+        "ES background launch rejects null ticket view",
+        background == es::ES_EINVAL,
+    );
+    let identify = unsafe {
+        es::identify(
+            core::ptr::null(),
+            0,
+            core::ptr::null(),
+            0,
+            core::ptr::null(),
+            0,
+            core::ptr::null_mut(),
+        )
+    };
+    logger.record(
+        "ES identify rejects invalid ticket size",
+        identify == es::ES_EINVAL,
+    );
+    let verify = unsafe {
+        es::verify_with_ticket_view(
+            core::ptr::null(),
+            0,
+            core::ptr::null(),
+            0,
+            core::ptr::null(),
+            core::ptr::null_mut(),
+        )
+    };
+    logger.record(
+        "ES verify rejects null signed metadata",
+        verify == es::ES_EINVAL,
     );
 }
 

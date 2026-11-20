@@ -1,0 +1,53 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "launch_title",
+      "line": 1282,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_es_argument_guards",
+      "api_path": "es::launch_title",
+      "checks": [
+        "ES launch rejects null ticket view"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "launch_title_background",
+      "line": 1314,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_es_argument_guards",
+      "api_path": "es::launch_title_background",
+      "checks": [
+        "ES background launch rejects null ticket view"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "identify",
+      "line": 1349,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_es_argument_guards",
+      "api_path": "es::identify",
+      "checks": [
+        "ES identify rejects invalid ticket size"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "verify_with_ticket_view",
+      "line": 1452,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_es_argument_guards",
+      "api_path": "es::verify_with_ticket_view",
+      "checks": [
+        "ES verify rejects null signed metadata"
+      ]
+    }
+  ]
+}

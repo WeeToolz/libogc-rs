@@ -1,5 +1,13 @@
 # Development results
 
+## 2026-11-20 ES invalid argument guards
+
+The [ES batch](docs/dolphin-runs/2026-11-20-ogc-es-invalid-arguments/README.md)
+checks four title launch and verification APIs with invalid arguments.
+Dolphin passed all 622 runtime probe checks. The inventory fell from 362 to
+358 unverified entries. Valid title launch and signature verification remain
+untested.
+
 ## 2026-11-20 System performance monitor lifecycle
 
 The [PMC batch](docs/dolphin-runs/2026-11-20-ogc-system-pmc-lifecycle/README.md)
