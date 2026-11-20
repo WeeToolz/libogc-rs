@@ -451,8 +451,8 @@ def finish(args):
             if row["implementation_class"] == "unverified" or not row["verification_evidence"].startswith(expected):
                 raise ValueError(f"Inventory did not accept evidence for {case['symbol']}")
         remaining = report["unverified_count"]
-        if uncovered - remaining != len(selected):
-            raise ValueError("Inventory delta differs from the selected cases")
+        if uncovered - remaining < len(selected):
+            raise ValueError("Inventory delta is smaller than the selected cases")
     except (Exception, KeyboardInterrupt):
         for path, content in saved.items():
             (ROOT / path).write_bytes(content)

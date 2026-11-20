@@ -1,0 +1,173 @@
+{
+  "probe": "hid_descriptor_probe",
+  "cases": [
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "read_intr_msg",
+      "line": 3426,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_sys_transfers",
+      "api_path": "usb::sys::read_intr_msg",
+      "checks": [
+        "USB sys unavailable read_intr_msg"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "read_intr_msg_async",
+      "line": 3474,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_sys_transfers",
+      "api_path": "usb::sys::read_intr_msg_async",
+      "checks": [
+        "USB sys unavailable read_intr_msg_async"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "read_blk_msg",
+      "line": 3525,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_sys_transfers",
+      "api_path": "usb::sys::read_blk_msg",
+      "checks": [
+        "USB sys unavailable read_blk_msg"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "read_blk_msg_async",
+      "line": 3556,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_sys_transfers",
+      "api_path": "usb::sys::read_blk_msg_async",
+      "checks": [
+        "USB sys unavailable read_blk_msg_async"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "write_intr_msg",
+      "line": 3941,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_sys_transfers",
+      "api_path": "usb::sys::write_intr_msg",
+      "checks": [
+        "USB sys unavailable write_intr_msg"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "write_intr_msg_async",
+      "line": 3986,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_sys_transfers",
+      "api_path": "usb::sys::write_intr_msg_async",
+      "checks": [
+        "USB sys unavailable write_intr_msg_async"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "write_blk_msg",
+      "line": 4037,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_sys_transfers",
+      "api_path": "usb::sys::write_blk_msg",
+      "checks": [
+        "USB sys unavailable write_blk_msg"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "write_blk_msg_async",
+      "line": 4068,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_sys_transfers",
+      "api_path": "usb::sys::write_blk_msg_async",
+      "checks": [
+        "USB sys unavailable write_blk_msg_async"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "read_ctrl_msg",
+      "line": 3615,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_sys_transfers",
+      "api_path": "usb::sys::read_ctrl_msg",
+      "checks": [
+        "USB sys unavailable read_ctrl_msg"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "write_ctrl_msg",
+      "line": 4127,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_sys_transfers",
+      "api_path": "usb::sys::write_ctrl_msg",
+      "checks": [
+        "USB sys unavailable write_ctrl_msg"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "read_iso_msg",
+      "line": 3339,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_sys_transfers",
+      "api_path": "usb::sys::read_iso_msg",
+      "checks": [
+        "USB sys unavailable read_iso_msg"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "read_iso_msg_async",
+      "line": 3387,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_sys_transfers",
+      "api_path": "usb::sys::read_iso_msg_async",
+      "checks": [
+        "USB sys unavailable read_iso_msg_async"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "write_iso_msg",
+      "line": 3847,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_sys_transfers",
+      "api_path": "usb::sys::write_iso_msg",
+      "checks": [
+        "USB sys unavailable write_iso_msg"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "write_iso_msg_async",
+      "line": 3895,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_unavailable_sys_transfers",
+      "api_path": "usb::sys::write_iso_msg_async",
+      "checks": [
+        "USB sys unavailable write_iso_msg_async"
+      ]
+    }
+  ]
+}

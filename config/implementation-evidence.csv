@@ -2903,3 +2903,17 @@ ogc-bt-sync,src/transport.rs,write_acl_async,328,ios,hardware-probe,probes/ogc-s
 ogc-bt-sync,src/transport.rs,send_hci_command_async,539,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_async_request_paths,transport.send_hci_command_async
 ogc-bt-sync,src/transport.rs,send_hci_command_async_owned,624,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_async_request_paths,transport.send_hci_command_async_owned
 ogc-bt-sync,src/transport.rs,send_hci_command_async_with,638,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_async_request_paths,transport.send_hci_command_async_with
+ogc-usb-sys,src/lib.rs,read_intr_msg,3426,ios,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_unavailable_sys_transfers,usb::sys::read_intr_msg
+ogc-usb-sys,src/lib.rs,read_intr_msg_async,3474,ios,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_unavailable_sys_transfers,usb::sys::read_intr_msg_async
+ogc-usb-sys,src/lib.rs,read_blk_msg,3525,ios,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_unavailable_sys_transfers,usb::sys::read_blk_msg
+ogc-usb-sys,src/lib.rs,read_blk_msg_async,3556,ios,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_unavailable_sys_transfers,usb::sys::read_blk_msg_async
+ogc-usb-sys,src/lib.rs,write_intr_msg,3941,ios,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_unavailable_sys_transfers,usb::sys::write_intr_msg
+ogc-usb-sys,src/lib.rs,write_intr_msg_async,3986,ios,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_unavailable_sys_transfers,usb::sys::write_intr_msg_async
+ogc-usb-sys,src/lib.rs,write_blk_msg,4037,ios,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_unavailable_sys_transfers,usb::sys::write_blk_msg
+ogc-usb-sys,src/lib.rs,write_blk_msg_async,4068,ios,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_unavailable_sys_transfers,usb::sys::write_blk_msg_async
+ogc-usb-sys,src/lib.rs,read_ctrl_msg,3615,ios,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_unavailable_sys_transfers,usb::sys::read_ctrl_msg
+ogc-usb-sys,src/lib.rs,write_ctrl_msg,4127,ios,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_unavailable_sys_transfers,usb::sys::write_ctrl_msg
+ogc-usb-sys,src/lib.rs,read_iso_msg,3339,ios,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_unavailable_sys_transfers,usb::sys::read_iso_msg
+ogc-usb-sys,src/lib.rs,read_iso_msg_async,3387,ios,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_unavailable_sys_transfers,usb::sys::read_iso_msg_async
+ogc-usb-sys,src/lib.rs,write_iso_msg,3847,ios,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_unavailable_sys_transfers,usb::sys::write_iso_msg
+ogc-usb-sys,src/lib.rs,write_iso_msg_async,3895,ios,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_unavailable_sys_transfers,usb::sys::write_iso_msg_async

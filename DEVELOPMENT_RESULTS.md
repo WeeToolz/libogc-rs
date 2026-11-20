@@ -1,5 +1,13 @@
 # Development results
 
+## 2026-11-20 USB sys transfer errors
+
+The [USB sys batch](docs/dolphin-runs/2026-11-20-usb-sys-transfer-errors-verified/README.md)
+checks 14 direct sys transfer calls with an unavailable device descriptor. Dolphin
+passed 49 checks. The inventory audit reduced the unverified count from 528 to
+512. Two earlier USB evidence rows also passed the refreshed audit. Successful
+USB device traffic and physical Wii behavior remain open.
+
 ## 2026-11-20 Bluetooth asynchronous requests
 
 The [Bluetooth async batch](docs/dolphin-runs/2026-11-20-bt-async-requests-verified/README.md)
