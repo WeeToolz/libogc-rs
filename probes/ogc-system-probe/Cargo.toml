@@ -187,6 +187,10 @@ name = "gx_api_probe"
 path = "src/gx_api_probe/main.rs"
 
 [[bin]]
+name = "stm_api_probe"
+path = "src/stm_api_probe/main.rs"
+
+[[bin]]
 name = "wpad_probe"
 path = "src/wpad_probe/main.rs"
 

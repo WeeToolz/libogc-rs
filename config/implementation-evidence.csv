@@ -2971,3 +2971,7 @@ ogc-gx,src/lib.rs,set_gp_fifo,1731,compatibility-forwarder,hardware-probe,probes
 ogc-gx,src/lib.rs,set_misc,1875,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_unverified_apis,gx::set_misc
 ogc-gx,src/lib.rs,set_v_cache_metric,7528,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_unverified_apis,gx::set_v_cache_metric
 ogc-gx,src/lib.rs,tpl_open_tpl_from_file,9392,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_unverified_apis,gx::tpl_open_tpl_from_file
+ogc-stm,src/lib.rs,init_without_event_hook,271,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::init_without_event_hook
+ogc-stm,src/lib.rs,register_event_handler,453,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::register_event_handler
+ogc-stm,src/lib.rs,set_led_mode,506,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::set_led_mode
+ogc-stm,src/lib.rs,try_set_led_mode,522,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::try_set_led_mode

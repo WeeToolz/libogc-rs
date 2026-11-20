@@ -1,5 +1,13 @@
 # Development results
 
+## 2026-11-20 STM lifecycle and LED APIs
+
+The [STM API batch](docs/dolphin-runs/2026-11-20-ogc-stm-led-apis-retry/README.md)
+checks four public `ogc-stm` APIs. Dolphin passed all eight probe checks. The
+inventory fell from 411 to 407 unverified entries. A separate attempt hung
+while closing the STM interface in Dolphin; close and shutdown APIs remain
+unverified.
+
 ## 2026-11-20 GX public APIs
 
 The [GX API batch](docs/dolphin-runs/2026-11-20-ogc-gx-api-focused-run4/README.md)

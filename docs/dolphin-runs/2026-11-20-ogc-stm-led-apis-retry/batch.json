@@ -1,0 +1,53 @@
+{
+  "probe": "stm_api_probe",
+  "cases": [
+    {
+      "crate": "ogc-stm",
+      "path": "src/lib.rs",
+      "symbol": "init_without_event_hook",
+      "line": 271,
+      "evidence_path": "probes/ogc-system-probe/src/stm_api_probe.rs",
+      "function": "run",
+      "api_path": "stm::init_without_event_hook",
+      "checks": [
+        "STM init without event hook opens the interface"
+      ]
+    },
+    {
+      "crate": "ogc-stm",
+      "path": "src/lib.rs",
+      "symbol": "register_event_handler",
+      "line": 453,
+      "evidence_path": "probes/ogc-system-probe/src/stm_api_probe.rs",
+      "function": "run",
+      "api_path": "stm::register_event_handler",
+      "checks": [
+        "STM event handler registration returns and restores the previous callback"
+      ]
+    },
+    {
+      "crate": "ogc-stm",
+      "path": "src/lib.rs",
+      "symbol": "set_led_mode",
+      "line": 506,
+      "evidence_path": "probes/ogc-system-probe/src/stm_api_probe.rs",
+      "function": "run",
+      "api_path": "stm::set_led_mode",
+      "checks": [
+        "STM LED mode call accepts mode zero"
+      ]
+    },
+    {
+      "crate": "ogc-stm",
+      "path": "src/lib.rs",
+      "symbol": "try_set_led_mode",
+      "line": 522,
+      "evidence_path": "probes/ogc-system-probe/src/stm_api_probe.rs",
+      "function": "run",
+      "api_path": "stm::try_set_led_mode",
+      "checks": [
+        "STM try LED mode call accepts mode zero"
+      ]
+    }
+  ]
+}

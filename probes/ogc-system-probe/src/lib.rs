@@ -71,6 +71,8 @@ pub mod sram_probe;
 #[cfg(target_arch = "powerpc")]
 pub mod startup_probe;
 #[cfg(target_arch = "powerpc")]
+mod stm_api_probe;
+#[cfg(target_arch = "powerpc")]
 pub mod storage_probe;
 #[cfg(all(target_arch = "powerpc", feature = "ui-input-probe"))]
 mod ui_input_probe;
@@ -603,6 +605,16 @@ pub fn run_gx_api_probe_bin() -> i32 {
     configure_probe_app_dir("gx-api-probe");
     let mut logger = init_probe_logger();
     video_probe::run_gx_api_probe(&mut logger);
+    finish_probe()
+}
+
+#[cfg(all(target_arch = "powerpc", not(feature = "gamecube-card-probe")))]
+/// Runs focused STM interface and LED API probes.
+pub fn run_stm_api_probe_bin() -> i32 {
+    configure_probe_app_dir("stm-api-probe");
+    let mut logger = init_probe_logger();
+    stm_api_probe::run(&mut logger);
+    logger.summary();
     finish_probe()
 }
 
