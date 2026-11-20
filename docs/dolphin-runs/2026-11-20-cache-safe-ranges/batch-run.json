@@ -1,0 +1,52 @@
+{
+  "source_revision": "88c334cdfa232df381b21f4039bfd794b3bc4a07",
+  "source_fingerprint": "013bdfe0d5ec101ddb472d531d4471f8bdf425239950f10846f7651503012030",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "bus_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-20-cache-safe-ranges",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "90be2de3786a17a47b69c116838624f1095bd0bea4a24159d4c327172b3d59ef",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "39c0dd22bb9d0c492f0c303a6620b778c6f224cd221bd94c087fa1ad80091e77",
+  "suite_sha256": "3989914b1164ffbffe6517b70d611223721553f504d1a812c2657963d6db55e7",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-20-cache-safe-ranges/bus_probe/probe.log": "8df567667d32f69c05b890c63ba4b7a24c4b7b8f43876b66583a4ca51fe053fe",
+    "docs/dolphin-runs/2026-11-20-cache-safe-ranges/bus_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-20-cache-safe-ranges/bus_probe/stderr.log": "61f8344408c706c683423b418cf186744d751c818665342007115fe4aa12b804",
+    "docs/dolphin-runs/2026-11-20-cache-safe-ranges/bus_probe/probe-transport.bin": "83a831d892132bc01ddf46025457fe025b8c9155e62edd6957657b7eb1bb5f0e",
+    "docs/dolphin-runs/2026-11-20-cache-safe-ranges/bus_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-20-cache-safe-ranges/bus_probe/pages/page-002.png": "926e12c4f40fceeb3c13e165943ab864d808bf02e36abbb06ebf88f35877b897",
+    "docs/dolphin-runs/2026-11-20-cache-safe-ranges/bus_probe/pages/page-003.png": "01a6011c56914c6b330c96edbfb3cd3f4fa6369b5a2289d7a12c2510968a8013",
+    "docs/dolphin-runs/2026-11-20-cache-safe-ranges/bus_probe/pages/page-004.png": "5ebb6ea2721a949c02251e06c58c1023deb177b1273ce343ba305774119399a8",
+    "docs/dolphin-runs/2026-11-20-cache-safe-ranges/bus_probe/pages/page-005.png": "21097f14c814f7f3be18d90492f3559b1ff40498e5b7e4f8a8e97c46e38b99ba",
+    "docs/dolphin-runs/2026-11-20-cache-safe-ranges/bus_probe/pages/page-006.png": "905c9b7b568873ec4bd6c916ccd27869a92671a26568770f4acfa06db45f975d",
+    "docs/dolphin-runs/2026-11-20-cache-safe-ranges/bus_probe/pages/page-007.png": "9e81aeef3f832ef67a4b41d601a6366cda0ee26ee2b72828fe59a3b2fd977d0e",
+    "docs/dolphin-runs/2026-11-20-cache-safe-ranges/bus_probe/dolphin.log": "13b7286c7022353f5a5ccd9bc1a741824b9b0d97a7b86e90e102087ef1b7be70"
+  },
+  "exit_code": 0
+}

@@ -1,0 +1,80 @@
+{
+  "probe": "bus_probe",
+  "cases": [
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "dc_invalidate_range",
+      "line": 317,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache",
+      "api_path": "cache::dc_invalidate_range",
+      "checks": [
+        "cache invalidate preserves flushed data"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "dc_flush_range_no_sync",
+      "line": 343,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache",
+      "api_path": "cache::dc_flush_range_no_sync",
+      "checks": [
+        "cache no-sync operations preserve data"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "dc_store_range_no_sync",
+      "line": 351,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache",
+      "api_path": "cache::dc_store_range_no_sync",
+      "checks": [
+        "cache no-sync operations preserve data"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "lc_load_data",
+      "line": 501,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache",
+      "api_path": "cache::lc_load_data",
+      "checks": [
+        "locked cache zero-length data operations return zero"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "lc_store_data",
+      "line": 531,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache",
+      "api_path": "cache::lc_store_data",
+      "checks": [
+        "locked cache zero-length data operations return zero"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "lc_queue_wait",
+      "line": 562,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache",
+      "api_path": "cache::lc_queue_wait",
+      "checks": [
+        "locked cache wait accepts maximum queue depth"
+      ]
+    }
+  ],
+  "limits": [
+    "The run checks cache maintenance on one aligned buffer and zero-length locked-cache transfers. It does not check cache enable or disable control, nonzero locked-cache transfers, or physical hardware timing."
+  ]
+}

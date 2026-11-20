@@ -1,5 +1,13 @@
 # Development results
 
+## 2026-11-20 Cache safe ranges
+
+The [cache batch](docs/dolphin-runs/2026-11-20-cache-safe-ranges/README.md)
+checks six cache APIs with aligned ranges, zero-length transfers, and the
+maximum locked-cache queue depth. Dolphin passed 36 checks. The audit reports
+474 unverified APIs. Cache mode changes, nonzero locked-cache transfers, and
+physical hardware timing remain open.
+
 ## 2026-11-20 WPAD public lifecycle
 
 The [WPAD lifecycle batch](docs/dolphin-runs/2026-11-20-wpad-public-lifecycle/README.md)

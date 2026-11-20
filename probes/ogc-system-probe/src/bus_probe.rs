@@ -113,6 +113,44 @@ fn probe_cache(logger: &mut ProbeLogger) {
     // SAFETY: `ptr` addresses the live, 32-byte-aligned `data` allocation and
     // every requested range stays within it.
     unsafe {
+        cache::dc_flush_range(ptr, 32);
+        cache::dc_invalidate_range(ptr, 32);
+    }
+    logger.record(
+        "cache invalidate preserves flushed data",
+        data.0[..32].iter().all(|byte| *byte == 0x5a),
+    );
+
+    // SAFETY: Both no-sync operations use aligned ranges inside `data`.
+    unsafe {
+        cache::dc_flush_range_no_sync(ptr, 64);
+        cache::dc_store_range_no_sync(ptr.cast::<u8>().add(64).cast(), 64);
+    }
+    logger.record(
+        "cache no-sync operations preserve data",
+        data.0.iter().all(|byte| *byte == 0x5a),
+    );
+
+    // SAFETY: The pointers reference the live aligned allocation. A zero byte
+    // count returns before either pointer is read or written.
+    let load_zero = unsafe { cache::lc_load_data(ptr, ptr, 0) };
+    // SAFETY: The pointers reference the live aligned allocation. A zero byte
+    // count returns before either pointer is read or written.
+    let store_zero = unsafe { cache::lc_store_data(ptr, ptr, 0) };
+    logger.record(
+        "locked cache zero-length data operations return zero",
+        load_zero == 0 && store_zero == 0,
+    );
+
+    let waited = cache::lc_queue_wait(15);
+    logger.record(
+        "locked cache wait accepts maximum queue depth",
+        waited == 16 && cache::lc_queue_length() <= 15,
+    );
+
+    // SAFETY: `ptr` addresses the live, 32-byte-aligned `data` allocation and
+    // every requested range stays within it.
+    unsafe {
         cache::dc_flush_range(ptr, data.0.len() as u32);
         cache::dc_store_range(ptr, data.0.len() as u32);
         cache::dc_touch_range(ptr, data.0.len() as u32);
