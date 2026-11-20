@@ -1,0 +1,82 @@
+{
+  "source_revision": "13d9d4f3934b0b727e7fc51c7aeb49afcb52a24b",
+  "source_fingerprint": "19815dbda36dd26f70d08da2f838d34d4c5da170119a1efec5818c7cb98705c6",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "9ee0f228de2fcb9eff914668beba0a64d13672b4ef068399dcb1c54b245af9b6",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "886308d2807cb142b9f3dd7bc065d3917126e470cb398545daca98cac3a6c62d",
+  "suite_sha256": "7bbfba662fb63608738621c6b83395e3e490dc1a26e954165110b902617daf83",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/probe.log": "f5b6980b9657f0c65b50b8e544d0c3d80986c5fc98597a68a21d294e00f8f6d6",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/stderr.log": "6ff9eddd5d7c26d3b06188894f50305563c3cd19d3ec221560ea46bc8d3e911f",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/probe-transport.bin": "c74fe1187aa087e340efdbea186e09ecabf5fe7ba1a5bf8a4018ae5d1e6095a6",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-002.png": "5f947b9212cb392fb29390d46cc90c8f0127f278f75518e47898f43c3891c8e1",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-003.png": "1daa2287195337d699bf42676d44a87a04a5b89a949fd18ea8ab8a70f353ffbf",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-004.png": "32f622b17cd00bcd89f33cf96d1bbbb81cee0cbb15e710ca575a55953188a2b0",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-005.png": "5f89c76e2178c53255b4ac3948d5f48edb3a91895f2ef7d197c1e9d1d9ddd125",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-006.png": "d836389ed6a61327e7811d8ff6ecdb7b00934ce5a05f734cea950e98e1c9ab53",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-007.png": "b505ce793be7e32cfd3499fde6b612a6c9a43faa45bd928a753c085df2472dd0",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-008.png": "38785157e00fe3bd7b165340251ba99826f3a06d6bebad19763b3934a060935b",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-009.png": "eca052037de443479d47df0065e218ca45e93ef23be3b40a097c73df0334c58d",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-010.png": "8ee864f5e91a413e1c44be664bbd38813ee4efe11eb615f9b52c78ac623375ff",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-011.png": "414095474426779742a39b385701aba4b17255196ed10e66f33977af4929d8ca",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-012.png": "743ca498db7ed87942e0d4d9c3b8da0f75dab8804720036c38d729e0b9b07320",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-013.png": "8c13e031c1899e85336512e0317ef3e8746386751fd129d2c0ec4a981755da53",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-014.png": "ef8f4574de40d5e807e37179eb9e9ba90000e0dad210584faf58f34c71349af4",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-015.png": "d7c22793763454dc51e6bcb0b0ce5f4379a786d61284f0cfb4c0b03f57b31b5a",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-016.png": "ca17a1ef834a08591071f36766854ffc4df6563d26b43409706c73ee15916f2a",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-017.png": "8c6798314991187b294fedb9c2c08b680ddc7ec1a84ae11d3c2737736f3b7ec3",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-018.png": "e0b765a1e0cc9cb0c33ceb510456227edc31134704d5e26c9a49537d7fc68afb",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-019.png": "872d07d7b5bd616dfbdf70552a9a5943b7f1bae8d1c53a76bf9803e3b6610381",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-020.png": "0e4feaf0ce8e18c53e97aeeedb6a7930ac0616ac93723a5c5544b2edf660ef75",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-021.png": "d97b43043a2eedbe1d5ae213ec05c1a2fce9a294fea1852c567a12b9f5606be0",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-022.png": "70c15077af1fcb825ca8563e8e96a6a6d5b8ed7f0eec1482af8627c744708136",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-023.png": "f400d89d5c05d48eeb1ea02124bd470b3c240ba35a82898b4dc246a6dd261e47",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-024.png": "7018b15459c118e109a19ca53998222eb0439a4fc007a6a167bf02f09584bd2b",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-025.png": "6b46772ee81d33d1c359a2a35956123733d107545ff26e667ac0e1f6ab136cbe",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-026.png": "2fb296c7b3524dd41e80abba6f5a8b4a3298c087830669798721eddb138e9ddc",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-027.png": "40bb97f83ce7a56026d5e0d820d33de5913112294c296e8d9dec8ad7625f18aa",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-028.png": "847125cfde15ace0d69e09f2856368ed8b94f00a6eb9ecb986d2445e322a2b8b",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-029.png": "8ae854718d9dc5df4f724def0c0b5622b3fb4e39645f482726f3965d99d31a7e",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-030.png": "ba5b306b9932efef1835dab2a02402679af7603ed283a533dd0e4f206119b0a3",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-031.png": "f9ee0e59df2b5fc733b9fc573e098c184fa8a3014727b9c2f35235869d7e98c4",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-032.png": "79d8871f9e404b6aea1b6eb5b0e5fbc650de8a5b877545c483003d3798c2673d",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-033.png": "1bdbca22c3f52ccf099febd9524aae1fe795fe7268ea5fc862c63eaab1f21f33",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-034.png": "799ff9388711acb49b856fac95eefdfe9321db24ecd68f2ae65c57e09995f40d",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-035.png": "4c5064212ae7a96eff8c23ba7005a03e427d8bc846ea9072e5c64e0e0cd756c5",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-036.png": "55714ed6ea58f1dc017fbd38315d4206f8bcd573665cf207be730ceae7a0532d",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-037.png": "d90c24b8a77c97a0247d2b629d3623b94499b65c5ea3a43209698c564a204a8d",
+    "docs/dolphin-runs/2026-11-20-bt-transport-sync-final/runtime_probe/pages/page-038.png": "4da4443fe5514b74341011393f2ebc15ce1188fc9e9c316e158941bb3224ddd4"
+  },
+  "exit_code": 0
+}

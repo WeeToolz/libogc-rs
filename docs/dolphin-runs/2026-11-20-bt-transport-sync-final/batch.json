@@ -1,0 +1,284 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "command_complete",
+      "line": 876,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.command_complete",
+      "checks": [
+        "Bluetooth HCI helpers propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "create_connection",
+      "line": 816,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.create_connection",
+      "checks": [
+        "Bluetooth HCI helpers propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "link_key_request_negative_reply",
+      "line": 872,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.link_key_request_negative_reply",
+      "checks": [
+        "Bluetooth HCI helpers propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "link_key_request_reply",
+      "line": 865,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.link_key_request_reply",
+      "checks": [
+        "Bluetooth HCI helpers propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "pin_code_request_negative_reply",
+      "line": 861,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.pin_code_request_negative_reply",
+      "checks": [
+        "Bluetooth HCI helpers propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "read_acl",
+      "line": 693,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.read_acl",
+      "checks": [
+        "Bluetooth sync reads and writes propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "read_acl_packet",
+      "line": 697,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.read_acl_packet",
+      "checks": [
+        "Bluetooth sync reads and writes propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "read_bd_addr",
+      "line": 778,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.read_bd_addr",
+      "checks": [
+        "Bluetooth HCI helpers propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "read_event",
+      "line": 686,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.read_event",
+      "checks": [
+        "Bluetooth sync reads and writes propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "remote_name_request",
+      "line": 835,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.remote_name_request",
+      "checks": [
+        "Bluetooth HCI helpers propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "reset",
+      "line": 766,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.reset",
+      "checks": [
+        "Bluetooth HCI helpers propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "scan_inquiry",
+      "line": 890,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.scan_inquiry",
+      "checks": [
+        "Bluetooth HCI helpers propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "send_hci_command",
+      "line": 488,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.send_hci_command",
+      "checks": [
+        "Bluetooth sync reads and writes propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "send_l2cap_configuration_request",
+      "line": 718,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.send_l2cap_configuration_request",
+      "checks": [
+        "Bluetooth L2CAP send helpers propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "send_l2cap_configuration_request_with_mtu",
+      "line": 729,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.send_l2cap_configuration_request_with_mtu",
+      "checks": [
+        "Bluetooth L2CAP send helpers propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "send_l2cap_configuration_response",
+      "line": 742,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.send_l2cap_configuration_response",
+      "checks": [
+        "Bluetooth L2CAP send helpers propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "send_l2cap_connection_request",
+      "line": 706,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.send_l2cap_connection_request",
+      "checks": [
+        "Bluetooth L2CAP send helpers propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "send_l2cap_hid_data",
+      "line": 755,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.send_l2cap_hid_data",
+      "checks": [
+        "Bluetooth L2CAP send helpers propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "set_authentication_enable",
+      "line": 807,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.set_authentication_enable",
+      "checks": [
+        "Bluetooth HCI helpers propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "set_event_mask",
+      "line": 803,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.set_event_mask",
+      "checks": [
+        "Bluetooth HCI helpers propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "set_scan_enable",
+      "line": 791,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.set_scan_enable",
+      "checks": [
+        "Bluetooth HCI helpers propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "start_inquiry",
+      "line": 811,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.start_inquiry",
+      "checks": [
+        "Bluetooth HCI helpers propagate invalid descriptor errors"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "write_acl",
+      "line": 702,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_transport_error_paths",
+      "api_path": "transport.write_acl",
+      "checks": [
+        "Bluetooth sync reads and writes propagate invalid descriptor errors"
+      ]
+    }
+  ],
+  "limits": [
+    "This probe uses descriptor -1 to check synchronous IPC error propagation and argument validation. It does not test successful adapter traffic, asynchronous completion, adapter opening, or physical Wii hardware."
+  ]
+}

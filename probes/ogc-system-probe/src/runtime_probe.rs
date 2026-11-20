@@ -88,6 +88,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_bt_input_queue(logger);
     probe_bt_discovery_values(logger);
     probe_bt_transport_metadata(logger);
+    probe_bt_transport_error_paths(logger);
     probe_bt_l2cap_state(logger);
     probe_bt_host_startup(logger);
     probe_bt_unavailable_protocol_calls(logger);
@@ -3635,6 +3636,99 @@ fn probe_bt_transport_metadata(logger: &mut ProbeLogger) {
             BtSyncHost::open_with_endpoints(c"/missing", 0x82, 0x81, 0x83),
             Err(Error::InvalidEndpoint)
         ),
+    );
+}
+
+fn probe_bt_transport_error_paths(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::{
+        BluetoothAddress, BtSyncHost, ClassOfDevice, Error, HciOpcode, InquiryResult, ScanEnable,
+    };
+    use ogc_ipc::FileDescriptor;
+
+    let host = BtSyncHost::from_file_descriptor(FileDescriptor::new(-1), 2, 0x81, 0x82);
+    let Ok(transport) = host else {
+        logger.record("Bluetooth invalid descriptor transport setup", false);
+        return;
+    };
+    let address = BluetoothAddress::new([1, 2, 3, 4, 5, 6]);
+    let mut event = [0; 64];
+    let mut acl = [0; 64];
+    let mut scratch = [0; 64];
+
+    let read_event = transport.read_event(&mut event);
+    let read_acl = transport.read_acl(&mut acl);
+    let read_packet = transport.read_acl_packet(&mut acl);
+    let write_acl = transport.write_acl(&[1, 2, 3]);
+    let command = transport.send_hci_command(HciOpcode::RESET, &[]);
+    logger.record(
+        "Bluetooth sync reads and writes propagate invalid descriptor errors",
+        matches!(read_event, Err(Error::Ipc(_)))
+            && matches!(read_acl, Err(Error::Ipc(_)))
+            && matches!(read_packet, Err(Error::Ipc(_)))
+            && matches!(write_acl, Err(Error::Ipc(_)))
+            && matches!(command, Err(Error::Ipc(_))),
+    );
+
+    let reset = transport.reset(&mut event);
+    let read_address = transport.read_bd_addr(&mut event);
+    let scan = transport.set_scan_enable(ScanEnable::Inquiry, &mut event);
+    let mask = transport.set_event_mask(0x0102_0304_0506_0708);
+    let authentication = transport.set_authentication_enable(true);
+    let inquiry = transport.start_inquiry([0x33, 0x8b, 0x9e], 8, 8);
+    let connection = transport.create_connection(address, 0xcc18, 1, 0, 0, true);
+    let remote_name = transport.remote_name_request(address, 1, 0, 0);
+    let pin_reject = transport.pin_code_request_negative_reply(address);
+    let key_reply = transport.link_key_request_reply(address, &[0xa5; 16]);
+    let key_reject = transport.link_key_request_negative_reply(address);
+    let command_complete = transport.command_complete(HciOpcode::RESET, &[], &mut event);
+    let mut results = [InquiryResult {
+        address,
+        class_of_device: ClassOfDevice::new([0; 3]),
+        page_scan_rep_mode: 0,
+        page_scan_mode: 0,
+        clock_offset: 0,
+    }; 8];
+    let scan_results = transport.scan_inquiry(&mut event, &mut results);
+    logger.record(
+        "Bluetooth HCI helpers propagate invalid descriptor errors",
+        matches!(reset, Err(Error::Ipc(_)))
+            && matches!(read_address, Err(Error::Ipc(_)))
+            && matches!(scan, Err(Error::Ipc(_)))
+            && matches!(mask, Err(Error::Ipc(_)))
+            && matches!(authentication, Err(Error::Ipc(_)))
+            && matches!(inquiry, Err(Error::Ipc(_)))
+            && matches!(connection, Err(Error::Ipc(_)))
+            && matches!(remote_name, Err(Error::Ipc(_)))
+            && matches!(pin_reject, Err(Error::Ipc(_)))
+            && matches!(key_reply, Err(Error::Ipc(_)))
+            && matches!(key_reject, Err(Error::Ipc(_)))
+            && matches!(command_complete, Err(Error::Ipc(_)))
+            && matches!(scan_results, Err(Error::Ipc(_))),
+    );
+
+    let connection_request =
+        transport.send_l2cap_connection_request(&mut scratch, 0x123, 1, 1, 0x40);
+    let configuration_request =
+        transport.send_l2cap_configuration_request(&mut scratch, 0x123, 2, 0x70);
+    let configuration_mtu =
+        transport.send_l2cap_configuration_request_with_mtu(&mut scratch, 0x123, 3, 0x70, 672);
+    let configuration_response =
+        transport.send_l2cap_configuration_response(&mut scratch, 0x123, 4, 0x40, 0);
+    let hid_data = transport.send_l2cap_hid_data(&mut scratch, 0x123, 0x40, &[0xa2, 1]);
+    logger.record(
+        "Bluetooth L2CAP send helpers propagate invalid descriptor errors",
+        matches!(connection_request, Err(Error::Ipc(_)))
+            && matches!(configuration_request, Err(Error::Ipc(_)))
+            && matches!(configuration_mtu, Err(Error::Ipc(_)))
+            && matches!(configuration_response, Err(Error::Ipc(_)))
+            && matches!(hid_data, Err(Error::Ipc(_))),
+    );
+
+    let oversized = transport.send_hci_command(HciOpcode::RESET, &[0; 256]);
+    let oversized_pin = transport.pin_code_request_reply(address, &[0; 17]);
+    logger.record(
+        "Bluetooth transport validates command and PIN lengths before IOS",
+        oversized == Err(Error::BufferTooSmall) && oversized_pin == Err(Error::BufferTooSmall),
     );
 }
 

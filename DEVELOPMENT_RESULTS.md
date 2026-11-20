@@ -1,11 +1,18 @@
 # Development results
 
+## 2026-11-20 Bluetooth synchronous transport
+
+The [Bluetooth transport batch](docs/dolphin-runs/2026-11-20-bt-transport-sync-final/README.md)
+checks 23 synchronous transport, HCI, and L2CAP methods with an invalid
+descriptor. Dolphin passed 573 checks. The audit reports 540 of 3,430 APIs as
+unverified. Asynchronous completion and physical Wii behavior remain open.
+
 ## 2026-11-20 Bluetooth protocol guards
 
 The [Bluetooth protocol batch](docs/dolphin-runs/2026-11-20-bt-protocol-calls-final/README.md)
 checks disabled search and report calls, idle timer behavior, and malformed ACL
-accounting. Dolphin passed 569 checks. The completeness audit reports 563 of
-3,430 APIs as unverified, down from 568 in the previous audit. Adapter I/O,
+accounting. Dolphin passed 569 checks. That audit reported 563 of 3,430 APIs
+as unverified, down from 568 in the prior audit. Adapter I/O,
 connected links, valid ACL traffic, and physical hardware remain open.
 
 ## 2026-11-20 LWP driver deferred callbacks
