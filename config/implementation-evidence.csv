@@ -2889,3 +2889,17 @@ ogc-bt-sync,src/transport.rs,set_event_mask,803,ios,hardware-probe,probes/ogc-sy
 ogc-bt-sync,src/transport.rs,set_scan_enable,791,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_transport_error_paths,transport.set_scan_enable
 ogc-bt-sync,src/transport.rs,start_inquiry,811,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_transport_error_paths,transport.start_inquiry
 ogc-bt-sync,src/transport.rs,write_acl,702,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_transport_error_paths,transport.write_acl
+ogc-bt-sync,src/transport.rs,close,484,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_async_request_paths,close_transport.close
+ogc-bt-sync,src/transport.rs,close_async,336,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_async_request_paths,close_transport.close_async
+ogc-bt-sync,src/request.rs,copy_to,56,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_async_request_paths,request.copy_to
+ogc-bt-sync,src/transport.rs,is_complete,150,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_async_request_paths,request.is_complete
+ogc-bt-sync,src/request.rs,raw_result,51,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_async_request_paths,request.raw_result
+ogc-bt-sync,src/transport.rs,raw_result,155,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_async_request_paths,request.raw_result
+ogc-bt-sync,src/transport.rs,result,160,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_async_request_paths,request.result
+ogc-bt-sync,src/transport.rs,status,165,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_async_request_paths,request.status
+ogc-bt-sync,src/transport.rs,read_acl_async,324,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_async_request_paths,transport.read_acl_async
+ogc-bt-sync,src/transport.rs,read_event_async,316,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_async_request_paths,transport.read_event_async
+ogc-bt-sync,src/transport.rs,write_acl_async,328,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_async_request_paths,transport.write_acl_async
+ogc-bt-sync,src/transport.rs,send_hci_command_async,539,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_async_request_paths,transport.send_hci_command_async
+ogc-bt-sync,src/transport.rs,send_hci_command_async_owned,624,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_async_request_paths,transport.send_hci_command_async_owned
+ogc-bt-sync,src/transport.rs,send_hci_command_async_with,638,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_bt_async_request_paths,transport.send_hci_command_async_with

@@ -1,5 +1,13 @@
 # Development results
 
+## 2026-11-20 Bluetooth asynchronous requests
+
+The [Bluetooth async batch](docs/dolphin-runs/2026-11-20-bt-async-requests-verified/README.md)
+checks 14 APIs for transfer and command request results, callback completion,
+and close result mapping. Dolphin passed 578 checks. The audit reports 526 of
+3,430 APIs as unverified. Successful adapter traffic and physical Wii behavior
+remain open.
+
 ## 2026-11-20 Bluetooth synchronous transport
 
 The [Bluetooth transport batch](docs/dolphin-runs/2026-11-20-bt-transport-sync-final/README.md)

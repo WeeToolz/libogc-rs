@@ -21,6 +21,12 @@ static ALARM_COUNT: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU3
 static ALARM_ID: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
 #[cfg(feature = "dolphin-automation")]
 static ALARM_ARG: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+static BT_RAW_ASYNC_RESULT: AtomicI32 = AtomicI32::new(i32::MAX);
+static BT_RAW_ASYNC_COMPLETIONS: core::sync::atomic::AtomicU32 =
+    core::sync::atomic::AtomicU32::new(0);
+static BT_OWNED_ASYNC_RESULT: AtomicI32 = AtomicI32::new(i32::MAX);
+static BT_OWNED_ASYNC_COMPLETIONS: core::sync::atomic::AtomicU32 =
+    core::sync::atomic::AtomicU32::new(0);
 
 #[cfg(feature = "dolphin-automation")]
 unsafe extern "C" fn probe_alarm_callback(id: system::SysWd, arg: *mut core::ffi::c_void) {
@@ -89,6 +95,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_bt_discovery_values(logger);
     probe_bt_transport_metadata(logger);
     probe_bt_transport_error_paths(logger);
+    probe_bt_async_request_paths(logger);
     probe_bt_l2cap_state(logger);
     probe_bt_host_startup(logger);
     probe_bt_unavailable_protocol_calls(logger);
@@ -3729,6 +3736,187 @@ fn probe_bt_transport_error_paths(logger: &mut ProbeLogger) {
     logger.record(
         "Bluetooth transport validates command and PIN lengths before IOS",
         oversized == Err(Error::BufferTooSmall) && oversized_pin == Err(Error::BufferTooSmall),
+    );
+}
+
+unsafe extern "C" fn bt_async_result_callback(result: i32, _: *mut core::ffi::c_void) -> i32 {
+    BT_RAW_ASYNC_RESULT.store(result, Ordering::Release);
+    BT_RAW_ASYNC_COMPLETIONS.fetch_add(1, Ordering::AcqRel);
+    result
+}
+
+fn probe_bt_async_request_paths(logger: &mut ProbeLogger) {
+    use ogc_bt_sync::{
+        BtSyncHost, Error, HciCommandRequest, HciCommandRequestStatus, HciOpcode, TransferRequest,
+    };
+    use ogc_ipc::FileDescriptor;
+
+    let host = BtSyncHost::from_file_descriptor(FileDescriptor::new(-1), 2, 0x81, 0x82);
+    let Ok(transport) = host else {
+        logger.record("Bluetooth async invalid descriptor setup", false);
+        return;
+    };
+
+    BT_RAW_ASYNC_RESULT.store(i32::MAX, Ordering::Release);
+    BT_RAW_ASYNC_COMPLETIONS.store(0, Ordering::Release);
+    BT_OWNED_ASYNC_RESULT.store(i32::MAX, Ordering::Release);
+    BT_OWNED_ASYNC_COMPLETIONS.store(0, Ordering::Release);
+
+    let event_read = transport.read_event_async();
+    let acl_read = transport.read_acl_async();
+    let acl_write = transport.write_acl_async(&[1, 2, 3]);
+    let raw_command = unsafe {
+        transport.send_hci_command_async(
+            HciOpcode::RESET,
+            &[],
+            Some(bt_async_result_callback),
+            core::ptr::null_mut(),
+        )
+    };
+    let owned_command = transport.send_hci_command_async_owned(HciOpcode::RESET, &[]);
+    let callback_command = transport.send_hci_command_async_with(HciOpcode::RESET, &[], |result| {
+        let code = match result {
+            Ok(()) => 0,
+            Err(Error::Ipc(code)) => code,
+            Err(_) => i32::MAX,
+        };
+        BT_OWNED_ASYNC_RESULT.store(code, Ordering::Release);
+        BT_OWNED_ASYNC_COMPLETIONS.fetch_add(1, Ordering::AcqRel);
+    });
+    let close_host = BtSyncHost::from_file_descriptor(FileDescriptor::new(-1), 2, 0x81, 0x82);
+    let async_close = match close_host {
+        Ok(close_transport) => close_transport.close_async(),
+        Err(error) => Err(error),
+    };
+
+    let transfer_done = |result: &Result<TransferRequest, Error>| match result {
+        Err(Error::Ipc(_)) => true,
+        Ok(request) => request.raw_result().is_some(),
+        Err(_) => false,
+    };
+    let command_done = |result: &Result<HciCommandRequest, Error>| match result {
+        Err(Error::Ipc(_)) => true,
+        Ok(request) => request.status() != HciCommandRequestStatus::Pending,
+        Err(_) => false,
+    };
+    for _ in 0..90 {
+        let raw_done =
+            raw_command.is_err() || BT_RAW_ASYNC_COMPLETIONS.load(Ordering::Acquire) != 0;
+        let callback_done =
+            callback_command.is_err() || BT_OWNED_ASYNC_COMPLETIONS.load(Ordering::Acquire) != 0;
+        if transfer_done(&event_read)
+            && transfer_done(&acl_read)
+            && transfer_done(&acl_write)
+            && command_done(&owned_command)
+            && command_done(&async_close)
+            && raw_done
+            && callback_done
+        {
+            break;
+        }
+        logger.display().wait_vsync();
+    }
+
+    let transfer_state_consistent = |request: &TransferRequest| {
+        let raw = request.raw_result();
+        let mut output = [0; 1024];
+        let copied = request.copy_to(&mut output);
+        match (raw, copied) {
+            (None, None) => true,
+            (Some(code), Some(Err(Error::Ipc(error)))) => code < 0 && code == error,
+            (Some(code), Some(Ok(length))) => code >= 0 && length == code as usize,
+            _ => false,
+        }
+    };
+    let transfer_observation_valid = |result: &Result<TransferRequest, Error>| match result {
+        Err(Error::Ipc(_)) => true,
+        Ok(request) => transfer_state_consistent(request),
+        Err(_) => false,
+    };
+    let transfer_handle_received = event_read.is_ok() || acl_read.is_ok() || acl_write.is_ok();
+    logger.record(
+        "Bluetooth async transfers publish consistent request results",
+        transfer_handle_received
+            && transfer_observation_valid(&event_read)
+            && transfer_observation_valid(&acl_read)
+            && transfer_observation_valid(&acl_write)
+            && matches!(
+                transport.write_acl_async(&[] as &[u8]),
+                Err(Error::BufferTooSmall)
+            ),
+    );
+
+    let command_state_consistent = |request: &HciCommandRequest| {
+        for _ in 0..4 {
+            let complete = request.is_complete();
+            let raw = request.raw_result();
+            let result = request.result();
+            let status = request.status();
+            let stable = match status {
+                HciCommandRequestStatus::Pending => !complete && raw.is_none() && result.is_none(),
+                HciCommandRequestStatus::Complete(mapped) => {
+                    complete && raw.is_some() && result == Some(mapped)
+                }
+            };
+            if stable {
+                return true;
+            }
+        }
+        false
+    };
+    let command_observation_valid = |result: &Result<HciCommandRequest, Error>| match result {
+        Err(Error::Ipc(_)) => true,
+        Ok(request) => command_state_consistent(request),
+        Err(_) => false,
+    };
+    let command_handle_received =
+        owned_command.is_ok() || callback_command.is_ok() || async_close.is_ok();
+    logger.record(
+        "Bluetooth owned command and close results match request status",
+        command_handle_received
+            && command_observation_valid(&owned_command)
+            && command_observation_valid(&callback_command)
+            && command_observation_valid(&async_close),
+    );
+
+    let raw_callback_valid = match raw_command {
+        Err(Error::Ipc(_)) => BT_RAW_ASYNC_COMPLETIONS.load(Ordering::Acquire) == 0,
+        Ok(()) => {
+            BT_RAW_ASYNC_COMPLETIONS.load(Ordering::Acquire) == 1
+                && BT_RAW_ASYNC_RESULT.load(Ordering::Acquire) < 0
+        }
+        Err(_) => false,
+    };
+    let owned_callback_valid = match callback_command {
+        Err(Error::Ipc(_)) => BT_OWNED_ASYNC_COMPLETIONS.load(Ordering::Acquire) == 0,
+        Ok(_) => {
+            BT_OWNED_ASYNC_COMPLETIONS.load(Ordering::Acquire) == 1
+                && BT_OWNED_ASYNC_RESULT.load(Ordering::Acquire) < 0
+        }
+        Err(_) => false,
+    };
+    logger.record(
+        "Bluetooth async callbacks report invalid descriptor completion",
+        raw_callback_valid && owned_callback_valid,
+    );
+
+    let reference_close = FileDescriptor::new(-1).close().map_err(Error::Ipc);
+    let wrapper_close =
+        match BtSyncHost::from_file_descriptor(FileDescriptor::new(-1), 2, 0x81, 0x82) {
+            Ok(close_transport) => close_transport.close(),
+            Err(error) => Err(error),
+        };
+    logger.record(
+        "Bluetooth synchronous close maps the IPC descriptor result",
+        wrapper_close == reference_close,
+    );
+
+    logger.record(
+        "Bluetooth raw async command rejects a missing completion callback",
+        unsafe {
+            transport.send_hci_command_async(HciOpcode::RESET, &[], None, core::ptr::null_mut())
+                == Err(Error::Ipc(ogc_ipc::IPC_EINVAL))
+        },
     );
 }
 
