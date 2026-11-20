@@ -204,6 +204,16 @@ fn probe_invalid_channel_commands(logger: &mut ProbeLogger) {
         "WPAD invalid channel rejects event read and preserves output",
         read == bad_channel && event.err == 0x1234 && event.battery_level == 0x5a,
     );
+    logger.record(
+        "WPAD invalid channel rejects pending-event read",
+        wpad::read_pending(invalid, None) == bad_channel,
+    );
+    let status_before_pad_status = wpad::get_status();
+    wpad::pad_status(invalid);
+    logger.record(
+        "WPAD invalid channel pad status leaves lifecycle state unchanged",
+        wpad::get_status() == status_before_pad_status,
+    );
 
     logger.record(
         "WPAD invalid channel rejects rumble",

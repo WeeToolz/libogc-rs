@@ -1,0 +1,93 @@
+{
+  "probe": "wpad_probe",
+  "cases": [
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_status",
+      "line": 1194,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "run",
+      "api_path": "wpad::get_status",
+      "checks": [
+        "WPAD starts disabled"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "orientation",
+      "line": 1803,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_queries",
+      "api_path": "wpad::orientation",
+      "checks": [
+        "WPAD invalid channel leaves orientation output unchanged"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "pad_status",
+      "line": 1894,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_commands",
+      "api_path": "wpad::pad_status",
+      "checks": [
+        "WPAD invalid channel pad status leaves lifecycle state unchanged"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "probe",
+      "line": 1209,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "run",
+      "api_path": "wpad::probe",
+      "checks": [
+        "empty channel probe preserves output on no controller"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "read_pending",
+      "line": 1012,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_invalid_channel_commands",
+      "api_path": "wpad::read_pending",
+      "checks": [
+        "WPAD invalid channel rejects pending-event read"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "scan_pads",
+      "line": 1483,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "run",
+      "api_path": "wpad::scan_pads",
+      "checks": [
+        "WPAD Bluetooth poll hook observes scan boundary"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "shutdown",
+      "line": 1427,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "run",
+      "api_path": "wpad::shutdown",
+      "checks": [
+        "WPAD shutdown succeeds",
+        "WPAD reports disabled after shutdown"
+      ]
+    }
+  ],
+  "limits": [
+    "The probe checks invalid channels and the no-controller path in Dolphin. It does not test valid connected Wii Remote traffic, pairing, or physical Wii behavior."
+  ]
+}

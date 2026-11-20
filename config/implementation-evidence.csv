@@ -1132,7 +1132,6 @@ wiikeyboard-sys,src/lib.rs,set_led,1390,hardware,hardware-probe,probes/ogc-syste
 wiikeyboard-sys,src/lib.rs,start_worker_before_stdin_install,1485,hardware,hardware-probe,probes/ogc-system-probe/src/keyboard_probe.rs,run
 wiikeyboard-sys,src/lib.rs,toggle_led,1413,hardware,hardware-probe,probes/ogc-system-probe/src/keyboard_probe.rs,run
 wpad-sys,src/lib.rs,init,786,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,run
-wpad-sys,src/powerpc_backend.rs,init,2143,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,run
 wiiuse-rs,src/initial_handshake.rs,new,47,protocol,host-test,crates/services/wiiuse-rs/src/initial_handshake.rs,remote_without_expansion_reads_calibration_before_ready
 wiiuse-rs,src/initial_handshake.rs,status_report,54,protocol,host-test,crates/services/wiiuse-rs/src/initial_handshake.rs,standard_remote_reads_expansion_id_then_calibration
 wiiuse-rs,src/initial_handshake.rs,expansion_id,71,protocol,host-test,crates/services/wiiuse-rs/src/initial_handshake.rs,standard_remote_reads_expansion_id_then_calibration
@@ -2917,3 +2916,10 @@ ogc-usb-sys,src/lib.rs,read_iso_msg,3339,ios,hardware-probe,probes/ogc-system-pr
 ogc-usb-sys,src/lib.rs,read_iso_msg_async,3387,ios,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_unavailable_sys_transfers,usb::sys::read_iso_msg_async
 ogc-usb-sys,src/lib.rs,write_iso_msg,3847,ios,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_unavailable_sys_transfers,usb::sys::write_iso_msg
 ogc-usb-sys,src/lib.rs,write_iso_msg_async,3895,ios,hardware-probe,probes/ogc-system-probe/src/hid_descriptor_probe.rs,probe_unavailable_sys_transfers,usb::sys::write_iso_msg_async
+wpad-sys,src/lib.rs,get_status,1194,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,run,wpad::get_status
+wpad-sys,src/lib.rs,orientation,1803,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_queries,wpad::orientation
+wpad-sys,src/lib.rs,pad_status,1894,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_commands,wpad::pad_status
+wpad-sys,src/lib.rs,probe,1209,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,run,wpad::probe
+wpad-sys,src/lib.rs,read_pending,1012,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_commands,wpad::read_pending
+wpad-sys,src/lib.rs,scan_pads,1483,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,run,wpad::scan_pads
+wpad-sys,src/lib.rs,shutdown,1427,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,run,wpad::shutdown

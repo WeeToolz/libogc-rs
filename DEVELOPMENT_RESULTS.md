@@ -1,5 +1,14 @@
 # Development results
 
+## 2026-11-20 WPAD public lifecycle
+
+The [WPAD lifecycle batch](docs/dolphin-runs/2026-11-20-wpad-public-lifecycle/README.md)
+checks seven public APIs for lifecycle state, shutdown, no-controller output,
+and invalid channel behavior. Dolphin passed 43 checks. The inventory fell from
+512 to 480 unverified entries. It now excludes 26 crate-private PowerPC backend
+functions that are not public APIs. Connected Wii Remote traffic, pairing, and
+physical Wii behavior remain open.
+
 ## 2026-11-20 USB sys transfer errors
 
 The [USB sys batch](docs/dolphin-runs/2026-11-20-usb-sys-transfer-errors-verified/README.md)

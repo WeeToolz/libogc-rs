@@ -1491,6 +1491,13 @@ mod tests {
     use super::*;
 
     #[test]
+    fn public_function_scan_excludes_restricted_visibility() {
+        assert!(!is_public_function_line("pub(crate) fn backend() {}"));
+        assert!(!is_public_function_line("pub(super) unsafe fn helper() {}"));
+        assert!(is_public_function_line("pub fn api() {}"));
+    }
+
+    #[test]
     fn completeness_json_counts_each_api_once_and_keeps_all_reasons() {
         let entry = ApiEntry {
             crate_name: "demo".into(),

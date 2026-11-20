@@ -179,7 +179,7 @@ fn record_guest_pairing(address: bt::BluetoothAddress, key: [u8; 16]) -> Result<
     })
 }
 
-pub fn set_bluetooth_poll_hook(hook: Option<fn(&'static str)>) {
+pub(crate) fn set_bluetooth_poll_hook(hook: Option<fn(&'static str)>) {
     BT_POLL_HOOK.store(hook.map_or(0, |hook| hook as usize), Ordering::Release);
 }
 fn bluetooth_poll_mark(stage: &'static str) {
@@ -989,7 +989,7 @@ fn disable_speaker(slot_idx: usize) -> bool {
         && send_wii_simple_command(slot_idx, WM_CMD_SPEAKER_ENABLE, &[0x00], true)
 }
 
-pub fn control_speaker(slot_idx: usize, enable: bool) -> i32 {
+pub(crate) fn control_speaker(slot_idx: usize, enable: bool) -> i32 {
     if !slot_is_wii_remote(slot_idx) {
         return WPAD_ERR_NO_CONTROLLER as i32;
     }
@@ -1017,21 +1017,21 @@ pub fn control_speaker(slot_idx: usize, enable: bool) -> i32 {
     WPAD_ERR_NONE as i32
 }
 
-pub fn control_speaker_if_present(slot_idx: usize, enable: bool) -> i32 {
+pub(crate) fn control_speaker_if_present(slot_idx: usize, enable: bool) -> i32 {
     if !slot_is_wii_remote(slot_idx) {
         return WPAD_ERR_NONE as i32;
     }
     control_speaker(slot_idx, enable)
 }
 
-pub fn rumble_if_present(slot_idx: usize, enabled: bool) -> i32 {
+pub(crate) fn rumble_if_present(slot_idx: usize, enabled: bool) -> i32 {
     if !slot_is_wii_remote(slot_idx) {
         return WPAD_ERR_NONE as i32;
     }
     rumble(slot_idx, enabled)
 }
 
-pub fn rumble(slot_idx: usize, enabled: bool) -> i32 {
+pub(crate) fn rumble(slot_idx: usize, enabled: bool) -> i32 {
     if !slot_is_wii_remote(slot_idx) {
         return WPAD_ERR_NO_CONTROLLER as i32;
     }
@@ -1046,7 +1046,7 @@ pub fn rumble(slot_idx: usize, enabled: bool) -> i32 {
     WPAD_ERR_NONE as i32
 }
 
-pub fn set_motion_plus(slot_idx: usize, enable: bool) -> i32 {
+pub(crate) fn set_motion_plus(slot_idx: usize, enable: bool) -> i32 {
     let slot_state = with_slot(slot_idx, |slot| {
         (slot.active, slot.kind == ControllerKind::WiiRemote)
     })
@@ -1118,14 +1118,14 @@ const fn motion_plus_preflight(
     }
 }
 
-pub fn set_motion_plus_if_present(slot_idx: usize, enable: bool) -> i32 {
+pub(crate) fn set_motion_plus_if_present(slot_idx: usize, enable: bool) -> i32 {
     if !slot_is_wii_remote(slot_idx) {
         return WPAD_ERR_NONE as i32;
     }
     set_motion_plus(slot_idx, enable)
 }
 
-pub fn send_stream_data(slot_idx: usize, data: &[u8]) -> i32 {
+pub(crate) fn send_stream_data(slot_idx: usize, data: &[u8]) -> i32 {
     if !slot_is_wii_remote(slot_idx) {
         return WPAD_ERR_NO_CONTROLLER as i32;
     }
@@ -1172,7 +1172,7 @@ pub fn send_stream_data(slot_idx: usize, data: &[u8]) -> i32 {
     WPAD_ERR_NONE as i32
 }
 
-pub fn set_idle_timeout(seconds: u32) {
+pub(crate) fn set_idle_timeout(seconds: u32) {
     IDLE_TIMEOUT_SECONDS.store(seconds, Ordering::Release);
     for slot_idx in 0..MAX_POWERPC_SLOTS {
         if seconds == 0 {
@@ -1183,7 +1183,7 @@ pub fn set_idle_timeout(seconds: u32) {
     }
 }
 
-pub fn pad_status(chan: i32) {
+pub(crate) fn pad_status(chan: i32) {
     if chan == WPAD_CHAN_ALL {
         for slot_idx in 0..MAX_POWERPC_SLOTS {
             if slot_is_wii_remote(slot_idx) && request_wii_status(slot_idx) {
@@ -1200,7 +1200,7 @@ pub fn pad_status(chan: i32) {
     }
 }
 
-pub fn wipe_saved_controllers() -> i32 {
+pub(crate) fn wipe_saved_controllers() -> i32 {
     if conf::set_pad_devices(&conf::ConfPads::default()) < 0 {
         return WPAD_ERR_BADCONF as i32;
     }
@@ -1213,7 +1213,7 @@ pub fn wipe_saved_controllers() -> i32 {
     WPAD_ERR_NONE as i32
 }
 
-pub fn encode_data(
+pub(crate) fn encode_data(
     info: *mut crate::WpadEncStatus,
     flag: u32,
     pcm_samples: *const i16,
@@ -1871,20 +1871,20 @@ fn now_ms() -> u64 {
     lwp::now_ticks() / (lwp::TICKS_PER_SECOND / 1000)
 }
 
-pub fn bluetooth_diagnostics() -> bt::HostDiagnostics {
+pub(crate) fn bluetooth_diagnostics() -> bt::HostDiagnostics {
     with_host(|host| host.diagnostics()).unwrap_or_else(|| bt::HidHost::new().diagnostics())
 }
-pub fn bluetooth_switch_calibration(slot: usize) -> Option<bt::switch::SwitchCalibration> {
+pub(crate) fn bluetooth_switch_calibration(slot: usize) -> Option<bt::switch::SwitchCalibration> {
     with_host(|host| host.switch_calibration(slot)).flatten()
 }
-pub fn bluetooth_hid_state(slot: usize) -> crate::BluetoothHidState {
+pub(crate) fn bluetooth_hid_state(slot: usize) -> crate::BluetoothHidState {
     let _guard = ServiceGuard(lwp::critical_enter());
     if slot >= bt::HID_SLOTS {
         return crate::BluetoothHidState::EMPTY;
     }
     unsafe { HID_INPUT[slot] }
 }
-pub fn bluetooth_hid_next_event() -> Option<bt::BluetoothInputEvent> {
+pub(crate) fn bluetooth_hid_next_event() -> Option<bt::BluetoothInputEvent> {
     with_bt_input_queue(|queue| queue.pop())
 }
 
@@ -2089,7 +2089,7 @@ fn process_hid_event(event: bt::HidEvent) -> Result<(), i32> {
     Ok(())
 }
 
-pub fn set_data_format(chan: i32, fmt: i32) -> i32 {
+pub(crate) fn set_data_format(chan: i32, fmt: i32) -> i32 {
     let all_channels = chan == WPAD_CHAN_ALL;
     if all_channels && !(WPAD_FMT_BTNS..=WPAD_FMT_BTNS_ACC_IR).contains(&fmt) {
         return WPAD_ERR_BADVALUE as i32;
@@ -2116,7 +2116,7 @@ pub fn set_data_format(chan: i32, fmt: i32) -> i32 {
     WPAD_ERR_NONE as i32
 }
 
-pub fn probe(chan: i32, type_: *mut u32) -> i32 {
+pub(crate) fn probe(chan: i32, type_: *mut u32) -> i32 {
     let Some(chan) = valid_chan(chan) else {
         return WPAD_ERR_BAD_CHANNEL as i32;
     };
@@ -2140,7 +2140,7 @@ fn probe_result(status: i32, type_: *mut u32, expansion_type: u32) -> i32 {
     status
 }
 
-pub fn init() -> i32 {
+pub(crate) fn init() -> i32 {
     {
         let _guard = ServiceGuard(lwp::critical_enter());
         if !BT_HOST_READY.load(Ordering::Acquire) {
@@ -2185,10 +2185,10 @@ pub fn init() -> i32 {
 }
 
 /// Starts inquiry. Completion and connections are serviced by scan_pads.
-pub fn search() -> i32 {
+pub(crate) fn search() -> i32 {
     begin_search(true)
 }
-pub fn search_bluetooth_hid() -> i32 {
+pub(crate) fn search_bluetooth_hid() -> i32 {
     begin_search(false)
 }
 fn begin_search(guest: bool) -> i32 {
@@ -2220,7 +2220,7 @@ fn begin_search(guest: bool) -> i32 {
         WPAD_ERR_NOT_READY as i32
     }
 }
-pub fn stop_search() -> i32 {
+pub(crate) fn stop_search() -> i32 {
     if with_host(|host| host.stop_search()).is_none() {
         return WPAD_ERR_NOT_READY as i32;
     }
@@ -2228,7 +2228,7 @@ pub fn stop_search() -> i32 {
     WPAD_ERR_NONE as i32
 }
 /// Begins shutdown without waiting for IOS. Call scan_pads until completion.
-pub fn shutdown() -> i32 {
+pub(crate) fn shutdown() -> i32 {
     if !BT_HOST_READY.load(Ordering::Acquire) {
         return WPAD_ERR_NOT_READY as i32;
     }
@@ -2299,18 +2299,18 @@ pub fn shutdown() -> i32 {
         WPAD_ERR_NONE as i32
     }
 }
-pub fn bluetooth_shutdown_complete() -> bool {
+pub(crate) fn bluetooth_shutdown_complete() -> bool {
     with_host(|host| host.shutdown_complete()).unwrap_or(true)
 }
 
-pub fn disconnect(chan: i32) -> i32 {
+pub(crate) fn disconnect(chan: i32) -> i32 {
     let Some(chan) = valid_chan(chan) else {
         return WPAD_ERR_BAD_CHANNEL as i32;
     };
     disconnect_slot(chan)
 }
 
-pub fn scan_pads() -> i32 {
+pub(crate) fn scan_pads() -> i32 {
     bluetooth_poll_mark("WPAD adapter service state check starting");
     let host_available = BT_HOST_READY.load(Ordering::Acquire);
     bluetooth_poll_mark("WPAD adapter service state check completed");
