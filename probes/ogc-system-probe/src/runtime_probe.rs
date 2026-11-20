@@ -116,6 +116,8 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_system_api_batch(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_system_protect_range_snapshot(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_usb_api_batch(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_usb_safe_result_wrappers(logger);
@@ -3333,6 +3335,27 @@ fn probe_system_api_batch(logger: &mut ProbeLogger) {
         restored.is_some_and(|hook| {
             core::ptr::fn_addr_eq(hook, probe_reset_debug_hook as unsafe fn(u32, u32, i32))
         }),
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_protect_range_snapshot(logger: &mut ProbeLogger) {
+    let address = core::ptr::dangling_mut::<u8>().cast();
+    // SAFETY: The invalid channel records the call and returns before MMIO access.
+    unsafe { raw_system::sys_protect_range(u32::MAX, address, 0x1234, 0x5678) };
+    let snapshot = raw_system::snapshot_protect_range();
+    logger.record(
+        "System protection call records its arguments",
+        snapshot.called
+            && snapshot.chan == u32::MAX
+            && snapshot.addr == address
+            && snapshot.bytes == 0x1234
+            && snapshot.cntrl == 0x5678,
+    );
+    let reread = raw_system::snapshot_protect_range();
+    logger.record(
+        "System protection snapshot returns recorded arguments",
+        reread == snapshot,
     );
 }
 

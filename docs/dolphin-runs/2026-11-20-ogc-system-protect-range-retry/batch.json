@@ -1,0 +1,29 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_protect_range",
+      "line": 3162,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_protect_range_snapshot",
+      "api_path": "raw_system::sys_protect_range",
+      "checks": [
+        "System protection call records its arguments"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_protect_range",
+      "line": 4543,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_protect_range_snapshot",
+      "api_path": "raw_system::snapshot_protect_range",
+      "checks": [
+        "System protection snapshot returns recorded arguments"
+      ]
+    }
+  ]
+}

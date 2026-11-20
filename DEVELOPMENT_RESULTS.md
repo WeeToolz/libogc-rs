@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-20 System protection call snapshot
+
+The [system snapshot batch](docs/dolphin-runs/2026-11-20-ogc-system-protect-range-retry/README.md)
+checks the protection call's recorded arguments and snapshot reread.
+Dolphin passed all 614 runtime probe checks. The inventory fell from 369 to
+367 unverified entries. Valid memory protection settings remain untested.
+
 ## 2026-11-20 USB wrapper errors for invalid handles
 
 The [USB wrapper batch](docs/dolphin-runs/2026-11-20-ogc-usb-safe-result-wrappers-verified/README.md)
