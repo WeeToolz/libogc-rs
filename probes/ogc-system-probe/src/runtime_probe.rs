@@ -119,6 +119,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_usb_api_batch(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_usb_safe_result_wrappers(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_usb_invalid_handle_operations(logger);
     probe_video_queries(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_video_register_checks(logger);
@@ -3440,6 +3442,32 @@ fn probe_usb_safe_result_wrappers(logger: &mut ProbeLogger) {
     logger.record(
         "USB ASCII string maps invalid handle to error",
         usb::ascii_string(-1, 1, 0x0409, &mut [0; 32]).is_err(),
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_usb_invalid_handle_operations(logger: &mut ProbeLogger) {
+    use ogc_usb as usb;
+
+    logger.record(
+        "USB suspend rejects invalid handle",
+        usb::try_suspend_device(-1).is_err(),
+    );
+    logger.record(
+        "USB resume rejects invalid handle",
+        usb::try_resume_device(-1).is_err(),
+    );
+    logger.record(
+        "USB set configuration rejects invalid handle",
+        usb::try_set_configuration(-1, 1).is_err(),
+    );
+    logger.record(
+        "USB set alternate interface rejects invalid handle",
+        usb::try_set_alternative_interface(-1, 0, 0).is_err(),
+    );
+    logger.record(
+        "USB clear halt rejects invalid handle",
+        usb::try_clear_halt(-1, 0x81).is_err(),
     );
 }
 

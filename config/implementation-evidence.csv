@@ -3008,3 +3008,8 @@ ogc-usb,src/lib.rs,hid_descriptor,161,compatibility-forwarder,hardware-probe,pro
 ogc-usb,src/lib.rs,report_descriptor_size,178,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_safe_result_wrappers,usb::report_descriptor_size
 ogc-usb,src/lib.rs,report_descriptor,199,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_safe_result_wrappers,usb::report_descriptor
 ogc-usb,src/lib.rs,ascii_string,558,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_safe_result_wrappers,usb::ascii_string
+ogc-usb,src/lib.rs,try_suspend_device,239,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_invalid_handle_operations,usb::try_suspend_device
+ogc-usb,src/lib.rs,try_resume_device,247,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_invalid_handle_operations,usb::try_resume_device
+ogc-usb,src/lib.rs,try_set_configuration,500,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_invalid_handle_operations,usb::try_set_configuration
+ogc-usb,src/lib.rs,try_set_alternative_interface,508,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_invalid_handle_operations,usb::try_set_alternative_interface
+ogc-usb,src/lib.rs,try_clear_halt,516,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_invalid_handle_operations,usb::try_clear_halt

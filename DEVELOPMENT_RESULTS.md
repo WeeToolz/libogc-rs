@@ -7,6 +7,14 @@ checks seven `ogc-usb` queries with an invalid handle. Dolphin passed all
 607 runtime probe checks. The inventory fell from 381 to 374 unverified
 entries. Successful queries on an open USB device still need verification.
 
+## 2026-11-20 USB operations with invalid handles
+
+The [USB operation batch](docs/dolphin-runs/2026-11-20-ogc-usb-invalid-handle-operations-retry/README.md)
+checks five safe configuration and device control calls with handle `-1`.
+Dolphin passed all 612 runtime probe checks. The inventory fell from 374 to
+369 unverified entries. Successful operations on an open USB device remain
+untested.
+
 ## 2026-11-20 USB system invalid-pointer guards
 
 The [USB system batch](docs/dolphin-runs/2026-11-20-ogc-usb-sys-invalid-descriptors-retry/README.md)
