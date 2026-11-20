@@ -2983,3 +2983,10 @@ ogc-runtime,src/scheduler.rs,cancel,63,pure,hardware-probe,probes/lwp-probe/src/
 ogc-runtime,src/scheduler.rs,enqueue,71,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,run,executor.enqueue
 ogc-runtime,src/scheduler.rs,wake,72,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,run,executor.wake
 ogc-runtime,src/scheduler.rs,wake_from_interrupt,79,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,run,interrupt_wake.wake_from_interrupt
+ogc-system-sys,src/lib.rs,snapshot_reset_system,2505,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_api_batch,raw_system::snapshot_reset_system
+ogc-system-sys,src/lib.rs,set_reset_debug_hook,353,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_api_batch,raw_system::set_reset_debug_hook
+ogc-system-sys,src/lib.rs,sys_get_hollywood_revision,4141,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_api_batch,raw_system::sys_get_hollywood_revision
+ogc-system-sys,src/lib.rs,sys_hbc_reload_stub_present,1840,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_api_batch,raw_system::sys_hbc_reload_stub_present
+ogc-system-sys,src/lib.rs,sys_reset_button_down,4127,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_api_batch,raw_system::sys_reset_button_down
+ogc-system-sys,src/lib.rs,sys_runtime_fp_disabled_stage,1684,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_api_batch,raw_system::sys_runtime_fp_disabled_stage
+ogc-system-sys,src/lib.rs,sys_stdio_report_uses_stdout,1116,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_api_batch,raw_system::sys_stdio_report_uses_stdout

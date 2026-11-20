@@ -1,0 +1,83 @@
+{
+  "source_revision": "f77f1cc51698326fd828a2a9148c459b3bc6f8ef",
+  "source_fingerprint": "281ffaef954c482e7b9aa444909a6bcbbfed5e2217d47a2d1007179442c14f2e",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "da7a7d1fcf60b6fae9b1c7d749448456e28126c747ebd8481c80c3872653023e",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "4810979abe1448f838e7a077e319e9a0fb1b477ad3784dd96ef218ef5b7835de",
+  "suite_sha256": "6f0e082afd80a60d0f6fec713fe05279f877e991c60cb7c75751d6137ba85454",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/probe.log": "4a32122806e8123164ff3c2ceba5d801abd9edfa3bf57c7c3abd339743f66fd5",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/stderr.log": "5a5ffd7c184f9ebe5922431c07037b567fa1bd8e19c0066786ed1e343ab62993",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/probe-transport.bin": "49298194e6a3dae5f3ea301ae3d5ad28e58be70794d1857229f242f73f36a35b",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-002.png": "5f947b9212cb392fb29390d46cc90c8f0127f278f75518e47898f43c3891c8e1",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-003.png": "1daa2287195337d699bf42676d44a87a04a5b89a949fd18ea8ab8a70f353ffbf",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-004.png": "32f622b17cd00bcd89f33cf96d1bbbb81cee0cbb15e710ca575a55953188a2b0",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-005.png": "5f89c76e2178c53255b4ac3948d5f48edb3a91895f2ef7d197c1e9d1d9ddd125",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-006.png": "d836389ed6a61327e7811d8ff6ecdb7b00934ce5a05f734cea950e98e1c9ab53",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-007.png": "b505ce793be7e32cfd3499fde6b612a6c9a43faa45bd928a753c085df2472dd0",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-008.png": "cdd1256d3317db1a76f8b6eda4ee0d42940d1f095dc29f45b92cf294f4232f1a",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-009.png": "4d8d3222921a15b45476b3c48f8853bb1e6958e59ca6e27ee9bea8b23edf80eb",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-010.png": "2607385b46313784b316383cb06cdc416e2bb41a7dd54734f563ca0b46712751",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-011.png": "275a2ed4061cf8ebc37f5884a23b97fb315139d50442915e89243be81dc5b321",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-012.png": "c4457c151f5950b70c4dfcd686c9fd280349192825f85feb10f21c42c9e29ddd",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-013.png": "2d847aec12f04094969a1cedefe812221304d552b75641a72839df4ca1aeb322",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-014.png": "070089fd235002e6a89347a18f7d5c2c597151414e31ef3267c25c01d69e3a4e",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-015.png": "12974774a7d36bda4dfdfddc73f84006b826909897a0d05178c603458cbb1f53",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-016.png": "589f2b4ba2ee29118173b671a700ffcf3722980eabed25b38b5d84b45bb51e20",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-017.png": "43a0457836f1a7ef487a547a879ec6922dee1664fe7421e8f4672503e053653a",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-018.png": "34214ecbf7b37aa747fbc9678d0578878de705efc673e9fc20288e9555ecdbe4",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-019.png": "2a6ba5e9b6edc1e4b95afb39cb0957a9716dc29c79e14c2ea10be1f79bd3e6e9",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-020.png": "f216b1890bd440f90858c9f21ec6bd0d7858b3225028cca502d914fa6ab58fd5",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-021.png": "0eb923c1a1955ac1697c3e14558254b7c6387cac925904b4da1e2955f270f817",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-022.png": "9f12dd721c47cd0164e3392d3b213b9f463a1f00b7c5e2c46a1cd2fea1deb843",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-023.png": "5f014a58231031ee60757020833aba7c9a4c6706614883a576103a4fa3255caf",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-024.png": "76c5e7b0812b0da87338d153f00cc23e2686ad4c22afcbdb1cad1b7f1ab93634",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-025.png": "0750ff62f0bc78a93556f8e73c744bc9b52b575a1c16bd5b9c3b8032c318a8db",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-026.png": "fd7f21e849b3cbb90d62fc72c68b96c2adc4f31446eaf3c8bc17e5dff98e0fa5",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-027.png": "471df352a875bd4c5ff8772813d99de50b13830fcf49afe872815dfc93836f09",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-028.png": "948bfd5b5e53ae08c5fa7c1604be7d52987af349b07f612dc1b5e31d0bce4e84",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-029.png": "e06e66ce2162a6effb3f43c60f45f3531af19a9adadc42d2336cd480b15d6e08",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-030.png": "e3d04383d35bcd01b9d7899e39ba93d3f6e72208ad085a9203e55eba112cd26a",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-031.png": "458d75ea70a6e095d9667b00e622416313d0d0286d1f5de7f2048d39594b5eea",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-032.png": "60ae8dd3ec25c834679adf3e5f1624c6a4b2bbec8cf4acb49a6f90c2f31df42e",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-033.png": "5a3d24ab738030a499430b96b300e960ba6f185574cf9083000da8724f771b53",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-034.png": "ae5bcdfd3f41230d3e40bd69538325abbeb7f1076bebaa82dbf4ca07c5555351",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-035.png": "d7c97b70a33e546b7975b70e033a50bc72b5b2b72558c4bff0e6a3b18dc7ef25",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-036.png": "6db0940521afdec4c45958b0462c66db8ebc29d763300d615c47fdd39d262f53",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-037.png": "d984909f214e4396ffde62f53bf5714f6eb8eb92f16fd24ec7d1824aa81faa08",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/pages/page-038.png": "1743eb7766095172af2ebec4623f688b4b25500a6628f58944bd0fcdfceefeb6",
+    "docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/runtime_probe/dolphin.log": "0e4ba886272a6d16eb0508d9c135ece014520ce17980f520046ca0e2fbc41006"
+  },
+  "exit_code": 0
+}

@@ -113,6 +113,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_system_callbacks(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_reset_registration(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_system_api_batch(logger);
     probe_video_queries(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_video_register_checks(logger);
@@ -3274,6 +3276,56 @@ fn probe_system_callbacks(logger: &mut ProbeLogger) {
                 handler,
                 probe_reset_callback as unsafe extern "C" fn(u32, *mut core::ffi::c_void),
             )
+        }),
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+unsafe fn probe_reset_debug_hook(_: u32, _: u32, _: i32) {}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_api_batch(logger: &mut ProbeLogger) {
+    let first_reset = raw_system::snapshot_reset_system();
+    let second_reset = raw_system::snapshot_reset_system();
+    logger.record(
+        "Raw reset snapshot returns stable state",
+        first_reset == second_reset,
+    );
+
+    // SAFETY: The query reads the Wii revision value in supported low memory.
+    let revision = unsafe { raw_system::sys_get_hollywood_revision() };
+    logger.record(
+        "Hollywood revision query marks its hardware snapshot",
+        revision == unsafe { raw_system::sys_get_hollywood_revision() }
+            && raw_system::snapshot_hardware_probe().hollywood_revision_called,
+    );
+
+    // SAFETY: The reset-button query reads the PI reset-button register.
+    let reset_down = unsafe { raw_system::sys_reset_button_down() };
+    logger.record(
+        "Reset button query returns its documented boolean value",
+        reset_down <= 1 && raw_system::snapshot_hardware_probe().reset_button_called,
+    );
+
+    let reload_stub = raw_system::sys_hbc_reload_stub_present();
+    logger.record(
+        "HBC reload-stub query returns a stable result",
+        reload_stub == raw_system::sys_hbc_reload_stub_present(),
+    );
+    let fp_stage = raw_system::sys_runtime_fp_disabled_stage();
+    logger.record("Runtime FP disabled stage remains clear", fp_stage == 0);
+    let stdout = raw_system::sys_stdio_report_uses_stdout();
+    logger.record(
+        "System stdio report mode query returns stable state",
+        stdout == raw_system::sys_stdio_report_uses_stdout(),
+    );
+
+    let previous = raw_system::set_reset_debug_hook(Some(probe_reset_debug_hook));
+    let restored = raw_system::set_reset_debug_hook(previous);
+    logger.record(
+        "Reset debug hook setter returns and restores the previous hook",
+        restored.is_some_and(|hook| {
+            core::ptr::fn_addr_eq(hook, probe_reset_debug_hook as unsafe fn(u32, u32, i32))
         }),
     );
 }

@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-20 System hardware snapshots and hooks
+
+The [system API batch](docs/dolphin-runs/2026-11-20-ogc-system-sys-hardware-snapshots/README.md)
+checks seven read-only system queries and reset-debug-hook replacement.
+Dolphin passed all 589 runtime probe checks. The inventory fell from 399 to
+392 unverified entries. Reset and title-launch operations remain untested.
+
 ## 2026-11-20 Shared scheduler contracts
 
 The [scheduler batch](docs/dolphin-runs/2026-11-20-ogc-runtime-scheduler-contracts-audited/README.md)

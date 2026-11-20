@@ -1,0 +1,89 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "snapshot_reset_system",
+      "line": 2505,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_api_batch",
+      "api_path": "raw_system::snapshot_reset_system",
+      "checks": [
+        "Raw reset snapshot returns stable state"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_reset_debug_hook",
+      "line": 353,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_api_batch",
+      "api_path": "raw_system::set_reset_debug_hook",
+      "checks": [
+        "Reset debug hook setter returns and restores the previous hook"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_get_hollywood_revision",
+      "line": 4141,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_api_batch",
+      "api_path": "raw_system::sys_get_hollywood_revision",
+      "checks": [
+        "Hollywood revision query marks its hardware snapshot"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_hbc_reload_stub_present",
+      "line": 1840,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_api_batch",
+      "api_path": "raw_system::sys_hbc_reload_stub_present",
+      "checks": [
+        "HBC reload-stub query returns a stable result"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_reset_button_down",
+      "line": 4127,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_api_batch",
+      "api_path": "raw_system::sys_reset_button_down",
+      "checks": [
+        "Reset button query returns its documented boolean value"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_runtime_fp_disabled_stage",
+      "line": 1684,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_api_batch",
+      "api_path": "raw_system::sys_runtime_fp_disabled_stage",
+      "checks": [
+        "Runtime FP disabled stage remains clear"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_stdio_report_uses_stdout",
+      "line": 1116,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_api_batch",
+      "api_path": "raw_system::sys_stdio_report_uses_stdout",
+      "checks": [
+        "System stdio report mode query returns stable state"
+      ]
+    }
+  ]
+}
