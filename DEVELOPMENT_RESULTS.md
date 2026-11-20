@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-19 PAD low-level state
+
+The [PAD state batch](docs/dolphin-runs/2026-11-19-pad-low-level-state-wait/README.md)
+checks 11 APIs with a scripted controller. Dolphin passed 34 checks. The
+completeness audit reports 581 unverified APIs. Physical motor behavior,
+reset races, and physical Wii operation remain open.
+
 ## 2026-11-19 PAD low-level accessors
 
 The [PAD accessor batch](docs/dolphin-runs/2026-11-19-pad-sys-accessors/README.md)

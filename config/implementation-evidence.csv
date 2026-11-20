@@ -2797,3 +2797,14 @@ ogc-input-sys,src/lib.rs,pad_sub_stick_x,1545,hardware,hardware-probe,probes/ogc
 ogc-input-sys,src/lib.rs,pad_sub_stick_y,1553,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_accessors,sys::pad_sub_stick_y
 ogc-input-sys,src/lib.rs,pad_trigger_l,1577,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_accessors,sys::pad_trigger_l
 ogc-input-sys,src/lib.rs,pad_trigger_r,1585,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_accessors,sys::pad_trigger_r
+ogc-input-sys,src/lib.rs,pad_init,1076,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_low_level_state,sys::pad_init
+ogc-input-sys,src/lib.rs,set_debug_hook,1110,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_low_level_state,sys::set_debug_hook
+ogc-input-sys,src/lib.rs,set_trace_hook,1120,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_low_level_state,sys::set_trace_hook
+ogc-input-sys,src/lib.rs,pad_control_motor,1380,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_low_level_state,sys::pad_control_motor
+ogc-input-sys,src/lib.rs,pad_debug_state,1174,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_low_level_state,sys::pad_debug_state
+ogc-input-sys,src/lib.rs,pad_debug_counters,1166,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_low_level_state,sys::pad_debug_counters
+ogc-input-sys,src/lib.rs,pad_debug_drain,1139,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_low_level_state,sys::pad_debug_drain
+ogc-input-sys,src/lib.rs,pad_sync,1351,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_low_level_state,sys::pad_sync
+ogc-input-sys,src/lib.rs,pad_scan_pads,1466,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_low_level_state,sys::pad_scan_pads
+ogc-input-sys,src/lib.rs,pad_scan_pads_with_status,1473,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_low_level_state,sys::pad_scan_pads_with_status
+ogc-input-sys,src/lib.rs,pad_read,1213,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_low_level_state,sys::pad_read

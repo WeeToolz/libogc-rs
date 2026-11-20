@@ -309,6 +309,7 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
             pad_checks.axes_ok && pad_checks.saw_stick,
         );
         probe_controller_scan_modes(logger, &mut controllers);
+        probe_pad_low_level_state(logger);
     }
 
     let cleanup_complete =
@@ -339,6 +340,118 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
     loop {
         logger.display().wait_vsync();
     }
+}
+
+#[cfg(feature = "dolphin-automation")]
+static PAD_INIT_STAGES: AtomicUsize = AtomicUsize::new(0);
+#[cfg(feature = "dolphin-automation")]
+static PAD_TRACE_MOTOR_SEEN: AtomicUsize = AtomicUsize::new(0);
+
+#[cfg(feature = "dolphin-automation")]
+unsafe fn pad_init_debug_hook(stage: u32) {
+    if stage < usize::BITS {
+        PAD_INIT_STAGES.fetch_or(1usize << stage, Ordering::Relaxed);
+    }
+}
+
+#[cfg(feature = "dolphin-automation")]
+unsafe fn pad_low_level_trace(event: ogc_input_sys::PadDebugEvent) {
+    if event.kind == ogc_input_sys::PAD_TRACE_MOTOR && event.channel == -1 && event.a == 2 {
+        PAD_TRACE_MOTOR_SEEN.fetch_add(1, Ordering::Relaxed);
+    }
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_pad_low_level_state(logger: &mut ProbeLogger) {
+    use ogc_input_sys as sys;
+
+    logger.section("PAD LOW LEVEL STATE");
+    PAD_INIT_STAGES.store(0, Ordering::Relaxed);
+    sys::set_debug_hook(Some(pad_init_debug_hook));
+    let initialized = sys::pad_init();
+    sys::set_debug_hook(None);
+    logger.record(
+        "PAD repeated initialization reports debug stages",
+        initialized == 1 && PAD_INIT_STAGES.load(Ordering::Relaxed) == 3,
+    );
+
+    PAD_TRACE_MOTOR_SEEN.store(0, Ordering::Relaxed);
+    let previous = sys::set_trace_hook(Some(pad_low_level_trace));
+    let before = sys::pad_debug_state();
+    sys::pad_control_motor(-1, 2);
+    let mut sync = 0;
+    for _ in 0..120 {
+        sync = sys::pad_sync();
+        if sync == 1 {
+            break;
+        }
+        if !video::wait_vsync_timeout_us(100_000) {
+            break;
+        }
+    }
+    let mut samples = [sys::PadStatus::default(); 4];
+    let _ = video::wait_vsync_timeout_us(100_000);
+    let connected = sys::pad_scan_pads_with_status(&mut samples);
+    let _ = video::wait_vsync_timeout_us(100_000);
+    let second_scan = sys::pad_scan_pads();
+    let mut raw = [sys::PadStatus::default(); 4];
+    // SAFETY: The array contains four writable status records.
+    let _ = video::wait_vsync_timeout_us(100_000);
+    let raw_mask = unsafe { sys::pad_read(raw.as_mut_ptr()) };
+    let null_mask = unsafe { sys::pad_read(core::ptr::null_mut()) };
+    let after = sys::pad_debug_state();
+    let counters = sys::pad_debug_counters();
+    let mut events = [sys::PadDebugEvent::default(); 128];
+    let count = sys::pad_debug_drain(&mut events);
+    let drained = sys::pad_debug_counters();
+    let _ = sys::set_trace_hook(previous);
+    let motor = events[..count].iter().any(|event| {
+        event.kind == sys::PAD_TRACE_MOTOR && event.channel == -1 && event.a == 2 && event.b == 0
+    });
+    let sync_trace = events[..count]
+        .iter()
+        .any(|event| event.kind == sys::PAD_TRACE_SYNC && event.a == sync);
+    logger.note_hex32("PAD low level connected", connected);
+    logger.note_hex32("PAD low level second scan", second_scan);
+    logger.note_hex32("PAD low level raw mask", raw_mask);
+    logger.note_u32("PAD low level sync", sync);
+    logger.note_u32("PAD low level reset channel", after.resetting_chan);
+    logger.record(
+        "PAD invalid motor request produces trace without state change",
+        motor
+            && PAD_TRACE_MOTOR_SEEN.load(Ordering::Relaxed) == 1
+            && before.spec == after.spec
+            && before.enable_bits == after.enable_bits,
+    );
+    logger.record(
+        "PAD trace counters and drain preserve event sequence",
+        count > 0
+            && counters.dropped == 0
+            && drained.drained == count as u32
+            && events[..count]
+                .iter()
+                .enumerate()
+                .all(|(i, event)| event.sequence == i as u32),
+    );
+    logger.record(
+        "PAD sync matches trace and idle state",
+        sync == 1 && sync_trace && after.resetting_bits == 0 && after.resetting_chan == 32,
+    );
+    logger.record(
+        "PAD low level scans observe scripted controller",
+        connected & 1 == 1
+            && second_scan & 1 == 1
+            && samples[0].err as i32 == sys::PAD_ERR_NONE
+            && after.enable_bits & sys::PAD_CHAN0_BIT != 0,
+    );
+    logger.record(
+        "PAD read reports connected channel and rejects null",
+        raw_mask & sys::PAD_CHAN0_BIT != 0
+            && null_mask == 0
+            && raw[1..]
+                .iter()
+                .all(|status| status.err as i32 == sys::PAD_ERR_NO_CONTROLLER),
+    );
 }
 
 #[cfg(feature = "dolphin-automation")]
