@@ -1,0 +1,17 @@
+{
+  "baseline_commit": "6c9ee9205b9571c567c437f5dbcf4ea1e01eea84",
+  "inventory_entries_before": 3390,
+  "inventory_entries_after": 3396,
+  "unverified_before": 575,
+  "unverified_after": 575,
+  "unverified_keys_unchanged": true,
+  "new_unverified": 0,
+  "new_api_evidence": {
+    "mount": "hardware-probe:probes/ogc-system-probe/src/exfat_sd_probe.rs::probe_exfat_apis calls mount through `Volume::mount`",
+    "open": "hardware-probe:probes/ogc-system-probe/src/exfat_sd_probe.rs::probe_contiguous_file calls open through `volume.open`",
+    "read": "hardware-probe:probes/ogc-system-probe/src/exfat_sd_probe.rs::probe_contiguous_file calls read through `file.read`",
+    "seek": "hardware-probe:probes/ogc-system-probe/src/exfat_sd_probe.rs::probe_contiguous_file calls seek through `file.seek`",
+    "stat": "hardware-probe:probes/ogc-system-probe/src/exfat_sd_probe.rs::probe_listing calls stat through `volume.stat`",
+    "visit_dir": "hardware-probe:probes/ogc-system-probe/src/exfat_sd_probe.rs::probe_listing calls visit_dir through `volume.visit_dir`"
+  }
+}

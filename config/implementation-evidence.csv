@@ -2814,3 +2814,9 @@ ogc-input-sys,src/lib.rs,pad_set_spec,1371,hardware,hardware-probe,probes/ogc-sy
 ogc-input-sys,src/lib.rs,_pad_disable_recalibration,1593,hardware,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,probe_pad_sys_reset,sys::_pad_disable_recalibration
 ogc-input-sys,src/lib.rs,pad_debug_origin_byte,1605,hardware,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,run_command,pad::pad_debug_origin_byte
 ogc-input-sys,src/lib.rs,pad_set_sampling_callback,1404,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_sampling_callback,sys::pad_set_sampling_callback
+ogc-exfat,src/disc.rs,mount,48,protocol,hardware-probe,probes/ogc-system-probe/src/exfat_sd_probe.rs,probe_exfat_apis,Volume::mount
+ogc-exfat,src/disc.rs,stat,75,protocol,hardware-probe,probes/ogc-system-probe/src/exfat_sd_probe.rs,probe_listing,volume.stat
+ogc-exfat,src/disc.rs,visit_dir,84,protocol,hardware-probe,probes/ogc-system-probe/src/exfat_sd_probe.rs,probe_listing,volume.visit_dir
+ogc-exfat,src/disc.rs,open,98,protocol,hardware-probe,probes/ogc-system-probe/src/exfat_sd_probe.rs,probe_contiguous_file,volume.open
+ogc-exfat,src/disc.rs,read,131,protocol,hardware-probe,probes/ogc-system-probe/src/exfat_sd_probe.rs,probe_contiguous_file,file.read
+ogc-exfat,src/disc.rs,seek,122,protocol,hardware-probe,probes/ogc-system-probe/src/exfat_sd_probe.rs,probe_contiguous_file,file.seek

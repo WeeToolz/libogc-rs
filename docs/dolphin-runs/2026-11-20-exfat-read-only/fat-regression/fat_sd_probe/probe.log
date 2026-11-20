@@ -1,0 +1,132 @@
+
+
+BOOT 1/3: system and video initialized
+INFO Wiiload arguments source=entry count=0
+PASS SYS_Init completed
+INFO startup stage=0 completed_mask=0x7ff failed_stage=0
+BOOT watchdog arm starting
+INFO recovery reset watchdog not armed
+BOOT watchdog arm complete
+BOOT Wiiload report argument check
+INFO Wiiload report check disabled for this probe build
+BOOT before first vsync
+BOOT 2/3: entering IOS pre-main
+PRE 0/7: closing inherited IOS descriptors
+IPC: sync state ready
+IPC: command=0x00000002 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000002 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 1/7: IOS startup
+PRE 2/7: IOS subsystems
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 3/7: STM handler
+PRE 4/7: STM devices
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+PRE 5/7: configuration
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 6/7: Wii launch state
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+IPC: IOS reply ready
+PRE 7/7: complete
+-- page 2 --
+BOOT 3/3: IOS pre-main completed
+PASS display initialized
+INFO boot stage: system/video initialized
+INFO boot stage: IOS pre-main completed
+INFO log backend disabled
+INFO argv0 unavailable
+INFO argv raw magic=0x00000000 len=0 argc=0 cmd=0x00000000 argv=0x00000000 end=0x00000000
+PASS power button callback installed
+INFO stm init deferred until shutdown
+INFO fat mount sd=not-selected usb=not-selected
+INFO previous stm handler chained=0
+INFO previous power callback replaced
+
+== FAT SD API PROBE ==
+
+== GAMECUBE SD INVALID DRIVE API CHECKS ==
+PASS Rust SD Gecko getters reject negative and out-of-range drives
+PASS Rust SD Gecko setters reject negative and out-of-range drives
+PASS C SD Gecko lifecycle and metadata APIs reject negative and out-of-range drives
+PASS C SD Gecko sector APIs reject invalid drives and preserve buffers
+PASS Rust SD Gecko speed setter changes drive state
+-- page 3 --
+PASS C SD Gecko invalid callbacks and speed setters preserve drive state
+PASS C SD Gecko default initialization restores the original speed
+PASS C SD Gecko getters and setters handle invalid drive bounds
+PASS C SD Gecko buffer pool ignores null free and allocates, exhausts, frees, and reuses buffers
+
+== GAMECUBE SD BACKEND WITHOUT AN ADAPTER ==
+PASS SD Gecko init and metadata APIs report no card in slot A
+PASS slot A interface callbacks report no card and clean up
+PASS SD Gecko unmount succeeds when slot A has no card
+PASS SD Gecko backend getters return slot A state
+PASS SD Gecko page-size setter restores slot state after no-card errors
+PASS C SD Gecko page-size setter reports no card and restores slot state
+PASS C SD Gecko speed setter updates and restores slot state
+PASS C SD Gecko getters expose valid slot configuration
+PASS SD Gecko sector result APIs preserve no-card errors
+PASS FAT SD presence reports inserted media
+PASS FAT SD mount
+INFO FAT SD lookup immediately after mount=4
+PASS FAT SD insertion query
+PASS FAT mounted media generation is available
+PASS C and Rust FAT volume labels match
+PASS C FAT attribute exports reject null paths
+-- page 4 --
+PASS FAT seek updates the file cursor
+PASS FAT truncate persists the requested length
+PASS C FAT attribute exports set read back and restore the hidden bit
+PASS FAT read-only reopen preserves bytes and rejects writes
+PASS FAT truncated file persists across unmount and remount
+PASS FAT temporary file closes and is removed
+PASS FAT create writes a new file and cleanup removes it
+INFO C fatInit result=1
+INFO devoptab FindDevice sd path=4
+INFO devoptab FindDevice sd file path=4
+INFO FAT SD mounted after fatInit=1
+INFO C fatInitDefault result=1
+INFO FAT SD mounted after fatInitDefault=1
+PASS FAT init exports retain the mounted SD volume
+PASS C FAT simple mount registers and unregisters an alias
+PASS C FAT configured mount registers and unregisters an alias
+PASS FAT directory repair rejects duplicate and missing paths without changes
+PASS FAT media generation stays stable during mounted access
+PASS FAT GameCube SD A reports unavailable without an EXI adapter
+PASS FAT GameCube SD B reports unavailable without an EXI adapter
+PASS FAT SD cleanup unmounts the volume
+PASS FAT read-only mount rejects file creation and preserves absence
+-- page 5 --
+PASS FAT configured read-only mount registers and cleans up
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+INFO summary_candidate passes=45 fails=0
+PASS summary passes=45 fails=0

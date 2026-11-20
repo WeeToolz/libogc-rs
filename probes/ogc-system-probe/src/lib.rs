@@ -35,6 +35,8 @@ pub mod debugger_probe;
 #[cfg(target_arch = "powerpc")]
 pub mod event_line;
 #[cfg(target_arch = "powerpc")]
+mod exfat_sd_probe;
+#[cfg(target_arch = "powerpc")]
 mod fat_sd_probe;
 #[cfg(target_arch = "powerpc")]
 pub mod font_probe;
@@ -739,6 +741,16 @@ pub fn run_wiisd_probe_bin() -> i32 {
     configure_probe_app_dir("wiisd-probe");
     let mut logger = init_probe_logger();
     wiisd_probe::run(&mut logger);
+    logger.summary();
+    finish_probe()
+}
+
+#[cfg(target_arch = "powerpc")]
+/// Checks the read-only exFAT API through the Wii SD driver.
+pub fn run_exfat_sd_probe_bin() -> i32 {
+    configure_probe_app_dir("exfat-sd-probe");
+    let mut logger = init_probe_logger();
+    exfat_sd_probe::run(&mut logger);
     logger.summary();
     finish_probe()
 }

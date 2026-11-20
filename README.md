@@ -92,6 +92,9 @@ to see which checks passed. Dolphin does not replace real-Wii validation.
 See the [probe guide](probes/README.md) and [verification guide](docs/verification.md)
 for more commands and limits.
 
+The [read-only exFAT guide](docs/exfat.md) describes the Rust API for
+sector-zero volumes and primary MBR partitions.
+
 ## Repository structure
 
 ```text

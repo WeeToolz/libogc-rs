@@ -451,6 +451,7 @@ const PROBE_BINARIES: &[&str] = &[
     "usbstorage_transport_probe",
     "wiisd_probe",
     "fat_sd_probe",
+    "exfat_sd_probe",
     "hid_descriptor_probe",
     "lwp_probe",
 ];
@@ -570,6 +571,7 @@ mod probe_artifact_tests {
                 "aesnd_native_probe",
                 "usbstorage_transport_probe",
                 "bluetooth_probe",
+                "exfat_sd_probe",
             ] {
                 assert!(binaries.contains(&probe));
             }
@@ -589,9 +591,9 @@ mod probe_artifact_tests {
                 );
             }
             let expected_count = match mode {
-                Plain => 39,
-                MountedLog | Dolphin => 49,
-                AgentReport => 34,
+                Plain => 40,
+                MountedLog | Dolphin => 50,
+                AgentReport => 35,
             };
             assert_eq!(binaries.len(), expected_count, "output count in {mode:?}");
         }

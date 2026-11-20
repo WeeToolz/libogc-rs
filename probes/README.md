@@ -15,6 +15,7 @@ Probe packages and focused DOLs:
 - `libmad_probe` — deterministic full-rate and half-rate `libmad-rs` synthesis checks with on-screen pass/fail output.
 - `libmad_rs_decode_probe` — pure Rust Layer III decoding of an embedded MP3 and finite ASND playback of the decoded stereo PCM.
 - `aesnd_native_probe` — native DSP output, stream callback replacement, ONCE/LOOP playback, same-slot voice replacement, stop, and reset.
+- `exfat_sd_probe` checks read-only exFAT through the Wii SD driver in Dolphin. Run it with an explicit `--sd-image`. See the [fixture and probe instructions](../docs/dolphin-runs/2026-11-20-exfat-read-only/README.md).
 - `usbstorage_transport_probe` — physical USB reads, reset, suspend/automatic resume, and close/reopen without raw sector writes.
 
 Probes call production implementations only. They must not contain replacement hardware models.

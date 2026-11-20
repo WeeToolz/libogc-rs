@@ -1,0 +1,11 @@
+[package]
+name = "ogc-exfat"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[target.'cfg(target_arch = "powerpc")'.dependencies]
+ogc-filesystem-sys = { path = "../ogc-filesystem-sys" }
+
+[lints]
+workspace = true

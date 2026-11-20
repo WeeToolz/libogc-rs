@@ -4,7 +4,7 @@ Milestone 2 replaces the remaining disabled or inline-completion storage facades
 
 ## API verification groups
 
-The generated inventory has 604 storage API entries in 14 packages. Its
+The generated inventory has 610 storage API entries in 15 packages. Its
 `unverified` count tracks missing implementation-source mappings. A zero in
 that field does not mean that every API passed a test or a Dolphin run. This
 source-mapping result does not prove runtime behavior on Dolphin or Wii hardware.
@@ -18,7 +18,8 @@ exact free-function or method receiver used by their named host test. Forty
 `ogc-filesystem` rows record exact API paths in the runtime probe. Sixty-four
 `ogc-fat` rows record exact function or method call paths from Dolphin probes
 and host tests. Thirty `ogc-usbstorage` rows record the wrapper path called by
-a named probe. Sixty-five `ogc-usbstorage-sys` rows record exact wrapper, C
+a named probe. Six `ogc-exfat` rows record direct calls from the read-only
+Dolphin SD probe. Sixty-five `ogc-usbstorage-sys` rows record exact wrapper, C
 ABI, callback, or helper paths. Nine `iso9660` rows record exact C wrapper, C
 export, and Rust call paths. Fifty-nine `ogc-di` rows record exact wrapper
 paths from the no-disc probe. Twenty-seven `ogc-dvd` rows record exact facade
@@ -27,7 +28,7 @@ through the sys module. Thirty `ogc-gcsd` rows record public wrapper calls and
 SD interface callbacks from the GameCube SD probe. Fifty-six
 `ogc-card-metadata` rows record exact calls from host tests. The CARD probes now
 record 113 exact public call paths: 63 `ogc-card` and 50 `ogc-card-sys`. In total,
-550 of 604 storage entries record exact API paths. These checks confirm source
+556 of 610 storage entries record exact API paths. These checks confirm source
 identity only. A path match does not prove that an API assertion passed or
 that a device-dependent branch ran. Review each mapping and runtime report
 before using it as a result.
@@ -45,6 +46,7 @@ probe or host-test results.
 | `ogc-di` | 59 | DVD |
 | `ogc-dvd` | 27 | DVD |
 | `ogc-dvd-sys` | 32 | DVD |
+| `ogc-exfat` | 6 | exFAT |
 | `ogc-fat` | 64 | FAT |
 | `ogc-filesystem` | 40 | FAT |
 | `ogc-gcsd` | 44 | Storage |
@@ -53,7 +55,7 @@ probe or host-test results.
 | `ogc-usbstorage-sys` | 65 | Storage |
 | `ogc-wiisd` | 5 | Storage |
 
-The workspace checks 15 runtime crates as one build group with
+The workspace checks 16 runtime crates as one build group with
 `cargo xtask check-group storage`. The probe group names map to source files in
 `config/probe-coverage.csv`. They collect related packages, but they do not
 define a result for every API. Use smaller operation batches inside each probe
@@ -61,6 +63,9 @@ group: initialization and teardown, status, file or block I/O, directory and
 metadata operations, asynchronous completion, error handling, and cleanup.
 Each API needs a direct observable check or an exact host test of production
 logic. A broad probe run does not prove every API in its group.
+
+The [read-only exFAT guide](exfat.md) links the separate exFAT evidence and
+explains the limits of this milestone.
 
 Current runtime evidence is incomplete. An earlier media-aware `storage_probe`
 passed in Dolphin 2609a with 111 checks and 0 failures. It checked no-device

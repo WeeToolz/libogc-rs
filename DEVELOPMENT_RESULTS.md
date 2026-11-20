@@ -1,5 +1,15 @@
 # Development results
 
+## 2026-11-20: Read-only exFAT
+
+Dolphin 2609a passed 27 checks on each 64 MiB sector-zero and MBR image, and
+13 checks on the 8 GiB image. The exFAT probe used the Wii SD driver. It
+recorded no write calls, and all three image hashes matched after the run.
+The existing FAT SD probe passed 45 checks. See the
+[exFAT evidence](docs/dolphin-runs/2026-11-20-exfat-read-only/README.md) and
+[crate decision](docs/exfat.md).
+
+
 ## 2026-11-20 PAD sampling callback
 
 The [PAD sampling batch](docs/dolphin-runs/2026-11-20-pad-sampling/README.md)

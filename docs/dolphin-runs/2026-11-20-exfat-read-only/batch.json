@@ -1,0 +1,89 @@
+{
+  "probe": "exfat_sd_probe",
+  "cases": [
+    {
+      "crate": "ogc-exfat",
+      "path": "src/disc.rs",
+      "symbol": "mount",
+      "line": 48,
+      "evidence_path": "probes/ogc-system-probe/src/exfat_sd_probe.rs",
+      "function": "probe_exfat_apis",
+      "api_path": "Volume::mount",
+      "checks": [
+        "exFAT mounted from Wii SD",
+        "exFAT rejects a corrupted boot checksum",
+        "exFAT rejects a corrupted directory entry checksum",
+        "exFAT propagates a failed device read"
+      ]
+    },
+    {
+      "crate": "ogc-exfat",
+      "path": "src/disc.rs",
+      "symbol": "stat",
+      "line": 75,
+      "evidence_path": "probes/ogc-system-probe/src/exfat_sd_probe.rs",
+      "function": "probe_listing",
+      "api_path": "volume.stat",
+      "checks": [
+        "exFAT stat preserves name and size with case-insensitive lookup",
+        "exFAT stat rejects a missing path",
+        "exFAT rejects an invalid path component"
+      ]
+    },
+    {
+      "crate": "ogc-exfat",
+      "path": "src/disc.rs",
+      "symbol": "visit_dir",
+      "line": 84,
+      "evidence_path": "probes/ogc-system-probe/src/exfat_sd_probe.rs",
+      "function": "probe_listing",
+      "api_path": "volume.visit_dir",
+      "checks": [
+        "exFAT root lists the expected file",
+        "exFAT lists a nested directory",
+        "exFAT rejects listing a file"
+      ]
+    },
+    {
+      "crate": "ogc-exfat",
+      "path": "src/disc.rs",
+      "symbol": "open",
+      "line": 98,
+      "evidence_path": "probes/ogc-system-probe/src/exfat_sd_probe.rs",
+      "function": "probe_contiguous_file",
+      "api_path": "volume.open",
+      "checks": [
+        "exFAT opened the expected file",
+        "exFAT opens a fragmented file",
+        "exFAT rejects opening a directory as a file"
+      ]
+    },
+    {
+      "crate": "ogc-exfat",
+      "path": "src/disc.rs",
+      "symbol": "read",
+      "line": 131,
+      "evidence_path": "probes/ogc-system-probe/src/exfat_sd_probe.rs",
+      "function": "probe_contiguous_file",
+      "api_path": "file.read",
+      "checks": [
+        "exFAT read matches the independent payload",
+        "exFAT follows a nonadjacent FAT link and zero fills the uninitialized tail",
+        "exFAT end-of-file read preserves the output buffer"
+      ]
+    },
+    {
+      "crate": "ogc-exfat",
+      "path": "src/disc.rs",
+      "symbol": "seek",
+      "line": 122,
+      "evidence_path": "probes/ogc-system-probe/src/exfat_sd_probe.rs",
+      "function": "probe_contiguous_file",
+      "api_path": "file.seek",
+      "checks": [
+        "exFAT seek and read use the requested offset",
+        "exFAT can seek backward after following a FAT link"
+      ]
+    }
+  ]
+}
