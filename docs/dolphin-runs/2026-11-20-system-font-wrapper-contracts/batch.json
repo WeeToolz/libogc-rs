@@ -1,0 +1,44 @@
+{
+  "probe": "font_probe",
+  "cases": [
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "init_font",
+      "line": 839,
+      "evidence_path": "probes/ogc-system-probe/src/font_probe.rs",
+      "function": "run",
+      "api_path": "system::init_font",
+      "checks": [
+        "font init reports a stable loaded or unavailable state"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "get_font_texture",
+      "line": 850,
+      "evidence_path": "probes/ogc-system-probe/src/font_probe.rs",
+      "function": "probe_texture",
+      "api_path": "system::get_font_texture",
+      "checks": [
+        "font ascii texture"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "get_font_texel",
+      "line": 866,
+      "evidence_path": "probes/ogc-system-probe/src/font_probe.rs",
+      "function": "probe_texel",
+      "api_path": "system::get_font_texel",
+      "checks": [
+        "font ascii texel"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin had no loaded system font, so the wrapper checks cover stable unavailable-font behavior and cleared outputs. They do not prove rendering with available font data."
+  ]
+}

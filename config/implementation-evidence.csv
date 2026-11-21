@@ -3079,3 +3079,6 @@ ogc-usb-sys,src/lib.rs,write_ctrl_msg_async,4184,ios,hardware-probe,probes/ogc-s
 ogc-video-sys,src/lib.rs,get_current_line,913,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_sys_queries,raw_video::get_current_line
 ogc-video-sys,src/lib.rs,get_next_field,903,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_sys_queries,raw_video::get_next_field
 ogc-video-sys,src/platform_timing.rs,timer_clock_hz,275,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_sys_queries,raw_video::timer_clock_hz
+ogc-system,src/lib.rs,init_font,839,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/font_probe.rs,run,system::init_font
+ogc-system,src/lib.rs,get_font_texture,850,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/font_probe.rs,probe_texture,system::get_font_texture
+ogc-system,src/lib.rs,get_font_texel,866,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/font_probe.rs,probe_texel,system::get_font_texel
