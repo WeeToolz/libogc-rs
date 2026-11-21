@@ -458,7 +458,9 @@ pub unsafe fn lc_load_blocks(_dst: *mut c_void, _src: *mut c_void, _count: u32) 
             "or {tmp}, {tmp}, {dst}",
             "ori {tmp}, {tmp}, 0x0012",
             "mtspr 923, {tmp}",
-            tmp = lateout(reg) _,
+            // The first instruction writes `tmp` before later instructions
+            // read the remaining inputs, so this must be an early output.
+            tmp = out(reg) _,
             src = inout(reg) src => _,
             count = in(reg) count,
             dst = in(reg) dst,
@@ -486,7 +488,9 @@ pub unsafe fn lc_store_blocks(_dst: *mut c_void, _src: *mut c_void, _count: u32)
             "or {tmp}, {tmp}, {src}",
             "ori {tmp}, {tmp}, 0x0002",
             "mtspr 923, {tmp}",
-            tmp = lateout(reg) _,
+            // The first instruction writes `tmp` before later instructions
+            // read the remaining inputs, so this must be an early output.
+            tmp = out(reg) _,
             src = inout(reg) src => _,
             count = in(reg) count,
             dst = in(reg) dst,

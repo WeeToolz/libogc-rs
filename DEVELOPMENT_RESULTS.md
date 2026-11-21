@@ -34,6 +34,19 @@ probes only tested an empty queue. Those five API entries now remain
 unverified until non-zero transfers and pending-queue behavior are tested. The
 current inventory has 189 unverified APIs.
 
+## 2026-11-21 locked-cache DMA
+
+The [DMA batch](docs/dolphin-runs/2026-11-21-ogc-cache-dma-v5/batch-report.md)
+checks non-zero `lc_load_data`, `lc_store_data`, `lc_load_blocks`, and
+`lc_store_blocks` transfers. A guard check first found that `lc_store_data`
+changed the byte after its requested cache line. The cause was an inline
+assembly temporary declared as `lateout`: the assembly writes it before it
+has finished reading its inputs. The temporary now uses `out`, which prevents
+it from sharing an input register. The same DMA probe then passed all 65 bus
+checks, including guard checks and HID2 and buffer restoration. The inventory
+fell from 189 to 185 unverified APIs. Dolphin validates the emulated transfer
+paths; physical cache behavior remains untested.
+
 ## 2026-11-21 inventory audit evidence caching
 
 The inventory audit was taking longer than 60 seconds because it reparsed

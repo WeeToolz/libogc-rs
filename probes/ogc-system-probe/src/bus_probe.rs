@@ -46,6 +46,8 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_locked_cache_allocations(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_locked_cache_dma(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_cache_instruction_apis(logger);
     probe_aram(logger);
     probe_dsp(logger);
@@ -376,6 +378,185 @@ fn probe_locked_cache_allocations(logger: &mut ProbeLogger) {
     logger.record(
         "locked-cache allocation probe restores HID2 and buffer",
         read_hid2() == original_hid2 && data.0 == original_data,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_locked_cache_dma(logger: &mut ProbeLogger) {
+    const LOCKED_CACHE_ENABLE: u32 = 0x1000_0000;
+
+    fn read_hid2() -> u32 {
+        let value: u32;
+        // SAFETY: The Wii probe runs in supervisor mode.
+        unsafe {
+            core::arch::asm!("mfspr {value}, 920", value = out(reg) value, options(nostack));
+        }
+        value
+    }
+
+    fn write_hid2(value: u32) {
+        // SAFETY: Restore the HID2 value captured by this probe.
+        unsafe {
+            core::arch::asm!("sync", "mtspr 920, {value}", "isync", value = in(reg) value, options(nostack));
+        }
+    }
+
+    unsafe fn read_locked(base: *const u8, offset: usize, output: &mut [u8]) {
+        for (index, byte) in output.iter_mut().enumerate() {
+            // SAFETY: The caller provides a valid locked-cache range.
+            *byte = unsafe { core::ptr::read_volatile(base.add(offset + index)) };
+        }
+    }
+
+    unsafe fn write_locked(base: *mut u8, offset: usize, input: &[u8]) {
+        for (index, byte) in input.iter().enumerate() {
+            // SAFETY: The caller provides a valid locked-cache range.
+            unsafe { core::ptr::write_volatile(base.add(offset + index), *byte) };
+        }
+    }
+
+    logger.section("LOCKED CACHE DMA");
+    let mut source = Align32::<96>(core::array::from_fn(|index| (index * 37 + 13) as u8));
+    let mut destination = Align32([0xa5u8; 128]);
+    let original_destination = destination.0;
+    let source_ptr = source.0.as_mut_ptr().cast::<c_void>();
+    let destination_ptr = destination.0.as_mut_ptr().cast::<c_void>();
+    let locked_base = cache::lc_get_base().cast::<u8>();
+    let original_hid2 = read_hid2();
+    let restore_locked_cache = if original_hid2 & LOCKED_CACHE_ENABLE != 0 {
+        let mut bytes = [0; 96];
+        // SAFETY: `LCGetBase` returns the mapped locked-cache base and the
+        // first three lines are within the 512-line cache region.
+        unsafe { read_locked(locked_base, 0, &mut bytes) };
+        Some(bytes)
+    } else {
+        None
+    };
+    if restore_locked_cache.is_none() {
+        cache::lc_enable();
+    }
+
+    // SAFETY: Source and destination are aligned, live buffers. A 33-byte
+    // request rounds up to two 32-byte cache lines. The locked-cache base is
+    // the documented destination range for an LC load.
+    let load_blocks = unsafe { cache::lc_load_data(locked_base.cast(), source_ptr, 33) };
+    let load_wait = cache::lc_queue_wait(0);
+    let mut loaded = [0; 96];
+    // SAFETY: Read back the three lines used by this probe.
+    unsafe { read_locked(locked_base, 0, &mut loaded) };
+    logger.record(
+        "lc_load_data transfers rounded nonzero data into locked cache",
+        load_blocks == 1 && load_wait == 1 && loaded[..64] == source.0[..64],
+    );
+
+    // SAFETY: Flush and invalidate the aligned destination lines before the
+    // DMA store so the CPU does not read stale data-cache contents afterward.
+    unsafe { cache::dc_flush_range(destination_ptr.cast(), destination.0.len() as u32) };
+    // SAFETY: The buffers remain live and aligned. The transfer rounds 33
+    // bytes up to two lines and the final 32 bytes hold a guard pattern.
+    let store_blocks = unsafe { cache::lc_store_data(destination_ptr, locked_base.cast(), 32) };
+    let store_wait = cache::lc_queue_wait(0);
+    // SAFETY: Invalidate only the aligned destination lines written by DMA.
+    unsafe { cache::dc_invalidate_range(destination_ptr.cast(), destination.0.len() as u32) };
+    cache::sync();
+    let store_data_matches = destination.0[..32] == source.0[..32];
+    let store_guard_matches = destination.0[32..] == original_destination[32..];
+    logger.note_u32("lc_store_data blocks", store_blocks);
+    logger.note_u32("lc_store_data wait result", store_wait);
+    logger.note_u32("lc_store_data payload matches", store_data_matches as u32);
+    logger.note_u32("lc_store_data guard matches", store_guard_matches as u32);
+    if let Some(index) = destination.0[32..]
+        .iter()
+        .zip(&original_destination[32..])
+        .position(|(actual, expected)| actual != expected)
+    {
+        let index = index + 32;
+        logger.note_u32("lc_store_data first guard mismatch offset", index as u32);
+        logger.note_u32(
+            "lc_store_data first guard mismatch actual",
+            destination.0[index] as u32,
+        );
+        logger.note_u32(
+            "lc_store_data first guard mismatch expected",
+            original_destination[index] as u32,
+        );
+    }
+    if let Some(index) = destination.0[..32]
+        .iter()
+        .zip(&source.0[..32])
+        .position(|(actual, expected)| actual != expected)
+    {
+        logger.note_u32("lc_store_data first mismatch offset", index as u32);
+        logger.note_u32(
+            "lc_store_data first mismatch actual",
+            destination.0[index] as u32,
+        );
+        logger.note_u32(
+            "lc_store_data first mismatch expected",
+            source.0[index] as u32,
+        );
+    }
+    logger.record(
+        "lc_store_data copies one nonzero cache line and preserves guard bytes",
+        store_blocks == 1 && store_wait == 1 && store_data_matches && store_guard_matches,
+    );
+
+    // SAFETY: `source_ptr + 64` and `locked_base + 64` each address one valid
+    // aligned cache line within the buffers used by this probe.
+    unsafe {
+        cache::lc_load_blocks(locked_base.add(64).cast(), source_ptr.add(64), 1);
+    }
+    let load_wait = cache::lc_queue_wait(0);
+    let mut loaded_block = [0; 32];
+    // SAFETY: Read back one line in the mapped locked-cache region.
+    unsafe { read_locked(locked_base, 64, &mut loaded_block) };
+    logger.record(
+        "lc_load_blocks transfers one cache line into locked cache",
+        load_wait == 1 && loaded_block == source.0[64..96],
+    );
+
+    // SAFETY: Flush and invalidate the aligned destination lines before DMA.
+    unsafe { cache::dc_flush_range(destination_ptr.add(64).cast(), 64) };
+    // SAFETY: The destination and locked-cache source each address one valid
+    // aligned cache line. The destination buffer includes a trailing guard.
+    unsafe {
+        cache::lc_store_blocks(destination_ptr.add(64), locked_base.add(64).cast(), 1);
+    }
+    let store_wait = cache::lc_queue_wait(0);
+    // SAFETY: Invalidate only the two aligned lines used for the transfer.
+    unsafe { cache::dc_invalidate_range(destination_ptr.add(64).cast(), 64) };
+    cache::sync();
+    logger.record(
+        "lc_store_blocks transfers one cache line and preserves guard bytes",
+        store_wait == 1
+            && destination.0[64..96] == source.0[64..96]
+            && destination.0[96..] == original_destination[96..],
+    );
+
+    if let Some(bytes) = restore_locked_cache.as_ref() {
+        // SAFETY: Restore the three locked-cache lines saved before the probe.
+        unsafe { write_locked(locked_base, 0, bytes) };
+    } else {
+        cache::lc_disable();
+    }
+    write_hid2(original_hid2);
+    destination.0 = original_destination;
+    // SAFETY: Flush and sync only the aligned 128-byte destination buffer.
+    unsafe { cache::dc_flush_range(destination_ptr.cast(), destination.0.len() as u32) };
+    cache::sync();
+
+    let mut restored_locked_cache = [0; 96];
+    if restore_locked_cache.is_some() {
+        // SAFETY: Read back the restored three lines in locked cache.
+        unsafe { read_locked(locked_base, 0, &mut restored_locked_cache) };
+    }
+    logger.record(
+        "locked-cache DMA probe restores HID2 and buffers",
+        read_hid2() == original_hid2
+            && destination.0 == original_destination
+            && restore_locked_cache
+                .as_ref()
+                .is_none_or(|bytes| restored_locked_cache == *bytes),
     );
 }
 
