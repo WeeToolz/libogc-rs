@@ -133,6 +133,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_usb_safe_result_wrappers(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_usb_invalid_handle_operations(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_usb_raw_invalid_handle_operations(logger);
     probe_video_queries(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_video_register_checks(logger);
@@ -3517,6 +3519,35 @@ fn probe_usb_api_batch(logger: &mut ProbeLogger) {
     // SAFETY: The null descriptor is explicitly accepted as a no-op.
     unsafe { usb_sys::free_descriptors(core::ptr::null_mut()) };
     logger.record("USB descriptor free accepts a null descriptor", true);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_usb_raw_invalid_handle_operations(logger: &mut ProbeLogger) {
+    use ogc_usb as usb;
+    logger.record(
+        "USB raw suspend rejects invalid handle",
+        usb::suspend_device(-1) < 0,
+    );
+    logger.record(
+        "USB raw resume rejects invalid handle",
+        usb::resume_device(-1) < 0,
+    );
+    logger.record(
+        "USB raw configuration rejects invalid handle",
+        usb::set_configuration(-1, 1) < 0,
+    );
+    logger.record(
+        "USB raw alternate interface rejects invalid handle",
+        usb::set_alternative_interface(-1, 0, 0) < 0,
+    );
+    logger.record(
+        "USB raw clear halt rejects invalid handle",
+        usb::clear_halt(-1, 0x81) < 0,
+    );
+    logger.record(
+        "USB configuration query rejects invalid handle",
+        usb::configuration(-1).is_err(),
+    );
 }
 
 #[cfg(feature = "dolphin-automation")]

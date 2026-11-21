@@ -3041,3 +3041,9 @@ lwbt-sys,src/lib.rs,arg,759,hardware,hardware-probe,probes/ogc-system-probe/src/
 lwbt-sys,src/lib.rs,received,770,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_pcb_lifecycle,bte::received
 lwbt-sys,src/lib.rs,disconnected,781,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_pcb_lifecycle,bte::disconnected
 lwbt-sys,src/lib.rs,free,747,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_pcb_lifecycle,bte::free
+ogc-usb,src/lib.rs,suspend_device,235,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_raw_invalid_handle_operations,usb::suspend_device
+ogc-usb,src/lib.rs,resume_device,243,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_raw_invalid_handle_operations,usb::resume_device
+ogc-usb,src/lib.rs,set_configuration,496,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_raw_invalid_handle_operations,usb::set_configuration
+ogc-usb,src/lib.rs,set_alternative_interface,504,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_raw_invalid_handle_operations,usb::set_alternative_interface
+ogc-usb,src/lib.rs,clear_halt,512,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_raw_invalid_handle_operations,usb::clear_halt
+ogc-usb,src/lib.rs,configuration,491,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_raw_invalid_handle_operations,usb::configuration

@@ -1,5 +1,13 @@
 # Development results
 
+## 2026-11-20 USB raw invalid-handle operations
+
+The [USB batch](docs/dolphin-runs/2026-11-20-ogc-usb-raw-invalid-handle-ops/README.md)
+checks six raw device control and configuration queries with handle `-1`.
+Dolphin passed all 645 runtime probe checks. The inventory fell from 341 to
+335 unverified entries. Successful calls on an open USB device remain
+untested.
+
 ## 2026-11-20 Bluetooth PCB lifecycle
 
 The [PCB batch](docs/dolphin-runs/2026-11-20-lwbt-pcb-lifecycle/README.md)
