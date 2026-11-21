@@ -3256,3 +3256,10 @@ ogc-stm,src/lib.rs,try_close,464,ios,hardware-probe,probes/ogc-system-probe/src/
 ogc-ipc,src/lib.rs,validate_path,2752,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_path_limits,ipc::validate_path
 ogc-network-sys,src/lib.rs,net_wc24cleanup,1067,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_wc24_cleanup,raw_network::net_wc24cleanup
 ogc-network-sys,src/lib.rs,net_wc24cleanup,1977,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_wc24_cleanup,raw_network::net_wc24cleanup
+libdb-sys,src/wii_network.rs,bind,30,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_debugger_network_lifecycle,WiiNetworkTransport::bind
+libdb-sys,src/wii_network.rs,bind_with_control,34,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_debugger_network_lifecycle,WiiNetworkTransport::bind_with_control
+libdb-sys,src/wii_network.rs,poll,41,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_debugger_network_lifecycle,transport.poll
+libdb-sys,src/wii_network.rs,state,45,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_debugger_network_lifecycle,transport.state
+libdb-sys,src/wii_network.rs,arm,49,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_debugger_network_lifecycle,transport.arm
+libdb-sys,src/wii_network.rs,disarm,53,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_debugger_network_lifecycle,transport.disarm
+libdb-sys,src/wii_network.rs,close,57,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_debugger_network_lifecycle,transport.close

@@ -1,0 +1,93 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "libdb-sys",
+      "path": "src/wii_network.rs",
+      "symbol": "bind",
+      "line": 30,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_debugger_network_lifecycle",
+      "api_path": "WiiNetworkTransport::bind",
+      "checks": [
+        "debugger network binds and closes listener"
+      ]
+    },
+    {
+      "crate": "libdb-sys",
+      "path": "src/wii_network.rs",
+      "symbol": "bind_with_control",
+      "line": 34,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_debugger_network_lifecycle",
+      "api_path": "WiiNetworkTransport::bind_with_control",
+      "checks": [
+        "debugger network accepts local client"
+      ]
+    },
+    {
+      "crate": "libdb-sys",
+      "path": "src/wii_network.rs",
+      "symbol": "poll",
+      "line": 41,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_debugger_network_lifecycle",
+      "api_path": "transport.poll",
+      "checks": [
+        "debugger network accepts local client",
+        "debugger network exchanges a framed packet"
+      ]
+    },
+    {
+      "crate": "libdb-sys",
+      "path": "src/wii_network.rs",
+      "symbol": "state",
+      "line": 45,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_debugger_network_lifecycle",
+      "api_path": "transport.state",
+      "checks": [
+        "debugger network accepts local client",
+        "debugger network arm and disarm change state",
+        "debugger network closes connected transport"
+      ]
+    },
+    {
+      "crate": "libdb-sys",
+      "path": "src/wii_network.rs",
+      "symbol": "arm",
+      "line": 49,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_debugger_network_lifecycle",
+      "api_path": "transport.arm",
+      "checks": [
+        "debugger network arm and disarm change state"
+      ]
+    },
+    {
+      "crate": "libdb-sys",
+      "path": "src/wii_network.rs",
+      "symbol": "disarm",
+      "line": 53,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_debugger_network_lifecycle",
+      "api_path": "transport.disarm",
+      "checks": [
+        "debugger network arm and disarm change state"
+      ]
+    },
+    {
+      "crate": "libdb-sys",
+      "path": "src/wii_network.rs",
+      "symbol": "close",
+      "line": 57,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_debugger_network_lifecycle",
+      "api_path": "transport.close",
+      "checks": [
+        "debugger network closes connected transport",
+        "debugger network probe deinitializes"
+      ]
+    }
+  ]
+}

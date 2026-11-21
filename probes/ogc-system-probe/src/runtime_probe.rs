@@ -263,6 +263,8 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_network_wc24_cleanup(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_debugger_network_lifecycle(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_raw_video_setup(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_sysbase_default_device(logger);
@@ -7156,6 +7158,99 @@ fn probe_network_wc24_cleanup(logger: &mut ProbeLogger) {
         cleaned == 0 && initialized == 0 && net::get_host_ip() != 0 && closed,
     );
     logger.record("WC24 cleanup probe deinitializes", net::deinit() == 0);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_debugger_network_lifecycle(logger: &mut ProbeLogger) {
+    use libdb_sys::wii_network::{CooperativeControl, DebuggerState, WiiNetworkTransport};
+    use ogc_network as net;
+
+    static CONTROL: CooperativeControl = CooperativeControl::new();
+    const PORT: u16 = 43871;
+    let initialized = net::init() == 0;
+    let mut plain = WiiNetworkTransport::bind(PORT).ok();
+    let plain_ok = plain
+        .as_ref()
+        .is_some_and(|transport| transport.state() == DebuggerState::Listening);
+    let plain_closed = plain
+        .as_mut()
+        .is_some_and(|transport| transport.close().is_ok());
+    logger.record(
+        "debugger network binds and closes listener",
+        initialized && plain_ok && plain_closed,
+    );
+
+    let transport = WiiNetworkTransport::bind_with_control(PORT, &CONTROL);
+    if let Ok(mut transport) = transport {
+        let listening = transport.state() == DebuggerState::Listening && transport.arm().is_err();
+        let client = net::socket(net::PF_INET, net::SOCK_STREAM, 0);
+        let address = net::SockaddrIn {
+            sin_len: 16,
+            sin_family: net::AF_INET as u8,
+            sin_port: PORT.to_be(),
+            sin_addr: net::InAddr {
+                s_addr: net::get_host_ip(),
+            },
+            sin_zero: [0; 8],
+        };
+        let connected = client >= 0 && net::connect_addr(client, &address) == 0;
+        let mut accepted = false;
+        for tick in 0..100 {
+            if transport
+                .poll(tick)
+                .is_ok_and(|report| report.accepted_client)
+            {
+                accepted = true;
+                break;
+            }
+            ogc_lwp::yield_now();
+        }
+        logger.record(
+            "debugger network accepts local client",
+            listening && connected && accepted && transport.state() == DebuggerState::Connected,
+        );
+        let sent = connected && net::send_slice(client, b"$?#3f", 0) == 5;
+        let nonblocking = net::fcntl(client, raw_network::F_SETFL, net::O_NONBLOCK) == 0;
+        let mut reply = [0u8; 5];
+        let mut received = 0usize;
+        for tick in 100..200 {
+            if transport.poll(tick).is_err() {
+                break;
+            }
+            if received < reply.len() {
+                let count = net::recv_slice(client, &mut reply[received..], 0);
+                if count > 0 {
+                    received += count as usize;
+                }
+            }
+            if received == reply.len() {
+                break;
+            }
+            ogc_lwp::yield_now();
+        }
+        logger.record(
+            "debugger network exchanges a framed packet",
+            sent && nonblocking && received == 5 && reply == *b"+$#00",
+        );
+        let armed = transport.arm().is_ok() && transport.state() == DebuggerState::Armed;
+        transport.disarm();
+        logger.record(
+            "debugger network arm and disarm change state",
+            armed && transport.state() == DebuggerState::Connected,
+        );
+        let closed = transport.close().is_ok() && transport.state() == DebuggerState::Closed;
+        let client_closed = client >= 0 && net::close(client) == 0;
+        logger.record(
+            "debugger network closes connected transport",
+            closed && client_closed,
+        );
+    } else {
+        logger.record("debugger network accepts local client", false);
+        logger.record("debugger network exchanges a framed packet", false);
+        logger.record("debugger network arm and disarm change state", false);
+        logger.record("debugger network closes connected transport", false);
+    }
+    logger.record("debugger network probe deinitializes", net::deinit() == 0);
 }
 
 #[cfg(feature = "dolphin-automation")]
