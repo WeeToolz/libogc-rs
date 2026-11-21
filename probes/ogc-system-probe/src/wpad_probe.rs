@@ -145,6 +145,18 @@ fn probe_valid_channel_empty_queries(logger: &mut ProbeLogger) {
         accel.x == 0 && accel.y == 0 && accel.z == 0,
     );
 
+    let mut force = wpad::GForce {
+        x: 3.5,
+        y: 4.5,
+        ..wpad::GForce::default()
+    };
+    // SAFETY: The output points to a valid local value.
+    unsafe { wpad::g_force(chan, &mut force) };
+    logger.record(
+        "WPAD empty channel g-force is zero",
+        force.x == 0.0 && force.y == 0.0,
+    );
+
     let mut ir = wpad::Ir {
         num_dots: 9,
         state: 7,
