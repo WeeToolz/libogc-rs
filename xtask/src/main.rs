@@ -570,6 +570,24 @@ mod probe_artifact_tests {
     }
 
     #[test]
+    fn stm_probe_adds_the_startup_bypass_only_to_its_selected_build() {
+        use super::ProbeBuildMode;
+
+        assert_eq!(
+            ProbeBuildMode::Dolphin.features_for(Some(&["stm_api_probe"])),
+            Some("ogc-system-probe/dolphin-automation,ogc-system-probe/stm-api-probe".to_string()),
+        );
+        assert_eq!(
+            ProbeBuildMode::Dolphin.features_for(Some(&["runtime_probe"])),
+            Some("ogc-system-probe/dolphin-automation".to_string()),
+        );
+        assert_eq!(
+            ProbeBuildMode::Dolphin.features_for(None),
+            Some("ogc-system-probe/dolphin-automation".to_string()),
+        );
+    }
+
+    #[test]
     fn modes_preserve_the_dol_output_sets() {
         use super::ProbeBuildMode::*;
         for mode in [Plain, MountedLog, Dolphin, AgentReport] {
@@ -1331,6 +1349,17 @@ impl ProbeBuildMode {
         }
     }
 
+    fn features_for(self, selected: Option<&[&str]>) -> Option<String> {
+        let mut features = self.features().unwrap_or_default().to_string();
+        if selected.is_some_and(|names| names.contains(&"stm_api_probe")) {
+            if !features.is_empty() {
+                features.push(',');
+            }
+            features.push_str("ogc-system-probe/stm-api-probe");
+        }
+        (!features.is_empty()).then_some(features)
+    }
+
     fn invocations(self, include_examples: bool) -> Vec<Vec<&'static str>> {
         // Separate invocations keep LWP's std startup feature out of binaries
         // that do not link the std runtime provider.
@@ -1467,7 +1496,7 @@ fn build_probe_selection(
                 .env("CARGO_ENCODED_RUSTFLAGS", &rustflags)
                 .env_remove("RUSTFLAGS")
                 .current_dir(&root);
-            if let Some(features) = mode.features() {
+            if let Some(features) = mode.features_for(selected) {
                 command.arg("--features").arg(features);
             }
             run_command(&mut command)?;

@@ -343,7 +343,7 @@ fn init_probe_logger_with_page_reports(page_reports: bool) -> probe_support::Pro
     }
     let power = probe_support::install_power_shutdown();
     logger.record("power button callback installed", true);
-    logger.note("stm init deferred until shutdown");
+    logger.note("power-button STM actions deferred until shutdown");
     #[cfg(feature = "mounted-log")]
     logger.note(&alloc::format!(
         "fat mount sd={} usb={}",
@@ -611,6 +611,9 @@ pub fn run_gx_api_probe_bin() -> i32 {
 pub fn run_stm_api_probe_bin() -> i32 {
     configure_probe_app_dir("stm-api-probe");
     let mut logger = init_probe_logger();
+    #[cfg(feature = "stm-api-probe")]
+    stm_api_probe::run_close(&mut logger);
+    #[cfg(not(feature = "stm-api-probe"))]
     stm_api_probe::run(&mut logger);
     logger.summary();
     finish_probe()

@@ -179,7 +179,11 @@ fn launch_ios_from_es(version: i32) -> i32 {
 
 #[cfg(target_arch = "powerpc")]
 fn stm_init_powerpc() -> i32 {
-    ogc_stm::init()
+    if cfg!(feature = "stm-api-probe") {
+        1
+    } else {
+        ogc_stm::init()
+    }
 }
 
 #[cfg(target_arch = "powerpc")]

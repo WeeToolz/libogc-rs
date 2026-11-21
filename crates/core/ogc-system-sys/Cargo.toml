@@ -4,6 +4,9 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 
+[features]
+stm-api-probe = ["ogc-ios-sys/stm-api-probe"]
+
 [dependencies]
 ogc-alloc = { path = "../ogc-alloc" }
 ogc-dsp = { path = "../../hardware/ogc-dsp" }

@@ -20,6 +20,11 @@ Probe packages and focused DOLs:
 
 Probes call production implementations only. They must not contain replacement hardware models.
 
+The focused `stm_api_probe` build skips the STM initialization call inside IOS
+startup. It leaves the IOS and ES startup steps active, then exercises the
+production `ogc-stm` API from an uninitialized state. The build helper enables
+this mode only when it selects `stm_api_probe`.
+
 Build only the Milestone 1 probe with:
 
 ```sh

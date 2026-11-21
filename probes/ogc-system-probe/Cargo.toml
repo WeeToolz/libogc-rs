@@ -16,6 +16,7 @@ pad-diagnostics = [
     "ogc-input/diagnostics",
     "ogc-si/diagnostics",
 ]
+stm-api-probe = ["ogc-system-sys/stm-api-probe"]
 ui-input-probe = ["agent-report", "dep:ogc-ui", "ogc-ui/controller-input", "ogc-ui/gx-backend"]
 
 [dependencies]
