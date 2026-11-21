@@ -3179,3 +3179,7 @@ ogc-cache,src/lib.rs,dc_flash_invalidate,302,hardware,hardware-probe,probes/ogc-
 ogc-cache,src/lib.rs,ic_block_invalidate,414,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_instruction_apis,ogc_cache::ic_block_invalidate
 ogc-cache,src/lib.rs,ic_flash_invalidate,375,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_instruction_apis,ogc_cache::ic_flash_invalidate
 ogc-cache,src/lib.rs,ic_sync,371,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_instruction_apis,ogc_cache::ic_sync
+ogc-si-sys,src/lib.rs,si_fault_install,481,hardware,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,probe_si_fault_raw_api_paths,ogc_si::sys::si_fault_install
+ogc-si-sys,src/lib.rs,si_fault_clear,513,hardware,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,probe_si_fault_raw_api_paths,ogc_si::sys::si_fault_clear
+ogc-si-sys,src/lib.rs,si_fault_release,525,hardware,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,probe_si_fault_raw_api_paths,ogc_si::sys::si_fault_release
+ogc-si-sys,src/lib.rs,si_fault_report,557,hardware,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,probe_si_fault_raw_api_paths,ogc_si::sys::si_fault_report

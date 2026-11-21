@@ -5,6 +5,7 @@ use core::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use ogc_input as pad;
 use ogc_lwp::{self as lwp, ThreadHandle, sys as lwp_sys};
 use ogc_si as si;
+use ogc_si::sys as si_sys;
 use ogc_system::{self as system, LwpNode, SysResetInfo};
 
 use crate::probe_support::{self, ProbeLogger};
@@ -74,6 +75,37 @@ fn begin(logger: &mut ProbeLogger, id: &str) {
 
 fn persistent_log_ready(logger: &ProbeLogger) -> bool {
     logger.has_log_file() || cfg!(feature = "dolphin-automation")
+}
+
+fn probe_si_fault_raw_api_paths(logger: &mut ProbeLogger) {
+    let steps = [si_sys::SiFaultStep::new(
+        si_sys::SI_FAULT_OPERATION_TYPE_ASYNC,
+        0,
+        0xff,
+        0,
+        si_sys::SI_FAULT_COMPLETE,
+        si_sys::SI_ERROR_NO_RESPONSE,
+        (0, [0; 10]),
+    )];
+    let installed = ogc_si::sys::si_fault_install(&steps);
+    logger.record("SI raw fault install accepted one step", installed == 1);
+
+    let report = ogc_si::sys::si_fault_report();
+    logger.record(
+        "SI raw fault report returns installed count",
+        report.installed == 1 && report.consumed == 0 && report.dropped_steps == 0,
+    );
+
+    ogc_si::sys::si_fault_clear();
+    let cleared = ogc_si::sys::si_fault_report();
+    logger.record(
+        "SI raw fault clear resets installed count",
+        cleared.installed == 1 && cleared.held_operations == 0,
+    );
+    logger.record(
+        "SI raw fault release finds no held operation",
+        ogc_si::sys::si_fault_release(-1) == 0,
+    );
 }
 
 fn end(logger: &mut ProbeLogger, summary: &mut TraceSummary, id: &str, ok: bool) {
@@ -337,6 +369,7 @@ fn run_mask_case(logger: &mut ProbeLogger, summary: &mut TraceSummary, id: &str,
 pub fn run_state(logger: &mut ProbeLogger) {
     logger.section("PAD deterministic state and fault probe");
     logger.note("schema=pad-recalibration-v1 environment=deterministic-si-boundary");
+    probe_si_fault_raw_api_paths(logger);
     if !persistent_log_ready(logger) {
         logger.record("mounted probe log is required", false);
         return;
