@@ -244,6 +244,64 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_network_tcp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_network_udp(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_raw_video_setup(logger);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_raw_video_setup(logger: &mut ProbeLogger) {
+    use core::ptr::{null_mut, read_volatile};
+    use ogc_video::sys;
+
+    unsafe extern "C" fn marker(_: u32) {}
+
+    let mode = unsafe { sys::get_preferred_mode(null_mut()) };
+    let framebuffer = sys::get_current_framebuffer();
+    let ready = !mode.is_null() && !framebuffer.is_null();
+    logger.record("Raw video setup has a live mode and framebuffer", ready);
+    if !ready {
+        return;
+    }
+    // SAFETY: The mode comes from VI and the active framebuffer stays allocated.
+    let mut original = unsafe { *mode };
+    let mut narrower = original;
+    narrower.vi_width /= 2;
+    narrower.vi_x_origin = 0;
+    let mut invalid = original;
+    invalid.vi_tv_mode = u32::MAX;
+    let horizontal_end = 0xcc00_2008 as *const u16;
+    let before = unsafe { read_volatile(horizontal_end) };
+
+    let pre = sys::set_pre_retrace_callback(Some(marker));
+    let post = sys::set_post_retrace_callback(Some(marker));
+    sys::init();
+    let cleared_pre = sys::set_pre_retrace_callback(pre).is_none();
+    let cleared_post = sys::set_post_retrace_callback(post).is_none();
+    let retrace = sys::wait_v_sync_timeout_us(100_000);
+    logger.record(
+        "Raw video init clears callbacks and keeps retrace active",
+        cleared_pre && cleared_post && retrace,
+    );
+
+    unsafe {
+        sys::configure(&mut narrower);
+        sys::configure(&mut invalid);
+        sys::configure(null_mut());
+        sys::set_next_framebuffer(framebuffer);
+    }
+    sys::set_black(0);
+    sys::flush();
+    let updated = sys::wait_v_sync_timeout_us(100_000);
+    let changed = unsafe { read_volatile(horizontal_end) } != before;
+
+    unsafe { sys::configure(&mut original) };
+    sys::flush();
+    let restored =
+        sys::wait_v_sync_timeout_us(100_000) && unsafe { read_volatile(horizontal_end) } == before;
+    logger.record(
+        "Raw video configure applies valid geometry despite invalid requests",
+        updated && changed && restored,
+    );
 }
 
 fn probe_pad_status_decode(logger: &mut ProbeLogger) {

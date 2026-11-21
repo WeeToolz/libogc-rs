@@ -1,0 +1,33 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-video-sys",
+      "path": "src/lib.rs",
+      "symbol": "init",
+      "line": 804,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_video_setup",
+      "api_path": "sys::init",
+      "checks": [
+        "Raw video setup has a live mode and framebuffer",
+        "Raw video init clears callbacks and keeps retrace active"
+      ]
+    },
+    {
+      "crate": "ogc-video-sys",
+      "path": "src/lib.rs",
+      "symbol": "configure",
+      "line": 937,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_raw_video_setup",
+      "api_path": "sys::configure",
+      "checks": [
+        "Raw video configure applies valid geometry despite invalid requests"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin preferred-mode horizontal geometry and retrace checks. Other modes and physical Wii video behavior remain open."
+  ]
+}
