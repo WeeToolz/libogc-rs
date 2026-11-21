@@ -4772,6 +4772,12 @@ fn probe_system_sram_setters(logger: &mut ProbeLogger) {
     system::set_video_mode(video);
     system::set_wireless_id(2, wireless);
     system::set_gbs_mode(gbs);
+    logger.record(
+        "System last config write result follows SRAM setters",
+        system::last_config_write_result() == 0,
+    );
+    let sync_result = system::sync_sram();
+    logger.record("System SRAM sync reports success", sync_result);
     let standard = system::snapshot_sram();
     let extended = system::snapshot_sram_ex();
     logger.record(
@@ -4839,7 +4845,8 @@ fn probe_system_sram_setters(logger: &mut ProbeLogger) {
         standard_restored
             && extended_restored
             && system::snapshot_sram() == Some(original)
-            && system::snapshot_sram_ex() == Some(original_ex),
+            && system::snapshot_sram_ex() == Some(original_ex)
+            && system::sync_sram(),
     );
 }
 

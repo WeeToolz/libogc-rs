@@ -1,0 +1,30 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "last_config_write_result",
+      "line": 651,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_setters",
+      "api_path": "system::last_config_write_result",
+      "checks": [
+        "System last config write result follows SRAM setters"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "sync_sram",
+      "line": 1603,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_setters",
+      "api_path": "system::sync_sram",
+      "checks": [
+        "System SRAM sync reports success",
+        "SRAM setter fixture restores both images"
+      ]
+    }
+  ]
+}

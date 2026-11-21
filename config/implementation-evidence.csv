@@ -3234,3 +3234,5 @@ wpad-sys,src/lib.rs,set_status_callback,1491,hardware,hardware-probe,probes/ogc-
 wpad-sys,src/lib.rs,search,1365,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_active_search,wpad::search,active-search-state
 wpad-sys,src/lib.rs,stop_search,1390,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_active_search,wpad::stop_search,active-search-state
 wpad-sys,src/lib.rs,search_bluetooth_hid,1384,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_active_search,wpad::search_bluetooth_hid,active-search-state
+ogc-system,src/lib.rs,last_config_write_result,651,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_setters,system::last_config_write_result
+ogc-system,src/lib.rs,sync_sram,1603,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_setters,system::sync_sram
