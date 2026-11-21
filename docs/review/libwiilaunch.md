@@ -57,3 +57,16 @@ Rust also exposes the C settings strings and error values with equivalent conten
 - C may continue after state-file writes fail because it ignores helper return codes. Rust instead aborts before launching. Hardware and compatibility expectations for the safer Rust behavior are not verified.
 - Rust's persistent launch state is protected by a lazily initialized LWP mutex (`ogc-wiilaunch/src/lib.rs:107–207`); C uses unguarded file-static state. Concurrent C calls are therefore not directly comparable, and concurrent Rust call ordering was not runtime-tested.
 - Source-level test cases are present for layout, errors, argument serialization, persistence order, and failure behavior (`ogc-wiilaunch/src/lib.rs:520–562`; `ogc-wiilaunch-state/src/lib.rs:260–621`) but were not run, per instruction.
+
+## Dolphin evidence review (2026-11-21)
+
+The archived `2026-11-20-wiilaunch-uninitialized-guards` batch does not prove
+uninitialized-state behavior. The system startup probe calls
+`wiilaunch::initialize` before the runtime probe runs
+(`probes/ogc-system-probe/src/lib.rs:475–485` and
+`crates/core/ogc-system-sys/src/lib.rs:2094`). Its passing or failing checks
+must not be used as evidence for uninitialized guards. The launch APIs remain
+unverified in the inventory. Do not call the raw launch, menu, settings, or URL
+operations to test this state because a successful call can leave the probe or
+launch another title. A valid check needs an isolated state fixture that does
+not initialize the production singleton.

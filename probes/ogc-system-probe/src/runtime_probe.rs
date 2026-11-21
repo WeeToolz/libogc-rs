@@ -22,6 +22,9 @@ static ALARM_COUNT: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU3
 static ALARM_ID: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
 #[cfg(feature = "dolphin-automation")]
 static ALARM_ARG: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+#[cfg(feature = "dolphin-automation")]
+static mut SYSBASE_DEFAULT_PROBE_DEVICE: core::mem::MaybeUninit<sysbase::Devoptab> =
+    core::mem::MaybeUninit::uninit();
 static BT_RAW_ASYNC_RESULT: AtomicI32 = AtomicI32::new(i32::MAX);
 static BT_RAW_ASYNC_COMPLETIONS: core::sync::atomic::AtomicU32 =
     core::sync::atomic::AtomicU32::new(0);
@@ -254,6 +257,45 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_network_udp(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_raw_video_setup(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_sysbase_default_device(logger);
+}
+
+#[cfg(feature = "dolphin-automation")]
+pub fn probe_sysbase_default_device(logger: &mut ProbeLogger) {
+    logger.section("SYSBASE DEFAULT DEVICE");
+
+    // Keep the registered table alive until Dolphin stops this probe. The
+    // default device table stores a raw pointer and has no reset operation.
+    let mut device: sysbase::Devoptab = unsafe { core::mem::zeroed() };
+    device.name = c"sysbasedefaultprobe".as_ptr();
+    device.struct_size = 1;
+    let device_ptr = unsafe {
+        let storage = core::ptr::addr_of_mut!(SYSBASE_DEFAULT_PROBE_DEVICE);
+        (*storage).write(device);
+        (*storage).as_ptr()
+    };
+    // SAFETY: The device remains in static storage for the rest of this DOL.
+    let index = unsafe { sysbase::add_device(&*device_ptr) };
+    if index < 0 {
+        logger.record("setDefaultDevice fixture registers", false);
+        return;
+    }
+
+    sysbase::setDefaultDevice(index);
+    logger.record(
+        "setDefaultDevice selects a registered default device",
+        index >= 3
+            && sysbase::find_device(c"relative/path") == index
+            && sysbase::device_op_tab(c"relative/path") == Some(device_ptr),
+    );
+
+    sysbase::setDefaultDevice(-1);
+    sysbase::setDefaultDevice(35);
+    logger.record(
+        "setDefaultDevice ignores out-of-range indexes",
+        sysbase::find_device(c"relative/path") == index,
+    );
 }
 
 #[cfg(feature = "dolphin-automation")]
