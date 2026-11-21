@@ -1,0 +1,112 @@
+{
+  "probe": "bus_probe",
+  "cases": [
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "dc_disable",
+      "line": 281,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache_controls",
+      "api_path": "cache::dc_disable",
+      "checks": [
+        "HID0 cache baseline and restoration",
+        "dc_disable clears only DCE"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "dc_enable",
+      "line": 274,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache_controls",
+      "api_path": "cache::dc_enable",
+      "checks": [
+        "HID0 cache baseline and restoration",
+        "dc_enable sets only DCE"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "dc_freeze",
+      "line": 288,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache_controls",
+      "api_path": "cache::dc_freeze",
+      "checks": [
+        "HID0 cache baseline and restoration",
+        "dc_freeze sets only DLOCK"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "dc_unfreeze",
+      "line": 295,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache_controls",
+      "api_path": "cache::dc_unfreeze",
+      "checks": [
+        "HID0 cache baseline and restoration",
+        "dc_unfreeze clears only DLOCK"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "ic_disable",
+      "line": 389,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache_controls",
+      "api_path": "cache::ic_disable",
+      "checks": [
+        "HID0 cache baseline and restoration",
+        "ic_disable clears only ICE"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "ic_enable",
+      "line": 382,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache_controls",
+      "api_path": "cache::ic_enable",
+      "checks": [
+        "HID0 cache baseline and restoration",
+        "ic_enable sets only ICE"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "ic_freeze",
+      "line": 396,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache_controls",
+      "api_path": "cache::ic_freeze",
+      "checks": [
+        "HID0 cache baseline and restoration",
+        "ic_freeze sets only ILOCK"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "ic_unfreeze",
+      "line": 403,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache_controls",
+      "api_path": "cache::ic_unfreeze",
+      "checks": [
+        "HID0 cache baseline and restoration",
+        "ic_unfreeze clears only ILOCK"
+      ]
+    }
+  ],
+  "limits": [
+    "This run checks HID0 bit transitions and restoration in Dolphin. It does not measure cache contents, cache timing, or physical Wii behavior."
+  ]
+}

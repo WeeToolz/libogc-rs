@@ -41,6 +41,8 @@ pub fn run(logger: &mut ProbeLogger) {
     logger.section("BUS PROBE");
 
     probe_cache(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_cache_controls(logger);
     probe_aram(logger);
     probe_dsp(logger);
     probe_exi_si(logger);
@@ -165,6 +167,83 @@ fn probe_cache(logger: &mut ProbeLogger) {
     );
     logger.note_u32("locked cache queue", cache::lc_queue_length());
     logger.note_hex32("locked cache base", cache::lc_get_base() as usize as u32);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_cache_controls(logger: &mut ProbeLogger) {
+    const ICE: u32 = 0x8000;
+    const DCE: u32 = 0x4000;
+    const ILOCK: u32 = 0x2000;
+    const DLOCK: u32 = 0x1000;
+
+    fn read_hid0() -> u32 {
+        let value: u32;
+        // SAFETY: The Wii probe runs in supervisor mode.
+        unsafe {
+            core::arch::asm!("mfspr {value}, 1008", value = out(reg) value, options(nostack));
+        }
+        value
+    }
+
+    fn write_hid0(value: u32) {
+        // SAFETY: The caller only changes cache control bits or restores HID0.
+        unsafe {
+            core::arch::asm!("sync", "mtspr 1008, {value}", "isync", value = in(reg) value, options(nostack));
+        }
+    }
+
+    logger.section("CACHE CONTROLS");
+    let irq_state = irq::irq_disable();
+    let original = read_hid0();
+    let baseline = (original | ICE | DCE) & !(ILOCK | DLOCK);
+    write_hid0(baseline);
+    let initial = read_hid0();
+
+    cache::dc_disable();
+    let dc_disabled = read_hid0();
+    cache::dc_enable();
+    let dc_enabled = read_hid0();
+    cache::dc_freeze();
+    let dc_frozen = read_hid0();
+    cache::dc_unfreeze();
+    let dc_unfrozen = read_hid0();
+    cache::ic_disable();
+    let ic_disabled = read_hid0();
+    cache::ic_enable();
+    let ic_enabled = read_hid0();
+    cache::ic_freeze();
+    let ic_frozen = read_hid0();
+    cache::ic_unfreeze();
+    let ic_unfrozen = read_hid0();
+
+    write_hid0(original);
+    let restored = read_hid0();
+    irq::irq_restore(irq_state);
+
+    logger.record(
+        "HID0 cache baseline and restoration",
+        initial == baseline && restored == original,
+    );
+    logger.record("dc_disable clears only DCE", dc_disabled == baseline & !DCE);
+    logger.record(
+        "dc_enable sets only DCE",
+        dc_disabled & DCE == 0 && dc_enabled == baseline,
+    );
+    logger.record("dc_freeze sets only DLOCK", dc_frozen == baseline | DLOCK);
+    logger.record(
+        "dc_unfreeze clears only DLOCK",
+        dc_frozen & DLOCK != 0 && dc_unfrozen == baseline,
+    );
+    logger.record("ic_disable clears only ICE", ic_disabled == baseline & !ICE);
+    logger.record(
+        "ic_enable sets only ICE",
+        ic_disabled & ICE == 0 && ic_enabled == baseline,
+    );
+    logger.record("ic_freeze sets only ILOCK", ic_frozen == baseline | ILOCK);
+    logger.record(
+        "ic_unfreeze clears only ILOCK",
+        ic_frozen & ILOCK != 0 && ic_unfrozen == baseline,
+    );
 }
 
 fn probe_aram(logger: &mut ProbeLogger) {

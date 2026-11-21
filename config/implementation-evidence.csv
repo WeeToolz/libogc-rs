@@ -3117,3 +3117,11 @@ ogc-usb,src/lib.rs,deinitialize,36,compatibility-forwarder,hardware-probe,probes
 ogc-usb,src/lib.rs,try_deinitialize,40,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_lifecycle,usb::try_deinitialize
 ogc-usb,src/lib.rs,init,1062,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_mouse_lifecycle,usb::mouse::init
 ogc-usb,src/lib.rs,deinit,1139,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_mouse_lifecycle,usb::mouse::deinit
+ogc-cache,src/lib.rs,dc_disable,281,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_controls,cache::dc_disable
+ogc-cache,src/lib.rs,dc_enable,274,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_controls,cache::dc_enable
+ogc-cache,src/lib.rs,dc_freeze,288,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_controls,cache::dc_freeze
+ogc-cache,src/lib.rs,dc_unfreeze,295,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_controls,cache::dc_unfreeze
+ogc-cache,src/lib.rs,ic_disable,389,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_controls,cache::ic_disable
+ogc-cache,src/lib.rs,ic_enable,382,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_controls,cache::ic_enable
+ogc-cache,src/lib.rs,ic_freeze,396,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_controls,cache::ic_freeze
+ogc-cache,src/lib.rs,ic_unfreeze,403,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_controls,cache::ic_unfreeze
