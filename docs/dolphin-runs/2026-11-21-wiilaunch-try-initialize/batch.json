@@ -1,0 +1,20 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "try_initialize",
+      "line": 275,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_error_codes",
+      "api_path": "ogc_wiilaunch::try_initialize",
+      "checks": [
+        "Wii launch fallible initialization reads state files"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin verifies the current NAND state files through IOS. Physical Wii NAND behavior remains untested."
+  ]
+}

@@ -3212,3 +3212,4 @@ wpad-sys,src/lib.rs,set_event_bufs,1254,hardware,hardware-probe,probes/ogc-syste
 wpad-sys,src/lib.rs,control_speaker,846,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_empty_channel_commands,wpad::control_speaker,no-controller
 wpad-sys,src/lib.rs,rumble,1503,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_empty_channel_commands,wpad::rumble,no-controller
 wpad-sys,src/lib.rs,send_stream_data,1339,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_empty_channel_stream,wpad::send_stream_data,no-controller-and-invalid-arguments
+ogc-wiilaunch,src/lib.rs,try_initialize,275,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wiilaunch_error_codes,ogc_wiilaunch::try_initialize

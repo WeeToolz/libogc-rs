@@ -3173,7 +3173,7 @@ ogc-wiilaunch,raw_code,rust-method-or-module-function,crates/core/ogc-wiilaunch/
 ogc-wiilaunch,return_to_menu,rust-function,crates/core/ogc-wiilaunch/src/lib.rs,441,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-wiilaunch,return_to_settings,rust-function,crates/core/ogc-wiilaunch/src/lib.rs,450,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-wiilaunch,return_to_settings_page,rust-function,crates/core/ogc-wiilaunch/src/lib.rs,477,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
-ogc-wiilaunch,try_initialize,rust-function,crates/core/ogc-wiilaunch/src/lib.rs,275,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
+ogc-wiilaunch,try_initialize,rust-function,crates/core/ogc-wiilaunch/src/lib.rs,275,ios,ios,hardware-probe:probes/ogc-system-probe/src/runtime_probe.rs::probe_wiilaunch_error_codes calls try_initialize through `ogc_wiilaunch::try_initialize`,system-probe,See crate contract for launch-service role and hardware validation status
 ogc-wiilaunch,try_launch_title,rust-function,crates/core/ogc-wiilaunch/src/lib.rs,287,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-wiilaunch,try_launch_title_with_args,rust-function,crates/core/ogc-wiilaunch/src/lib.rs,394,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence
 ogc-wiilaunch,try_open_url,rust-function,crates/core/ogc-wiilaunch/src/lib.rs,493,unverified,ios,none,system-probe,declared `ios` without exact API test or probe evidence

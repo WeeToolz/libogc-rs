@@ -4575,6 +4575,12 @@ fn probe_system_sram_setters(logger: &mut ProbeLogger) {
 
 fn probe_wiilaunch_error_codes(logger: &mut ProbeLogger) {
     use ogc_wiilaunch::LaunchError;
+    let fallible_initialize = ogc_wiilaunch::try_initialize();
+    logger.record(
+        "Wii launch fallible initialization reads state files",
+        fallible_initialize.is_ok(),
+    );
+
     let initialize_first = ogc_wiilaunch::initialize();
     let initialize_second = ogc_wiilaunch::initialize();
     logger.record(
