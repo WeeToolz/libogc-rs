@@ -1308,11 +1308,13 @@ pub fn is_speaker_enabled(chan: i32) -> i32 {
         let Some(chan) = valid_chan(chan) else {
             return WPAD_ERR_BAD_CHANNEL as i32;
         };
-        return if WPAD_SPEAKER[chan].load(Ordering::Acquire) {
-            1
-        } else {
-            0
-        };
+        if WPAD_GLOBAL_STATUS.load(Ordering::Acquire) == WPAD_STATE_DISABLED
+            || !WPAD_CONNECTED[chan].load(Ordering::Acquire)
+            || !WPAD_SPEAKER[chan].load(Ordering::Acquire)
+        {
+            return WPAD_ERR_NOT_READY as i32;
+        }
+        return WPAD_ERR_NONE as i32;
     }
     if !wpad_host_compatibility_enabled() {
         return WPAD_ERR_NOT_READY as i32;
@@ -1320,11 +1322,11 @@ pub fn is_speaker_enabled(chan: i32) -> i32 {
     let Some(chan) = valid_chan(chan) else {
         return WPAD_ERR_BAD_CHANNEL as i32;
     };
-    if WPAD_SPEAKER[chan].load(Ordering::Acquire) {
-        1
-    } else {
-        0
+    if !WPAD_CONNECTED[chan].load(Ordering::Acquire) || !WPAD_SPEAKER[chan].load(Ordering::Acquire)
+    {
+        return WPAD_ERR_NOT_READY as i32;
     }
+    WPAD_ERR_NONE as i32
 }
 
 /// Queues speaker stream data for transmission in 20-byte reports.

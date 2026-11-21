@@ -127,6 +127,10 @@ fn probe_valid_channel_empty_queries(logger: &mut ProbeLogger) {
         !wpad::is_battery_critical(chan),
     );
     logger.record(
+        "WPAD empty channel speaker query reports not ready",
+        wpad::is_speaker_enabled(chan) == wpad::WPAD_ERR_NOT_READY as i32,
+    );
+    logger.record(
         "WPAD empty channel button states are zero",
         wpad::buttons_down(chan) == 0
             && wpad::buttons_held(chan) == 0
