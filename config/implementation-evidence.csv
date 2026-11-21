@@ -3210,3 +3210,5 @@ wpad-sys,src/lib.rs,set_v_res,1183,hardware,hardware-probe,probes/ogc-system-pro
 wpad-sys,src/lib.rs,set_idle_thresholds,1530,scheduler,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_valid_channel_empty_queries,wpad::set_idle_thresholds
 ogc-cache,src/lib.rs,lc_alloc_tags,624,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache,cache::lc_alloc_tags
 ogc-wiilaunch,src/lib.rs,initialize,263,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wiilaunch_error_codes,ogc_wiilaunch::initialize
+libdb-sys,src/wii_network.rs,diagnostic_failure,250,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/debugger_probe.rs,probe_wii_network_diagnostics,debug::wii_network::diagnostic_failure
+libdb-sys,src/wii_network.rs,failure_from_socket,268,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/debugger_probe.rs,probe_wii_network_diagnostics,debug::wii_network::failure_from_socket

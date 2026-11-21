@@ -30,7 +30,7 @@ ogc-aes-sys = { path = "../../crates/core/ogc-aes-sys" }
 aesnd = { path = "../../crates/media/aesnd" }
 aesnd-sys = { path = "../../crates/media/aesnd-sys" }
 asnd-sys = { path = "../../crates/media/asnd-sys" }
-libdb-sys = { path = "../../crates/compatibility/libdb-sys" }
+libdb-sys = { path = "../../crates/compatibility/libdb-sys", features = ["wii-network"] }
 lwbt-sys = { path = "../../crates/compatibility/lwbt-sys" }
 lwip-sys = { path = "../../crates/services/lwip-sys" }
 mad-sys = { path = "../../crates/media/mad-sys" }
@@ -140,6 +140,10 @@ path = "src/tinysmb_probe/main.rs"
 [[bin]]
 name = "debugger_probe"
 path = "src/debugger_probe/main.rs"
+
+[[bin]]
+name = "libdb_diagnostics_probe"
+path = "src/libdb_diagnostics_probe/main.rs"
 
 [[bin]]
 name = "runtime_probe"

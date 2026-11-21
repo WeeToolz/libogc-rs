@@ -857,6 +857,16 @@ pub fn run_debugger_probe_bin() -> i32 {
 }
 
 #[cfg(target_arch = "powerpc")]
+/// Runs only the pure Wii network diagnostic mapping checks.
+pub fn run_libdb_diagnostics_probe_bin() -> i32 {
+    configure_probe_app_dir("libdb-diagnostics-probe");
+    let mut logger = init_probe_logger();
+    debugger_probe::probe_wii_network_diagnostics(&mut logger);
+    logger.summary();
+    finish_probe()
+}
+
+#[cfg(target_arch = "powerpc")]
 /// Runs only storage probes.
 pub fn run_storage_probe_bin(destructive_card_format: bool) -> i32 {
     configure_probe_app_dir("storage-probe");

@@ -436,6 +436,7 @@ const PROBE_BINARIES: &[&str] = &[
     "wd_probe",
     "tinysmb_probe",
     "debugger_probe",
+    "libdb_diagnostics_probe",
     "font_probe",
     "storage_probe",
     "dvd_probe",
@@ -494,6 +495,14 @@ mod probe_artifact_tests {
         assert!(super::PROBE_BINARIES.contains(&"dvd_probe"));
         assert!(manifest.contains("name = \"dvd_probe\""));
         assert!(manifest.contains("path = \"src/dvd_probe/main.rs\""));
+    }
+
+    #[test]
+    fn focused_libdb_diagnostics_probe_is_built_as_a_dol() {
+        let manifest = include_str!("../../probes/ogc-system-probe/Cargo.toml");
+        assert!(super::PROBE_BINARIES.contains(&"libdb_diagnostics_probe"));
+        assert!(manifest.contains("name = \"libdb_diagnostics_probe\""));
+        assert!(manifest.contains("path = \"src/libdb_diagnostics_probe/main.rs\""));
     }
 
     #[test]
@@ -595,9 +604,9 @@ mod probe_artifact_tests {
                 );
             }
             let expected_count = match mode {
-                Plain => 44,
-                MountedLog | Dolphin => 54,
-                AgentReport => 39,
+                Plain => 45,
+                MountedLog | Dolphin => 55,
+                AgentReport => 40,
             };
             assert_eq!(binaries.len(), expected_count, "output count in {mode:?}");
         }

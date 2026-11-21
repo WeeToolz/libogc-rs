@@ -10,10 +10,39 @@ use crate::probe_support::ProbeLogger;
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("DEBUGGER PROBE");
 
+    probe_wii_network_diagnostics(logger);
     probe_usb_gecko_lock_retry(logger);
     probe_usb_gecko(logger);
     probe_usb_debugger(logger);
     probe_tcp_debugger(logger);
+}
+
+pub fn probe_wii_network_diagnostics(logger: &mut ProbeLogger) {
+    logger.section("WII NETWORK DIAGNOSTIC MAPPING");
+    let socket_error = debug::wii_network::WiiSocketError {
+        operation: debug::wii_network::DiagnosticOperation::Bind,
+        code: -98,
+        cleanup: Some(-9),
+    };
+    let failure = debug::wii_network::failure_from_socket(socket_error);
+    logger.record(
+        "Wii network socket failure preserves operation, code, and cleanup",
+        failure.operation == debug::wii_network::DiagnosticOperation::Bind
+            && failure.code == Some(-98)
+            && failure.cleanup == Some(-9),
+    );
+
+    let failure = debug::wii_network::WiiNetworkTransport::bind(0)
+        .err()
+        .map(|error| debug::wii_network::diagnostic_failure(&error));
+    logger.record(
+        "Wii network invalid port maps to a generic diagnostic",
+        failure.is_some_and(|failure| {
+            failure.operation == debug::wii_network::DiagnosticOperation::Transport
+                && failure.code.is_none()
+                && failure.cleanup.is_none()
+        }),
+    );
 }
 
 fn probe_usb_gecko_lock_retry(logger: &mut ProbeLogger) {

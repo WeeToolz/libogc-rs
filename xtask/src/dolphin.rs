@@ -193,6 +193,11 @@ const PROBES: &[ProbeSpec] = &[
         input_pipe: false,
     },
     ProbeSpec {
+        name: "libdb_diagnostics_probe",
+        timeout_seconds: 90,
+        input_pipe: false,
+    },
+    ProbeSpec {
         name: "font_probe",
         timeout_seconds: 90,
         input_pipe: false,
