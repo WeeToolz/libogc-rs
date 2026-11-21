@@ -18,6 +18,20 @@ The PowerPC unit test `successful_mouse_cleanup_clears_mouse_initialized_state` 
 
 `cargo check -p ogc-usb --target powerpc-unknown-linux-gnu` passed. `cargo test -p ogc-usb --target powerpc-unknown-linux-gnu --no-run` did not compile the test crate because an existing test calls unsafe `try_close_device_async` without an unsafe block (`src/lib.rs:1175`); tests did not run. `cargo fmt --check -p ogc-usb` reports a pre-existing formatting difference on the crate-level `compile_error!` line (`src/lib.rs:4`). No hardware verification is claimed. Other `ogc-usb` findings remain open.
 
-## Current disposition (2026-10-05)
+## Current behavior
 
-The bounded mouse cleanup findings are resolved by later commits and independent reviews recorded in `docs/review/libusb.md`: Rust continues cleanup after close, semaphore-destroy, semaphore-post, and thread-join errors. The fix leaves the process-wide USB service active. The tests for these error paths did not run because the PowerPC test binary could not be linked with the installed linker. The broader `ogc-usb` review remains open for the other findings in the main note.
+The mouse returns the semaphore or join error if it cannot confirm that
+the worker stopped. A failed wake skips the join so the caller does not
+wait on a worker that can still be asleep. Either error keeps the device
+descriptor, semaphore, and thread handle for a later shutdown attempt.
+Initialization reports busy while the stop request is pending. After a
+confirmed join, the existing cleanup runs and the process-wide USB service
+stays active.
+
+This is a deliberate safety difference from C, which continues to release
+worker resources after either stop error. The host tests inject wake and
+join errors through the same stop helper used by the production path. The
+Dolphin lifecycle probe exercises successful shutdown without a physical
+USB mouse. An attached mouse and a pending physical USB read need separate
+hardware evidence. The older parity reviews describe the previous
+behavior.

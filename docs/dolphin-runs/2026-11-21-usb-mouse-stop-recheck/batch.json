@@ -1,0 +1,34 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "init",
+      "line": 1081,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_mouse_lifecycle",
+      "api_path": "usb::mouse::init",
+      "checks": [
+        "USB mouse initializes its worker"
+      ],
+      "evidence_scope": "dolphin-mouse-lifecycle"
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "deinit",
+      "line": 1158,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_mouse_lifecycle",
+      "api_path": "usb::mouse::deinit",
+      "checks": [
+        "USB mouse deinitialization joins its worker and releases state"
+      ],
+      "evidence_scope": "dolphin-mouse-lifecycle"
+    }
+  ],
+  "limits": [
+    "Dolphin verifies successful worker initialization and shutdown without a physical USB mouse. Injected host tests cover wake and join errors through the production stop helper. An attached device and a pending physical read remain open."
+  ]
+}

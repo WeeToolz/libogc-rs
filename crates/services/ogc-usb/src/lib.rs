@@ -567,6 +567,9 @@ pub fn ascii_string(fd: i32, index: u8, lang_id: u16, data: &mut [u8]) -> Result
     })
 }
 
+#[path = "mouse_shutdown.rs"]
+mod mouse_shutdown;
+
 pub mod mouse {
     use super::*;
 
@@ -728,6 +731,8 @@ pub mod mouse {
     fn finish_deinit(state: &mut MouseState) -> i32 {
         state.inited = false;
         state.shutting_down = false;
+        state.thread_quit = false;
+        state.thread = lwp::LWP_THREAD_NULL;
         1
     }
 
@@ -757,18 +762,18 @@ pub mod mouse {
         deinit: MouseDeinit,
         post_sem_fn: impl FnOnce(lwp::Semaphore) -> i32,
         join_thread_fn: impl FnOnce(lwp::LwpThread) -> i32,
-    ) {
+    ) -> core::result::Result<(), i32> {
         if !deinit.thread_running {
-            return;
+            return Ok(());
         }
-        if deinit.sem != lwp::LWP_SEM_NULL {
-            // C ignores post errors and continues cleanup.
-            let _ = post_sem_fn(deinit.sem);
+        if deinit.sem == lwp::LWP_SEM_NULL || deinit.thread == lwp::LWP_THREAD_NULL {
+            return Err(USB_FAILED);
         }
-        if deinit.thread != lwp::LWP_THREAD_NULL {
-            // The caller must not hold MOUSE_LOCK while this function joins.
-            let _ = join_thread_fn(deinit.thread);
-        }
+        // The caller must release MOUSE_LOCK before waiting for the worker.
+        super::mouse_shutdown::stop_worker(
+            || post_sem_fn(deinit.sem),
+            || join_thread_fn(deinit.thread),
+        )
     }
 
     unsafe fn mouse_close_with(
@@ -808,6 +813,7 @@ pub mod mouse {
         finish_deinit(state)
     }
 
+    #[cfg(test)]
     fn deinit_with(
         state: &mut MouseState,
         post_sem_fn: impl FnOnce(lwp::Semaphore) -> i32,
@@ -818,8 +824,21 @@ pub mod mouse {
         let Some(deinit) = begin_mouse_deinit(state) else {
             return 1;
         };
-        stop_mouse_worker(deinit, post_sem_fn, join_thread_fn);
+        let stopped = stop_mouse_worker(deinit, post_sem_fn, join_thread_fn);
+        complete_mouse_deinit(state, stopped, close_device_fn, destroy_sem_fn)
+    }
 
+    fn complete_mouse_deinit(
+        state: &mut MouseState,
+        stopped: core::result::Result<(), i32>,
+        close_device_fn: impl FnOnce(*mut i32) -> i32,
+        destroy_sem_fn: impl FnOnce(lwp::Semaphore) -> i32,
+    ) -> i32 {
+        if let Err(error) = stopped {
+            // Keep ownership and the stop request. A later deinit can retry.
+            state.shutting_down = false;
+            return error;
+        }
         cleanup_mouse_resources(state, close_device_fn, destroy_sem_fn)
     }
 
@@ -1060,9 +1079,9 @@ pub mod mouse {
     }
 
     pub fn init() -> i32 {
-        match with_state(|state| (state.inited, state.shutting_down)) {
-            (true, _) => return 0,
-            (false, true) => return -16,
+        match with_state(|state| (state.inited, state.shutting_down || state.thread_quit)) {
+            (_, true) => return -16,
+            (true, false) => return 0,
             (false, false) => {}
         }
 
@@ -1137,16 +1156,29 @@ pub mod mouse {
     }
 
     pub fn deinit() -> i32 {
-        let Some(deinit) = with_state(begin_mouse_deinit) else {
-            return 1;
+        let deinit = match with_state(|state| {
+            if state.shutting_down {
+                Err(-16)
+            } else {
+                Ok(begin_mouse_deinit(state))
+            }
+        }) {
+            Ok(Some(deinit)) => deinit,
+            Ok(None) => return 1,
+            Err(error) => return error,
         };
-        stop_mouse_worker(deinit, lwp::sem_post, |thread| {
+        let stopped = stop_mouse_worker(deinit, lwp::sem_post, |thread| {
             let mut value = core::ptr::null_mut();
             // SAFETY: `value` is a valid unique output for the synchronous join.
             unsafe { lwp::join_thread(thread, &mut value) }
         });
         with_state(|state| {
-            cleanup_mouse_resources(state, |fd| unsafe { close_device(fd) }, lwp::sem_destroy)
+            complete_mouse_deinit(
+                state,
+                stopped,
+                |fd| unsafe { close_device(fd) },
+                lwp::sem_destroy,
+            )
         })
     }
 
@@ -1298,39 +1330,64 @@ pub mod mouse {
         }
 
         #[test]
-        fn mouse_deinit_continues_after_post_and_join_errors() {
+        fn failed_mouse_stop_preserves_resources_for_retry() {
             let mut state = MouseState::new();
             state.inited = true;
             state.thread_running = true;
             state.thread = 21;
             state.sem = 22;
-            let mut post_called = false;
-            let mut join_called = false;
-            let result = deinit_with(
-                &mut state,
-                |sem| {
-                    post_called = true;
-                    assert_eq!(sem, 22);
-                    -5
-                },
-                |thread| {
-                    join_called = true;
-                    assert_eq!(thread, 21);
-                    -6
-                },
-                |_| panic!("no mouse descriptor is open"),
-                |sem| {
-                    assert_eq!(sem, 22);
-                    lwp::LWP_SUCCESSFUL
-                },
-            );
+            state.device.fd = 7;
 
-            assert_eq!(result, 1);
-            assert!(post_called);
-            assert!(join_called);
-            assert!(!state.thread_running);
-            assert_eq!(state.sem, lwp::LWP_SEM_NULL);
+            assert_eq!(
+                deinit_with(
+                    &mut state,
+                    |_| -5,
+                    |_| panic!("worker was not woken"),
+                    |_| panic!("worker may still use the device"),
+                    |_| panic!("worker may still use the semaphore"),
+                ),
+                -5
+            );
+            assert_eq!(
+                deinit_with(
+                    &mut state,
+                    |_| lwp::LWP_SUCCESSFUL,
+                    |_| -6,
+                    |_| panic!("worker has not joined"),
+                    |_| panic!("worker has not joined"),
+                ),
+                -6
+            );
+            assert!(state.inited);
+            assert!(state.thread_running);
+            assert!(state.thread_quit);
+            assert!(!state.shutting_down);
+            assert_eq!(state.thread, 21);
+            assert_eq!(state.sem, 22);
+            assert_eq!(state.device.fd, 7);
+
+            assert_eq!(
+                deinit_with(
+                    &mut state,
+                    |sem| {
+                        assert_eq!(sem, 22);
+                        lwp::LWP_SUCCESSFUL
+                    },
+                    |thread| {
+                        assert_eq!(thread, 21);
+                        lwp::LWP_SUCCESSFUL
+                    },
+                    |fd| {
+                        assert_eq!(unsafe { *fd }, 7);
+                        USB_OK
+                    },
+                    |_| lwp::LWP_SUCCESSFUL,
+                ),
+                1
+            );
             assert!(!state.inited);
+            assert!(!state.thread_quit);
+            assert_eq!(state.thread, lwp::LWP_THREAD_NULL);
         }
     }
 }

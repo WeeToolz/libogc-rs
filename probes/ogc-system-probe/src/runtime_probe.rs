@@ -3963,7 +3963,11 @@ fn probe_usb_mouse_lifecycle(logger: &mut ProbeLogger) {
         initialize == usb::USB_OK,
     );
     let deinitialize = usb::mouse::deinit();
-    let usb_cleanup = usb::deinitialize();
+    let usb_cleanup = if deinitialize == 1 {
+        usb::deinitialize()
+    } else {
+        usb::USB_FAILED
+    };
     logger.record(
         "USB mouse deinitialization joins its worker and releases state",
         deinitialize == 1 && !usb::mouse::is_connected() && usb_cleanup == usb::USB_OK,

@@ -35,6 +35,15 @@ a suite report. Each batch still needs a judgment about what the checks
 prove. A passing label alone cannot establish physical Wii behavior or
 full coverage of an API.
 
+Set `evidence_scope` on a manifest case when the test covers a limited
+part of the API. The scopes `mock-dispatch`, `closed-service`,
+`disabled-adapter`, and `invalid-channel` retain the evidence in the
+inventory and keep the production API unverified. Dolphin cache, host
+callback, and mouse lifecycle scopes add their limits to the inventory
+row. The audit rejects unknown scope values. When a new run covers the
+production behavior, `finish` can replace an earlier partial evidence
+row. Keep the earlier run as a record of the original checks.
+
 For example, draft a manifest for an unverified network API. Replace the
 probe function and symbol with your selection.
 

@@ -25,6 +25,7 @@ GENERATED = (
     Path("docs/generated/runtime-audit-debt.md"),
 )
 KEYS = ("crate", "target_implementation_file", "symbol", "line")
+PARTIAL_SCOPES = {"mock-dispatch", "closed-service", "disabled-adapter", "invalid-channel"}
 
 
 def command(*args, **kwargs):
@@ -413,6 +414,34 @@ def audit(directory):
     return report
 
 
+def record_evidence(selected):
+    path = ROOT / EVIDENCE
+    keys = {
+        (row["crate"], case["path"], row["symbol"], row["line"]): case
+        for case, row in selected
+    }
+    lines = path.read_text().splitlines(keepends=True)
+    retained = [lines[0]]
+    for line in lines[1:]:
+        fields = next(csv.reader([line]))
+        if tuple(fields[:4]) not in keys:
+            retained.append(line)
+        elif len(fields) < 10 or fields[9] not in PARTIAL_SCOPES:
+            raise ValueError(f"Will only replace partial evidence for {fields[:4]}")
+    with path.open("w", newline="") as stream:
+        stream.writelines(retained)
+        writer = csv.writer(stream, lineterminator="\n")
+        for case, row in selected:
+            fields = [
+                row["crate"], case["path"], row["symbol"], row["line"],
+                row["declared_classification"], "hardware-probe",
+                case["evidence_path"], case["function"], case["api_path"],
+            ]
+            if scope := case.get("evidence_scope"):
+                fields.append(scope)
+            writer.writerow(fields)
+
+
 def finish(args):
     artifact = artifact_path(args.artifact)
     directory = ROOT / artifact
@@ -435,14 +464,7 @@ def finish(args):
     uncovered = sum(row["implementation_class"] == "unverified" for row in rows)
     saved = {path: (ROOT / path).read_bytes() for path in (EVIDENCE, *GENERATED)}
     try:
-        with (ROOT / EVIDENCE).open("a", newline="") as stream:
-            writer = csv.writer(stream, lineterminator="\n")
-            for case, row in selected:
-                writer.writerow([
-                    row["crate"], case["path"], row["symbol"], row["line"],
-                    row["declared_classification"], "hardware-probe",
-                    case["evidence_path"], case["function"], case["api_path"],
-                ])
+        record_evidence(selected)
         command("cargo", "fmt", "--all", "--check", check=True)
         command("cargo", "clippy", "--all-targets", check=True)
         command("cargo", "test", check=True)
@@ -453,11 +475,14 @@ def finish(args):
         for case, previous in selected:
             row = by_key[tuple(previous[k] for k in KEYS)]
             expected = f"hardware-probe:{case['evidence_path']}::{case['function']} "
-            if row["implementation_class"] == "unverified" or not row["verification_evidence"].startswith(expected):
+            partial = case.get("evidence_scope") in PARTIAL_SCOPES
+            if ((row["implementation_class"] == "unverified") != partial
+                    or not row["verification_evidence"].startswith(expected)):
                 raise ValueError(f"Inventory did not accept evidence for {case['symbol']}")
         remaining = report["unverified_count"]
-        if uncovered - remaining < len(selected):
-            raise ValueError("Inventory delta is smaller than the selected cases")
+        credited = sum(case.get("evidence_scope") not in PARTIAL_SCOPES for case, _ in selected)
+        if uncovered - remaining < credited:
+            raise ValueError("Inventory delta is smaller than the credited cases")
     except (Exception, KeyboardInterrupt):
         for path, content in saved.items():
             (ROOT / path).write_bytes(content)
@@ -467,9 +492,10 @@ def finish(args):
         "unverified_before": uncovered,
         "unverified_after": remaining,
         "cases": len(selected),
+        "credited_cases": credited,
         "remaining_audit_entries": report["remaining_count"],
     })
-    print(f"Verified {len(selected)} entries. Unverified: {uncovered} -> {remaining}.")
+    print(f"Recorded {len(selected)} entries and verified {credited}. Unverified: {uncovered} -> {remaining}.")
 
 
 def main():

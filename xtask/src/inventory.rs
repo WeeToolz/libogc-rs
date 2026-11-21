@@ -47,6 +47,74 @@ struct Evidence {
     evidence_path: String,
     function: String,
     api_path: Option<String>,
+    scope: Option<EvidenceScope>,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum EvidenceScope {
+    MockDispatch,
+    ClosedService,
+    DisabledAdapter,
+    InvalidChannel,
+    DolphinCacheRegister,
+    DolphinCacheInstructions,
+    DolphinHostCallback,
+    DolphinMouseLifecycle,
+}
+
+impl EvidenceScope {
+    fn parse(value: &str) -> Option<Self> {
+        Some(match value {
+            "mock-dispatch" => Self::MockDispatch,
+            "closed-service" => Self::ClosedService,
+            "disabled-adapter" => Self::DisabledAdapter,
+            "invalid-channel" => Self::InvalidChannel,
+            "dolphin-cache-register" => Self::DolphinCacheRegister,
+            "dolphin-cache-instructions" => Self::DolphinCacheInstructions,
+            "dolphin-host-callback" => Self::DolphinHostCallback,
+            "dolphin-mouse-lifecycle" => Self::DolphinMouseLifecycle,
+            _ => return None,
+        })
+    }
+
+    fn limitation(self) -> &'static str {
+        match self {
+            Self::MockDispatch => {
+                "Mock dispatch only in Dolphin. Production driver behavior is unverified."
+            }
+            Self::ClosedService => {
+                "Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified."
+            }
+            Self::DisabledAdapter => {
+                "Disabled adapter behavior only in Dolphin. Active discovery and pairing are unverified."
+            }
+            Self::InvalidChannel => {
+                "Invalid channel behavior only in Dolphin. Valid channel behavior is unverified."
+            }
+            Self::DolphinCacheRegister => {
+                "Dolphin HID0 transitions and restoration only. Physical cache state and timing are unverified."
+            }
+            Self::DolphinCacheInstructions => {
+                "Dolphin instruction and register checks only. Physical cache contents and timing are unverified."
+            }
+            Self::DolphinHostCallback => {
+                "Synchronous host callback behavior only in Dolphin. Physical sync button behavior is unverified."
+            }
+            Self::DolphinMouseLifecycle => {
+                "Successful worker shutdown in Dolphin without a physical USB mouse. Stop errors are covered by injected host tests."
+            }
+        }
+    }
+
+    fn classification<'a>(self, declared: &'a str) -> &'a str {
+        match self {
+            Self::MockDispatch
+            | Self::ClosedService
+            | Self::DisabledAdapter
+            | Self::InvalidChannel => "unverified",
+            _ => declared,
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -381,6 +449,12 @@ fn collect_inventory(root: &Path) -> Result<Vec<ApiEntry>, String> {
                                 item.kind, item.evidence_path, item.function, item.symbol
                             ),
                         };
+                        if let Some(scope) = item.scope {
+                            classification =
+                                scope.classification(&declared_classification).to_string();
+                            limitations =
+                                format!("{limitations}; evidence scope: {}", scope.limitation());
+                        }
                         if let Some(review) = source_review {
                             limitations = format!("{limitations}; source review: {review}");
                         }
@@ -452,9 +526,9 @@ fn load_evidence(root: &Path) -> Result<Vec<Evidence>, String> {
         if row.iter().all(|field| field.trim().is_empty()) {
             continue;
         }
-        if !(8..=9).contains(&row.len()) || row[..8].iter().any(|field| field.trim().is_empty()) {
+        if !(8..=10).contains(&row.len()) || row[..8].iter().any(|field| field.trim().is_empty()) {
             return Err(format!(
-                "{}:{}: expected eight required evidence columns and one optional API path",
+                "{}:{}: expected eight required evidence columns and optional API path and scope",
                 path.display(),
                 line_no + 1
             ));
@@ -475,6 +549,19 @@ fn load_evidence(root: &Path) -> Result<Vec<Evidence>, String> {
             evidence_path: row[6].clone(),
             function: row[7].clone(),
             api_path: row.get(8).filter(|value| !value.trim().is_empty()).cloned(),
+            scope: row
+                .get(9)
+                .filter(|value| !value.is_empty())
+                .map(|value| {
+                    EvidenceScope::parse(value).ok_or_else(|| {
+                        format!(
+                            "{}:{}: unknown evidence scope `{value}`",
+                            path.display(),
+                            line_no + 1
+                        )
+                    })
+                })
+                .transpose()?,
         };
         if evidence.iter().any(|existing: &Evidence| {
             existing.crate_name == item.crate_name
@@ -1666,6 +1753,30 @@ mod tests {
     }
 
     #[test]
+    fn partial_evidence_keeps_production_verification_open() {
+        for scope in [
+            "mock-dispatch",
+            "closed-service",
+            "disabled-adapter",
+            "invalid-channel",
+        ] {
+            let scope = EvidenceScope::parse(scope).unwrap();
+            assert_eq!(scope.classification("protocol"), "unverified");
+            assert!(scope.limitation().contains("unverified"));
+        }
+        assert_eq!(
+            EvidenceScope::DolphinCacheRegister.classification("hardware"),
+            "hardware"
+        );
+        assert!(
+            EvidenceScope::DolphinCacheRegister
+                .limitation()
+                .contains("Physical")
+        );
+        assert!(EvidenceScope::parse("unknown").is_none());
+    }
+
+    #[test]
     fn hardware_classification_rejects_host_test_evidence() {
         let evidence = Evidence {
             crate_name: "sample".to_string(),
@@ -1677,6 +1788,7 @@ mod tests {
             evidence_path: "unused".to_string(),
             function: "initialize_test".to_string(),
             api_path: None,
+            scope: None,
         };
 
         let error = verify_evidence(Path::new("."), &evidence, "hardware")
@@ -1696,6 +1808,7 @@ mod tests {
             evidence_path: "unused".to_string(),
             function: "parse_test".to_string(),
             api_path: None,
+            scope: None,
         };
 
         let error = verify_evidence(Path::new("."), &evidence, "protocol")
@@ -1715,6 +1828,7 @@ mod tests {
             evidence_path: "sample.rs".to_string(),
             function: "parses_valid_input".to_string(),
             api_path: None,
+            scope: None,
         };
         let source = r#"
             #[test]
@@ -1739,6 +1853,7 @@ mod tests {
             evidence_path: "sample.rs".to_string(),
             function: "does_not_call_api".to_string(),
             api_path: None,
+            scope: None,
         };
         let source = r#"
             #[test]
@@ -1766,6 +1881,7 @@ mod tests {
             evidence_path: "probes/card.rs".to_string(),
             function: "probe".to_string(),
             api_path: Some("CARD_INTERFACE.read".to_string()),
+            scope: None,
         };
         let source = r#"
             use std::fs;
@@ -1792,6 +1908,7 @@ mod tests {
             evidence_path: "probes/sample.rs".to_string(),
             function: "probe".to_string(),
             api_path: Some("sample_api::read".to_string()),
+            scope: None,
         };
         let source = r#"
             fn probe() {
@@ -1816,6 +1933,7 @@ mod tests {
             evidence_path: "probes/sample.rs".to_string(),
             function: "probe".to_string(),
             api_path: Some("sample_api::write".to_string()),
+            scope: None,
         };
         let source = "fn probe() { let _ = sample_api::write(); }";
 
@@ -1835,6 +1953,7 @@ mod tests {
             evidence_path: "crates/sample/src/lib.rs".to_string(),
             function: "probe".to_string(),
             api_path: Some("operations.flush_lun".to_string()),
+            scope: None,
         };
         let source = "#[test] fn probe() { other.flush_lun(); }";
 
@@ -1866,6 +1985,7 @@ mod tests {
             evidence_path: "sample.rs".to_string(),
             function: "unrelated_test".to_string(),
             api_path: None,
+            scope: None,
         };
         let source = r#"
             fn helper() { let _ = parser::parse("value"); }
@@ -1890,6 +2010,7 @@ mod tests {
             evidence_path: "sample.rs".to_string(),
             function: "helper".to_string(),
             api_path: None,
+            scope: None,
         };
         let source = "fn helper() { parser::parse(\"value\"); }";
 
@@ -1910,6 +2031,7 @@ mod tests {
             evidence_path: "sample.rs".to_string(),
             function: "parses_input".to_string(),
             api_path: None,
+            scope: None,
         };
         let source = r#"
             mod first {
