@@ -225,6 +225,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_conf_text_settings(logger);
     probe_es(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_es_closed_service(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_raw_es_catalog(logger);
     probe_crypto(logger);
     probe_iso9660(logger);
@@ -8389,6 +8391,56 @@ fn probe_es(logger: &mut ProbeLogger) {
     logger.note_u32("es boot2", boot2);
     logger.note_i32("es korean key rc", es::check_has_korean_key());
     logger.note_i32("es close rc", es::close());
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_es_closed_service(logger: &mut ProbeLogger) {
+    logger.section("ES CLOSED SERVICE");
+    let closed = raw_es::close() == 0;
+    logger.record("ES service closes before guard checks", closed);
+    if !closed {
+        return;
+    }
+    logger.record(
+        "ES add_content_start rejects a closed service",
+        raw_es::add_content_start(0, 0) == raw_es::ES_ENOTINIT,
+    );
+    logger.record(
+        "ES add_content_finish rejects a closed service",
+        raw_es::add_content_finish(0) == raw_es::ES_ENOTINIT,
+    );
+    logger.record(
+        "ES add_title_cancel rejects a closed service",
+        raw_es::add_title_cancel() == raw_es::ES_ENOTINIT,
+    );
+    logger.record(
+        "ES add_title_finish rejects a closed service",
+        raw_es::add_title_finish() == raw_es::ES_ENOTINIT,
+    );
+    logger.record(
+        "ES export_content_begin rejects a closed service",
+        raw_es::export_content_begin(0, 0) == raw_es::ES_ENOTINIT,
+    );
+    logger.record(
+        "ES export_content_end rejects a closed service",
+        raw_es::export_content_end(0) == raw_es::ES_ENOTINIT,
+    );
+    logger.record(
+        "ES export_title_done rejects a closed service",
+        raw_es::export_title_done() == raw_es::ES_ENOTINIT,
+    );
+    logger.record(
+        "ES delete_title rejects a closed service",
+        raw_es::delete_title(0) == raw_es::ES_ENOTINIT,
+    );
+    logger.record(
+        "ES delete_title_content rejects a closed service",
+        raw_es::delete_title_content(0) == raw_es::ES_ENOTINIT,
+    );
+    logger.record(
+        "ES set_uid rejects a closed service",
+        raw_es::set_uid(0) == raw_es::ES_ENOTINIT,
+    );
 }
 
 #[cfg(feature = "dolphin-automation")]

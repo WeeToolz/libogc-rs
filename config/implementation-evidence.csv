@@ -3137,3 +3137,13 @@ lwbt-sys,src/lib.rs,get_pair_mode,654,pure,hardware-probe,probes/ogc-system-prob
 lwbt-sys,src/lib.rs,exit_periodic_inquiry,519,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_closed_adapter,bte::exit_periodic_inquiry
 lwbt-sys,src/lib.rs,set_evt_filter,455,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_closed_adapter,bte::set_evt_filter
 lwbt-sys,src/lib.rs,sendmessageasync,975,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_closed_adapter,bte::sendmessageasync
+ogc-es-sys,src/imp.rs,add_content_start,1864,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_closed_service,raw_es::add_content_start
+ogc-es-sys,src/imp.rs,add_content_finish,1915,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_closed_service,raw_es::add_content_finish
+ogc-es-sys,src/imp.rs,add_title_cancel,1947,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_closed_service,raw_es::add_title_cancel
+ogc-es-sys,src/imp.rs,add_title_finish,1933,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_closed_service,raw_es::add_title_finish
+ogc-es-sys,src/imp.rs,export_content_begin,1684,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_closed_service,raw_es::export_content_begin
+ogc-es-sys,src/imp.rs,export_content_end,1735,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_closed_service,raw_es::export_content_end
+ogc-es-sys,src/imp.rs,export_title_done,1753,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_closed_service,raw_es::export_title_done
+ogc-es-sys,src/imp.rs,delete_title,2146,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_closed_service,raw_es::delete_title
+ogc-es-sys,src/imp.rs,delete_title_content,2163,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_closed_service,raw_es::delete_title_content
+ogc-es-sys,src/imp.rs,set_uid,481,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_closed_service,raw_es::set_uid

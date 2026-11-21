@@ -1,0 +1,138 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "add_content_start",
+      "line": 1864,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_es_closed_service",
+      "api_path": "raw_es::add_content_start",
+      "checks": [
+        "ES service closes before guard checks",
+        "ES add_content_start rejects a closed service"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "add_content_finish",
+      "line": 1915,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_es_closed_service",
+      "api_path": "raw_es::add_content_finish",
+      "checks": [
+        "ES service closes before guard checks",
+        "ES add_content_finish rejects a closed service"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "add_title_cancel",
+      "line": 1947,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_es_closed_service",
+      "api_path": "raw_es::add_title_cancel",
+      "checks": [
+        "ES service closes before guard checks",
+        "ES add_title_cancel rejects a closed service"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "add_title_finish",
+      "line": 1933,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_es_closed_service",
+      "api_path": "raw_es::add_title_finish",
+      "checks": [
+        "ES service closes before guard checks",
+        "ES add_title_finish rejects a closed service"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "export_content_begin",
+      "line": 1684,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_es_closed_service",
+      "api_path": "raw_es::export_content_begin",
+      "checks": [
+        "ES service closes before guard checks",
+        "ES export_content_begin rejects a closed service"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "export_content_end",
+      "line": 1735,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_es_closed_service",
+      "api_path": "raw_es::export_content_end",
+      "checks": [
+        "ES service closes before guard checks",
+        "ES export_content_end rejects a closed service"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "export_title_done",
+      "line": 1753,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_es_closed_service",
+      "api_path": "raw_es::export_title_done",
+      "checks": [
+        "ES service closes before guard checks",
+        "ES export_title_done rejects a closed service"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "delete_title",
+      "line": 2146,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_es_closed_service",
+      "api_path": "raw_es::delete_title",
+      "checks": [
+        "ES service closes before guard checks",
+        "ES delete_title rejects a closed service"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "delete_title_content",
+      "line": 2163,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_es_closed_service",
+      "api_path": "raw_es::delete_title_content",
+      "checks": [
+        "ES service closes before guard checks",
+        "ES delete_title_content rejects a closed service"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "set_uid",
+      "line": 481,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_es_closed_service",
+      "api_path": "raw_es::set_uid",
+      "checks": [
+        "ES service closes before guard checks",
+        "ES set_uid rejects a closed service"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin checks the closed service guards. Successful requests, IOS side effects, and physical Wii behavior remain outside this batch."
+  ]
+}
