@@ -432,7 +432,7 @@ ogc-cache,src/lib.rs,dc_touch_range,367,hardware,hardware-probe,probes/ogc-syste
 ogc-cache,src/lib.rs,dc_zero_range,359,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache
 ogc-cache,src/lib.rs,ic_invalidate_range,425,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache
 ogc-cache,src/lib.rs,lc_get_base,764,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache
-ogc-cache,src/lib.rs,lc_queue_length,558,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache
+ogc-cache,src/lib.rs,lc_queue_length,558,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache,,empty-queue
 ogc-cache,src/lib.rs,sync,309,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache
 asnd-sys,src/lib.rs,add_buffer,640,hardware,hardware-probe,probes/ogc-system-probe/src/sound_probe.rs,run
 asnd-sys,src/lib.rs,copy_from_slice,469,hardware,hardware-probe,probes/ogc-system-probe/src/sound_probe.rs,run
@@ -2899,9 +2899,9 @@ wpad-sys,src/lib.rs,shutdown,1438,hardware,hardware-probe,probes/ogc-system-prob
 ogc-cache,src/lib.rs,dc_invalidate_range,317,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache,cache::dc_invalidate_range
 ogc-cache,src/lib.rs,dc_flush_range_no_sync,343,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache,cache::dc_flush_range_no_sync
 ogc-cache,src/lib.rs,dc_store_range_no_sync,351,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache,cache::dc_store_range_no_sync
-ogc-cache,src/lib.rs,lc_load_data,501,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache,cache::lc_load_data
-ogc-cache,src/lib.rs,lc_store_data,531,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache,cache::lc_store_data
-ogc-cache,src/lib.rs,lc_queue_wait,562,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache,cache::lc_queue_wait
+ogc-cache,src/lib.rs,lc_load_data,501,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache,cache::lc_load_data,zero-length
+ogc-cache,src/lib.rs,lc_store_data,531,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache,cache::lc_store_data,zero-length
+ogc-cache,src/lib.rs,lc_queue_wait,562,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache,cache::lc_queue_wait,empty-queue
 tinysmb-sys,src/lib.rs,check_connection,460,protocol,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,probe_smb_invalid_arguments,smb::check_connection
 tinysmb-sys,src/lib.rs,connect,499,protocol,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,probe_smb_invalid_arguments,smb::connect
 tinysmb-sys,src/lib.rs,create_directory,842,protocol,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,probe_smb_invalid_arguments,smb::create_directory
@@ -3221,7 +3221,7 @@ ogc-video,src/lib.rs,console_init,897,compatibility-forwarder,hardware-probe,pro
 wpad-sys,src/lib.rs,wipe_saved_controllers,1426,ios,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_wipe_saved_controllers,wpad::wipe_saved_controllers
 ogc-cache,src/lib.rs,lc_disable,435,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_controls,cache::lc_disable
 ogc-cache,src/lib.rs,lc_enable,429,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_controls,cache::lc_enable
-ogc-cache,src/lib.rs,lc_flush_queue,570,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_controls,cache::lc_flush_queue
+ogc-cache,src/lib.rs,lc_flush_queue,570,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_controls,cache::lc_flush_queue,empty-queue
 ogc-cache,src/lib.rs,lc_alloc,579,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_locked_cache_allocations,cache::lc_alloc
 ogc-cache,src/lib.rs,lc_alloc_no_invalidate,595,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_locked_cache_allocations,cache::lc_alloc_no_invalidate
 ogc-cache,src/lib.rs,lc_alloc_one_tag,611,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_locked_cache_allocations,cache::lc_alloc_one_tag

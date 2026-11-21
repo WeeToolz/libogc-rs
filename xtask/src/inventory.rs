@@ -60,6 +60,8 @@ enum EvidenceScope {
     EmptyChannel,
     NoController,
     NoControllerAndInvalidArguments,
+    ZeroLength,
+    EmptyQueue,
     DolphinCacheRegister,
     DolphinCacheInstructions,
     ZeroTagCount,
@@ -78,6 +80,8 @@ impl EvidenceScope {
             "empty-channel" => Self::EmptyChannel,
             "no-controller" => Self::NoController,
             "no-controller-and-invalid-arguments" => Self::NoControllerAndInvalidArguments,
+            "zero-length" => Self::ZeroLength,
+            "empty-queue" => Self::EmptyQueue,
             "dolphin-cache-register" => Self::DolphinCacheRegister,
             "dolphin-cache-instructions" => Self::DolphinCacheInstructions,
             "zero-tag-count" => Self::ZeroTagCount,
@@ -113,6 +117,12 @@ impl EvidenceScope {
             Self::NoControllerAndInvalidArguments => {
                 "Valid empty-channel behavior and Rust invalid-argument guards only in Dolphin. Behavior with a connected controller remains unverified."
             }
+            Self::ZeroLength => {
+                "Zero-length behavior only in Dolphin. Non-zero transfer behavior remains unverified."
+            }
+            Self::EmptyQueue => {
+                "Empty-queue behavior only in Dolphin. Queue operations with pending work remain unverified."
+            }
             Self::DolphinCacheRegister => {
                 "Dolphin HID0 transitions and restoration only. Physical cache state and timing are unverified."
             }
@@ -140,7 +150,9 @@ impl EvidenceScope {
             | Self::InvalidArguments
             | Self::EmptyChannel
             | Self::NoController
-            | Self::ZeroTagCount => "unverified",
+            | Self::ZeroTagCount
+            | Self::ZeroLength
+            | Self::EmptyQueue => "unverified",
             Self::NoControllerAndInvalidArguments => "unverified",
             _ => declared,
         }
@@ -1905,6 +1917,8 @@ mod tests {
             "empty-channel",
             "no-controller",
             "no-controller-and-invalid-arguments",
+            "zero-length",
+            "empty-queue",
             "zero-tag-count",
         ] {
             let scope = EvidenceScope::parse(scope).unwrap();

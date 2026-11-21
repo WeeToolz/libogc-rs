@@ -13,6 +13,12 @@ buffer. Dolphin passed 60 bus checks with no failures. The inventory moved from
 Dolphin. They do not prove physical cache contents, timing, or Wii hardware
 behavior.
 
+A later coverage review marked `lc_load_data` and `lc_store_data` partial
+because their earlier checks used zero bytes. It also marked the queue
+operations partial because those checks used an empty queue. The current
+inventory has 189 unverified APIs; these five entries need non-zero transfer
+and pending-queue evidence.
+
 The first allocation attempt checked one tag. Review expanded the checks to
 two adjacent tags and a two-line `lc_alloc` request. The batch helper then
 rejected replacement of the earlier `zero-tag-count` partial evidence because

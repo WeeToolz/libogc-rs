@@ -108,34 +108,35 @@ class BatchTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "passing run"):
                 batch.verify_run(directory, manifest, run_info)
 
-    def test_record_evidence_replaces_zero_tag_partial_scope(self):
-        with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            evidence_path = Path("config/evidence.csv")
-            target = root / evidence_path
-            target.parent.mkdir(parents=True)
-            target.write_text(
-                "crate,path,symbol,line,classification,evidence_kind,evidence_path,"
-                "evidence_function,api_path,evidence_scope\n"
-                "example,src/lib.rs,api,12,hardware,hardware-probe,probes/old.rs,"
-                "probe,example::api,zero-tag-count\n"
-            )
-            case = {
-                "path": "src/lib.rs", "evidence_path": "probes/new.rs",
-                "function": "probe_api", "api_path": "example::api",
-            }
-            row = {
-                "crate": "example", "symbol": "api", "line": "12",
-                "declared_classification": "hardware",
-            }
+    def test_record_evidence_replaces_partial_cache_scopes(self):
+        for scope in ("zero-tag-count", "zero-length", "empty-queue"):
+            with self.subTest(scope=scope), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                evidence_path = Path("config/evidence.csv")
+                target = root / evidence_path
+                target.parent.mkdir(parents=True)
+                target.write_text(
+                    "crate,path,symbol,line,classification,evidence_kind,evidence_path,"
+                    "evidence_function,api_path,evidence_scope\n"
+                    "example,src/lib.rs,api,12,hardware,hardware-probe,probes/old.rs,"
+                    f"probe,example::api,{scope}\n"
+                )
+                case = {
+                    "path": "src/lib.rs", "evidence_path": "probes/new.rs",
+                    "function": "probe_api", "api_path": "example::api",
+                }
+                row = {
+                    "crate": "example", "symbol": "api", "line": "12",
+                    "declared_classification": "hardware",
+                }
 
-            with patch.object(batch, "ROOT", root), patch.object(batch, "EVIDENCE", evidence_path):
-                batch.record_evidence([(case, row)])
+                with patch.object(batch, "ROOT", root), patch.object(batch, "EVIDENCE", evidence_path):
+                    batch.record_evidence([(case, row)])
 
-            contents = target.read_text().splitlines()
-            self.assertEqual(len(contents), 2)
-            self.assertIn("probes/new.rs", contents[1])
-            self.assertNotIn("zero-tag-count", contents[1])
+                contents = target.read_text().splitlines()
+                self.assertEqual(len(contents), 2)
+                self.assertIn("probes/new.rs", contents[1])
+                self.assertNotIn(scope, contents[1])
 
 
 if __name__ == "__main__":

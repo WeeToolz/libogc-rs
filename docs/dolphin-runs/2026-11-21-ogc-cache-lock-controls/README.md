@@ -10,9 +10,11 @@ At batch completion, the exact API evidence reduced the unverified inventory
 from 190 to 187. A later coverage review found that the earlier
 `lc_alloc_tags` evidence only checked a zero tag count. Its scope was marked
 partial until the [allocation batch](../2026-11-21-ogc-cache-allocations-v3/README.md)
-checked non-zero tags. The current inventory has 184 unverified APIs. This run
-checks Dolphin's emulated register and queue behavior. It does not verify
-physical cache contents, timing, or Wii hardware behavior.
+checked non-zero tags. A later review also marked `lc_flush_queue` partial
+because the check had no pending work in the queue. After the allocation batch
+and all coverage corrections, the current inventory has 189 unverified APIs.
+This run checks Dolphin's emulated register behavior. It does not verify
+physical cache contents, timing, or queue behavior with pending DMA work.
 
 Build command:
 

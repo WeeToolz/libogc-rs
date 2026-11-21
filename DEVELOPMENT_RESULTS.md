@@ -28,8 +28,11 @@ for all allocation counts. Its evidence scope now records the zero-tag path
 only, and the inventory leaves non-zero tag allocation unverified. This
 correction changes the net unverified count after the cache controls batch from
 187 to 188. The following allocation batch added checks for non-zero counts and
-replaced the partial scope with full Dolphin evidence. The inventory is now at
-184 unverified APIs.
+replaced the partial scope with full Dolphin evidence. A second review found
+that the cache load and store probes only tested zero bytes, and that the queue
+probes only tested an empty queue. Those five API entries now remain
+unverified until non-zero transfers and pending-queue behavior are tested. The
+current inventory has 189 unverified APIs.
 
 ## 2026-11-21 inventory audit evidence caching
 
