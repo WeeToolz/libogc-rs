@@ -43,6 +43,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_cache(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_cache_controls(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_cache_instruction_apis(logger);
     probe_aram(logger);
     probe_dsp(logger);
     probe_exi_si(logger);
@@ -243,6 +245,73 @@ fn probe_cache_controls(logger: &mut ProbeLogger) {
     logger.record(
         "ic_unfreeze clears only ILOCK",
         ic_frozen & ILOCK != 0 && ic_unfrozen == baseline,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+#[inline(never)]
+fn cache_instruction_probe_value() -> u32 {
+    0x51c0_ffee
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_cache_instruction_apis(logger: &mut ProbeLogger) {
+    fn read_hid0() -> u32 {
+        let value: u32;
+        // SAFETY: The Wii probe runs in supervisor mode.
+        unsafe {
+            core::arch::asm!("mfspr {value}, 1008", value = out(reg) value, options(nostack));
+        }
+        value
+    }
+
+    fn write_hid0(value: u32) {
+        // SAFETY: Restore the HID0 value captured by this probe.
+        unsafe {
+            core::arch::asm!("sync", "mtspr 1008, {value}", "isync", value = in(reg) value, options(nostack));
+        }
+    }
+
+    logger.section("CACHE INSTRUCTION APIs");
+    let irq_state = irq::irq_disable();
+    let original = read_hid0();
+    let baseline = (original | 0x8000 | 0x4000) & !0x0c00;
+    write_hid0(baseline);
+    ogc_cache::dc_flash_invalidate();
+    let dc_after = read_hid0();
+    ogc_cache::ic_flash_invalidate();
+    let ic_after = read_hid0();
+    write_hid0(original);
+    let restored = read_hid0() == original;
+    irq::irq_restore(irq_state);
+
+    logger.note_hex32("HID0 after DC flash invalidate request", dc_after);
+    logger.note_hex32("HID0 after IC flash invalidate request", ic_after);
+    logger.note("Dolphin flash-invalidate readback does not prove cache timing on hardware");
+    logger.record(
+        "dc_flash_invalidate preserves other HID0 bits and restores state",
+        dc_after & !0x0400 == baseline & !0x0400 && restored,
+    );
+    logger.record(
+        "ic_flash_invalidate preserves other HID0 bits and restores state",
+        ic_after & !0x0800 == dc_after & !0x0800 && restored,
+    );
+
+    let expected = cache_instruction_probe_value();
+    let code_line = (cache_instruction_probe_value as *const () as usize) & !31;
+    // SAFETY: `code_line` is the aligned cache line for live executable code.
+    unsafe {
+        ogc_cache::ic_block_invalidate(code_line as *const c_void);
+    }
+    let after_invalidate = cache_instruction_probe_value();
+    logger.record(
+        "ic_block_invalidate preserves executable code behavior",
+        expected == 0x51c0_ffee && after_invalidate == expected,
+    );
+    ogc_cache::ic_sync();
+    logger.record(
+        "ic_sync completes after instruction cache invalidation",
+        cache_instruction_probe_value() == expected,
     );
 }
 

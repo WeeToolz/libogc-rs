@@ -3175,3 +3175,7 @@ ogc-usb-sys,src/lib.rs,initialize,1585,ios,hardware-probe,probes/ogc-system-prob
 ogc-usb-sys,src/lib.rs,initialize_vendor,1590,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_sys_lifecycle,ogc_usb::sys::initialize_vendor
 ogc-usb-sys,src/lib.rs,deinitialize,1600,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_sys_lifecycle,ogc_usb::sys::deinitialize
 ogc-usb-sys,src/lib.rs,deinitialize_vendor,1613,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_sys_lifecycle,ogc_usb::sys::deinitialize_vendor
+ogc-cache,src/lib.rs,dc_flash_invalidate,302,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_instruction_apis,ogc_cache::dc_flash_invalidate
+ogc-cache,src/lib.rs,ic_block_invalidate,414,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_instruction_apis,ogc_cache::ic_block_invalidate
+ogc-cache,src/lib.rs,ic_flash_invalidate,375,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_instruction_apis,ogc_cache::ic_flash_invalidate
+ogc-cache,src/lib.rs,ic_sync,371,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_instruction_apis,ogc_cache::ic_sync
