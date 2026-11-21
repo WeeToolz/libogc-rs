@@ -402,6 +402,35 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             "IPC format bridge async output completes with ES title count",
             submission == 0 && callback_result == 0 && async_value == actual,
         );
+        let title_id = 0x0000_0001_0000_0002u64.to_be_bytes();
+        let mut typed_path = [0u8; 30];
+        let typed_path_result = fd.ioctlv(
+            0x1d,
+            1,
+            [
+                ipc::IoctlvEntry::In(&title_id),
+                ipc::IoctlvEntry::Out(&mut typed_path),
+            ],
+        );
+        let mut formatted_path = [0u8; 30];
+        let path_call = FormatCall {
+            ioctl: 0x1d,
+            format: c"q:d".as_ptr().cast(),
+            registers: [1, 2, formatted_path.as_mut_ptr() as u32, 30],
+            ..call
+        };
+        let path_result = unsafe {
+            ipc::__ogc_ipc_ioctlv_format_bridge((&path_call as *const FormatCall).cast())
+        };
+        logger.note_i32("IPC typed ES title directory result", typed_path_result);
+        logger.note_i32("IPC formatted ES title directory result", path_result);
+        logger.record(
+            "IPC format bridge transfers title input and directory output",
+            typed_path_result == 0
+                && path_result == 0
+                && typed_path == *b"/title/00000001/00000002/data\0"
+                && formatted_path == typed_path,
+        );
         let closed = if completed || submission < 0 {
             fd.close().is_ok()
         } else {
@@ -415,6 +444,10 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         );
         logger.record(
             "IPC format bridge async output completes with ES title count",
+            false,
+        );
+        logger.record(
+            "IPC format bridge transfers title input and directory output",
             false,
         );
         logger.record("IPC format bridge closes ES descriptor", false);

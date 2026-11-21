@@ -68,6 +68,7 @@ enum EvidenceScope {
     NoEventHook,
     SynchronousScalarOutput,
     ScalarOutput,
+    ScalarAndBuffer,
     DolphinCacheRegister,
     DolphinCacheInstructions,
     ZeroTagCount,
@@ -94,6 +95,7 @@ impl EvidenceScope {
             "no-event-hook" => Self::NoEventHook,
             "synchronous-scalar-output" => Self::SynchronousScalarOutput,
             "scalar-output" => Self::ScalarOutput,
+            "scalar-and-buffer" => Self::ScalarAndBuffer,
             "dolphin-cache-register" => Self::DolphinCacheRegister,
             "dolphin-cache-instructions" => Self::DolphinCacheInstructions,
             "zero-tag-count" => Self::ZeroTagCount,
@@ -153,6 +155,9 @@ impl EvidenceScope {
             Self::ScalarOutput => {
                 "Synchronous and asynchronous scalar output in Dolphin. Other formats remain unverified."
             }
+            Self::ScalarAndBuffer => {
+                "Scalar output and title input with buffer output in Dolphin. Other formats remain unverified."
+            }
             Self::DolphinCacheRegister => {
                 "Dolphin HID0 transitions and restoration only. Physical cache state and timing are unverified."
             }
@@ -188,7 +193,8 @@ impl EvidenceScope {
             Self::RepeatedInitialization
             | Self::NoEventHook
             | Self::SynchronousScalarOutput
-            | Self::ScalarOutput => "unverified",
+            | Self::ScalarOutput
+            | Self::ScalarAndBuffer => "unverified",
             Self::NoControllerAndInvalidArguments => "unverified",
             _ => declared,
         }
@@ -1970,6 +1976,7 @@ mod tests {
             "no-event-hook",
             "synchronous-scalar-output",
             "scalar-output",
+            "scalar-and-buffer",
             "zero-tag-count",
         ] {
             let scope = EvidenceScope::parse(scope).unwrap();
