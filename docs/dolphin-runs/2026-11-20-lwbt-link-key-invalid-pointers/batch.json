@@ -1,0 +1,65 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "write_stored_link_key",
+      "line": 667,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_invalid_key_pointers",
+      "api_path": "bte::write_stored_link_key",
+      "checks": [
+        "Bluetooth key write rejects null address"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "delete_stored_link_key",
+      "line": 706,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_invalid_key_pointers",
+      "api_path": "bte::delete_stored_link_key",
+      "checks": [
+        "Bluetooth key delete rejects null address"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "link_key_request_reply",
+      "line": 534,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_invalid_key_pointers",
+      "api_path": "bte::link_key_request_reply",
+      "checks": [
+        "Bluetooth key reply rejects null address"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "link_key_request_negative_reply",
+      "line": 547,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_invalid_key_pointers",
+      "api_path": "bte::link_key_request_negative_reply",
+      "checks": [
+        "Bluetooth negative key reply rejects null address"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "read_stored_link_key",
+      "line": 410,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_invalid_key_pointers",
+      "api_path": "bte::read_stored_link_key",
+      "checks": [
+        "Bluetooth key read rejects null output"
+      ]
+    }
+  ]
+}

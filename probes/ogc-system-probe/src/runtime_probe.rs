@@ -103,6 +103,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_bt_key_requests(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_lwbt_invalid_pcbs(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_lwbt_invalid_key_pointers(logger);
     probe_system_runtime_state(logger);
     probe_wiilaunch_error_codes(logger);
     probe_system_startup_status(logger);
@@ -4314,6 +4316,37 @@ fn probe_bt_unavailable_protocol_calls(logger: &mut ProbeLogger) {
             && after_acl.stage == HostStage::Disabled
             && after_acl.acl_packets == before_acl.acl_packets + 1
             && after_acl.malformed == before_acl.malformed + 1,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_lwbt_invalid_key_pointers(logger: &mut ProbeLogger) {
+    use lwbt_sys as bte;
+    let write = unsafe { bte::write_stored_link_key(core::ptr::null_mut(), core::ptr::null_mut()) };
+    logger.record(
+        "Bluetooth key write rejects null address",
+        write == bte::ERR_ARG,
+    );
+    let delete = unsafe { bte::delete_stored_link_key(core::ptr::null_mut()) };
+    logger.record(
+        "Bluetooth key delete rejects null address",
+        delete == bte::ERR_ARG,
+    );
+    let reply =
+        unsafe { bte::link_key_request_reply(core::ptr::null_mut(), core::ptr::null_mut()) };
+    logger.record(
+        "Bluetooth key reply rejects null address",
+        reply == bte::ERR_ARG,
+    );
+    let negative = unsafe { bte::link_key_request_negative_reply(core::ptr::null_mut()) };
+    logger.record(
+        "Bluetooth negative key reply rejects null address",
+        negative == bte::ERR_ARG,
+    );
+    let read = unsafe { bte::read_stored_link_key(core::ptr::null_mut(), 1, None) };
+    logger.record(
+        "Bluetooth key read rejects null output",
+        read == bte::ERR_ARG,
     );
 }
 

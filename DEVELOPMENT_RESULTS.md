@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-20 Bluetooth link-key pointer guards
+
+The [link-key batch](docs/dolphin-runs/2026-11-20-lwbt-link-key-invalid-pointers/README.md)
+checks five raw key APIs with null addresses or output. Dolphin passed all
+634 runtime probe checks. The inventory fell from 351 to 346 unverified
+entries. Valid stored-key access remains untested.
+
 ## 2026-11-20 Bluetooth invalid PCB guards
 
 The [Bluetooth batch](docs/dolphin-runs/2026-11-20-lwbt-invalid-pcb-guards/README.md)
