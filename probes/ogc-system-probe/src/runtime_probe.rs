@@ -3475,6 +3475,15 @@ fn probe_video_framebuffer_updates(logger: &mut ProbeLogger) {
     // SAFETY: Restore the previously recorded pointer accepted by the same API.
     unsafe { video::set_next_right_framebuffer(previous_right as *mut core::ffi::c_void) };
     let right_framebuffer_restored = video::snapshot().next_right_framebuffer == previous_right;
+    let previous_raw_right = raw_video::read_register_snapshot().next_right_framebuffer;
+    // SAFETY: `original` is the live framebuffer used by the active VI mode.
+    unsafe { raw_video::set_next_right_framebuffer(original) };
+    let raw_right_framebuffer_recorded =
+        raw_video::read_register_snapshot().next_right_framebuffer == original as usize;
+    // SAFETY: Restore the previously recorded pointer accepted by the same API.
+    unsafe { raw_video::set_next_right_framebuffer(previous_raw_right as *mut _) };
+    let raw_right_framebuffer_restored =
+        raw_video::read_register_snapshot().next_right_framebuffer == previous_raw_right;
 
     let registers = 0xcc00_2000usize as *const u16;
     let saved_irq = ogc_irq::irq_disable();
@@ -3539,6 +3548,10 @@ fn probe_video_framebuffer_updates(logger: &mut ProbeLogger) {
     logger.record(
         "Video right framebuffer setter records and restores its pointer",
         right_framebuffer_recorded && right_framebuffer_restored,
+    );
+    logger.record(
+        "Video raw right framebuffer setter records and restores its pointer",
+        raw_right_framebuffer_recorded && raw_right_framebuffer_restored,
     );
 }
 

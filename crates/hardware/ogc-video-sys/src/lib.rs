@@ -61,6 +61,8 @@ pub struct VideoRegisterSnapshot {
     pub bottom_field_low: u16,
     pub current_framebuffer: usize,
     pub next_framebuffer: usize,
+    /// Scheduled right-eye framebuffer pointer.
+    pub next_right_framebuffer: usize,
 }
 
 static VIDEO_BLACK: AtomicBool = AtomicBool::new(false);
@@ -737,6 +739,7 @@ pub fn read_register_snapshot() -> VideoRegisterSnapshot {
                 bottom_field_low: vi_read_reg(19),
                 current_framebuffer,
                 next_framebuffer,
+                next_right_framebuffer: LAST_NEXT_RIGHT_FRAMEBUFFER.load(Ordering::Acquire),
             }
         }
 
@@ -758,6 +761,7 @@ pub fn read_register_snapshot() -> VideoRegisterSnapshot {
                 bottom_field_low,
                 current_framebuffer,
                 next_framebuffer,
+                next_right_framebuffer: LAST_NEXT_RIGHT_FRAMEBUFFER.load(Ordering::Acquire),
             }
         }
     }
