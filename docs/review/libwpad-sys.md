@@ -44,6 +44,8 @@ The 2026-11-21 Dolphin probe checks valid-channel rejection for a null or zero-c
 
 These guards intentionally differ from libogc C. `WPAD_SetEventBufs` stores the supplied pointer and count without rejecting null or zero values (`wiiuse/wpad.c:1648-1665`). `WPAD_SendStreamData` stores the buffer and length and starts an alarm for an active speaker, without checking null or zero (`wiiuse/wpad.c:1921-1948`). Rust rejects those inputs with `WPAD_ERR_BADVALUE`; this is a documented safety difference, not evidence of C parity for malformed inputs.
 
+The empty-channel stream check found a separate result mismatch. C returns `WPAD_ERR_NONE` when a valid initialized channel has no connected Remote or no enabled speaker (`wiiuse/wpad.c:1931-1948`). The Rust backend returned `WPAD_ERR_NO_CONTROLLER` or `WPAD_ERR_NOT_READY`. It now returns success when there is no stream to queue. Dolphin confirms this no-op and the existing malformed-argument guards. Behavior when a connected speaker accepts and sends a stream remains unverified.
+
 ## Empty-channel speaker and rumble behavior
 
 The 2026-11-21 Dolphin probe found that the single-channel PowerPC wrappers for `WPAD_ControlSpeaker` and `WPAD_Rumble` returned `WPAD_ERR_NO_CONTROLLER` when WPAD was enabled but the valid channel had no Remote. C returns `WPAD_ERR_NONE` in that state because it skips the controller operation when the channel pointer is null (`wiiuse/wpad.c:1575-1579,1800-1810`). The wrappers now use the existing backend no-op path for absent controllers. The corrected Dolphin run checks empty-channel success and invalid-channel rejection for both calls. It does not establish behavior with a connected Remote, so the inventory retains partial `no-controller` evidence and both APIs remain unverified.

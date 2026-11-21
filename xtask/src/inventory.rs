@@ -58,6 +58,7 @@ enum EvidenceScope {
     InvalidChannel,
     InvalidArguments,
     NoController,
+    NoControllerAndInvalidArguments,
     DolphinCacheRegister,
     DolphinCacheInstructions,
     DolphinHostCallback,
@@ -73,6 +74,7 @@ impl EvidenceScope {
             "invalid-channel" => Self::InvalidChannel,
             "invalid-arguments" => Self::InvalidArguments,
             "no-controller" => Self::NoController,
+            "no-controller-and-invalid-arguments" => Self::NoControllerAndInvalidArguments,
             "dolphin-cache-register" => Self::DolphinCacheRegister,
             "dolphin-cache-instructions" => Self::DolphinCacheInstructions,
             "dolphin-host-callback" => Self::DolphinHostCallback,
@@ -101,6 +103,9 @@ impl EvidenceScope {
             Self::NoController => {
                 "Valid empty-channel and invalid-channel behavior only in Dolphin. Behavior with a connected controller remains unverified."
             }
+            Self::NoControllerAndInvalidArguments => {
+                "Valid empty-channel behavior and Rust invalid-argument guards only in Dolphin. Behavior with a connected controller remains unverified."
+            }
             Self::DolphinCacheRegister => {
                 "Dolphin HID0 transitions and restoration only. Physical cache state and timing are unverified."
             }
@@ -124,6 +129,7 @@ impl EvidenceScope {
             | Self::InvalidChannel
             | Self::InvalidArguments
             | Self::NoController => "unverified",
+            Self::NoControllerAndInvalidArguments => "unverified",
             _ => declared,
         }
     }
@@ -1773,6 +1779,7 @@ mod tests {
             "invalid-channel",
             "invalid-arguments",
             "no-controller",
+            "no-controller-and-invalid-arguments",
         ] {
             let scope = EvidenceScope::parse(scope).unwrap();
             assert_eq!(scope.classification("protocol"), "unverified");

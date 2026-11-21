@@ -1127,10 +1127,12 @@ pub(crate) fn set_motion_plus_if_present(slot_idx: usize, enable: bool) -> i32 {
 
 pub(crate) fn send_stream_data(slot_idx: usize, data: &[u8]) -> i32 {
     if !slot_is_wii_remote(slot_idx) {
-        return WPAD_ERR_NO_CONTROLLER as i32;
+        // C treats a valid channel without a connected, speaker-enabled
+        // Remote as a successful no-op.
+        return WPAD_ERR_NONE as i32;
     }
     if !WPAD_SPEAKER[slot_idx].load(Ordering::Acquire) {
-        return WPAD_ERR_NOT_READY as i32;
+        return WPAD_ERR_NONE as i32;
     }
     if data.is_empty() {
         return WPAD_ERR_BADVALUE as i32;

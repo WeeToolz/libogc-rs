@@ -38,11 +38,14 @@ full coverage of an API.
 Set `evidence_scope` on a manifest case when the test covers a limited
 part of the API. The scopes `mock-dispatch`, `closed-service`,
 `disabled-adapter`, `invalid-channel`, `invalid-arguments`, and
-`no-controller` retain the evidence in the
+`no-controller`, and `no-controller-and-invalid-arguments` retain the evidence in the
 inventory and keep the production API unverified. Dolphin cache, host
 callback, and mouse lifecycle scopes add their limits to the inventory
 row. The `no-controller` scope covers valid empty-channel and invalid-channel
-behavior while leaving connected-controller behavior open. The audit rejects unknown scope values. When a new run covers the
+behavior while leaving connected-controller behavior open. The
+`no-controller-and-invalid-arguments` scope covers a valid empty-channel no-op
+and Rust safety guards for malformed arguments. The audit rejects unknown
+scope values. When a new run covers the
 production behavior, `finish` can replace an earlier partial evidence
 row. Keep the earlier run as a record of the original checks.
 

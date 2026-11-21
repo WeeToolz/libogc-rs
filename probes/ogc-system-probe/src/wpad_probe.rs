@@ -46,6 +46,7 @@ pub fn run(logger: &mut ProbeLogger) {
     );
     probe_valid_channel_empty_queries(logger);
     probe_empty_channel_commands(logger);
+    probe_empty_channel_stream(logger);
     probe_empty_channel_event_queue(logger);
     probe_invalid_channel_commands(logger);
     probe_bluetooth_helpers(logger);
@@ -135,6 +136,36 @@ fn probe_empty_channel_commands(logger: &mut ProbeLogger) {
     logger.record(
         "WPAD invalid channel rejects rumble control",
         wpad::rumble(invalid, 1) == bad_channel,
+    );
+}
+
+fn probe_empty_channel_stream(logger: &mut ProbeLogger) {
+    let channel = wpad::WPAD_CHAN_0;
+    let mut expansion = 0xfeed_beef;
+    // SAFETY: The output points to a valid local value.
+    let status = unsafe { wpad::probe(channel, &mut expansion) };
+    logger.record(
+        "WPAD stream probe confirms empty channel",
+        status == wpad::WPAD_ERR_NO_CONTROLLER as i32,
+    );
+
+    let mut payload = [0x5a_u8; 1];
+    // SAFETY: The pointer references one readable byte for this call.
+    let stream = unsafe { wpad::send_stream_data(channel, payload.as_mut_ptr().cast(), 1) };
+    logger.record(
+        "WPAD empty channel speaker stream succeeds",
+        status == wpad::WPAD_ERR_NO_CONTROLLER as i32 && stream == wpad::WPAD_ERR_NONE as i32,
+    );
+
+    // SAFETY: The null and zero-length inputs are rejected before any read.
+    let null_stream =
+        unsafe { wpad::send_stream_data(channel, core::ptr::null_mut(), payload.len() as u32) };
+    // SAFETY: The pointer is valid, and the zero length is rejected before any read.
+    let empty_stream = unsafe { wpad::send_stream_data(channel, payload.as_mut_ptr().cast(), 0) };
+    logger.record(
+        "WPAD empty channel rejects malformed speaker stream arguments",
+        null_stream == wpad::WPAD_ERR_BADVALUE as i32
+            && empty_stream == wpad::WPAD_ERR_BADVALUE as i32,
     );
 }
 
