@@ -1,0 +1,32 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "current_system_argv",
+      "line": 985,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sys_argv_contracts",
+      "api_path": "raw_system::current_system_argv",
+      "checks": [
+        "System sys argv accessor returns a stable descriptor"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "_check_argv",
+      "line": 1487,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sys_argv_contracts",
+      "api_path": "raw_system::_check_argv",
+      "checks": [
+        "System sys argv check preserves a valid stable descriptor"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin tests the runtime-owned Wii argument descriptor after startup. It does not test host compatibility storage or every argument encoding."
+  ]
+}

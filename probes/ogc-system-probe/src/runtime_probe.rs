@@ -133,6 +133,8 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_system_protect_range_snapshot(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_system_sys_argv_contracts(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_system_pmc_lifecycle(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_usb_api_batch(logger);
@@ -4000,6 +4002,38 @@ fn probe_system_startup_status(logger: &mut ProbeLogger) {
             && after.init_failed_stage == 0
             && after.init_completed_mask == before.init_completed_mask
             && after.init_stage == before.init_stage,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_sys_argv_contracts(logger: &mut ProbeLogger) {
+    // SAFETY: Probe startup has completed. No probe task changes the runtime
+    // argument descriptor while this function reads it.
+    let first = unsafe { raw_system::current_system_argv() };
+    // SAFETY: Same single-threaded runtime-owned descriptor access as above.
+    let second = unsafe { raw_system::current_system_argv() };
+    logger.record(
+        "System sys argv accessor returns a stable descriptor",
+        first == second,
+    );
+
+    raw_system::_check_argv();
+    // SAFETY: The descriptor belongs to the runtime and remains live for the
+    // process. Copy only its fields; do not follow its argument pointers.
+    let first_state = unsafe { first.as_ref().copied() };
+    raw_system::_check_argv();
+    // SAFETY: Same runtime-owned descriptor remains live after the check.
+    let second_state = unsafe { first.as_ref().copied() };
+    let valid_state = second_state.is_none_or(|argv| {
+        if argv.argv_magic != 0x5f61_7267 {
+            argv.argc == 0 && argv.argv.is_null()
+        } else {
+            argv.argc >= 0 && (argv.argc == 0 || (!argv.argv.is_null() && !argv.end_argv.is_null()))
+        }
+    });
+    logger.record(
+        "System sys argv check preserves a valid stable descriptor",
+        first_state == second_state && valid_state,
     );
 }
 
