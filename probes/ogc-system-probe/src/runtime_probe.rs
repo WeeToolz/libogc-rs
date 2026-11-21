@@ -2,6 +2,7 @@ use core::sync::atomic::{AtomicBool, AtomicI32, Ordering};
 use ogc_aes_sys as aes;
 use ogc_conf as conf;
 use ogc_es as es;
+use ogc_es_sys as raw_es;
 use ogc_filesystem as filesystem;
 use ogc_ios as ios;
 use ogc_lwp::sys as lwp;
@@ -127,6 +128,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_system_api_batch(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_es_argument_guards(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_es_invalid_argument_guards(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_system_protect_range_snapshot(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -3394,6 +3397,81 @@ fn probe_es_argument_guards(logger: &mut ProbeLogger) {
     logger.record(
         "ES verify rejects null signed metadata",
         verify == es::ES_EINVAL,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_es_invalid_argument_guards(logger: &mut ProbeLogger) {
+    let verify_ticket = unsafe {
+        raw_es::di_verify_with_ticket_view(
+            core::ptr::null(),
+            0,
+            core::ptr::null(),
+            0,
+            core::ptr::null(),
+            core::ptr::null_mut(),
+        )
+    };
+    logger.record(
+        "ES ticket-view verifier rejects null metadata",
+        verify_ticket == raw_es::ES_EINVAL,
+    );
+
+    let add_title = unsafe {
+        raw_es::add_title_start(
+            core::ptr::null(),
+            0,
+            core::ptr::null(),
+            0,
+            core::ptr::null(),
+            0,
+        )
+    };
+    logger.record(
+        "ES title add rejects null metadata",
+        add_title == raw_es::ES_EINVAL,
+    );
+
+    let add_content = unsafe { raw_es::add_content_data(-1, core::ptr::null(), 0) };
+    logger.record(
+        "ES content add rejects empty input",
+        add_content == raw_es::ES_EINVAL,
+    );
+
+    let export_title = unsafe { raw_es::export_title_init(0, core::ptr::null_mut(), 0) };
+    logger.record(
+        "ES title export rejects an empty output buffer",
+        export_title == raw_es::ES_EINVAL,
+    );
+
+    let export_content = unsafe { raw_es::export_content_data(-1, core::ptr::null_mut(), 0) };
+    logger.record(
+        "ES content export rejects an empty output buffer",
+        export_content == raw_es::ES_EINVAL,
+    );
+
+    let sign = unsafe {
+        raw_es::sign(
+            core::ptr::null(),
+            1,
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+        )
+    };
+    logger.record("ES signing rejects null buffers", sign == raw_es::ES_EINVAL);
+
+    let verify = unsafe {
+        raw_es::verify_sign(
+            core::ptr::null(),
+            1,
+            core::ptr::null(),
+            core::ptr::null(),
+            0,
+        )
+    };
+    logger.record(
+        "ES signature verifier rejects null buffers",
+        verify == raw_es::ES_EINVAL,
     );
 }
 

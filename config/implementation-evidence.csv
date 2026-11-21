@@ -3053,3 +3053,10 @@ ogc-system-sys,src/lib.rs,_sys_sync_sram,4528,hardware,hardware-probe,probes/ogc
 ogc-system-sys,src/lib.rs,_sys_unlock_sram,4463,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_lock_lifecycle,raw_system::_sys_unlock_sram
 ogc-system-sys,src/lib.rs,_sys_lock_sram_ex,4445,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_lock_lifecycle,raw_system::_sys_lock_sram_ex
 ogc-system-sys,src/lib.rs,_sys_unlock_sram_ex,4485,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_lock_lifecycle,raw_system::_sys_unlock_sram_ex
+ogc-es-sys,src/imp.rs,di_verify_with_ticket_view,1542,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_invalid_argument_guards,raw_es::di_verify_with_ticket_view
+ogc-es-sys,src/imp.rs,add_title_start,1799,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_invalid_argument_guards,raw_es::add_title_start
+ogc-es-sys,src/imp.rs,add_content_data,1888,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_invalid_argument_guards,raw_es::add_content_data
+ogc-es-sys,src/imp.rs,export_title_init,1657,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_invalid_argument_guards,raw_es::export_title_init
+ogc-es-sys,src/imp.rs,export_content_data,1708,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_invalid_argument_guards,raw_es::export_content_data
+ogc-es-sys,src/imp.rs,sign,2281,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_invalid_argument_guards,raw_es::sign
+ogc-es-sys,src/imp.rs,verify_sign,2328,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_invalid_argument_guards,raw_es::verify_sign
