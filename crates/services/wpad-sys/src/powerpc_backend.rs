@@ -1972,6 +1972,13 @@ fn process_hid_event(event: bt::HidEvent) -> Result<(), i32> {
             if slot >= bt::HID_SLOTS {
                 return Err(WPAD_ERR_TRANSFER as i32);
             }
+            // A disconnected event can be queued after Connected before this
+            // thread drains either event. Do not initialize a controller from
+            // an obsolete Connected event; its following Disconnected event
+            // will clear the WPAD slot.
+            if !with_host(|host| host.has_link(slot)).unwrap_or(false) {
+                return Ok(());
+            }
             // WPAD_Search may race with a Connected event that the adapter
             // worker queued before the disconnect request. Do not republish a
             // controller that the search has already hidden.
@@ -2024,6 +2031,11 @@ fn process_hid_event(event: bt::HidEvent) -> Result<(), i32> {
             if kind == ControllerKind::WiiRemote {
                 set_connected(slot, true);
                 if !initialize_wii_remote(slot) {
+                    if !with_host(|host| host.has_link(slot)).unwrap_or(false) {
+                        clear_slot(slot);
+                        clear_hid_snapshot(slot);
+                        return Ok(());
+                    }
                     return Err(WPAD_ERR_TRANSFER as i32);
                 }
             }

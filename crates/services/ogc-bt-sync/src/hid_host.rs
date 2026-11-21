@@ -3412,6 +3412,27 @@ mod tests {
     }
 
     #[test]
+    fn connected_event_can_be_stale_when_disconnect_is_processed_first() {
+        let mut host = configured(ControllerFamily::WiiRemote);
+        assert!(host.has_link(0));
+        host.disconnect(0);
+
+        assert!(!host.has_link(0));
+        assert!(matches!(
+            host.peek_event(),
+            Some(HidEvent::Connected {
+                slot: 0,
+                handle: 1,
+                ..
+            })
+        ));
+        assert!(matches!(
+            host.events.get(1),
+            Some(HidEvent::Disconnected { slot: 0, .. })
+        ));
+    }
+
+    #[test]
     fn switch_reads_factory_data_only_when_user_magic_is_absent() {
         let mut host = configured(ControllerFamily::SwitchPro);
         let _ = host.next_outgoing(0).expect("low-power request");

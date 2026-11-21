@@ -205,6 +205,25 @@ fn probe_active_search(logger: &mut ProbeLogger) {
         i32::from(hid_active.hci_status.unwrap_or(u8::MAX)),
     );
     logger.note_i32("WPAD status after HID inquiry", wpad::get_status());
+    logger.note_i32(
+        "WPAD HID inquiry adapter stage",
+        host_stage_code(hid_active.stage),
+    );
+    logger.note_u32("WPAD HID inquiry ACL packet count", hid_active.acl_packets);
+    logger.note_u32("WPAD HID inquiry report count", hid_active.reports);
+    logger.note_u32(
+        "WPAD HID inquiry malformed packet count",
+        hid_active.malformed,
+    );
+    logger.note_u32("WPAD HID inquiry disconnect count", hid_active.disconnects);
+    logger.note_i32(
+        "WPAD HID inquiry connection status",
+        i32::from(hid_active.last_connection_status.unwrap_or(u8::MAX)),
+    );
+    logger.note_i32(
+        "WPAD HID inquiry authentication failure count",
+        hid_active.authentication_failures as i32,
+    );
     logger.note_u32("WPAD HID inquiry connections", hid_active.connections);
     logger.note_u32(
         "WPAD HID inquiry connection attempts",
@@ -218,6 +237,12 @@ fn probe_active_search(logger: &mut ProbeLogger) {
     // SAFETY: The output points to a valid local value.
     let channel_status = unsafe { wpad::probe(wpad::WPAD_CHAN_0, &mut expansion) };
     logger.note_i32("WPAD channel status after HID inquiry", channel_status);
+    let hid_input = wpad::bluetooth_hid_state(0);
+    logger.note_i32("WPAD HID slot 0 connected", i32::from(hid_input.connected));
+    logger.note_i32(
+        "WPAD HID slot 0 report length",
+        i32::from(hid_input.report_len),
+    );
     let cancel_search = wpad::search_bluetooth_hid();
     let cancel_started = wpad::bluetooth_diagnostics();
     let hid_stop = wpad::stop_search();
@@ -229,6 +254,26 @@ fn probe_active_search(logger: &mut ProbeLogger) {
             && hid_stop == wpad::WPAD_ERR_NONE as i32
             && !canceled.searching,
     );
+}
+
+fn host_stage_code(stage: ogc_bt_sync::HostStage) -> i32 {
+    match stage {
+        ogc_bt_sync::HostStage::Disabled => 0,
+        ogc_bt_sync::HostStage::AdapterOpen => 1,
+        ogc_bt_sync::HostStage::Reset => 2,
+        ogc_bt_sync::HostStage::BufferSize => 3,
+        ogc_bt_sync::HostStage::Configure => 4,
+        ogc_bt_sync::HostStage::Address => 5,
+        ogc_bt_sync::HostStage::Features => 6,
+        ogc_bt_sync::HostStage::Pairing => 7,
+        ogc_bt_sync::HostStage::StoredKeys => 8,
+        ogc_bt_sync::HostStage::AdapterPatch => 9,
+        ogc_bt_sync::HostStage::ScanEnable => 10,
+        ogc_bt_sync::HostStage::EventFilter => 11,
+        ogc_bt_sync::HostStage::Ready => 12,
+        ogc_bt_sync::HostStage::Failed => 13,
+        ogc_bt_sync::HostStage::Closing => 14,
+    }
 }
 
 fn poll_search_until_adapter_event(
