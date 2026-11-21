@@ -143,6 +143,8 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_usb_lifecycle(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_usb_mouse_lifecycle(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_usb_safe_result_wrappers(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_usb_invalid_handle_operations(logger);
@@ -3826,6 +3828,24 @@ fn probe_usb_lifecycle(logger: &mut ProbeLogger) {
     logger.record(
         "USB fallible deinitialization reports success",
         try_deinitialize.is_ok(),
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_usb_mouse_lifecycle(logger: &mut ProbeLogger) {
+    use ogc_usb as usb;
+
+    logger.report_step("USB mouse lifecycle");
+    let initialize = usb::mouse::init();
+    logger.record(
+        "USB mouse initializes its worker",
+        initialize == usb::USB_OK,
+    );
+    let deinitialize = usb::mouse::deinit();
+    let usb_cleanup = usb::deinitialize();
+    logger.record(
+        "USB mouse deinitialization joins its worker and releases state",
+        deinitialize == 1 && !usb::mouse::is_connected() && usb_cleanup == usb::USB_OK,
     );
 }
 
