@@ -3086,3 +3086,11 @@ ogc-system-sys,src/lib.rs,current_system_argv,985,hardware,hardware-probe,probes
 ogc-system-sys,src/lib.rs,_check_argv,1487,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sys_argv_contracts,raw_system::_check_argv
 ogc-system,src/lib.rs,check_argv,655,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_wrapper_contracts,system::check_argv
 ogc-system,src/lib.rs,stdio_report_uses_stdout,580,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_wrapper_contracts,system::stdio_report_uses_stdout
+ogc-exi,src/lib.rs,attach,177,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_invalid_channels,exi::attach
+ogc-exi,src/lib.rs,detach,185,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_invalid_channels,exi::detach
+ogc-exi,src/lib.rs,get_id,168,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_invalid_channels,exi::get_id
+ogc-exi,src/lib.rs,read_id,172,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_invalid_channels,exi::read_id
+ogc-exi,src/lib.rs,try_attach,181,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_invalid_channels,exi::try_attach
+ogc-exi,src/lib.rs,try_detach,189,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_invalid_channels,exi::try_detach
+ogc-exi,src/lib.rs,try_probe,27,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_invalid_channels,exi::try_probe
+ogc-exi,src/lib.rs,try_probe_ex,35,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_invalid_channels,exi::try_probe_ex

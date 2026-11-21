@@ -177,6 +177,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_exi_raw_lock_queue(logger);
     probe_exi_selection(logger);
     probe_exi_callback_registry(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_exi_invalid_channels(logger);
     probe_exi_immediate_write(logger);
     probe_exi_dma_write(logger);
     probe_si_queries(logger);
@@ -2315,6 +2317,47 @@ fn probe_exi_selection(logger: &mut ProbeLogger) {
     }
 }
 
+fn probe_exi_invalid_channels(logger: &mut ProbeLogger) {
+    use ogc_exi as exi;
+
+    logger.record(
+        "EXI attach rejects an invalid channel",
+        exi::attach(-1, None) == 0,
+    );
+    logger.record(
+        "EXI detach rejects an invalid channel",
+        exi::detach(-1) == 0,
+    );
+    let mut id = 0xa5a5_5a5a;
+    // SAFETY: `id` is a writable output for the complete call.
+    let get_id_rc = unsafe { exi::get_id(-1, 0, &mut id) };
+    logger.record(
+        "EXI device ID query rejects an invalid channel",
+        get_id_rc == 0,
+    );
+    logger.record(
+        "EXI safe device ID query maps an invalid channel to an error",
+        exi::read_id(-1, 0).is_err(),
+    );
+    logger.record(
+        "EXI try attach maps an invalid channel to an error",
+        exi::try_attach(-1, None).is_err(),
+    );
+    logger.record(
+        "EXI try detach maps an invalid channel to an error",
+        exi::try_detach(-1).is_err(),
+    );
+    logger.record(
+        "EXI try probe reports no device on an invalid channel",
+        exi::try_probe(-1).is_ok_and(|present| !present),
+    );
+    logger.record(
+        "EXI try extended probe maps an invalid channel to an error",
+        exi::try_probe_ex(-1).is_err(),
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
 fn probe_exi_locking(logger: &mut ProbeLogger) {
     use ogc_exi as exi;
     // SAFETY: No callback is installed, and the acquired lock is released below.

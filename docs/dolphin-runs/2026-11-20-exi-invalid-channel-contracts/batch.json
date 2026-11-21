@@ -1,0 +1,104 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "attach",
+      "line": 177,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_invalid_channels",
+      "api_path": "exi::attach",
+      "checks": [
+        "EXI attach rejects an invalid channel"
+      ]
+    },
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "detach",
+      "line": 185,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_invalid_channels",
+      "api_path": "exi::detach",
+      "checks": [
+        "EXI detach rejects an invalid channel"
+      ]
+    },
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "get_id",
+      "line": 168,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_invalid_channels",
+      "api_path": "exi::get_id",
+      "checks": [
+        "EXI device ID query rejects an invalid channel"
+      ]
+    },
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "read_id",
+      "line": 172,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_invalid_channels",
+      "api_path": "exi::read_id",
+      "checks": [
+        "EXI safe device ID query maps an invalid channel to an error"
+      ]
+    },
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "try_attach",
+      "line": 181,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_invalid_channels",
+      "api_path": "exi::try_attach",
+      "checks": [
+        "EXI try attach maps an invalid channel to an error"
+      ]
+    },
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "try_detach",
+      "line": 189,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_invalid_channels",
+      "api_path": "exi::try_detach",
+      "checks": [
+        "EXI try detach maps an invalid channel to an error"
+      ]
+    },
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "try_probe",
+      "line": 27,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_invalid_channels",
+      "api_path": "exi::try_probe",
+      "checks": [
+        "EXI try probe reports no device on an invalid channel"
+      ]
+    },
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "try_probe_ex",
+      "line": 35,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_invalid_channels",
+      "api_path": "exi::try_probe_ex",
+      "checks": [
+        "EXI try extended probe maps an invalid channel to an error"
+      ]
+    }
+  ],
+  "limits": [
+    "All calls use channel -1 and test argument rejection or result conversion. They do not test a connected EXI device or normal bus transfers."
+  ]
+}
