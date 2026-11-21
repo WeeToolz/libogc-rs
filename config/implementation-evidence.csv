@@ -3094,3 +3094,4 @@ ogc-exi,src/lib.rs,try_attach,181,compatibility-forwarder,hardware-probe,probes/
 ogc-exi,src/lib.rs,try_detach,189,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_invalid_channels,exi::try_detach
 ogc-exi,src/lib.rs,try_probe,27,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_invalid_channels,exi::try_probe
 ogc-exi,src/lib.rs,try_probe_ex,35,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_invalid_channels,exi::try_probe_ex
+ogc-exi,src/lib.rs,probe_reset,193,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_reset,exi::probe_reset

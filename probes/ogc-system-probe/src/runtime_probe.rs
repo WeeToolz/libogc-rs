@@ -181,6 +181,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_exi_invalid_channels(logger);
     probe_exi_immediate_write(logger);
     probe_exi_dma_write(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_exi_reset(logger);
     probe_si_queries(logger);
     probe_si_raw_queries(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -2354,6 +2356,19 @@ fn probe_exi_invalid_channels(logger: &mut ProbeLogger) {
     logger.record(
         "EXI try extended probe maps an invalid channel to an error",
         exi::try_probe_ex(-1).is_err(),
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_exi_reset(logger: &mut ProbeLogger) {
+    use ogc_exi as exi;
+
+    exi::probe_reset();
+    let first = (exi::try_probe(0).ok(), exi::try_probe(1).ok());
+    let second = (exi::try_probe(0).ok(), exi::try_probe(1).ok());
+    logger.record(
+        "EXI probe reset leaves stable channel probe results",
+        first.0.is_some() && first.1.is_some() && first == second,
     );
 }
 

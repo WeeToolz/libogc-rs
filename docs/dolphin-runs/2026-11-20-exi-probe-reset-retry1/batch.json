@@ -1,0 +1,20 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-exi",
+      "path": "src/lib.rs",
+      "symbol": "probe_reset",
+      "line": 193,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_reset",
+      "api_path": "exi::probe_reset",
+      "checks": [
+        "EXI probe reset leaves stable channel probe results"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin checks that the reset probe leaves valid, stable channel results. It does not prove detection timing or IDs for physical EXI devices."
+  ]
+}
