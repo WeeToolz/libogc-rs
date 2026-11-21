@@ -1194,7 +1194,7 @@ fn build_lwp_probe_with_std(with_std: bool) -> Result<(), String> {
     Ok(())
 }
 
-fn build_wii_std_fs_dolphin_probe() -> Result<(), String> {
+fn build_wii_std_dolphin_probes() -> Result<(), String> {
     let root = repo_root()?;
     let target_spec = root.join("targets/powerpc-nintendo-none.json");
     let target_dir = root.join("target/xtask/wii-std-fs-dolphin-build");
@@ -1217,6 +1217,8 @@ fn build_wii_std_fs_dolphin_probe() -> Result<(), String> {
                 "wii_std_fs_probe",
                 "--bin",
                 "wii_std_exfat_probe",
+                "--bin",
+                "wii_std_thread_probe",
                 "-Z",
                 "json-target-spec",
                 "--target",
@@ -1231,7 +1233,11 @@ fn build_wii_std_fs_dolphin_probe() -> Result<(), String> {
             .current_dir(&root),
     )?;
 
-    for name in ["wii_std_fs_probe", "wii_std_exfat_probe"] {
+    for name in [
+        "wii_std_fs_probe",
+        "wii_std_exfat_probe",
+        "wii_std_thread_probe",
+    ] {
         gc_elf::convert_elf_file(
             &target_dir.join("powerpc-nintendo-none/release").join(name),
             &output_dir.join(format!("{name}.dol")),
@@ -1376,10 +1382,12 @@ fn selected_probe_invocations(binaries: &[&'static str]) -> Vec<Vec<&'static str
 }
 
 fn build_selected_dolphin_probes(names: &[&'static str]) -> Result<(), String> {
-    if names
-        .iter()
-        .all(|name| matches!(*name, "wii_std_fs_probe" | "wii_std_exfat_probe"))
-    {
+    if names.iter().all(|name| {
+        matches!(
+            *name,
+            "wii_std_fs_probe" | "wii_std_exfat_probe" | "wii_std_thread_probe"
+        )
+    }) {
         return Ok(());
     }
     build_probe_selection(false, ProbeBuildMode::Dolphin, Some(names))

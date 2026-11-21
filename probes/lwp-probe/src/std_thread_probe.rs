@@ -508,6 +508,58 @@ fn raw_provider(logger: &mut ProbeLogger) {
         "parallelism reads a supported initialized Wii",
         unsafe { runtime::__wii_std_thread_parallelism(&mut count) } == 0 && count == 1,
     );
+
+    let allocation_baseline = runtime::heap_used_bytes();
+    let allocation = runtime::__wii_std_alloc(37, 16);
+    let allocation_valid = if allocation.is_null() {
+        false
+    } else {
+        unsafe { ptr::write_bytes(allocation, 0x5a, 37) };
+        (allocation as usize).is_multiple_of(16)
+            && unsafe { core::slice::from_raw_parts(allocation, 37) }
+                .iter()
+                .all(|byte| *byte == 0x5a)
+    };
+    if !allocation.is_null() {
+        // SAFETY: `allocation` is live and has the size and alignment above.
+        unsafe { runtime::__wii_std_dealloc(allocation, 37, 16) };
+    }
+    logger.record(
+        "std ABI allocation honors alignment and releases the block",
+        allocation_valid && runtime::heap_used_bytes() == allocation_baseline,
+    );
+    logger.record(
+        "std ABI errno returns the current errno value",
+        runtime::__wii_std_errno() == ogc_sysbase::errno(),
+    );
+
+    let mut abi_key = u32::MAX;
+    // SAFETY: A null destructor needs no callback lifetime, and `abi_key` is writable.
+    let abi_key_created = unsafe { runtime::__wii_std_tls_create(None, &mut abi_key) } == 0;
+    logger.record(
+        "std ABI TLS key creates",
+        abi_key_created && abi_key != u32::MAX,
+    );
+    if abi_key_created {
+        let value = ptr::addr_of!(RAW_MARKER).cast_mut().cast::<u8>();
+        // SAFETY: The key is live and `value` has static storage duration.
+        let set_result = unsafe { runtime::__wii_std_tls_set(abi_key, value) };
+        let mut output = ptr::null_mut();
+        // SAFETY: The key is live and `output` is writable.
+        let get_result = unsafe { runtime::__wii_std_tls_get(abi_key, &mut output) };
+        logger.record(
+            "std ABI TLS set and get preserve the stored pointer",
+            set_result == 0 && get_result == 0 && output == value,
+        );
+        logger.record(
+            "std ABI TLS key destroys after use",
+            runtime::__wii_std_tls_destroy(abi_key) == 0,
+        );
+    } else {
+        logger.record("std ABI TLS set and get preserve the stored pointer", false);
+        logger.record("std ABI TLS key destroys after use", false);
+    }
+
     let key = match unsafe { driver::tls_create(Some(raw_destructor)) } {
         Ok(key) => key,
         Err(_) => {

@@ -3160,3 +3160,8 @@ ogc-exi-sys,src/lib.rs,get_id,1081,hardware,hardware-probe,probes/ogc-system-pro
 ogc-exi-sys,src/lib.rs,hardware_exi_reg_base,175,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_reset,raw_exi::hardware_exi_reg_base
 ogc-exi-sys,src/lib.rs,probe_reset,533,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_reset,raw_exi::probe_reset
 ogc-system-sys,src/lib.rs,sys_stdio_report,861,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_wrapper_contracts,raw_system::sys_stdio_report
+ogc-std-runtime,src/lib.rs,__wii_std_alloc,140,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/std_thread_probe.rs,raw_provider,runtime::__wii_std_alloc
+ogc-std-runtime,src/lib.rs,__wii_std_errno,172,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/std_thread_probe.rs,raw_provider,runtime::__wii_std_errno
+ogc-std-runtime,src/lib.rs,__wii_std_tls_create,180,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/std_thread_probe.rs,raw_provider,runtime::__wii_std_tls_create
+ogc-std-runtime,src/lib.rs,__wii_std_tls_set,224,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/std_thread_probe.rs,raw_provider,runtime::__wii_std_tls_set
+ogc-std-runtime,src/lib.rs,__wii_std_tls_destroy,233,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/std_thread_probe.rs,raw_provider,runtime::__wii_std_tls_destroy

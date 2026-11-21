@@ -218,6 +218,11 @@ const PROBES: &[ProbeSpec] = &[
         input_pipe: false,
     },
     ProbeSpec {
+        name: "wii_std_thread_probe",
+        timeout_seconds: 120,
+        input_pipe: false,
+    },
+    ProbeSpec {
         name: "keyboard_probe",
         timeout_seconds: 120,
         input_pipe: false,
@@ -515,17 +520,24 @@ pub fn validate(root: &Path, args: &[String]) -> Result<(), String> {
             let names: Vec<_> = selected
                 .iter()
                 .map(|spec| spec.name)
-                .filter(|name| !matches!(*name, "wii_std_fs_probe" | "wii_std_exfat_probe"))
+                .filter(|name| {
+                    !matches!(
+                        *name,
+                        "wii_std_fs_probe" | "wii_std_exfat_probe" | "wii_std_thread_probe"
+                    )
+                })
                 .collect();
             if !names.is_empty() {
                 super::build_selected_dolphin_probes(&names)?;
             }
         }
-        if selected
-            .iter()
-            .any(|spec| matches!(spec.name, "wii_std_fs_probe" | "wii_std_exfat_probe"))
-        {
-            super::build_wii_std_fs_dolphin_probe()?;
+        if selected.iter().any(|spec| {
+            matches!(
+                spec.name,
+                "wii_std_fs_probe" | "wii_std_exfat_probe" | "wii_std_thread_probe"
+            )
+        }) {
+            super::build_wii_std_dolphin_probes()?;
         }
     }
 
@@ -909,7 +921,10 @@ fn dolphin_probe_elf_path(root: &Path, spec: ProbeSpec) -> PathBuf {
             .join("target/xtask/gamecube-system-probe-build/powerpc-nintendo-gamecube/release")
             .join(spec.name);
     }
-    let directory = if matches!(spec.name, "wii_std_fs_probe" | "wii_std_exfat_probe") {
+    let directory = if matches!(
+        spec.name,
+        "wii_std_fs_probe" | "wii_std_exfat_probe" | "wii_std_thread_probe"
+    ) {
         "target/xtask/wii-std-fs-dolphin-build/powerpc-nintendo-none/release"
     } else {
         "target/xtask/system-probe-build/powerpc-nintendo-none/release"
@@ -2588,6 +2603,24 @@ mod tests {
         assert_eq!(
             root.join(
                 "target/xtask/wii-std-fs-dolphin-build/powerpc-nintendo-none/release/wii_std_fs_probe"
+            ),
+            dolphin_probe_elf_path(root, selected[0]),
+        );
+    }
+
+    #[test]
+    fn selects_the_standard_thread_probe_with_its_own_dol_and_elf() {
+        let selected = select_probes(&["wii_std_thread_probe".to_string()]).unwrap();
+        assert_eq!(selected.len(), 1);
+        assert_eq!(selected[0].timeout_seconds, 120);
+        let root = Path::new("/repo");
+        assert_eq!(
+            root.join("target/xtask/probes-dolphin/wii_std_thread_probe.dol"),
+            dolphin_probe_dol_path(root, selected[0]),
+        );
+        assert_eq!(
+            root.join(
+                "target/xtask/wii-std-fs-dolphin-build/powerpc-nintendo-none/release/wii_std_thread_probe"
             ),
             dolphin_probe_elf_path(root, selected[0]),
         );

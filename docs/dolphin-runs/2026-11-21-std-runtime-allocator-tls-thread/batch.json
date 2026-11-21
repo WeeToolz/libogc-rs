@@ -1,0 +1,65 @@
+{
+  "probe": "wii_std_thread_probe",
+  "cases": [
+    {
+      "crate": "ogc-std-runtime",
+      "path": "src/lib.rs",
+      "symbol": "__wii_std_alloc",
+      "line": 140,
+      "evidence_path": "probes/lwp-probe/src/std_thread_probe.rs",
+      "function": "raw_provider",
+      "api_path": "runtime::__wii_std_alloc",
+      "checks": [
+        "std ABI allocation honors alignment and releases the block"
+      ]
+    },
+    {
+      "crate": "ogc-std-runtime",
+      "path": "src/lib.rs",
+      "symbol": "__wii_std_errno",
+      "line": 172,
+      "evidence_path": "probes/lwp-probe/src/std_thread_probe.rs",
+      "function": "raw_provider",
+      "api_path": "runtime::__wii_std_errno",
+      "checks": [
+        "std ABI errno returns the current errno value"
+      ]
+    },
+    {
+      "crate": "ogc-std-runtime",
+      "path": "src/lib.rs",
+      "symbol": "__wii_std_tls_create",
+      "line": 180,
+      "evidence_path": "probes/lwp-probe/src/std_thread_probe.rs",
+      "function": "raw_provider",
+      "api_path": "runtime::__wii_std_tls_create",
+      "checks": [
+        "std ABI TLS key creates"
+      ]
+    },
+    {
+      "crate": "ogc-std-runtime",
+      "path": "src/lib.rs",
+      "symbol": "__wii_std_tls_set",
+      "line": 224,
+      "evidence_path": "probes/lwp-probe/src/std_thread_probe.rs",
+      "function": "raw_provider",
+      "api_path": "runtime::__wii_std_tls_set",
+      "checks": [
+        "std ABI TLS set and get preserve the stored pointer"
+      ]
+    },
+    {
+      "crate": "ogc-std-runtime",
+      "path": "src/lib.rs",
+      "symbol": "__wii_std_tls_destroy",
+      "line": 233,
+      "evidence_path": "probes/lwp-probe/src/std_thread_probe.rs",
+      "function": "raw_provider",
+      "api_path": "runtime::__wii_std_tls_destroy",
+      "checks": [
+        "std ABI TLS key destroys after use"
+      ]
+    }
+  ]
+}
