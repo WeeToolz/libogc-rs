@@ -203,6 +203,22 @@ fn probe_cache_controls(logger: &mut ProbeLogger) {
         }
     }
 
+    fn read_hid2() -> u32 {
+        let value: u32;
+        // SAFETY: The Wii probe runs in supervisor mode.
+        unsafe {
+            core::arch::asm!("mfspr {value}, 920", value = out(reg) value, options(nostack));
+        }
+        value
+    }
+
+    fn write_hid2(value: u32) {
+        // SAFETY: Restore the HID2 value captured by this probe.
+        unsafe {
+            core::arch::asm!("sync", "mtspr 920, {value}", "isync", value = in(reg) value, options(nostack));
+        }
+    }
+
     logger.section("CACHE CONTROLS");
     let irq_state = irq::irq_disable();
     let original = read_hid0();
@@ -226,6 +242,18 @@ fn probe_cache_controls(logger: &mut ProbeLogger) {
     let ic_frozen = read_hid0();
     cache::ic_unfreeze();
     let ic_unfrozen = read_hid0();
+
+    const LOCKED_CACHE_ENABLE: u32 = 0x1000_0000;
+    let original_hid2 = read_hid2();
+    cache::lc_disable();
+    let lc_disabled = read_hid2();
+    cache::lc_enable();
+    let lc_enabled = read_hid2();
+    let queue_before_flush = cache::lc_queue_length();
+    cache::lc_flush_queue();
+    let queue_after_flush = cache::lc_queue_length();
+    write_hid2(original_hid2);
+    let hid2_restored = read_hid2() == original_hid2;
 
     write_hid0(original);
     let restored = read_hid0();
@@ -254,6 +282,20 @@ fn probe_cache_controls(logger: &mut ProbeLogger) {
     logger.record(
         "ic_unfreeze clears only ILOCK",
         ic_frozen & ILOCK != 0 && ic_unfrozen == baseline,
+    );
+    logger.record(
+        "lc_disable clears only the locked-cache enable bit",
+        lc_disabled == original_hid2 & !LOCKED_CACHE_ENABLE,
+    );
+    logger.record(
+        "lc_enable restores locked-cache enable after disable",
+        lc_disabled & LOCKED_CACHE_ENABLE == 0
+            && lc_enabled & LOCKED_CACHE_ENABLE != 0
+            && hid2_restored,
+    );
+    logger.record(
+        "lc_flush_queue leaves an initially empty queue empty",
+        queue_before_flush == 0 && queue_after_flush == 0,
     );
 }
 

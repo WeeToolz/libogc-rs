@@ -1,0 +1,41 @@
+{
+  "probe": "bus_probe",
+  "cases": [
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "lc_disable",
+      "line": 435,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache_controls",
+      "api_path": "cache::lc_disable",
+      "checks": [
+        "lc_disable clears only the locked-cache enable bit"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "lc_enable",
+      "line": 429,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache_controls",
+      "api_path": "cache::lc_enable",
+      "checks": [
+        "lc_enable restores locked-cache enable after disable"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "lc_flush_queue",
+      "line": 570,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache_controls",
+      "api_path": "cache::lc_flush_queue",
+      "checks": [
+        "lc_flush_queue leaves an initially empty queue empty"
+      ]
+    }
+  ]
+}

@@ -3220,3 +3220,6 @@ ogc-video,src/lib.rs,set_next_right_framebuffer,510,compatibility-forwarder,hard
 ogc-video,src/lib.rs,console_init_ex,953,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_console_init_ex,video::console_init_ex
 ogc-video,src/lib.rs,console_init,897,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_console_init,video::console_init
 wpad-sys,src/lib.rs,wipe_saved_controllers,1426,ios,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_wipe_saved_controllers,wpad::wipe_saved_controllers
+ogc-cache,src/lib.rs,lc_disable,435,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_controls,cache::lc_disable
+ogc-cache,src/lib.rs,lc_enable,429,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_controls,cache::lc_enable
+ogc-cache,src/lib.rs,lc_flush_queue,570,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_controls,cache::lc_flush_queue

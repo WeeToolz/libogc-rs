@@ -1,5 +1,15 @@
 # Development results
 
+## 2026-11-21 locked-cache controls
+
+The [cache batch](docs/dolphin-runs/2026-11-21-ogc-cache-lock-controls/README.md)
+checks `lc_disable`, `lc_enable`, and `lc_flush_queue`. Dolphin 2609a passed
+all 55 bus checks. The probe reads HID2 after disabling and enabling the
+locked cache, checks that an initially empty queue remains empty after a
+flush, and restores the saved HID2 value. The inventory fell from 190 to 187
+unverified APIs. This verifies Dolphin's emulated register and queue behavior;
+physical cache behavior remains untested.
+
 ## 2026-11-21 inventory audit evidence caching
 
 The inventory audit was taking longer than 60 seconds because it reparsed
