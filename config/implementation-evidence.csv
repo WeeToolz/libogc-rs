@@ -3253,3 +3253,4 @@ ogc-stm,src/lib.rs,init,276,ios,hardware-probe,probes/ogc-system-probe/src/stm_a
 ogc-stm,src/lib.rs,try_init,296,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_init
 ogc-stm,src/lib.rs,close,427,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::close
 ogc-stm,src/lib.rs,try_close,464,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_close
+ogc-ipc,src/lib.rs,validate_path,2752,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_path_limits,ipc::validate_path

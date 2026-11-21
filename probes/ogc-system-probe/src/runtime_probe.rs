@@ -177,6 +177,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_wd_information_elements(logger);
     probe_wd_scan_defaults(logger);
     probe_ipc_heap_handles(logger);
+    probe_ipc_path_limits(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_ipc_buffer_bounds(logger);
     #[cfg(feature = "dolphin-automation")]
@@ -263,6 +264,40 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_raw_video_setup(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_sysbase_default_device(logger);
+}
+
+fn probe_ipc_path_limits(logger: &mut ProbeLogger) {
+    use ogc_ipc as ipc;
+
+    static CALLBACK_CALLED: AtomicBool = AtomicBool::new(false);
+    unsafe extern "C" fn unexpected_callback(_: i32, _: *mut core::ffi::c_void) -> i32 {
+        CALLBACK_CALLED.store(true, Ordering::Release);
+        0
+    }
+
+    let mut longest = [b'a'; 64];
+    longest[0] = b'/';
+    longest[63] = 0;
+    let mut oversized = [b'a'; 65];
+    oversized[0] = b'/';
+    oversized[64] = 0;
+    let valid = core::ffi::CStr::from_bytes_with_nul(&longest).unwrap();
+    let invalid = core::ffi::CStr::from_bytes_with_nul(&oversized).unwrap();
+    CALLBACK_CALLED.store(false, Ordering::Release);
+    logger.record(
+        "IPC path validation accepts 63 bytes and rejects 64 bytes",
+        ipc::validate_path(valid).is_ok() && ipc::validate_path(invalid) == Err(ipc::IPC_EINVAL),
+    );
+    logger.record(
+        "IPC async open rejects oversized path before submission",
+        ipc::open_file_async(
+            invalid,
+            ipc::IPC_OPEN_NONE,
+            Some(unexpected_callback),
+            core::ptr::null_mut(),
+        ) == ipc::IPC_EINVAL
+            && !CALLBACK_CALLED.load(Ordering::Acquire),
+    );
 }
 
 #[cfg(feature = "dolphin-automation")]
