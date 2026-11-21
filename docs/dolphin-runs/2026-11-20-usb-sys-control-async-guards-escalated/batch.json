@@ -1,0 +1,44 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "read_ctrl_msg_async",
+      "line": 3813,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_sys_control_async_invalid_handles",
+      "api_path": "raw_usb::read_ctrl_msg_async",
+      "checks": [
+        "USB sys async control read rejects invalid handle"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "v5_failure_status",
+      "line": 53,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_sys_control_async_invalid_handles",
+      "api_path": "raw_usb::v5_failure_status",
+      "checks": [
+        "USB sys V5 failure status reports a valid stage and error"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "write_ctrl_msg_async",
+      "line": 4184,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_sys_control_async_invalid_handles",
+      "api_path": "raw_usb::write_ctrl_msg_async",
+      "checks": [
+        "USB sys async control write rejects invalid handle"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin validates the invalid-handle paths and the status result shape. It does not test an attached USB device or successful transfers."
+  ]
+}

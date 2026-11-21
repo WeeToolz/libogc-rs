@@ -144,6 +144,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_usb_raw_invalid_handle_operations(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_usb_sys_invalid_handle_operations(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_usb_sys_control_async_invalid_handles(logger);
     probe_video_queries(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_video_register_checks(logger);
@@ -3737,6 +3739,54 @@ fn probe_usb_sys_invalid_handle_operations(logger: &mut ProbeLogger) {
     logger.record(
         "USB sys report descriptor size rejects invalid handle",
         raw_usb::get_report_descriptor_size(-1, 0) < 0,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_usb_sys_control_async_invalid_handles(logger: &mut ProbeLogger) {
+    use ogc_usb::sys as raw_usb;
+
+    let request = raw_usb::UsbControlRequest {
+        fd: -1,
+        request_type: 0,
+        request: 0,
+        value: 0,
+        index: 0,
+        length: 0,
+        data: core::ptr::null_mut(),
+    };
+    let completion = raw_usb::UsbAsyncCompletion {
+        callback: None,
+        userdata: core::ptr::null_mut(),
+    };
+
+    // SAFETY: A zero length permits a null data pointer. No callback is
+    // supplied, and the invalid descriptor is rejected before transport I/O.
+    let read_rc = unsafe { raw_usb::read_ctrl_msg_async(request, completion) };
+    logger.record(
+        "USB sys async control read rejects invalid handle",
+        read_rc < 0,
+    );
+
+    // SAFETY: The zero-length request has a null data pointer and no callback.
+    let write_rc = unsafe { raw_usb::write_ctrl_msg_async(request, completion) };
+    logger.record(
+        "USB sys async control write rejects invalid handle",
+        write_rc < 0,
+    );
+
+    let status_is_valid = match raw_usb::v5_failure_status() {
+        None => true,
+        Some((stage, error)) => {
+            matches!(
+                stage,
+                raw_usb::UsbV5FailureStage::DeviceChange | raw_usb::UsbV5FailureStage::AttachFinish
+            ) && error < 0
+        }
+    };
+    logger.record(
+        "USB sys V5 failure status reports a valid stage and error",
+        status_is_valid,
     );
 }
 

@@ -3073,3 +3073,6 @@ ogc-usb-sys,src/lib.rs,resume_device,3308,ios,hardware-probe,probes/ogc-system-p
 ogc-usb-sys,src/lib.rs,set_alternative_interface,4284,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_sys_invalid_handle_operations,raw_usb::set_alternative_interface
 ogc-usb-sys,src/lib.rs,set_configuration,4260,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_sys_invalid_handle_operations,raw_usb::set_configuration
 ogc-usb-sys,src/lib.rs,suspend_device,3295,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_sys_invalid_handle_operations,raw_usb::suspend_device
+ogc-usb-sys,src/lib.rs,read_ctrl_msg_async,3813,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_sys_control_async_invalid_handles,raw_usb::read_ctrl_msg_async
+ogc-usb-sys,src/lib.rs,v5_failure_status,53,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_sys_control_async_invalid_handles,raw_usb::v5_failure_status
+ogc-usb-sys,src/lib.rs,write_ctrl_msg_async,4184,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_sys_control_async_invalid_handles,raw_usb::write_ctrl_msg_async
