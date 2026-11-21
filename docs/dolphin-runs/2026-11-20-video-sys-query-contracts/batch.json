@@ -1,0 +1,44 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-video-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_current_line",
+      "line": 913,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_sys_queries",
+      "api_path": "raw_video::get_current_line",
+      "checks": [
+        "Video sys current line query stays in range"
+      ]
+    },
+    {
+      "crate": "ogc-video-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_next_field",
+      "line": 903,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_sys_queries",
+      "api_path": "raw_video::get_next_field",
+      "checks": [
+        "Video sys next field query is a valid field"
+      ]
+    },
+    {
+      "crate": "ogc-video-sys",
+      "path": "src/platform_timing.rs",
+      "symbol": "timer_clock_hz",
+      "line": 275,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_sys_queries",
+      "api_path": "raw_video::timer_clock_hz",
+      "checks": [
+        "Video sys reports the Broadway timer frequency"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin verifies Wii-mode query bounds and the emulated Broadway timer value. It does not provide physical-console timing evidence."
+  ]
+}

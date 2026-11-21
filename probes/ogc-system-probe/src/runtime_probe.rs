@@ -148,6 +148,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_usb_sys_control_async_invalid_handles(logger);
     probe_video_queries(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_video_sys_queries(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_video_register_checks(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_video_framebuffer_updates(logger);
@@ -3209,6 +3211,22 @@ fn probe_video_queries(logger: &mut ProbeLogger) {
     );
     logger.record("Video current line query returns", line <= 1_000);
     logger.record("Video next field query returns", field <= 1);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_video_sys_queries(logger: &mut ProbeLogger) {
+    use ogc_video::sys as raw_video;
+
+    let line = raw_video::get_current_line();
+    let field = raw_video::get_next_field();
+    let clock_hz = raw_video::timer_clock_hz();
+
+    logger.record("Video sys current line query stays in range", line <= 1_000);
+    logger.record("Video sys next field query is a valid field", field <= 1);
+    logger.record(
+        "Video sys reports the Broadway timer frequency",
+        clock_hz == 60_750_000,
+    );
 }
 
 #[cfg(feature = "dolphin-automation")]
