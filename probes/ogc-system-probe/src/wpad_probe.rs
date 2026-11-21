@@ -139,6 +139,10 @@ fn probe_valid_channel_empty_queries(logger: &mut ProbeLogger) {
         wpad::set_v_res(chan, 640, 480) == wpad::WPAD_ERR_NONE as i32,
     );
     logger.record(
+        "WPAD empty channel idle thresholds update succeeds",
+        wpad::set_idle_thresholds(chan, 5, 11, 17, 23, 29, 31) == wpad::WPAD_ERR_NONE as i32,
+    );
+    logger.record(
         "WPAD empty channel button states are zero",
         wpad::buttons_down(chan) == 0
             && wpad::buttons_held(chan) == 0
