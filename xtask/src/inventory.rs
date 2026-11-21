@@ -987,6 +987,11 @@ fn scan_public_functions_source(source: &str) -> Result<Vec<ScannedFunction>, St
         let trimmed = clean.trim();
         let line_no = index + 1;
 
+        // Rust allows comments and blank lines between attributes and an item.
+        if trimmed.is_empty() {
+            continue;
+        }
+
         while public_trait_depths
             .last()
             .is_some_and(|depth| brace_depth < *depth)
@@ -1600,6 +1605,26 @@ mod tests {
         assert!(!is_public_function_line("pub(crate) fn backend() {}"));
         assert!(!is_public_function_line("pub(super) unsafe fn helper() {}"));
         assert!(is_public_function_line("pub fn api() {}"));
+    }
+
+    #[test]
+    fn public_function_scan_honors_cfg_across_doc_comments() {
+        let source = r#"
+            #[cfg(target_arch = "powerpc")]
+            /// PowerPC implementation.
+            pub fn target_api() {}
+
+            #[cfg(not(target_arch = "powerpc"))]
+            /// Host-only implementation.
+            pub fn host_api() {}
+        "#;
+
+        let functions = scan_public_functions_source(source).expect("valid Rust source");
+        let names: Vec<_> = functions
+            .iter()
+            .map(|function| function.name.as_str())
+            .collect();
+        assert_eq!(names, ["target_api"]);
     }
 
     #[test]
