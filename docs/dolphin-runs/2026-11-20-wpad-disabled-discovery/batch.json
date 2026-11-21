@@ -1,0 +1,78 @@
+{
+  "probe": "wpad_probe",
+  "cases": [
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "search",
+      "line": 1354,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_disabled_discovery",
+      "api_path": "wpad::search",
+      "checks": [
+        "WPAD Wii discovery requires an adapter",
+        "WPAD discovery starts with adapter disabled",
+        "WPAD discovery leaves adapter disabled"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "search_bluetooth_hid",
+      "line": 1373,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_disabled_discovery",
+      "api_path": "wpad::search_bluetooth_hid",
+      "checks": [
+        "WPAD HID discovery requires an adapter",
+        "WPAD discovery starts with adapter disabled",
+        "WPAD discovery leaves adapter disabled"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "stop_search",
+      "line": 1379,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_disabled_discovery",
+      "api_path": "wpad::stop_search",
+      "checks": [
+        "WPAD stop discovery requires an adapter",
+        "WPAD discovery starts with adapter disabled",
+        "WPAD discovery leaves adapter disabled"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "start_pairing",
+      "line": 1395,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_disabled_discovery",
+      "api_path": "wpad::start_pairing",
+      "checks": [
+        "WPAD pairing rejects discovery without an adapter",
+        "WPAD discovery starts with adapter disabled",
+        "WPAD discovery leaves adapter disabled"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_host_sync_button_callback",
+      "line": 1476,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_disabled_discovery",
+      "api_path": "wpad::set_host_sync_button_callback",
+      "checks": [
+        "WPAD sync callback fires once and can be removed",
+        "WPAD discovery starts with adapter disabled",
+        "WPAD discovery leaves adapter disabled"
+      ]
+    }
+  ],
+  "limits": [
+    "Checks disabled adapter errors and the synchronous host sync callback in Dolphin. Active discovery, wireless pairing, and hardware behavior remain open."
+  ]
+}

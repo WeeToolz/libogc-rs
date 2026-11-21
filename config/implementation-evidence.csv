@@ -3147,3 +3147,8 @@ ogc-es-sys,src/imp.rs,export_title_done,1753,ios,hardware-probe,probes/ogc-syste
 ogc-es-sys,src/imp.rs,delete_title,2146,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_closed_service,raw_es::delete_title
 ogc-es-sys,src/imp.rs,delete_title_content,2163,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_closed_service,raw_es::delete_title_content
 ogc-es-sys,src/imp.rs,set_uid,481,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_closed_service,raw_es::set_uid
+wpad-sys,src/lib.rs,search,1354,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_disabled_discovery,wpad::search
+wpad-sys,src/lib.rs,search_bluetooth_hid,1373,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_disabled_discovery,wpad::search_bluetooth_hid
+wpad-sys,src/lib.rs,stop_search,1379,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_disabled_discovery,wpad::stop_search
+wpad-sys,src/lib.rs,start_pairing,1395,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_disabled_discovery,wpad::start_pairing
+wpad-sys,src/lib.rs,set_host_sync_button_callback,1476,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_disabled_discovery,wpad::set_host_sync_button_callback

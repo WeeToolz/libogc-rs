@@ -8,6 +8,8 @@ static BLUETOOTH_POLL_MARKS: AtomicU32 = AtomicU32::new(0);
 /// changing saved controller configuration.
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("WPAD LIFECYCLE PROBE");
+    #[cfg(feature = "dolphin-automation")]
+    probe_disabled_discovery(logger);
     probe_invalid_channel_queries(logger);
     logger.record(
         "WPAD starts disabled",
@@ -85,6 +87,57 @@ pub fn run(logger: &mut ProbeLogger) {
     );
     logger.record(
         "WPAD reports disabled after shutdown",
+        wpad::get_status() == wpad::WPAD_STATE_DISABLED,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_disabled_discovery(logger: &mut ProbeLogger) {
+    static SYNC_EVENTS: AtomicU32 = AtomicU32::new(0);
+    static SYNC_VALUE: AtomicU32 = AtomicU32::new(0);
+
+    unsafe extern "C" fn record_sync(held: u32) {
+        SYNC_VALUE.store(held, Ordering::Relaxed);
+        SYNC_EVENTS.fetch_add(1, Ordering::Relaxed);
+    }
+
+    let disabled = wpad::get_status() == wpad::WPAD_STATE_DISABLED;
+    logger.record("WPAD discovery starts with adapter disabled", disabled);
+    if !disabled {
+        return;
+    }
+    let not_ready = wpad::WPAD_ERR_NOT_READY as i32;
+    logger.record(
+        "WPAD Wii discovery requires an adapter",
+        wpad::search() == not_ready,
+    );
+    logger.record(
+        "WPAD HID discovery requires an adapter",
+        wpad::search_bluetooth_hid() == not_ready,
+    );
+    logger.record(
+        "WPAD stop discovery requires an adapter",
+        wpad::stop_search() == not_ready,
+    );
+
+    SYNC_EVENTS.store(0, Ordering::Relaxed);
+    SYNC_VALUE.store(0, Ordering::Relaxed);
+    wpad::set_host_sync_button_callback(Some(record_sync));
+    let with_callback = wpad::start_pairing();
+    let notified =
+        SYNC_EVENTS.load(Ordering::Relaxed) == 1 && SYNC_VALUE.load(Ordering::Relaxed) == 1;
+    wpad::set_host_sync_button_callback(None);
+    let without_callback = wpad::start_pairing();
+    logger.record(
+        "WPAD pairing rejects discovery without an adapter",
+        with_callback == not_ready && without_callback == not_ready,
+    );
+    logger.record(
+        "WPAD sync callback fires once and can be removed",
+        notified && SYNC_EVENTS.load(Ordering::Relaxed) == 1,
+    );
+    logger.record(
+        "WPAD discovery leaves adapter disabled",
         wpad::get_status() == wpad::WPAD_STATE_DISABLED,
     );
 }
