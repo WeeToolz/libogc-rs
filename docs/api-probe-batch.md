@@ -10,7 +10,7 @@ It uses the existing Dolphin runner and inventory checks.
    each `checks` list with the exact text after `PASS`. If a symbol has
    more than one inventory entry, give `SYMBOL@LINE` or use `--source` to
    select the repository-relative API source file.
-3. Set the MP3 fixture variables in [dependencies.md](dependencies.md).
+3. Set any fixture variables the selected probe requires. See [dependencies.md](dependencies.md).
    Run the helper with a fresh artifact directory. The runner builds and
    runs the probe in a private Dolphin profile. Open `batch-report.md` to
    review the checks, log lines, captured pages, and missing or failed
@@ -20,7 +20,8 @@ It uses the existing Dolphin runner and inventory checks.
    screenshots before accepting the evidence.
 4. Run `finish` to match the selected entries to the recorded pass lines,
    add the evidence rows, rebuild the inventory, and run formatting,
-   Clippy, host tests, and the source and completeness audits. The helper
+   Clippy, the default host tests, explicit `xtask` and `ogc-controller` tests,
+   and the source and completeness audits. The helper
    uses one Rust inventory scan to refresh the inventory and report
    outstanding entries. It saves the audit log and `completeness-audit.json`.
    The JSON gives the inventory and remaining counts, plus the location,
@@ -53,6 +54,11 @@ Dolphin aborts during `--version` with a Qt NEON or pasteboard error, use the
 normal approval path to run that check with desktop access. If it passes,
 run the batch helper with the same access and a new artifact directory. The
 helper uses a private Dolphin profile.
+
+Use `run --recheck` with a manifest for APIs already in the inventory.
+The runner checks every required label and saves fresh evidence. Review and
+commit the run as a supplement to the existing evidence. The `finish`
+command is for new inventory entries.
 
 Use `report` to regenerate a report from a saved run. It prints Markdown.
 For an older run without `batch.json`, add `--manifest PATH`.

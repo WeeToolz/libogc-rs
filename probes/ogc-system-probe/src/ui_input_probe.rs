@@ -233,7 +233,7 @@ pub fn monitor(logger: &mut ProbeLogger) -> i32 {
     manager.init();
     let bluetooth_rc = manager.enable_wpad();
     manager.enable_usb_hid();
-    crate::input_probe::attach_trace(&mut manager);
+    manager.set_input_trace_observer(Some(crate::input_probe::queue_trace_event));
     let mut complete = capture_complete;
 
     if bluetooth_rc != 0 {
@@ -349,8 +349,11 @@ pub fn monitor(logger: &mut ProbeLogger) -> i32 {
         complete = false;
     }
 
-    let controller_cleanup_ok =
-        crate::input_probe::controller_cleanup::shutdown_controller_manager(logger, &mut manager);
+    let controller_cleanup_ok = crate::input_probe::controller_cleanup::shutdown_controller_manager(
+        logger,
+        &mut manager,
+        false,
+    );
     complete &= controller_cleanup_ok;
     if !crate::input_probe::write_trace_events(logger) {
         logger.note("cleanup_trace_capture=FAILED");

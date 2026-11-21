@@ -738,3 +738,45 @@ mod tests {
         assert_eq!(pointer.resolution, [640, 480]);
     }
 }
+
+#[cfg(any(test, target_arch = "powerpc"))]
+pub(crate) fn notify_bluetooth_raw_report(
+    observer: InputTraceObserver,
+    slot: u8,
+    generation: u32,
+    timestamp_ticks: Option<u64>,
+    bytes: &[u8],
+) -> Result<(), TraceError> {
+    observer(&InputTraceEvent::RawReport {
+        source: ControllerSource::BluetoothHid(slot),
+        generation: Some(generation),
+        usb_identity: None,
+        timestamp_ticks,
+        bytes,
+    })
+}
+
+#[cfg(test)]
+#[test]
+fn bluetooth_raw_observer_receives_payload_and_returns_its_error() {
+    let result = notify_bluetooth_raw_report(
+        |event| {
+            assert_eq!(
+                *event,
+                InputTraceEvent::RawReport {
+                    source: ControllerSource::BluetoothHid(3),
+                    generation: Some(7),
+                    usb_identity: None,
+                    timestamp_ticks: Some(42),
+                    bytes: &[0x30, 0xa1, 0x02],
+                }
+            );
+            Err(TraceError(9))
+        },
+        3,
+        7,
+        Some(42),
+        &[0x30, 0xa1, 0x02],
+    );
+    assert_eq!(result, Err(TraceError(9)));
+}

@@ -595,9 +595,9 @@ mod probe_artifact_tests {
                 );
             }
             let expected_count = match mode {
-                Plain => 40,
-                MountedLog | Dolphin => 50,
-                AgentReport => 35,
+                Plain => 44,
+                MountedLog | Dolphin => 54,
+                AgentReport => 39,
             };
             assert_eq!(binaries.len(), expected_count, "output count in {mode:?}");
         }

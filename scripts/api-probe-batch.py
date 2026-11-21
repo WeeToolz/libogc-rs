@@ -141,7 +141,7 @@ def draft(args):
     print(json.dumps(manifest_draft(args, read_inventory()), indent=2))
 
 
-def select_cases(manifest, rows):
+def select_cases(manifest, rows, *, recheck=False):
     selected = []
     seen = set()
     for case in manifest["cases"]:
@@ -156,8 +156,10 @@ def select_cases(manifest, rows):
             raise ValueError(f"Select one inventory entry for {case['crate']}::{case['symbol']}")
         row = matches[0]
         key = tuple(row[k] for k in KEYS)
-        if key in seen or row["implementation_class"] != "unverified":
-            raise ValueError(f"Duplicate or already verified entry: {key}")
+        if key in seen:
+            raise ValueError(f"Duplicate entry: {key}")
+        if (row["implementation_class"] != "unverified") != recheck:
+            raise ValueError(f"Entry does not match the requested verification mode: {key}")
         seen.add(key)
         selected.append((case, row))
     if not selected:
@@ -307,7 +309,7 @@ def report(args):
 def run(args):
     artifact = artifact_path(args.artifact)
     manifest = json_file(args.manifest)
-    select_cases(manifest, read_inventory())
+    select_cases(manifest, read_inventory(), recheck=args.recheck)
     validate_checks(manifest)
     previous = ROOT / artifact_path(args.compare) if args.compare else None
     if previous:
@@ -347,7 +349,7 @@ def run(args):
         path.resolve().relative_to(directory.resolve())
         if path.is_file() or not rc:
             snapshots[relative] = digest(path)
-    save_json(directory / "batch-run.json", {
+    run_info = {
         "source_revision": git("rev-parse", "HEAD").decode().strip(),
         "source_fingerprint": before,
         "command": options,
@@ -360,12 +362,14 @@ def run(args):
         "suite_sha256": digest(suite_path),
         "evidence_sha256": snapshots,
         "exit_code": rc,
-    })
+    }
+    save_json(directory / "batch-run.json", run_info)
     (directory / "batch-report.md").write_text(evidence_report(directory, manifest, previous))
     if fingerprint(artifact) != before:
         raise ValueError("Worktree changed during the run. Start a new batch directory")
     if rc:
         raise ValueError(f"Dolphin failed. See {suite_path}")
+    verify_run(directory, manifest, run_info)
     print(f"Review {artifact / 'batch-report.md'} before finishing.")
 
 
@@ -442,6 +446,7 @@ def finish(args):
         command("cargo", "fmt", "--all", "--check", check=True)
         command("cargo", "clippy", "--all-targets", check=True)
         command("cargo", "test", check=True)
+        command("cargo", "test", "-p", "xtask", "-p", "ogc-controller", check=True)
         report = audit(directory)
         updated = read_inventory()
         by_key = {tuple(row[k] for k in KEYS): row for row in updated}
@@ -495,6 +500,8 @@ def main():
     choice.add_argument("--nand-dir", type=Path)
     choice.add_argument("--compare", type=Path)
     choice.add_argument("--timeout", type=int, default=180)
+    choice.add_argument("--recheck", action="store_true",
+                        help="Run checks for APIs already recorded in the inventory")
     choice.set_defaults(action=run)
     choice = actions.add_parser("finish")
     choice.add_argument("artifact", type=Path)

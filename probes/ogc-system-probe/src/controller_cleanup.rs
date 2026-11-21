@@ -1,5 +1,6 @@
 use alloc::format;
 
+use ogc_bt_sync::HostStage;
 use ogc_lwp::sys as lwp;
 use ogc_system as system;
 use ogc_video as video;
@@ -18,6 +19,7 @@ const CLEANUP_POLL_TIMEOUT_US: u64 = 100_000;
 pub(crate) fn shutdown_controller_manager(
     logger: &mut ProbeLogger,
     manager: &mut ControllerManager,
+    require_active_bluetooth: bool,
 ) -> bool {
     let mut state = ControllerCleanupState::new();
     let mut reported_errors = [None; MAX_CONTROLLERS];
@@ -30,12 +32,27 @@ pub(crate) fn shutdown_controller_manager(
         }
     }
 
+    if require_active_bluetooth {
+        let active = manager.bluetooth_diagnostics().stage == HostStage::Ready
+            && !manager.bluetooth_shutdown_complete();
+        logger.record("Bluetooth shutdown starts with an active adapter", active);
+        if !active {
+            state.record_failure();
+        }
+    }
     let bluetooth_result = manager.shutdown_bluetooth();
     logger.note_i32("Bluetooth shutdown submission", bluetooth_result);
     let bluetooth_submitted = bluetooth_result == wpad::WPAD_ERR_NONE as i32;
     logger.record("Bluetooth shutdown request accepted", bluetooth_submitted);
     if !bluetooth_submitted {
         state.record_failure();
+    }
+
+    if require_active_bluetooth {
+        logger.note(&format!(
+            "Bluetooth close pending after submission: {}",
+            !manager.bluetooth_shutdown_complete()
+        ));
     }
 
     let deadline = system::time().saturating_add(CLEANUP_TIMEOUT_TICKS);
@@ -78,6 +95,16 @@ pub(crate) fn shutdown_controller_manager(
     let diagnostics = manager.bluetooth_diagnostics();
     logger.record("USB requests and descriptors drained", usb_complete);
     logger.record("Bluetooth shutdown completed", bluetooth_complete);
+    if require_active_bluetooth {
+        let closed = diagnostics.stage == HostStage::Closing && diagnostics.events > 0;
+        logger.record(
+            "Bluetooth diagnostics retain the closed adapter state",
+            closed,
+        );
+        if !closed {
+            state.record_failure();
+        }
+    }
     logger.record(
         "Bluetooth transport has no terminal failure",
         diagnostics.failure.is_none(),

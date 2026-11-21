@@ -1146,15 +1146,15 @@ impl ControllerManager {
                     );
                     return;
                 }
+                // Deliver the raw bytes before the report decoder consumes them.
                 if let Some(observer) = self.input_trace_observer {
-                    let trace = InputTraceEvent::RawReport {
-                        source: ControllerSource::BluetoothHid(slot as u8),
-                        generation: Some(generation),
-                        usb_identity: None,
-                        timestamp_ticks: self.input_trace_ticks,
-                        bytes: &bytes[..used],
-                    };
-                    if let Err(error) = observer(&trace) {
+                    if let Err(error) = crate::model::notify_bluetooth_raw_report(
+                        observer,
+                        slot as u8,
+                        generation,
+                        self.input_trace_ticks,
+                        &bytes[..used],
+                    ) {
                         self.record_bluetooth_failure(
                             slot,
                             current.kind,

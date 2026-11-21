@@ -181,6 +181,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_irq_raw_handler_registry(logger);
     probe_irq_delivery_state(logger);
     probe_irq_mask_state(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_exi_locking(logger);
     probe_exi_raw_lock_queue(logger);
     probe_exi_selection(logger);

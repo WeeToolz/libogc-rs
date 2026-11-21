@@ -2,6 +2,8 @@ use core::cell::UnsafeCell;
 use core::fmt::Write;
 use core::sync::atomic::{AtomicUsize, Ordering};
 
+#[cfg(feature = "dolphin-automation")]
+use ogc_bt_sync::HostStage;
 use ogc_input as pad;
 use ogc_si as si;
 use ogc_video as video;
@@ -80,22 +82,64 @@ impl TraceQueue {
 }
 
 static TRACE_QUEUE: TraceQueue = TraceQueue::new();
+static BLUETOOTH_STARTUP_STAGES: AtomicUsize = AtomicUsize::new(0);
+static USB_STARTUP_STAGES: AtomicUsize = AtomicUsize::new(0);
+static TRACE_GAMECUBE_A_EVENTS: AtomicUsize = AtomicUsize::new(0);
 static BLUETOOTH_STARTUP_HOOK_CALLS: AtomicUsize = AtomicUsize::new(0);
 static USB_STARTUP_HOOK_CALLS: AtomicUsize = AtomicUsize::new(0);
 static INPUT_TRACE_OBSERVER_CALLS: AtomicUsize = AtomicUsize::new(0);
 #[cfg(feature = "dolphin-automation")]
 static PAD_SCAN_HOOKS: AtomicUsize = AtomicUsize::new(0);
 
-fn bluetooth_startup_marker(_stage: &'static str) {
+fn bluetooth_startup_marker(stage: &'static str) {
+    let previous = BLUETOOTH_STARTUP_STAGES.load(Ordering::Relaxed);
+    let flag = match stage {
+        "BLUETOOTH ADAPTER OPEN"
+        | "BLUETOOTH HCI RESET"
+        | "BLUETOOTH BUFFER SIZE"
+        | "BLUETOOTH ADAPTER CONFIGURATION"
+        | "BLUETOOTH ADAPTER FEATURES"
+        | "BLUETOOTH PAIRING SETUP"
+        | "BLUETOOTH STORED KEYS"
+        | "BLUETOOTH ADAPTER PATCH"
+        | "BLUETOOTH ADAPTER ADDRESS"
+        | "BLUETOOTH SCAN ENABLE"
+        | "BLUETOOTH EVENT FILTER" => 1,
+        "BLUETOOTH READY" if previous & 1 != 0 => 2,
+        _ => 0,
+    };
+    BLUETOOTH_STARTUP_STAGES.fetch_or(flag, Ordering::Relaxed);
     BLUETOOTH_STARTUP_HOOK_CALLS.fetch_add(1, Ordering::Relaxed);
 }
 
-fn usb_startup_marker(_stage: &'static str) {
+fn usb_startup_marker(stage: &'static str) {
+    let previous = USB_STARTUP_STAGES.load(Ordering::Relaxed);
+    let flag = match stage {
+        "USB INITIALIZE BEGIN" => 1,
+        "USB INITIALIZE OK" if previous & 1 != 0 => 2,
+        "USB DEVICE LIST BEGIN" if previous & 2 != 0 => 4,
+        "USB DEVICE LIST EMPTY" | "USB DEVICE LIST OK" if previous & 4 != 0 => 8,
+        _ => 0,
+    };
+    USB_STARTUP_STAGES.fetch_or(flag, Ordering::Relaxed);
     USB_STARTUP_HOOK_CALLS.fetch_add(1, Ordering::Relaxed);
 }
 
-fn queue_trace_event(event: &InputTraceEvent<'_>) -> Result<(), TraceError> {
+pub(crate) fn queue_trace_event(event: &InputTraceEvent<'_>) -> Result<(), TraceError> {
     INPUT_TRACE_OBSERVER_CALLS.fetch_add(1, Ordering::Relaxed);
+    if let InputTraceEvent::Decoded {
+        timestamp_ticks: Some(ticks),
+        id: Some(id),
+        state,
+    } = event
+        && *ticks != 0
+        && id.source == ControllerSource::GameCube(0)
+        && state.source == id.source
+        && state.connected
+        && state.buttons_down.contains(Buttons::A)
+    {
+        TRACE_GAMECUBE_A_EVENTS.fetch_add(1, Ordering::Relaxed);
+    }
     let InputTraceEvent::RawReport {
         source,
         generation,
@@ -220,6 +264,9 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
 
     controllers.init();
 
+    BLUETOOTH_STARTUP_STAGES.store(0, Ordering::Relaxed);
+    USB_STARTUP_STAGES.store(0, Ordering::Relaxed);
+    TRACE_GAMECUBE_A_EVENTS.store(0, Ordering::Relaxed);
     BLUETOOTH_STARTUP_HOOK_CALLS.store(0, Ordering::Relaxed);
     USB_STARTUP_HOOK_CALLS.store(0, Ordering::Relaxed);
     INPUT_TRACE_OBSERVER_CALLS.store(0, Ordering::Relaxed);
@@ -227,13 +274,11 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
     controllers.set_usb_startup_hook(Some(usb_startup_marker));
     controllers.set_input_trace_observer(Some(queue_trace_event));
     let bluetooth_hid_rc = controllers.enable_bluetooth_hid();
-    let wpad_ready = controllers.enable_wpad() == 0;
     controllers.enable_usb_hid();
     logger.record(
         "controller Bluetooth HID startup request accepted",
         bluetooth_hid_rc == wpad::WPAD_ERR_NONE as i32,
     );
-    logger.record("WPAD initialized", wpad_ready);
     let mut capture_complete = true;
     let run_start_ticks = system::time();
     let mut run_record = EventLineBuf::new();
@@ -344,21 +389,72 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
         probe_pad_sampling_callback(logger);
     }
 
-    let cleanup_complete =
-        controller_cleanup::shutdown_controller_manager(logger, &mut controllers);
+    #[cfg(feature = "dolphin-automation")]
+    if automation_finished {
+        let diagnostics = controllers.bluetooth_diagnostics();
+        logger.note(&alloc::format!(
+            "Bluetooth before shutdown: {diagnostics:?}"
+        ));
+        logger.record(
+            "direct Bluetooth HID startup reaches Ready before the WPAD alias runs",
+            diagnostics.stage == HostStage::Ready && diagnostics.events > 0,
+        );
+        logger.record(
+            "Bluetooth startup hook reports initialization before Ready",
+            BLUETOOTH_STARTUP_STAGES.load(Ordering::Relaxed) == 3,
+        );
+        logger.record(
+            "USB startup hook reports initialization and enumeration in order",
+            USB_STARTUP_STAGES.load(Ordering::Relaxed) == 15,
+        );
+        logger.record(
+            "input trace observer receives the scripted GameCube A press with identity and time",
+            TRACE_GAMECUBE_A_EVENTS.load(Ordering::Relaxed) > 0,
+        );
+
+        let usb_calls = USB_STARTUP_HOOK_CALLS.load(Ordering::Relaxed);
+        let trace_calls = INPUT_TRACE_OBSERVER_CALLS.load(Ordering::Relaxed);
+        controllers.set_usb_startup_hook(None);
+        controllers.set_input_trace_observer(None);
+        let resumed = controllers.scan_with_raw_at(system::time()).snapshot;
+        logger.record(
+            "USB and trace observers stop receiving callbacks after removal",
+            resumed
+                .controllers()
+                .iter()
+                .any(|s| s.source == ControllerSource::GameCube(0))
+                && resumed.errors().next().is_none()
+                && USB_STARTUP_HOOK_CALLS.load(Ordering::Relaxed) == usb_calls
+                && INPUT_TRACE_OBSERVER_CALLS.load(Ordering::Relaxed) == trace_calls,
+        );
+    }
+
+    let cleanup_complete = controller_cleanup::shutdown_controller_manager(
+        logger,
+        &mut controllers,
+        cfg!(feature = "dolphin-automation"),
+    );
+
+    #[cfg(feature = "dolphin-automation")]
+    let cleanup_complete = if automation_finished && cleanup_complete {
+        let hook_calls = BLUETOOTH_STARTUP_HOOK_CALLS.load(Ordering::Relaxed);
+        controllers.set_bluetooth_startup_hook(None);
+        let wpad_started = controllers.enable_wpad() == wpad::WPAD_ERR_NONE as i32;
+        let wpad_ready = wpad_started && wait_for_bluetooth_ready(&mut controllers);
+        logger.record(
+            "WPAD alias restarts the stopped Bluetooth service",
+            wpad_ready,
+        );
+        logger.record(
+            "Bluetooth startup hook stays silent during restart after removal",
+            wpad_ready && BLUETOOTH_STARTUP_HOOK_CALLS.load(Ordering::Relaxed) == hook_calls,
+        );
+        controller_cleanup::shutdown_controller_manager(logger, &mut controllers, true)
+            && wpad_ready
+    } else {
+        cleanup_complete
+    };
     logger.record("controller manager shutdown completed", cleanup_complete);
-    logger.record(
-        "Bluetooth startup hook receives stage progress",
-        BLUETOOTH_STARTUP_HOOK_CALLS.load(Ordering::Relaxed) > 0,
-    );
-    logger.record(
-        "USB startup hook receives stage messages",
-        USB_STARTUP_HOOK_CALLS.load(Ordering::Relaxed) > 0,
-    );
-    logger.record(
-        "input trace observer receives controller events",
-        INPUT_TRACE_OBSERVER_CALLS.load(Ordering::Relaxed) > 0,
-    );
     let cleanup_trace_complete = write_trace_events(logger);
     capture_complete &= cleanup_trace_complete;
     logger.record(
@@ -384,6 +480,28 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
     loop {
         logger.display().wait_vsync();
     }
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn wait_for_bluetooth_ready(controllers: &mut ControllerManager) -> bool {
+    for _ in 0..180 {
+        if controllers
+            .scan_at(system::time())
+            .errors()
+            .next()
+            .is_some()
+        {
+            return false;
+        }
+        let diagnostics = controllers.bluetooth_diagnostics();
+        if diagnostics.stage == HostStage::Ready && diagnostics.events > 0 {
+            return true;
+        }
+        if !video::wait_vsync_timeout_us(100_000) {
+            break;
+        }
+    }
+    false
 }
 
 #[cfg(feature = "dolphin-automation")]
@@ -477,8 +595,19 @@ fn probe_pad_low_level_state(logger: &mut ProbeLogger) {
 
     logger.section("PAD LOW LEVEL STATE");
     PAD_INIT_STAGES.store(0, Ordering::Relaxed);
+    // System startup already initialized SI. Check that repeated calls preserve
+    // the active controller command and the identified controller type.
+    let command = si::get_command(0);
     ogc_si::init();
+    logger.record(
+        "SI wrapper repeat init preserves the active GameCube channel",
+        command != 0 && si::get_command(0) == command && si::get_type(0) == si::SI_GC_CONTROLLER,
+    );
     ogc_si::sys::init();
+    logger.record(
+        "SI driver repeat init preserves the active GameCube channel",
+        command != 0 && si::get_command(0) == command && si::get_type(0) == si::SI_GC_CONTROLLER,
+    );
     sys::set_debug_hook(Some(pad_init_debug_hook));
     let initialized = sys::pad_init();
     sys::set_debug_hook(None);
