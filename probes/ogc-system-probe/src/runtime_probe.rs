@@ -313,6 +313,13 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
     use core::ffi::c_void;
     use ogc_ipc as ipc;
 
+    static CALLBACK_RESULT: AtomicI32 = AtomicI32::new(i32::MIN);
+    static mut ASYNC_OUTPUT: u32 = u32::MAX;
+    unsafe extern "C" fn completed(result: i32, _: *mut c_void) -> i32 {
+        CALLBACK_RESULT.store(result, Ordering::Release);
+        0
+    }
+
     #[repr(C)]
     struct FormatCall {
         heap: i32,
@@ -365,10 +372,49 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 && actual > 0
                 && actual <= 512,
         );
-        logger.record("IPC format bridge closes ES descriptor", fd.close().is_ok());
+        CALLBACK_RESULT.store(i32::MIN, Ordering::Release);
+        let async_output = core::ptr::addr_of_mut!(ASYNC_OUTPUT);
+        unsafe { async_output.write(u32::MAX) };
+        let async_call = FormatCall {
+            callback: Some(completed),
+            registers: [async_output as u32, 0, 0, 0],
+            register_count: 2,
+            asynchronous: 1,
+            ..call
+        };
+        let submission = unsafe {
+            ipc::__ogc_ipc_ioctlv_format_bridge((&async_call as *const FormatCall).cast())
+        };
+        for _ in 0..1000 {
+            if CALLBACK_RESULT.load(Ordering::Acquire) != i32::MIN {
+                break;
+            }
+            lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 100).max(1));
+        }
+        let callback_result = CALLBACK_RESULT.load(Ordering::Acquire);
+        let completed = callback_result != i32::MIN;
+        let async_value = if completed {
+            unsafe { async_output.read() }
+        } else {
+            u32::MAX
+        };
+        logger.record(
+            "IPC format bridge async output completes with ES title count",
+            submission == 0 && callback_result == 0 && async_value == actual,
+        );
+        let closed = if completed || submission < 0 {
+            fd.close().is_ok()
+        } else {
+            false
+        };
+        logger.record("IPC format bridge closes ES descriptor", closed);
     } else {
         logger.record(
             "IPC format bridge returns ES title count through output vector",
+            false,
+        );
+        logger.record(
+            "IPC format bridge async output completes with ES title count",
             false,
         );
         logger.record("IPC format bridge closes ES descriptor", false);

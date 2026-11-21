@@ -31,7 +31,7 @@ PARTIAL_SCOPES = {
     "no-controller-and-invalid-arguments", "active-search-state",
     "zero-tag-count", "zero-length",
     "empty-queue", "no-pending-interrupt", "repeated-initialization", "no-event-hook",
-    "synchronous-scalar-output",
+    "synchronous-scalar-output", "scalar-output",
 }
 
 

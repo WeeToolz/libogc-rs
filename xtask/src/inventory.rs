@@ -67,6 +67,7 @@ enum EvidenceScope {
     RepeatedInitialization,
     NoEventHook,
     SynchronousScalarOutput,
+    ScalarOutput,
     DolphinCacheRegister,
     DolphinCacheInstructions,
     ZeroTagCount,
@@ -92,6 +93,7 @@ impl EvidenceScope {
             "repeated-initialization" => Self::RepeatedInitialization,
             "no-event-hook" => Self::NoEventHook,
             "synchronous-scalar-output" => Self::SynchronousScalarOutput,
+            "scalar-output" => Self::ScalarOutput,
             "dolphin-cache-register" => Self::DolphinCacheRegister,
             "dolphin-cache-instructions" => Self::DolphinCacheInstructions,
             "zero-tag-count" => Self::ZeroTagCount,
@@ -148,6 +150,9 @@ impl EvidenceScope {
             Self::SynchronousScalarOutput => {
                 "Synchronous scalar output only in Dolphin. Other formats and asynchronous requests remain unverified."
             }
+            Self::ScalarOutput => {
+                "Synchronous and asynchronous scalar output in Dolphin. Other formats remain unverified."
+            }
             Self::DolphinCacheRegister => {
                 "Dolphin HID0 transitions and restoration only. Physical cache state and timing are unverified."
             }
@@ -180,9 +185,10 @@ impl EvidenceScope {
             | Self::ZeroLength
             | Self::EmptyQueue
             | Self::NoPendingInterrupt => "unverified",
-            Self::RepeatedInitialization | Self::NoEventHook | Self::SynchronousScalarOutput => {
-                "unverified"
-            }
+            Self::RepeatedInitialization
+            | Self::NoEventHook
+            | Self::SynchronousScalarOutput
+            | Self::ScalarOutput => "unverified",
             Self::NoControllerAndInvalidArguments => "unverified",
             _ => declared,
         }
@@ -1963,6 +1969,7 @@ mod tests {
             "repeated-initialization",
             "no-event-hook",
             "synchronous-scalar-output",
+            "scalar-output",
             "zero-tag-count",
         ] {
             let scope = EvidenceScope::parse(scope).unwrap();
