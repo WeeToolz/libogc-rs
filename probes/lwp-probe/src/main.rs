@@ -2236,7 +2236,19 @@ mod wii {
             "LWP IPC wake note increments counter",
             after_direct_note == before.saturating_add(1),
         );
-        let before = after_direct_note;
+        lwp::note_ipc_wake(0x4950_4302);
+        let after_wrapper_note = lwp::debug_counters().ipc_wakeups;
+        logger.record(
+            "LWP sys IPC wake note increments counter",
+            after_wrapper_note == after_direct_note.saturating_add(1),
+        );
+        let current = lwp::get_self();
+        lwp::initialize();
+        logger.record(
+            "LWP sys repeated initialization preserves scheduler state",
+            lwp::get_self() == current && lwp::debug_counters().ipc_wakeups == after_wrapper_note,
+        );
+        let before = after_wrapper_note;
         let open = ipc::open_file(c"/dev/stm/immediate", ipc::IPC_OPEN_NONE);
         let opened = open.is_ok();
         logger.record("IOS open completed", opened);

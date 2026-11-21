@@ -1,0 +1,30 @@
+{
+  "probe": "lwp_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "note_ipc_wake",
+      "line": 360,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "run_ipc_wakeup",
+      "api_path": "lwp::note_ipc_wake",
+      "checks": [
+        "LWP sys IPC wake note increments counter",
+        "reply interrupt woke LWP queue"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "path": "src/lib.rs",
+      "symbol": "initialize",
+      "line": 26,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "run_ipc_wakeup",
+      "api_path": "lwp::initialize",
+      "checks": [
+        "LWP sys repeated initialization preserves scheduler state"
+      ]
+    }
+  ]
+}

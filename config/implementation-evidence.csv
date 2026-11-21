@@ -3248,3 +3248,5 @@ ogc-lwp,src/lib.rs,raw,169,compatibility-forwarder,hardware-probe,probes/ogc-sys
 ogc-lwp,src/lib.rs,reschedule,379,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,rotation_worker,ogc_lwp::reschedule
 ogc-lwp,src/lib.rs,set_priority,104,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_priority_order,thread.set_priority
 ogc-lwp-driver,src/runtime.rs,reschedule,2668,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,rotation_worker,driver::reschedule
+ogc-lwp-sys,src/lib.rs,note_ipc_wake,360,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_ipc_wakeup,lwp::note_ipc_wake
+ogc-lwp-sys,src/lib.rs,initialize,26,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_ipc_wakeup,lwp::initialize
