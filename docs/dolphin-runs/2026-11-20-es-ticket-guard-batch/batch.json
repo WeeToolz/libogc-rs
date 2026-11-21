@@ -1,0 +1,41 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "add_ticket",
+      "line": 1565,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_es_invalid_argument_guards",
+      "api_path": "raw_es::add_ticket",
+      "checks": [
+        "ES ticket add rejects invalid size"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "delete_ticket",
+      "line": 1631,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_es_invalid_argument_guards",
+      "api_path": "raw_es::delete_ticket",
+      "checks": [
+        "ES ticket delete rejects null view"
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "path": "src/imp.rs",
+      "symbol": "reimport_title_init",
+      "line": 1770,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_es_invalid_argument_guards",
+      "api_path": "raw_es::reimport_title_init",
+      "checks": [
+        "ES title reimport rejects null metadata"
+      ]
+    }
+  ]
+}

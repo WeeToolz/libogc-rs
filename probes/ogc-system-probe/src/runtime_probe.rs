@@ -3473,6 +3473,33 @@ fn probe_es_invalid_argument_guards(logger: &mut ProbeLogger) {
         "ES signature verifier rejects null buffers",
         verify == raw_es::ES_EINVAL,
     );
+
+    let add_ticket = unsafe {
+        raw_es::add_ticket(
+            core::ptr::null(),
+            0,
+            core::ptr::null(),
+            0,
+            core::ptr::null(),
+            0,
+        )
+    };
+    logger.record(
+        "ES ticket add rejects invalid size",
+        add_ticket == raw_es::ES_EINVAL,
+    );
+
+    let delete_ticket = unsafe { raw_es::delete_ticket(core::ptr::null()) };
+    logger.record(
+        "ES ticket delete rejects null view",
+        delete_ticket == raw_es::ES_EINVAL,
+    );
+
+    let reimport = unsafe { raw_es::reimport_title_init(core::ptr::null(), 0) };
+    logger.record(
+        "ES title reimport rejects null metadata",
+        reimport == raw_es::ES_EINVAL,
+    );
 }
 
 #[cfg(feature = "dolphin-automation")]
