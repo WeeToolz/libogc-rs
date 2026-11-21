@@ -4575,6 +4575,13 @@ fn probe_system_sram_setters(logger: &mut ProbeLogger) {
 
 fn probe_wiilaunch_error_codes(logger: &mut ProbeLogger) {
     use ogc_wiilaunch::LaunchError;
+    let initialize_first = ogc_wiilaunch::initialize();
+    let initialize_second = ogc_wiilaunch::initialize();
+    logger.record(
+        "Wii launch initialization succeeds on repeated calls",
+        initialize_first == 0 && initialize_second == 0,
+    );
+
     let cases = [
         (-0x9001, LaunchError::NotInitialized),
         (-0x9002, LaunchError::Internal),
