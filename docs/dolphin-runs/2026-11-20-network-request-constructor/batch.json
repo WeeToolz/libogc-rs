@@ -1,0 +1,20 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/socket_abi.rs",
+      "symbol": "new",
+      "line": 18,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_owned_udp_service",
+      "api_path": "service::NetRequest::new",
+      "checks": [
+        "Owned network request constructor initializes ABI fields"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin verifies the 32-bit request constructor fields and pointer preservation. It does not test request transport behavior."
+  ]
+}

@@ -1634,6 +1634,21 @@ fn probe_owned_udp_service(logger: &mut ProbeLogger) {
         initialized.is_ok() && raw_network::net_get_status() == 0,
     );
     let before = service::snapshot();
+    let mut request_handle = 0u8;
+    let handle = core::ptr::addr_of_mut!(request_handle).cast::<core::ffi::c_void>();
+    let request = service::NetRequest::new(7, handle);
+    logger.record(
+        "Owned network request constructor initializes ABI fields",
+        request.operation == 7
+            && request.handle == handle
+            && request.data.is_null()
+            && request.length == 0
+            && request.ip == 0
+            && request.port == 0
+            && request.flags == 0
+            && request.seconds == 0
+            && request.nanos == 0,
+    );
     let sender = service::Socket::bind(0x7f00_0001, 0, true, owned_network_clock);
     let receiver = service::Socket::bind(0x7f00_0001, 0, true, owned_network_clock);
     if let (Ok(sender), Ok(receiver)) = (sender, receiver) {
