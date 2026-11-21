@@ -1063,6 +1063,7 @@ mod wii {
                 lwp::lwp_set_thread_priority_abi(b, 50);
             } else {
                 lwp::set_thread_priority(a, 40);
+                driver::set_thread_priority(a, 40);
             }
             let a_result = if a_rc == 0 { join(a) } else { Err(a_rc) };
             let b_result = if b_rc == 0 { join(b) } else { Err(b_rc) };
@@ -2221,6 +2222,13 @@ mod wii {
     fn run_ipc_wakeup(logger: &mut ProbeLogger) {
         logger.section("IPC INTERRUPT WAKE");
         let before = lwp::debug_counters().ipc_wakeups;
+        driver::note_ipc_wake(0x4950_4301);
+        let after_direct_note = lwp::debug_counters().ipc_wakeups;
+        logger.record(
+            "LWP IPC wake note increments counter",
+            after_direct_note == before.saturating_add(1),
+        );
+        let before = after_direct_note;
         let open = ipc::open_file(c"/dev/stm/immediate", ipc::IPC_OPEN_NONE);
         let opened = open.is_ok();
         logger.record("IOS open completed", opened);

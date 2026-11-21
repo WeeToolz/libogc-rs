@@ -3197,3 +3197,6 @@ ogc-runtime,src/driver.rs,shutdown,21,pure,hardware-probe,probes/lwp-probe/src/r
 ogc-runtime,src/driver.rs,state,19,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,probe_driver_trait_contracts,lifecycle.state
 ogc-runtime,src/driver.rs,write,45,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,probe_driver_trait_contracts,debug.write
 ogc-runtime,src/driver.rs,write_blocks,29,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,probe_driver_trait_contracts,block.write_blocks
+ogc-lwp-driver,src/runtime.rs,note_ipc_wake,3874,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,run_ipc_wakeup,driver::note_ipc_wake
+ogc-lwp-driver,src/runtime.rs,set_thread_priority,2525,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,probe_priority_order,driver::set_thread_priority
+ogc-lwp-driver,src/arch/powerpc.rs,zeroed,32,scheduler,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,probe_lwp_context_constructor,ogc_lwp_driver::LwpContext::zeroed

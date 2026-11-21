@@ -11,6 +11,24 @@ use ogc_system_probe::probe_support::ProbeLogger;
 
 fn deferred_noop(_argument: usize) {}
 
+fn probe_lwp_context_constructor(logger: &mut ProbeLogger) {
+    let context = ogc_lwp_driver::LwpContext::zeroed();
+    logger.record(
+        "LWP context constructor zeroes all register state",
+        context.pc == 0
+            && context.msr == 0
+            && context.cr == 0
+            && context.lr == 0
+            && context.ctr == 0
+            && context.xer == 0
+            && context.fpscr == 0
+            && context.gpr.iter().all(|value| *value == 0)
+            && context.fpr.iter().all(|value| *value == 0)
+            && context.gqr.iter().all(|value| *value == 0)
+            && context.ps.iter().all(|value| *value == 0),
+    );
+}
+
 struct LifecycleContract {
     state: SubsystemState,
 }
@@ -256,6 +274,7 @@ fn probe_driver_trait_contracts(logger: &mut ProbeLogger) {
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("SHARED RUNTIME SCHEDULER CONTRACTS");
     probe_driver_trait_contracts(logger);
+    probe_lwp_context_constructor(logger);
 
     let thread = ThreadId::new(core::num::NonZeroU32::new(7).unwrap());
     logger.record(
