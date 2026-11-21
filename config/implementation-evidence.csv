@@ -3066,3 +3066,10 @@ ogc-system-sys,src/lib.rs,sys_get_font_texel,3054,hardware,hardware-probe,probes
 ogc-es-sys,src/imp.rs,add_ticket,1565,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_invalid_argument_guards,raw_es::add_ticket
 ogc-es-sys,src/imp.rs,delete_ticket,1631,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_invalid_argument_guards,raw_es::delete_ticket
 ogc-es-sys,src/imp.rs,reimport_title_init,1770,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_invalid_argument_guards,raw_es::reimport_title_init
+ogc-usb-sys,src/lib.rs,clear_halt,4308,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_sys_invalid_handle_operations,raw_usb::clear_halt
+ogc-usb-sys,src/lib.rs,get_configuration,4215,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_sys_invalid_handle_operations,raw_usb::get_configuration
+ogc-usb-sys,src/lib.rs,get_report_descriptor_size,2342,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_sys_invalid_handle_operations,raw_usb::get_report_descriptor_size
+ogc-usb-sys,src/lib.rs,resume_device,3308,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_sys_invalid_handle_operations,raw_usb::resume_device
+ogc-usb-sys,src/lib.rs,set_alternative_interface,4284,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_sys_invalid_handle_operations,raw_usb::set_alternative_interface
+ogc-usb-sys,src/lib.rs,set_configuration,4260,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_sys_invalid_handle_operations,raw_usb::set_configuration
+ogc-usb-sys,src/lib.rs,suspend_device,3295,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_sys_invalid_handle_operations,raw_usb::suspend_device

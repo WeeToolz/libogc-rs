@@ -142,6 +142,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_usb_invalid_handle_operations(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_usb_raw_invalid_handle_operations(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_usb_sys_invalid_handle_operations(logger);
     probe_video_queries(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_video_register_checks(logger);
@@ -3695,6 +3697,46 @@ fn probe_usb_raw_invalid_handle_operations(logger: &mut ProbeLogger) {
     logger.record(
         "USB configuration query rejects invalid handle",
         usb::configuration(-1).is_err(),
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_usb_sys_invalid_handle_operations(logger: &mut ProbeLogger) {
+    use ogc_usb::sys as raw_usb;
+
+    logger.record(
+        "USB sys suspend rejects invalid handle",
+        raw_usb::suspend_device(-1) < 0,
+    );
+    logger.record(
+        "USB sys resume rejects invalid handle",
+        raw_usb::resume_device(-1) < 0,
+    );
+
+    let mut configuration = 0xa5;
+    // SAFETY: `configuration` is a live output byte. The invalid handle returns
+    // before the USB transport can write the destination.
+    let configuration_rc = unsafe { raw_usb::get_configuration(-1, &mut configuration) };
+    logger.record(
+        "USB sys configuration query preserves output on invalid handle",
+        configuration_rc < 0 && configuration == 0xa5,
+    );
+
+    logger.record(
+        "USB sys configuration set rejects invalid handle",
+        raw_usb::set_configuration(-1, 1) < 0,
+    );
+    logger.record(
+        "USB sys alternate interface rejects invalid handle",
+        raw_usb::set_alternative_interface(-1, 0, 0) < 0,
+    );
+    logger.record(
+        "USB sys clear halt rejects invalid handle",
+        raw_usb::clear_halt(-1, 0x81) < 0,
+    );
+    logger.record(
+        "USB sys report descriptor size rejects invalid handle",
+        raw_usb::get_report_descriptor_size(-1, 0) < 0,
     );
 }
 
