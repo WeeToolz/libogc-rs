@@ -3802,6 +3802,46 @@ fn probe_usb_api_batch(logger: &mut ProbeLogger) {
 #[cfg(feature = "dolphin-automation")]
 fn probe_usb_raw_invalid_handle_operations(logger: &mut ProbeLogger) {
     use ogc_usb as usb;
+    // SAFETY: The descriptor buffer points to writable storage. A zero
+    // capacity prevents the driver from reading or writing that entry.
+    let mut unused_entry = core::mem::MaybeUninit::<usb::UsbDeviceEntry>::uninit();
+    let mut count = u8::MAX;
+    let list_result = unsafe {
+        usb::get_device_list(unused_entry.as_mut_ptr(), 0, usb::USB_CLASS_HID, &mut count)
+    };
+    logger.record(
+        "USB zero-capacity device list returns an empty result",
+        list_result == usb::USB_OK && count == 0,
+    );
+    // SAFETY: An invalid descriptor is rejected before callback registration.
+    let removal_result =
+        unsafe { usb::device_removal_notify_async(-1, None, core::ptr::null_mut()) };
+    logger.record(
+        "USB removal notification rejects an invalid descriptor",
+        removal_result < 0,
+    );
+    let mut ascii = [0xa5; 8];
+    // SAFETY: `ascii` is a valid writable buffer. The invalid descriptor is
+    // rejected before the USB service can write to it.
+    let ascii_result = unsafe {
+        usb::get_ascii_string(-1, 1, 0x0409, ascii.len() as u16, ascii.as_mut_ptr().cast())
+    };
+    logger.record(
+        "USB ASCII string rejects an invalid descriptor without changing output",
+        ascii_result < 0 && ascii == [0xa5; 8],
+    );
+    logger.record(
+        "USB mouse event queue starts empty",
+        usb::mouse::get_event(None) == 0,
+    );
+    logger.record(
+        "USB mouse event flush preserves an empty queue",
+        usb::mouse::flush_events() == 0,
+    );
+    logger.record(
+        "USB mouse reports disconnected before initialization",
+        !usb::mouse::is_connected(),
+    );
     logger.record(
         "USB open handle rejects an invalid device id",
         usb::open_device_handle(-1, 0, 0).is_err(),

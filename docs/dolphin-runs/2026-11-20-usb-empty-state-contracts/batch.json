@@ -1,0 +1,80 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "get_device_list",
+      "line": 523,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_raw_invalid_handle_operations",
+      "api_path": "usb::get_device_list",
+      "checks": [
+        "USB zero-capacity device list returns an empty result"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "device_removal_notify_async",
+      "line": 215,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_raw_invalid_handle_operations",
+      "api_path": "usb::device_removal_notify_async",
+      "checks": [
+        "USB removal notification rejects an invalid descriptor"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "get_ascii_string",
+      "line": 548,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_raw_invalid_handle_operations",
+      "api_path": "usb::get_ascii_string",
+      "checks": [
+        "USB ASCII string rejects an invalid descriptor without changing output"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "get_event",
+      "line": 1120,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_raw_invalid_handle_operations",
+      "api_path": "usb::mouse::get_event",
+      "checks": [
+        "USB mouse event queue starts empty"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "flush_events",
+      "line": 1133,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_raw_invalid_handle_operations",
+      "api_path": "usb::mouse::flush_events",
+      "checks": [
+        "USB mouse event flush preserves an empty queue"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "is_connected",
+      "line": 962,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_raw_invalid_handle_operations",
+      "api_path": "usb::mouse::is_connected",
+      "checks": [
+        "USB mouse reports disconnected before initialization"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin verifies bounded empty-state and invalid-descriptor paths before USB mouse initialization. It does not test enumeration or callbacks with an attached USB device."
+  ]
+}

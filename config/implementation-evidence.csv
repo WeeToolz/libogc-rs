@@ -3105,3 +3105,9 @@ ogc-usb,src/lib.rs,close_device_handle,63,compatibility-forwarder,hardware-probe
 ogc-usb,src/lib.rs,try_close_device_async,82,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_raw_invalid_handle_operations,usb::try_close_device_async
 ogc-usb,src/lib.rs,open_device_handle,51,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_raw_invalid_handle_operations,usb::open_device_handle
 ogc-usb,src/lib.rs,get_report_descriptor_size,174,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_raw_invalid_handle_operations,usb::get_report_descriptor_size
+ogc-usb,src/lib.rs,get_device_list,523,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_raw_invalid_handle_operations,usb::get_device_list
+ogc-usb,src/lib.rs,device_removal_notify_async,215,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_raw_invalid_handle_operations,usb::device_removal_notify_async
+ogc-usb,src/lib.rs,get_ascii_string,548,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_raw_invalid_handle_operations,usb::get_ascii_string
+ogc-usb,src/lib.rs,get_event,1120,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_raw_invalid_handle_operations,usb::mouse::get_event
+ogc-usb,src/lib.rs,flush_events,1133,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_raw_invalid_handle_operations,usb::mouse::flush_events
+ogc-usb,src/lib.rs,is_connected,962,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_raw_invalid_handle_operations,usb::mouse::is_connected
