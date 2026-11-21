@@ -135,6 +135,8 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_system_sys_argv_contracts(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_system_wrapper_contracts(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_system_pmc_lifecycle(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_usb_api_batch(logger);
@@ -4034,6 +4036,29 @@ fn probe_system_sys_argv_contracts(logger: &mut ProbeLogger) {
     logger.record(
         "System sys argv check preserves a valid stable descriptor",
         first_state == second_state && valid_state,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_wrapper_contracts(logger: &mut ProbeLogger) {
+    // SAFETY: Probe startup owns this descriptor for the process lifetime.
+    let argv = unsafe { raw_system::current_system_argv() };
+    // SAFETY: The descriptor remains live while the wrapper checks it.
+    let before = unsafe { argv.as_ref().copied() };
+    system::check_argv();
+    // SAFETY: The same runtime-owned descriptor remains live after the check.
+    let after = unsafe { argv.as_ref().copied() };
+    logger.record(
+        "System argv wrapper preserves the checked descriptor",
+        before == after,
+    );
+
+    let wrapper_state = system::stdio_report_uses_stdout();
+    let raw_state = raw_system::sys_stdio_report_uses_stdout();
+    let repeated_state = system::stdio_report_uses_stdout();
+    logger.record(
+        "System stdio wrapper matches the raw report mode",
+        wrapper_state == raw_state && wrapper_state == repeated_state,
     );
 }
 

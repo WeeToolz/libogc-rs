@@ -1,0 +1,32 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "check_argv",
+      "line": 655,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_wrapper_contracts",
+      "api_path": "system::check_argv",
+      "checks": [
+        "System argv wrapper preserves the checked descriptor"
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "path": "src/lib.rs",
+      "symbol": "stdio_report_uses_stdout",
+      "line": 580,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_wrapper_contracts",
+      "api_path": "system::stdio_report_uses_stdout",
+      "checks": [
+        "System stdio wrapper matches the raw report mode"
+      ]
+    }
+  ],
+  "limits": [
+    "The probe verifies wrapper state and argument descriptor stability in Dolphin. It does not test host-only behavior or stdio output to physical hardware."
+  ]
+}

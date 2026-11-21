@@ -3084,3 +3084,5 @@ ogc-system,src/lib.rs,get_font_texture,850,compatibility-forwarder,hardware-prob
 ogc-system,src/lib.rs,get_font_texel,866,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/font_probe.rs,probe_texel,system::get_font_texel
 ogc-system-sys,src/lib.rs,current_system_argv,985,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sys_argv_contracts,raw_system::current_system_argv
 ogc-system-sys,src/lib.rs,_check_argv,1487,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sys_argv_contracts,raw_system::_check_argv
+ogc-system,src/lib.rs,check_argv,655,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_wrapper_contracts,system::check_argv
+ogc-system,src/lib.rs,stdio_report_uses_stdout,580,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_wrapper_contracts,system::stdio_report_uses_stdout
