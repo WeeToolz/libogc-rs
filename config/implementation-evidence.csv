@@ -3047,3 +3047,4 @@ ogc-usb,src/lib.rs,set_configuration,496,compatibility-forwarder,hardware-probe,
 ogc-usb,src/lib.rs,set_alternative_interface,504,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_raw_invalid_handle_operations,usb::set_alternative_interface
 ogc-usb,src/lib.rs,clear_halt,512,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_raw_invalid_handle_operations,usb::clear_halt
 ogc-usb,src/lib.rs,configuration,491,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_raw_invalid_handle_operations,usb::configuration
+ogc-system-sys,src/lib.rs,sys_allocate_framebuffer,2141,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_framebuffer_null_mode,raw_system::sys_allocate_framebuffer

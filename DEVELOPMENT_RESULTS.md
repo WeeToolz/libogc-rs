@@ -1,5 +1,13 @@
 # Development results
 
+## 2026-11-20 System framebuffer null mode
+
+The [framebuffer batch](docs/dolphin-runs/2026-11-20-system-null-framebuffer-retry/README.md)
+checks that framebuffer allocation returns null and records zero bytes for a
+null video mode. Dolphin passed all 647 runtime checks. The inventory fell
+from 335 to 334 unverified entries. Allocation for a valid mode remains
+untested.
+
 ## 2026-11-20 USB raw invalid-handle operations
 
 The [USB batch](docs/dolphin-runs/2026-11-20-ogc-usb-raw-invalid-handle-ops/README.md)

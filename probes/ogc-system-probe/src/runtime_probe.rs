@@ -114,6 +114,8 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_system_raw_snapshots(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_system_framebuffer_null_mode(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_system_font_snapshot(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_system_callbacks(logger);
@@ -3390,6 +3392,21 @@ fn probe_es_argument_guards(logger: &mut ProbeLogger) {
     logger.record(
         "ES verify rejects null signed metadata",
         verify == es::ES_EINVAL,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_framebuffer_null_mode(logger: &mut ProbeLogger) {
+    // SAFETY: A null video mode is an explicitly supported zero-size query.
+    let framebuffer = unsafe { raw_system::sys_allocate_framebuffer(core::ptr::null_mut()) };
+    let snapshot = raw_system::snapshot_framebuffer();
+    logger.record(
+        "System framebuffer rejects null mode",
+        framebuffer.is_null(),
+    );
+    logger.record(
+        "System framebuffer snapshot records null mode",
+        snapshot.called && snapshot.rmode == 0 && snapshot.bytes == 0,
     );
 }
 
