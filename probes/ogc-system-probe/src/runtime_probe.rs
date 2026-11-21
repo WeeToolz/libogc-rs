@@ -116,6 +116,8 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_system_framebuffer_null_mode(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_system_sram_lock_lifecycle(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_system_font_snapshot(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_system_callbacks(logger);
@@ -3392,6 +3394,30 @@ fn probe_es_argument_guards(logger: &mut ProbeLogger) {
     logger.record(
         "ES verify rejects null signed metadata",
         verify == es::ES_EINVAL,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_system_sram_lock_lifecycle(logger: &mut ProbeLogger) {
+    let sram = unsafe { raw_system::_sys_lock_sram() };
+    let sync_result = unsafe { raw_system::_sys_sync_sram() };
+    let unlock = unsafe { raw_system::_sys_unlock_sram(0) };
+
+    let extended = unsafe { raw_system::_sys_lock_sram_ex() };
+    let extended_unlock = unsafe { raw_system::_sys_unlock_sram_ex(0) };
+
+    // SRAM locks disable interrupts. Record only after both locks are released
+    // so pagination cannot wait for VI retraces while interrupts are disabled.
+    logger.record("System SRAM lock returns access", !sram.is_null());
+    logger.record("System SRAM sync reports current state", sync_result <= 1);
+    logger.record(
+        "System SRAM unlock without write returns ready",
+        unlock == 1,
+    );
+    logger.record("Extended SRAM lock returns access", !extended.is_null());
+    logger.record(
+        "Extended SRAM unlock without write returns ready",
+        extended_unlock == 1,
     );
 }
 
