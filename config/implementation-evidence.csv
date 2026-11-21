@@ -3208,3 +3208,4 @@ wpad-sys,src/lib.rs,is_speaker_enabled,1306,hardware,hardware-probe,probes/ogc-s
 wpad-sys,src/lib.rs,set_data_format,1100,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_valid_channel_empty_queries,wpad::set_data_format
 wpad-sys,src/lib.rs,set_v_res,1183,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_valid_channel_empty_queries,wpad::set_v_res
 wpad-sys,src/lib.rs,set_idle_thresholds,1530,scheduler,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_valid_channel_empty_queries,wpad::set_idle_thresholds
+ogc-cache,src/lib.rs,lc_alloc_tags,624,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache,cache::lc_alloc_tags

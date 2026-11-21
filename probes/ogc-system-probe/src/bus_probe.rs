@@ -141,9 +141,18 @@ fn probe_cache(logger: &mut ProbeLogger) {
     // SAFETY: The pointers reference the live aligned allocation. A zero byte
     // count returns before either pointer is read or written.
     let store_zero = unsafe { cache::lc_store_data(ptr, ptr, 0) };
+    logger.record("locked cache zero-length load returns zero", load_zero == 0);
     logger.record(
-        "locked cache zero-length data operations return zero",
-        load_zero == 0 && store_zero == 0,
+        "locked cache zero-length store returns zero",
+        store_zero == 0,
+    );
+
+    // SAFETY: `ptr` is aligned and valid. A zero tag count requests no cache
+    // lines, so the operation must not access the allocation.
+    unsafe { cache::lc_alloc_tags(false, ptr, 0) };
+    logger.record(
+        "locked cache zero-tag allocation preserves data",
+        data.0.iter().all(|byte| *byte == 0x5a),
     );
 
     let waited = cache::lc_queue_wait(15);
