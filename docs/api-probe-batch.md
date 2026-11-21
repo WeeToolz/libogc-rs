@@ -50,6 +50,10 @@ scope values. When a new run covers the
 production behavior, `finish` can replace an earlier partial evidence
 row. Keep the earlier run as a record of the original checks.
 
+The `active-search-state` scope records inquiry-state changes and adapter
+activity in Dolphin. It keeps search and pairing APIs unverified until a usable
+controller channel and the related discovery or pairing behavior are confirmed.
+
 For example, draft a manifest for an unverified network API. Replace the
 probe function and symbol with your selection.
 

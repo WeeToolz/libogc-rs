@@ -60,6 +60,7 @@ enum EvidenceScope {
     EmptyChannel,
     NoController,
     NoControllerAndInvalidArguments,
+    ActiveSearchState,
     ZeroLength,
     EmptyQueue,
     DolphinCacheRegister,
@@ -80,6 +81,7 @@ impl EvidenceScope {
             "empty-channel" => Self::EmptyChannel,
             "no-controller" => Self::NoController,
             "no-controller-and-invalid-arguments" => Self::NoControllerAndInvalidArguments,
+            "active-search-state" => Self::ActiveSearchState,
             "zero-length" => Self::ZeroLength,
             "empty-queue" => Self::EmptyQueue,
             "dolphin-cache-register" => Self::DolphinCacheRegister,
@@ -117,6 +119,9 @@ impl EvidenceScope {
             Self::NoControllerAndInvalidArguments => {
                 "Valid empty-channel behavior and Rust invalid-argument guards only in Dolphin. Behavior with a connected controller remains unverified."
             }
+            Self::ActiveSearchState => {
+                "Inquiry state changes and adapter activity only in Dolphin. A usable controller channel, discovery results, and pairing remain unverified."
+            }
             Self::ZeroLength => {
                 "Zero-length behavior only in Dolphin. Non-zero transfer behavior remains unverified."
             }
@@ -150,6 +155,7 @@ impl EvidenceScope {
             | Self::InvalidArguments
             | Self::EmptyChannel
             | Self::NoController
+            | Self::ActiveSearchState
             | Self::ZeroTagCount
             | Self::ZeroLength
             | Self::EmptyQueue => "unverified",
@@ -1917,6 +1923,7 @@ mod tests {
             "empty-channel",
             "no-controller",
             "no-controller-and-invalid-arguments",
+            "active-search-state",
             "zero-length",
             "empty-queue",
             "zero-tag-count",
@@ -1938,6 +1945,13 @@ mod tests {
                 .contains("Physical")
         );
         assert!(EvidenceScope::parse("unknown").is_none());
+        let active_search_scope = EvidenceScope::parse("active-search-state").unwrap();
+        assert_eq!(active_search_scope.classification("hardware"), "unverified");
+        assert!(
+            active_search_scope
+                .limitation()
+                .contains("usable controller channel")
+        );
     }
 
     #[test]

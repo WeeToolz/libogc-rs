@@ -86,6 +86,8 @@ pub fn run(logger: &mut ProbeLogger) {
         read == wpad::WPAD_ERR_NO_CONTROLLER as i32,
     );
 
+    probe_active_search(logger);
+
     STATUS_CALLBACK_CHANNELS.store(0, Ordering::Release);
     STATUS_CALLBACK_INVALID.store(0, Ordering::Release);
     wpad::set_status_callback(Some(record_status_callback));
@@ -134,6 +136,122 @@ pub fn run(logger: &mut ProbeLogger) {
         "WPAD disabled adapter rejects all-channel MotionPlus configuration",
         wpad::set_motion_plus(wpad::WPAD_CHAN_ALL, 1) == wpad::WPAD_ERR_NOT_READY as i32,
     );
+}
+
+fn probe_active_search(logger: &mut ProbeLogger) {
+    logger.section("WPAD ACTIVE SEARCH");
+
+    let guest_before = wpad::bluetooth_diagnostics();
+    let guest_search = wpad::search();
+    let guest_started = wpad::bluetooth_diagnostics();
+    logger.record(
+        "WPAD guest search enters inquiry state",
+        guest_search == wpad::WPAD_ERR_NONE as i32 && guest_started.searching,
+    );
+    let (_, guest_active) = poll_search_until_adapter_event(guest_before.events, logger);
+    logger.note_u32(
+        "WPAD guest inquiry adapter events",
+        guest_active.events.saturating_sub(guest_before.events),
+    );
+    logger.note_i32(
+        "WPAD guest inquiry active state",
+        i32::from(guest_active.searching),
+    );
+    logger.note_u32(
+        "WPAD guest inquiry command error delta",
+        guest_active
+            .hci_command_failures
+            .saturating_sub(guest_before.hci_command_failures),
+    );
+    logger.note_i32(
+        "WPAD guest inquiry HCI status",
+        i32::from(guest_active.hci_status.unwrap_or(u8::MAX)),
+    );
+    logger.note_i32(
+        "WPAD guest inquiry failed HCI command",
+        i32::from(guest_active.hci_command_failures > guest_before.hci_command_failures),
+    );
+    logger.note_i32("WPAD status after guest inquiry", wpad::get_status());
+    let guest_stop = wpad::stop_search();
+    logger.record(
+        "WPAD stop_search clears guest inquiry state",
+        guest_stop == wpad::WPAD_ERR_NONE as i32 && !wpad::bluetooth_diagnostics().searching,
+    );
+
+    let hid_before = wpad::bluetooth_diagnostics();
+    let hid_search = wpad::search_bluetooth_hid();
+    let hid_started = wpad::bluetooth_diagnostics();
+    logger.record(
+        "WPAD HID search enters general inquiry state",
+        hid_search == wpad::WPAD_ERR_NONE as i32 && hid_started.searching,
+    );
+    let (_, hid_active) = poll_search_until_adapter_event(hid_before.events, logger);
+    logger.note_u32(
+        "WPAD HID inquiry adapter events",
+        hid_active.events.saturating_sub(hid_before.events),
+    );
+    logger.note_i32(
+        "WPAD HID inquiry active state",
+        i32::from(hid_active.searching),
+    );
+    logger.note_u32(
+        "WPAD HID inquiry command error delta",
+        hid_active
+            .hci_command_failures
+            .saturating_sub(hid_before.hci_command_failures),
+    );
+    logger.note_i32(
+        "WPAD HID inquiry HCI status",
+        i32::from(hid_active.hci_status.unwrap_or(u8::MAX)),
+    );
+    logger.note_i32("WPAD status after HID inquiry", wpad::get_status());
+    logger.note_u32("WPAD HID inquiry connections", hid_active.connections);
+    logger.note_u32(
+        "WPAD HID inquiry connection attempts",
+        hid_active.connection_attempts,
+    );
+    logger.note_u32(
+        "WPAD HID inquiry connection failures",
+        hid_active.connection_failures,
+    );
+    let mut expansion = 0;
+    // SAFETY: The output points to a valid local value.
+    let channel_status = unsafe { wpad::probe(wpad::WPAD_CHAN_0, &mut expansion) };
+    logger.note_i32("WPAD channel status after HID inquiry", channel_status);
+    let cancel_search = wpad::search_bluetooth_hid();
+    let cancel_started = wpad::bluetooth_diagnostics();
+    let hid_stop = wpad::stop_search();
+    let canceled = wpad::bluetooth_diagnostics();
+    logger.record(
+        "WPAD stop_search clears general inquiry state",
+        cancel_search == wpad::WPAD_ERR_NONE as i32
+            && cancel_started.searching
+            && hid_stop == wpad::WPAD_ERR_NONE as i32
+            && !canceled.searching,
+    );
+}
+
+fn poll_search_until_adapter_event(
+    previous_events: u32,
+    logger: &mut ProbeLogger,
+) -> (bool, ogc_bt_sync::HostDiagnostics) {
+    let mut polls_ok = true;
+    let mut diagnostics = wpad::bluetooth_diagnostics();
+    for _ in 0..60 {
+        let result = wpad::scan_pads();
+        if result < wpad::WPAD_ERR_NONE as i32 {
+            if polls_ok {
+                logger.note_i32("WPAD search scan result", result);
+            }
+            polls_ok = false;
+        }
+        logger.display().wait_vsync();
+        diagnostics = wpad::bluetooth_diagnostics();
+        if diagnostics.events > previous_events || !diagnostics.searching {
+            break;
+        }
+    }
+    (polls_ok, diagnostics)
 }
 
 #[cfg(feature = "dolphin-automation")]

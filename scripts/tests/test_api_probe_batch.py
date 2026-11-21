@@ -15,6 +15,9 @@ SPEC.loader.exec_module(batch)
 
 
 class BatchTests(unittest.TestCase):
+    def test_active_search_state_keeps_apis_partial(self):
+        self.assertIn("active-search-state", batch.PARTIAL_SCOPES)
+
     def test_selects_exact_entry_and_rejects_ambiguity(self):
         case = {"crate": "example", "path": "src/lib.rs", "symbol": "operation"}
         row = {
