@@ -310,6 +310,7 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
         );
         probe_controller_scan_modes(logger, &mut controllers);
         probe_pad_low_level_state(logger);
+        probe_ogc_input_public_wrappers(logger);
         probe_pad_sampling_callback(logger);
     }
 
@@ -364,11 +365,11 @@ unsafe extern "C" fn pad_sampling_b() {
 
 #[cfg(feature = "dolphin-automation")]
 fn probe_pad_sampling_callback(logger: &mut ProbeLogger) {
-    use ogc_input_sys as sys;
-
     logger.section("PAD SAMPLING CALLBACK");
     PAD_SAMPLING_A.store(0, Ordering::Relaxed);
     PAD_SAMPLING_B.store(0, Ordering::Relaxed);
+    use ogc_input_sys as sys;
+
     let original = sys::pad_set_sampling_callback(Some(pad_sampling_a));
     for _ in 0..60 {
         if PAD_SAMPLING_A.load(Ordering::Relaxed) != 0 {
@@ -518,6 +519,80 @@ fn probe_pad_low_level_state(logger: &mut ProbeLogger) {
             && raw[1..]
                 .iter()
                 .all(|status| status.err as i32 == sys::PAD_ERR_NO_CONTROLLER),
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_ogc_input_public_wrappers(logger: &mut ProbeLogger) {
+    use ogc_input_sys as sys;
+
+    logger.section("PAD PUBLIC WRAPPERS");
+
+    PAD_INIT_STAGES.store(0, Ordering::Relaxed);
+    ogc_input::set_debug_hook(Some(pad_init_debug_hook));
+    let initialized = ogc_input::init();
+    ogc_input::set_debug_hook(None);
+    logger.record(
+        "PAD repeated initialization reports debug stages",
+        initialized == 1 && PAD_INIT_STAGES.load(Ordering::Relaxed) == 3,
+    );
+
+    let before = sys::pad_debug_state();
+    ogc_input::set_spec(before.spec);
+    logger.record(
+        "PAD set spec preserves the selected specification",
+        sys::pad_debug_state().spec == before.spec,
+    );
+
+    PAD_TRACE_MOTOR_SEEN.store(0, Ordering::Relaxed);
+    let previous_trace = sys::set_trace_hook(Some(pad_low_level_trace));
+    let before_motor = sys::pad_debug_state();
+    ogc_input::control_motor(-1, 2);
+    for _ in 0..120 {
+        let sync = sys::pad_sync();
+        if sync == 1 || !video::wait_vsync_timeout_us(100_000) {
+            break;
+        }
+    }
+    let after_motor = sys::pad_debug_state();
+    let _ = sys::set_trace_hook(previous_trace);
+    logger.record(
+        "PAD invalid motor request produces trace without state change",
+        PAD_TRACE_MOTOR_SEEN.load(Ordering::Relaxed) == 1
+            && before_motor.spec == after_motor.spec
+            && before_motor.enable_bits == after_motor.enable_bits,
+    );
+
+    let mut samples = [sys::PadStatus::default(); 4];
+    let _ = video::wait_vsync_timeout_us(100_000);
+    let connected = ogc_input::scan_pads_with_status(&mut samples);
+    let _ = video::wait_vsync_timeout_us(100_000);
+    let second_scan = ogc_input::scan_pads();
+    logger.record(
+        "PAD low level scans observe scripted controller",
+        connected & 1 == 1 && second_scan & 1 == 1 && samples[0].err as i32 == sys::PAD_ERR_NONE,
+    );
+
+    PAD_SAMPLING_A.store(0, Ordering::Relaxed);
+    let original = ogc_input::set_sampling_callback(Some(pad_sampling_a));
+    for _ in 0..60 {
+        if PAD_SAMPLING_A.load(Ordering::Relaxed) != 0 {
+            break;
+        }
+        if !video::wait_vsync_timeout_us(100_000) {
+            break;
+        }
+    }
+    let called = PAD_SAMPLING_A.load(Ordering::Relaxed) != 0;
+    let removed = ogc_input::set_sampling_callback(None);
+    let restored = ogc_input::set_sampling_callback(original);
+    logger.record(
+        "PAD sampling callback replaces delivers and removes",
+        called
+            && removed.is_some_and(|callback| {
+                core::ptr::fn_addr_eq(callback, pad_sampling_a as unsafe extern "C" fn())
+            })
+            && restored.is_none(),
     );
 }
 
