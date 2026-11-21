@@ -1,0 +1,17 @@
+{
+  "probe": "wpad_probe",
+  "cases": [
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_status_callback",
+      "line": 1491,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "run",
+      "api_path": "wpad::set_status_callback",
+      "checks": [
+        "WPAD status callback receives valid shutdown channel notifications"
+      ]
+    }
+  ]
+}

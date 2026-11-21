@@ -3233,3 +3233,4 @@ ogc-sysbase,src/lib.rs,open_truncate,349,hardware,hardware-probe,probes/ogc-syst
 ogc-sysbase,src/lib.rs,set_stdin_device,713,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_sysbase_device_helpers,sysbase::set_stdin_device
 ogc-sysbase,src/lib.rs,restore_stdin_device,721,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_sysbase_device_helpers,sysbase::restore_stdin_device
 ogc-sysbase,src/lib.rs,setDefaultDevice,674,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_sysbase_default_device,sysbase::setDefaultDevice
+wpad-sys,src/lib.rs,set_status_callback,1491,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,run,wpad::set_status_callback

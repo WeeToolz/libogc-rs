@@ -3,7 +3,19 @@ use core::sync::atomic::{AtomicU32, Ordering};
 use wpad_sys as wpad;
 
 static BLUETOOTH_POLL_MARKS: AtomicU32 = AtomicU32::new(0);
+static STATUS_CALLBACK_CHANNELS: AtomicU32 = AtomicU32::new(0);
+static STATUS_CALLBACK_INVALID: AtomicU32 = AtomicU32::new(0);
 static mut EVENT_BUFFER: core::mem::MaybeUninit<wpad::WpadData> = core::mem::MaybeUninit::uninit();
+
+unsafe extern "C" fn record_status_callback(channel: i32) {
+    if let Ok(channel) = u32::try_from(channel)
+        && channel < wpad::WPAD_MAX_DEVICES as u32
+    {
+        STATUS_CALLBACK_CHANNELS.fetch_or(1 << channel, Ordering::AcqRel);
+    } else {
+        STATUS_CALLBACK_INVALID.fetch_add(1, Ordering::AcqRel);
+    }
+}
 
 /// Check the WPAD host lifecycle without starting a Bluetooth inquiry or
 /// changing saved controller configuration.
@@ -74,7 +86,16 @@ pub fn run(logger: &mut ProbeLogger) {
         read == wpad::WPAD_ERR_NO_CONTROLLER as i32,
     );
 
+    STATUS_CALLBACK_CHANNELS.store(0, Ordering::Release);
+    STATUS_CALLBACK_INVALID.store(0, Ordering::Release);
+    wpad::set_status_callback(Some(record_status_callback));
     let shutdown = wpad::shutdown();
+    wpad::set_status_callback(None);
+    logger.record(
+        "WPAD status callback receives valid shutdown channel notifications",
+        STATUS_CALLBACK_CHANNELS.load(Ordering::Acquire) != 0
+            && STATUS_CALLBACK_INVALID.load(Ordering::Acquire) == 0,
+    );
     logger.note_i32("WPAD shutdown result", shutdown);
     logger.record(
         "WPAD shutdown succeeds",
