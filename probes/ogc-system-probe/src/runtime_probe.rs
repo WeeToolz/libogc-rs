@@ -1645,6 +1645,37 @@ fn probe_owned_udp_service(logger: &mut ProbeLogger) {
             "Owned UDP binds distinct loopback sockets",
             addresses_ok && live.live_sockets == before.live_sockets + 2,
         );
+        let invalid_set_option = sender.set_option(0xffff, 0x7fff, 1).is_err();
+        logger.record(
+            "Owned network set option rejects unsupported options locally",
+            invalid_set_option,
+        );
+        let invalid_bool_option = receiver.bool_option(0xffff, 0x7fff).is_err();
+        logger.record(
+            "Owned network boolean option rejects unsupported options locally",
+            invalid_bool_option,
+        );
+        let local_error = service::NetError::local(22);
+        logger.record(
+            "Owned network local error preserves its errno domain",
+            local_error.domain == 3 && local_error.code == 22 && local_error.errno() == 22,
+        );
+        let retryable_error = service::NetError {
+            domain: 1,
+            code: -6,
+        };
+        let socket_error = service::NetError {
+            domain: 1,
+            code: -5,
+        };
+        let ipc_error = service::NetError {
+            domain: 2,
+            code: -6,
+        };
+        logger.record(
+            "Owned network retry classification uses IOS socket errors",
+            retryable_error.retryable() && !socket_error.retryable() && !ipc_error.retryable(),
+        );
         let timeout = Duration::from_secs(3);
         let timeout_ok = receiver.set_timeout(false, Some(timeout)).is_ok()
             && receiver.timeout(false) == Ok(Some(timeout))

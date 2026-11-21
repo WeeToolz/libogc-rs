@@ -3095,3 +3095,7 @@ ogc-exi,src/lib.rs,try_detach,189,compatibility-forwarder,hardware-probe,probes/
 ogc-exi,src/lib.rs,try_probe,27,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_invalid_channels,exi::try_probe
 ogc-exi,src/lib.rs,try_probe_ex,35,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_invalid_channels,exi::try_probe_ex
 ogc-exi,src/lib.rs,probe_reset,193,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_reset,exi::probe_reset
+ogc-network-sys,src/std_net.rs,set_option,506,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_udp_service,sender.set_option
+ogc-network-sys,src/std_net.rs,bool_option,533,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_udp_service,receiver.bool_option
+ogc-network-sys,src/socket_error.rs,local,9,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_udp_service,service::NetError::local
+ogc-network-sys,src/socket_error.rs,retryable,49,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_owned_udp_service,retryable_error.retryable
