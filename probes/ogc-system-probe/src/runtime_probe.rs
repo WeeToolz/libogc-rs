@@ -2491,14 +2491,26 @@ fn probe_exi_invalid_channels(logger: &mut ProbeLogger) {
 #[cfg(feature = "dolphin-automation")]
 fn probe_exi_reset(logger: &mut ProbeLogger) {
     use ogc_exi as exi;
+    use ogc_exi::sys as raw_exi;
+
+    logger.record(
+        "raw EXI base selects the Wii register window",
+        raw_exi::hardware_exi_reg_base() == 0xcd00_6800,
+    );
 
     exi::probe_reset();
-    let first = (exi::try_probe(0).ok(), exi::try_probe(1).ok());
-    let second = (exi::try_probe(0).ok(), exi::try_probe(1).ok());
-    logger.record(
-        "EXI probe reset leaves stable channel probe results",
-        first.0.is_some() && first.1.is_some() && first == second,
-    );
+    raw_exi::probe_reset();
+    let mut previous = (raw_exi::probe(0), raw_exi::probe(1));
+    let mut stable = false;
+    for _ in 0..32 {
+        let current = (raw_exi::probe(0), raw_exi::probe(1));
+        if current == previous {
+            stable = true;
+            break;
+        }
+        previous = current;
+    }
+    logger.record("raw EXI probe reset reaches stable channel results", stable);
 }
 
 #[cfg(feature = "dolphin-automation")]

@@ -1,0 +1,29 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-exi-sys",
+      "path": "src/lib.rs",
+      "symbol": "hardware_exi_reg_base",
+      "line": 175,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_reset",
+      "api_path": "raw_exi::hardware_exi_reg_base",
+      "checks": [
+        "raw EXI base selects the Wii register window"
+      ]
+    },
+    {
+      "crate": "ogc-exi-sys",
+      "path": "src/lib.rs",
+      "symbol": "probe_reset",
+      "line": 533,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_reset",
+      "api_path": "raw_exi::probe_reset",
+      "checks": [
+        "raw EXI probe reset reaches stable channel results"
+      ]
+    }
+  ]
+}
