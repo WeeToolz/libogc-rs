@@ -1,5 +1,17 @@
 # Development results
 
+## 2026-11-21 inventory audit evidence caching
+
+The inventory audit was taking longer than 60 seconds because it reparsed
+shared probe files for each evidence row and searched the full evidence list
+for every API. It now indexes evidence by API key, checks duplicates with a
+set, and parses each evidence source once per audit. Before the change,
+`cargo xtask check-inventory` timed out after 60 seconds. After the change it
+passed in under one second and confirmed 3,375 current entries. The new cache
+test and all 136 xtask tests passed. `cargo xtask check-group hardware` also
+passed for the Wii runtime group. This changes the audit process only; it does
+not change API classifications or Dolphin evidence.
+
 ## 2026-11-21 WPAD saved controller wipe
 
 The [WPAD batch](docs/dolphin-runs/2026-11-21-wpad-wipe-saved-controllers-focused-v3/README.md)

@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -391,6 +391,12 @@ fn collect_inventory(root: &Path) -> Result<Vec<ApiEntry>, String> {
     let overrides = load_overrides(root)?;
     let evidence = load_evidence(root)?;
     let mut used_evidence = vec![false; evidence.len()];
+    let evidence_index = evidence
+        .iter()
+        .enumerate()
+        .map(|(index, item)| (evidence_key(item), index))
+        .collect::<HashMap<_, _>>();
+    let mut parsed_evidence = ParsedEvidenceCache::default();
     let mut entries = Vec::new();
 
     for role in roles.iter().filter(|role| role.runtime) {
@@ -454,14 +460,18 @@ fn collect_inventory(root: &Path) -> Result<Vec<ApiEntry>, String> {
                             role.package, function.name, declared_classification
                         ));
                     }
-                    let matching_evidence = evidence.iter().enumerate().find(|(_, item)| {
-                        item.crate_name == role.package
-                            && item.path == relative_to_crate
-                            && item.symbol == function.name
-                            && item.line == function.line
-                    });
-                    if let Some((index, item)) = matching_evidence {
-                        verify_evidence(root, item, &declared_classification)?;
+                    let key = (
+                        role.package.clone(),
+                        relative_to_crate.clone(),
+                        function.name.clone(),
+                        function.line,
+                    );
+                    if let Some(&index) = evidence_index.get(&key) {
+                        let item = &evidence[index];
+                        validate_evidence_classification(item, &declared_classification)?;
+                        let cached =
+                            parsed_evidence.get_or_parse(&root.join(&item.evidence_path))?;
+                        verify_evidence_cached(item, &declared_classification, cached)?;
                         used_evidence[index] = true;
                         evidence_summary = match &item.api_path {
                             Some(api_path) => format!(
@@ -546,6 +556,7 @@ fn load_evidence(root: &Path) -> Result<Vec<Evidence>, String> {
     let path = root.join("config/implementation-evidence.csv");
     let rows = read_csv(&path)?;
     let mut evidence = Vec::new();
+    let mut evidence_keys = HashSet::new();
     for (line_no, row) in rows.into_iter().enumerate().skip(1) {
         if row.iter().all(|field| field.trim().is_empty()) {
             continue;
@@ -587,12 +598,7 @@ fn load_evidence(root: &Path) -> Result<Vec<Evidence>, String> {
                 })
                 .transpose()?,
         };
-        if evidence.iter().any(|existing: &Evidence| {
-            existing.crate_name == item.crate_name
-                && existing.path == item.path
-                && existing.symbol == item.symbol
-                && existing.line == item.line
-        }) {
+        if !evidence_keys.insert(evidence_key(&item)) {
             return Err(format!(
                 "{}:{}: duplicate evidence for {}::{}",
                 path.display(),
@@ -606,7 +612,89 @@ fn load_evidence(root: &Path) -> Result<Vec<Evidence>, String> {
     Ok(evidence)
 }
 
+type EvidenceKey = (String, String, String, usize);
+
+fn evidence_key(evidence: &Evidence) -> EvidenceKey {
+    (
+        evidence.crate_name.clone(),
+        evidence.path.clone(),
+        evidence.symbol.clone(),
+        evidence.line,
+    )
+}
+
+#[derive(Default)]
+struct ParsedEvidenceCache {
+    files: HashMap<PathBuf, ParsedEvidence>,
+}
+
+struct ParsedEvidence {
+    source: String,
+    syntax: syn::File,
+}
+
+impl ParsedEvidenceCache {
+    fn get_or_parse(&mut self, path: &Path) -> Result<&ParsedEvidence, String> {
+        if !self.files.contains_key(path) {
+            let source =
+                fs::read_to_string(path).map_err(|err| format!("{}: {err}", path.display()))?;
+            let syntax = syn::parse_file(&source).map_err(|err| {
+                format!("evidence source {} is invalid Rust: {err}", path.display())
+            })?;
+            self.files
+                .insert(path.to_path_buf(), ParsedEvidence { source, syntax });
+        }
+        Ok(self.files.get(path).expect("entry was inserted above"))
+    }
+
+    #[cfg(test)]
+    fn len(&self) -> usize {
+        self.files.len()
+    }
+}
+
+#[cfg(test)]
 fn verify_evidence(root: &Path, evidence: &Evidence, declared: &str) -> Result<(), String> {
+    validate_evidence_classification(evidence, declared)?;
+    let path = root.join(&evidence.evidence_path);
+    let source = fs::read_to_string(&path).map_err(|err| format!("{}: {err}", path.display()))?;
+    let syntax = syn::parse_file(&source).map_err(|err| {
+        format!(
+            "{}::{} evidence source {} is invalid Rust: {err}",
+            evidence.crate_name,
+            evidence.symbol,
+            path.display()
+        )
+    })?;
+    verify_evidence_cached(evidence, declared, &ParsedEvidence { source, syntax })
+}
+
+fn verify_evidence_cached(
+    evidence: &Evidence,
+    declared: &str,
+    cached: &ParsedEvidence,
+) -> Result<(), String> {
+    validate_evidence_classification(evidence, declared)?;
+    let normalized_path = evidence.evidence_path.replace('\\', "/");
+    match evidence.kind.as_str() {
+        "hardware-probe" if !normalized_path.starts_with("probes/") => {
+            return Err(format!(
+                "{}::{} hardware evidence must be under probes/",
+                evidence.crate_name, evidence.symbol
+            ));
+        }
+        "host-test" if !is_host_test_source(&normalized_path, &cached.source) => {
+            return Err(format!(
+                "{}::{} host evidence must be a test source",
+                evidence.crate_name, evidence.symbol
+            ));
+        }
+        _ => {}
+    }
+    verify_evidence_file(&cached.syntax, evidence, Path::new(&evidence.evidence_path))
+}
+
+fn validate_evidence_classification(evidence: &Evidence, declared: &str) -> Result<(), String> {
     if evidence.classification != declared {
         return Err(format!(
             "{}::{} evidence verifies `{}`, but the code is declared `{declared}`",
@@ -626,31 +714,14 @@ fn verify_evidence(root: &Path, evidence: &Evidence, declared: &str) -> Result<(
             evidence.crate_name, evidence.symbol, evidence.kind
         ));
     }
-    let path = root.join(&evidence.evidence_path);
-    let source = fs::read_to_string(&path).map_err(|err| format!("{}: {err}", path.display()))?;
-    let normalized_path = evidence.evidence_path.replace('\\', "/");
-    match evidence.kind.as_str() {
-        "hardware-probe" if !normalized_path.starts_with("probes/") => {
-            return Err(format!(
-                "{}::{} hardware evidence must be under probes/",
-                evidence.crate_name, evidence.symbol
-            ));
-        }
-        "host-test" if !is_host_test_source(&normalized_path, &source) => {
-            return Err(format!(
-                "{}::{} host evidence must be a test source",
-                evidence.crate_name, evidence.symbol
-            ));
-        }
-        _ => {}
-    }
-    verify_evidence_call(&source, evidence, &path)
+    Ok(())
 }
 
 fn is_host_test_source(path: &str, source: &str) -> bool {
     path.contains("/tests/") || source.contains("#[test]")
 }
 
+#[cfg(test)]
 fn verify_evidence_call(source: &str, evidence: &Evidence, path: &Path) -> Result<(), String> {
     let file = syn::parse_file(source).map_err(|err| {
         format!(
@@ -660,6 +731,10 @@ fn verify_evidence_call(source: &str, evidence: &Evidence, path: &Path) -> Resul
             path.display()
         )
     })?;
+    verify_evidence_file(&file, evidence, path)
+}
+
+fn verify_evidence_file(file: &syn::File, evidence: &Evidence, path: &Path) -> Result<(), String> {
     let mut visitor = EvidenceFunctionVisitor {
         function: &evidence.function,
         symbol: &evidence.symbol,
@@ -669,7 +744,7 @@ fn verify_evidence_call(source: &str, evidence: &Evidence, path: &Path) -> Resul
         call_found: false,
         api_path_found: false,
     };
-    visitor.visit_file(&file);
+    visitor.visit_file(file);
 
     if visitor.function_count == 0 {
         return Err(format!(
@@ -1688,6 +1763,18 @@ mod tests {
             "crates/sample/src/lib.rs",
             "pub fn api() {}"
         ));
+    }
+
+    #[test]
+    fn parsed_evidence_cache_parses_each_source_once() {
+        let mut cache = ParsedEvidenceCache::default();
+        let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("src/inventory.rs");
+
+        let first = cache.get_or_parse(&path).unwrap() as *const ParsedEvidence;
+        let second = cache.get_or_parse(&path).unwrap() as *const ParsedEvidence;
+
+        assert_eq!(first, second);
+        assert_eq!(cache.len(), 1);
     }
 
     fn finding_for(source: &str, symbol: &str) -> Option<SourceFinding> {
