@@ -1,0 +1,38 @@
+{
+  "source_revision": "0ac4bd85eb5a9b75a2df76048a39ff21fe1aa9d8",
+  "source_fingerprint": "e521af10c8f65640e9ba75a26eda6776dea684d0c514399226f706ebd7c3510d",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "stm_api_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-21-stm-init-repeat-v1",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "954ee078b92cf36f8b76bd044d01a6658bd5983a3641326198f0af5b18653804",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {},
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "6d2ce3eee54d39777b31d82c85ccabb9c19cad9495de2197d7a17a62c2c9670b",
+  "suite_sha256": "3678ca2fbe0027647a1fa4fb1b30e1c59657f92f8223c6bda5a360a6c2fa0494",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-21-stm-init-repeat-v1/stm_api_probe/probe.log": "8e27108954b49a777cfc599f8bd94bf2dd98881b807e52cdd2543afbb291bf80",
+    "docs/dolphin-runs/2026-11-21-stm-init-repeat-v1/stm_api_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-21-stm-init-repeat-v1/stm_api_probe/stderr.log": "8825aa4417688a21268a41b2e89a34cf410fe2724de2ae693ee6ea6077232331",
+    "docs/dolphin-runs/2026-11-21-stm-init-repeat-v1/stm_api_probe/probe-transport.bin": "434187a70d33fa33134ce6c33b8ae000cd6eaa00b6b1c46a2456f219067b2362",
+    "docs/dolphin-runs/2026-11-21-stm-init-repeat-v1/stm_api_probe/pages/page-001.png": "e6dd1abf76db752b93a7c21cf5716bd30995f5716a9d0f3b119ebb9b9b336fb5",
+    "docs/dolphin-runs/2026-11-21-stm-init-repeat-v1/stm_api_probe/pages/page-002.png": "86f9a81facddd8204fdd56b2277b19e247bf62b56069fc8c784ff9bd01afc9c7",
+    "docs/dolphin-runs/2026-11-21-stm-init-repeat-v1/stm_api_probe/pages/page-003.png": "4b4830b742f6fbb228a6b35a2483c13261d413fcf0485cdec000e7e7299e88ad"
+  },
+  "exit_code": 0
+}

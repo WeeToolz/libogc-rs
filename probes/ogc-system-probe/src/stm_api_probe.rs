@@ -43,6 +43,17 @@ pub fn run_close(logger: &mut ProbeLogger) {
         no_hook_status > 0,
     );
 
+    let init_status = stm::init();
+    logger.record(
+        "STM init is safe when the interface is already open",
+        init_status > 0,
+    );
+    let try_init_status = stm::try_init();
+    logger.record(
+        "STM try init accepts an already open interface",
+        try_init_status.is_ok(),
+    );
+
     let close_status = stm::close();
     logger.record("STM close releases the interface", close_status >= 0);
 

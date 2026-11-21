@@ -3238,3 +3238,5 @@ ogc-system,src/lib.rs,last_config_write_result,651,compatibility-forwarder,hardw
 ogc-system,src/lib.rs,sync_sram,1603,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_setters,system::sync_sram
 ogc-si,src/lib.rs,init,17,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_low_level_state,ogc_si::init
 ogc-video-sys,src/lib.rs,set_next_right_framebuffer,1104,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_framebuffer_updates,raw_video::set_next_right_framebuffer
+ogc-stm,src/lib.rs,init,261,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::init
+ogc-stm,src/lib.rs,try_init,281,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_init
