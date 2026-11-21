@@ -3,7 +3,7 @@
 use core::ffi::c_void;
 use core::sync::atomic::{AtomicU32, AtomicUsize, Ordering};
 
-use crate::probe_support::ProbeLogger;
+use ogc_system_probe::probe_support::ProbeLogger;
 
 const MP3: &[u8] = include_bytes!(env!(
     "LIBOGC_MAD_PROBE_MP3",

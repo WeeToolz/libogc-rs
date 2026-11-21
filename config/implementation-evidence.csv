@@ -932,7 +932,7 @@ ogc-gcsd,src/wii_backend.rs,set_speed,100,hardware,hardware-probe,probes/ogc-sys
 ogc-gcsd,src/wii_backend.rs,startup,1376,hardware,hardware-probe,probes/ogc-system-probe/src/fat_sd_probe.rs,probe_gcsd_without_adapter,startup
 ogc-gcsd,src/wii_backend.rs,write_sectors,1536,hardware,hardware-probe,probes/ogc-system-probe/src/fat_sd_probe.rs,probe_gcsd_without_adapter,write_sectors
 ogc-gcsd,src/wii_backend.rs,write_sectors_result,1451,hardware,hardware-probe,probes/ogc-system-probe/src/fat_sd_probe.rs,probe_gcsd_without_adapter,
-ogc-input,src/lib.rs,init,24,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,init_probe_state
+ogc-input,src/lib.rs,init,24,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_ogc_input_public_wrappers,ogc_input::init
 ogc-ipc,src/lib.rs,close,260,ios,hardware-probe,probes/lwp-probe/src/main.rs,async_ipc_callback
 ogc-ipc,src/lib.rs,new,201,ios,hardware-probe,probes/lwp-probe/src/main.rs,async_ipc_callback
 ogc-ipc,src/lib.rs,new,252,ios,hardware-probe,probes/lwp-probe/src/main.rs,async_ipc_callback
@@ -1027,8 +1027,8 @@ ogc-network-sys,src/lib.rs,if_config,2293,ios,hardware-probe,probes/ogc-system-p
 ogc-runtime,src/driver.rs,close,46,pure,hardware-probe,probes/lwp-probe/src/main.rs,async_ipc_callback
 ogc-runtime,src/scheduler.rs,new,16,pure,hardware-probe,probes/lwp-probe/src/main.rs,async_ipc_callback
 ogc-runtime,src/driver.rs,poll,37,pure,hardware-probe,probes/lwp-probe/src/main.rs,run_ipc_wakeup
-ogc-si,src/lib.rs,init,17,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,init_probe_state
-ogc-si-sys,src/lib.rs,init,1464,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,init_probe_state
+ogc-si,src/lib.rs,init,17,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_low_level_state,ogc_si::init
+ogc-si-sys,src/lib.rs,init,1464,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_low_level_state,ogc_si::sys::init
 ogc-si-sys,src/lib.rs,new,295,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,monitor
 ogc-usb,src/lib.rs,device_list,532,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/hid_probe.rs,refresh_hid_state
 ogc-usbgecko,src/lib.rs,flashread,574,hardware,hardware-probe,probes/ogc-system-probe/src/debugger_probe.rs,probe_usb_gecko
@@ -3204,3 +3204,8 @@ ogc-controller,src/hardware.rs,enable_wpad,963,protocol,hardware-probe,probes/og
 ogc-controller,src/hardware.rs,shutdown_bluetooth,986,protocol,hardware-probe,probes/ogc-system-probe/src/controller_cleanup.rs,shutdown_controller_manager,manager.shutdown_bluetooth
 ogc-controller,src/hardware.rs,bluetooth_shutdown_complete,989,protocol,hardware-probe,probes/ogc-system-probe/src/controller_cleanup.rs,shutdown_controller_manager,manager.bluetooth_shutdown_complete
 ogc-controller,src/hardware.rs,bluetooth_diagnostics,982,protocol,hardware-probe,probes/ogc-system-probe/src/controller_cleanup.rs,shutdown_controller_manager,manager.bluetooth_diagnostics
+ogc-controller,src/hardware.rs,init,943,protocol,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,monitor,controllers.init
+ogc-controller,src/hardware.rs,enable_bluetooth_hid,956,protocol,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,monitor,controllers.enable_bluetooth_hid
+ogc-controller,src/hardware.rs,set_bluetooth_startup_hook,967,protocol,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,monitor,controllers.set_bluetooth_startup_hook
+ogc-controller,src/hardware.rs,set_input_trace_observer,1438,protocol,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,monitor,controllers.set_input_trace_observer
+ogc-controller,src/hardware.rs,set_usb_startup_hook,1432,protocol,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,monitor,controllers.set_usb_startup_hook

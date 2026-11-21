@@ -80,10 +80,22 @@ impl TraceQueue {
 }
 
 static TRACE_QUEUE: TraceQueue = TraceQueue::new();
+static BLUETOOTH_STARTUP_HOOK_CALLS: AtomicUsize = AtomicUsize::new(0);
+static USB_STARTUP_HOOK_CALLS: AtomicUsize = AtomicUsize::new(0);
+static INPUT_TRACE_OBSERVER_CALLS: AtomicUsize = AtomicUsize::new(0);
 #[cfg(feature = "dolphin-automation")]
 static PAD_SCAN_HOOKS: AtomicUsize = AtomicUsize::new(0);
 
+fn bluetooth_startup_marker(_stage: &'static str) {
+    BLUETOOTH_STARTUP_HOOK_CALLS.fetch_add(1, Ordering::Relaxed);
+}
+
+fn usb_startup_marker(_stage: &'static str) {
+    USB_STARTUP_HOOK_CALLS.fetch_add(1, Ordering::Relaxed);
+}
+
 fn queue_trace_event(event: &InputTraceEvent<'_>) -> Result<(), TraceError> {
+    INPUT_TRACE_OBSERVER_CALLS.fetch_add(1, Ordering::Relaxed);
     let InputTraceEvent::RawReport {
         source,
         generation,
@@ -206,12 +218,22 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
     let mut controllers = ControllerManager::new();
     let mut state = InputProbeState::new();
 
-    init_probe_state(&mut state);
+    controllers.init();
+
+    BLUETOOTH_STARTUP_HOOK_CALLS.store(0, Ordering::Relaxed);
+    USB_STARTUP_HOOK_CALLS.store(0, Ordering::Relaxed);
+    INPUT_TRACE_OBSERVER_CALLS.store(0, Ordering::Relaxed);
+    controllers.set_bluetooth_startup_hook(Some(bluetooth_startup_marker));
+    controllers.set_usb_startup_hook(Some(usb_startup_marker));
+    controllers.set_input_trace_observer(Some(queue_trace_event));
+    let bluetooth_hid_rc = controllers.enable_bluetooth_hid();
     let wpad_ready = controllers.enable_wpad() == 0;
     controllers.enable_usb_hid();
-    attach_trace(&mut controllers);
+    logger.record(
+        "controller Bluetooth HID startup request accepted",
+        bluetooth_hid_rc == wpad::WPAD_ERR_NONE as i32,
+    );
     logger.record("WPAD initialized", wpad_ready);
-    logger.record("GameCube PAD initialized", state.pad_init_ok);
     let mut capture_complete = true;
     let run_start_ticks = system::time();
     let mut run_record = EventLineBuf::new();
@@ -252,6 +274,14 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
         let scan_ticks = system::time();
         let frame = controllers.scan_with_raw_at(scan_ticks);
         let snapshot = frame.snapshot;
+        if monitor_frames == 0 {
+            state.pad_init_ok = snapshot.errors().next().is_none();
+            logger.record(
+                "controller manager init produces a clean first scan",
+                state.pad_init_ok,
+            );
+            logger.record("GameCube PAD initialized", state.pad_init_ok);
+        }
         if controllers.joycon_pair().is_none() {
             controllers.pair_joycons();
         }
@@ -317,6 +347,18 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
     let cleanup_complete =
         controller_cleanup::shutdown_controller_manager(logger, &mut controllers);
     logger.record("controller manager shutdown completed", cleanup_complete);
+    logger.record(
+        "Bluetooth startup hook receives stage progress",
+        BLUETOOTH_STARTUP_HOOK_CALLS.load(Ordering::Relaxed) > 0,
+    );
+    logger.record(
+        "USB startup hook receives stage messages",
+        USB_STARTUP_HOOK_CALLS.load(Ordering::Relaxed) > 0,
+    );
+    logger.record(
+        "input trace observer receives controller events",
+        INPUT_TRACE_OBSERVER_CALLS.load(Ordering::Relaxed) > 0,
+    );
     let cleanup_trace_complete = write_trace_events(logger);
     capture_complete &= cleanup_trace_complete;
     logger.record(
@@ -435,6 +477,8 @@ fn probe_pad_low_level_state(logger: &mut ProbeLogger) {
 
     logger.section("PAD LOW LEVEL STATE");
     PAD_INIT_STAGES.store(0, Ordering::Relaxed);
+    ogc_si::init();
+    ogc_si::sys::init();
     sys::set_debug_hook(Some(pad_init_debug_hook));
     let initialized = sys::pad_init();
     sys::set_debug_hook(None);
@@ -736,10 +780,6 @@ impl InputAutomationState {
     }
 }
 
-fn init_probe_state(state: &mut InputProbeState) {
-    state.pad_init_ok = pad::init() != 0;
-}
-
 fn write_snapshot_events(
     logger: &mut ProbeLogger,
     probe: &mut InputProbeState,
@@ -960,10 +1000,6 @@ fn raw_masks(frame: &RawInputFrame, source: ControllerSource) -> (u32, u32, u32)
         }
         _ => (0, 0, 0),
     }
-}
-
-pub(crate) fn attach_trace(controllers: &mut ControllerManager) {
-    controllers.set_input_trace_observer(Some(queue_trace_event));
 }
 
 pub(crate) fn write_trace_events(logger: &mut ProbeLogger) -> bool {

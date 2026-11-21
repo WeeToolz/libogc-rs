@@ -17,15 +17,16 @@ repository and set these environment variables to their absolute paths:
   `c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73`.
   Obtain a copy you are permitted to use; the fixture is not available in
   this repository. A different file does not match the fixed expected values.
-- `LIBOGC_MAD_PROBE_MP3`: test audio for `mad_decode_probe`, in MPEG-1 Layer
-  III, 44.1 kHz stereo, with at least 20 frames. The generation command in
+- `LIBOGC_MAD_PROBE_MP3`: test audio for `mad_decode_probe` and
+  `mp3player_probe`, in MPEG-1 Layer III, 44.1 kHz stereo, with at least 20
+  frames. The generation command in
   [the probe fixture guide](../probes/ogc-system-probe/test-data/README.md)
   can create a suitable file outside the repository.
 
-Export both variables before `cargo xtask test-host` and probe builds. A missing
-reference fixture fails the relevant host test; a missing probe fixture fails
-the relevant target build. Neither condition counts as a pass. These variables
-are not needed for the ordinary runtime compilation check.
+Export the reference fixture variable before `cargo xtask test-host`. For
+individual probe builds, export the fixture variable for the selected probe.
+Export both variables for a full probe build. A missing fixture fails the
+test or probe build that uses it.
 
 Physical hardware workflows also depend on a local hardware procedure and
 Wiiload-rs, which are not included here. See [the hardware validation guide](wii-hardware-validation.md)
