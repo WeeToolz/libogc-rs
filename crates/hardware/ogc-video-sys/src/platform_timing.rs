@@ -224,7 +224,7 @@ const VI_TIMINGS: [ViTiming; 8] = [
     },
 ];
 
-pub const fn vi_timing_for_mode(mode: u32) -> Option<ViTiming> {
+pub(super) const fn vi_timing_for_mode(mode: u32) -> Option<ViTiming> {
     let index = match mode {
         0 | 20 => 0,
         1 | 21 => 1,
@@ -248,7 +248,7 @@ pub const fn video_standard_for_mode(mode: u32) -> Option<VideoStandard> {
     }
 }
 
-pub const fn vi_control_register_for_mode(mode: u32) -> Option<u16> {
+pub(super) const fn vi_control_register_for_mode(mode: u32) -> Option<u16> {
     if vi_timing_for_mode(mode).is_none() {
         return None;
     }
@@ -264,11 +264,11 @@ pub const fn vi_control_register_for_mode(mode: u32) -> Option<u16> {
     }
 }
 
-pub const fn vi_mode_is_progressive(mode: u32) -> bool {
+pub(super) const fn vi_mode_is_progressive(mode: u32) -> bool {
     mode & 0x2 != 0
 }
 
-pub const fn vi_scan_mode_for_mode(mode: u32) -> u32 {
+pub(super) const fn vi_scan_mode_for_mode(mode: u32) -> u32 {
     if mode & 0x2 != 0 { 2 } else { mode & 1 }
 }
 

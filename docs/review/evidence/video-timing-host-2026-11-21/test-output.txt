@@ -1,0 +1,10 @@
+
+running 6 tests
+test platform_timing::tests::calculates_ntsc_and_pal_field_periods_per_platform ... ok
+test platform_timing::tests::maps_c_reference_mode_ids_to_ntsc_mpal_pal_and_eurgb60_rates ... ok
+test platform_timing::tests::converts_ticks_with_the_selected_platform_clock ... ok
+test platform_timing::tests::control_register_matches_the_selected_vi_format_and_scan_mode ... ok
+test platform_timing::tests::selects_reference_vi_register_timings_by_mode ... ok
+test platform_timing::tests::uses_the_reference_timer_clocks ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

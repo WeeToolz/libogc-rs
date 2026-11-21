@@ -90,6 +90,10 @@ This pass did not compare the full `ogc-video-sys` mode, timing, register, retra
 
 The sys crate is now `reviewed`. The earlier note already completed the VIDEO sys/API timing, register, framebuffer, and mode-table comparison; the later standard render-mode additions and non-interlace VI-origin fix were independently reviewed. No confirmed non-safety mismatch remains in the recorded C VIDEO surface.
 
+## 2026-11-21 inventory visibility correction
+
+`platform_timing` is a private module in `ogc-video-sys`. Its functions `vi_timing_for_mode`, `vi_control_register_for_mode`, `vi_mode_is_progressive`, and `vi_scan_mode_for_mode` are not re-exported. Their `pub` visibility did not make them part of the crate's external API, but the source inventory counted them as public functions. Their visibility is now `pub(super)`, which keeps them available to the crate root and removes the false API entries. The refresh changed the inventory from 3,379 APIs and 201 unverified entries to 3,375 APIs and 197 unverified entries. The six mode-table, register, progressive-mode, and scan-mode tests ran from the production `platform_timing.rs` source with a host harness; their output and the inventory audit are in [the timing evidence folder](evidence/video-timing-host-2026-11-21/). This does not add hardware evidence for the public VIDEO operations that call these helpers.
+
 ## 2026-10-08 retrace queue race
 
 C `VIDEO_WaitVSync` masks interrupts across its retrace count read and queue sleep (`C-sources/libogc/libogc/video.c`, `VIDEO_WaitVSync`). Rust previously performed a second count check with interrupts enabled and assumed that `queue_signal` retained an early wake. The production `ogc-lwp-driver::queue_signal` only wakes an existing waiter. An IRQ between the count check and queue entry could therefore be lost.
