@@ -1,0 +1,41 @@
+{
+  "source_revision": "7c275d6f66f31f885bb656378eef69914056ee33",
+  "source_fingerprint": "15d2c18641048f2cbeb71c45fe132f007e72b3cf461b613895572442eb4b94d9",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "input_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-21-ogc-si-init-focused",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "5c349dbb3fff8e8139861cc658c7ab7c97cafc53a2eb0e1583df5c661ba7ee8f",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {},
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "0ee1e2770857d82bf66ada97e192d1d3de03ebb6822fb0e9f1710b399bc4ad59",
+  "suite_sha256": "072a944b764b570f6a12913ce7d196481686e1de8b3f3a68849ff41a30efdb60",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-21-ogc-si-init-focused/input_probe/probe.log": "693655b5cb5d049ba3a82ec0af58e5d1ab61a0518b7a5b10adbafa83fe855e13",
+    "docs/dolphin-runs/2026-11-21-ogc-si-init-focused/input_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-21-ogc-si-init-focused/input_probe/stderr.log": "d4577c43291cc5426329dd0923adf36245ac4f31f626ffd186c5cfa549bb3769",
+    "docs/dolphin-runs/2026-11-21-ogc-si-init-focused/input_probe/probe-transport.bin": "bce6967fbff944e9f2c1786e1751106dc14d6b3af4d08cb405046dc5f953301c",
+    "docs/dolphin-runs/2026-11-21-ogc-si-init-focused/input_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-21-ogc-si-init-focused/input_probe/pages/page-002.png": "d5539e3ae39bf9783d7d80facf082a5427b18723c4e1e3da00c485b86d4fc502",
+    "docs/dolphin-runs/2026-11-21-ogc-si-init-focused/input_probe/pages/page-003.png": "7f4130247c6c4adf85de3ba4dc0f0c035e3b7979909a7baf7112e22b2a1694b1",
+    "docs/dolphin-runs/2026-11-21-ogc-si-init-focused/input_probe/pages/page-004.png": "806a852ceef2b728b19bcd45482d2d84fe1df82b17d25167ea0f34c2ce793b15",
+    "docs/dolphin-runs/2026-11-21-ogc-si-init-focused/input_probe/pages/page-005.png": "734103d7b4fa17a22dc3e136acd3c7b7a3246c1e8417778f354e17682a5665e9",
+    "docs/dolphin-runs/2026-11-21-ogc-si-init-focused/input_probe/pages/page-006.png": "0e618c383e6f796470f83d62fee6058fb1e54357aa121af552b1bf17c0d1ef87"
+  },
+  "exit_code": 0
+}

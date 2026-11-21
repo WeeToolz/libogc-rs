@@ -1,0 +1,17 @@
+{
+  "probe": "input_probe",
+  "cases": [
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "init",
+      "line": 17,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_low_level_state",
+      "api_path": "ogc_si::init",
+      "checks": [
+        "SI wrapper repeat init preserves the active GameCube channel"
+      ]
+    }
+  ]
+}

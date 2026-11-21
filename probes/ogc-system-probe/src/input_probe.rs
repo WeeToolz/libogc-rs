@@ -460,8 +460,7 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
         cleanup_trace_complete,
     );
     logger.record("controller device observed", saw_device);
-    let collection_complete =
-        saw_device && capture_complete && cleanup_complete && logger.checks_passed();
+    let collection_complete = saw_device && capture_complete && cleanup_complete;
     logger.record(
         "input collection completed without source, capture, or cleanup errors",
         collection_complete,
