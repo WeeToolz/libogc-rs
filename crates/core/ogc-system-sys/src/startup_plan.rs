@@ -17,7 +17,7 @@ pub enum StartupStep {
 }
 
 impl StartupStep {
-    pub const fn stage(self) -> u32 {
+    const fn stage(self) -> u32 {
         match self {
             Self::LowMemory => 1,
             Self::IpcBuffers => 2,
@@ -103,7 +103,7 @@ const GAMECUBE_IPL_STEPS: [StartupStep; 9] = [
     StartupStep::ResetIrq,
 ];
 
-pub const fn steps(is_wii: bool, in_ipl: bool) -> &'static [StartupStep] {
+pub(super) const fn steps(is_wii: bool, in_ipl: bool) -> &'static [StartupStep] {
     match (is_wii, in_ipl) {
         (true, false) => &WII_STEPS,
         (true, true) => &WII_IPL_STEPS,
@@ -209,7 +209,7 @@ pub struct StartupResult {
 /// Runs each step in order and records progress as each operation completes.
 /// A failed operation records its stage and does not stop later steps. The
 /// current runtime uses this for the nonfatal SRAM read failure.
-pub fn run<F, S, C, E>(
+pub(super) fn run<F, S, C, E>(
     steps: &[StartupStep],
     mut operation: F,
     mut set_stage: S,
