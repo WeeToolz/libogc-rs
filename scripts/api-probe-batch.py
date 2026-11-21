@@ -26,7 +26,9 @@ GENERATED = (
 )
 KEYS = ("crate", "target_implementation_file", "symbol", "line")
 PARTIAL_SCOPES = {
-    "mock-dispatch", "closed-service", "disabled-adapter", "invalid-channel", "invalid-arguments", "empty-channel", "no-controller", "no-controller-and-invalid-arguments"
+    "mock-dispatch", "closed-service", "disabled-adapter", "invalid-channel",
+    "invalid-arguments", "empty-channel", "no-controller",
+    "no-controller-and-invalid-arguments", "zero-tag-count",
 }
 
 

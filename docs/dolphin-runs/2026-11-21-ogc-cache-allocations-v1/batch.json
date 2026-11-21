@@ -1,0 +1,53 @@
+{
+  "probe": "bus_probe",
+  "cases": [
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "lc_alloc",
+      "line": 579,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_locked_cache_allocations",
+      "api_path": "cache::lc_alloc",
+      "checks": [
+        "lc_alloc enables locked cache and zeros one requested line"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "lc_alloc_no_invalidate",
+      "line": 595,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_locked_cache_allocations",
+      "api_path": "cache::lc_alloc_no_invalidate",
+      "checks": [
+        "lc_alloc_no_invalidate zeros one requested line"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "lc_alloc_one_tag",
+      "line": 611,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_locked_cache_allocations",
+      "api_path": "cache::lc_alloc_one_tag",
+      "checks": [
+        "lc_alloc_one_tag zeros one tag without changing adjacent lines"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "lc_alloc_tags",
+      "line": 624,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_locked_cache_allocations",
+      "api_path": "cache::lc_alloc_tags",
+      "checks": [
+        "lc_alloc_tags zeros one nonzero tag and preserves adjacent lines"
+      ]
+    }
+  ]
+}

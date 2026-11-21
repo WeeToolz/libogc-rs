@@ -44,6 +44,8 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_cache_controls(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_locked_cache_allocations(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_cache_instruction_apis(logger);
     probe_aram(logger);
     probe_dsp(logger);
@@ -296,6 +298,84 @@ fn probe_cache_controls(logger: &mut ProbeLogger) {
     logger.record(
         "lc_flush_queue leaves an initially empty queue empty",
         queue_before_flush == 0 && queue_after_flush == 0,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_locked_cache_allocations(logger: &mut ProbeLogger) {
+    fn read_hid2() -> u32 {
+        let value: u32;
+        // SAFETY: The Wii probe runs in supervisor mode.
+        unsafe {
+            core::arch::asm!("mfspr {value}, 920", value = out(reg) value, options(nostack));
+        }
+        value
+    }
+
+    fn write_hid2(value: u32) {
+        // SAFETY: Restore the HID2 value captured by this probe.
+        unsafe {
+            core::arch::asm!("sync", "mtspr 920, {value}", "isync", value = in(reg) value, options(nostack));
+        }
+    }
+
+    logger.section("LOCKED CACHE ALLOCATIONS");
+    let mut data = Align32([0x5au8; 192]);
+    let original_data = data.0;
+    let base = data.0.as_mut_ptr();
+    let original_hid2 = read_hid2();
+    cache::lc_enable();
+
+    // SAFETY: `base` is 32-byte aligned. This call uses one line within the
+    // live buffer; adjacent lines provide guards for the write check.
+    unsafe { cache::lc_alloc_tags(true, base.add(32).cast(), 2) };
+    let tag_lines_zeroed = data.0[32..96].iter().all(|byte| *byte == 0);
+    let tag_neighbors_preserved = data.0[..32].iter().all(|byte| *byte == 0x5a)
+        && data.0[96..].iter().all(|byte| *byte == 0x5a);
+    logger.record(
+        "lc_alloc_tags zeros two nonzero tags and preserves adjacent lines",
+        tag_lines_zeroed && tag_neighbors_preserved,
+    );
+
+    data.0 = original_data;
+    // SAFETY: The pointer is aligned and references one live 32-byte line.
+    unsafe { cache::lc_alloc_one_tag(false, base.add(64).cast()) };
+    logger.record(
+        "lc_alloc_one_tag zeros one tag without changing adjacent lines",
+        data.0[64..96].iter().all(|byte| *byte == 0)
+            && data.0[..64].iter().all(|byte| *byte == 0x5a)
+            && data.0[96..].iter().all(|byte| *byte == 0x5a),
+    );
+
+    data.0 = original_data;
+    // SAFETY: The pointer is aligned and references one live 32-byte line.
+    unsafe { cache::lc_alloc(base.add(96).cast(), 64) };
+    logger.record(
+        "lc_alloc enables locked cache and zeros two requested lines",
+        data.0[96..160].iter().all(|byte| *byte == 0)
+            && data.0[..96].iter().all(|byte| *byte == 0x5a)
+            && data.0[160..].iter().all(|byte| *byte == 0x5a),
+    );
+
+    data.0 = original_data;
+    // SAFETY: The pointer is aligned and references one live 32-byte line.
+    unsafe { cache::lc_alloc_no_invalidate(base.add(128).cast(), 32) };
+    logger.record(
+        "lc_alloc_no_invalidate zeros one requested line",
+        data.0[128..160].iter().all(|byte| *byte == 0)
+            && data.0[..128].iter().all(|byte| *byte == 0x5a)
+            && data.0[160..].iter().all(|byte| *byte == 0x5a),
+    );
+
+    cache::lc_disable();
+    write_hid2(original_hid2);
+    data.0 = original_data;
+    // SAFETY: Flush and sync only the aligned 192-byte test buffer.
+    unsafe { cache::dc_flush_range(base.cast(), data.0.len() as u32) };
+    cache::sync();
+    logger.record(
+        "locked-cache allocation probe restores HID2 and buffer",
+        read_hid2() == original_hid2 && data.0 == original_data,
     );
 }
 

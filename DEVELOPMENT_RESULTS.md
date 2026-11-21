@@ -10,6 +10,16 @@ flush, and restores the saved HID2 value. The inventory fell from 190 to 187
 unverified APIs. This verifies Dolphin's emulated register and queue behavior;
 physical cache behavior remains untested.
 
+## 2026-11-21 locked-cache allocation paths
+
+The [allocation batch](docs/dolphin-runs/2026-11-21-ogc-cache-allocations-v3/README.md)
+checks `lc_alloc_tags` with two adjacent tags, `lc_alloc_one_tag`, `lc_alloc`
+with a two-line size, and `lc_alloc_no_invalidate`. The probe checks zeroed
+lines and unchanged adjacent guard lines, then restores HID2 and its test
+buffer. Dolphin passed 60 bus checks with no failures. The inventory fell from
+188 to 184 unverified APIs. This verifies these allocation paths in Dolphin;
+physical cache state and timing remain untested.
+
 ## 2026-11-21 cache evidence scope correction
 
 A coverage review found that the earlier `lc_alloc_tags` evidence only calls
@@ -17,8 +27,9 @@ the function with a zero tag count. The inventory had treated this as evidence
 for all allocation counts. Its evidence scope now records the zero-tag path
 only, and the inventory leaves non-zero tag allocation unverified. This
 correction changes the net unverified count after the cache controls batch from
-187 to 188. The next cache probe must check a valid non-zero allocation before
-this API can be marked verified.
+187 to 188. The following allocation batch added checks for non-zero counts and
+replaced the partial scope with full Dolphin evidence. The inventory is now at
+184 unverified APIs.
 
 ## 2026-11-21 inventory audit evidence caching
 

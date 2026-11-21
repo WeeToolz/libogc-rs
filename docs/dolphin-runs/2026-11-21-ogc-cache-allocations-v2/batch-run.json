@@ -1,0 +1,46 @@
+{
+  "source_revision": "de9b20d0172e2f036b4655b729e2f2dbbdaf9795",
+  "source_fingerprint": "c56635d96cbb74cde34ce374c2b983b6d49bda943d07e75c5c73f1887def47b8",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "bus_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-21-ogc-cache-allocations-v2",
+    "--timeout-seconds",
+    "180",
+    "--nand-dir",
+    "/Users/user/Library/Application Support/Dolphin/Wii"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "2bc77ff10f2b43cc19eaccb9d285cdb415ab7e7e795162d51b5c6e2695cffede",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {},
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "fe64d37619a463d5efd42f9bd82eccfd36288f1cc70a219c94cb5bdfac5d9dfb",
+  "suite_sha256": "f90e382b406c193b159679f0814856e0206ad0f5480f9ee53a38e8e0dee5d4ca",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-21-ogc-cache-allocations-v2/bus_probe/probe.log": "1e403759c40d86bfc003f6b4181308b37af5b62ef959acb6692e6fac0acdc8f4",
+    "docs/dolphin-runs/2026-11-21-ogc-cache-allocations-v2/bus_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-21-ogc-cache-allocations-v2/bus_probe/stderr.log": "2a53e4a57ba83a251642331b448b47a9de645e9693efcb678f73874819e3128a",
+    "docs/dolphin-runs/2026-11-21-ogc-cache-allocations-v2/bus_probe/probe-transport.bin": "5a7f1dd391c89dc01d9db92f619a833259546a6134f39d181620a9deee61e204",
+    "docs/dolphin-runs/2026-11-21-ogc-cache-allocations-v2/bus_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-21-ogc-cache-allocations-v2/bus_probe/pages/page-002.png": "79cbc6ec6906b4068210269bc543d4900117c18a2bd20159180a0723fa607657",
+    "docs/dolphin-runs/2026-11-21-ogc-cache-allocations-v2/bus_probe/pages/page-003.png": "f9d65a02a5d4b1a9cf07c93da3cce06ad15b6f984f5a665e184c31a360548a67",
+    "docs/dolphin-runs/2026-11-21-ogc-cache-allocations-v2/bus_probe/pages/page-004.png": "740f1096482e9012366b8e1b6b6380977463af250d7f82475e77ffcca9ae47f8",
+    "docs/dolphin-runs/2026-11-21-ogc-cache-allocations-v2/bus_probe/pages/page-005.png": "9f80c49ac3b4402895ab5546a46c2fcae28193651a8f3502851ace56dabb57d6",
+    "docs/dolphin-runs/2026-11-21-ogc-cache-allocations-v2/bus_probe/pages/page-006.png": "3371a138dbf6863c3b0426ee0fbb4a588766fb66c35a040969b3fdaae11712f5",
+    "docs/dolphin-runs/2026-11-21-ogc-cache-allocations-v2/bus_probe/pages/page-007.png": "4944a34a3ab4be0ce0cab0eff503075c19d101b85df9a95e50b7a1b0751401b8",
+    "docs/dolphin-runs/2026-11-21-ogc-cache-allocations-v2/bus_probe/pages/page-008.png": "5d8b326b458d5816c51237875e1c4a5a2ae5d204ea3ec3421a4a99bb310819dc",
+    "docs/dolphin-runs/2026-11-21-ogc-cache-allocations-v2/bus_probe/pages/page-009.png": "8e2e9cff73ba0550bfddcaac82622b124efdf573192cc9bf75bccb9aaa716f0a"
+  },
+  "exit_code": 0
+}
