@@ -43,6 +43,7 @@ pub fn run(logger: &mut ProbeLogger) {
         wpad::get_status() == wpad::WPAD_STATE_ENABLED,
     );
     probe_valid_channel_empty_queries(logger);
+    probe_empty_channel_event_queue(logger);
     probe_invalid_channel_commands(logger);
     probe_bluetooth_helpers(logger);
 
@@ -89,6 +90,25 @@ pub fn run(logger: &mut ProbeLogger) {
     logger.record(
         "WPAD reports disabled after shutdown",
         wpad::get_status() == wpad::WPAD_STATE_DISABLED,
+    );
+}
+
+fn probe_empty_channel_event_queue(logger: &mut ProbeLogger) {
+    let channel = wpad::WPAD_CHAN_0;
+    let mut event = wpad::WpadData::default();
+    // SAFETY: `event` is a writable value for the duration of the call.
+    let read = unsafe { wpad::read_event(channel, &mut event) };
+    logger.record(
+        "WPAD empty channel read reports no controller",
+        read == wpad::WPAD_ERR_NO_CONTROLLER as i32,
+    );
+    logger.record(
+        "WPAD empty channel flush reports no controller",
+        wpad::flush(channel) == wpad::WPAD_ERR_NO_CONTROLLER as i32,
+    );
+    logger.record(
+        "WPAD empty channel dropped-event count is zero",
+        wpad::dropped_events(channel) == 0,
     );
 }
 

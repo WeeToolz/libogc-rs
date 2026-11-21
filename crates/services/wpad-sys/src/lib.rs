@@ -974,6 +974,12 @@ pub fn flush(chan: i32) -> i32 {
         let Some(chan) = valid_chan(chan) else {
             return WPAD_ERR_BAD_CHANNEL as i32;
         };
+        if WPAD_GLOBAL_STATUS.load(Ordering::Acquire) == WPAD_STATE_DISABLED {
+            return WPAD_ERR_NOT_READY as i32;
+        }
+        if !WPAD_CONNECTED[chan].load(Ordering::Acquire) {
+            return WPAD_ERR_NO_CONTROLLER as i32;
+        }
         let count = unsafe { REPORT_RING_COUNT[chan] as i32 };
         unsafe {
             REPORT_RING_HEAD[chan] = 0;
