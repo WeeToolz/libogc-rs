@@ -3250,3 +3250,6 @@ ogc-lwp,src/lib.rs,set_priority,104,compatibility-forwarder,hardware-probe,probe
 ogc-lwp-driver,src/runtime.rs,reschedule,2668,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,rotation_worker,driver::reschedule
 ogc-lwp-sys,src/lib.rs,note_ipc_wake,360,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_ipc_wakeup,lwp::note_ipc_wake
 ogc-lwp-sys,src/lib.rs,initialize,26,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_ipc_wakeup,lwp::initialize
+ogc-network-sys,src/lib.rs,net_attach_active,685,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_attach_active,raw_network::net_attach_active
+ogc-network-sys,src/lib.rs,net_attach_active,1957,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_attach_active,raw_network::net_attach_active
+ogc-network,src/lib.rs,attach_active,72,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_attach_active,net::attach_active

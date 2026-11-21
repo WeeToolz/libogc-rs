@@ -258,6 +258,8 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_network_udp(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_network_attach_active(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_raw_video_setup(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_sysbase_default_device(logger);
@@ -7076,6 +7078,31 @@ fn probe_lwip_socket_options(logger: &mut ProbeLogger, socket: i32) {
         )
     };
     logger.record("lwIP oversized option write rejected", set == -22);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_network_attach_active(logger: &mut ProbeLogger) {
+    use ogc_network as net;
+
+    let initial = net::init();
+    let closed = net::deinit();
+    let attached = raw_network::net_attach_active();
+    let host = raw_network::net_gethostip();
+    let socket = raw_network::net_socket(net::PF_INET, net::SOCK_DGRAM, 0);
+    let socket_closed = socket >= 0 && raw_network::net_close(socket) == 0;
+    logger.record(
+        "raw network attach opens active IOS socket service",
+        initial == 0 && closed == 0 && attached == 0 && host != 0 && socket_closed,
+    );
+    let raw_detached = raw_network::net_deinit();
+    let wrapper_attached = net::attach_active();
+    let wrapper_socket = net::socket(net::PF_INET, net::SOCK_DGRAM, 0);
+    let wrapper_closed = wrapper_socket >= 0 && net::close(wrapper_socket) == 0;
+    logger.record(
+        "network wrapper attaches and opens a socket",
+        raw_detached == 0 && wrapper_attached == 0 && net::get_host_ip() != 0 && wrapper_closed,
+    );
+    logger.record("network attach probe deinitializes", net::deinit() == 0);
 }
 
 #[cfg(feature = "dolphin-automation")]

@@ -1,0 +1,42 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_attach_active",
+      "line": 685,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_network_attach_active",
+      "api_path": "raw_network::net_attach_active",
+      "checks": [
+        "raw network attach opens active IOS socket service"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_attach_active",
+      "line": 1957,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_network_attach_active",
+      "api_path": "raw_network::net_attach_active",
+      "checks": [
+        "raw network attach opens active IOS socket service"
+      ]
+    },
+    {
+      "crate": "ogc-network",
+      "path": "src/lib.rs",
+      "symbol": "attach_active",
+      "line": 72,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_network_attach_active",
+      "api_path": "net::attach_active",
+      "checks": [
+        "network wrapper attaches and opens a socket",
+        "network attach probe deinitializes"
+      ]
+    }
+  ]
+}
