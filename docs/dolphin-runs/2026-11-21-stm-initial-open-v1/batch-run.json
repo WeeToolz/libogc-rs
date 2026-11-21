@@ -1,0 +1,36 @@
+{
+  "source_revision": "e5b66ca9ca797d7970ed94686e8d072fe312e2ed",
+  "source_fingerprint": "770fbc604ba8e81e44e7cc0883471f9be12752daaa2e228e2719e68cc3b9dd73",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "stm_api_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-21-stm-initial-open-v1",
+    "--timeout-seconds",
+    "90"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "8b17247058bac43ebea78b7e9dc009150ecb548fbeba733eeb34ab89c2857f83",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {},
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "5c8d694f91891c0da3cb674b9a0d61ad51a88b4fba3f1290298d33251d052131",
+  "suite_sha256": "215d2e05fa3840ea19301f976c07a23e7e4603bd40e78fd96286cb080fecd628",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-21-stm-initial-open-v1/stm_api_probe/probe.log": "bed908b4a1c0e4eeeae2f9ef944196592b51c6c1846e110cc8590fc6dfa6281d",
+    "docs/dolphin-runs/2026-11-21-stm-initial-open-v1/stm_api_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-21-stm-initial-open-v1/stm_api_probe/stderr.log": "89e15513b77a6c5fb58337e0e1770bfdfa966786faa7a603ce4a80222bec4fe2",
+    "docs/dolphin-runs/2026-11-21-stm-initial-open-v1/stm_api_probe/probe-transport.bin": "fba48aa2c93759a6ad173280366964007ef6f58e6448edf8281b195dae6b45b0",
+    "docs/dolphin-runs/2026-11-21-stm-initial-open-v1/stm_api_probe/pages/page-001.png": "e6dd1abf76db752b93a7c21cf5716bd30995f5716a9d0f3b119ebb9b9b336fb5"
+  },
+  "exit_code": 1
+}
