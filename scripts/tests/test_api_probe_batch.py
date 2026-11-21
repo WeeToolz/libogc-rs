@@ -116,7 +116,8 @@ class BatchTests(unittest.TestCase):
 
     def test_record_evidence_replaces_partial_cache_scopes(self):
         for scope in (
-            "zero-tag-count", "zero-length", "empty-queue", "no-pending-interrupt"
+            "zero-tag-count", "zero-length", "empty-queue", "no-pending-interrupt",
+            "repeated-initialization"
         ):
             with self.subTest(scope=scope), tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)

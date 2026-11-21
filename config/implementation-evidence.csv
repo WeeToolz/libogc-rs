@@ -3238,8 +3238,8 @@ ogc-system,src/lib.rs,last_config_write_result,651,compatibility-forwarder,hardw
 ogc-system,src/lib.rs,sync_sram,1603,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_setters,system::sync_sram
 ogc-si,src/lib.rs,init,17,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_low_level_state,ogc_si::init
 ogc-video-sys,src/lib.rs,set_next_right_framebuffer,1104,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_framebuffer_updates,raw_video::set_next_right_framebuffer
-ogc-stm,src/lib.rs,init,261,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::init
-ogc-stm,src/lib.rs,try_init,281,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_init
+ogc-stm,src/lib.rs,init,261,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::init,repeated-initialization
+ogc-stm,src/lib.rs,try_init,281,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_init,repeated-initialization
 ogc-cache,src/lib.rs,l2_enhance,652,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_l2_enhance,cache::l2_enhance
 ogc-irq,src/lib.rs,dispatch_pending,71,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_dispatch_pending,irq::dispatch_pending,no-pending-interrupt
 ogc-network,src/lib.rs,as_sockaddr_mut_ptr,238,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_socket_address_layout,address.as_sockaddr_mut_ptr
@@ -3249,7 +3249,7 @@ ogc-lwp,src/lib.rs,reschedule,379,compatibility-forwarder,hardware-probe,probes/
 ogc-lwp,src/lib.rs,set_priority,104,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_priority_order,thread.set_priority
 ogc-lwp-driver,src/runtime.rs,reschedule,2668,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,rotation_worker,driver::reschedule
 ogc-lwp-sys,src/lib.rs,note_ipc_wake,360,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_ipc_wakeup,lwp::note_ipc_wake
-ogc-lwp-sys,src/lib.rs,initialize,26,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_ipc_wakeup,lwp::initialize
+ogc-lwp-sys,src/lib.rs,initialize,26,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_ipc_wakeup,lwp::initialize,repeated-initialization
 ogc-network-sys,src/lib.rs,net_attach_active,685,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_attach_active,raw_network::net_attach_active
 ogc-network-sys,src/lib.rs,net_attach_active,1957,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_attach_active,raw_network::net_attach_active
 ogc-network,src/lib.rs,attach_active,72,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_attach_active,net::attach_active

@@ -64,6 +64,7 @@ enum EvidenceScope {
     ZeroLength,
     EmptyQueue,
     NoPendingInterrupt,
+    RepeatedInitialization,
     DolphinCacheRegister,
     DolphinCacheInstructions,
     ZeroTagCount,
@@ -86,6 +87,7 @@ impl EvidenceScope {
             "zero-length" => Self::ZeroLength,
             "empty-queue" => Self::EmptyQueue,
             "no-pending-interrupt" => Self::NoPendingInterrupt,
+            "repeated-initialization" => Self::RepeatedInitialization,
             "dolphin-cache-register" => Self::DolphinCacheRegister,
             "dolphin-cache-instructions" => Self::DolphinCacheInstructions,
             "zero-tag-count" => Self::ZeroTagCount,
@@ -133,6 +135,9 @@ impl EvidenceScope {
             Self::NoPendingInterrupt => {
                 "No-pending-interrupt behavior only in Dolphin. Dispatch of a pending hardware interrupt remains unverified."
             }
+            Self::RepeatedInitialization => {
+                "Repeated initialization only in Dolphin. First-call initialization remains unverified."
+            }
             Self::DolphinCacheRegister => {
                 "Dolphin HID0 transitions and restoration only. Physical cache state and timing are unverified."
             }
@@ -165,6 +170,7 @@ impl EvidenceScope {
             | Self::ZeroLength
             | Self::EmptyQueue
             | Self::NoPendingInterrupt => "unverified",
+            Self::RepeatedInitialization => "unverified",
             Self::NoControllerAndInvalidArguments => "unverified",
             _ => declared,
         }
@@ -1933,6 +1939,7 @@ mod tests {
             "zero-length",
             "empty-queue",
             "no-pending-interrupt",
+            "repeated-initialization",
             "zero-tag-count",
         ] {
             let scope = EvidenceScope::parse(scope).unwrap();
