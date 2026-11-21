@@ -776,6 +776,15 @@ fn verify_evidence_call(source: &str, evidence: &Evidence, path: &Path) -> Resul
 }
 
 fn verify_evidence_file(file: &syn::File, evidence: &Evidence, path: &Path) -> Result<(), String> {
+    if evidence.crate_name == "ogc-runtime"
+        && evidence.path == "src/driver.rs"
+        && evidence.api_path.is_none()
+    {
+        return Err(format!(
+            "{}::{} driver trait evidence requires a qualified API path",
+            evidence.crate_name, evidence.symbol
+        ));
+    }
     let mut visitor = EvidenceFunctionVisitor {
         function: &evidence.function,
         symbol: &evidence.symbol,
@@ -2012,6 +2021,29 @@ mod tests {
         let error = verify_evidence(Path::new("."), &evidence, "protocol")
             .expect_err("evidence cannot verify another classification");
         assert!(error.contains("verifies `pure`, but the code is declared `protocol`"));
+    }
+
+    #[test]
+    fn runtime_driver_trait_rejects_unqualified_name_collision() {
+        let evidence = Evidence {
+            crate_name: "ogc-runtime".to_string(),
+            path: "src/driver.rs".to_string(),
+            symbol: "close".to_string(),
+            line: 46,
+            classification: "pure".to_string(),
+            kind: "hardware-probe".to_string(),
+            evidence_path: "probe.rs".to_string(),
+            function: "probe".to_string(),
+            api_path: None,
+            scope: None,
+        };
+        let error = verify_evidence_call(
+            "fn probe() { unrelated.close(); }",
+            &evidence,
+            Path::new("probe.rs"),
+        )
+        .expect_err("an unrelated close call must not prove the driver trait");
+        assert!(error.contains("requires a qualified API path"));
     }
 
     #[test]
