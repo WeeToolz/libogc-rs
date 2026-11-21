@@ -1557,6 +1557,18 @@ fn probe_lwp_condition_wait(logger: &mut ProbeLogger) {
 
 fn probe_lwp_sync_handles(logger: &mut ProbeLogger) {
     use ogc_lwp as api;
+    let mut raw_mutex = api::sys::LWP_MUTEX_NULL;
+    let mutex = api::MutexHandle::init(&mut raw_mutex, false);
+    if let Ok(mutex) = mutex {
+        logger.record(
+            "LWP mutex handle retains initialized raw value",
+            raw_mutex != api::sys::LWP_MUTEX_NULL && mutex.raw() == raw_mutex,
+        );
+        logger.record("LWP mutex handle closes", mutex.destroy().is_ok());
+    } else {
+        logger.record("LWP mutex handle retains initialized raw value", false);
+        logger.record("LWP mutex handle closes", false);
+    }
     let mut raw_queue = 0;
     let queue = api::QueueHandle::init(&mut raw_queue);
     if let Ok(queue) = queue {

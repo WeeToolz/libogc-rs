@@ -1,0 +1,18 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "raw",
+      "line": 169,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwp_sync_handles",
+      "api_path": "mutex.raw",
+      "checks": [
+        "LWP mutex handle retains initialized raw value",
+        "LWP mutex handle closes"
+      ]
+    }
+  ]
+}
