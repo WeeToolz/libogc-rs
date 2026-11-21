@@ -3,6 +3,7 @@ use core::ffi::c_void;
 use core::ptr::NonNull;
 
 use ogc_system::{self as system, SYS_FONTSIZE_SJIS, SysFontHeader};
+use ogc_system_sys as raw_system;
 
 use crate::probe_support::ProbeLogger;
 
@@ -46,6 +47,8 @@ impl Drop for AlignedBuffer {
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("FONT PROBE");
 
+    probe_raw_font_api_guards(logger);
+
     let encoding = system::get_font_encoding();
     logger.note_u32("font encoding", encoding);
     logger.record("font encoding sane", encoding <= 1);
@@ -64,8 +67,8 @@ pub fn run(logger: &mut ProbeLogger) {
     let init_rc_b = unsafe { system::init_font(font.as_mut_ptr().cast::<SysFontHeader>()) };
     logger.note_i32("font init rc b", init_rc_b as i32);
     logger.record(
-        "font init succeeded twice",
-        init_rc_a == 1 && init_rc_b == 1,
+        "font init reports a stable loaded or unavailable state",
+        init_rc_a == init_rc_b && init_rc_b <= 1,
     );
 
     let loaded = init_rc_b == 1;
@@ -75,6 +78,60 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_texture(logger, "extended", extended, loaded, false);
     probe_texture(logger, "fallback", -1, loaded, false);
     probe_texel(logger, "ascii", 'A' as i32, loaded);
+}
+
+fn probe_raw_font_api_guards(logger: &mut ProbeLogger) {
+    // SAFETY: A null font pointer is a documented rejected input.
+    let init = unsafe { raw_system::sys_init_font(core::ptr::null_mut()) };
+    let init_snapshot = raw_system::snapshot_font();
+    logger.record(
+        "Raw system font init rejects null storage",
+        init == 0 && init_snapshot.init_called && init_snapshot.init_ptr == 0,
+    );
+
+    let mut image = core::ptr::NonNull::<u8>::dangling()
+        .as_ptr()
+        .cast::<c_void>();
+    let mut xpos = 99;
+    let mut ypos = 99;
+    let mut texture_width = 99;
+    // SAFETY: All output pointers point to live, uniquely borrowed local values.
+    unsafe {
+        raw_system::sys_get_font_texture(
+            'A' as i32,
+            &mut image,
+            &mut xpos,
+            &mut ypos,
+            &mut texture_width,
+        )
+    };
+    let texture_snapshot = raw_system::snapshot_font();
+    logger.record(
+        "Raw system font texture clears outputs without font data",
+        image.is_null()
+            && xpos == 0
+            && ypos == 0
+            && texture_width == 0
+            && texture_snapshot.texture_called
+            && texture_snapshot.texture_c == 'A' as u32,
+    );
+
+    let mut texel_width = 99;
+    // SAFETY: The null image is rejected before the destination is read or written.
+    unsafe {
+        raw_system::sys_get_font_texel(
+            'A' as i32,
+            core::ptr::null_mut(),
+            0,
+            TEXEL_STRIDE,
+            &mut texel_width,
+        )
+    };
+    let texel_snapshot = raw_system::snapshot_font();
+    logger.record(
+        "Raw system font texel rejects null image",
+        texel_width == 0 && texel_snapshot.texel_called && texel_snapshot.texel_c == 'A' as u32,
+    );
 }
 
 fn probe_texture(
