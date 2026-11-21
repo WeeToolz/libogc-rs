@@ -1,0 +1,18 @@
+{
+  "probe": "lwp_probe",
+  "cases": [
+    {
+      "crate": "ogc-runtime",
+      "path": "src/scheduler.rs",
+      "symbol": "new",
+      "line": 16,
+      "evidence_path": "probes/lwp-probe/src/runtime_contract_probe.rs",
+      "function": "run",
+      "api_path": "ThreadId::new",
+      "checks": [
+        "runtime thread ID returns its scheduler handle",
+        "runtime thread ID rejects the null sentinel"
+      ]
+    }
+  ]
+}

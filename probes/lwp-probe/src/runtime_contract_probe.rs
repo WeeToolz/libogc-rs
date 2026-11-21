@@ -281,6 +281,11 @@ pub fn run(logger: &mut ProbeLogger) {
         "runtime thread ID returns its scheduler handle",
         thread.is_some_and(|thread| thread.get() == 7),
     );
+    let null = ThreadId::new(core::num::NonZeroU32::new(u32::MAX).unwrap());
+    logger.record(
+        "runtime thread ID rejects the null sentinel",
+        null.is_none(),
+    );
 
     let clock = LwpClock;
     let now = clock.now();

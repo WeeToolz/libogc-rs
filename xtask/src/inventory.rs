@@ -777,11 +777,11 @@ fn verify_evidence_call(source: &str, evidence: &Evidence, path: &Path) -> Resul
 
 fn verify_evidence_file(file: &syn::File, evidence: &Evidence, path: &Path) -> Result<(), String> {
     if evidence.crate_name == "ogc-runtime"
-        && evidence.path == "src/driver.rs"
+        && matches!(evidence.path.as_str(), "src/driver.rs" | "src/scheduler.rs")
         && evidence.api_path.is_none()
     {
         return Err(format!(
-            "{}::{} driver trait evidence requires a qualified API path",
+            "{}::{} runtime evidence requires a qualified API path",
             evidence.crate_name, evidence.symbol
         ));
     }
@@ -2043,6 +2043,19 @@ mod tests {
             Path::new("probe.rs"),
         )
         .expect_err("an unrelated close call must not prove the driver trait");
+        assert!(error.contains("requires a qualified API path"));
+
+        let constructor = Evidence {
+            path: "src/scheduler.rs".to_string(),
+            symbol: "new".to_string(),
+            ..evidence
+        };
+        let error = verify_evidence_call(
+            "fn probe() { FileDescriptor::new(7); }",
+            &constructor,
+            Path::new("probe.rs"),
+        )
+        .expect_err("an unrelated constructor must not prove the thread ID constructor");
         assert!(error.contains("requires a qualified API path"));
     }
 

@@ -1025,7 +1025,6 @@ ogc-network,src/lib.rs,socket,435,compatibility-forwarder,hardware-probe,probes/
 ogc-network,src/lib.rs,wc24_cleanup,91,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,run
 ogc-network-sys,src/lib.rs,if_config,2293,ios,hardware-probe,probes/ogc-system-probe/src/network_probe.rs,run
 ogc-runtime,src/driver.rs,close,46,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,probe_driver_trait_contracts,debug.close,mock-dispatch
-ogc-runtime,src/scheduler.rs,new,16,pure,hardware-probe,probes/lwp-probe/src/main.rs,async_ipc_callback
 ogc-runtime,src/driver.rs,poll,37,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,probe_driver_trait_contracts,operation.poll,mock-dispatch
 ogc-si-sys,src/lib.rs,new,295,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,monitor
 ogc-usb,src/lib.rs,device_list,532,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/hid_probe.rs,refresh_hid_state
@@ -3265,3 +3264,4 @@ libdb-sys,src/wii_network.rs,disarm,53,compatibility-forwarder,hardware-probe,pr
 libdb-sys,src/wii_network.rs,close,57,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_debugger_network_lifecycle,transport.close
 lwip-sys,src/lib.rs,set_network_top_fd,530,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_network_descriptor,lwip::set_network_top_fd
 lwip-sys,src/lib.rs,set_network_top_fd,1493,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_network_descriptor,lwip::set_network_top_fd
+ogc-runtime,src/scheduler.rs,new,16,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,run,ThreadId::new
