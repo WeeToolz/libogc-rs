@@ -167,6 +167,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_video_framebuffer_updates(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_video_console_init_ex(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_video_console_init(logger);
     probe_video_console_state(logger);
     probe_wd_information_elements(logger);
     probe_wd_scan_defaults(logger);
@@ -3443,6 +3445,57 @@ fn probe_video_console_init_ex(logger: &mut ProbeLogger) {
             && reused_buffer
             && installed_callback.is_some()
             && restored,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_video_console_init(logger: &mut ProbeLogger) {
+    use ogc_video as video;
+
+    logger.report_step("Video default console initialization");
+    let mode = unsafe { video::get_preferred_mode(core::ptr::null_mut()) };
+    let display_framebuffer = video::get_current_framebuffer();
+    if mode.is_null() || display_framebuffer.is_null() {
+        logger.record("Video console_init has a live mode and framebuffer", false);
+        return;
+    }
+
+    let first = unsafe { video::console_init(core::ptr::null_mut()) };
+    let first_console = video::console_get_default();
+    let first_framebuffer = if first_console.is_null() {
+        core::ptr::null_mut()
+    } else {
+        unsafe { (*first_console).destbuffer }
+    };
+    let first_initialized = !first.is_null()
+        && !first_framebuffer.is_null()
+        && unsafe { (*first_console).console_initialised };
+
+    let second = unsafe { video::console_init(core::ptr::null_mut()) };
+    let second_console = video::console_get_default();
+    let second_framebuffer = if second_console.is_null() {
+        core::ptr::null_mut()
+    } else {
+        unsafe { (*second_console).destbuffer }
+    };
+    let repeated_call_reuses_state = first == second
+        && first_console == second_console
+        && first_framebuffer == second_framebuffer;
+
+    let width = unsafe { (*mode).fb_width as i32 };
+    let height = unsafe { (*mode).xfb_height as i32 };
+    let restored = unsafe {
+        video::console_init_framebuffer(mode, display_framebuffer, 0, 0, width, height).is_ok()
+    };
+    unsafe { video::set_next_framebuffer(display_framebuffer) };
+    video::flush();
+    video::wait_vsync();
+    let display_restored = video::get_current_framebuffer() == display_framebuffer
+        && unsafe { video::hardware_proof(mode, display_framebuffer) }
+            .next_framebuffer_registers_match;
+    logger.record(
+        "Video console_init initializes once and restores the probe display",
+        first_initialized && repeated_call_reuses_state && restored && display_restored,
     );
 }
 

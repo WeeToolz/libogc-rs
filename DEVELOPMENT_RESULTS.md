@@ -1,5 +1,13 @@
 # Development results
 
+## 2026-11-21 video default console initialization
+
+The [video batch](docs/dolphin-runs/2026-11-21-video-console-init-focused-v2/README.md)
+checks that `console_init` creates a usable console, reuses its framebuffer on
+a repeated call, and restores the probe display. Dolphin passed all 751 runtime
+checks. The inventory fell from 192 to 191 unverified APIs. Physical Wii
+acceptance remains untested.
+
 ## 2026-11-21 video extended console initialization
 
 The [video batch](docs/dolphin-runs/2026-11-21-video-console-init-ex-focused-v2/README.md)

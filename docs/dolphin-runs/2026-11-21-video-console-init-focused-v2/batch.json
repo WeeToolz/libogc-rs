@@ -1,0 +1,17 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "console_init",
+      "line": 897,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_console_init",
+      "api_path": "video::console_init",
+      "checks": [
+        "Video console_init initializes once and restores the probe display"
+      ]
+    }
+  ]
+}
