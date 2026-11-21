@@ -1,0 +1,20 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_stdio_report",
+      "line": 861,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_wrapper_contracts",
+      "api_path": "raw_system::sys_stdio_report",
+      "checks": [
+        "Raw stdio report keeps stdout routing selected after a false call"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin confirms routing mode state. It does not confirm UART output or physical hardware routing."
+  ]
+}

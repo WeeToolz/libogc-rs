@@ -4370,6 +4370,15 @@ fn probe_system_wrapper_contracts(logger: &mut ProbeLogger) {
         before == after,
     );
 
+    raw_system::sys_stdio_report(1);
+    let selected = raw_system::sys_stdio_report_uses_stdout();
+    raw_system::sys_stdio_report(0);
+    let remains_selected = raw_system::sys_stdio_report_uses_stdout();
+    logger.record(
+        "Raw stdio report keeps stdout routing selected after a false call",
+        selected && remains_selected,
+    );
+
     let wrapper_state = system::stdio_report_uses_stdout();
     let raw_state = raw_system::sys_stdio_report_uses_stdout();
     let repeated_state = system::stdio_report_uses_stdout();

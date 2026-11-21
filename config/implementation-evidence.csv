@@ -3159,3 +3159,4 @@ ogc-exi-sys,src/lib.rs,detach,1186,hardware,hardware-probe,probes/ogc-system-pro
 ogc-exi-sys,src/lib.rs,get_id,1081,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_invalid_channels,raw_exi::get_id
 ogc-exi-sys,src/lib.rs,hardware_exi_reg_base,175,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_reset,raw_exi::hardware_exi_reg_base
 ogc-exi-sys,src/lib.rs,probe_reset,533,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_reset,raw_exi::probe_reset
+ogc-system-sys,src/lib.rs,sys_stdio_report,861,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_wrapper_contracts,raw_system::sys_stdio_report
