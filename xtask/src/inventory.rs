@@ -62,6 +62,7 @@ enum EvidenceScope {
     NoControllerAndInvalidArguments,
     DolphinCacheRegister,
     DolphinCacheInstructions,
+    ZeroTagCount,
     DolphinHostCallback,
     DolphinMouseLifecycle,
 }
@@ -79,6 +80,7 @@ impl EvidenceScope {
             "no-controller-and-invalid-arguments" => Self::NoControllerAndInvalidArguments,
             "dolphin-cache-register" => Self::DolphinCacheRegister,
             "dolphin-cache-instructions" => Self::DolphinCacheInstructions,
+            "zero-tag-count" => Self::ZeroTagCount,
             "dolphin-host-callback" => Self::DolphinHostCallback,
             "dolphin-mouse-lifecycle" => Self::DolphinMouseLifecycle,
             _ => return None,
@@ -117,6 +119,9 @@ impl EvidenceScope {
             Self::DolphinCacheInstructions => {
                 "Dolphin instruction and register checks only. Physical cache contents and timing are unverified."
             }
+            Self::ZeroTagCount => {
+                "Zero-tag behavior only in Dolphin. Allocation for non-zero tag counts remains unverified."
+            }
             Self::DolphinHostCallback => {
                 "Synchronous host callback behavior only in Dolphin. Physical sync button behavior is unverified."
             }
@@ -134,7 +139,8 @@ impl EvidenceScope {
             | Self::InvalidChannel
             | Self::InvalidArguments
             | Self::EmptyChannel
-            | Self::NoController => "unverified",
+            | Self::NoController
+            | Self::ZeroTagCount => "unverified",
             Self::NoControllerAndInvalidArguments => "unverified",
             _ => declared,
         }
@@ -1899,6 +1905,7 @@ mod tests {
             "empty-channel",
             "no-controller",
             "no-controller-and-invalid-arguments",
+            "zero-tag-count",
         ] {
             let scope = EvidenceScope::parse(scope).unwrap();
             assert_eq!(scope.classification("protocol"), "unverified");
@@ -1908,6 +1915,9 @@ mod tests {
             EvidenceScope::DolphinCacheRegister.classification("hardware"),
             "hardware"
         );
+        let zero_tag_scope = EvidenceScope::parse("zero-tag-count").unwrap();
+        assert_eq!(zero_tag_scope.classification("hardware"), "unverified");
+        assert!(zero_tag_scope.limitation().contains("non-zero tag counts"));
         assert!(
             EvidenceScope::DolphinCacheRegister
                 .limitation()

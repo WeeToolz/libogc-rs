@@ -6,9 +6,12 @@ read HID2 after disabling and re-enabling the locked cache, and check that a
 flush leaves an initially empty queue empty. The probe restores the saved HID2
 value after the cache checks.
 
-The exact API evidence reduced the unverified inventory from 190 to 187. This
-run checks Dolphin's emulated register and queue behavior. It does not verify
-physical cache contents, timing, or Wii hardware behavior.
+At batch completion, the exact API evidence reduced the unverified inventory
+from 190 to 187. A later coverage review found that the earlier
+`lc_alloc_tags` evidence only checked a zero tag count. Its scope is now marked
+partial, so the current inventory has 188 unverified APIs. This run checks
+Dolphin's emulated register and queue behavior. It does not verify physical
+cache contents, timing, or Wii hardware behavior.
 
 Build command:
 

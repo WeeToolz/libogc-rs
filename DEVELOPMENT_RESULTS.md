@@ -10,6 +10,16 @@ flush, and restores the saved HID2 value. The inventory fell from 190 to 187
 unverified APIs. This verifies Dolphin's emulated register and queue behavior;
 physical cache behavior remains untested.
 
+## 2026-11-21 cache evidence scope correction
+
+A coverage review found that the earlier `lc_alloc_tags` evidence only calls
+the function with a zero tag count. The inventory had treated this as evidence
+for all allocation counts. Its evidence scope now records the zero-tag path
+only, and the inventory leaves non-zero tag allocation unverified. This
+correction changes the net unverified count after the cache controls batch from
+187 to 188. The next cache probe must check a valid non-zero allocation before
+this API can be marked verified.
+
 ## 2026-11-21 inventory audit evidence caching
 
 The inventory audit was taking longer than 60 seconds because it reparsed
