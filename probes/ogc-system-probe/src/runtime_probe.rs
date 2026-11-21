@@ -141,6 +141,8 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_usb_api_batch(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_usb_lifecycle(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_usb_safe_result_wrappers(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_usb_invalid_handle_operations(logger);
@@ -3797,6 +3799,34 @@ fn probe_usb_api_batch(logger: &mut ProbeLogger) {
     // SAFETY: The null descriptor is explicitly accepted as a no-op.
     unsafe { usb_sys::free_descriptors(core::ptr::null_mut()) };
     logger.record("USB descriptor free accepts a null descriptor", true);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_usb_lifecycle(logger: &mut ProbeLogger) {
+    use ogc_usb as usb;
+
+    logger.report_step("USB service lifecycle");
+    let initialize = usb::initialize();
+    logger.record(
+        "USB service initializes with the raw API",
+        initialize == usb::USB_OK,
+    );
+    let deinitialize = usb::deinitialize();
+    logger.record(
+        "USB service deinitializes after raw initialization",
+        deinitialize == usb::USB_OK,
+    );
+
+    let try_initialize = usb::try_initialize();
+    logger.record(
+        "USB fallible initialization reports success",
+        try_initialize.is_ok(),
+    );
+    let try_deinitialize = usb::try_deinitialize();
+    logger.record(
+        "USB fallible deinitialization reports success",
+        try_deinitialize.is_ok(),
+    );
 }
 
 #[cfg(feature = "dolphin-automation")]

@@ -1,0 +1,56 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "initialize",
+      "line": 28,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_lifecycle",
+      "api_path": "usb::initialize",
+      "checks": [
+        "USB service initializes with the raw API"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "try_initialize",
+      "line": 32,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_lifecycle",
+      "api_path": "usb::try_initialize",
+      "checks": [
+        "USB fallible initialization reports success"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "deinitialize",
+      "line": 36,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_lifecycle",
+      "api_path": "usb::deinitialize",
+      "checks": [
+        "USB service deinitializes after raw initialization"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "try_deinitialize",
+      "line": 40,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_lifecycle",
+      "api_path": "usb::try_deinitialize",
+      "checks": [
+        "USB fallible deinitialization reports success"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin tests two start and cleanup cycles with its IOS USB implementation. It does not prove behavior with physical USB hosts or attached devices."
+  ]
+}

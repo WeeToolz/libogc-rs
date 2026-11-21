@@ -3111,3 +3111,7 @@ ogc-usb,src/lib.rs,get_ascii_string,548,compatibility-forwarder,hardware-probe,p
 ogc-usb,src/lib.rs,get_event,1120,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_raw_invalid_handle_operations,usb::mouse::get_event
 ogc-usb,src/lib.rs,flush_events,1133,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_raw_invalid_handle_operations,usb::mouse::flush_events
 ogc-usb,src/lib.rs,is_connected,962,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_raw_invalid_handle_operations,usb::mouse::is_connected
+ogc-usb,src/lib.rs,initialize,28,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_lifecycle,usb::initialize
+ogc-usb,src/lib.rs,try_initialize,32,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_lifecycle,usb::try_initialize
+ogc-usb,src/lib.rs,deinitialize,36,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_lifecycle,usb::deinitialize
+ogc-usb,src/lib.rs,try_deinitialize,40,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_lifecycle,usb::try_deinitialize
