@@ -180,6 +180,7 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_ipc_ioctl_file_stats(logger);
     probe_device_registry(logger);
+    probe_sysbase_device_helpers(logger);
     probe_sysbase_errno(logger);
     probe_irq_handler_registry(logger);
     probe_irq_raw_handler_registry(logger);
@@ -2666,6 +2667,112 @@ fn probe_irq_handler_registry(logger: &mut ProbeLogger) {
 struct ErrnoProbe {
     address: usize,
     value: i32,
+}
+
+static SYSBASE_PROBE_OPEN_FLAGS: AtomicI32 = AtomicI32::new(i32::MIN);
+static SYSBASE_PROBE_OPEN_COUNT: core::sync::atomic::AtomicU32 =
+    core::sync::atomic::AtomicU32::new(0);
+
+unsafe extern "C" fn sysbase_probe_open(
+    _reent: *mut sysbase::Reent,
+    _file: *mut core::ffi::c_void,
+    _path: *const core::ffi::c_char,
+    flags: i32,
+    _mode: i32,
+) -> i32 {
+    SYSBASE_PROBE_OPEN_FLAGS.store(flags, Ordering::Release);
+    SYSBASE_PROBE_OPEN_COUNT.fetch_add(1, Ordering::AcqRel);
+    0
+}
+
+unsafe extern "C" fn sysbase_probe_close(
+    _reent: *mut sysbase::Reent,
+    _file: *mut core::ffi::c_void,
+) -> i32 {
+    0
+}
+
+unsafe fn stdin_devoptab() -> *const sysbase::Devoptab {
+    // SAFETY: The probe serializes access to the device table on the main thread.
+    unsafe {
+        core::ptr::addr_of!(sysbase::devoptab_list)
+            .cast::<*const sysbase::Devoptab>()
+            .read()
+    }
+}
+
+fn probe_sysbase_device_helpers(logger: &mut ProbeLogger) {
+    logger.section("SYSBASE DEVICE HELPERS");
+
+    // SAFETY: Null pointers and `None` callbacks are valid in this C-compatible
+    // table. The test sets the name and callbacks required for registration.
+    let mut device: sysbase::Devoptab = unsafe { core::mem::zeroed() };
+    device.name = c"sysbaseprobe".as_ptr();
+    device.struct_size = 1;
+    device.open_r = Some(sysbase_probe_open);
+    device.close_r = Some(sysbase_probe_close);
+    // SAFETY: `device` and its callbacks stay live until it is removed below.
+    let device_index = unsafe { sysbase::add_device(&device) };
+    if device_index < 0 {
+        logger.record("sysbase probe devoptab registers", false);
+        return;
+    }
+
+    SYSBASE_PROBE_OPEN_COUNT.store(0, Ordering::Release);
+    SYSBASE_PROBE_OPEN_FLAGS.store(i32::MIN, Ordering::Release);
+    let append_opened = sysbase::DeviceFile::open_append(c"sysbaseprobe:/append")
+        .is_some_and(|file| file.close().is_ok());
+    let append_flags = SYSBASE_PROBE_OPEN_FLAGS.load(Ordering::Acquire);
+    let append_count = SYSBASE_PROBE_OPEN_COUNT.load(Ordering::Acquire);
+    logger.record(
+        "DeviceFile open_append sets append and create flags",
+        append_opened
+            && append_flags == (sysbase::O_WRONLY | sysbase::O_APPEND | sysbase::O_CREAT)
+            && append_count == 1,
+    );
+
+    SYSBASE_PROBE_OPEN_COUNT.store(0, Ordering::Release);
+    SYSBASE_PROBE_OPEN_FLAGS.store(i32::MIN, Ordering::Release);
+    let truncate_opened = sysbase::DeviceFile::open_truncate(c"sysbaseprobe:/truncate")
+        .is_some_and(|file| file.close().is_ok());
+    let truncate_flags = SYSBASE_PROBE_OPEN_FLAGS.load(Ordering::Acquire);
+    let truncate_count = SYSBASE_PROBE_OPEN_COUNT.load(Ordering::Acquire);
+    logger.record(
+        "DeviceFile open_truncate sets truncate and create flags",
+        truncate_opened
+            && truncate_flags == (sysbase::O_WRONLY | sysbase::O_CREAT | sysbase::O_TRUNC)
+            && truncate_count == 1,
+    );
+
+    // SAFETY: The temporary devoptab remains valid until stdin is restored.
+    let previous_stdin = unsafe { sysbase::set_stdin_device(&device) };
+    let replacement_active = unsafe { stdin_devoptab() } == &device;
+    // SAFETY: Restore the exact pointer returned by `set_stdin_device`.
+    let restored_stdin = unsafe { sysbase::restore_stdin_device(&device, previous_stdin) };
+    let previous_active = unsafe { stdin_devoptab() } == previous_stdin;
+    if !restored_stdin && unsafe { stdin_devoptab() } == &device {
+        // SAFETY: Restore the original pointer if the conditional helper fails.
+        unsafe { sysbase::set_stdin_device(previous_stdin) };
+    }
+    // SAFETY: The expected device is no longer active, so this must not change
+    // the restored pointer.
+    let changed_device_rejected =
+        !unsafe { sysbase::restore_stdin_device(&device, previous_stdin) }
+            && unsafe { stdin_devoptab() } == previous_stdin;
+    logger.record(
+        "stdin device replacement restores the previous device",
+        replacement_active && restored_stdin && previous_active,
+    );
+    logger.record(
+        "stdin restore leaves a changed device untouched",
+        changed_device_rejected,
+    );
+
+    let removed = sysbase::remove_device(c"sysbaseprobe") == 0;
+    logger.record(
+        "sysbase probe devoptab cleanup restores the registry",
+        removed && sysbase::find_device(c"sysbaseprobe:/append") == -1,
+    );
 }
 
 unsafe extern "C" fn probe_errno_worker(arg: *mut core::ffi::c_void) -> *mut core::ffi::c_void {

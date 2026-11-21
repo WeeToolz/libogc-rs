@@ -47,6 +47,18 @@ checks, including guard checks and HID2 and buffer restoration. The inventory
 fell from 189 to 185 unverified APIs. Dolphin validates the emulated transfer
 paths; physical cache behavior remains untested.
 
+## 2026-11-21 sysbase device helpers
+
+The [sysbase batch](docs/dolphin-runs/2026-11-21-ogc-sysbase-device-helpers-v2/batch-report.md)
+checks `DeviceFile::open_append`, `DeviceFile::open_truncate`,
+`set_stdin_device`, and `restore_stdin_device`. Dolphin passed all 756 runtime
+checks. A temporary devoptab recorded the exact append and truncate flags; the
+stdin checks verified pointer replacement, successful restoration, and that a
+stale expected pointer does not replace the current device. The temporary
+device was removed at the end of the probe. The inventory fell from 185 to
+181 unverified APIs. This checks the devoptab contract; real filesystem
+behavior remains covered by the filesystem probes.
+
 ## 2026-11-21 inventory audit evidence caching
 
 The inventory audit was taking longer than 60 seconds because it reparsed

@@ -1,0 +1,53 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-sysbase",
+      "path": "src/lib.rs",
+      "symbol": "open_append",
+      "line": 341,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_sysbase_device_helpers",
+      "api_path": "sysbase::DeviceFile::open_append",
+      "checks": [
+        "DeviceFile open_append sets append and create flags"
+      ]
+    },
+    {
+      "crate": "ogc-sysbase",
+      "path": "src/lib.rs",
+      "symbol": "open_truncate",
+      "line": 349,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_sysbase_device_helpers",
+      "api_path": "sysbase::DeviceFile::open_truncate",
+      "checks": [
+        "DeviceFile open_truncate sets truncate and create flags"
+      ]
+    },
+    {
+      "crate": "ogc-sysbase",
+      "path": "src/lib.rs",
+      "symbol": "set_stdin_device",
+      "line": 713,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_sysbase_device_helpers",
+      "api_path": "sysbase::set_stdin_device",
+      "checks": [
+        "stdin device replacement restores the previous device"
+      ]
+    },
+    {
+      "crate": "ogc-sysbase",
+      "path": "src/lib.rs",
+      "symbol": "restore_stdin_device",
+      "line": 721,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_sysbase_device_helpers",
+      "api_path": "sysbase::restore_stdin_device",
+      "checks": [
+        "stdin device replacement restores the previous device"
+      ]
+    }
+  ]
+}

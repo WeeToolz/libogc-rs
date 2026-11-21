@@ -3228,3 +3228,7 @@ ogc-cache,src/lib.rs,lc_load_blocks,446,hardware,hardware-probe,probes/ogc-syste
 ogc-cache,src/lib.rs,lc_store_blocks,476,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_locked_cache_dma,cache::lc_store_blocks
 ogc-cache,src/lib.rs,lc_load_data,505,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_locked_cache_dma,cache::lc_load_data
 ogc-cache,src/lib.rs,lc_store_data,535,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_locked_cache_dma,cache::lc_store_data
+ogc-sysbase,src/lib.rs,open_append,341,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_sysbase_device_helpers,sysbase::DeviceFile::open_append
+ogc-sysbase,src/lib.rs,open_truncate,349,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_sysbase_device_helpers,sysbase::DeviceFile::open_truncate
+ogc-sysbase,src/lib.rs,set_stdin_device,713,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_sysbase_device_helpers,sysbase::set_stdin_device
+ogc-sysbase,src/lib.rs,restore_stdin_device,721,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_sysbase_device_helpers,sysbase::restore_stdin_device
