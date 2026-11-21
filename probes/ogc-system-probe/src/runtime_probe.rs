@@ -261,6 +261,8 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_network_attach_active(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_network_wc24_cleanup(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_raw_video_setup(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_sysbase_default_device(logger);
@@ -7138,6 +7140,22 @@ fn probe_network_attach_active(logger: &mut ProbeLogger) {
         raw_detached == 0 && wrapper_attached == 0 && net::get_host_ip() != 0 && wrapper_closed,
     );
     logger.record("network attach probe deinitializes", net::deinit() == 0);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_network_wc24_cleanup(logger: &mut ProbeLogger) {
+    use ogc_network as net;
+
+    let cleaned = raw_network::net_wc24cleanup();
+    logger.note_i32("WC24 cleanup result", cleaned);
+    let initialized = net::init();
+    let socket = net::socket(net::PF_INET, net::SOCK_DGRAM, 0);
+    let closed = socket >= 0 && net::close(socket) == 0;
+    logger.record(
+        "WC24 cleanup permits network startup and socket use",
+        cleaned == 0 && initialized == 0 && net::get_host_ip() != 0 && closed,
+    );
+    logger.record("WC24 cleanup probe deinitializes", net::deinit() == 0);
 }
 
 #[cfg(feature = "dolphin-automation")]

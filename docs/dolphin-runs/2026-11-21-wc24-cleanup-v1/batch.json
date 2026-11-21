@@ -1,0 +1,31 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_wc24cleanup",
+      "line": 1067,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_network_wc24_cleanup",
+      "api_path": "raw_network::net_wc24cleanup",
+      "checks": [
+        "WC24 cleanup permits network startup and socket use",
+        "WC24 cleanup probe deinitializes"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/lib.rs",
+      "symbol": "net_wc24cleanup",
+      "line": 1977,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_network_wc24_cleanup",
+      "api_path": "raw_network::net_wc24cleanup",
+      "checks": [
+        "WC24 cleanup permits network startup and socket use",
+        "WC24 cleanup probe deinitializes"
+      ]
+    }
+  ]
+}
