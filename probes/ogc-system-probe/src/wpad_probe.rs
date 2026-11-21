@@ -131,6 +131,14 @@ fn probe_valid_channel_empty_queries(logger: &mut ProbeLogger) {
         wpad::is_speaker_enabled(chan) == wpad::WPAD_ERR_NOT_READY as i32,
     );
     logger.record(
+        "WPAD empty channel data format update succeeds",
+        wpad::set_data_format(chan, wpad::WPAD_FMT_BTNS_ACC) == wpad::WPAD_ERR_NONE as i32,
+    );
+    logger.record(
+        "WPAD empty channel IR resolution update succeeds",
+        wpad::set_v_res(chan, 640, 480) == wpad::WPAD_ERR_NONE as i32,
+    );
+    logger.record(
         "WPAD empty channel button states are zero",
         wpad::buttons_down(chan) == 0
             && wpad::buttons_held(chan) == 0
