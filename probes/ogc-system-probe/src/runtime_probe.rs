@@ -65,6 +65,7 @@ fn probe_inet_addr(logger: &mut ProbeLogger) {
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("RUNTIME PROBE");
 
+    probe_socket_address_layout(logger);
     probe_network_error_conversion(logger);
     probe_inet_addr(logger);
     probe_ipv4_values(logger);
@@ -11020,3 +11021,23 @@ struct AlignedFstats(filesystem::Fstats);
 
 #[repr(align(32))]
 struct AlignedIsfsBytes<const N: usize>([u8; N]);
+
+fn probe_socket_address_layout(logger: &mut ProbeLogger) {
+    use network::SocketAddress;
+    use ogc_network as network;
+
+    let mut address = network::Sockaddr::default();
+    let mut ipv4 = network::SockaddrIn::default();
+    let address_ptr = core::ptr::addr_of_mut!(address).cast::<u8>();
+    let ipv4_ptr = core::ptr::addr_of_mut!(ipv4).cast::<u8>();
+    logger.record(
+        "socket address pointers address their original values",
+        address.as_sockaddr_mut_ptr().cast::<u8>() == address_ptr
+            && ipv4.as_sockaddr_mut_ptr().cast::<u8>() == ipv4_ptr,
+    );
+    logger.record(
+        "socket address ABI lengths are sixteen bytes",
+        network::Sockaddr::socket_address_len() == 16
+            && network::SockaddrIn::socket_address_len() == 16,
+    );
+}

@@ -3242,3 +3242,5 @@ ogc-stm,src/lib.rs,init,261,ios,hardware-probe,probes/ogc-system-probe/src/stm_a
 ogc-stm,src/lib.rs,try_init,281,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_init
 ogc-cache,src/lib.rs,l2_enhance,652,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_l2_enhance,cache::l2_enhance
 ogc-irq,src/lib.rs,dispatch_pending,71,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_dispatch_pending,irq::dispatch_pending,no-pending-interrupt
+ogc-network,src/lib.rs,as_sockaddr_mut_ptr,238,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_socket_address_layout,address.as_sockaddr_mut_ptr
+ogc-network,src/lib.rs,socket_address_len,241,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_socket_address_layout,network::Sockaddr::socket_address_len
