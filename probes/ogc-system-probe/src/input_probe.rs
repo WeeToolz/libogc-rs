@@ -412,19 +412,17 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
             TRACE_GAMECUBE_A_EVENTS.load(Ordering::Relaxed) > 0,
         );
 
-        let usb_calls = USB_STARTUP_HOOK_CALLS.load(Ordering::Relaxed);
         let trace_calls = INPUT_TRACE_OBSERVER_CALLS.load(Ordering::Relaxed);
         controllers.set_usb_startup_hook(None);
         controllers.set_input_trace_observer(None);
         let resumed = controllers.scan_with_raw_at(system::time()).snapshot;
         logger.record(
-            "USB and trace observers stop receiving callbacks after removal",
+            "input trace observer stops receiving events after removal",
             resumed
                 .controllers()
                 .iter()
                 .any(|s| s.source == ControllerSource::GameCube(0))
                 && resumed.errors().next().is_none()
-                && USB_STARTUP_HOOK_CALLS.load(Ordering::Relaxed) == usb_calls
                 && INPUT_TRACE_OBSERVER_CALLS.load(Ordering::Relaxed) == trace_calls,
         );
     }

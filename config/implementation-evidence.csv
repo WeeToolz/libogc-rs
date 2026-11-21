@@ -1027,8 +1027,6 @@ ogc-network-sys,src/lib.rs,if_config,2293,ios,hardware-probe,probes/ogc-system-p
 ogc-runtime,src/driver.rs,close,46,pure,hardware-probe,probes/lwp-probe/src/main.rs,async_ipc_callback
 ogc-runtime,src/scheduler.rs,new,16,pure,hardware-probe,probes/lwp-probe/src/main.rs,async_ipc_callback
 ogc-runtime,src/driver.rs,poll,37,pure,hardware-probe,probes/lwp-probe/src/main.rs,run_ipc_wakeup
-ogc-si,src/lib.rs,init,17,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_low_level_state,ogc_si::init
-ogc-si-sys,src/lib.rs,init,1464,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_low_level_state,ogc_si::sys::init
 ogc-si-sys,src/lib.rs,new,295,hardware,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,monitor
 ogc-usb,src/lib.rs,device_list,532,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/hid_probe.rs,refresh_hid_state
 ogc-usbgecko,src/lib.rs,flashread,574,hardware,hardware-probe,probes/ogc-system-probe/src/debugger_probe.rs,probe_usb_gecko
