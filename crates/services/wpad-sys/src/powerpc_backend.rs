@@ -21,11 +21,10 @@ use crate::{
     Accel, Vec3w, WPAD_CHAN_ALL, WPAD_CONNECTED, WPAD_DATA_EXPANSION, WPAD_DATA_STATE,
     WPAD_ERR_BAD_CHANNEL, WPAD_ERR_BADCONF, WPAD_ERR_BADVALUE, WPAD_ERR_NO_CONTROLLER,
     WPAD_ERR_NONE, WPAD_ERR_NOT_READY, WPAD_ERR_TRANSFER, WPAD_EXP_NONE, WPAD_EXP_UNKNOWN,
-    WPAD_FMT_BTNS, WPAD_FMT_BTNS_ACC_IR, WPAD_FORMAT, WPAD_GLOBAL_STATUS, WPAD_IDLE_ACCEL,
-    WPAD_IDLE_BTNS, WPAD_IDLE_IR, WPAD_IDLE_JS, WPAD_IDLE_MP, WPAD_IDLE_WB, WPAD_MAX_DEVICES,
-    WPAD_RUMBLE, WPAD_SPEAKER, WPAD_STATE_DISABLED, WPAD_STATE_ENABLED, WPAD_STREAM_LEN,
-    WPAD_THRESH_ANY, WPAD_THRESH_IGNORE, WpadData, push_event, reset_data, set_connected,
-    valid_chan,
+    WPAD_FMT_BTNS_ACC_IR, WPAD_FORMAT, WPAD_GLOBAL_STATUS, WPAD_IDLE_ACCEL, WPAD_IDLE_BTNS,
+    WPAD_IDLE_IR, WPAD_IDLE_JS, WPAD_IDLE_MP, WPAD_IDLE_WB, WPAD_MAX_DEVICES, WPAD_RUMBLE,
+    WPAD_SPEAKER, WPAD_STATE_DISABLED, WPAD_STATE_ENABLED, WPAD_STREAM_LEN, WPAD_THRESH_ANY,
+    WPAD_THRESH_IGNORE, WpadData, push_event, reset_data, set_connected, valid_chan,
     wii_remote::{
         ReadAssembly, ReadFragmentResult, apply_read_report_buttons, decode_ack_report,
         decode_expansion_calibration, ir_aspect_vres, ir_mode_for_expansion, ir_position_offset,
@@ -2094,9 +2093,6 @@ fn process_hid_event(event: bt::HidEvent) -> Result<(), i32> {
 
 pub(crate) fn set_data_format(chan: i32, fmt: i32) -> i32 {
     let all_channels = chan == WPAD_CHAN_ALL;
-    if all_channels && !(WPAD_FMT_BTNS..=WPAD_FMT_BTNS_ACC_IR).contains(&fmt) {
-        return WPAD_ERR_BADVALUE as i32;
-    }
     if all_channels {
         for idx in 0..WPAD_MAX_DEVICES {
             let ret = set_data_format(idx as i32, fmt);
@@ -2109,8 +2105,14 @@ pub(crate) fn set_data_format(chan: i32, fmt: i32) -> i32 {
     let Some(chan) = valid_chan(chan) else {
         return WPAD_ERR_BAD_CHANNEL as i32;
     };
-    if !(WPAD_FMT_BTNS..=WPAD_FMT_BTNS_ACC_IR).contains(&fmt) {
-        return WPAD_ERR_BADVALUE as i32;
+    let connected = WPAD_CONNECTED[chan].load(Ordering::Acquire);
+    let result = crate::set_data_format_preflight(
+        WPAD_GLOBAL_STATUS.load(Ordering::Acquire),
+        connected,
+        fmt,
+    );
+    if result != WPAD_ERR_NONE as i32 || !connected {
+        return result;
     }
     WPAD_FORMAT[chan].store(fmt, Ordering::Release);
     if slot_is_wii_remote(chan) && !refresh_wii_remote_reporting(chan) {

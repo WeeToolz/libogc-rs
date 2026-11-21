@@ -95,6 +95,10 @@ pub fn run(logger: &mut ProbeLogger) {
         "WPAD reports disabled after shutdown",
         wpad::get_status() == wpad::WPAD_STATE_DISABLED,
     );
+    logger.record(
+        "WPAD disabled adapter rejects data format",
+        wpad::set_data_format(wpad::WPAD_CHAN_0, i32::MAX) == wpad::WPAD_ERR_NOT_READY as i32,
+    );
 }
 
 fn probe_empty_channel_event_queue(logger: &mut ProbeLogger) {
@@ -198,6 +202,10 @@ fn probe_valid_channel_empty_queries(logger: &mut ProbeLogger) {
     logger.record(
         "WPAD empty channel data format update returns success",
         wpad::set_data_format(chan, wpad::WPAD_FMT_BTNS_ACC) == wpad::WPAD_ERR_NONE as i32,
+    );
+    logger.record(
+        "WPAD empty channel ignores an invalid data format",
+        wpad::set_data_format(chan, i32::MAX) == wpad::WPAD_ERR_NONE as i32,
     );
     let resolution_result = wpad::set_v_res(chan, 640, 480);
     let data = wpad::data(chan);

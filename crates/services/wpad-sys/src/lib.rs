@@ -2465,3 +2465,48 @@ mod tests {
         assert_eq!(gh3.whammy_bar, 0.5);
     }
 }
+
+pub(crate) fn set_data_format_preflight(status: i32, connected: bool, fmt: i32) -> i32 {
+    if status == WPAD_STATE_DISABLED {
+        WPAD_ERR_NOT_READY as i32
+    } else if !connected {
+        WPAD_ERR_NONE as i32
+    } else if !(WPAD_FMT_BTNS..=WPAD_FMT_BTNS_ACC_IR).contains(&fmt) {
+        WPAD_ERR_BADVALUE as i32
+    } else {
+        WPAD_ERR_NONE as i32
+    }
+}
+
+#[cfg(test)]
+mod set_data_format_contract_tests {
+    use super::*;
+
+    #[test]
+    fn empty_channel_is_a_noop_before_format_validation() {
+        assert_eq!(
+            set_data_format_preflight(WPAD_STATE_ENABLED, false, i32::MAX),
+            WPAD_ERR_NONE as i32
+        );
+    }
+
+    #[test]
+    fn disabled_state_precedes_channel_presence_and_format_validation() {
+        assert_eq!(
+            set_data_format_preflight(WPAD_STATE_DISABLED, false, i32::MAX),
+            WPAD_ERR_NOT_READY as i32
+        );
+    }
+
+    #[test]
+    fn connected_channel_validates_format() {
+        assert_eq!(
+            set_data_format_preflight(WPAD_STATE_ENABLED, true, i32::MAX),
+            WPAD_ERR_BADVALUE as i32
+        );
+        assert_eq!(
+            set_data_format_preflight(WPAD_STATE_ENABLED, true, WPAD_FMT_BTNS_ACC),
+            WPAD_ERR_NONE as i32
+        );
+    }
+}
