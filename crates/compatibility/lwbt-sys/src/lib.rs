@@ -276,11 +276,11 @@ fn pcb_slot(pcb: *mut BtePcb) -> Option<usize> {
 }
 
 fn valid_pcb(pcb: *mut BtePcb) -> bool {
-    pcb_slot(pcb).is_some_and(|idx| PCB_USED[idx].load(Ordering::Acquire))
+    pcb_index(pcb).is_some()
 }
 
 pub(crate) fn pcb_index(pcb: *mut BtePcb) -> Option<usize> {
-    pcb_slot(pcb)
+    pcb_slot(pcb).filter(|&idx| PCB_USED[idx].load(Ordering::Acquire))
 }
 
 pub(crate) fn pcb_for_index(index: usize) -> Option<*mut BtePcb> {

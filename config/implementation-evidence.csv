@@ -3125,3 +3125,15 @@ ogc-cache,src/lib.rs,ic_disable,389,hardware,hardware-probe,probes/ogc-system-pr
 ogc-cache,src/lib.rs,ic_enable,382,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_controls,cache::ic_enable
 ogc-cache,src/lib.rs,ic_freeze,396,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_controls,cache::ic_freeze
 ogc-cache,src/lib.rs,ic_unfreeze,403,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_cache_controls,cache::ic_unfreeze
+lwbt-sys,src/lib.rs,try_shutdown,331,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_closed_adapter,bte::try_shutdown
+lwbt-sys,src/lib.rs,init_core,386,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_closed_adapter,bte::init_core
+lwbt-sys,src/lib.rs,apply_patch,393,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_closed_adapter,bte::apply_patch
+lwbt-sys,src/lib.rs,init_sub,400,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_closed_adapter,bte::init_sub
+lwbt-sys,src/lib.rs,read_bd_addr,437,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_closed_adapter,bte::read_bd_addr
+lwbt-sys,src/lib.rs,read_remote_name,474,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_closed_adapter,bte::read_remote_name
+lwbt-sys,src/lib.rs,inquiry,496,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_closed_adapter,bte::inquiry
+lwbt-sys,src/lib.rs,periodic_inquiry,507,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_closed_adapter,bte::periodic_inquiry
+lwbt-sys,src/lib.rs,get_pair_mode,654,pure,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_closed_adapter,bte::get_pair_mode
+lwbt-sys,src/lib.rs,exit_periodic_inquiry,519,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_closed_adapter,bte::exit_periodic_inquiry
+lwbt-sys,src/lib.rs,set_evt_filter,455,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_closed_adapter,bte::set_evt_filter
+lwbt-sys,src/lib.rs,sendmessageasync,975,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_closed_adapter,bte::sendmessageasync

@@ -108,6 +108,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_lwbt_invalid_key_pointers(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_lwbt_pcb_lifecycle(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_lwbt_closed_adapter(logger);
     probe_system_runtime_state(logger);
     probe_wiilaunch_error_codes(logger);
     probe_system_startup_status(logger);
@@ -4995,6 +4997,122 @@ fn probe_lwbt_invalid_pcbs(logger: &mut ProbeLogger) {
     logger.record(
         "Bluetooth send message rejects null PCB",
         message == bte::ERR_ARG,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_lwbt_closed_adapter(logger: &mut ProbeLogger) {
+    use core::ptr::null_mut;
+    use core::sync::atomic::AtomicU32;
+    use lwbt_sys as bte;
+
+    static COMPLETIONS: AtomicU32 = AtomicU32::new(0);
+    static STATUS: AtomicI32 = AtomicI32::new(i32::MAX);
+    static NULL_ARGUMENT: AtomicBool = AtomicBool::new(false);
+
+    unsafe extern "C" fn complete(status: i32, argument: *mut core::ffi::c_void) -> i32 {
+        STATUS.store(status, Ordering::Relaxed);
+        NULL_ARGUMENT.store(argument.is_null(), Ordering::Relaxed);
+        COMPLETIONS.fetch_add(1, Ordering::Release);
+        bte::ERR_OK
+    }
+
+    fn completed_once(returned: i32, expected: i32) -> bool {
+        let completions = COMPLETIONS.swap(0, Ordering::AcqRel);
+        returned == expected
+            && completions == 1
+            && STATUS.load(Ordering::Relaxed) == expected
+            && NULL_ARGUMENT.load(Ordering::Relaxed)
+    }
+
+    logger.section("LWBT CLOSED ADAPTER");
+    // SAFETY: `new` gives the probe a live PCB until shutdown releases it.
+    let pcb = unsafe { bte::new() };
+    let shutdown = bte::try_shutdown();
+    let mut disconnected = bte::ERR_OK;
+    // SAFETY: `disconnect` checks the slot is live before dereferencing it.
+    if !pcb.is_null() {
+        disconnected = unsafe { bte::disconnect(pcb) };
+    }
+    logger.note_hex32("lwBT shutdown status", shutdown as u32);
+    logger.note_hex32("lwBT released PCB disconnect status", disconnected as u32);
+    logger.record(
+        "lwBT shutdown releases a live PCB",
+        !pcb.is_null() && shutdown == bte::ERR_OK && disconnected == bte::ERR_ARG,
+    );
+    let core = bte::init_core(Some(complete));
+    logger.record(
+        "lwBT core init completes with closed adapter error",
+        completed_once(core, bte::ERR_IF),
+    );
+    let patch = bte::apply_patch(Some(complete));
+    logger.record(
+        "lwBT patch completes with closed adapter error",
+        completed_once(patch, bte::ERR_IF),
+    );
+    let sub = bte::init_sub(Some(complete));
+    logger.record(
+        "lwBT sub init completes with closed adapter error",
+        completed_once(sub, bte::ERR_IF),
+    );
+
+    let mut address = bte::BdAddr { addr: [0xa5; 6] };
+    let mut name = bte::PadNameInfo {
+        bdaddr: address,
+        name: [0x5a; bte::BD_NAME_LEN],
+    };
+    // SAFETY: Both output objects stay live through synchronous completion.
+    let read_address = unsafe { bte::read_bd_addr(&mut address, Some(complete)) };
+    logger.record(
+        "lwBT address read preserves output on closed adapter",
+        completed_once(read_address, bte::ERR_IF) && address.addr == [0xa5; 6],
+    );
+    let read_name = unsafe { bte::read_remote_name(&mut name, Some(complete)) };
+    logger.record(
+        "lwBT name read preserves output on closed adapter",
+        completed_once(read_name, bte::ERR_IF)
+            && name.bdaddr.addr == [0xa5; 6]
+            && name.name == [0x5a; bte::BD_NAME_LEN],
+    );
+    let inquiry = bte::inquiry(1, 0, Some(complete));
+    logger.record(
+        "lwBT inquiry completes with closed adapter error",
+        completed_once(inquiry, bte::ERR_IF),
+    );
+    let periodic = bte::periodic_inquiry(1, 0, Some(complete));
+    logger.record(
+        "lwBT periodic inquiry rejects closed adapter",
+        completed_once(periodic, bte::ERR_IF),
+    );
+    let mode = bte::get_pair_mode();
+    logger.record(
+        "lwBT failed inquiry preserves normal pair mode",
+        mode == bte::PAIR_MODE_NORMAL,
+    );
+    let exit = bte::exit_periodic_inquiry();
+    logger.record(
+        "lwBT inquiry exit rejects closed adapter",
+        exit == bte::ERR_IF,
+    );
+
+    let bad_filter = bte::set_evt_filter(0xff, 0, null_mut(), Some(complete));
+    let bad_filter_rejected = completed_once(bad_filter, bte::ERR_VAL);
+    let missing_condition = bte::set_evt_filter(2, 0, null_mut(), Some(complete));
+    let missing_condition_rejected = completed_once(missing_condition, bte::ERR_ARG);
+    let clear_filter = bte::set_evt_filter(0, 0, null_mut(), Some(complete));
+    logger.record(
+        "lwBT event filter validates input before transport",
+        bad_filter_rejected
+            && missing_condition_rejected
+            && completed_once(clear_filter, bte::ERR_IF),
+    );
+
+    let mut message = [0x52u8];
+    // SAFETY: The message is readable and the null PCB must be rejected.
+    let send = unsafe { bte::sendmessageasync(null_mut(), message.as_mut_ptr().cast(), 1, None) };
+    logger.record(
+        "lwBT asynchronous message rejects null PCB",
+        send == bte::ERR_ARG,
     );
 }
 
