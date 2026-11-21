@@ -2433,6 +2433,23 @@ fn probe_exi_selection(logger: &mut ProbeLogger) {
 
 fn probe_exi_invalid_channels(logger: &mut ProbeLogger) {
     use ogc_exi as exi;
+    use ogc_exi::sys as raw_exi;
+
+    logger.record(
+        "raw EXI attach rejects an invalid channel",
+        raw_exi::attach(-1, None) == 0,
+    );
+    logger.record(
+        "raw EXI detach rejects an invalid channel",
+        raw_exi::detach(-1) == 0,
+    );
+    let mut raw_id = 0xa5a5_5a5a;
+    // SAFETY: `raw_id` is a writable output for the complete call.
+    let raw_get_id_rc = unsafe { raw_exi::get_id(-1, 0, &mut raw_id) };
+    logger.record(
+        "raw EXI device ID query rejects an invalid channel without changing output",
+        raw_get_id_rc == 0 && raw_id == 0xa5a5_5a5a,
+    );
 
     logger.record(
         "EXI attach rejects an invalid channel",

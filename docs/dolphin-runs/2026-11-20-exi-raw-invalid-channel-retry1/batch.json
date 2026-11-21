@@ -1,0 +1,41 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-exi-sys",
+      "path": "src/lib.rs",
+      "symbol": "attach",
+      "line": 1161,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_invalid_channels",
+      "api_path": "raw_exi::attach",
+      "checks": [
+        "raw EXI attach rejects an invalid channel"
+      ]
+    },
+    {
+      "crate": "ogc-exi-sys",
+      "path": "src/lib.rs",
+      "symbol": "detach",
+      "line": 1186,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_invalid_channels",
+      "api_path": "raw_exi::detach",
+      "checks": [
+        "raw EXI detach rejects an invalid channel"
+      ]
+    },
+    {
+      "crate": "ogc-exi-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_id",
+      "line": 1081,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_exi_invalid_channels",
+      "api_path": "raw_exi::get_id",
+      "checks": [
+        "raw EXI device ID query rejects an invalid channel without changing output"
+      ]
+    }
+  ]
+}

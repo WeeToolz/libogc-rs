@@ -3154,3 +3154,6 @@ wpad-sys,src/lib.rs,start_pairing,1395,hardware,hardware-probe,probes/ogc-system
 wpad-sys,src/lib.rs,set_host_sync_button_callback,1476,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_disabled_discovery,wpad::set_host_sync_button_callback
 ogc-video-sys,src/lib.rs,init,804,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_video_setup,sys::init
 ogc-video-sys,src/lib.rs,configure,937,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_video_setup,sys::configure
+ogc-exi-sys,src/lib.rs,attach,1161,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_invalid_channels,raw_exi::attach
+ogc-exi-sys,src/lib.rs,detach,1186,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_invalid_channels,raw_exi::detach
+ogc-exi-sys,src/lib.rs,get_id,1081,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_exi_invalid_channels,raw_exi::get_id
