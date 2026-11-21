@@ -1,0 +1,68 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "close_device_async",
+      "line": 70,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_raw_invalid_handle_operations",
+      "api_path": "usb::close_device_async",
+      "checks": [
+        "USB async handle close rejects an invalid descriptor"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "close_device_handle",
+      "line": 63,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_raw_invalid_handle_operations",
+      "api_path": "usb::close_device_handle",
+      "checks": [
+        "USB handle close rejects an invalid descriptor"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "try_close_device_async",
+      "line": 82,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_raw_invalid_handle_operations",
+      "api_path": "usb::try_close_device_async",
+      "checks": [
+        "USB fallible async close maps an invalid descriptor"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "open_device_handle",
+      "line": 51,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_raw_invalid_handle_operations",
+      "api_path": "usb::open_device_handle",
+      "checks": [
+        "USB open handle rejects an invalid device id"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "get_report_descriptor_size",
+      "line": 174,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_raw_invalid_handle_operations",
+      "api_path": "usb::get_report_descriptor_size",
+      "checks": [
+        "USB report descriptor size rejects an invalid handle"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin verifies invalid descriptor and device-id rejection through the owned API wrappers. It does not test successful operations with an attached USB device."
+  ]
+}

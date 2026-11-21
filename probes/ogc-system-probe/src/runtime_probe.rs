@@ -3803,6 +3803,38 @@ fn probe_usb_api_batch(logger: &mut ProbeLogger) {
 fn probe_usb_raw_invalid_handle_operations(logger: &mut ProbeLogger) {
     use ogc_usb as usb;
     logger.record(
+        "USB open handle rejects an invalid device id",
+        usb::open_device_handle(-1, 0, 0).is_err(),
+    );
+    let mut close_fd = -1;
+    logger.record(
+        "USB handle close rejects an invalid descriptor",
+        usb::close_device_handle(&mut close_fd).is_err() && close_fd == -1,
+    );
+    let mut async_close_fd = -1;
+    // SAFETY: The descriptor pointer is valid. The invalid descriptor returns
+    // before USB registers or invokes an asynchronous callback.
+    let async_close =
+        unsafe { usb::close_device_async(&mut async_close_fd, None, core::ptr::null_mut()) };
+    logger.record(
+        "USB async handle close rejects an invalid descriptor",
+        async_close < 0 && async_close_fd == -1,
+    );
+    let mut try_async_close_fd = -1;
+    // SAFETY: The descriptor pointer is valid and the invalid descriptor is
+    // rejected before callback registration.
+    let try_async_close = unsafe {
+        usb::try_close_device_async(&mut try_async_close_fd, None, core::ptr::null_mut())
+    };
+    logger.record(
+        "USB fallible async close maps an invalid descriptor",
+        try_async_close.is_err() && try_async_close_fd == -1,
+    );
+    logger.record(
+        "USB report descriptor size rejects an invalid handle",
+        usb::get_report_descriptor_size(-1, 0) < 0,
+    );
+    logger.record(
         "USB raw suspend rejects invalid handle",
         usb::suspend_device(-1) < 0,
     );
