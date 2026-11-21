@@ -1,0 +1,48 @@
+{
+  "source_revision": "e646902a7b6e3fd20319e59307ca547db577767c",
+  "source_fingerprint": "79ed7ddade199d391f3bedf201c266aeb540821540a94add010a49a141420071",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "input_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-21-ogc-controller-bluetooth-lifecycle",
+    "--timeout-seconds",
+    "300"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "6514d409e3ecac48a494855c7dd2d9ee17a178edd43393bb7297099fb5d3faf6",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "4f27c166ec79ee19be6448a1c3f53ab41aae1562a0938b00e58dd9a17094d773",
+  "suite_sha256": "9a4129110a447ef8dc959ad78e02d375d26bbfb3bd41e2ed3248501928ef2d3d",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-21-ogc-controller-bluetooth-lifecycle/input_probe/probe.log": "20f09ff542ea0b2384f5448e7a58705d82ac69c7d1c8d4679bcabcbbd8dfded6",
+    "docs/dolphin-runs/2026-11-21-ogc-controller-bluetooth-lifecycle/input_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-21-ogc-controller-bluetooth-lifecycle/input_probe/stderr.log": "66e9d28f898ac5ade3403bfa70993b2ee4d22d2d6bcc5c4929074ace33ef2855",
+    "docs/dolphin-runs/2026-11-21-ogc-controller-bluetooth-lifecycle/input_probe/probe-transport.bin": "90a0438248811e61b323a5127ad0f1895658928c7fa1e0df98124998346f1710",
+    "docs/dolphin-runs/2026-11-21-ogc-controller-bluetooth-lifecycle/input_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-21-ogc-controller-bluetooth-lifecycle/input_probe/pages/page-002.png": "7fb1dfa487933b16ebb7740d1ec7a826d9d630930399ade66a2eb4ae8aa1512d",
+    "docs/dolphin-runs/2026-11-21-ogc-controller-bluetooth-lifecycle/input_probe/pages/page-003.png": "c3719156ad28ecb20307c9b23df55b140e045ff37a6b7c65b2972d05c083d78b",
+    "docs/dolphin-runs/2026-11-21-ogc-controller-bluetooth-lifecycle/input_probe/pages/page-004.png": "5ab4600760700820e6a151bda437d188b1172ce888c019963d40874f031a0e65"
+  },
+  "exit_code": 0
+}

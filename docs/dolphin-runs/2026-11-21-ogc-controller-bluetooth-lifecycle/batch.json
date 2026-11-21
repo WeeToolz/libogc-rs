@@ -1,0 +1,56 @@
+{
+  "probe": "input_probe",
+  "cases": [
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "enable_wpad",
+      "line": 963,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "monitor",
+      "api_path": "controllers.enable_wpad",
+      "checks": [
+        "WPAD initialized"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "shutdown_bluetooth",
+      "line": 986,
+      "evidence_path": "probes/ogc-system-probe/src/controller_cleanup.rs",
+      "function": "shutdown_controller_manager",
+      "api_path": "manager.shutdown_bluetooth",
+      "checks": [
+        "Bluetooth shutdown request accepted"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "bluetooth_shutdown_complete",
+      "line": 989,
+      "evidence_path": "probes/ogc-system-probe/src/controller_cleanup.rs",
+      "function": "shutdown_controller_manager",
+      "api_path": "manager.bluetooth_shutdown_complete",
+      "checks": [
+        "Bluetooth shutdown completed"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "bluetooth_diagnostics",
+      "line": 982,
+      "evidence_path": "probes/ogc-system-probe/src/controller_cleanup.rs",
+      "function": "shutdown_controller_manager",
+      "api_path": "manager.bluetooth_diagnostics",
+      "checks": [
+        "Bluetooth transport has no terminal failure"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin tests controller-manager Bluetooth lifecycle behavior in the emulator. It does not verify behavior with a physical Wii Remote or USB controller."
+  ]
+}
