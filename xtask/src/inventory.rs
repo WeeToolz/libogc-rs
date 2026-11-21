@@ -57,6 +57,7 @@ enum EvidenceScope {
     DisabledAdapter,
     InvalidChannel,
     InvalidArguments,
+    EmptyChannel,
     NoController,
     NoControllerAndInvalidArguments,
     DolphinCacheRegister,
@@ -73,6 +74,7 @@ impl EvidenceScope {
             "disabled-adapter" => Self::DisabledAdapter,
             "invalid-channel" => Self::InvalidChannel,
             "invalid-arguments" => Self::InvalidArguments,
+            "empty-channel" => Self::EmptyChannel,
             "no-controller" => Self::NoController,
             "no-controller-and-invalid-arguments" => Self::NoControllerAndInvalidArguments,
             "dolphin-cache-register" => Self::DolphinCacheRegister,
@@ -99,6 +101,9 @@ impl EvidenceScope {
             }
             Self::InvalidArguments => {
                 "Invalid argument behavior only in Dolphin. Valid operation with a controller remains unverified."
+            }
+            Self::EmptyChannel => {
+                "Valid empty-channel behavior only in Dolphin. Effects with a connected controller remain unverified."
             }
             Self::NoController => {
                 "Valid empty-channel and invalid-channel behavior only in Dolphin. Behavior with a connected controller remains unverified."
@@ -128,6 +133,7 @@ impl EvidenceScope {
             | Self::DisabledAdapter
             | Self::InvalidChannel
             | Self::InvalidArguments
+            | Self::EmptyChannel
             | Self::NoController => "unverified",
             Self::NoControllerAndInvalidArguments => "unverified",
             _ => declared,
@@ -1803,6 +1809,7 @@ mod tests {
             "disabled-adapter",
             "invalid-channel",
             "invalid-arguments",
+            "empty-channel",
             "no-controller",
             "no-controller-and-invalid-arguments",
         ] {

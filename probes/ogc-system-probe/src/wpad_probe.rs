@@ -171,6 +171,14 @@ fn probe_empty_channel_stream(logger: &mut ProbeLogger) {
 
 fn probe_valid_channel_empty_queries(logger: &mut ProbeLogger) {
     let chan = wpad::WPAD_CHAN_0;
+    let mut expansion = 0xfeed_beef;
+    // SAFETY: The output points to a valid local value.
+    let channel_status = unsafe { wpad::probe(chan, &mut expansion) };
+    logger.record(
+        "WPAD setter checks confirm an empty channel",
+        channel_status == wpad::WPAD_ERR_NO_CONTROLLER as i32,
+    );
+
     logger.record(
         "WPAD empty channel data pointer is available",
         !wpad::data(chan).is_null(),
@@ -188,15 +196,22 @@ fn probe_valid_channel_empty_queries(logger: &mut ProbeLogger) {
         wpad::is_speaker_enabled(chan) == wpad::WPAD_ERR_NOT_READY as i32,
     );
     logger.record(
-        "WPAD empty channel data format update succeeds",
+        "WPAD empty channel data format update returns success",
         wpad::set_data_format(chan, wpad::WPAD_FMT_BTNS_ACC) == wpad::WPAD_ERR_NONE as i32,
     );
+    let resolution_result = wpad::set_v_res(chan, 640, 480);
+    let data = wpad::data(chan);
+    // SAFETY: WPAD returns a stable pointer to this channel's runtime data.
+    let resolution_retained = !data.is_null()
+        && unsafe {
+            (*data).ir.vres == [640, 480] && (*data).data_present & wpad::WPAD_DATA_IR != 0
+        };
     logger.record(
-        "WPAD empty channel IR resolution update succeeds",
-        wpad::set_v_res(chan, 640, 480) == wpad::WPAD_ERR_NONE as i32,
+        "WPAD empty channel retains IR resolution before Remote connection",
+        resolution_result == wpad::WPAD_ERR_NONE as i32 && resolution_retained,
     );
     logger.record(
-        "WPAD empty channel idle thresholds update succeeds",
+        "WPAD empty channel idle thresholds update returns success",
         wpad::set_idle_thresholds(chan, 5, 11, 17, 23, 29, 31) == wpad::WPAD_ERR_NONE as i32,
     );
     logger.record(

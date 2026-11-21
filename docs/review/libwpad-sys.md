@@ -50,6 +50,12 @@ The empty-channel stream check found a separate result mismatch. C returns `WPAD
 
 The 2026-11-21 Dolphin probe found that the single-channel PowerPC wrappers for `WPAD_ControlSpeaker` and `WPAD_Rumble` returned `WPAD_ERR_NO_CONTROLLER` when WPAD was enabled but the valid channel had no Remote. C returns `WPAD_ERR_NONE` in that state because it skips the controller operation when the channel pointer is null (`wiiuse/wpad.c:1575-1579,1800-1810`). The wrappers now use the existing backend no-op path for absent controllers. The corrected Dolphin run checks empty-channel success and invalid-channel rejection for both calls. It does not establish behavior with a connected Remote, so the inventory retains partial `no-controller` evidence and both APIs remain unverified.
 
+## Empty-channel setter evidence review
+
+The earlier `WPAD_SetDataFormat`, `WPAD_SetVRes`, and `WPAD_SetIdleThresholds` checks asserted only success on a valid channel without a Remote. They did not establish data-format selection or threshold behavior with a connected Remote. Their inventory rows now use partial `empty-channel` evidence. The `WPAD_SetVRes` probe also checks that Rust retains the requested coordinates in its channel data before a Remote connects; this does not prove camera output or physical acceptance. The default inventory audit must keep all three APIs unverified until their connected-controller effects are checked.
+
+The retained `WPAD_SetVRes` value and the `WPAD_FORMAT` value are Rust-side configuration for later Remote setup. C `WPAD_SetVRes` calls `wiiuse_set_ir_vres` only when `__wpads[chan]` exists (`wiiuse/wpad.c:1569-1593`), and C `WPAD_SetDataFormat` changes `data_fmt` only when that pointer exists (`wiiuse/wpad.c:1503-1538`). The Rust behavior before connection is therefore an API difference from C. The resolution behavior is documented in the backend as preconnection configuration; the data-format difference still needs an explicit parity decision.
+
 ## Fix handoff
 
 Implementer: `/root/worker_a`. Independent reviewer: `/root/reviewer_6` (review pending).
