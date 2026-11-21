@@ -3217,3 +3217,4 @@ ogc-video,src/lib.rs,console_init_framebuffer,1030,compatibility-forwarder,hardw
 ogc-stm,src/lib.rs,close,412,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::close
 ogc-stm,src/lib.rs,try_close,449,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_close
 ogc-video,src/lib.rs,set_next_right_framebuffer,510,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_framebuffer_updates,video::set_next_right_framebuffer,
+ogc-video,src/lib.rs,console_init_ex,953,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_console_init_ex,video::console_init_ex

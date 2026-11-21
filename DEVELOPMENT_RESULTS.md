@@ -1,5 +1,14 @@
 # Development results
 
+## 2026-11-21 video extended console initialization
+
+The [video batch](docs/dolphin-runs/2026-11-21-video-console-init-ex-focused-v2/README.md)
+initializes `console_init_ex` twice with the active video mode. It checks the
+console layout, buffer reuse, retrace callback setup, and restoration to the
+framebuffer console. Dolphin passed all 750 runtime checks. The inventory fell
+from 193 to 192 unverified entries. This covers the valid initialized-console
+path in Dolphin; physical Wii acceptance remains untested.
+
 ## 2026-11-21 video right framebuffer wrapper
 
 The [video batch](docs/dolphin-runs/2026-11-21-video-right-framebuffer-focused-v2/README.md)

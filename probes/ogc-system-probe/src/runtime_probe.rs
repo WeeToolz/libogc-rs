@@ -165,6 +165,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_video_register_checks(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_video_framebuffer_updates(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_video_console_init_ex(logger);
     probe_video_console_state(logger);
     probe_wd_information_elements(logger);
     probe_wd_scan_defaults(logger);
@@ -3386,6 +3388,61 @@ fn probe_video_framebuffer_updates(logger: &mut ProbeLogger) {
     logger.record(
         "Video right framebuffer setter records and restores its pointer",
         right_framebuffer_recorded && right_framebuffer_restored,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_video_console_init_ex(logger: &mut ProbeLogger) {
+    use ogc_video as video;
+
+    logger.report_step("Video extended console initialization");
+    let mode = unsafe { video::get_preferred_mode(core::ptr::null_mut()) };
+    let framebuffer = video::get_current_framebuffer();
+    if mode.is_null() || framebuffer.is_null() {
+        logger.record(
+            "Video console_init_ex has a live mode and framebuffer",
+            false,
+        );
+        return;
+    }
+
+    let width = unsafe { (*mode).fb_width as i32 };
+    let height = unsafe { (*mode).xfb_height as i32 };
+    let previous_callback = video::set_post_retrace_callback(None);
+    let first = unsafe { video::console_init_ex(mode, 0, 0, width, height) };
+    let first_console = video::console_get_default();
+    let first_buffer = if first_console.is_null() {
+        core::ptr::null_mut()
+    } else {
+        unsafe { (*first_console).destbuffer }
+    };
+    let first_layout = !first_buffer.is_null()
+        && unsafe {
+            (*first_console).con_xres == width / 8 * 8
+                && (*first_console).con_yres == height / 16 * 16
+                && (*first_console).tgt_stride == width * 2
+                && (*first_console).con_stride == width / 8 * 8 * 2
+        };
+
+    let second = unsafe { video::console_init_ex(mode, 0, 0, width, height) };
+    let second_console = video::console_get_default();
+    let second_buffer = if second_console.is_null() {
+        core::ptr::null_mut()
+    } else {
+        unsafe { (*second_console).destbuffer }
+    };
+    let installed_callback = video::set_post_retrace_callback(previous_callback);
+    let reused_buffer = !first_buffer.is_null() && first_buffer == second_buffer;
+    let restored =
+        unsafe { video::console_init_framebuffer(mode, framebuffer, 0, 0, width, height).is_ok() };
+    logger.record(
+        "Video console_init_ex initializes and reuses its console buffer",
+        first.is_ok()
+            && second.is_ok()
+            && first_layout
+            && reused_buffer
+            && installed_callback.is_some()
+            && restored,
     );
 }
 

@@ -1,0 +1,17 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "console_init_ex",
+      "line": 953,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_console_init_ex",
+      "api_path": "video::console_init_ex",
+      "checks": [
+        "Video console_init_ex initializes and reuses its console buffer"
+      ]
+    }
+  ]
+}
