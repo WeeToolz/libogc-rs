@@ -17,7 +17,7 @@ pub enum StartupStep {
 }
 
 impl StartupStep {
-    const fn stage(self) -> u32 {
+    pub(super) const fn stage(self) -> u32 {
         match self {
             Self::LowMemory => 1,
             Self::IpcBuffers => 2,

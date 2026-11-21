@@ -1,0 +1,63 @@
+{
+  "source_revision": "6d1751ae3f4d81a7c2445adf4db33f0fe763e4ff",
+  "source_fingerprint": "5ce39a89a41d74584c1561a5498eed696e1cbc3281f6380eda662896c7b64d59",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "lwp_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final",
+    "--timeout-seconds",
+    "300"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "74f3ee18681d6f24029b99de14b5c5bb884a6d39598675be7a7cdc37296f0069",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "c851b37b2c47652690caaf2189e076d75e037b0f54ce7a9929fb13e00adabd7a",
+  "suite_sha256": "0d0a605f43981bc0aa1660266fe8e1fc3b2d98fb6be46aef05a9935fa7ffd9bc",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/probe.log": "e934c8e6a98c362189c913d87f7e6332fddcd5ec16e308fea2930f5a62b7e358",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/stderr.log": "bde8733e288a8ab01d6158e1025b48db10ba2d48b117bc73a84c29b4e2e288a2",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/probe-transport.bin": "02a15f2bdc314fd3028594ea0ee58e147497b633eaa114fdabb17b53eebdc741",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/pages/page-002.png": "7e7f35b89bf10092f2be39148be381b588e12699cc2f493b43854a624b838913",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/pages/page-003.png": "2cb38c70a7db3f4733d8538b12c84cd7c172c4091ba22384838e038629a7f248",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/pages/page-004.png": "965722d3b87f06264575224d8455aa14806e5fc007fc919d9c413b78ff64bf95",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/pages/page-005.png": "1a0e29620cf0f37ec4f57633b4e58af2fedf52f5f469a410084b2502914584a8",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/pages/page-006.png": "26fc1dd07b7bf80bc60811bae695817e9de2aa0453a442a1abee710c27b377f7",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/pages/page-007.png": "f5f9af0e5b31f301f545da4e6567459ba7b449a7afea351f30295e8de4789106",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/pages/page-008.png": "92016e8f400229063eb47dba854d27e8772273a4387bff7ac20c8af9c8a90995",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/pages/page-009.png": "098f3e78b4f167251036b5d579db8da63a18fe793bfe9e800f91237c9b347d04",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/pages/page-010.png": "993fa9a1e6f29b7670a39bb93f46b1810c50c4e7b248d868f82b6a4dc1c10ee5",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/pages/page-011.png": "7571125e2109a3b5ffb6c4e9d8ab701f340a56ed0b4d6fc1190172221824e707",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/pages/page-012.png": "8721b583f57fa8c1e7bddc4a784dbd574eb9349ee986ffcb9b5989227ce72982",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/pages/page-013.png": "2febf695a821d06aa5b706e180c0ca69eeaf540527177d798e9bee8a856fff9a",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/pages/page-014.png": "79a185e21412f6b198ef614c552dc18a587aab0653add3eeb3910c6eadd449bc",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/pages/page-015.png": "846edd3bc6017560cba2c1a04ceacaef5b8b948fe6a7a1d5c2fdafcffbced243",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/pages/page-016.png": "8ad7731ac68fb95cdf8ad333c881e34aa6d6e03bc393b7f4b82f21988a0ec20f",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/pages/page-017.png": "c1c92a5bdb2e43149b52811f5fe855209b86796059c5776947dc522cb2147be0",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/pages/page-018.png": "f5f7372a00c2ed0ec8d6ded00de4871ff09666a75c5d233d6c9fb16727aece76",
+    "docs/dolphin-runs/2026-11-21-ogc-runtime-driver-contracts-final/lwp_probe/pages/page-019.png": "e67c82201e0ed631c61dd23ff0f8b7e39fa36bd6978fe13f766f4c5b3b156ab0"
+  },
+  "exit_code": 0
+}

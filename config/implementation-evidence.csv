@@ -3183,3 +3183,17 @@ ogc-si-sys,src/lib.rs,si_fault_install,481,hardware,hardware-probe,probes/ogc-sy
 ogc-si-sys,src/lib.rs,si_fault_clear,513,hardware,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,probe_si_fault_raw_api_paths,ogc_si::sys::si_fault_clear
 ogc-si-sys,src/lib.rs,si_fault_release,525,hardware,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,probe_si_fault_raw_api_paths,ogc_si::sys::si_fault_release
 ogc-si-sys,src/lib.rs,si_fault_report,557,hardware,hardware-probe,probes/ogc-system-probe/src/pad_diagnostics_probe.rs,probe_si_fault_raw_api_paths,ogc_si::sys::si_fault_report
+ogc-runtime,src/driver.rs,block_count,27,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,probe_driver_trait_contracts,block.block_count
+ogc-runtime,src/driver.rs,block_size,26,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,probe_driver_trait_contracts,block.block_size
+ogc-runtime,src/driver.rs,cancel,38,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,probe_driver_trait_contracts,operation.cancel
+ogc-runtime,src/driver.rs,flush,30,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,probe_driver_trait_contracts,block.flush
+ogc-runtime,src/driver.rs,initialize,20,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,probe_driver_trait_contracts,lifecycle.initialize
+ogc-runtime,src/driver.rs,open,43,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,probe_driver_trait_contracts,debug.open
+ogc-runtime,src/driver.rs,read,44,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,probe_driver_trait_contracts,debug.read
+ogc-runtime,src/driver.rs,read_blocks,28,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,probe_driver_trait_contracts,block.read_blocks
+ogc-runtime,src/driver.rs,receive_report,52,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,probe_driver_trait_contracts,hid.receive_report
+ogc-runtime,src/driver.rs,send_report,51,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,probe_driver_trait_contracts,hid.send_report
+ogc-runtime,src/driver.rs,shutdown,21,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,probe_driver_trait_contracts,lifecycle.shutdown
+ogc-runtime,src/driver.rs,state,19,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,probe_driver_trait_contracts,lifecycle.state
+ogc-runtime,src/driver.rs,write,45,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,probe_driver_trait_contracts,debug.write
+ogc-runtime,src/driver.rs,write_blocks,29,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,probe_driver_trait_contracts,block.write_blocks
