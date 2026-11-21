@@ -56,6 +56,7 @@ enum EvidenceScope {
     ClosedService,
     DisabledAdapter,
     InvalidChannel,
+    InvalidArguments,
     DolphinCacheRegister,
     DolphinCacheInstructions,
     DolphinHostCallback,
@@ -69,6 +70,7 @@ impl EvidenceScope {
             "closed-service" => Self::ClosedService,
             "disabled-adapter" => Self::DisabledAdapter,
             "invalid-channel" => Self::InvalidChannel,
+            "invalid-arguments" => Self::InvalidArguments,
             "dolphin-cache-register" => Self::DolphinCacheRegister,
             "dolphin-cache-instructions" => Self::DolphinCacheInstructions,
             "dolphin-host-callback" => Self::DolphinHostCallback,
@@ -91,6 +93,9 @@ impl EvidenceScope {
             Self::InvalidChannel => {
                 "Invalid channel behavior only in Dolphin. Valid channel behavior is unverified."
             }
+            Self::InvalidArguments => {
+                "Invalid argument behavior only in Dolphin. Valid operation with a controller remains unverified."
+            }
             Self::DolphinCacheRegister => {
                 "Dolphin HID0 transitions and restoration only. Physical cache state and timing are unverified."
             }
@@ -111,7 +116,8 @@ impl EvidenceScope {
             Self::MockDispatch
             | Self::ClosedService
             | Self::DisabledAdapter
-            | Self::InvalidChannel => "unverified",
+            | Self::InvalidChannel
+            | Self::InvalidArguments => "unverified",
             _ => declared,
         }
     }
@@ -1759,6 +1765,7 @@ mod tests {
             "closed-service",
             "disabled-adapter",
             "invalid-channel",
+            "invalid-arguments",
         ] {
             let scope = EvidenceScope::parse(scope).unwrap();
             assert_eq!(scope.classification("protocol"), "unverified");

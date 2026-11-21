@@ -3,6 +3,7 @@ use core::sync::atomic::{AtomicU32, Ordering};
 use wpad_sys as wpad;
 
 static BLUETOOTH_POLL_MARKS: AtomicU32 = AtomicU32::new(0);
+static mut EVENT_BUFFER: core::mem::MaybeUninit<wpad::WpadData> = core::mem::MaybeUninit::uninit();
 
 /// Check the WPAD host lifecycle without starting a Bluetooth inquiry or
 /// changing saved controller configuration.
@@ -24,6 +25,7 @@ pub fn run(logger: &mut ProbeLogger) {
         wpad::set_bluetooth_poll_hook(None);
         return;
     }
+    probe_valid_channel_argument_guards(logger);
 
     let deadline = ogc_system::time() + 60_750_000 * 6;
     while wpad::get_status() == wpad::WPAD_STATE_ENABLING && ogc_system::time() < deadline {
@@ -408,6 +410,84 @@ fn probe_invalid_channel_commands(logger: &mut ProbeLogger) {
     logger.record(
         "WPAD invalid channel rejects IR resolution",
         wpad::set_v_res(invalid, 640, 480) == bad_channel,
+    );
+}
+
+fn probe_valid_channel_argument_guards(logger: &mut ProbeLogger) {
+    let chan = wpad::WPAD_CHAN_0;
+    let bad_value = wpad::WPAD_ERR_BADVALUE as i32;
+
+    // SAFETY: The API rejects a null event buffer before it reads or writes it.
+    let null_events = unsafe { wpad::set_event_bufs(chan, core::ptr::null_mut(), 1) };
+    logger.record(
+        "WPAD valid channel rejects a null event buffer",
+        null_events == bad_value,
+    );
+
+    let mut event = wpad::WpadData {
+        err: 7,
+        data_present: 0x1234,
+        ..wpad::WpadData::default()
+    };
+    // SAFETY: `event` is a valid writable value. The API rejects zero count
+    // before it accesses the buffer.
+    let zero_events = unsafe { wpad::set_event_bufs(chan, &mut event, 0) };
+    logger.record(
+        "WPAD valid channel rejects a zero event count without writing",
+        zero_events == bad_value && event.err == 7 && event.data_present == 0x1234,
+    );
+
+    let mut expansion = 0;
+    // SAFETY: `expansion` is a writable output for this query.
+    let channel_empty =
+        unsafe { wpad::probe(chan, &mut expansion) } == wpad::WPAD_ERR_NO_CONTROLLER as i32;
+    let event_buffer = core::ptr::addr_of_mut!(EVENT_BUFFER).cast::<wpad::WpadData>();
+    let initial_event = if channel_empty {
+        // SAFETY: This buffer has static storage and one writable WpadData
+        // slot. The API copies current channel state before it returns.
+        unsafe {
+            event_buffer.write(wpad::WpadData {
+                err: 7,
+                data_present: 0x1234,
+                ..wpad::WpadData::default()
+            });
+        }
+        // SAFETY: `event_buffer` remains valid for the lifetime of the driver.
+        let configured_events = unsafe { wpad::set_event_bufs(chan, event_buffer, 1) };
+        if configured_events == wpad::WPAD_ERR_NONE as i32 {
+            // SAFETY: No controller is attached, so no asynchronous report can
+            // write the slot while the probe reads it.
+            Some(unsafe { *event_buffer })
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+    logger.record(
+        "WPAD empty channel installs and initializes an event buffer",
+        channel_empty
+            && initial_event.is_some_and(|event| {
+                event.err == wpad::WPAD_ERR_NO_CONTROLLER
+                    && event.data_present == 0
+                    && event.battery_level == 0
+            }),
+    );
+
+    // SAFETY: The API rejects a null data buffer before it creates a slice.
+    let null_stream = unsafe { wpad::send_stream_data(chan, core::ptr::null_mut(), 1) };
+    logger.record(
+        "WPAD valid channel rejects a null stream buffer",
+        null_stream == bad_value,
+    );
+
+    let mut byte = 0u8;
+    // SAFETY: `byte` is a valid pointer. A zero length requires no readable
+    // bytes and is rejected before the stream is scheduled.
+    let empty_stream = unsafe { wpad::send_stream_data(chan, (&mut byte as *mut u8).cast(), 0) };
+    logger.record(
+        "WPAD valid channel rejects a zero stream length",
+        empty_stream == bad_value,
     );
 }
 

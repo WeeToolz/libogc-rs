@@ -25,7 +25,9 @@ GENERATED = (
     Path("docs/generated/runtime-audit-debt.md"),
 )
 KEYS = ("crate", "target_implementation_file", "symbol", "line")
-PARTIAL_SCOPES = {"mock-dispatch", "closed-service", "disabled-adapter", "invalid-channel"}
+PARTIAL_SCOPES = {
+    "mock-dispatch", "closed-service", "disabled-adapter", "invalid-channel", "invalid-arguments"
+}
 
 
 def command(*args, **kwargs):

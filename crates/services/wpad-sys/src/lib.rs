@@ -1332,10 +1332,10 @@ pub fn is_speaker_enabled(chan: i32) -> i32 {
 /// Queues speaker stream data for transmission in 20-byte reports.
 ///
 /// # Safety
-/// When running on Wii, `buf` must point to `len` readable bytes and remain
-/// readable until the stream completes, another stream replaces it, or WPAD
-/// shuts down. The Wii backend reads each 20-byte chunk from this buffer on a
-/// timer.
+/// If the call accepts the data, `buf` must point to `len` readable bytes and
+/// remain readable until the stream completes, another stream replaces it, or
+/// WPAD shuts down. The Wii backend reads each 20-byte chunk from this buffer
+/// on a timer. Null buffers and zero lengths are rejected before any read.
 pub unsafe fn send_stream_data(chan: i32, buf: *mut c_void, len: u32) -> i32 {
     if cfg!(target_arch = "powerpc") {
         let Some(chan) = valid_chan(chan) else {

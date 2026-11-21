@@ -38,6 +38,12 @@ The two channel findings previously recorded in `docs/review/libogc.md` are addr
 
 The read-only audit covers the four behaviors listed above. The wider WPAD implementation, including full event decoding, IR, speaker commands, lifecycle, and callback ordering, remains outside scope. The implementation checks and hardware boundary are recorded in the fix handoff below.
 
+## Focused Dolphin argument checks
+
+The 2026-11-21 Dolphin probe checks valid-channel rejection for a null or zero-count event buffer and a null or zero-length speaker stream. These checks confirm the Rust guards before the code stores a pointer, creates a slice, or schedules a stream. They do not test successful speaker output or event-buffer operation with a connected Remote.
+
+These guards intentionally differ from libogc C. `WPAD_SetEventBufs` stores the supplied pointer and count without rejecting null or zero values (`wiiuse/wpad.c:1648-1665`). `WPAD_SendStreamData` stores the buffer and length and starts an alarm for an active speaker, without checking null or zero (`wiiuse/wpad.c:1921-1948`). Rust rejects those inputs with `WPAD_ERR_BADVALUE`; this is a documented safety difference, not evidence of C parity for malformed inputs.
+
 ## Fix handoff
 
 Implementer: `/root/worker_a`. Independent reviewer: `/root/reviewer_6` (review pending).
