@@ -42,6 +42,7 @@ pub fn run(logger: &mut ProbeLogger) {
         "WPAD reports enabled",
         wpad::get_status() == wpad::WPAD_STATE_ENABLED,
     );
+    probe_valid_channel_empty_queries(logger);
     probe_invalid_channel_commands(logger);
     probe_bluetooth_helpers(logger);
 
@@ -88,6 +89,60 @@ pub fn run(logger: &mut ProbeLogger) {
     logger.record(
         "WPAD reports disabled after shutdown",
         wpad::get_status() == wpad::WPAD_STATE_DISABLED,
+    );
+}
+
+fn probe_valid_channel_empty_queries(logger: &mut ProbeLogger) {
+    let chan = wpad::WPAD_CHAN_0;
+    logger.record(
+        "WPAD empty channel data pointer is available",
+        !wpad::data(chan).is_null(),
+    );
+    logger.record(
+        "WPAD empty channel battery level is zero",
+        wpad::battery_level(chan) == 0,
+    );
+    logger.record(
+        "WPAD empty channel button states are zero",
+        wpad::buttons_down(chan) == 0
+            && wpad::buttons_held(chan) == 0
+            && wpad::buttons_up(chan) == 0,
+    );
+
+    let mut accel = wpad::Vec3w {
+        x: 0x1234,
+        y: 0x2345,
+        z: 0x3456,
+    };
+    // SAFETY: The output points to a valid local value.
+    unsafe { wpad::accel(chan, &mut accel) };
+    logger.record(
+        "WPAD empty channel acceleration is zero",
+        accel.x == 0 && accel.y == 0 && accel.z == 0,
+    );
+
+    let mut ir = wpad::Ir {
+        num_dots: 9,
+        state: 7,
+        valid: 5,
+        ..wpad::Ir::default()
+    };
+    // SAFETY: The output points to a valid local value.
+    unsafe { wpad::ir(chan, &mut ir) };
+    logger.record(
+        "WPAD empty channel infrared state is zero",
+        ir.num_dots == 0 && ir.state == 0 && ir.valid == 0,
+    );
+
+    let mut expansion = wpad::Expansion {
+        type_: 0x1234,
+        ..wpad::Expansion::default()
+    };
+    // SAFETY: The output points to a valid local value.
+    unsafe { wpad::expansion(chan, &mut expansion) };
+    logger.record(
+        "WPAD empty channel expansion type is none",
+        expansion.type_ == 0,
     );
 }
 
