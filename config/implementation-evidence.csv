@@ -2613,8 +2613,6 @@ ogc-video-sys,src/lib.rs,flush,852,hardware,hardware-probe,probes/ogc-system-pro
 ogc-video-sys,src/lib.rs,set_black,881,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_framebuffer_updates,raw_video::set_black
 ogc-video-sys,src/lib.rs,have_component_cable,1116,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_framebuffer_updates,raw_video::have_component_cable
 ogc-video-sys,src/lib.rs,get_preferred_mode,1144,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_framebuffer_updates,raw_video::get_preferred_mode
-wpad-sys,src/lib.rs,disconnect,1288,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_commands,wpad::disconnect,invalid-channel
-wpad-sys,src/lib.rs,set_motion_plus,1122,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_invalid_channel_commands,wpad::set_motion_plus,invalid-channel
 wpad-sys,src/lib.rs,bluetooth_diagnostics,70,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_bluetooth_helpers,wpad::bluetooth_diagnostics
 wpad-sys,src/lib.rs,bluetooth_hid_next_event,60,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_bluetooth_helpers,wpad::bluetooth_hid_next_event
 wpad-sys,src/lib.rs,bluetooth_hid_state,46,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_bluetooth_helpers,wpad::bluetooth_hid_state
@@ -3213,3 +3211,5 @@ wpad-sys,src/lib.rs,rumble,1503,hardware,hardware-probe,probes/ogc-system-probe/
 wpad-sys,src/lib.rs,send_stream_data,1339,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_empty_channel_stream,wpad::send_stream_data,no-controller-and-invalid-arguments
 ogc-wiilaunch,src/lib.rs,try_initialize,275,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wiilaunch_error_codes,ogc_wiilaunch::try_initialize
 wpad-sys,src/lib.rs,set_data_format,1100,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_valid_channel_empty_queries,wpad::set_data_format,empty-channel
+wpad-sys,src/lib.rs,set_motion_plus,1122,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_valid_channel_empty_queries,wpad::set_motion_plus,no-controller
+wpad-sys,src/lib.rs,disconnect,1288,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_empty_channel_commands,wpad::disconnect,no-controller

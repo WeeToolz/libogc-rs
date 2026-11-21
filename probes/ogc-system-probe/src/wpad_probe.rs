@@ -99,6 +99,18 @@ pub fn run(logger: &mut ProbeLogger) {
         "WPAD disabled adapter rejects data format",
         wpad::set_data_format(wpad::WPAD_CHAN_0, i32::MAX) == wpad::WPAD_ERR_NOT_READY as i32,
     );
+    logger.record(
+        "WPAD disabled adapter rejects disconnect",
+        wpad::disconnect(wpad::WPAD_CHAN_0) == wpad::WPAD_ERR_NOT_READY as i32,
+    );
+    logger.record(
+        "WPAD disabled adapter rejects MotionPlus configuration",
+        wpad::set_motion_plus(wpad::WPAD_CHAN_0, 1) == wpad::WPAD_ERR_NOT_READY as i32,
+    );
+    logger.record(
+        "WPAD disabled adapter rejects all-channel MotionPlus configuration",
+        wpad::set_motion_plus(wpad::WPAD_CHAN_ALL, 1) == wpad::WPAD_ERR_NOT_READY as i32,
+    );
 }
 
 fn probe_empty_channel_event_queue(logger: &mut ProbeLogger) {
@@ -122,6 +134,18 @@ fn probe_empty_channel_event_queue(logger: &mut ProbeLogger) {
 
 fn probe_empty_channel_commands(logger: &mut ProbeLogger) {
     let channel = wpad::WPAD_CHAN_0;
+    let mut expansion = 0xfeed_beef;
+    // SAFETY: The output points to a valid local value.
+    let channel_status = unsafe { wpad::probe(channel, &mut expansion) };
+    logger.record(
+        "WPAD disconnect checks confirm an empty channel",
+        channel_status == wpad::WPAD_ERR_NO_CONTROLLER as i32,
+    );
+    logger.record(
+        "WPAD empty channel disconnect succeeds",
+        channel_status == wpad::WPAD_ERR_NO_CONTROLLER as i32
+            && wpad::disconnect(channel) == wpad::WPAD_ERR_NONE as i32,
+    );
     logger.record(
         "WPAD empty channel speaker control succeeds",
         wpad::control_speaker(channel, 1) == wpad::WPAD_ERR_NONE as i32,
@@ -140,6 +164,10 @@ fn probe_empty_channel_commands(logger: &mut ProbeLogger) {
     logger.record(
         "WPAD invalid channel rejects rumble control",
         wpad::rumble(invalid, 1) == bad_channel,
+    );
+    logger.record(
+        "WPAD invalid channel disconnect is rejected",
+        wpad::disconnect(invalid) == bad_channel,
     );
 }
 
@@ -221,6 +249,19 @@ fn probe_valid_channel_empty_queries(logger: &mut ProbeLogger) {
     logger.record(
         "WPAD empty channel idle thresholds update returns success",
         wpad::set_idle_thresholds(chan, 5, 11, 17, 23, 29, 31) == wpad::WPAD_ERR_NONE as i32,
+    );
+    logger.record(
+        "WPAD empty channel MotionPlus configuration succeeds",
+        wpad::set_motion_plus(chan, 1) == wpad::WPAD_ERR_NONE as i32,
+    );
+    logger.record(
+        "WPAD all-channel MotionPlus configuration succeeds without controllers",
+        wpad::set_motion_plus(wpad::WPAD_CHAN_ALL, 1) == wpad::WPAD_ERR_NONE as i32,
+    );
+    let invalid = wpad::WPAD_MAX_WIIMOTES as i32;
+    logger.record(
+        "WPAD invalid channel MotionPlus configuration is rejected",
+        wpad::set_motion_plus(invalid, 1) == wpad::WPAD_ERR_BAD_CHANNEL as i32,
     );
     logger.record(
         "WPAD empty channel button states are zero",

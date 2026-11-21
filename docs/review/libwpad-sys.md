@@ -238,9 +238,13 @@ Regression checks cover both return cases and confirm active slots proceed to no
 
 **Result: PASS for the bounded return-code fix.** Reviewer: `/root/reviewer_d`; implementer: `worker_b`.
 
-C `WPAD_SetMotionPlus` validates the channel, returns `WPAD_ERR_NOT_READY` when WPAD is disabled, and returns success for an allocated but inactive slot without calling the controller routine (`C-sources/libogc/wiiuse/wpad.c:1541-1566`; channel slots are allocated in `wiiuse/wiiuse.c:94-138`). Rust validates the index in the public wrapper and runs `motion_plus_preflight`; it returns the same disabled and inactive results before the active Wii Remote path (`crates/services/wpad-sys/src/lib.rs:1084-1088`; `crates/services/wpad-sys/src/powerpc_backend.rs:745-751,800-808`). The helper tests cover the conditions but do not invoke the public/backend function.
+C `WPAD_SetMotionPlus` validates the channel, returns `WPAD_ERR_NOT_READY` when WPAD is disabled, and returns success for an allocated but inactive slot without calling the controller routine (`C-sources/libogc/wiiuse/wpad.c:1541-1566`; channel slots are allocated in `wiiuse/wiiuse.c:94-138`). Rust validates the index in the public wrapper and runs `motion_plus_preflight`; it returns the same disabled and inactive results before the active Wii Remote path (`crates/services/wpad-sys/src/lib.rs:1122-1141`; `crates/services/wpad-sys/src/powerpc_backend.rs:1048-1075,1105-1118`). The helper tests cover the conditions. The 2026-11-21 Dolphin run now also calls the public API for an enabled empty channel, all channels with no controllers, an invalid channel, and disabled WPAD. It does not exercise an active slot.
 
 A separate active-slot mismatch remains: for an active non-Wii-Remote `ControllerKind`, Rust returns `WPAD_ERR_NO_CONTROLLER`, while C calls `wiiuse_set_motion_plus` for any non-null channel pointer. This does not fail the bounded disabled/inactive fix, but keeps broader WPAD parity open. Validation: `cargo check -p wpad-sys --tests --target powerpc-unknown-linux-gnu` passed and compiled tests; tests did not run. No hardware verification was performed.
+
+## 2026-11-21 Dolphin empty-channel disconnect and MotionPlus checks
+
+C `WPAD_Disconnect` returns `WPAD_ERR_NONE` for an enabled valid channel with no controller object and `WPAD_ERR_NOT_READY` when disabled (`wiiuse/wpad.c:1719-1741`). The Rust backend returns the same results. The probe checks that behavior and invalid-channel rejection. It also calls `WPAD_SetMotionPlus` on an enabled empty channel, on `WPAD_CHAN_ALL`, an invalid channel, and disabled WPAD. The 2026-11-21 Dolphin report records 89 passing checks and zero failures. There was no connected Remote, so disconnect completion and MotionPlus command effects remain unverified.
 
 ## Implementer handoff — Active non-Wii-Remote MotionPlus result
 

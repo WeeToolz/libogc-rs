@@ -1,0 +1,42 @@
+{
+  "probe": "wpad_probe",
+  "cases": [
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_motion_plus",
+      "line": 1122,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_valid_channel_empty_queries",
+      "api_path": "wpad::set_motion_plus",
+      "checks": [
+        "WPAD setter checks confirm an empty channel",
+        "WPAD empty channel MotionPlus configuration succeeds",
+        "WPAD all-channel MotionPlus configuration succeeds without controllers",
+        "WPAD invalid channel MotionPlus configuration is rejected",
+        "WPAD disabled adapter rejects MotionPlus configuration",
+        "WPAD disabled adapter rejects all-channel MotionPlus configuration"
+      ],
+      "evidence_scope": "no-controller"
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "disconnect",
+      "line": 1288,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_empty_channel_commands",
+      "api_path": "wpad::disconnect",
+      "checks": [
+        "WPAD disconnect checks confirm an empty channel",
+        "WPAD empty channel disconnect succeeds",
+        "WPAD invalid channel disconnect is rejected",
+        "WPAD disabled adapter rejects disconnect"
+      ],
+      "evidence_scope": "no-controller"
+    }
+  ],
+  "limits": [
+    "No Wii Remote is connected in Dolphin. The checks cover empty-channel, invalid-channel, disabled-adapter, and all-channel MotionPlus dispatch behavior. Controller disconnect and MotionPlus changes with a connected Remote remain unverified."
+  ]
+}
