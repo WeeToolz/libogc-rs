@@ -1,0 +1,181 @@
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running `target/debug/xtask audit-stubs --refresh-inventory --json /Volumes/SSD/WiiDev/WeeToolz/libogc-rs/docs/dolphin-runs/2026-11-21-ogc-cache-l2-enhance-v1/completeness-audit.json`
+tracked audit debt: crates/compatibility/wiikeyboard-sys/src/lib.rs:266 [production-side in-memory device queue] This FIFO carries events delivered by the production USB callback to get_event and stdin; it is not a simulated keyboard backend. (owner thread-current/root; remove by Independent USB event-path audit)
+tracked audit debt: crates/compatibility/wiikeyboard-sys/src/lib.rs:270 [production-side in-memory device queue] This FIFO carries events delivered by the production USB callback to get_event and stdin; it is not a simulated keyboard backend. (owner thread-current/root; remove by Independent USB event-path audit)
+tracked audit debt: crates/compatibility/wiikeyboard-sys/src/lib.rs:275 [production-side in-memory device queue] This FIFO carries events delivered by the production USB callback to get_event and stdin; it is not a simulated keyboard backend. (owner thread-current/root; remove by Independent USB event-path audit)
+source-structure audit passed
+wrote 3375 API entries to /Volumes/SSD/WiiDev/WeeToolz/libogc-rs/docs/generated/implementation-inventory.csv
+wrote /Volumes/SSD/WiiDev/WeeToolz/libogc-rs/docs/generated/runtime-audit-debt.md
+libdb-sys::DEBUG_Init [unverified] crates/compatibility/libdb-sys/src/lib.rs:1388 — declared `compatibility-forwarder` without exact API test or probe evidence
+libdb-sys::arm [unverified] crates/compatibility/libdb-sys/src/wii_network.rs:49 — declared `compatibility-forwarder` without exact API test or probe evidence
+libdb-sys::bind [unverified] crates/compatibility/libdb-sys/src/wii_network.rs:30 — declared `compatibility-forwarder` without exact API test or probe evidence
+libdb-sys::bind_with_control [unverified] crates/compatibility/libdb-sys/src/wii_network.rs:34 — declared `compatibility-forwarder` without exact API test or probe evidence
+libdb-sys::close [unverified] crates/compatibility/libdb-sys/src/wii_network.rs:57 — declared `compatibility-forwarder` without exact API test or probe evidence
+libdb-sys::disarm [unverified] crates/compatibility/libdb-sys/src/wii_network.rs:53 — declared `compatibility-forwarder` without exact API test or probe evidence
+libdb-sys::poll [unverified] crates/compatibility/libdb-sys/src/wii_network.rs:41 — declared `compatibility-forwarder` without exact API test or probe evidence
+libdb-sys::state [unverified] crates/compatibility/libdb-sys/src/wii_network.rs:45 — declared `compatibility-forwarder` without exact API test or probe evidence
+lwbt-sys::clear_stored_link_keys [unverified] crates/compatibility/lwbt-sys/src/lib.rs:692 — declared `ios` without exact API test or probe evidence
+lwbt-sys::close [unverified] crates/compatibility/lwbt-sys/src/lib.rs:364 — declared `compatibility-forwarder` without exact API test or probe evidence
+lwbt-sys::init [unverified] crates/compatibility/lwbt-sys/src/lib.rs:327 — declared `ios` without exact API test or probe evidence
+lwbt-sys::last_status [unverified] crates/compatibility/lwbt-sys/src/lib.rs:360 — declared `pure` without exact API test or probe evidence
+lwbt-sys::set_connection_request_callback [unverified] crates/compatibility/lwbt-sys/src/lib.rs:580 — declared `hardware` without exact API test or probe evidence
+lwbt-sys::set_disconnect_callback [unverified] crates/compatibility/lwbt-sys/src/lib.rs:561 — declared `hardware` without exact API test or probe evidence
+lwbt-sys::set_host_sync_button_callback [unverified] crates/compatibility/lwbt-sys/src/lib.rs:572 — declared `hardware` without exact API test or probe evidence
+lwbt-sys::set_link_key_notification_callback [unverified] crates/compatibility/lwbt-sys/src/lib.rs:594 — declared `hardware` without exact API test or probe evidence
+lwbt-sys::set_link_key_request_callback [unverified] crates/compatibility/lwbt-sys/src/lib.rs:587 — declared `hardware` without exact API test or probe evidence
+lwbt-sys::shutdown [unverified] crates/compatibility/lwbt-sys/src/lib.rs:356 — declared `ios` without exact API test or probe evidence
+lwbt-sys::try_init [unverified] crates/compatibility/lwbt-sys/src/lib.rs:310 — declared `ios` without exact API test or probe evidence
+lwip-sys::set_network_top_fd [unverified] crates/services/lwip-sys/src/lib.rs:530 — declared `ios` without exact API test or probe evidence
+lwip-sys::set_network_top_fd [unverified] crates/services/lwip-sys/src/lib.rs:1493 — declared `ios` without exact API test or probe evidence
+ogc::init [unverified] crates/compatibility/ogc/src/cast.rs:119 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-bt-sync::clear_guest_link_keys [unverified] crates/services/ogc-bt-sync/src/wii_host.rs:107 — declared `protocol` without exact API test or probe evidence
+ogc-bt-sync::complete [unverified] crates/services/ogc-bt-sync/src/request.rs:33 — declared `ios` without exact API test or probe evidence
+ogc-bt-sync::load_guest_link_key [unverified] crates/services/ogc-bt-sync/src/wii_host.rs:73 — declared `protocol` without exact API test or probe evidence
+ogc-bt-sync::load_link_key [unverified] crates/services/ogc-bt-sync/src/wii_host.rs:69 — declared `ios` without exact API test or probe evidence
+ogc-bt-sync::new [unverified] crates/services/ogc-bt-sync/src/request.rs:25 — declared `ios` without exact API test or probe evidence
+ogc-bt-sync::open [unverified] crates/services/ogc-bt-sync/src/transport.rs:420 — declared `ios` without exact API test or probe evidence
+ogc-bt-sync::open_async [unverified] crates/services/ogc-bt-sync/src/transport.rs:294 — declared `ios` without exact API test or probe evidence
+ogc-bt-sync::result [unverified] crates/services/ogc-bt-sync/src/request.rs:37 — declared `ios` without exact API test or probe evidence
+ogc-bt-sync::start [unverified] crates/services/ogc-bt-sync/src/wii_host.rs:76 — declared `ios` without exact API test or probe evidence
+ogc-bt-sync::take_host [unverified] crates/services/ogc-bt-sync/src/transport.rs:263 — declared `ios` without exact API test or probe evidence
+ogc-cache::lc_flush_queue [unverified] crates/core/ogc-cache/src/lib.rs:574 — See crate contract for cache-runtime role and hardware validation status; evidence scope: Empty-queue behavior only in Dolphin. Queue operations with pending work remain unverified.
+ogc-cache::lc_queue_length [unverified] crates/core/ogc-cache/src/lib.rs:562 — See crate contract for cache-runtime role and hardware validation status; evidence scope: Empty-queue behavior only in Dolphin. Queue operations with pending work remain unverified.
+ogc-cache::lc_queue_wait [unverified] crates/core/ogc-cache/src/lib.rs:566 — See crate contract for cache-runtime role and hardware validation status; evidence scope: Empty-queue behavior only in Dolphin. Queue operations with pending work remain unverified.
+ogc-conf::save_changes [unverified] crates/core/ogc-conf/src/lib.rs:340 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-controller::set_bluetooth_diagnostics_hook [unverified] crates/services/ogc-controller/src/hardware.rs:975 — declared `protocol` without exact API test or probe evidence
+ogc-controller::set_bluetooth_event_hook [unverified] crates/services/ogc-controller/src/hardware.rs:971 — declared `protocol` without exact API test or probe evidence
+ogc-es-sys::add_content_finish [unverified] crates/core/ogc-es-sys/src/imp.rs:1915 — See crate contract for es-abi-driver role and hardware validation status; evidence scope: Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified.
+ogc-es-sys::add_content_start [unverified] crates/core/ogc-es-sys/src/imp.rs:1864 — See crate contract for es-abi-driver role and hardware validation status; evidence scope: Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified.
+ogc-es-sys::add_title_cancel [unverified] crates/core/ogc-es-sys/src/imp.rs:1947 — See crate contract for es-abi-driver role and hardware validation status; evidence scope: Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified.
+ogc-es-sys::add_title_finish [unverified] crates/core/ogc-es-sys/src/imp.rs:1933 — See crate contract for es-abi-driver role and hardware validation status; evidence scope: Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified.
+ogc-es-sys::delete_title [unverified] crates/core/ogc-es-sys/src/imp.rs:2146 — See crate contract for es-abi-driver role and hardware validation status; evidence scope: Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified.
+ogc-es-sys::delete_title_content [unverified] crates/core/ogc-es-sys/src/imp.rs:2163 — See crate contract for es-abi-driver role and hardware validation status; evidence scope: Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified.
+ogc-es-sys::export_content_begin [unverified] crates/core/ogc-es-sys/src/imp.rs:1684 — See crate contract for es-abi-driver role and hardware validation status; evidence scope: Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified.
+ogc-es-sys::export_content_end [unverified] crates/core/ogc-es-sys/src/imp.rs:1735 — See crate contract for es-abi-driver role and hardware validation status; evidence scope: Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified.
+ogc-es-sys::export_title_done [unverified] crates/core/ogc-es-sys/src/imp.rs:1753 — See crate contract for es-abi-driver role and hardware validation status; evidence scope: Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified.
+ogc-es-sys::import_boot [unverified] crates/core/ogc-es-sys/src/imp.rs:1964 — declared `ios` without exact API test or probe evidence
+ogc-es-sys::patch_ahbprot_reset [unverified] crates/core/ogc-es-sys/src/lib.rs:41 — declared `ios` without exact API test or probe evidence
+ogc-es-sys::reset [unverified] crates/core/ogc-es-sys/src/imp.rs:448 — declared `ios` without exact API test or probe evidence
+ogc-es-sys::set_uid [unverified] crates/core/ogc-es-sys/src/imp.rs:481 — See crate contract for es-abi-driver role and hardware validation status; evidence scope: Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified.
+ogc-ios-sys::_ios_initialize_subsystems [unverified] crates/core/ogc-ios-sys/src/lib.rs:273 — declared `ios` without exact API test or probe evidence
+ogc-ios-sys::_ios_launch_new_ios [unverified] crates/core/ogc-ios-sys/src/lib.rs:326 — declared `ios` without exact API test or probe evidence
+ogc-ios-sys::_ios_load_startup_ios [unverified] crates/core/ogc-ios-sys/src/lib.rs:318 — declared `ios` without exact API test or probe evidence
+ogc-ios-sys::_ios_shutdown_subsystems [unverified] crates/core/ogc-ios-sys/src/lib.rs:290 — declared `ios` without exact API test or probe evidence
+ogc-ios-sys::reload_ios [unverified] crates/core/ogc-ios-sys/src/lib.rs:352 — source review: discards 1 operation result(s) with a wildcard binding; declared `ios` without exact API test or probe evidence
+ogc-ipc::__ogc_ipc_ioctlv_format_bridge [unverified] crates/core/ogc-ipc/src/lib.rs:2685 — declared `ios` without exact API test or probe evidence
+ogc-ipc::ioctlv_reboot [unverified] crates/core/ogc-ipc/src/lib.rs:756 — declared `ios` without exact API test or probe evidence
+ogc-ipc::ioctlv_reboot_background [unverified] crates/core/ogc-ipc/src/lib.rs:772 — declared `ios` without exact API test or probe evidence
+ogc-ipc::reinitialize [unverified] crates/core/ogc-ipc/src/lib.rs:1298 — declared `ios` without exact API test or probe evidence
+ogc-ipc::validate_path [unverified] crates/core/ogc-ipc/src/lib.rs:2752 — declared `ios` without exact API test or probe evidence
+ogc-irq::dispatch_pending [unverified] crates/core/ogc-irq/src/lib.rs:71 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-irq::restore_exception_vector [unverified] crates/core/ogc-irq/src/lib.rs:77 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-irq::restore_runtime_exception_vectors [unverified] crates/core/ogc-irq/src/lib.rs:85 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-irq-sys::k_irq_dispatch_pending [unverified] crates/core/ogc-irq-sys/src/lib.rs:791 — declared `hardware` without exact API test or probe evidence
+ogc-irq-sys::k_irq_restore_exception_vector [unverified] crates/core/ogc-irq-sys/src/lib.rs:803 — declared `hardware` without exact API test or probe evidence
+ogc-irq-sys::k_irq_restore_runtime_exception_vectors [unverified] crates/core/ogc-irq-sys/src/lib.rs:814 — declared `hardware` without exact API test or probe evidence
+ogc-lwp::raw [unverified] crates/core/ogc-lwp/src/lib.rs:169 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-lwp::reschedule [unverified] crates/core/ogc-lwp/src/lib.rs:379 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-lwp::set_priority [unverified] crates/core/ogc-lwp/src/lib.rs:104 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-lwp-driver::reschedule [unverified] crates/core/ogc-lwp-driver/src/runtime.rs:2668 — declared `scheduler` without exact API test or probe evidence
+ogc-lwp-driver::set_workspace_allocator [unverified] crates/core/ogc-lwp-driver/src/runtime.rs:676 — declared `scheduler` without exact API test or probe evidence
+ogc-lwp-sys::initialize [unverified] crates/core/ogc-lwp-sys/src/lib.rs:26 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-lwp-sys::note_ipc_wake [unverified] crates/core/ogc-lwp-sys/src/lib.rs:360 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-lwp-sys::set_workspace_allocator [unverified] crates/core/ogc-lwp-sys/src/lib.rs:31 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-network::as_sockaddr_mut_ptr [unverified] crates/services/ogc-network/src/lib.rs:238 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-network::attach_active [unverified] crates/services/ogc-network/src/lib.rs:72 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-network::socket_address_len [unverified] crates/services/ogc-network/src/lib.rs:241 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-network-sys::net_attach_active [unverified] crates/services/ogc-network-sys/src/lib.rs:685 — declared `ios` without exact API test or probe evidence
+ogc-network-sys::net_attach_active [unverified] crates/services/ogc-network-sys/src/lib.rs:1957 — declared `ios` without exact API test or probe evidence
+ogc-network-sys::net_wc24cleanup [unverified] crates/services/ogc-network-sys/src/lib.rs:1067 — declared `ios` without exact API test or probe evidence
+ogc-network-sys::net_wc24cleanup [unverified] crates/services/ogc-network-sys/src/lib.rs:1977 — declared `ios` without exact API test or probe evidence
+ogc-runtime::block_count [unverified] crates/core/ogc-runtime/src/driver.rs:27 — See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified.
+ogc-runtime::block_size [unverified] crates/core/ogc-runtime/src/driver.rs:26 — See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified.
+ogc-runtime::cancel [unverified] crates/core/ogc-runtime/src/driver.rs:38 — See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified.
+ogc-runtime::flush [unverified] crates/core/ogc-runtime/src/driver.rs:30 — See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified.
+ogc-runtime::initialize [unverified] crates/core/ogc-runtime/src/driver.rs:20 — See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified.
+ogc-runtime::open [unverified] crates/core/ogc-runtime/src/driver.rs:43 — See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified.
+ogc-runtime::read [unverified] crates/core/ogc-runtime/src/driver.rs:44 — See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified.
+ogc-runtime::read_blocks [unverified] crates/core/ogc-runtime/src/driver.rs:28 — See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified.
+ogc-runtime::receive_report [unverified] crates/core/ogc-runtime/src/driver.rs:52 — See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified.
+ogc-runtime::send_report [unverified] crates/core/ogc-runtime/src/driver.rs:51 — See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified.
+ogc-runtime::shutdown [unverified] crates/core/ogc-runtime/src/driver.rs:21 — See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified.
+ogc-runtime::state [unverified] crates/core/ogc-runtime/src/driver.rs:19 — See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified.
+ogc-runtime::write [unverified] crates/core/ogc-runtime/src/driver.rs:45 — See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified.
+ogc-runtime::write_blocks [unverified] crates/core/ogc-runtime/src/driver.rs:29 — See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified.
+ogc-si::transfer_commands [unverified] crates/hardware/ogc-si/src/lib.rs:107 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-si-sys::init [unverified] crates/hardware/ogc-si-sys/src/lib.rs:1464 — source review: discards 1 operation result(s) with a wildcard binding; declared `hardware` without exact API test or probe evidence
+ogc-si-sys::register_wireless_id_accessors [unverified] crates/hardware/ogc-si-sys/src/lib.rs:1050 — declared `hardware` without exact API test or probe evidence
+ogc-si-sys::transfer_commands [unverified] crates/hardware/ogc-si-sys/src/lib.rs:1388 — declared `hardware` without exact API test or probe evidence
+ogc-std-runtime::__wii_std_initialize [unverified] crates/services/ogc-std-runtime/src/lib.rs:120 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-std-runtime::__wii_std_net [unverified] crates/services/ogc-std-runtime/src/net.rs:178 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-std-runtime::initialize [unverified] crates/services/ogc-std-runtime/src/lib.rs:69 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-std-runtime::network_initialize [unverified] crates/services/ogc-std-runtime/src/net.rs:10 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-std-runtime::network_snapshot [unverified] crates/services/ogc-std-runtime/src/net.rs:13 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-stm::reboot_system [unverified] crates/core/ogc-stm/src/lib.rs:526 — declared `ios` without exact API test or probe evidence
+ogc-stm::shutdown_to_idle [unverified] crates/core/ogc-stm/src/lib.rs:480 — declared `ios` without exact API test or probe evidence
+ogc-stm::shutdown_to_standby [unverified] crates/core/ogc-stm/src/lib.rs:457 — declared `ios` without exact API test or probe evidence
+ogc-stm::try_reboot_system [unverified] crates/core/ogc-stm/src/lib.rs:545 — declared `ios` without exact API test or probe evidence
+ogc-stm::try_shutdown_to_idle [unverified] crates/core/ogc-stm/src/lib.rs:502 — declared `ios` without exact API test or probe evidence
+ogc-stm::try_shutdown_to_standby [unverified] crates/core/ogc-stm/src/lib.rs:476 — declared `ios` without exact API test or probe evidence
+ogc-system::exit [unverified] crates/core/ogc-system/src/lib.rs:319 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-system-sys::__ogc_dev_begin [unverified] crates/core/ogc-system-sys/src/dev.rs:202 — declared `hardware` without exact API test or probe evidence
+ogc-system-sys::__ogc_dev_end [unverified] crates/core/ogc-system-sys/src/dev.rs:374 — declared `hardware` without exact API test or probe evidence
+ogc-system-sys::capture [unverified] crates/core/ogc-system-sys/src/dev.rs:165 — declared `hardware` without exact API test or probe evidence
+ogc-system-sys::finish [unverified] crates/core/ogc-system-sys/src/dev.rs:322 — declared `hardware` without exact API test or probe evidence
+ogc-system-sys::real_destination [unverified] crates/core/ogc-system-sys/src/dev_stub.rs:2 — declared `hardware` without exact API test or probe evidence
+ogc-system-sys::set_pre_main_progress_callback [unverified] crates/core/ogc-system-sys/src/lib.rs:1986 — declared `hardware` without exact API test or probe evidence
+ogc-system-sys::sys_init [unverified] crates/core/ogc-system-sys/src/lib.rs:1523 — declared `hardware` without exact API test or probe evidence
+ogc-system-sys::sys_main_loop [unverified] crates/core/ogc-system-sys/src/lib.rs:2105 — declared `hardware` without exact API test or probe evidence
+ogc-system-sys::sys_pre_main [unverified] crates/core/ogc-system-sys/src/lib.rs:2084 — source review: discards 1 operation result(s) with a wildcard binding; declared `hardware` without exact API test or probe evidence
+ogc-system-sys::sys_reset_system [unverified] crates/core/ogc-system-sys/src/lib.rs:2467 — declared `hardware` without exact API test or probe evidence
+ogc-system-sys::sys_run_reset_functions [unverified] crates/core/ogc-system-sys/src/lib.rs:3980 — declared `hardware` without exact API test or probe evidence
+ogc-usb::device_change_notify_async [unverified] crates/services/ogc-usb/src/lib.rs:227 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-usb::free_descriptors [unverified] crates/services/ogc-usb/src/lib.rs:117 — declared `compatibility-forwarder` without exact API test or probe evidence
+ogc-usb-sys::device_change_notify_async [unverified] crates/services/ogc-usb-sys/src/lib.rs:3210 — declared `ios` without exact API test or probe evidence
+ogc-usb-sys::device_removal_notify_async [unverified] crates/services/ogc-usb-sys/src/lib.rs:3183 — declared `ios` without exact API test or probe evidence
+ogc-usbgecko::flashwrite [unverified] crates/services/ogc-usbgecko/src/lib.rs:611 — declared `hardware` without exact API test or probe evidence
+ogc-usbgecko::receive_buffer [unverified] crates/services/ogc-usbgecko/src/lib.rs:494 — declared `hardware` without exact API test or probe evidence
+ogc-usbgecko::recvbuffer_ex [unverified] crates/services/ogc-usbgecko/src/lib.rs:534 — declared `hardware` without exact API test or probe evidence
+ogc-usbgecko::recvbuffer_safe [unverified] crates/services/ogc-usbgecko/src/lib.rs:514 — declared `hardware` without exact API test or probe evidence
+ogc-usbgecko::send_buffer [unverified] crates/services/ogc-usbgecko/src/lib.rs:504 — declared `hardware` without exact API test or probe evidence
+ogc-usbgecko::sendbuffer_ex [unverified] crates/services/ogc-usbgecko/src/lib.rs:544 — declared `hardware` without exact API test or probe evidence
+ogc-usbgecko::sendbuffer_safe [unverified] crates/services/ogc-usbgecko/src/lib.rs:524 — declared `hardware` without exact API test or probe evidence
+ogc-wiilaunch::launch_title [unverified] crates/core/ogc-wiilaunch/src/lib.rs:283 — declared `ios` without exact API test or probe evidence
+ogc-wiilaunch::launch_title_with_args [unverified] crates/core/ogc-wiilaunch/src/lib.rs:390 — declared `ios` without exact API test or probe evidence
+ogc-wiilaunch::open_url [unverified] crates/core/ogc-wiilaunch/src/lib.rs:489 — declared `ios` without exact API test or probe evidence
+ogc-wiilaunch::return_to_menu [unverified] crates/core/ogc-wiilaunch/src/lib.rs:441 — declared `ios` without exact API test or probe evidence
+ogc-wiilaunch::return_to_settings [unverified] crates/core/ogc-wiilaunch/src/lib.rs:450 — declared `ios` without exact API test or probe evidence
+ogc-wiilaunch::return_to_settings_page [unverified] crates/core/ogc-wiilaunch/src/lib.rs:477 — declared `ios` without exact API test or probe evidence
+ogc-wiilaunch::try_launch_title [unverified] crates/core/ogc-wiilaunch/src/lib.rs:287 — declared `ios` without exact API test or probe evidence
+ogc-wiilaunch::try_launch_title_with_args [unverified] crates/core/ogc-wiilaunch/src/lib.rs:394 — declared `ios` without exact API test or probe evidence
+ogc-wiilaunch::try_open_url [unverified] crates/core/ogc-wiilaunch/src/lib.rs:493 — declared `ios` without exact API test or probe evidence
+ogc-wiilaunch::try_return_to_menu [unverified] crates/core/ogc-wiilaunch/src/lib.rs:445 — declared `ios` without exact API test or probe evidence
+ogc-wiilaunch::try_return_to_settings [unverified] crates/core/ogc-wiilaunch/src/lib.rs:454 — declared `ios` without exact API test or probe evidence
+ogc-wiilaunch::try_return_to_settings_page [unverified] crates/core/ogc-wiilaunch/src/lib.rs:481 — declared `ios` without exact API test or probe evidence
+tinysmb-sys::close_connection [unverified] crates/compatibility/tinysmb-sys/src/lib.rs:533 — declared `protocol` without exact API test or probe evidence
+tinysmb-sys::close_device [unverified] crates/compatibility/tinysmb-sys/src/lib.rs:429 — declared `protocol` without exact API test or probe evidence
+tinysmb-sys::close_file [unverified] crates/compatibility/tinysmb-sys/src/lib.rs:742 — declared `protocol` without exact API test or probe evidence
+tinysmb-sys::read_file [unverified] crates/compatibility/tinysmb-sys/src/lib.rs:758 — declared `protocol` without exact API test or probe evidence
+tinysmb-sys::set_search_flags [unverified] crates/compatibility/tinysmb-sys/src/lib.rs:486 — declared `protocol` without exact API test or probe evidence
+tinysmb-sys::write_file [unverified] crates/compatibility/tinysmb-sys/src/lib.rs:802 — declared `protocol` without exact API test or probe evidence
+wiikeyboard-sys::deinitialize [unverified] crates/compatibility/wiikeyboard-sys/src/lib.rs:1132 — declared `hardware` without exact API test or probe evidence
+wiikeyboard-sys::last_status [unverified] crates/compatibility/wiikeyboard-sys/src/lib.rs:1266 — declared `hardware` without exact API test or probe evidence
+wiikeyboard-sys::open [unverified] crates/compatibility/wiikeyboard-sys/src/lib.rs:1159 — declared `hardware` without exact API test or probe evidence
+wiikeyboard-sys::try_close [unverified] crates/compatibility/wiikeyboard-sys/src/lib.rs:1239 — declared `hardware` without exact API test or probe evidence
+wpad-sys::control_speaker [unverified] crates/services/wpad-sys/src/lib.rs:846 — Transmits the complete speaker command/configuration sequence; hardware acceptance remains pending; evidence scope: Valid empty-channel and invalid-channel behavior only in Dolphin. Behavior with a connected controller remains unverified.
+wpad-sys::disconnect [unverified] crates/services/wpad-sys/src/lib.rs:1288 — See crate contract for wpad-driver-abi role and hardware validation status; evidence scope: Valid empty-channel and invalid-channel behavior only in Dolphin. Behavior with a connected controller remains unverified.
+wpad-sys::rumble [unverified] crates/services/wpad-sys/src/lib.rs:1503 — See crate contract for wpad-driver-abi role and hardware validation status; evidence scope: Valid empty-channel and invalid-channel behavior only in Dolphin. Behavior with a connected controller remains unverified.
+wpad-sys::search [unverified] crates/services/wpad-sys/src/lib.rs:1365 — See crate contract for wpad-driver-abi role and hardware validation status; evidence scope: Inquiry state changes and adapter activity only in Dolphin. A usable controller channel, discovery results, and pairing remain unverified.
+wpad-sys::search_bluetooth_hid [unverified] crates/services/wpad-sys/src/lib.rs:1384 — See crate contract for wpad-driver-abi role and hardware validation status; evidence scope: Inquiry state changes and adapter activity only in Dolphin. A usable controller channel, discovery results, and pairing remain unverified.
+wpad-sys::send_stream_data [unverified] crates/services/wpad-sys/src/lib.rs:1339 — See crate contract for wpad-driver-abi role and hardware validation status; evidence scope: Valid empty-channel behavior and Rust invalid-argument guards only in Dolphin. Behavior with a connected controller remains unverified.
+wpad-sys::set_battery_dead_callback [unverified] crates/services/wpad-sys/src/lib.rs:1479 — declared `hardware` without exact API test or probe evidence
+wpad-sys::set_data_format [unverified] crates/services/wpad-sys/src/lib.rs:1100 — See crate contract for wpad-driver-abi role and hardware validation status; evidence scope: Valid empty-channel behavior only in Dolphin. Effects with a connected controller remain unverified.
+wpad-sys::set_disconnect_callback [unverified] crates/services/wpad-sys/src/lib.rs:1483 — declared `hardware` without exact API test or probe evidence
+wpad-sys::set_idle_thresholds [unverified] crates/services/wpad-sys/src/lib.rs:1530 — Filters button/IR/acceleration/joystick/board/MotionPlus activity before restarting the idle timer; hardware acceptance remains pending; evidence scope: Valid empty-channel behavior only in Dolphin. Effects with a connected controller remain unverified.
+wpad-sys::set_idle_timeout [unverified] crates/services/wpad-sys/src/lib.rs:1463 — declared `scheduler` without exact API test or probe evidence
+wpad-sys::set_motion_plus [unverified] crates/services/wpad-sys/src/lib.rs:1122 — Activates or disables MotionPlus and refreshes extension reporting; hardware acceptance remains pending; evidence scope: Valid empty-channel and invalid-channel behavior only in Dolphin. Behavior with a connected controller remains unverified.
+wpad-sys::set_power_button_callback [unverified] crates/services/wpad-sys/src/lib.rs:1475 — declared `hardware` without exact API test or probe evidence
+wpad-sys::set_v_res [unverified] crates/services/wpad-sys/src/lib.rs:1183 — See crate contract for wpad-driver-abi role and hardware validation status; evidence scope: Valid empty-channel behavior only in Dolphin. Effects with a connected controller remain unverified.
+wpad-sys::start_pairing [unverified] crates/services/wpad-sys/src/lib.rs:1406 — See crate contract for wpad-driver-abi role and hardware validation status; evidence scope: Disabled adapter behavior only in Dolphin. Active discovery and pairing are unverified.
+wpad-sys::stop_search [unverified] crates/services/wpad-sys/src/lib.rs:1390 — See crate contract for wpad-driver-abi role and hardware validation status; evidence scope: Inquiry state changes and adapter activity only in Dolphin. A usable controller channel, discovery results, and pairing remain unverified.
+Error: "runtime completeness audit found 172 disallowed API implementation(s)"

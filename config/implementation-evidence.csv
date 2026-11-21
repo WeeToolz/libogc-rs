@@ -3240,3 +3240,4 @@ ogc-si,src/lib.rs,init,17,compatibility-forwarder,hardware-probe,probes/ogc-syst
 ogc-video-sys,src/lib.rs,set_next_right_framebuffer,1104,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_framebuffer_updates,raw_video::set_next_right_framebuffer
 ogc-stm,src/lib.rs,init,261,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::init
 ogc-stm,src/lib.rs,try_init,281,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_init
+ogc-cache,src/lib.rs,l2_enhance,652,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_l2_enhance,cache::l2_enhance

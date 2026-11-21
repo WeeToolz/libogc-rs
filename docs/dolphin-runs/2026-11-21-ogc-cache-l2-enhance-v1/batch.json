@@ -1,0 +1,17 @@
+{
+  "probe": "bus_probe",
+  "cases": [
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "l2_enhance",
+      "line": 652,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_l2_enhance",
+      "api_path": "cache::l2_enhance",
+      "checks": [
+        "L2 enhancement enables the cache when HID4 supports it"
+      ]
+    }
+  ]
+}

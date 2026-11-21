@@ -44,6 +44,8 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_cache_controls(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_l2_enhance(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_locked_cache_allocations(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_locked_cache_dma(logger);
@@ -300,6 +302,51 @@ fn probe_cache_controls(logger: &mut ProbeLogger) {
     logger.record(
         "lc_flush_queue leaves an initially empty queue empty",
         queue_before_flush == 0 && queue_after_flush == 0,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_l2_enhance(logger: &mut ProbeLogger) {
+    const L2_PRESENT: u32 = 0x8000_0000;
+    const HID4_ENHANCEMENT_BITS: u32 = 0x2420_0000;
+    const L2_ENABLE: u32 = 0x8000_0000;
+
+    fn read_hid4() -> u32 {
+        let value: u32;
+        // SAFETY: The Wii probe runs in supervisor mode.
+        unsafe {
+            core::arch::asm!("mfspr {value}, 1011", value = out(reg) value, options(nostack));
+        }
+        value
+    }
+
+    fn read_l2cr() -> u32 {
+        let value: u32;
+        // SAFETY: The Wii probe runs in supervisor mode.
+        unsafe {
+            core::arch::asm!("mfspr {value}, 1017", value = out(reg) value, options(nostack));
+        }
+        value
+    }
+
+    let before_hid4 = read_hid4();
+    let before_l2cr = read_l2cr();
+    cache::l2_enhance();
+    let after_hid4 = read_hid4();
+    let after_l2cr = read_l2cr();
+    logger.note_hex32("L2 enhancement HID4 before", before_hid4);
+    logger.note_hex32("L2 enhancement HID4 after", after_hid4);
+    logger.note_hex32("L2 enhancement L2CR before", before_l2cr);
+    logger.note_hex32("L2 enhancement L2CR after", after_l2cr);
+
+    let result_matches_hardware = if before_hid4 & L2_PRESENT != 0 {
+        after_hid4 & HID4_ENHANCEMENT_BITS == HID4_ENHANCEMENT_BITS && after_l2cr & L2_ENABLE != 0
+    } else {
+        after_hid4 == before_hid4 && after_l2cr == before_l2cr
+    };
+    logger.record(
+        "L2 enhancement enables the cache when HID4 supports it",
+        result_matches_hardware,
     );
 }
 
