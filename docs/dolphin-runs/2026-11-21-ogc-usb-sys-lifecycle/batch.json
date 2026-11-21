@@ -1,0 +1,53 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "initialize",
+      "line": 1585,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_sys_lifecycle",
+      "api_path": "ogc_usb::sys::initialize",
+      "checks": [
+        "USB sys initialize starts both host services"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "initialize_vendor",
+      "line": 1590,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_sys_lifecycle",
+      "api_path": "ogc_usb::sys::initialize_vendor",
+      "checks": [
+        "USB sys vendor initialize starts the vendor host"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "deinitialize",
+      "line": 1600,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_sys_lifecycle",
+      "api_path": "ogc_usb::sys::deinitialize",
+      "checks": [
+        "USB sys deinitialize stops both host services"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "deinitialize_vendor",
+      "line": 1613,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_sys_lifecycle",
+      "api_path": "ogc_usb::sys::deinitialize_vendor",
+      "checks": [
+        "USB sys vendor deinitialize stops the vendor host"
+      ]
+    }
+  ]
+}

@@ -3171,3 +3171,7 @@ ogc-input,src/lib.rs,control_motor,50,compatibility-forwarder,hardware-probe,pro
 ogc-input,src/lib.rs,set_spec,54,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_ogc_input_public_wrappers,ogc_input::set_spec
 ogc-input,src/lib.rs,set_sampling_callback,103,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_ogc_input_public_wrappers,ogc_input::set_sampling_callback
 ogc-input,src/lib.rs,set_debug_hook,107,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_ogc_input_public_wrappers,ogc_input::set_debug_hook
+ogc-usb-sys,src/lib.rs,initialize,1585,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_sys_lifecycle,ogc_usb::sys::initialize
+ogc-usb-sys,src/lib.rs,initialize_vendor,1590,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_sys_lifecycle,ogc_usb::sys::initialize_vendor
+ogc-usb-sys,src/lib.rs,deinitialize,1600,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_sys_lifecycle,ogc_usb::sys::deinitialize
+ogc-usb-sys,src/lib.rs,deinitialize_vendor,1613,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_usb_sys_lifecycle,ogc_usb::sys::deinitialize_vendor

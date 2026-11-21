@@ -145,6 +145,8 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_usb_lifecycle(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_usb_sys_lifecycle(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_usb_mouse_lifecycle(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_usb_safe_result_wrappers(logger);
@@ -3919,6 +3921,33 @@ fn probe_usb_lifecycle(logger: &mut ProbeLogger) {
     logger.record(
         "USB fallible deinitialization reports success",
         try_deinitialize.is_ok(),
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_usb_sys_lifecycle(logger: &mut ProbeLogger) {
+    logger.report_step("USB raw system lifecycle");
+
+    let initialized = ogc_usb::sys::initialize();
+    logger.record(
+        "USB sys initialize starts both host services",
+        initialized == ogc_usb::USB_OK,
+    );
+    let deinitialized = ogc_usb::sys::deinitialize();
+    logger.record(
+        "USB sys deinitialize stops both host services",
+        deinitialized == ogc_usb::USB_OK,
+    );
+
+    let vendor_initialized = ogc_usb::sys::initialize_vendor();
+    logger.record(
+        "USB sys vendor initialize starts the vendor host",
+        vendor_initialized == ogc_usb::USB_OK,
+    );
+    let vendor_deinitialized = ogc_usb::sys::deinitialize_vendor();
+    logger.record(
+        "USB sys vendor deinitialize stops the vendor host",
+        vendor_deinitialized == ogc_usb::USB_OK,
     );
 }
 
