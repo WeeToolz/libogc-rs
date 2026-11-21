@@ -62,4 +62,24 @@ pub fn run_close(logger: &mut ProbeLogger) {
         "STM try close accepts a closed interface",
         try_close_status.is_ok(),
     );
+
+    let reopened = stm::init();
+    logger.record(
+        "STM init opens a closed interface with event hook",
+        reopened > 0,
+    );
+    let closed_after_init = stm::close();
+    logger.record(
+        "STM close releases event hook after init",
+        closed_after_init >= 0,
+    );
+    let reopened_try = stm::try_init();
+    logger.record(
+        "STM try init opens a closed interface",
+        reopened_try.is_ok(),
+    );
+    logger.record(
+        "STM try close releases event hook after try init",
+        stm::try_close().is_ok(),
+    );
 }

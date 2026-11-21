@@ -1,0 +1,57 @@
+{
+  "probe": "stm_api_probe",
+  "cases": [
+    {
+      "crate": "ogc-stm",
+      "path": "src/lib.rs",
+      "symbol": "init",
+      "line": 276,
+      "evidence_path": "probes/ogc-system-probe/src/stm_api_probe.rs",
+      "function": "run_close",
+      "api_path": "stm::init",
+      "checks": [
+        "STM init is safe when the interface is already open",
+        "STM init opens a closed interface with event hook"
+      ]
+    },
+    {
+      "crate": "ogc-stm",
+      "path": "src/lib.rs",
+      "symbol": "try_init",
+      "line": 296,
+      "evidence_path": "probes/ogc-system-probe/src/stm_api_probe.rs",
+      "function": "run_close",
+      "api_path": "stm::try_init",
+      "checks": [
+        "STM try init accepts an already open interface",
+        "STM try init opens a closed interface"
+      ]
+    },
+    {
+      "crate": "ogc-stm",
+      "path": "src/lib.rs",
+      "symbol": "close",
+      "line": 427,
+      "evidence_path": "probes/ogc-system-probe/src/stm_api_probe.rs",
+      "function": "run_close",
+      "api_path": "stm::close",
+      "checks": [
+        "STM close releases the interface",
+        "STM close releases event hook after init"
+      ]
+    },
+    {
+      "crate": "ogc-stm",
+      "path": "src/lib.rs",
+      "symbol": "try_close",
+      "line": 464,
+      "evidence_path": "probes/ogc-system-probe/src/stm_api_probe.rs",
+      "function": "run_close",
+      "api_path": "stm::try_close",
+      "checks": [
+        "STM try close accepts a closed interface",
+        "STM try close releases event hook after try init"
+      ]
+    }
+  ]
+}

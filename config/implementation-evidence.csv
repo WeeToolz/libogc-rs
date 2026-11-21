@@ -2945,10 +2945,10 @@ ogc-gx,src/lib.rs,set_gp_fifo,1731,compatibility-forwarder,hardware-probe,probes
 ogc-gx,src/lib.rs,set_misc,1875,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_unverified_apis,gx::set_misc
 ogc-gx,src/lib.rs,set_v_cache_metric,7528,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_unverified_apis,gx::set_v_cache_metric
 ogc-gx,src/lib.rs,tpl_open_tpl_from_file,9392,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_unverified_apis,gx::tpl_open_tpl_from_file
-ogc-stm,src/lib.rs,init_without_event_hook,271,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::init_without_event_hook
-ogc-stm,src/lib.rs,register_event_handler,453,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::register_event_handler
-ogc-stm,src/lib.rs,set_led_mode,506,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::set_led_mode
-ogc-stm,src/lib.rs,try_set_led_mode,522,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::try_set_led_mode
+ogc-stm,src/lib.rs,init_without_event_hook,286,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::init_without_event_hook
+ogc-stm,src/lib.rs,register_event_handler,468,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::register_event_handler
+ogc-stm,src/lib.rs,set_led_mode,521,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::set_led_mode
+ogc-stm,src/lib.rs,try_set_led_mode,537,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::try_set_led_mode
 ogc-runtime,src/scheduler.rs,get,24,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,run,thread.get
 ogc-runtime,src/scheduler.rs,now,56,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,run,clock.now
 ogc-runtime,src/scheduler.rs,ticks_per_second,57,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,run,clock.ticks_per_second
@@ -3208,8 +3208,6 @@ wpad-sys,src/lib.rs,set_data_format,1100,hardware,hardware-probe,probes/ogc-syst
 wpad-sys,src/lib.rs,set_motion_plus,1122,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_valid_channel_empty_queries,wpad::set_motion_plus,no-controller
 wpad-sys,src/lib.rs,disconnect,1288,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_empty_channel_commands,wpad::disconnect,no-controller
 ogc-video,src/lib.rs,console_init_framebuffer,1030,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/probe_support.rs,init_buffered_console,video::console_init_framebuffer
-ogc-stm,src/lib.rs,close,412,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::close,no-event-hook
-ogc-stm,src/lib.rs,try_close,449,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_close,no-event-hook
 ogc-video,src/lib.rs,set_next_right_framebuffer,510,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_framebuffer_updates,video::set_next_right_framebuffer,
 ogc-video,src/lib.rs,console_init_ex,953,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_console_init_ex,video::console_init_ex
 ogc-video,src/lib.rs,console_init,897,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_console_init,video::console_init
@@ -3238,8 +3236,6 @@ ogc-system,src/lib.rs,last_config_write_result,651,compatibility-forwarder,hardw
 ogc-system,src/lib.rs,sync_sram,1603,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_system_sram_setters,system::sync_sram
 ogc-si,src/lib.rs,init,17,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_pad_low_level_state,ogc_si::init
 ogc-video-sys,src/lib.rs,set_next_right_framebuffer,1104,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_framebuffer_updates,raw_video::set_next_right_framebuffer
-ogc-stm,src/lib.rs,init,261,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::init,repeated-initialization
-ogc-stm,src/lib.rs,try_init,281,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_init,repeated-initialization
 ogc-cache,src/lib.rs,l2_enhance,652,hardware,hardware-probe,probes/ogc-system-probe/src/bus_probe.rs,probe_l2_enhance,cache::l2_enhance
 ogc-irq,src/lib.rs,dispatch_pending,71,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_irq_dispatch_pending,irq::dispatch_pending,no-pending-interrupt
 ogc-network,src/lib.rs,as_sockaddr_mut_ptr,238,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_socket_address_layout,address.as_sockaddr_mut_ptr
@@ -3253,3 +3249,7 @@ ogc-lwp-sys,src/lib.rs,initialize,26,compatibility-forwarder,hardware-probe,prob
 ogc-network-sys,src/lib.rs,net_attach_active,685,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_attach_active,raw_network::net_attach_active
 ogc-network-sys,src/lib.rs,net_attach_active,1957,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_attach_active,raw_network::net_attach_active
 ogc-network,src/lib.rs,attach_active,72,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_attach_active,net::attach_active
+ogc-stm,src/lib.rs,init,276,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::init
+ogc-stm,src/lib.rs,try_init,296,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_init
+ogc-stm,src/lib.rs,close,427,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::close
+ogc-stm,src/lib.rs,try_close,464,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_close

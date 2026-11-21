@@ -114,6 +114,7 @@ impl Drop for SpinGuard<'_> {
 }
 
 static STM_LOCK: SpinLock = SpinLock::new();
+static STM_HOOK_RELEASING: AtomicBool = AtomicBool::new(false);
 static mut STM_STATE: StmState = StmState {
     imm_fd: None,
     eh_fd: None,
@@ -159,7 +160,19 @@ fn set_callback(cb: StmCallback) -> StmCallback {
 unsafe extern "C" fn event_hook_handler(result: i32, _usrdata: *mut c_void) -> i32 {
     unsafe {
         let (event, cb) = {
-            let _guard = STM_LOCK.lock();
+            let _guard = loop {
+                if STM_HOOK_RELEASING.load(Ordering::Acquire) {
+                    return result.min(0);
+                }
+                if STM_LOCK
+                    .0
+                    .compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed)
+                    .is_ok()
+                {
+                    break SpinGuard { lock: &STM_LOCK };
+                }
+                core::hint::spin_loop();
+            };
             let state = { &mut *state_ptr() };
             state.eh_registered = false;
 
@@ -203,6 +216,7 @@ fn _stm_set_event_hook_locked(state: &mut StmState) -> i32 {
         return STM_ENOTINIT;
     }
 
+    STM_HOOK_RELEASING.store(false, Ordering::Release);
     state.eh_clear = false;
     let Some(fd) = fd(&state.eh_fd) else {
         return STM_ENOTINIT;
@@ -238,6 +252,7 @@ fn _stm_release_event_hook_locked(state: &mut StmState) -> i32 {
         return STM_ENOTINIT;
     };
 
+    STM_HOOK_RELEASING.store(true, Ordering::Release);
     state.eh_clear = true;
     let buffers = ioctl_buffers(&mut state.imm_in, &mut state.imm_out);
     let result = fd.ioctl(IOCTL_STM_RELEASE_EH as i32, buffers);
