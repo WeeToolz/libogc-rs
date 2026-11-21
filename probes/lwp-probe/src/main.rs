@@ -402,10 +402,11 @@ mod wii {
         let id = argument as u32;
         let position = PRIORITY_POSITION.fetch_add(1, Ordering::AcqRel);
         PRIORITY_ORDER.fetch_or(id << (position * 4), Ordering::AcqRel);
-        if ROTATION_ABI.load(Ordering::Acquire) != 0 {
-            lwp::lwp_reschedule_abi(20);
-        } else {
-            lwp::reschedule(20);
+        match ROTATION_ABI.load(Ordering::Acquire) {
+            1 => lwp::lwp_reschedule_abi(20),
+            2 => ogc_lwp::reschedule(20),
+            3 => driver::reschedule(20),
+            _ => lwp::reschedule(20),
         }
         let position = PRIORITY_POSITION.fetch_add(1, Ordering::AcqRel);
         PRIORITY_ORDER.fetch_or(id << (position * 4), Ordering::AcqRel);
@@ -1001,10 +1002,10 @@ mod wii {
     }
 
     fn probe_reschedule_rotation(logger: &mut ProbeLogger) {
-        for abi in [false, true] {
+        for mode in 0..4 {
             PRIORITY_ORDER.store(0, Ordering::Release);
             PRIORITY_POSITION.store(0, Ordering::Release);
-            ROTATION_ABI.store(u32::from(abi), Ordering::Release);
+            ROTATION_ABI.store(mode, Ordering::Release);
             let mut a = lwp::LWP_THREAD_NULL;
             let mut b = lwp::LWP_THREAD_NULL;
             let a_rc = create_with_stack(
@@ -1026,10 +1027,11 @@ mod wii {
             let order = PRIORITY_ORDER.load(Ordering::Acquire);
             logger.note_hex32("LWP reschedule worker order", order);
             logger.record(
-                if abi {
-                    "LWP ABI reschedule rotates equal priority workers"
-                } else {
-                    "LWP reschedule rotates equal priority workers"
+                match mode {
+                    1 => "LWP ABI reschedule rotates equal priority workers",
+                    2 => "LWP wrapper reschedule rotates equal priority workers",
+                    3 => "LWP driver reschedule rotates equal priority workers",
+                    _ => "LWP reschedule rotates equal priority workers",
                 },
                 a_result == Ok(1)
                     && b_result == Ok(2)
@@ -1040,7 +1042,8 @@ mod wii {
     }
 
     fn probe_priority_order(logger: &mut ProbeLogger) {
-        for abi in [false, true] {
+        for mode in 0..3 {
+            let abi = mode == 1;
             PRIORITY_ORDER.store(0, Ordering::Release);
             PRIORITY_POSITION.store(0, Ordering::Release);
             let mut a = lwp::LWP_THREAD_NULL;
@@ -1061,6 +1064,9 @@ mod wii {
             );
             if abi {
                 lwp::lwp_set_thread_priority_abi(b, 50);
+            } else if mode == 2 {
+                let thread = ogc_lwp::ThreadHandle::new(a);
+                thread.set_priority(40);
             } else {
                 lwp::set_thread_priority(a, 40);
                 driver::set_thread_priority(a, 40);
@@ -1070,6 +1076,8 @@ mod wii {
             logger.record(
                 if abi {
                     "LWP ABI priority change selects higher worker"
+                } else if mode == 2 {
+                    "LWP wrapper priority change selects higher worker"
                 } else {
                     "LWP priority change selects higher worker"
                 },

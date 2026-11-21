@@ -1,0 +1,41 @@
+{
+  "probe": "lwp_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "reschedule",
+      "line": 379,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "rotation_worker",
+      "api_path": "ogc_lwp::reschedule",
+      "checks": [
+        "LWP wrapper reschedule rotates equal priority workers"
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "path": "src/lib.rs",
+      "symbol": "set_priority",
+      "line": 104,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_priority_order",
+      "api_path": "thread.set_priority",
+      "checks": [
+        "LWP wrapper priority change selects higher worker"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "reschedule",
+      "line": 2668,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "rotation_worker",
+      "api_path": "driver::reschedule",
+      "checks": [
+        "LWP driver reschedule rotates equal priority workers"
+      ]
+    }
+  ]
+}

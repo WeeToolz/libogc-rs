@@ -3245,3 +3245,6 @@ ogc-irq,src/lib.rs,dispatch_pending,71,compatibility-forwarder,hardware-probe,pr
 ogc-network,src/lib.rs,as_sockaddr_mut_ptr,238,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_socket_address_layout,address.as_sockaddr_mut_ptr
 ogc-network,src/lib.rs,socket_address_len,241,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_socket_address_layout,network::Sockaddr::socket_address_len
 ogc-lwp,src/lib.rs,raw,169,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_sync_handles,mutex.raw
+ogc-lwp,src/lib.rs,reschedule,379,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,rotation_worker,ogc_lwp::reschedule
+ogc-lwp,src/lib.rs,set_priority,104,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_priority_order,thread.set_priority
+ogc-lwp-driver,src/runtime.rs,reschedule,2668,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,rotation_worker,driver::reschedule
