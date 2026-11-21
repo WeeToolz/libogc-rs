@@ -179,6 +179,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_ipc_heap_handles(logger);
     probe_ipc_path_limits(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_ipc_format_bridge(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_ipc_buffer_bounds(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_ipc_file_reads(logger);
@@ -304,6 +306,73 @@ fn probe_ipc_path_limits(logger: &mut ProbeLogger) {
         ) == ipc::IPC_EINVAL
             && !CALLBACK_CALLED.load(Ordering::Acquire),
     );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
+    use core::ffi::c_void;
+    use ogc_ipc as ipc;
+
+    #[repr(C)]
+    struct FormatCall {
+        heap: i32,
+        fd: i32,
+        ioctl: i32,
+        callback: ipc::Ipccallback,
+        user_data: *mut c_void,
+        format: *const u8,
+        registers: [u32; 4],
+        register_count: u32,
+        overflow: *const u32,
+        asynchronous: u32,
+    }
+    #[repr(align(32))]
+    struct TitleBytes([u8; 4]);
+
+    let null_result = unsafe { ipc::__ogc_ipc_ioctlv_format_bridge(core::ptr::null()) };
+    logger.record(
+        "IPC format bridge rejects null call",
+        null_result == ipc::IPC_EINVAL,
+    );
+    let opened = ipc::open_file(c"/dev/es", ipc::IPC_OPEN_NONE);
+    if let Ok(fd) = opened {
+        let mut expected = TitleBytes([0xff; 4]);
+        let typed = fd.ioctlv(0x0e, 0, [ipc::IoctlvEntry::Out(&mut expected.0)]);
+        let mut actual = u32::MAX;
+        let call = FormatCall {
+            heap: ipc::IPC_HEAP,
+            fd: fd.raw(),
+            ioctl: 0x0e,
+            callback: None,
+            user_data: core::ptr::null_mut(),
+            format: c":i".as_ptr().cast(),
+            registers: [(&mut actual as *mut u32) as u32, 0, 0, 0],
+            register_count: 4,
+            overflow: core::ptr::null(),
+            asynchronous: 0,
+        };
+        let formatted =
+            unsafe { ipc::__ogc_ipc_ioctlv_format_bridge((&call as *const FormatCall).cast()) };
+        logger.note_i32("IPC typed ES title result", typed);
+        logger.note_i32("IPC formatted ES title result", formatted);
+        logger.note_hex32("IPC typed ES title count", u32::from_be_bytes(expected.0));
+        logger.note_hex32("IPC formatted ES title count", actual);
+        logger.record(
+            "IPC format bridge returns ES title count through output vector",
+            typed == 0
+                && formatted == 0
+                && actual == u32::from_be_bytes(expected.0)
+                && actual > 0
+                && actual <= 512,
+        );
+        logger.record("IPC format bridge closes ES descriptor", fd.close().is_ok());
+    } else {
+        logger.record(
+            "IPC format bridge returns ES title count through output vector",
+            false,
+        );
+        logger.record("IPC format bridge closes ES descriptor", false);
+    }
 }
 
 #[cfg(feature = "dolphin-automation")]

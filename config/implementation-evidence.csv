@@ -3265,3 +3265,4 @@ libdb-sys,src/wii_network.rs,close,57,compatibility-forwarder,hardware-probe,pro
 lwip-sys,src/lib.rs,set_network_top_fd,530,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_network_descriptor,lwip::set_network_top_fd
 lwip-sys,src/lib.rs,set_network_top_fd,1493,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_network_descriptor,lwip::set_network_top_fd
 ogc-runtime,src/scheduler.rs,new,16,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,run,ThreadId::new
+ogc-ipc,src/lib.rs,__ogc_ipc_ioctlv_format_bridge,2685,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_format_bridge,ipc::__ogc_ipc_ioctlv_format_bridge,synchronous-scalar-output

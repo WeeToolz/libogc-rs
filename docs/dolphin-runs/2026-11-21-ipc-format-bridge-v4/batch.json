@@ -1,0 +1,20 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "__ogc_ipc_ioctlv_format_bridge",
+      "line": 2685,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_format_bridge",
+      "api_path": "ipc::__ogc_ipc_ioctlv_format_bridge",
+      "checks": [
+        "IPC format bridge rejects null call",
+        "IPC format bridge returns ES title count through output vector",
+        "IPC format bridge closes ES descriptor"
+      ],
+      "evidence_scope": "synchronous-scalar-output"
+    }
+  ]
+}

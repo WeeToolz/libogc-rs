@@ -66,6 +66,7 @@ enum EvidenceScope {
     NoPendingInterrupt,
     RepeatedInitialization,
     NoEventHook,
+    SynchronousScalarOutput,
     DolphinCacheRegister,
     DolphinCacheInstructions,
     ZeroTagCount,
@@ -90,6 +91,7 @@ impl EvidenceScope {
             "no-pending-interrupt" => Self::NoPendingInterrupt,
             "repeated-initialization" => Self::RepeatedInitialization,
             "no-event-hook" => Self::NoEventHook,
+            "synchronous-scalar-output" => Self::SynchronousScalarOutput,
             "dolphin-cache-register" => Self::DolphinCacheRegister,
             "dolphin-cache-instructions" => Self::DolphinCacheInstructions,
             "zero-tag-count" => Self::ZeroTagCount,
@@ -143,6 +145,9 @@ impl EvidenceScope {
             Self::NoEventHook => {
                 "Close behavior without a registered event hook only in Dolphin. Event-hook release remains unverified."
             }
+            Self::SynchronousScalarOutput => {
+                "Synchronous scalar output only in Dolphin. Other formats and asynchronous requests remain unverified."
+            }
             Self::DolphinCacheRegister => {
                 "Dolphin HID0 transitions and restoration only. Physical cache state and timing are unverified."
             }
@@ -175,7 +180,9 @@ impl EvidenceScope {
             | Self::ZeroLength
             | Self::EmptyQueue
             | Self::NoPendingInterrupt => "unverified",
-            Self::RepeatedInitialization | Self::NoEventHook => "unverified",
+            Self::RepeatedInitialization | Self::NoEventHook | Self::SynchronousScalarOutput => {
+                "unverified"
+            }
             Self::NoControllerAndInvalidArguments => "unverified",
             _ => declared,
         }
@@ -1955,6 +1962,7 @@ mod tests {
             "no-pending-interrupt",
             "repeated-initialization",
             "no-event-hook",
+            "synchronous-scalar-output",
             "zero-tag-count",
         ] {
             let scope = EvidenceScope::parse(scope).unwrap();
