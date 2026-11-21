@@ -1212,7 +1212,8 @@ impl ProbeLogger {
     pub fn with_options(display: ProbeDisplay, options: ProbeLoggerOptions) -> Self {
         #[cfg(feature = "agent-report")]
         let recovery_alarm = take_recovery_reset();
-        Self {
+        let buffered_console_ready = display.console_ready() && display.framebuffer_bytes > 0;
+        let mut logger = Self {
             file: None,
             log_state: LogState::default(),
             file_policy: options.file_policy,
@@ -1232,7 +1233,12 @@ impl ProbeLogger {
             sample_frames: agent_frame_option(b"--sample-frames=").unwrap_or(0),
             #[cfg(feature = "agent-report")]
             recovery_alarm,
-        }
+        };
+        logger.record(
+            "Video console_init_framebuffer initializes the buffered console",
+            buffered_console_ready,
+        );
+        logger
     }
 
     pub fn has_log_file(&self) -> bool {

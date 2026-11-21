@@ -3213,3 +3213,4 @@ ogc-wiilaunch,src/lib.rs,try_initialize,275,ios,hardware-probe,probes/ogc-system
 wpad-sys,src/lib.rs,set_data_format,1100,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_valid_channel_empty_queries,wpad::set_data_format,empty-channel
 wpad-sys,src/lib.rs,set_motion_plus,1122,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_valid_channel_empty_queries,wpad::set_motion_plus,no-controller
 wpad-sys,src/lib.rs,disconnect,1288,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_empty_channel_commands,wpad::disconnect,no-controller
+ogc-video,src/lib.rs,console_init_framebuffer,1030,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/probe_support.rs,init_buffered_console,video::console_init_framebuffer
