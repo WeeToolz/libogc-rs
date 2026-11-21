@@ -189,6 +189,7 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_irq_raw_handler_registry(logger);
     probe_irq_delivery_state(logger);
     probe_irq_mask_state(logger);
+    probe_irq_dispatch_pending(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_exi_locking(logger);
     probe_exi_raw_lock_queue(logger);
@@ -2610,6 +2611,16 @@ fn probe_irq_mask_state(logger: &mut ProbeLogger) {
     logger.record(
         "IRQ mask operations update and restore debug bit",
         disabled && enabled && masked && unmasked && raw_disabled && raw_enabled && restored,
+    );
+}
+
+fn probe_irq_dispatch_pending(logger: &mut ProbeLogger) {
+    use ogc_irq as irq;
+
+    let dispatched = irq::dispatch_pending();
+    logger.record(
+        "IRQ dispatch reports no handled pending interrupt",
+        !dispatched,
     );
 }
 

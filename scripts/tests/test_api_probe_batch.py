@@ -18,6 +18,9 @@ class BatchTests(unittest.TestCase):
     def test_active_search_state_keeps_apis_partial(self):
         self.assertIn("active-search-state", batch.PARTIAL_SCOPES)
 
+    def test_no_pending_interrupt_keeps_dispatch_api_partial(self):
+        self.assertIn("no-pending-interrupt", batch.PARTIAL_SCOPES)
+
     def test_selects_exact_entry_and_rejects_ambiguity(self):
         case = {"crate": "example", "path": "src/lib.rs", "symbol": "operation"}
         row = {
@@ -112,7 +115,9 @@ class BatchTests(unittest.TestCase):
                 batch.verify_run(directory, manifest, run_info)
 
     def test_record_evidence_replaces_partial_cache_scopes(self):
-        for scope in ("zero-tag-count", "zero-length", "empty-queue"):
+        for scope in (
+            "zero-tag-count", "zero-length", "empty-queue", "no-pending-interrupt"
+        ):
             with self.subTest(scope=scope), tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
                 evidence_path = Path("config/evidence.csv")

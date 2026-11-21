@@ -30,7 +30,7 @@ PARTIAL_SCOPES = {
     "invalid-arguments", "empty-channel", "no-controller",
     "no-controller-and-invalid-arguments", "active-search-state",
     "zero-tag-count", "zero-length",
-    "empty-queue",
+    "empty-queue", "no-pending-interrupt",
 }
 
 
