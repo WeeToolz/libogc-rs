@@ -1,0 +1,2 @@
+Command: cargo xtask audit-stubs --refresh-inventory --json /tmp/video-right-audit-final.json
+Result: exit 1. The source-structure audit passed and the inventory refreshed. The global audit reports 193 unverified APIs and three tracked ogc-wiikeyboard-sys audit-debt entries. The generated JSON is saved beside this log.

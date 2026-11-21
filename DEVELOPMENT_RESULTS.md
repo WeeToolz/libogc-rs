@@ -1,5 +1,16 @@
 # Development results
 
+## 2026-11-21 video right framebuffer wrapper
+
+The [video batch](docs/dolphin-runs/2026-11-21-video-right-framebuffer-focused-v2/README.md)
+checks that `ogc-video::set_next_right_framebuffer` records the selected live
+framebuffer and restores the prior snapshot value. Dolphin passed all 749
+runtime checks. The unverified inventory fell from 194 to 193. This checks the
+wrapper state and call path. It does not verify right-eye framebuffer latching
+by VI hardware; `ogc-video-sys::set_next_right_framebuffer` remains open. The
+global audit still reports 193 unverified APIs, so the batch helper's full
+finish gate did not pass.
+
 ## 2026-11-20 System framebuffer null mode
 
 The [framebuffer batch](docs/dolphin-runs/2026-11-20-system-null-framebuffer-retry/README.md)

@@ -3216,3 +3216,4 @@ wpad-sys,src/lib.rs,disconnect,1288,hardware,hardware-probe,probes/ogc-system-pr
 ogc-video,src/lib.rs,console_init_framebuffer,1030,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/probe_support.rs,init_buffered_console,video::console_init_framebuffer
 ogc-stm,src/lib.rs,close,412,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::close
 ogc-stm,src/lib.rs,try_close,449,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_close
+ogc-video,src/lib.rs,set_next_right_framebuffer,510,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_video_framebuffer_updates,video::set_next_right_framebuffer,
