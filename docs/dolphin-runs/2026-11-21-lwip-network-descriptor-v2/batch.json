@@ -1,0 +1,31 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_network_top_fd",
+      "line": 530,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_network_descriptor",
+      "api_path": "lwip::set_network_top_fd",
+      "checks": [
+        "lwIP network descriptor gates IOS socket creation",
+        "lwIP descriptor probe restores network lifecycle"
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_network_top_fd",
+      "line": 1493,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwip_network_descriptor",
+      "api_path": "lwip::set_network_top_fd",
+      "checks": [
+        "lwIP network descriptor gates IOS socket creation",
+        "lwIP descriptor probe restores network lifecycle"
+      ]
+    }
+  ]
+}

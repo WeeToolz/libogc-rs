@@ -3263,3 +3263,5 @@ libdb-sys,src/wii_network.rs,state,45,compatibility-forwarder,hardware-probe,pro
 libdb-sys,src/wii_network.rs,arm,49,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_debugger_network_lifecycle,transport.arm
 libdb-sys,src/wii_network.rs,disarm,53,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_debugger_network_lifecycle,transport.disarm
 libdb-sys,src/wii_network.rs,close,57,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_debugger_network_lifecycle,transport.close
+lwip-sys,src/lib.rs,set_network_top_fd,530,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_network_descriptor,lwip::set_network_top_fd
+lwip-sys,src/lib.rs,set_network_top_fd,1493,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_network_descriptor,lwip::set_network_top_fd

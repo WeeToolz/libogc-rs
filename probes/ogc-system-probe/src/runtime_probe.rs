@@ -263,6 +263,8 @@ pub fn run(logger: &mut ProbeLogger) {
     #[cfg(feature = "dolphin-automation")]
     probe_network_wc24_cleanup(logger);
     #[cfg(feature = "dolphin-automation")]
+    probe_lwip_network_descriptor(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_debugger_network_lifecycle(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_raw_video_setup(logger);
@@ -7251,6 +7253,39 @@ fn probe_debugger_network_lifecycle(logger: &mut ProbeLogger) {
         logger.record("debugger network closes connected transport", false);
     }
     logger.record("debugger network probe deinitializes", net::deinit() == 0);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_lwip_network_descriptor(logger: &mut ProbeLogger) {
+    use lwip_sys as lwip;
+    use ogc_network as net;
+
+    let started = net::init() == 0;
+    let stopped = net::deinit() == 0;
+    lwip::set_network_top_fd(-1);
+    let without_descriptor = lwip::socket(net::PF_INET as i32, net::SOCK_DGRAM as i32, 0);
+    let descriptor = ogc_ipc::open_file(c"/dev/net/ip/top", ogc_ipc::IPC_OPEN_NONE);
+    if let Ok(descriptor) = descriptor {
+        lwip::set_network_top_fd(descriptor.raw());
+        let socket = lwip::socket(net::PF_INET as i32, net::SOCK_DGRAM as i32, 0);
+        let socket_closed = socket >= 0 && lwip::close(socket) == 0;
+        lwip::set_network_top_fd(-1);
+        let after_clear = lwip::socket(net::PF_INET as i32, net::SOCK_DGRAM as i32, 0);
+        let descriptor_closed = descriptor.close().is_ok();
+        logger.record(
+            "lwIP network descriptor gates IOS socket creation",
+            started
+                && stopped
+                && without_descriptor == -6
+                && socket_closed
+                && after_clear == -6
+                && descriptor_closed,
+        );
+    } else {
+        logger.record("lwIP network descriptor gates IOS socket creation", false);
+    }
+    let restored = net::init() == 0 && net::deinit() == 0;
+    logger.record("lwIP descriptor probe restores network lifecycle", restored);
 }
 
 #[cfg(feature = "dolphin-automation")]
