@@ -1,5 +1,12 @@
 # Development results
 
+## 2026-11-20 Bluetooth PCB lifecycle
+
+The [PCB batch](docs/dolphin-runs/2026-11-20-lwbt-pcb-lifecycle/README.md)
+checks allocation, three field setters, freeing, and slot reuse.
+Dolphin passed all 639 runtime probe checks. The inventory fell from 346 to
+341 unverified entries. This does not verify a Bluetooth connection.
+
 ## 2026-11-20 Bluetooth link-key pointer guards
 
 The [link-key batch](docs/dolphin-runs/2026-11-20-lwbt-link-key-invalid-pointers/README.md)

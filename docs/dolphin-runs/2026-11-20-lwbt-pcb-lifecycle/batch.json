@@ -1,0 +1,65 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "new",
+      "line": 728,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_pcb_lifecycle",
+      "api_path": "bte::new",
+      "checks": [
+        "Bluetooth PCB allocation initializes fields"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "arg",
+      "line": 759,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_pcb_lifecycle",
+      "api_path": "bte::arg",
+      "checks": [
+        "Bluetooth PCB argument setter stores value"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "received",
+      "line": 770,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_pcb_lifecycle",
+      "api_path": "bte::received",
+      "checks": [
+        "Bluetooth PCB receive setter clears callback"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "disconnected",
+      "line": 781,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_pcb_lifecycle",
+      "api_path": "bte::disconnected",
+      "checks": [
+        "Bluetooth PCB disconnect setter clears callback"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "free",
+      "line": 747,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_pcb_lifecycle",
+      "api_path": "bte::free",
+      "checks": [
+        "Bluetooth PCB free releases a slot"
+      ]
+    }
+  ]
+}

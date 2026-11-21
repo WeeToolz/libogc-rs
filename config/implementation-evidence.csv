@@ -3036,3 +3036,8 @@ lwbt-sys,src/lib.rs,delete_stored_link_key,706,ios,hardware-probe,probes/ogc-sys
 lwbt-sys,src/lib.rs,link_key_request_reply,534,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_invalid_key_pointers,bte::link_key_request_reply
 lwbt-sys,src/lib.rs,link_key_request_negative_reply,547,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_invalid_key_pointers,bte::link_key_request_negative_reply
 lwbt-sys,src/lib.rs,read_stored_link_key,410,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_invalid_key_pointers,bte::read_stored_link_key
+lwbt-sys,src/lib.rs,new,728,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_pcb_lifecycle,bte::new
+lwbt-sys,src/lib.rs,arg,759,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_pcb_lifecycle,bte::arg
+lwbt-sys,src/lib.rs,received,770,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_pcb_lifecycle,bte::received
+lwbt-sys,src/lib.rs,disconnected,781,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_pcb_lifecycle,bte::disconnected
+lwbt-sys,src/lib.rs,free,747,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_pcb_lifecycle,bte::free

@@ -105,6 +105,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_lwbt_invalid_pcbs(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_lwbt_invalid_key_pointers(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_lwbt_pcb_lifecycle(logger);
     probe_system_runtime_state(logger);
     probe_wiilaunch_error_codes(logger);
     probe_system_startup_status(logger);
@@ -4317,6 +4319,42 @@ fn probe_bt_unavailable_protocol_calls(logger: &mut ProbeLogger) {
             && after_acl.acl_packets == before_acl.acl_packets + 1
             && after_acl.malformed == before_acl.malformed + 1,
     );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_lwbt_pcb_lifecycle(logger: &mut ProbeLogger) {
+    use lwbt_sys as bte;
+    // SAFETY: The PCB returned by `new` remains allocated until `free` below.
+    let pcb = unsafe { bte::new() };
+    if pcb.is_null() {
+        logger.record("Bluetooth PCB allocation returns a slot", false);
+        return;
+    }
+    let initialized = unsafe {
+        (*pcb).state == bte::HIDP_STATE_READY && (*pcb).cbarg.is_null() && (*pcb).recv.is_none()
+    };
+    logger.record("Bluetooth PCB allocation initializes fields", initialized);
+    let callback_arg = 0x1234usize as *mut core::ffi::c_void;
+    unsafe { bte::arg(pcb, callback_arg) };
+    logger.record("Bluetooth PCB argument setter stores value", unsafe {
+        (*pcb).cbarg == callback_arg
+    });
+    unsafe { bte::received(pcb, None) };
+    logger.record("Bluetooth PCB receive setter clears callback", unsafe {
+        (*pcb).recv.is_none()
+    });
+    unsafe { bte::disconnected(pcb, None) };
+    logger.record("Bluetooth PCB disconnect setter clears callback", unsafe {
+        (*pcb).disconn_cfm.is_none()
+    });
+    unsafe { bte::free(pcb) };
+    // SAFETY: `new` returns a fresh live slot, which is released immediately.
+    let replacement = unsafe { bte::new() };
+    let reallocated = !replacement.is_null();
+    logger.record("Bluetooth PCB free releases a slot", reallocated);
+    if reallocated {
+        unsafe { bte::free(replacement) };
+    }
 }
 
 #[cfg(feature = "dolphin-automation")]
