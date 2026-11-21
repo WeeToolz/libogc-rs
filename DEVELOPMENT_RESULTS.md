@@ -1,5 +1,14 @@
 # Development results
 
+## 2026-11-21 WPAD saved controller wipe
+
+The [WPAD batch](docs/dolphin-runs/2026-11-21-wpad-wipe-saved-controllers-focused-v3/README.md)
+seeds non-default controller and guest records in the private Dolphin NAND
+copy, verifies that `wipe_saved_controllers` clears both records, and restores
+the original records. Dolphin passed all 93 WPAD probe checks. The inventory
+fell from 191 to 190 unverified APIs. This verifies the saved-configuration
+path in Dolphin; physical Wii persistence remains untested.
+
 ## 2026-11-21 video default console initialization
 
 The [video batch](docs/dolphin-runs/2026-11-21-video-console-init-focused-v2/README.md)

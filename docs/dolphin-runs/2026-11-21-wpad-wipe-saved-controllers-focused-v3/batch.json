@@ -1,0 +1,19 @@
+{
+  "probe": "wpad_probe",
+  "cases": [
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "wipe_saved_controllers",
+      "line": 1426,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_wipe_saved_controllers",
+      "api_path": "wpad::wipe_saved_controllers",
+      "checks": [
+        "WPAD wipe seeds saved controller records",
+        "WPAD wipe clears saved controller and guest records",
+        "WPAD wipe restores original saved records"
+      ]
+    }
+  ]
+}

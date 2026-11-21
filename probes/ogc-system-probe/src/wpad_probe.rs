@@ -26,6 +26,8 @@ pub fn run(logger: &mut ProbeLogger) {
         return;
     }
     probe_valid_channel_argument_guards(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_wipe_saved_controllers(logger);
 
     let deadline = ogc_system::time() + 60_750_000 * 6;
     while wpad::get_status() == wpad::WPAD_STATE_ENABLING && ogc_system::time() < deadline {
@@ -111,6 +113,103 @@ pub fn run(logger: &mut ProbeLogger) {
         "WPAD disabled adapter rejects all-channel MotionPlus configuration",
         wpad::set_motion_plus(wpad::WPAD_CHAN_ALL, 1) == wpad::WPAD_ERR_NOT_READY as i32,
     );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_wipe_saved_controllers(logger: &mut ProbeLogger) {
+    use ogc_conf as conf;
+
+    logger.report_step("WPAD saved controller configuration wipe");
+    let mut original_pads = conf::ConfPads::default();
+    let mut original_guests = conf::ConfPadGuests::default();
+    let read_original = conf::get_pad_devices(&mut original_pads) == 0
+        && conf::get_pad_guest_devices(&mut original_guests) == 0;
+    if !read_original {
+        logger.record("WPAD wipe reads saved controller configuration", false);
+        return;
+    }
+
+    let mut seeded_pads = original_pads;
+    seeded_pads.num_registered = 1;
+    seeded_pads.registered[0].bdaddr = [1, 2, 3, 4, 5, 6];
+    seeded_pads.registered[0].name = [0x53; 0x40];
+    let mut seeded_guests = original_guests;
+    seeded_guests.num_guests = 1;
+    seeded_guests.guests[0].bdaddr = [6, 5, 4, 3, 2, 1];
+    seeded_guests.guests[0].name = [0x47; 0x40];
+    seeded_guests.guests[0].link_key = [0xa5; 16];
+
+    let seed_result = conf::set_pad_devices(&seeded_pads);
+    let guest_seed_result = conf::set_pad_guest_devices(Some(&seeded_guests));
+    let seed_save_result = if seed_result >= 0 && guest_seed_result >= 0 {
+        conf::save_changes()
+    } else {
+        -1
+    };
+    logger.note_i32("WPAD wipe seed saved pad result", seed_result);
+    logger.note_i32("WPAD wipe seed guest result", guest_seed_result);
+    logger.note_i32("WPAD wipe seed save result", seed_save_result);
+    let mut observed_pads = conf::ConfPads::default();
+    let mut observed_guests = conf::ConfPadGuests::default();
+    let observed_pads_result = conf::get_pad_devices(&mut observed_pads);
+    let observed_guests_result = conf::get_pad_guest_devices(&mut observed_guests);
+    logger.note_i32("WPAD wipe verify seeded pads result", observed_pads_result);
+    logger.note_i32(
+        "WPAD wipe verify seeded guests result",
+        observed_guests_result,
+    );
+    let seed_observed = seed_save_result == 0
+        && observed_pads_result == 0
+        && observed_guests_result == 0
+        && observed_pads == seeded_pads
+        && observed_guests == seeded_guests;
+    logger.record("WPAD wipe seeds saved controller records", seed_observed);
+
+    let wipe_result = if seed_observed {
+        wpad::wipe_saved_controllers()
+    } else {
+        -1
+    };
+    let mut cleared_pads = conf::ConfPads::default();
+    let mut cleared_guests = conf::ConfPadGuests::default();
+    let wipe_cleared_records = wipe_result == wpad::WPAD_ERR_NONE as i32
+        && conf::get_pad_devices(&mut cleared_pads) == 0
+        && conf::get_pad_guest_devices(&mut cleared_guests) == 0
+        && cleared_pads == conf::ConfPads::default()
+        && cleared_guests == conf::ConfPadGuests::default();
+    logger.record(
+        "WPAD wipe clears saved controller and guest records",
+        wipe_cleared_records,
+    );
+
+    let restore_pads = conf::set_pad_devices(&original_pads);
+    let restore_guests = conf::set_pad_guest_devices(Some(&original_guests));
+    let restore_save = if restore_pads >= 0 && restore_guests >= 0 {
+        conf::save_changes()
+    } else {
+        -1
+    };
+    logger.note_i32("WPAD wipe restore pads result", restore_pads);
+    logger.note_i32("WPAD wipe restore guests result", restore_guests);
+    logger.note_i32("WPAD wipe restore save result", restore_save);
+    let mut restored_pads = conf::ConfPads::default();
+    let mut restored_guests = conf::ConfPadGuests::default();
+    let restored_pads_result = conf::get_pad_devices(&mut restored_pads);
+    let restored_guests_result = conf::get_pad_guest_devices(&mut restored_guests);
+    logger.note_i32(
+        "WPAD wipe verify restored pads result",
+        restored_pads_result,
+    );
+    logger.note_i32(
+        "WPAD wipe verify restored guests result",
+        restored_guests_result,
+    );
+    let restored = restore_save == 0
+        && restored_pads_result == 0
+        && restored_guests_result == 0
+        && restored_pads == original_pads
+        && restored_guests == original_guests;
+    logger.record("WPAD wipe restores original saved records", restored);
 }
 
 fn probe_empty_channel_event_queue(logger: &mut ProbeLogger) {
