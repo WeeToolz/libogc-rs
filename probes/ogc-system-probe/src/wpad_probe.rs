@@ -123,6 +123,10 @@ fn probe_valid_channel_empty_queries(logger: &mut ProbeLogger) {
         wpad::battery_level(chan) == 0,
     );
     logger.record(
+        "WPAD empty channel battery is not critical",
+        !wpad::is_battery_critical(chan),
+    );
+    logger.record(
         "WPAD empty channel button states are zero",
         wpad::buttons_down(chan) == 0
             && wpad::buttons_held(chan) == 0

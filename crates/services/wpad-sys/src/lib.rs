@@ -448,6 +448,8 @@ static WPAD_GLOBAL_STATUS: AtomicI32 = AtomicI32::new(WPAD_STATE_DISABLED);
 static WPAD_IDLE_TIMEOUT: AtomicU32 = AtomicU32::new(0);
 static WPAD_CONNECTED: [AtomicBool; WPAD_MAX_DEVICES] =
     [const { AtomicBool::new(false) }; WPAD_MAX_DEVICES];
+pub(crate) static WPAD_BATTERY_CRITICAL: [AtomicBool; WPAD_MAX_DEVICES] =
+    [const { AtomicBool::new(false) }; WPAD_MAX_DEVICES];
 // Keep the consumer's previous scan separate from incoming report state.
 // A producer can update WPAD_DATA_STATE several times before read_pending.
 static WPAD_CONSUMED_BUTTONS: [AtomicU32; WPAD_MAX_DEVICES] =
@@ -650,6 +652,7 @@ fn valid_chan(chan: i32) -> Option<usize> {
 }
 
 fn reset_data(chan: usize) {
+    WPAD_BATTERY_CRITICAL[chan].store(false, Ordering::Release);
     unsafe {
         WPAD_DATA_STATE[chan].err = if WPAD_CONNECTED[chan].load(Ordering::Acquire) {
             WPAD_ERR_NONE
@@ -1904,13 +1907,7 @@ pub fn pad_status(chan: i32) {
 }
 
 pub fn is_battery_critical(chan: i32) -> bool {
-    if cfg!(target_arch = "powerpc") {
-        return battery_level(chan) <= 5;
-    }
-    if !wpad_host_compatibility_enabled() {
-        return false;
-    }
-    battery_level(chan) <= 5
+    valid_chan(chan).is_some_and(|chan| WPAD_BATTERY_CRITICAL[chan].load(Ordering::Acquire))
 }
 
 #[cfg(all(test, target_arch = "powerpc"))]

@@ -1560,6 +1560,7 @@ fn handle_wii_status_report(slot_idx: usize, report: &[u8]) -> bool {
             WPAD_DATA_STATE[chan].data_present &= !WPAD_DATA_EXPANSION;
         }
         WPAD_DATA_STATE[chan].battery_level = status.battery_level;
+        super::WPAD_BATTERY_CRITICAL[chan].store(status.battery_critical, Ordering::Release);
     }) else {
         return false;
     };
