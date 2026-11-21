@@ -45,6 +45,7 @@ pub fn run(logger: &mut ProbeLogger) {
         wpad::get_status() == wpad::WPAD_STATE_ENABLED,
     );
     probe_valid_channel_empty_queries(logger);
+    probe_empty_channel_commands(logger);
     probe_empty_channel_event_queue(logger);
     probe_invalid_channel_commands(logger);
     probe_bluetooth_helpers(logger);
@@ -111,6 +112,29 @@ fn probe_empty_channel_event_queue(logger: &mut ProbeLogger) {
     logger.record(
         "WPAD empty channel dropped-event count is zero",
         wpad::dropped_events(channel) == 0,
+    );
+}
+
+fn probe_empty_channel_commands(logger: &mut ProbeLogger) {
+    let channel = wpad::WPAD_CHAN_0;
+    logger.record(
+        "WPAD empty channel speaker control succeeds",
+        wpad::control_speaker(channel, 1) == wpad::WPAD_ERR_NONE as i32,
+    );
+    logger.record(
+        "WPAD empty channel rumble control succeeds",
+        wpad::rumble(channel, 1) == wpad::WPAD_ERR_NONE as i32,
+    );
+
+    let invalid = wpad::WPAD_MAX_WIIMOTES as i32;
+    let bad_channel = wpad::WPAD_ERR_BAD_CHANNEL as i32;
+    logger.record(
+        "WPAD invalid channel rejects speaker control",
+        wpad::control_speaker(invalid, 1) == bad_channel,
+    );
+    logger.record(
+        "WPAD invalid channel rejects rumble control",
+        wpad::rumble(invalid, 1) == bad_channel,
     );
 }
 

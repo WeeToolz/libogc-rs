@@ -1,0 +1,36 @@
+{
+  "probe": "wpad_probe",
+  "cases": [
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "control_speaker",
+      "line": 846,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_empty_channel_commands",
+      "api_path": "wpad::control_speaker",
+      "checks": [
+        "WPAD empty channel speaker control succeeds",
+        "WPAD invalid channel rejects speaker control"
+      ],
+      "evidence_scope": "no-controller"
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "rumble",
+      "line": 1503,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_empty_channel_commands",
+      "api_path": "wpad::rumble",
+      "checks": [
+        "WPAD empty channel rumble control succeeds",
+        "WPAD invalid channel rejects rumble control"
+      ],
+      "evidence_scope": "no-controller"
+    }
+  ],
+  "limits": [
+    "Dolphin has no connected Wii Remote. The checks cover only valid empty-channel no-ops and invalid-channel rejection."
+  ]
+}

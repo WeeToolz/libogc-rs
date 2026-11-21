@@ -859,7 +859,7 @@ pub fn control_speaker(chan: i32, enable: i32) -> i32 {
         let Some(chan) = valid_chan(chan) else {
             return WPAD_ERR_BAD_CHANNEL as i32;
         };
-        return powerpc_backend::control_speaker(chan, enable != 0);
+        return powerpc_backend::control_speaker_if_present(chan, enable != 0);
     }
     if !wpad_host_compatibility_enabled() {
         return WPAD_ERR_NOT_READY as i32;
@@ -1516,7 +1516,7 @@ pub fn rumble(chan: i32, status: i32) -> i32 {
         let Some(chan) = valid_chan(chan) else {
             return WPAD_ERR_BAD_CHANNEL as i32;
         };
-        return powerpc_backend::rumble(chan, status != 0);
+        return powerpc_backend::rumble_if_present(chan, status != 0);
     }
     if !wpad_host_compatibility_enabled() {
         return WPAD_ERR_NOT_READY as i32;
