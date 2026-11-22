@@ -104,6 +104,17 @@ testing must include aligned and misaligned 31, 32, 33, 63, 64, and 65 byte
 boundaries, dirty neighboring cache-line data, and both sync and async paths.
 Dolphin evidence does not promote these hardware contracts.
 
+The two partial DMA output copyback rows record the formatter interception
+checks. The sync check verifies software copyback and canary bytes. The async
+check verifies staging and cleanup before submission. The same Dolphin run
+also submits real ES requests through the emulated IOS paths. Both paths test
+31, 32, 33, 63, 64, and 65 byte output buffers at offsets zero and one from a
+32-byte boundary. They compare the returned title directory and check the
+surrounding bytes. The async check also verifies one callback, its result and
+userdata, and the output visible in that callback. See the
+[live ES results](dolphin-runs/2026-11-22-ipc-format-workspace-oom-v1/runtime_probe/probe.log#L492).
+Physical Wii testing must establish cache and DMA coherency for these paths.
+
 The [probe guide](../probes/README.md) lists focused build commands, probe
 coverage, Dolphin limits, and physical USB and AESND procedures. The
 [hardware validation guide](wii-hardware-validation.md) explains how to record
