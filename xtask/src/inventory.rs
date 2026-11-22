@@ -474,6 +474,7 @@ fn load_probe_coverage(root: &Path) -> Result<BTreeMap<String, ProbeCoverage>, S
 }
 
 fn collect_inventory(root: &Path) -> Result<Vec<ApiEntry>, String> {
+    validate_formatter_assembly_exports(root)?;
     let roles = load_roles(root)?;
     let overrides = load_overrides(root)?;
     let evidence = load_evidence(root)?;
@@ -688,6 +689,53 @@ fn collect_inventory(root: &Path) -> Result<Vec<ApiEntry>, String> {
             && left.line == right.line
     });
     Ok(entries)
+}
+
+fn assembly_global_symbols(source: &str) -> HashSet<String> {
+    source
+        .lines()
+        .filter_map(|line| {
+            let line = line.trim();
+            let (_, symbol) = line
+                .split_once(".globl")
+                .or_else(|| line.split_once(".global"))?;
+            let symbol = symbol.trim().trim_end_matches(',').trim();
+            (!symbol.is_empty()).then(|| symbol.to_string())
+        })
+        .collect()
+}
+
+fn missing_assembly_exports(found: &HashSet<String>, listed: &HashSet<String>) -> Vec<String> {
+    let mut missing = found
+        .iter()
+        .filter(|symbol| symbol.starts_with("IOS_IoctlvFormat") && !listed.contains(*symbol))
+        .cloned()
+        .collect::<Vec<_>>();
+    missing.sort();
+    missing
+}
+
+fn validate_formatter_assembly_exports(root: &Path) -> Result<(), String> {
+    let source_path = "crates/core/ogc-ipc/src/lib.rs";
+    let source = fs::read_to_string(root.join(source_path)).map_err(|error| error.to_string())?;
+    let found = assembly_global_symbols(&source);
+    let rows = read_csv(&root.join("config/compatibility-exports.csv"))?;
+    let listed = rows
+        .iter()
+        .skip(1)
+        .filter(|row| row.len() == 8 && row[0] == "ogc-ipc" && row[1] == source_path)
+        .map(|row| row[2].clone())
+        .collect::<HashSet<_>>();
+    let missing = missing_assembly_exports(&found, &listed);
+    if missing.is_empty() {
+        Ok(())
+    } else {
+        Err(format!(
+            "{}: formatter assembly exports are missing from config/compatibility-exports.csv: {}",
+            source_path,
+            missing.join(", ")
+        ))
+    }
 }
 
 fn role_path_for_package(root: &Path, package: &str) -> Result<PathBuf, String> {
@@ -1378,6 +1426,15 @@ fn scan_public_functions(path: &Path) -> Result<Vec<ScannedFunction>, String> {
 }
 
 fn scan_public_functions_source(source: &str) -> Result<Vec<ScannedFunction>, String> {
+    // The formatter hook module is compiled only into the Dolphin probe. Its
+    // public functions are test controls, not production crate APIs.
+    if source
+        .lines()
+        .any(|line| line.trim() == "#![cfg(feature = \"format-probe-hooks\")]")
+    {
+        return Ok(Vec::new());
+    }
+
     let source_findings = analyze_function_bodies(source)
         .map_err(|err| format!("failed to parse Rust source: {err}"))?;
     let mut functions = Vec::new();
@@ -1414,7 +1471,7 @@ fn scan_public_functions_source(source: &str) -> Result<Vec<ScannedFunction>, St
             lwp_macro_depth = None;
         }
 
-        if trimmed.starts_with("#[") {
+        if trimmed.starts_with("#[") || trimmed.starts_with("#![") {
             pending_attributes.push(original.trim().to_string());
             brace_depth += brace_delta(&clean);
             continue;
@@ -2007,6 +2064,26 @@ mod tests {
     use super::*;
 
     #[test]
+    fn formatter_assembly_scan_rejects_an_unlisted_global() {
+        let found = assembly_global_symbols(
+            ".globl IOS_IoctlvFormat\n.global IOS_IoctlvFormatAsync\n.globl helper",
+        );
+        let listed = HashSet::from(["IOS_IoctlvFormat".to_string()]);
+        assert_eq!(
+            missing_assembly_exports(&found, &listed),
+            ["IOS_IoctlvFormatAsync"]
+        );
+    }
+
+    #[test]
+    fn formatter_assembly_inventory_matches_the_repository_source() {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .parent()
+            .expect("workspace root");
+        validate_formatter_assembly_exports(root).expect("formatter globals are inventoried");
+    }
+
+    #[test]
     fn contracts_require_explicit_coverage_runner_and_matching_identity() {
         let item = Evidence {
             crate_name: "ogc-ipc".into(),
@@ -2104,6 +2181,17 @@ mod tests {
             .map(|function| function.name.as_str())
             .collect();
         assert_eq!(names, ["target_api"]);
+    }
+
+    #[test]
+    fn public_function_scan_excludes_formatter_probe_only_hooks() {
+        let source = r#"
+            #![cfg(feature = "format-probe-hooks")]
+            pub fn reset_probe_ledger() {}
+        "#;
+
+        let functions = scan_public_functions_source(source).expect("valid Rust source");
+        assert!(functions.is_empty());
     }
 
     #[test]

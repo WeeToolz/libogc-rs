@@ -934,12 +934,16 @@ fn alloc_request() -> Result<NonNull<IpcRequest>, i32> {
     let ptr = request_heap()?
         .alloc(core::mem::size_of::<IpcRequest>() as i32)
         .ok_or(IPC_ENOMEM)?;
+    #[cfg(feature = "format-probe-hooks")]
+    format_probe::request_allocated(ptr.as_ptr() as usize, core::mem::size_of::<IpcRequest>());
     Ok(ptr.cast())
 }
 
 unsafe fn free_request(ptr: NonNull<IpcRequest>) {
     if let Ok(heap) = request_heap() {
         unsafe { heap.free(ptr.cast()) };
+        #[cfg(feature = "format-probe-hooks")]
+        format_probe::request_freed(ptr.as_ptr() as usize, core::mem::size_of::<IpcRequest>());
     }
 }
 
@@ -2224,6 +2228,13 @@ fn ioctlv_common_result<'a, const N: usize>(
 }
 
 const IOS_MAXFMT_PARAMS: usize = 32;
+const FORMAT_MAX_RECORDS: usize = 1 + IOS_MAXFMT_PARAMS - 1;
+// The parser accepts at most IOS_MAXFMT_PARAMS - 1 format bytes. The argv
+// block owns one record, and each format byte can own at most one more record.
+// Therefore the full-capacity format_record error is unreachable through the
+// public grammar: 1 + (IOS_MAXFMT_PARAMS - 1) == this capacity.
+const FORMAT_OWNED_CAPACITY: usize = IOS_MAXFMT_PARAMS;
+const _: () = assert!(FORMAT_OWNED_CAPACITY >= FORMAT_MAX_RECORDS);
 const FORMAT_OWNER_HEAP: u8 = 1;
 const FORMAT_OWNER_WORKSPACE: u8 = 2;
 
@@ -2314,7 +2325,7 @@ struct FormatState {
     user_cb: Ipccallback,
     user_data: *mut c_void,
     num_owned: usize,
-    owned: [FormatOwned; IOS_MAXFMT_PARAMS + 1],
+    owned: [FormatOwned; FORMAT_OWNED_CAPACITY],
 }
 
 struct VarWords {
@@ -2385,7 +2396,7 @@ unsafe fn format_state_new(
             user_cb,
             user_data,
             num_owned: 0,
-            owned: [FormatOwned::EMPTY; IOS_MAXFMT_PARAMS + 1],
+            owned: [FormatOwned::EMPTY; FORMAT_OWNED_CAPACITY],
         });
     }
     Ok(state)
@@ -2425,6 +2436,11 @@ unsafe fn format_release(
                 FORMAT_OWNER_HEAP => {
                     if let Some(ptr) = NonNull::new(entry.ipc_buf) {
                         unsafe { state.heap.free(ptr) };
+                        #[cfg(feature = "format-probe-hooks")]
+                        format_probe::format_heap_freed(
+                            ptr.as_ptr() as usize,
+                            entry.allocation_len,
+                        );
                         format_allocation_released();
                     }
                 }
@@ -2464,6 +2480,8 @@ unsafe fn format_heap_alloc(
         return Err(IPC_ENOMEM);
     }
     let ptr = state.heap.alloc(size_i32).ok_or(IPC_ENOMEM)?.as_ptr();
+    #[cfg(feature = "format-probe-hooks")]
+    format_probe::format_heap_allocated(ptr as usize, size, role as u8);
     format_allocation_created();
     if let Err(error) = unsafe {
         format_record(
@@ -2479,6 +2497,8 @@ unsafe fn format_heap_alloc(
     } {
         if let Some(ptr) = NonNull::new(ptr) {
             unsafe { state.heap.free(ptr) };
+            #[cfg(feature = "format-probe-hooks")]
+            format_probe::format_heap_freed(ptr.as_ptr() as usize, size);
             format_allocation_released();
         }
         return Err(error);
@@ -2549,6 +2569,8 @@ unsafe fn submit_format_request(
         None => return IPC_EINVAL,
     };
     let raw = unsafe { core::slice::from_raw_parts_mut(argv, total) };
+    #[cfg(feature = "format-probe-hooks")]
+    format_probe::capture_submission(argv, cnt_in);
     for entry in raw.iter_mut() {
         if !entry.data.is_null() && entry.len > 0 {
             unsafe { dc_flush_range(entry.data.cast_const(), entry.len as usize) };
@@ -3182,12 +3204,17 @@ mod format_probe;
 
 #[cfg(feature = "format-probe-hooks")]
 pub use format_probe::{
-    FORMAT_PROBE_ALLOCATION_ROLE_ATTEMPTS, FORMAT_PROBE_COMPLETE,
+    AllocationEvent, FORMAT_PROBE_ALLOCATION_ROLE_ATTEMPTS, FORMAT_PROBE_COMPLETE,
     FORMAT_PROBE_FAIL_ALLOCATION_OCCURRENCE, FORMAT_PROBE_FAIL_ALLOCATION_ROLE,
-    FORMAT_PROBE_FAIL_ASYNC_SUBMISSION, FORMAT_PROBE_LIVE_ALLOCATIONS, FORMAT_PROBE_ROLE_ARGV,
-    FORMAT_PROBE_ROLE_ASYNC_REQUEST, FORMAT_PROBE_ROLE_SCALAR, FORMAT_PROBE_ROLE_STAGING_BUFFER,
-    FORMAT_PROBE_ROLE_STATE, FORMAT_PROBE_SNAPSHOT, FORMAT_PROBE_WORKSPACE_ALLOC,
-    FORMAT_PROBE_WORKSPACE_FREE, FormatProbeSnapshot, FormatProbeVector, FormatProbeWorkspaceEvent,
+    FORMAT_PROBE_FAIL_ASYNC_SUBMISSION, FORMAT_PROBE_LEDGER_CAPACITY,
+    FORMAT_PROBE_LIVE_ALLOCATIONS, FORMAT_PROBE_ROLE_ARGV, FORMAT_PROBE_ROLE_ASYNC_REQUEST,
+    FORMAT_PROBE_ROLE_SCALAR, FORMAT_PROBE_ROLE_STAGING_BUFFER, FORMAT_PROBE_ROLE_STATE,
+    FORMAT_PROBE_SNAPSHOT, FORMAT_PROBE_SUBMISSION, FORMAT_PROBE_WORKSPACE_ALLOC,
+    FORMAT_PROBE_WORKSPACE_FREE, FormatProbeSnapshot, FormatProbeSubmission, FormatProbeVector,
+    FormatProbeWorkspaceEvent, allocation_ledger_balanced, arm_two_thread_parse_barrier,
+    hold_request_records_until_exhausted, parse_barrier_arrivals, read_format_heap_ledger,
+    read_request_ledger, release_held_request_records, reset_format_heap_ledger,
+    reset_request_ledger,
 };
 
 #[cfg(feature = "format-probe-hooks")]
