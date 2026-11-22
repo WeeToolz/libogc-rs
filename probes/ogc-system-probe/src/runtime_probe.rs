@@ -1777,6 +1777,119 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             large_staged_inputs_ok,
         );
 
+        #[repr(align(32))]
+        struct AlignedAesBytes<const N: usize>([u8; N]);
+
+        let mut aes_live_input_ok = false;
+        if let Ok(aes_fd) = ipc::open_file(c"/dev/aes", ipc::IPC_OPEN_NONE) {
+            let key = AlignedAesBytes([0u8; 32]);
+            let mut all_lengths_ok = true;
+            let mut tail_changes_ciphertext = false;
+            for length in [32usize, 64] {
+                let mut source = [0xacu8; 128];
+                let base = source.as_mut_ptr() as usize;
+                let aligned = base + ((32 - (base & 31)) & 31);
+                let input = (aligned + 16) as *mut u8;
+                let payload = unsafe { core::slice::from_raw_parts_mut(input, length) };
+                for (index, byte) in payload.iter_mut().enumerate() {
+                    *byte = (index as u8).wrapping_mul(29).wrapping_add(7);
+                }
+                let mut alternate = AlignedAesBytes([0u8; 64]);
+                alternate.0[..length].copy_from_slice(payload);
+                if length > 32 {
+                    for byte in &mut alternate.0[32..length] {
+                        *byte ^= 0x5a;
+                    }
+                }
+
+                let mut typed_output = AlignedAesBytes([0xa5; 96]);
+                let mut typed_iv = AlignedAesBytes([0x3c; 32]);
+                let typed_result = aes_fd.ioctlv(
+                    2,
+                    2,
+                    [
+                        ipc::IoctlvEntry::In(payload),
+                        ipc::IoctlvEntry::In(&key.0[..16]),
+                        ipc::IoctlvEntry::Out(&mut typed_output.0[..length]),
+                        ipc::IoctlvEntry::Out(&mut typed_iv.0[..16]),
+                    ],
+                );
+                let mut alternate_output = AlignedAesBytes([0xa5; 96]);
+                let mut alternate_iv = AlignedAesBytes([0x3c; 32]);
+                let alternate_result = aes_fd.ioctlv(
+                    2,
+                    2,
+                    [
+                        ipc::IoctlvEntry::In(&alternate.0[..length]),
+                        ipc::IoctlvEntry::In(&key.0[..16]),
+                        ipc::IoctlvEntry::Out(&mut alternate_output.0[..length]),
+                        ipc::IoctlvEntry::Out(&mut alternate_iv.0[..16]),
+                    ],
+                );
+
+                let mut formatted_output = AlignedAesBytes([0xa5; 96]);
+                let mut formatted_iv = AlignedAesBytes([0x3c; 32]);
+                let mut submitted = ipc::FormatProbeSubmission::default();
+                ipc::FORMAT_PROBE_SUBMISSION.store(
+                    (&mut submitted as *mut ipc::FormatProbeSubmission) as usize,
+                    Ordering::Release,
+                );
+                let formatted_result = unsafe {
+                    IOS_IoctlvFormat(
+                        ipc::IPC_HEAP,
+                        aes_fd.raw(),
+                        2,
+                        c"dd:d:d".as_ptr(),
+                        input,
+                        length as u32,
+                        key.0.as_ptr(),
+                        16u32,
+                        formatted_output.0.as_mut_ptr(),
+                        length as u32,
+                        formatted_iv.0.as_mut_ptr(),
+                        16u32,
+                    )
+                };
+                let expected_hash = probe_hash(payload);
+                let expected_tail_hash = probe_hash(&payload[32.min(length)..]);
+                let outputs_match = formatted_output.0[..length] == typed_output.0[..length]
+                    && formatted_iv.0[..16] == typed_iv.0[..16]
+                    && formatted_output.0[length..]
+                        .iter()
+                        .all(|byte| *byte == 0xa5)
+                    && formatted_iv.0[16..].iter().all(|byte| *byte == 0x3c);
+                let length_ok = typed_result == 0
+                    && alternate_result == 0
+                    && formatted_result == 0
+                    && submitted.input_length == length as u32
+                    && submitted.input_hash == expected_hash
+                    && submitted.tail_hash == expected_tail_hash
+                    && submitted.input_address % 32 == 0
+                    && outputs_match
+                    && source[..(input as usize - base)]
+                        .iter()
+                        .all(|byte| *byte == 0xac)
+                    && source[(input as usize - base + length)..]
+                        .iter()
+                        .all(|byte| *byte == 0xac);
+                all_lengths_ok &= length_ok;
+                if length > 32 {
+                    tail_changes_ciphertext =
+                        typed_output.0[..length] != alternate_output.0[..length];
+                }
+                logger.note_i32_index(
+                    "IPC formatted AES input result length=",
+                    length as i32,
+                    formatted_result,
+                );
+            }
+            aes_live_input_ok = all_lengths_ok && tail_changes_ciphertext && aes_fd.close().is_ok();
+        }
+        logger.record(
+            "IPC format AES consumes staged 32/64-byte d inputs and matches typed ciphertext through tail bytes",
+            aes_live_input_ok,
+        );
+
         let mut async_d_count = [0u8; 4];
         let async_d_slot = &FORMAT_ASYNC_SLOT_SCALAR;
         async_d_slot.reset(async_d_count.as_mut_ptr().cast(), content_count);
