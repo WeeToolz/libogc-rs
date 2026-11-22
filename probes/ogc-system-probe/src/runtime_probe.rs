@@ -73,6 +73,77 @@ static FORMAT_ASYNC_SLOT_SCALAR: FormatAsyncProbeSlot = FormatAsyncProbeSlot::ne
 #[cfg(feature = "dolphin-automation")]
 static FORMAT_ASYNC_SLOT_BUFFER: FormatAsyncProbeSlot = FormatAsyncProbeSlot::new(true);
 
+struct FormatAesAsyncSlot {
+    completions: core::sync::atomic::AtomicU32,
+    result: AtomicI32,
+    output_matches: AtomicBool,
+    output: core::sync::atomic::AtomicUsize,
+    expected_output: core::sync::atomic::AtomicUsize,
+    iv: core::sync::atomic::AtomicUsize,
+    expected_iv: core::sync::atomic::AtomicUsize,
+    length: core::sync::atomic::AtomicUsize,
+}
+
+impl FormatAesAsyncSlot {
+    const fn new() -> Self {
+        Self {
+            completions: core::sync::atomic::AtomicU32::new(0),
+            result: AtomicI32::new(i32::MIN),
+            output_matches: AtomicBool::new(false),
+            output: core::sync::atomic::AtomicUsize::new(0),
+            expected_output: core::sync::atomic::AtomicUsize::new(0),
+            iv: core::sync::atomic::AtomicUsize::new(0),
+            expected_iv: core::sync::atomic::AtomicUsize::new(0),
+            length: core::sync::atomic::AtomicUsize::new(0),
+        }
+    }
+
+    fn prepare(
+        &self,
+        output: *const u8,
+        expected_output: *const u8,
+        iv: *const u8,
+        expected_iv: *const u8,
+        length: usize,
+    ) {
+        self.completions.store(0, Ordering::Release);
+        self.result.store(i32::MIN, Ordering::Release);
+        self.output_matches.store(false, Ordering::Release);
+        self.output.store(output as usize, Ordering::Release);
+        self.expected_output
+            .store(expected_output as usize, Ordering::Release);
+        self.iv.store(iv as usize, Ordering::Release);
+        self.expected_iv
+            .store(expected_iv as usize, Ordering::Release);
+        self.length.store(length, Ordering::Release);
+    }
+}
+
+unsafe extern "C" fn format_aes_completed(result: i32, userdata: *mut core::ffi::c_void) -> i32 {
+    let Some(slot) = (unsafe { userdata.cast::<FormatAesAsyncSlot>().as_ref() }) else {
+        return 0;
+    };
+    let length = slot.length.load(Ordering::Acquire);
+    let output = slot.output.load(Ordering::Acquire) as *const u8;
+    let expected_output = slot.expected_output.load(Ordering::Acquire) as *const u8;
+    let iv = slot.iv.load(Ordering::Acquire) as *const u8;
+    let expected_iv = slot.expected_iv.load(Ordering::Acquire) as *const u8;
+    let matches = !output.is_null()
+        && !expected_output.is_null()
+        && !iv.is_null()
+        && !expected_iv.is_null()
+        && unsafe {
+            core::slice::from_raw_parts(output, length)
+                == core::slice::from_raw_parts(expected_output, length)
+                && core::slice::from_raw_parts(iv, 16)
+                    == core::slice::from_raw_parts(expected_iv, 16)
+        };
+    slot.output_matches.store(matches, Ordering::Release);
+    slot.result.store(result, Ordering::Release);
+    slot.completions.fetch_add(1, Ordering::AcqRel);
+    0
+}
+
 #[cfg(feature = "dolphin-automation")]
 unsafe extern "C" fn format_concurrent_completed(
     result: i32,
@@ -1781,9 +1852,11 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         struct AlignedAesBytes<const N: usize>([u8; N]);
 
         let mut aes_live_input_ok = false;
+        let mut async_aes_live_input_ok = false;
         if let Ok(aes_fd) = ipc::open_file(c"/dev/aes", ipc::IPC_OPEN_NONE) {
             let key = AlignedAesBytes([0u8; 32]);
             let mut all_lengths_ok = true;
+            let mut async_lengths_ok = true;
             let mut tail_changes_ciphertext = false;
             for length in [32usize, 64] {
                 let mut source = [0xacu8; 128];
@@ -1850,6 +1923,50 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                         16u32,
                     )
                 };
+                let mut async_output = AlignedAesBytes([0xa5; 96]);
+                let mut async_iv = AlignedAesBytes([0x3c; 32]);
+                let async_slot = FormatAesAsyncSlot::new();
+                async_slot.prepare(
+                    async_output.0.as_ptr(),
+                    typed_output.0.as_ptr(),
+                    async_iv.0.as_ptr(),
+                    typed_iv.0.as_ptr(),
+                    length,
+                );
+                let async_userdata = (&async_slot as *const FormatAesAsyncSlot)
+                    .cast_mut()
+                    .cast::<c_void>();
+                let async_result = unsafe {
+                    IOS_IoctlvFormatAsync(
+                        ipc::IPC_HEAP,
+                        aes_fd.raw(),
+                        2,
+                        Some(format_aes_completed),
+                        async_userdata,
+                        c"dd:dd".as_ptr(),
+                        input,
+                        length as u32,
+                        key.0.as_ptr(),
+                        16u32,
+                        async_output.0.as_mut_ptr(),
+                        length as u32,
+                        async_iv.0.as_mut_ptr(),
+                        16u32,
+                    )
+                };
+                let mut async_completed = false;
+                for _ in 0..1000 {
+                    if async_slot.completions.load(Ordering::Acquire) != 0 {
+                        async_completed = true;
+                        break;
+                    }
+                    lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 100).max(1));
+                }
+                async_lengths_ok &= async_result == 0
+                    && async_completed
+                    && async_slot.completions.load(Ordering::Acquire) == 1
+                    && async_slot.result.load(Ordering::Acquire) == 0
+                    && async_slot.output_matches.load(Ordering::Acquire);
                 logger.note_i32_index(
                     "IPC typed AES input result length=",
                     length as i32,
@@ -1899,10 +2016,15 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 );
             }
             aes_live_input_ok = all_lengths_ok && tail_changes_ciphertext && aes_fd.close().is_ok();
+            async_aes_live_input_ok = async_lengths_ok;
         }
         logger.record(
             "IPC format AES consumes staged 32/64-byte d inputs and matches typed ciphertext through tail bytes",
             aes_live_input_ok,
+        );
+        logger.record(
+            "IPC async AES formatter consumes staged 32/64-byte d inputs before callback",
+            async_aes_live_input_ok,
         );
 
         let mut async_d_count = [0u8; 4];

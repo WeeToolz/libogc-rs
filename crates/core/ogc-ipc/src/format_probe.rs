@@ -269,13 +269,16 @@ pub struct FormatProbeWorkspaceEvent {
     pub size: usize,
 }
 
-pub const FORMAT_PROBE_MAX_WORKSPACE_EVENTS: usize = 16;
+// A maximum-length format can allocate one state plus one workspace record
+// for each of its 31 parameters. Each record produces an allocation and a
+// free event, so keep room for all 64 events.
+pub const FORMAT_PROBE_MAX_WORKSPACE_EVENTS: usize = 64;
 pub const FORMAT_PROBE_WORKSPACE_ALLOC: u8 = super::lwp_sys::WORKSPACE_PROBE_ALLOC;
 pub const FORMAT_PROBE_WORKSPACE_FREE: u8 = super::lwp_sys::WORKSPACE_PROBE_FREE;
 
 /// A fixed-size snapshot returned by the one-shot formatter probe hook.
 #[repr(C)]
-#[derive(Clone, Copy, Default)]
+#[derive(Clone, Copy)]
 pub struct FormatProbeSnapshot {
     pub input_count: u32,
     pub output_count: u32,
@@ -286,6 +289,22 @@ pub struct FormatProbeSnapshot {
     pub workspace_event_count: u32,
     pub workspace_events: [FormatProbeWorkspaceEvent; FORMAT_PROBE_MAX_WORKSPACE_EVENTS],
     pub vectors: [FormatProbeVector; super::IOS_MAXFMT_PARAMS],
+}
+
+impl Default for FormatProbeSnapshot {
+    fn default() -> Self {
+        Self {
+            input_count: 0,
+            output_count: 0,
+            asynchronous: 0,
+            vector_count: 0,
+            output_pattern: 0,
+            workspace_event_count: 0,
+            workspace_events: [FormatProbeWorkspaceEvent::default();
+                FORMAT_PROBE_MAX_WORKSPACE_EVENTS],
+            vectors: [FormatProbeVector::default(); super::IOS_MAXFMT_PARAMS],
+        }
+    }
 }
 
 #[repr(C)]
