@@ -1242,6 +1242,8 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 30u32,
             )
         };
+        let both_pending_after_submission = scalar_slot.completions.load(Ordering::Acquire) == 0
+            && buffer_slot.completions.load(Ordering::Acquire) == 0;
         let mut both_completed = false;
         for _ in 0..1000 {
             if scalar_slot.completions.load(Ordering::Acquire) != 0
@@ -1259,6 +1261,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             "IPC format public async concurrent scalar and buffer requests keep callbacks separate",
             concurrent_scalar_submission == 0
                 && concurrent_buffer_submission == 0
+                && both_pending_after_submission
                 && both_completed
                 && scalar_slot.completions.load(Ordering::Acquire) == 1
                 && scalar_slot.result.load(Ordering::Acquire) == 0
