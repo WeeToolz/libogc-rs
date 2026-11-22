@@ -1,4 +1,4 @@
-use core::sync::atomic::{AtomicUsize, Ordering};
+use core::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 
 use super::{FormatCall, FormatState, Ioctlv};
 
@@ -36,6 +36,8 @@ pub static FORMAT_PROBE_FAIL_ALLOCATION: AtomicUsize = AtomicUsize::new(0);
 pub static FORMAT_PROBE_ALLOCATION_ATTEMPTS: AtomicUsize = AtomicUsize::new(0);
 /// Count live formatter allocations for cleanup checks.
 pub static FORMAT_PROBE_LIVE_ALLOCATIONS: AtomicUsize = AtomicUsize::new(0);
+/// Fail the next async submission before the IOS request becomes pending.
+pub static FORMAT_PROBE_FAIL_ASYNC_SUBMISSION: AtomicBool = AtomicBool::new(false);
 
 /// Sentinel returned after the one-shot probe captured a formatted request.
 pub const FORMAT_PROBE_COMPLETE: i32 = i32::MIN + 101;
@@ -52,6 +54,10 @@ pub(super) fn allocation_created() {
 
 pub(super) fn allocation_released() {
     FORMAT_PROBE_LIVE_ALLOCATIONS.fetch_sub(1, Ordering::AcqRel);
+}
+
+pub(super) fn fail_async_submission() -> bool {
+    FORMAT_PROBE_FAIL_ASYNC_SUBMISSION.swap(false, Ordering::AcqRel)
 }
 
 pub(super) unsafe fn parse_or_capture(

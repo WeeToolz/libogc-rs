@@ -2556,7 +2556,18 @@ unsafe fn submit_format_request(
         req.data.ioctlv.argcin = cnt_in as u32;
         req.data.ioctlv.argcio = cnt_io as u32;
         req.data.ioctlv.argv = mem_virtual_to_physical(argv as usize) as *mut Ioctlv;
-        let rc = unsafe { submit_async_request(req) };
+        let rc = {
+            #[cfg(feature = "format-probe-hooks")]
+            if format_probe::fail_async_submission() {
+                IPC_EQUEUEFULL
+            } else {
+                unsafe { submit_async_request(req) }
+            }
+            #[cfg(not(feature = "format-probe-hooks"))]
+            unsafe {
+                submit_async_request(req)
+            }
+        };
         if rc < 0 {
             unsafe { free_request(req_ptr) };
         }
@@ -3127,7 +3138,8 @@ mod format_probe;
 #[cfg(feature = "format-probe-hooks")]
 pub use format_probe::{
     FORMAT_PROBE_ALLOCATION_ATTEMPTS, FORMAT_PROBE_COMPLETE, FORMAT_PROBE_FAIL_ALLOCATION,
-    FORMAT_PROBE_LIVE_ALLOCATIONS, FORMAT_PROBE_SNAPSHOT, FormatProbeSnapshot, FormatProbeVector,
+    FORMAT_PROBE_FAIL_ASYNC_SUBMISSION, FORMAT_PROBE_LIVE_ALLOCATIONS, FORMAT_PROBE_SNAPSHOT,
+    FormatProbeSnapshot, FormatProbeVector,
 };
 
 #[cfg(feature = "format-probe-hooks")]

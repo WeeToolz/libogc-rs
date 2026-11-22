@@ -1505,6 +1505,30 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             async_fault_clean,
         );
 
+        scalar_slot.reset(async_output.cast(), actual);
+        unsafe { async_output.write(u32::MAX) };
+        ipc::FORMAT_PROBE_FAIL_ASYNC_SUBMISSION.store(true, Ordering::Release);
+        let submit_failure = unsafe {
+            IOS_IoctlvFormatAsync(
+                ipc::IPC_HEAP,
+                fd.raw(),
+                0,
+                Some(format_concurrent_completed),
+                (scalar_slot as *const FormatAsyncProbeSlot)
+                    .cast_mut()
+                    .cast(),
+                c":i".as_ptr(),
+                async_output,
+            )
+        };
+        let submit_fault_clean = submit_failure == ipc::IPC_EQUEUEFULL
+            && scalar_slot.completions.load(Ordering::Acquire) == 0
+            && ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire) == live_before_faults;
+        logger.record(
+            "IPC format public async submission failure releases request and formatter state",
+            submit_fault_clean,
+        );
+
         let mut recovery_snapshot = ipc::FormatProbeSnapshot::default();
         arm_format_snapshot!(recovery_snapshot);
         let recovery_after_faults =
