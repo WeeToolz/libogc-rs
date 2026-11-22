@@ -622,6 +622,55 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             ] == [1, 2, 4, 8],
     );
 
+    #[repr(align(8))]
+    struct GuardedScalarBytes([u8; 24]);
+    let mut sync_scalar_copyback_ok = true;
+    let mut async_scalar_copyback_ok = true;
+    for (format, width) in [(c":b", 1usize), (c":h", 2), (c":i", 4), (c":q", 8)] {
+        let mut guarded = GuardedScalarBytes([0xa5; 24]);
+        let output = unsafe { guarded.0.as_mut_ptr().add(8) };
+        let mut snapshot = ipc::FormatProbeSnapshot {
+            output_pattern: 0xd3,
+            ..ipc::FormatProbeSnapshot::default()
+        };
+        arm_format_snapshot!(snapshot);
+        let result = unsafe { IOS_IoctlvFormat(ipc::IPC_HEAP, 0, 0, format.as_ptr(), output) };
+        sync_scalar_copyback_ok &= result == ipc::FORMAT_PROBE_COMPLETE
+            && guarded.0[..8].iter().all(|byte| *byte == 0xa5)
+            && guarded.0[8..8 + width].iter().all(|byte| *byte == 0xd3)
+            && guarded.0[8 + width..].iter().all(|byte| *byte == 0xa5);
+
+        guarded.0.fill(0xa5);
+        let mut async_snapshot = ipc::FormatProbeSnapshot {
+            output_pattern: 0xd3,
+            ..ipc::FormatProbeSnapshot::default()
+        };
+        arm_format_snapshot!(async_snapshot);
+        let async_result = unsafe {
+            IOS_IoctlvFormatAsync(
+                ipc::IPC_HEAP,
+                0,
+                0,
+                None,
+                core::ptr::null_mut(),
+                format.as_ptr(),
+                output,
+            )
+        };
+        async_scalar_copyback_ok &= async_result == ipc::FORMAT_PROBE_COMPLETE
+            && guarded.0[..8].iter().all(|byte| *byte == 0xa5)
+            && guarded.0[8..8 + width].iter().all(|byte| *byte == 0xd3)
+            && guarded.0[8 + width..].iter().all(|byte| *byte == 0xa5);
+    }
+    logger.record(
+        "IPC format public sync scalar output copyback preserves width canaries",
+        sync_scalar_copyback_ok,
+    );
+    logger.record(
+        "IPC format public async entry scalar cleanup preserves width canaries",
+        async_scalar_copyback_ok,
+    );
+
     let direct_input = [0x10, 0x20, 0x30, 0x40];
     let input_string = c"ios";
     let mut mixed_snapshot = ipc::FormatProbeSnapshot::default();
