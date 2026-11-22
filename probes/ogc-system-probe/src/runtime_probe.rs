@@ -313,10 +313,55 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
     use core::ffi::c_void;
     use ogc_ipc as ipc;
 
+    unsafe extern "C" {
+        #[link_name = "IOS_IoctlvFormat"]
+        fn ioctlv_format(
+            heap: i32,
+            fd: i32,
+            ioctl: i32,
+            format: *const core::ffi::c_char,
+            ...
+        ) -> i32;
+
+        #[link_name = "IOS_IoctlvFormatAsync"]
+        fn ioctlv_format_async(
+            heap: i32,
+            fd: i32,
+            ioctl: i32,
+            callback: ipc::Ipccallback,
+            user_data: *mut c_void,
+            format: *const core::ffi::c_char,
+            ...
+        ) -> i32;
+    }
+
     static CALLBACK_RESULT: AtomicI32 = AtomicI32::new(i32::MIN);
+    static CALLBACK_COUNT: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+    static CALLBACK_USERDATA: core::sync::atomic::AtomicUsize =
+        core::sync::atomic::AtomicUsize::new(0);
+    static CALLBACK_OUTPUT_MATCH: AtomicBool = AtomicBool::new(false);
+    static CALLBACK_OUTPUT_FIRST: core::sync::atomic::AtomicU32 =
+        core::sync::atomic::AtomicU32::new(u32::MAX);
     static mut ASYNC_OUTPUT: u32 = u32::MAX;
-    unsafe extern "C" fn completed(result: i32, _: *mut c_void) -> i32 {
+    static mut ASYNC_PATH: [u8; 30] = [0xff; 30];
+    unsafe extern "C" fn format_completed(result: i32, userdata: *mut c_void) -> i32 {
         CALLBACK_RESULT.store(result, Ordering::Release);
+        CALLBACK_USERDATA.store(userdata as usize, Ordering::Release);
+        let path = core::ptr::addr_of!(ASYNC_PATH).cast::<u8>();
+        CALLBACK_OUTPUT_MATCH.store(
+            unsafe { core::slice::from_raw_parts(path, 29) } == b"/title/00000001/00000002/data"
+                && unsafe { path.add(29).read() } == 0xff,
+            Ordering::Release,
+        );
+        CALLBACK_OUTPUT_FIRST.store(
+            u32::from_be_bytes(
+                unsafe { core::slice::from_raw_parts(path, 4) }
+                    .try_into()
+                    .unwrap(),
+            ),
+            Ordering::Release,
+        );
+        CALLBACK_COUNT.fetch_add(1, Ordering::AcqRel);
         0
     }
 
@@ -338,7 +383,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
 
     let null_result = unsafe { ipc::__ogc_ipc_ioctlv_format_bridge(core::ptr::null()) };
     logger.record(
-        "IPC format bridge rejects null call",
+        "IPC format internal bridge null-call guard",
         null_result == ipc::IPC_EINVAL,
     );
     let opened = ipc::open_file(c"/dev/es", ipc::IPC_OPEN_NONE);
@@ -365,25 +410,50 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         logger.note_hex32("IPC typed ES title count", u32::from_be_bytes(expected.0));
         logger.note_hex32("IPC formatted ES title count", actual);
         logger.record(
-            "IPC format bridge returns ES title count through output vector",
+            "IPC format internal bridge copies ES title count to output vector",
             typed == 0
                 && formatted == 0
                 && actual == u32::from_be_bytes(expected.0)
                 && actual > 0
                 && actual <= 512,
         );
-        CALLBACK_RESULT.store(i32::MIN, Ordering::Release);
-        let async_output = core::ptr::addr_of_mut!(ASYNC_OUTPUT);
-        unsafe { async_output.write(u32::MAX) };
-        let async_call = FormatCall {
-            callback: Some(completed),
-            registers: [async_output as u32, 0, 0, 0],
-            register_count: 2,
-            asynchronous: 1,
-            ..call
+        let mut public_actual = u32::MAX;
+        let public_sync = unsafe {
+            ioctlv_format(
+                ipc::IPC_HEAP,
+                fd.raw(),
+                0x0e,
+                c":i".as_ptr(),
+                &mut public_actual as *mut u32,
+            )
         };
+        logger.note_i32("IPC public sync ES title result", public_sync);
+        logger.record(
+            "IPC format public ABI sync :i returns the ES title count",
+            public_sync == 0 && public_actual == actual,
+        );
+
+        CALLBACK_RESULT.store(i32::MIN, Ordering::Release);
+        CALLBACK_COUNT.store(0, Ordering::Release);
+        CALLBACK_USERDATA.store(0, Ordering::Release);
+        CALLBACK_OUTPUT_MATCH.store(false, Ordering::Release);
+        let async_output = core::ptr::addr_of_mut!(ASYNC_OUTPUT);
+        let async_path = core::ptr::addr_of_mut!(ASYNC_PATH);
+        unsafe {
+            async_output.write(u32::MAX);
+            core::ptr::write_bytes(async_path.cast::<u8>(), 0xff, 30);
+        }
+        let userdata_sentinel = 0x1357_9bdfusize as *mut c_void;
         let submission = unsafe {
-            ipc::__ogc_ipc_ioctlv_format_bridge((&async_call as *const FormatCall).cast())
+            ioctlv_format_async(
+                ipc::IPC_HEAP,
+                fd.raw(),
+                0x0e,
+                Some(format_completed),
+                userdata_sentinel,
+                c":i".as_ptr(),
+                async_output,
+            )
         };
         for _ in 0..1000 {
             if CALLBACK_RESULT.load(Ordering::Acquire) != i32::MIN {
@@ -399,8 +469,12 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             u32::MAX
         };
         logger.record(
-            "IPC format bridge async output completes with ES title count",
-            submission == 0 && callback_result == 0 && async_value == actual,
+            "IPC format public ABI async :i preserves output and callback",
+            submission == 0
+                && callback_result == 0
+                && async_value == actual
+                && CALLBACK_COUNT.load(Ordering::Acquire) == 1
+                && CALLBACK_USERDATA.load(Ordering::Acquire) == userdata_sentinel as usize,
         );
         let title_id = 0x0000_0001_0000_0002u64.to_be_bytes();
         let mut typed_path = [0u8; 30];
@@ -425,32 +499,216 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         logger.note_i32("IPC typed ES title directory result", typed_path_result);
         logger.note_i32("IPC formatted ES title directory result", path_result);
         logger.record(
-            "IPC format bridge transfers title input and directory output",
+            "IPC format internal bridge transfers title input and directory output",
             typed_path_result == 0
                 && path_result == 0
                 && typed_path == *b"/title/00000001/00000002/data\0"
                 && formatted_path == typed_path,
+        );
+        let mut public_path = [0u8; 30];
+        let public_path_result = unsafe {
+            ioctlv_format(
+                ipc::IPC_HEAP,
+                fd.raw(),
+                0x1d,
+                c"q:d".as_ptr(),
+                0x0000_0001_0000_0002u64,
+                public_path.as_mut_ptr(),
+                public_path.len() as u32,
+            )
+        };
+        logger.record(
+            "IPC format public ABI sync q:d formats title directory",
+            public_path_result == 0 && public_path == typed_path,
+        );
+
+        // qi:d has five variadic words. The final length is beyond the four
+        // synchronous GPR slots, so this valid ES request checks stack reads.
+        let mut title_content_count = [0u8; 4];
+        let count_result = fd.ioctlv(
+            0x10,
+            1,
+            [
+                ipc::IoctlvEntry::In(&title_id),
+                ipc::IoctlvEntry::Out(&mut title_content_count),
+            ],
+        );
+        let content_count = u32::from_be_bytes(title_content_count);
+        logger.note_i32("IPC typed ES title content count result", count_result);
+        logger.note_hex32("IPC typed ES title content count", content_count);
+        let content_len = (content_count as usize).checked_mul(4);
+        let mut typed_contents = [0u8; 4096];
+        let mut public_contents = [0u8; 4096];
+        let content_result = if let Some(len) = content_len.filter(|len| *len <= 4096) {
+            let count_bytes = content_count.to_be_bytes();
+            let typed_result = fd.ioctlv(
+                0x11,
+                2,
+                [
+                    ipc::IoctlvEntry::In(&title_id),
+                    ipc::IoctlvEntry::In(&count_bytes),
+                    ipc::IoctlvEntry::Out(&mut typed_contents[..len]),
+                ],
+            );
+            let public_result = unsafe {
+                ioctlv_format(
+                    ipc::IPC_HEAP,
+                    fd.raw(),
+                    0x11,
+                    c"qi:d".as_ptr(),
+                    0x0000_0001_0000_0002u64,
+                    content_count,
+                    public_contents.as_mut_ptr(),
+                    len as u32,
+                )
+            };
+            logger.note_i32("IPC typed ES title contents result", typed_result);
+            logger.note_i32("IPC public sync ES title contents result", public_result);
+            logger.note_hex32(
+                "IPC typed ES title contents first value",
+                u32::from_be_bytes(typed_contents[..4].try_into().unwrap()),
+            );
+            logger.note_hex32(
+                "IPC public sync ES title contents first value",
+                u32::from_be_bytes(public_contents[..4].try_into().unwrap()),
+            );
+            typed_result == 0
+                && public_result == 0
+                && public_contents[..len] == typed_contents[..len]
+        } else {
+            false
+        };
+        logger.record(
+            "IPC format public ABI sync qi:d decodes the overflow length",
+            count_result == 0 && content_result,
+        );
+
+        // Async only has two variadic GPR slots. This q:d request places its
+        // buffer pointer and length in the compiler-generated overflow area.
+        CALLBACK_RESULT.store(i32::MIN, Ordering::Release);
+        CALLBACK_COUNT.store(0, Ordering::Release);
+        CALLBACK_USERDATA.store(0, Ordering::Release);
+        CALLBACK_OUTPUT_MATCH.store(false, Ordering::Release);
+        CALLBACK_OUTPUT_FIRST.store(u32::MAX, Ordering::Release);
+        let async_path = core::ptr::addr_of_mut!(ASYNC_PATH);
+        unsafe { core::ptr::write_bytes(async_path.cast::<u8>(), 0xff, 30) };
+        let path_userdata = 0x2468_ace0usize as *mut c_void;
+        let async_path_submission = unsafe {
+            ioctlv_format_async(
+                ipc::IPC_HEAP,
+                fd.raw(),
+                0x1d,
+                Some(format_completed),
+                path_userdata,
+                c"q:d".as_ptr(),
+                0x0000_0001_0000_0002u64,
+                async_path,
+                30u32,
+            )
+        };
+        logger.note_i32(
+            "IPC public async ES title directory submission",
+            async_path_submission,
+        );
+        let mut async_path_done = false;
+        for _ in 0..1000 {
+            if CALLBACK_RESULT.load(Ordering::Acquire) != i32::MIN {
+                async_path_done = true;
+                break;
+            }
+            lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 100).max(1));
+        }
+        if async_path_done {
+            lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 20).max(1));
+        }
+        logger.note_i32(
+            "IPC public async ES title directory completion",
+            CALLBACK_RESULT.load(Ordering::Acquire),
+        );
+        logger.note_hex32(
+            "IPC public async ES title directory callback count",
+            CALLBACK_COUNT.load(Ordering::Acquire),
+        );
+        logger.note_hex32(
+            "IPC public async ES title directory callback userdata",
+            CALLBACK_USERDATA.load(Ordering::Acquire) as u32,
+        );
+        logger.note_hex32(
+            "IPC public async ES title directory callback output match",
+            CALLBACK_OUTPUT_MATCH.load(Ordering::Acquire) as u32,
+        );
+        logger.note_hex32(
+            "IPC public async ES title directory callback first word",
+            CALLBACK_OUTPUT_FIRST.load(Ordering::Acquire),
+        );
+        logger.note_hex32(
+            "IPC public async ES title directory final first word",
+            u32::from_be_bytes(unsafe {
+                core::slice::from_raw_parts(async_path.cast::<u8>(), 4)
+                    .try_into()
+                    .unwrap()
+            }),
+        );
+        for (index, chunk) in unsafe { core::slice::from_raw_parts(async_path.cast::<u8>(), 30) }
+            .chunks(4)
+            .enumerate()
+        {
+            let mut word = [0u8; 4];
+            word[..chunk.len()].copy_from_slice(chunk);
+            logger.note_hex32_index(
+                "IPC public async ES title directory output word",
+                index as i32,
+                u32::from_be_bytes(word),
+            );
+        }
+        logger.record(
+            "IPC format public ABI async q:d spills and copies back before callback",
+            async_path_submission == 0
+                && async_path_done
+                && CALLBACK_RESULT.load(Ordering::Acquire) == 0
+                && CALLBACK_COUNT.load(Ordering::Acquire) == 1
+                && CALLBACK_USERDATA.load(Ordering::Acquire) == path_userdata as usize
+                && CALLBACK_OUTPUT_MATCH.load(Ordering::Acquire)
+                && unsafe { core::slice::from_raw_parts(async_path.cast::<u8>(), 29) }
+                    == &typed_path[..29]
+                && unsafe { async_path.cast::<u8>().add(29).read() } == 0xff,
         );
         let closed = if completed || submission < 0 {
             fd.close().is_ok()
         } else {
             false
         };
-        logger.record("IPC format bridge closes ES descriptor", closed);
+        logger.record("IPC fixture closes ES descriptor", closed);
     } else {
         logger.record(
-            "IPC format bridge returns ES title count through output vector",
+            "IPC format internal bridge copies ES title count to output vector",
             false,
         );
         logger.record(
-            "IPC format bridge async output completes with ES title count",
+            "IPC format public ABI sync :i returns the ES title count",
             false,
         );
         logger.record(
-            "IPC format bridge transfers title input and directory output",
+            "IPC format public ABI async :i preserves output and callback",
             false,
         );
-        logger.record("IPC format bridge closes ES descriptor", false);
+        logger.record(
+            "IPC format internal bridge transfers title input and directory output",
+            false,
+        );
+        logger.record(
+            "IPC format public ABI sync q:d formats title directory",
+            false,
+        );
+        logger.record(
+            "IPC format public ABI sync qi:d decodes the overflow length",
+            false,
+        );
+        logger.record(
+            "IPC format public ABI async q:d spills and copies back before callback",
+            false,
+        );
+        logger.record("IPC fixture closes ES descriptor", false);
     }
 }
 

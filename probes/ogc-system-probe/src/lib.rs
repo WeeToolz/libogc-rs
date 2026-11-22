@@ -180,6 +180,8 @@ fn init_probe_logger_with_page_reports(page_reports: bool) -> probe_support::Pro
     use ogc_system::{self as system};
 
     static IPC_PROGRESS: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+    #[cfg(feature = "dolphin-automation")]
+    static PRE_MAIN_SEQUENCE: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
 
     unsafe fn ipc_progress(stage: u32, status: u32, _b: u32, _c: u32) {
         use core::sync::atomic::Ordering;
@@ -230,6 +232,15 @@ fn init_probe_logger_with_page_reports(page_reports: bool) -> probe_support::Pro
     }
 
     unsafe fn pre_main_progress(stage: u32) {
+        use core::sync::atomic::Ordering;
+
+        #[cfg(feature = "dolphin-automation")]
+        if PRE_MAIN_SEQUENCE
+            .compare_exchange(stage, stage + 1, Ordering::AcqRel, Ordering::Acquire)
+            .is_err()
+        {
+            PRE_MAIN_SEQUENCE.store(u32::MAX, Ordering::Release);
+        }
         IPC_PROGRESS.store(0, core::sync::atomic::Ordering::Release);
         let message: &[u8] = match stage {
             0 => b"PRE 0/7: closing inherited IOS descriptors\n",
@@ -307,6 +318,21 @@ fn init_probe_logger_with_page_reports(page_reports: bool) -> probe_support::Pro
     let mount_status = maybe_mount_external_logs();
 
     let mut logger = probe_support::ProbeLogger::with_options(display, log_options());
+    #[cfg(feature = "dolphin-automation")]
+    {
+        let pre_main = system::sys::snapshot_pre_main();
+        logger.record(
+            "pre-main progress callback reports stages in order",
+            PRE_MAIN_SEQUENCE.load(core::sync::atomic::Ordering::Acquire) == 8,
+        );
+        logger.record(
+            "system pre-main completes without a failed stage",
+            pre_main.called
+                && pre_main.completed
+                && pre_main.failed_stage == 0
+                && pre_main.result == 0,
+        );
+    }
     let log_ready = if logger.logging_requested() {
         logger.start_logging()
     } else {
