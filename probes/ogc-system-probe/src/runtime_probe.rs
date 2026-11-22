@@ -675,6 +675,60 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         active.iter().all(|outstanding| !outstanding)
     }
 
+    fn workspace_oom_ledger_complete(
+        events: &[lwp::WorkspaceProbeEvent],
+        format_state_failure_index: usize,
+    ) -> bool {
+        if events.is_empty() || format_state_failure_index >= events.len() {
+            return false;
+        }
+        let state_failure = events[format_state_failure_index];
+        if state_failure.kind != ipc::FORMAT_PROBE_WORKSPACE_ALLOC
+            || state_failure.pointer != 0
+            || state_failure.size == 0
+        {
+            return false;
+        }
+        events
+            .iter()
+            .enumerate()
+            .all(|(index, event)| match (event.kind, event.pointer) {
+                (ipc::FORMAT_PROBE_WORKSPACE_ALLOC, 0) => event.size != 0,
+                (ipc::FORMAT_PROBE_WORKSPACE_ALLOC, _) => {
+                    events
+                        .iter()
+                        .filter(|other| {
+                            other.kind == ipc::FORMAT_PROBE_WORKSPACE_ALLOC
+                                && other.pointer == event.pointer
+                                && other.size == event.size
+                        })
+                        .count()
+                        == 1
+                        && events
+                            .iter()
+                            .filter(|other| {
+                                other.kind == ipc::FORMAT_PROBE_WORKSPACE_FREE
+                                    && other.pointer == event.pointer
+                                    && other.size == event.size
+                            })
+                            .count()
+                            == 1
+                }
+                (ipc::FORMAT_PROBE_WORKSPACE_FREE, _) => {
+                    events[..index]
+                        .iter()
+                        .filter(|other| {
+                            other.kind == ipc::FORMAT_PROBE_WORKSPACE_ALLOC
+                                && other.pointer == event.pointer
+                                && other.size == event.size
+                        })
+                        .count()
+                        == 1
+                }
+                _ => false,
+            })
+    }
+
     fn workspace_did_not_own(snapshot: &ipc::FormatProbeSnapshot, pointer: usize) -> bool {
         snapshot.workspace_events[..snapshot.workspace_event_count as usize]
             .iter()
@@ -3124,6 +3178,193 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 && heap_recovery.vectors[0].sample[..4] == [0xaa, 0xbb, 0xcc, 0xdd]
                 && formatter_heap_ledger_has_exact_allocations(2)
                 && ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire) == live_before_faults,
+        );
+
+        // Fill the actual fixed LWP workspace arena with bounded, tracked
+        // reservations. Halve the request after each failed size so the
+        // remaining space is smaller than the formatter's FormatState. This
+        // uses the production allocator path; no formatter fault hook is set.
+        lwp::WORKSPACE_PROBE_EVENT_COUNT.store(0, Ordering::Release);
+        let mut workspace_reservations = [(core::ptr::null_mut(), 0usize); 32];
+        let mut workspace_reservation_count = 0usize;
+        let mut reservation_size = 256 * 1024usize;
+        while reservation_size >= 32
+            && workspace_reservation_count < workspace_reservations.len()
+            && lwp::WORKSPACE_PROBE_EVENT_COUNT.load(Ordering::Acquire)
+                < lwp::WORKSPACE_PROBE_CAPACITY - workspace_reservations.len()
+        {
+            let allocation = unsafe { lwp::allocate_workspace(reservation_size) };
+            if allocation.is_null() {
+                reservation_size /= 2;
+            } else {
+                workspace_reservations[workspace_reservation_count] =
+                    (allocation, reservation_size);
+                workspace_reservation_count += 1;
+            }
+        }
+        let workspace_reservation_oom = reservation_size < 32;
+        let format_state_failure_index = lwp::WORKSPACE_PROBE_EVENT_COUNT.load(Ordering::Acquire);
+        ipc::reset_format_heap_ledger();
+        let workspace_state_exhaustion_result =
+            unsafe { IOS_IoctlvFormat(ipc::IPC_HEAP, fd.raw(), 0, c"i".as_ptr(), 0x3141_5926u32) };
+        for (allocation, size) in workspace_reservations
+            .iter()
+            .take(workspace_reservation_count)
+            .copied()
+        {
+            unsafe { lwp::release_workspace(allocation, size) };
+        }
+        let workspace_event_count = lwp::WORKSPACE_PROBE_EVENT_COUNT.load(Ordering::Acquire);
+        let mut workspace_oom_events =
+            [lwp::WorkspaceProbeEvent::default(); lwp::WORKSPACE_PROBE_CAPACITY];
+        if workspace_event_count <= workspace_oom_events.len() {
+            for (index, event) in workspace_oom_events
+                .iter_mut()
+                .take(workspace_event_count)
+                .enumerate()
+            {
+                let slot = &lwp::WORKSPACE_PROBE_EVENTS[index];
+                *event = lwp::WorkspaceProbeEvent {
+                    kind: slot.kind.load(Ordering::Acquire),
+                    pointer: slot.pointer.load(Ordering::Relaxed),
+                    size: slot.size.load(Ordering::Relaxed),
+                };
+            }
+        }
+        let workspace_state_oom_clean = workspace_reservation_oom
+            && workspace_reservation_count != 0
+            && workspace_state_exhaustion_result == ipc::IPC_ENOMEM
+            && ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire) == live_before_faults
+            && formatter_heap_ledger_has_exact_allocations(0)
+            && workspace_event_count <= lwp::WORKSPACE_PROBE_CAPACITY
+            && workspace_oom_ledger_complete(
+                &workspace_oom_events[..workspace_event_count.min(workspace_oom_events.len())],
+                format_state_failure_index,
+            );
+        logger.record(
+            "IPC formatter FormatState real workspace exhaustion balances all reservations",
+            workspace_state_oom_clean,
+        );
+
+        // Keep one isolated workspace block large enough for FormatState but
+        // too small for FormatState plus the 64-byte staged d buffer. This
+        // reaches the production staging allocator after the state allocation
+        // has succeeded, without using the formatter's role-fault hook.
+        lwp::WORKSPACE_PROBE_EVENT_COUNT.store(0, Ordering::Release);
+        let mut staging_reservations = [(core::ptr::null_mut(), 0usize); 32];
+        let mut staging_reservation_count = 0usize;
+        let state_size = maximum_staged_snapshot.workspace_events[0].size;
+        let target_block_size = state_size.saturating_add(64);
+        let mut target_block_index = None;
+        let filler_size =
+            (512 * 1024usize).saturating_sub(target_block_size.saturating_add(256)) & !31usize;
+        let filler = unsafe { lwp::allocate_workspace(filler_size) };
+        if !filler.is_null() {
+            staging_reservations[staging_reservation_count] = (filler, filler_size);
+            staging_reservation_count += 1;
+        }
+        let target_block = unsafe { lwp::allocate_workspace(target_block_size) };
+        if !target_block.is_null() {
+            target_block_index = Some(staging_reservation_count);
+            staging_reservations[staging_reservation_count] = (target_block, target_block_size);
+            staging_reservation_count += 1;
+        }
+        if target_block_index.is_some() && staging_reservation_count < staging_reservations.len() {
+            while staging_reservation_count < staging_reservations.len()
+                && lwp::WORKSPACE_PROBE_EVENT_COUNT.load(Ordering::Acquire)
+                    + staging_reservation_count
+                    + 6
+                    <= lwp::WORKSPACE_PROBE_CAPACITY
+            {
+                let allocation = unsafe { lwp::allocate_workspace(32) };
+                if allocation.is_null() {
+                    break;
+                }
+                staging_reservations[staging_reservation_count] = (allocation, 32);
+                staging_reservation_count += 1;
+            }
+        }
+        let mut staging_state_failure_index =
+            lwp::WORKSPACE_PROBE_EVENT_COUNT.load(Ordering::Acquire);
+        let staging_workspace_result = if let Some(target_index) = target_block_index {
+            let (target, size) = staging_reservations[target_index];
+            unsafe { lwp::release_workspace(target, size) };
+            staging_reservations[target_index] = (core::ptr::null_mut(), 0);
+            staging_state_failure_index = lwp::WORKSPACE_PROBE_EVENT_COUNT.load(Ordering::Acquire);
+            ipc::reset_format_heap_ledger();
+            let mut source = [0x45u8; 65];
+            unsafe {
+                IOS_IoctlvFormat(
+                    ipc::IPC_HEAP,
+                    fd.raw(),
+                    0,
+                    c"d".as_ptr(),
+                    source.as_mut_ptr().add(1),
+                    33u32,
+                )
+            }
+        } else {
+            ipc::IPC_EINVAL
+        };
+        for (allocation, size) in staging_reservations
+            .iter()
+            .take(staging_reservation_count)
+            .copied()
+        {
+            if !allocation.is_null() {
+                unsafe { lwp::release_workspace(allocation, size) };
+            }
+        }
+        let staging_workspace_event_count =
+            lwp::WORKSPACE_PROBE_EVENT_COUNT.load(Ordering::Acquire);
+        let mut staging_oom_events =
+            [lwp::WorkspaceProbeEvent::default(); lwp::WORKSPACE_PROBE_CAPACITY];
+        if staging_workspace_event_count <= staging_oom_events.len() {
+            for (index, event) in staging_oom_events
+                .iter_mut()
+                .take(staging_workspace_event_count)
+                .enumerate()
+            {
+                let slot = &lwp::WORKSPACE_PROBE_EVENTS[index];
+                *event = lwp::WorkspaceProbeEvent {
+                    kind: slot.kind.load(Ordering::Acquire),
+                    pointer: slot.pointer.load(Ordering::Relaxed),
+                    size: slot.size.load(Ordering::Relaxed),
+                };
+            }
+        }
+        let staging_workspace_state_allocated = staging_state_failure_index
+            < staging_oom_events.len()
+            && staging_oom_events[staging_state_failure_index].kind
+                == ipc::FORMAT_PROBE_WORKSPACE_ALLOC
+            && staging_oom_events[staging_state_failure_index].pointer != 0
+            && staging_oom_events[staging_state_failure_index].size == state_size;
+        let staging_failure_index = staging_oom_events
+            .iter()
+            .take(staging_workspace_event_count.min(staging_oom_events.len()))
+            .enumerate()
+            .skip(staging_state_failure_index + 1)
+            .find(|(_, event)| {
+                event.kind == ipc::FORMAT_PROBE_WORKSPACE_ALLOC
+                    && event.pointer == 0
+                    && event.size == 64
+            })
+            .map(|(index, _)| index);
+        let staging_workspace_oom_observed = staging_failure_index.is_some();
+        let staging_workspace_oom_clean = target_block_index.is_some()
+            && staging_workspace_result == ipc::IPC_ENOMEM
+            && staging_workspace_state_allocated
+            && staging_workspace_oom_observed
+            && formatter_heap_ledger_has_exact_allocations(1)
+            && ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire) == live_before_faults
+            && staging_workspace_event_count <= lwp::WORKSPACE_PROBE_CAPACITY
+            && workspace_oom_ledger_complete(
+                &staging_oom_events[..staging_workspace_event_count.min(staging_oom_events.len())],
+                staging_failure_index.unwrap_or(usize::MAX),
+            );
+        logger.record(
+            "IPC formatter staged-buffer real workspace exhaustion releases state and argv",
+            staging_workspace_oom_clean,
         );
 
         logger.record(

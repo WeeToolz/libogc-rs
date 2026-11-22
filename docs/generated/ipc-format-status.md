@@ -4,7 +4,7 @@ Generated from `config/ipc-format-contracts.csv` by `cargo xtask inventory`. Sta
 
 ## Status counts
 
-verified: 55 | partial: 9 | blocked: 8 | unverified: 1
+verified: 63 | partial: 2 | blocked: 8 | unverified: 0
 
 `unverified` is the actionable count. `blocked` records requirements that need unavailable prerequisites.
 
@@ -14,7 +14,7 @@ verified: 55 | partial: 9 | blocked: 8 | unverified: 1
 | --- | --- | --- | --- |
 | `ipc-format.async.aes-live-input` | `IOS_IoctlvFormatAsync` | `blocked` | Blocked on physical Wii validation of Broadway cache behavior and IOS DMA coherency; Dolphin functional evidence passes. |
 | `ipc-format.async.callback-less` | `IOS_IoctlvFormatAsync` | `blocked` | Blocked on physical Wii validation of Broadway cache behavior and IOS DMA coherency; Dolphin functional evidence passes. |
-| `ipc-format.async.callback-reentry` | `IOS_IoctlvFormatAsync` | `unverified` | The probe now submits a second request from inside the first callback and checks outputs, userdata, and ledgers; runtime evidence is pending a fresh Dolphin run. |
+| `ipc-format.async.callback-reentry` | `IOS_IoctlvFormatAsync` | `verified` | Dolphin verifies callback-originated resubmission, distinct userdata and output, exactly-once callbacks, and balanced request, heap, and workspace ledgers. |
 | `ipc-format.async.cleanup-on-error` | `IOS_IoctlvFormatAsync` | `verified` | Request allocation failure before submission; IOS completion failures remain open |
 | `ipc-format.async.cleanup-on-error` | `IOS_IoctlvFormatAsync` | `verified` | Request allocation failure before submission; IOS completion failures remain open |
 | `ipc-format.async.concurrent-lwps` | `IOS_IoctlvFormatAsync` | `verified` | Dolphin proves formatter construction overlaps on two LWPs and each submits separate IOS state; physical scheduling is outside this stated contract. |
@@ -50,15 +50,15 @@ verified: 55 | partial: 9 | blocked: 8 | unverified: 1
 | `ipc-format.internal.title-input-buffer-output` | `__ogc_ipc_ioctlv_format_bridge` | `verified` | One 64-bit input and one output buffer shape only |
 | `ipc-format.recovery-after-failure` | `IOS_IoctlvFormat` | `verified` | One intercepted sync scalar request after deterministic allocation failures |
 | `ipc-format.sync.aes-live-input` | `IOS_IoctlvFormat` | `blocked` | Blocked on physical Wii validation of Broadway cache behavior and IOS DMA coherency; Dolphin functional evidence passes. |
-| `ipc-format.sync.cleanup-on-error` | `IOS_IoctlvFormat` | `partial` | Injected workspace and heap allocation failures with live formatter allocation balance |
+| `ipc-format.sync.cleanup-on-error` | `IOS_IoctlvFormat` | `verified` | Real State and StagingBuffer workspace exhaustion plus Argv and Scalar heap exhaustion release formatter state with balanced independent ledgers. |
 | `ipc-format.sync.dma-input-boundaries` | `IOS_IoctlvFormat` | `verified` | Hashes every logical input byte and checks actual workspace alloc/free events; no IOS submission |
 | `ipc-format.sync.dma-output-copyback` | `IOS_IoctlvFormat` | `partial` | Software copyback and canaries only; no Dolphin or hardware DMA coherency claim |
 | `ipc-format.sync.dma-staging-allocation` | `IOS_IoctlvFormat` | `verified` | The stated d-vector staging allocation and release sizes pass in Dolphin; physical cache behavior is outside this allocation contract. |
-| `ipc-format.sync.heap-failure-paths` | `IOS_IoctlvFormat` | `partial` | Probe role fault and independent formatter heap ledger |
-| `ipc-format.sync.heap-failure-paths` | `IOS_IoctlvFormat` | `partial` | Role-based allocation fault and independent cleanup ledger pass; genuine formatter heap exhaustion for this allocation is still actionable in Dolphin. |
-| `ipc-format.sync.heap-failure-paths` | `IOS_IoctlvFormat` | `partial` | Role-based allocation fault and independent cleanup ledger pass; genuine formatter heap exhaustion for this allocation is still actionable in Dolphin. |
-| `ipc-format.sync.heap-failure-paths` | `IOS_IoctlvFormat` | `partial` | Probe role fault and independent formatter heap ledger |
-| `ipc-format.sync.heap-real-exhaustion` | `IOS_IoctlvFormat` | `partial` | The probe now covers real Argv and Scalar heap exhaustion and exact cleanup; runtime evidence is pending a fresh Dolphin run. |
+| `ipc-format.sync.heap-failure-paths` | `IOS_IoctlvFormat` | `verified` | Probe role fault and real workspace exhaustion both leave the formatter heap ledger empty and free every held workspace block once. |
+| `ipc-format.sync.heap-failure-paths` | `IOS_IoctlvFormat` | `verified` | Role-based fault and real allocator exhaustion both leave the independent formatter heap ledger empty. |
+| `ipc-format.sync.heap-failure-paths` | `IOS_IoctlvFormat` | `verified` | Role-based fault and real allocator exhaustion both release the first Scalar exactly once. |
+| `ipc-format.sync.heap-failure-paths` | `IOS_IoctlvFormat` | `verified` | Injected and real workspace exhaustion preserve exact Argv cleanup and balance workspace and formatter heap ledgers. |
+| `ipc-format.sync.heap-real-exhaustion` | `IOS_IoctlvFormat` | `verified` | Dolphin verifies natural Argv and Scalar allocator failure, exact frees, a zero formatter heap ledger, and recovery on the same heap. |
 | `ipc-format.sync.input-buffer` | `IOS_IoctlvFormat` | `verified` | One 4-byte input buffer is staged in a mixed request |
 | `ipc-format.sync.input-scalars` | `IOS_IoctlvFormat` | `verified` | The named formatter forms and cases in this contract pass in Dolphin; other forms have separate contracts. |
 | `ipc-format.sync.input-string` | `IOS_IoctlvFormat` | `verified` | One input string vector in a mixed request |
@@ -69,7 +69,7 @@ verified: 55 | partial: 9 | blocked: 8 | unverified: 1
 | `ipc-format.sync.live-input-buffer` | `IOS_IoctlvFormat` | `blocked` | Blocked on physical Wii validation of Broadway cache behavior and IOS DMA coherency; Dolphin functional evidence passes. |
 | `ipc-format.sync.malformed-format` | `IOS_IoctlvFormat` | `verified` | The named formatter forms and cases in this contract pass in Dolphin; other forms have separate contracts. |
 | `ipc-format.sync.maximum-format` | `IOS_IoctlvFormat` | `verified` | 31 scalar input specifiers exercise maximum accepted format and owned-entry capacity |
-| `ipc-format.sync.maximum-ownership-workspace` | `IOS_IoctlvFormat` | `partial` | The probe now combines 31 staged d vectors and the complete workspace ledger; runtime evidence is pending a fresh Dolphin run. |
+| `ipc-format.sync.maximum-ownership-workspace` | `IOS_IoctlvFormat` | `verified` | 31 staged d parameters exercise the maximum formatter count; all workspace allocation/free events are recorded and balanced. |
 | `ipc-format.sync.mixed-vectors` | `IOS_IoctlvFormat` | `verified` | The named formatter forms and cases in this contract pass in Dolphin; other forms have separate contracts. |
 | `ipc-format.sync.null-buffer` | `IOS_IoctlvFormat` | `verified` | Records upstream-compatible behavior: pass a null d pointer with the supplied length, including nonzero lengths |
 | `ipc-format.sync.null-format` | `IOS_IoctlvFormat` | `verified` | Public entry reaches parser null-format guard |

@@ -80,20 +80,29 @@ and async results. The async test also changes the staged input tail and checks
 the callback result. This is emulator evidence. Physical Wii cache and DMA
 validation remains open.
 
-The formatter runtime probe also checks real Argv and Scalar heap exhaustion,
-recovery after exhaustion, async callback re-entry, and maximum 31-parameter
-staged d ownership across all 64 workspace events. The latest targeted
-PowerPC `runtime_probe` build and DOL conversion passed. These new checks have
-not run in Dolphin: the installed Dolphin executable exits with `SIGABRT` on
-the runner's `--version` check. The formatter status report keeps these rows
-partial or unverified until a Dolphin run passes. Current counts are
-`verified: 55 | partial: 9 | blocked: 8 | unverified: 1`.
+The fresh `runtime_probe` run at base revision
+`5609ceae078986c8da4bbd00df000159cdc0a9b5` passed 851 checks with no failures
+in Dolphin 2609a. It covers real Argv and Scalar heap exhaustion, async
+callback re-entry, maximum 31-parameter staged `d` ownership, and real
+exhaustion of both formatter `FormatState` and staged-buffer workspace
+allocations. The staged-buffer case confirms `FormatState` allocates, then its
+64-byte staging allocation fails and all formatter, heap, and workspace
+ownership records balance. See the
+[fresh workspace exhaustion evidence report](dolphin-runs/2026-11-22-ipc-format-workspace-oom-v1/README.md).
 
-Eight formatter contracts remain blocked on physical Wii validation of
-Broadway cache behavior and IOS DMA coherency. Hardware testing must include
-aligned and misaligned 31, 32, 33, 63, 64, and 65 byte boundaries, dirty
-neighboring cache-line data, and both sync and async paths. Dolphin evidence
-does not promote these hardware contracts.
+The earlier SIGABRT occurred before the probe started. Qt's arm64 initializer
+aborted in `qDetectCpuFeatures` because it did not detect NEON. The sandbox
+restricted the CPU-feature query. Native arm64 Dolphin 2609a started and passed
+when the same command ran outside that restriction. No probe or formatter code
+change was needed to fix this host launch failure.
+
+The fresh run promotes the directly tested formatter heap exhaustion,
+workspace exhaustion, callback re-entry, and maximum ownership workspace
+contracts. The eight physical Wii contracts remain blocked on Broadway cache
+behavior and IOS DMA coherency. Hardware
+testing must include aligned and misaligned 31, 32, 33, 63, 64, and 65 byte
+boundaries, dirty neighboring cache-line data, and both sync and async paths.
+Dolphin evidence does not promote these hardware contracts.
 
 The [probe guide](../probes/README.md) lists focused build commands, probe
 coverage, Dolphin limits, and physical USB and AESND procedures. The
