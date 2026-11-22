@@ -384,6 +384,369 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         "IPC format internal bridge null-call guard",
         null_result == ipc::IPC_EINVAL,
     );
+
+    macro_rules! arm_format_snapshot {
+        ($snapshot:expr) => {
+            ipc::FORMAT_PROBE_SNAPSHOT.store(
+                (&mut $snapshot as *mut ipc::FormatProbeSnapshot) as usize,
+                Ordering::Release,
+            )
+        };
+    }
+
+    // Let the C ABI compiler place q and later arguments in registers and on
+    // the stack. The one-shot hook stops after parsing, before IOS submission.
+    let mut input_sync = ipc::FormatProbeSnapshot::default();
+    arm_format_snapshot!(input_sync);
+    let input_sync_result = unsafe {
+        IOS_IoctlvFormat(
+            ipc::IPC_HEAP,
+            0,
+            0,
+            c"bhiq".as_ptr(),
+            0x0000_01abu32,
+            0x0001_2345u32,
+            0x1020_3040u32,
+            0x1122_3344_5566_7788u64,
+        )
+    };
+    logger.record(
+        "IPC format public sync b/h/i/q decodes register and aligned overflow words",
+        input_sync_result == ipc::FORMAT_PROBE_COMPLETE
+            && ipc::FORMAT_PROBE_SNAPSHOT.load(Ordering::Acquire) == 0
+            && input_sync.asynchronous == 0
+            && input_sync.input_count == 4
+            && input_sync.output_count == 0
+            && input_sync.vectors[0].length == 1
+            && input_sync.vectors[0].sample[0] == 0xab
+            && input_sync.vectors[1].length == 2
+            && input_sync.vectors[1].sample[..2] == [0x23, 0x45]
+            && input_sync.vectors[2].length == 4
+            && input_sync.vectors[2].sample[..4] == [0x10, 0x20, 0x30, 0x40]
+            && input_sync.vectors[3].length == 8
+            && input_sync.vectors[3].sample == [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88],
+    );
+
+    let mut input_async = ipc::FormatProbeSnapshot::default();
+    arm_format_snapshot!(input_async);
+    let input_async_result = unsafe {
+        IOS_IoctlvFormatAsync(
+            ipc::IPC_HEAP,
+            0,
+            0,
+            None,
+            core::ptr::null_mut(),
+            c"bhiq".as_ptr(),
+            0x0000_01abu32,
+            0x0001_2345u32,
+            0x1020_3040u32,
+            0x1122_3344_5566_7788u64,
+        )
+    };
+    logger.record(
+        "IPC format public async b/h/i/q decodes register and aligned overflow words",
+        input_async_result == ipc::FORMAT_PROBE_COMPLETE
+            && ipc::FORMAT_PROBE_SNAPSHOT.load(Ordering::Acquire) == 0
+            && input_async.asynchronous == 1
+            && input_async.input_count == 4
+            && input_async.vectors[0].length == 1
+            && input_async.vectors[0].sample[0] == 0xab
+            && input_async.vectors[1].length == 2
+            && input_async.vectors[1].sample[..2] == [0x23, 0x45]
+            && input_async.vectors[2].length == 4
+            && input_async.vectors[2].sample[..4] == [0x10, 0x20, 0x30, 0x40]
+            && input_async.vectors[3].length == 8
+            && input_async.vectors[3].sample == [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88],
+    );
+
+    #[repr(C, align(8))]
+    struct ScalarCanaries {
+        guard_b: u8,
+        b: u8,
+        tail_b: u8,
+        guard_h: u8,
+        h: u16,
+        tail_h: u8,
+        guard_i: u8,
+        i: u32,
+        tail_i: u8,
+        guard_q: u8,
+        q: u64,
+        tail_q: u8,
+    }
+    let mut scalar_outputs = ScalarCanaries {
+        guard_b: 0xc1,
+        b: 0xa5,
+        tail_b: 0xc2,
+        guard_h: 0xc3,
+        h: 0xb6c7,
+        tail_h: 0xc4,
+        guard_i: 0xc5,
+        i: 0x89ab_cdef,
+        tail_i: 0xc6,
+        guard_q: 0xc7,
+        q: 0x0123_4567_89ab_cdef,
+        tail_q: 0xc8,
+    };
+    let mut output_sync = ipc::FormatProbeSnapshot::default();
+    arm_format_snapshot!(output_sync);
+    let output_sync_result = unsafe {
+        IOS_IoctlvFormat(
+            ipc::IPC_HEAP,
+            0,
+            0,
+            c":bhiq".as_ptr(),
+            &mut scalar_outputs.b as *mut u8,
+            &mut scalar_outputs.h as *mut u16,
+            &mut scalar_outputs.i as *mut u32,
+            &mut scalar_outputs.q as *mut u64,
+        )
+    };
+    logger.record(
+        "IPC format public sync :b/:h/:i/:q constructs exact scalar widths",
+        output_sync_result == ipc::FORMAT_PROBE_COMPLETE
+            && output_sync.output_count == 4
+            && [
+                output_sync.vectors[0].length,
+                output_sync.vectors[1].length,
+                output_sync.vectors[2].length,
+                output_sync.vectors[3].length,
+            ] == [1, 2, 4, 8]
+            && output_sync.vectors[0].sample[..1] == [0xa5]
+            && output_sync.vectors[1].sample[..2] == [0xb6, 0xc7]
+            && output_sync.vectors[2].sample[..4] == [0x89, 0xab, 0xcd, 0xef]
+            && output_sync.vectors[3].sample == [0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef]
+            && [
+                scalar_outputs.guard_b,
+                scalar_outputs.tail_b,
+                scalar_outputs.guard_h,
+                scalar_outputs.tail_h,
+                scalar_outputs.guard_i,
+                scalar_outputs.tail_i,
+                scalar_outputs.guard_q,
+                scalar_outputs.tail_q,
+            ] == [0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8],
+    );
+
+    let mut output_async = ipc::FormatProbeSnapshot::default();
+    arm_format_snapshot!(output_async);
+    let output_async_result = unsafe {
+        IOS_IoctlvFormatAsync(
+            ipc::IPC_HEAP,
+            0,
+            0,
+            None,
+            core::ptr::null_mut(),
+            c":bhiq".as_ptr(),
+            &mut scalar_outputs.b as *mut u8,
+            &mut scalar_outputs.h as *mut u16,
+            &mut scalar_outputs.i as *mut u32,
+            &mut scalar_outputs.q as *mut u64,
+        )
+    };
+    logger.record(
+        "IPC format public async :b/:h/:i/:q constructs exact scalar widths",
+        output_async_result == ipc::FORMAT_PROBE_COMPLETE
+            && output_async.asynchronous == 1
+            && output_async.output_count == 4
+            && [
+                output_async.vectors[0].length,
+                output_async.vectors[1].length,
+                output_async.vectors[2].length,
+                output_async.vectors[3].length,
+            ] == [1, 2, 4, 8],
+    );
+
+    let direct_input = [0x10, 0x20, 0x30, 0x40];
+    let input_string = c"ios";
+    let mut mixed_snapshot = ipc::FormatProbeSnapshot::default();
+    arm_format_snapshot!(mixed_snapshot);
+    let mixed_result = unsafe {
+        IOS_IoctlvFormat(
+            ipc::IPC_HEAP,
+            0,
+            0,
+            c"ds".as_ptr(),
+            direct_input.as_ptr(),
+            direct_input.len() as u32,
+            input_string.as_ptr(),
+        )
+    };
+    logger.record(
+        "IPC format public sync ds constructs input buffer and string vectors",
+        mixed_result == ipc::FORMAT_PROBE_COMPLETE
+            && mixed_snapshot.input_count == 2
+            && mixed_snapshot.vectors[0].length == 4
+            && mixed_snapshot.vectors[0].sample[..4] == direct_input
+            && mixed_snapshot.vectors[1].length == 4
+            && mixed_snapshot.vectors[1].sample[..4] == *b"ios\0",
+    );
+
+    let mut output_buffer = [0x5au8; 8];
+    let mut direct_output_snapshot = ipc::FormatProbeSnapshot::default();
+    arm_format_snapshot!(direct_output_snapshot);
+    let direct_output_result = unsafe {
+        IOS_IoctlvFormat(
+            ipc::IPC_HEAP,
+            0,
+            0,
+            c":d".as_ptr(),
+            output_buffer.as_mut_ptr(),
+            output_buffer.len() as u32,
+        )
+    };
+    logger.record(
+        "IPC format public sync :d constructs a direct output buffer",
+        direct_output_result == ipc::FORMAT_PROBE_COMPLETE
+            && direct_output_snapshot.input_count == 0
+            && direct_output_snapshot.output_count == 1
+            && direct_output_snapshot.vectors[0].length == 8
+            && direct_output_snapshot.vectors[0].sample == output_buffer,
+    );
+
+    let mut mixed_output = [0x6bu8; 5];
+    let mut mixed_buffers = ipc::FormatProbeSnapshot::default();
+    arm_format_snapshot!(mixed_buffers);
+    let mixed_buffers_result = unsafe {
+        IOS_IoctlvFormat(
+            ipc::IPC_HEAP,
+            0,
+            0,
+            c"d:d".as_ptr(),
+            direct_input.as_ptr(),
+            direct_input.len() as u32,
+            mixed_output.as_mut_ptr(),
+            mixed_output.len() as u32,
+        )
+    };
+    logger.record(
+        "IPC format public sync d:d separates input and output vectors",
+        mixed_buffers_result == ipc::FORMAT_PROBE_COMPLETE
+            && mixed_buffers.input_count == 1
+            && mixed_buffers.output_count == 1
+            && mixed_buffers.vectors[0].length == 4
+            && mixed_buffers.vectors[0].sample[..4] == direct_input
+            && mixed_buffers.vectors[1].length == 5
+            && mixed_buffers.vectors[1].sample[..5] == mixed_output,
+    );
+
+    let mut async_mixed_output = [0x7cu8; 5];
+    let mut async_mixed_buffers = ipc::FormatProbeSnapshot::default();
+    arm_format_snapshot!(async_mixed_buffers);
+    let async_mixed_buffers_result = unsafe {
+        IOS_IoctlvFormatAsync(
+            ipc::IPC_HEAP,
+            0,
+            0,
+            None,
+            core::ptr::null_mut(),
+            c"d:d".as_ptr(),
+            direct_input.as_ptr(),
+            direct_input.len() as u32,
+            async_mixed_output.as_mut_ptr(),
+            async_mixed_output.len() as u32,
+        )
+    };
+    logger.record(
+        "IPC format public async d:d separates input and overflow output arguments",
+        async_mixed_buffers_result == ipc::FORMAT_PROBE_COMPLETE
+            && async_mixed_buffers.asynchronous == 1
+            && async_mixed_buffers.input_count == 1
+            && async_mixed_buffers.output_count == 1
+            && async_mixed_buffers.vectors[0].length == 4
+            && async_mixed_buffers.vectors[0].sample[..4] == direct_input
+            && async_mixed_buffers.vectors[1].length == 5
+            && async_mixed_buffers.vectors[1].sample[..5] == async_mixed_output,
+    );
+
+    let mut string_lengths_ok = true;
+    let mut near_limit_string = [b'x'; 256];
+    near_limit_string[255] = 0;
+    for (format, value, expected_len) in [
+        (c"s".as_ptr(), c"".as_ptr().cast::<u8>(), 1u32),
+        (c"s".as_ptr(), c"homebrew".as_ptr().cast::<u8>(), 9u32),
+        (c"S".as_ptr(), near_limit_string.as_ptr(), 256u32),
+    ] {
+        let mut snapshot = ipc::FormatProbeSnapshot::default();
+        arm_format_snapshot!(snapshot);
+        let rc = unsafe {
+            IOS_IoctlvFormat(
+                ipc::IPC_HEAP,
+                0,
+                0,
+                format,
+                value.cast::<core::ffi::c_char>(),
+            )
+        };
+        string_lengths_ok &= rc == ipc::FORMAT_PROBE_COMPLETE
+            && snapshot.input_count == 1
+            && snapshot.vectors[0].length == expected_len;
+    }
+    logger.record(
+        "IPC format public sync accepts empty normal and maximum length strings",
+        string_lengths_ok,
+    );
+
+    let mut invalid_format_ok = true;
+    for (format, scalar) in [
+        (c"x".as_ptr(), None),
+        (c"i::i".as_ptr(), Some(1u32)),
+        (c"iX".as_ptr(), Some(1u32)),
+        (c":s".as_ptr(), None),
+    ] {
+        let mut snapshot = ipc::FormatProbeSnapshot::default();
+        arm_format_snapshot!(snapshot);
+        let rc = match scalar {
+            Some(value) => unsafe { IOS_IoctlvFormat(ipc::IPC_HEAP, 0, 0, format, value) },
+            None => unsafe { IOS_IoctlvFormat(ipc::IPC_HEAP, 0, 0, format) },
+        };
+        invalid_format_ok &=
+            rc == ipc::IPC_EINVAL && ipc::FORMAT_PROBE_SNAPSHOT.load(Ordering::Acquire) == 0;
+    }
+    let mut recovered_snapshot = ipc::FormatProbeSnapshot::default();
+    arm_format_snapshot!(recovered_snapshot);
+    let recovery_result =
+        unsafe { IOS_IoctlvFormat(ipc::IPC_HEAP, 0, 0, c"i".as_ptr(), 0x1234u32) };
+    let overlong_format = [b'i'; 32];
+    let mut overlong_snapshot = ipc::FormatProbeSnapshot::default();
+    ipc::FORMAT_PROBE_SNAPSHOT.store(
+        (&mut overlong_snapshot as *mut ipc::FormatProbeSnapshot) as usize,
+        Ordering::Release,
+    );
+    let overlong_result = unsafe {
+        IOS_IoctlvFormat(
+            ipc::IPC_HEAP,
+            0,
+            0,
+            overlong_format.as_ptr().cast::<core::ffi::c_char>(),
+        )
+    };
+    let mut long_string = [b'y'; 256];
+    let mut long_string_snapshot = ipc::FormatProbeSnapshot::default();
+    ipc::FORMAT_PROBE_SNAPSHOT.store(
+        (&mut long_string_snapshot as *mut ipc::FormatProbeSnapshot) as usize,
+        Ordering::Release,
+    );
+    let long_string_result = unsafe {
+        IOS_IoctlvFormat(
+            ipc::IPC_HEAP,
+            0,
+            0,
+            c"s".as_ptr(),
+            long_string.as_mut_ptr().cast::<core::ffi::c_char>(),
+        )
+    };
+    logger.record(
+        "IPC format public sync rejects unknown malformed overlong and unterminated input",
+        invalid_format_ok
+            && overlong_result == ipc::IPC_EINVAL
+            && long_string_result == ipc::IPC_EINVAL
+            && recovery_result == ipc::FORMAT_PROBE_COMPLETE
+            && recovered_snapshot.input_count == 1
+            && recovered_snapshot.vectors[0].sample[..4] == [0x00, 0x00, 0x12, 0x34]
+            && ipc::FORMAT_PROBE_SNAPSHOT.load(Ordering::Acquire) == 0,
+    );
+
     let opened = ipc::open_file(c"/dev/es", ipc::IPC_OPEN_NONE);
     if let Ok(fd) = opened {
         let mut expected = TitleBytes([0xff; 4]);

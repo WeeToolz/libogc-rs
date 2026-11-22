@@ -2687,7 +2687,7 @@ pub unsafe extern "C" fn __ogc_ipc_ioctlv_format_bridge(call: *const c_void) -> 
         return IPC_EINVAL;
     }
     let call = unsafe { &*call.cast::<FormatCall>() };
-    let (state, cnt_in, cnt_io, argv) = match unsafe { parse_format_call(call) } {
+    let (state, cnt_in, cnt_io, argv) = match unsafe { parse_call_for_bridge(call) } {
         Ok(parsed) => parsed,
         Err(error) => return error,
     };
@@ -3078,3 +3078,16 @@ mod tests {
         assert!(!valid_buffer_hi(0x2001, 0x2000));
     }
 }
+
+#[cfg(feature = "format-probe-hooks")]
+mod format_probe;
+
+#[cfg(feature = "format-probe-hooks")]
+pub use format_probe::{
+    FORMAT_PROBE_COMPLETE, FORMAT_PROBE_SNAPSHOT, FormatProbeSnapshot, FormatProbeVector,
+};
+
+#[cfg(feature = "format-probe-hooks")]
+use format_probe::parse_or_capture as parse_call_for_bridge;
+#[cfg(not(feature = "format-probe-hooks"))]
+use parse_format_call as parse_call_for_bridge;
