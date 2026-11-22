@@ -1272,6 +1272,46 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 && buffer_slot.output_matches.load(Ordering::Acquire),
         );
 
+        let live_before_invalid_fd = ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire);
+        scalar_slot.reset(async_output.cast(), actual);
+        unsafe { async_output.write(u32::MAX) };
+        let invalid_fd_userdata = (scalar_slot as *const FormatAsyncProbeSlot)
+            .cast_mut()
+            .cast::<c_void>();
+        let invalid_fd_submission = unsafe {
+            IOS_IoctlvFormatAsync(
+                ipc::IPC_HEAP,
+                -1,
+                0x0e,
+                Some(format_concurrent_completed),
+                invalid_fd_userdata,
+                c":i".as_ptr(),
+                async_output,
+            )
+        };
+        let mut invalid_fd_completed = false;
+        for _ in 0..1000 {
+            if scalar_slot.completions.load(Ordering::Acquire) != 0 {
+                invalid_fd_completed = true;
+                break;
+            }
+            lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 100).max(1));
+        }
+        if invalid_fd_completed {
+            lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 20).max(1));
+        }
+        logger.record(
+            "IPC format public async invalid descriptor completes once with error and releases state",
+            invalid_fd_submission == 0
+                && invalid_fd_completed
+                && scalar_slot.completions.load(Ordering::Acquire) == 1
+                && scalar_slot.result.load(Ordering::Acquire) < 0
+                && scalar_slot.userdata.load(Ordering::Acquire)
+                    == invalid_fd_userdata as usize
+                && ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire)
+                    == live_before_invalid_fd,
+        );
+
         let live_before_faults = ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire);
         let mut sync_faults_clean = true;
         for (fail_at, format) in [(1usize, c"i"), (2, c"i"), (4, c"ii")] {
