@@ -222,3 +222,4 @@ ogc-dsp-sys,src/lib.rs,get_dma_status,hardware,bus-probe,Dolphin checks DSP DMA 
 ogc-dsp-sys,src/lib.rs,add_task,hardware,bus-probe,Dolphin boots the AESND DSP fixture and checks init and completion callbacks
 ogc-dsp-sys,src/lib.rs,cancel_task,hardware,bus-probe,Dolphin checks cancellation flags and task removal after completion
 ogc-dsp-sys,src/lib.rs,assert_task,hardware,bus-probe,Dolphin checks the no-current-task result while the scheduler is idle
+ogc-ipc,src/lib.rs,__ogc_ipc_ioctlv_format_bridge,ios,ipc-format-probe,Formatter bridge; partial Dolphin coverage only

@@ -48,12 +48,20 @@ struct Evidence {
     function: String,
     api_path: Option<String>,
     scope: Option<EvidenceScope>,
+    contracts: Vec<String>,
+}
+
+#[derive(Clone, Debug)]
+struct ProbeCoverage {
+    source: String,
+    dolphin_runner: Option<String>,
 }
 
 #[derive(Clone, Debug)]
 struct IpcEvidenceContract {
     crate_name: String,
     symbol: String,
+    dolphin_runner: String,
     evidence_path: String,
     function: String,
     api_path: String,
@@ -307,8 +315,8 @@ impl RuntimeInventory {
         let probes = probe_sources
             .iter()
             .map(|(name, source)| {
-                let reason = (!root.join(source).is_file())
-                    .then(|| format!("focused probe source does not exist: {source}"));
+                let reason = (!root.join(&source.source).is_file())
+                    .then(|| format!("focused probe source does not exist: {source:?}"));
                 (name.as_str(), reason)
             })
             .collect();
@@ -428,7 +436,7 @@ fn completeness_report<'a>(
     }
 }
 
-fn load_probe_coverage(root: &Path) -> Result<BTreeMap<String, String>, String> {
+fn load_probe_coverage(root: &Path) -> Result<BTreeMap<String, ProbeCoverage>, String> {
     let path = root.join("config/probe-coverage.csv");
     let rows = crate::workspace::read_csv(&path)?;
     let mut coverage = BTreeMap::new();
@@ -436,14 +444,24 @@ fn load_probe_coverage(root: &Path) -> Result<BTreeMap<String, String>, String> 
         if row.iter().all(|field| field.trim().is_empty()) {
             continue;
         }
-        if row.len() != 2 || row[0].trim().is_empty() || row[1].trim().is_empty() {
+        if row.len() != 3 || row[0].trim().is_empty() || row[1].trim().is_empty() {
             return Err(format!(
                 "{}:{}: expected probe and source columns",
                 path.display(),
                 line_no + 1
             ));
         }
-        if coverage.insert(row[0].clone(), row[1].clone()).is_some() {
+        let runner = (!row[2].trim().is_empty()).then(|| row[2].clone());
+        if coverage
+            .insert(
+                row[0].clone(),
+                ProbeCoverage {
+                    source: row[1].clone(),
+                    dolphin_runner: runner,
+                },
+            )
+            .is_some()
+        {
             return Err(format!(
                 "{}:{}: duplicate probe `{}`",
                 path.display(),
@@ -459,6 +477,8 @@ fn collect_inventory(root: &Path) -> Result<Vec<ApiEntry>, String> {
     let roles = load_roles(root)?;
     let overrides = load_overrides(root)?;
     let evidence = load_evidence(root)?;
+    let coverage = load_probe_coverage(root)?;
+    let contracts = load_ipc_format_contracts(root)?;
     let mut used_evidence = vec![false; evidence.len()];
     let evidence_index = evidence
         .iter()
@@ -538,6 +558,7 @@ fn collect_inventory(root: &Path) -> Result<Vec<ApiEntry>, String> {
                     if let Some(&index) = evidence_index.get(&key) {
                         let item = &evidence[index];
                         validate_evidence_classification(item, &declared_classification)?;
+                        validate_contracts(item, &probe, &coverage, &contracts)?;
                         let cached =
                             parsed_evidence.get_or_parse(&root.join(&item.evidence_path))?;
                         verify_evidence_cached(item, &declared_classification, cached)?;
@@ -606,6 +627,7 @@ fn collect_inventory(root: &Path) -> Result<Vec<ApiEntry>, String> {
         if let Some(&index) = evidence_index.get(&key) {
             let item = &evidence[index];
             validate_evidence_classification(item, &export.declared_classification)?;
+            validate_contracts(item, &export.probe, &coverage, &contracts)?;
             let cached = parsed_evidence.get_or_parse(&root.join(&item.evidence_path))?;
             verify_evidence_cached(item, &export.declared_classification, cached)?;
             used_evidence[index] = true;
@@ -780,30 +802,19 @@ fn load_evidence(root: &Path) -> Result<Vec<Evidence>, String> {
                     })
                 })
                 .transpose()?,
+            contracts: row
+                .get(10)
+                .filter(|value| !value.trim().is_empty())
+                .map(|value| value.split(';').map(str::to_string).collect())
+                .unwrap_or_default(),
         };
-        if let Some(value) = row.get(10).filter(|value| !value.trim().is_empty()) {
-            for contract_id in value.split(';') {
-                let contract_rows = known_contracts.get(contract_id).ok_or_else(|| {
-                    format!(
-                        "{}:{}: unknown evidence contract `{contract_id}`",
-                        path.display(),
-                        line_no + 1
-                    )
-                })?;
-                let maps_to_evidence = contract_rows.iter().any(|contract| {
-                    contract.crate_name == item.crate_name
-                        && contract.symbol == item.symbol
-                        && contract.evidence_path == item.evidence_path
-                        && contract.function == item.function
-                        && item.api_path.as_deref() == Some(contract.api_path.as_str())
-                });
-                if !maps_to_evidence {
-                    return Err(format!(
-                        "{}:{}: evidence contract `{contract_id}` does not match its API, probe, function, and API path",
-                        path.display(),
-                        line_no + 1
-                    ));
-                }
+        for id in &item.contracts {
+            if !known_contracts.contains_key(id) {
+                return Err(format!(
+                    "{}:{}: unknown evidence contract `{id}`",
+                    path.display(),
+                    line_no + 1
+                ));
             }
         }
         if !evidence_keys.insert(evidence_key(&item)) {
@@ -866,12 +877,55 @@ fn load_ipc_format_contracts(
             .push(IpcEvidenceContract {
                 crate_name: row[1].clone(),
                 symbol: row[2].clone(),
+                dolphin_runner: row[3].clone(),
                 evidence_path: row[4].clone(),
                 function: row[5].clone(),
                 api_path: row[6].clone(),
             });
     }
     Ok(contracts)
+}
+
+fn validate_contracts(
+    item: &Evidence,
+    coverage_id: &str,
+    coverage: &BTreeMap<String, ProbeCoverage>,
+    contracts: &HashMap<String, Vec<IpcEvidenceContract>>,
+) -> Result<(), String> {
+    if item.contracts.is_empty() {
+        return Ok(());
+    }
+    let mapping = coverage
+        .get(coverage_id)
+        .ok_or_else(|| format!("missing coverage mapping `{coverage_id}`"))?;
+    let runner = mapping
+        .dolphin_runner
+        .as_deref()
+        .ok_or_else(|| format!("missing Dolphin runner for `{coverage_id}`"))?;
+    if !crate::dolphin::is_known_probe(runner) {
+        return Err(format!("unknown Dolphin runner `{runner}`"));
+    }
+    for id in &item.contracts {
+        let rows = contracts
+            .get(id)
+            .ok_or_else(|| format!("unknown contract `{id}`"))?;
+        if rows.is_empty()
+            || !rows.iter().all(|c| {
+                c.crate_name == item.crate_name
+                    && c.symbol == item.symbol
+                    && c.dolphin_runner == runner
+                    && c.evidence_path == mapping.source
+                    && c.evidence_path == item.evidence_path
+                    && c.function == item.function
+                    && item.api_path.as_deref() == Some(c.api_path.as_str())
+            })
+        {
+            return Err(format!(
+                "contract `{id}` does not match coverage mapping and API evidence"
+            ));
+        }
+    }
+    Ok(())
 }
 
 type EvidenceKey = (String, String, String, usize);
@@ -1953,6 +2007,60 @@ mod tests {
     use super::*;
 
     #[test]
+    fn contracts_require_explicit_coverage_runner_and_matching_identity() {
+        let item = Evidence {
+            crate_name: "ogc-ipc".into(),
+            path: "src/lib.rs".into(),
+            symbol: "IOS_IoctlvFormat".into(),
+            line: 30,
+            classification: "ios".into(),
+            kind: "hardware-probe".into(),
+            evidence_path: "source.rs".into(),
+            function: "probe".into(),
+            api_path: Some("api".into()),
+            scope: None,
+            contracts: vec!["contract".into()],
+        };
+        let contract = IpcEvidenceContract {
+            crate_name: item.crate_name.clone(),
+            symbol: item.symbol.clone(),
+            dolphin_runner: "runtime_probe".into(),
+            evidence_path: item.evidence_path.clone(),
+            function: item.function.clone(),
+            api_path: "api".into(),
+        };
+        let mut contracts = HashMap::from([("contract".into(), vec![contract.clone(), contract])]);
+        let mut coverage = BTreeMap::from([(
+            "ipc-format-probe".into(),
+            ProbeCoverage {
+                source: "source.rs".into(),
+                dolphin_runner: Some("runtime_probe".into()),
+            },
+        )]);
+        assert!(validate_contracts(&item, "ipc-format-probe", &coverage, &contracts).is_ok());
+        assert!(validate_contracts(&item, "missing", &coverage, &contracts).is_err());
+        contracts.get_mut("contract").unwrap()[1].dolphin_runner = "unknown_probe".into();
+        assert!(validate_contracts(&item, "ipc-format-probe", &coverage, &contracts).is_err());
+        contracts.get_mut("contract").unwrap()[1].dolphin_runner = "network_probe".into();
+        assert!(crate::dolphin::is_known_probe("network_probe"));
+        assert!(validate_contracts(&item, "ipc-format-probe", &coverage, &contracts).is_err());
+        contracts.get_mut("contract").unwrap()[1].dolphin_runner = "runtime_probe".into();
+        coverage.insert(
+            "other".into(),
+            ProbeCoverage {
+                source: "source.rs".into(),
+                dolphin_runner: Some("network_probe".into()),
+            },
+        );
+        assert!(validate_contracts(&item, "other", &coverage, &contracts).is_err());
+        coverage.get_mut("ipc-format-probe").unwrap().source = "wrong.rs".into();
+        assert!(validate_contracts(&item, "ipc-format-probe", &coverage, &contracts).is_err());
+        coverage.get_mut("ipc-format-probe").unwrap().source = "source.rs".into();
+        coverage.get_mut("ipc-format-probe").unwrap().dolphin_runner = Some("unknown_probe".into());
+        assert!(validate_contracts(&item, "ipc-format-probe", &coverage, &contracts).is_err());
+    }
+
+    #[test]
     fn global_assembly_exports_are_first_class_unverified_entries() {
         let root = Path::new(env!("CARGO_MANIFEST_DIR"))
             .parent()
@@ -2239,6 +2347,7 @@ mod tests {
             function: "initialize_test".to_string(),
             api_path: None,
             scope: None,
+            contracts: vec![],
         };
 
         let error = verify_evidence(Path::new("."), &evidence, "hardware")
@@ -2259,6 +2368,7 @@ mod tests {
             function: "parse_test".to_string(),
             api_path: None,
             scope: None,
+            contracts: vec![],
         };
 
         let error = verify_evidence(Path::new("."), &evidence, "protocol")
@@ -2279,6 +2389,7 @@ mod tests {
             function: "probe".to_string(),
             api_path: None,
             scope: None,
+            contracts: vec![],
         };
         let error = verify_evidence_call(
             "fn probe() { unrelated.close(); }",
@@ -2315,6 +2426,7 @@ mod tests {
             function: "parses_valid_input".to_string(),
             api_path: None,
             scope: None,
+            contracts: vec![],
         };
         let source = r#"
             #[test]
@@ -2340,6 +2452,7 @@ mod tests {
             function: "does_not_call_api".to_string(),
             api_path: None,
             scope: None,
+            contracts: vec![],
         };
         let source = r#"
             #[test]
@@ -2368,6 +2481,7 @@ mod tests {
             function: "probe".to_string(),
             api_path: Some("CARD_INTERFACE.read".to_string()),
             scope: None,
+            contracts: vec![],
         };
         let source = r#"
             use std::fs;
@@ -2395,6 +2509,7 @@ mod tests {
             function: "probe".to_string(),
             api_path: Some("sample_api::read".to_string()),
             scope: None,
+            contracts: vec![],
         };
         let source = r#"
             fn probe() {
@@ -2420,6 +2535,7 @@ mod tests {
             function: "probe".to_string(),
             api_path: Some("sample_api::write".to_string()),
             scope: None,
+            contracts: vec![],
         };
         let source = "fn probe() { let _ = sample_api::write(); }";
 
@@ -2440,6 +2556,7 @@ mod tests {
             function: "probe".to_string(),
             api_path: Some("operations.flush_lun".to_string()),
             scope: None,
+            contracts: vec![],
         };
         let source = "#[test] fn probe() { other.flush_lun(); }";
 
@@ -2472,6 +2589,7 @@ mod tests {
             function: "unrelated_test".to_string(),
             api_path: None,
             scope: None,
+            contracts: vec![],
         };
         let source = r#"
             fn helper() { let _ = parser::parse("value"); }
@@ -2497,6 +2615,7 @@ mod tests {
             function: "helper".to_string(),
             api_path: None,
             scope: None,
+            contracts: vec![],
         };
         let source = "fn helper() { parser::parse(\"value\"); }";
 
@@ -2518,6 +2637,7 @@ mod tests {
             function: "parses_input".to_string(),
             api_path: None,
             scope: None,
+            contracts: vec![],
         };
         let source = r#"
             mod first {

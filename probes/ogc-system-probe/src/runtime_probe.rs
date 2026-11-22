@@ -394,15 +394,33 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         size: usize,
     ) -> bool {
         let events = &snapshot.workspace_events[..snapshot.workspace_event_count as usize];
-        events.iter().any(|event| {
-            event.kind == ipc::FORMAT_PROBE_WORKSPACE_ALLOC
-                && event.pointer == pointer
-                && event.size == size
-        }) && events.iter().any(|event| {
-            event.kind == ipc::FORMAT_PROBE_WORKSPACE_FREE
-                && event.pointer == pointer
-                && event.size == size
-        })
+        let alloc = ipc::FORMAT_PROBE_WORKSPACE_ALLOC;
+        let free = ipc::FORMAT_PROBE_WORKSPACE_FREE;
+        events.iter().all(|event| {
+            (event.kind == alloc || event.kind == free)
+                && events
+                    .iter()
+                    .filter(|other| {
+                        other.kind == alloc
+                            && other.pointer == event.pointer
+                            && other.size == event.size
+                    })
+                    .count()
+                    == 1
+                && events
+                    .iter()
+                    .filter(|other| {
+                        other.kind == free
+                            && other.pointer == event.pointer
+                            && other.size == event.size
+                    })
+                    .count()
+                    == 1
+        }) && events
+            .iter()
+            .filter(|event| event.kind == alloc && event.pointer == pointer && event.size == size)
+            .count()
+            == 1
     }
 
     fn workspace_did_not_own(snapshot: &ipc::FormatProbeSnapshot, pointer: usize) -> bool {

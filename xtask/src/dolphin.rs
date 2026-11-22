@@ -31,6 +31,10 @@ struct ProbeSpec {
     input_pipe: bool,
 }
 
+pub(crate) fn is_known_probe(name: &str) -> bool {
+    PROBES.iter().any(|probe| probe.name == name)
+}
+
 const PROBES: &[ProbeSpec] = &[
     ProbeSpec {
         name: "card_probe",
