@@ -110,6 +110,12 @@ completion, callback re-entry failure, three linked requests, mixed output
 completion, and mixed async ABI coverage. It records the source patch and raw
 logs. The hardware contracts remain blocked.
 
+The [formatter recovery follow-up](review/evidence/ipc-format-dolphin-2026-11-22-recovery/README.md)
+checks a live formatted ES request immediately after each async Argv, Scalar,
+FormatState, and first staged-buffer exhaustion case. It releases the workspace
+reservations before the workspace recovery requests. The controlled output
+boundary fixture reports the length and offset for each failed case.
+
 The two partial DMA output copyback rows record the formatter interception
 checks. The sync check verifies software copyback and canary bytes. The async
 controlled completion also checks the callback after copyback. The earlier run
