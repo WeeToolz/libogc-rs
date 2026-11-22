@@ -314,8 +314,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
     use ogc_ipc as ipc;
 
     unsafe extern "C" {
-        #[link_name = "IOS_IoctlvFormat"]
-        fn ioctlv_format(
+        fn IOS_IoctlvFormat(
             heap: i32,
             fd: i32,
             ioctl: i32,
@@ -323,8 +322,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             ...
         ) -> i32;
 
-        #[link_name = "IOS_IoctlvFormatAsync"]
-        fn ioctlv_format_async(
+        fn IOS_IoctlvFormatAsync(
             heap: i32,
             fd: i32,
             ioctl: i32,
@@ -419,7 +417,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         );
         let mut public_actual = u32::MAX;
         let public_sync = unsafe {
-            ioctlv_format(
+            IOS_IoctlvFormat(
                 ipc::IPC_HEAP,
                 fd.raw(),
                 0x0e,
@@ -445,7 +443,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         }
         let userdata_sentinel = 0x1357_9bdfusize as *mut c_void;
         let submission = unsafe {
-            ioctlv_format_async(
+            IOS_IoctlvFormatAsync(
                 ipc::IPC_HEAP,
                 fd.raw(),
                 0x0e,
@@ -507,7 +505,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         );
         let mut public_path = [0u8; 30];
         let public_path_result = unsafe {
-            ioctlv_format(
+            IOS_IoctlvFormat(
                 ipc::IPC_HEAP,
                 fd.raw(),
                 0x1d,
@@ -551,7 +549,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 ],
             );
             let public_result = unsafe {
-                ioctlv_format(
+                IOS_IoctlvFormat(
                     ipc::IPC_HEAP,
                     fd.raw(),
                     0x11,
@@ -594,7 +592,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         unsafe { core::ptr::write_bytes(async_path.cast::<u8>(), 0xff, 30) };
         let path_userdata = 0x2468_ace0usize as *mut c_void;
         let async_path_submission = unsafe {
-            ioctlv_format_async(
+            IOS_IoctlvFormatAsync(
                 ipc::IPC_HEAP,
                 fd.raw(),
                 0x1d,

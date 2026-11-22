@@ -19,6 +19,7 @@ from urllib.parse import quote
 ROOT = Path(__file__).resolve().parents[1]
 INVENTORY = Path("docs/generated/implementation-inventory.csv")
 EVIDENCE = Path("config/implementation-evidence.csv")
+CONTRACTS = Path("config/ipc-format-contracts.csv")
 GENERATED = (
     INVENTORY,
     Path("docs/generated/implementation-status.md"),
@@ -33,6 +34,7 @@ PARTIAL_SCOPES = {
     "empty-queue", "no-pending-interrupt", "repeated-initialization", "no-event-hook",
     "synchronous-scalar-output", "scalar-output", "scalar-and-buffer",
 }
+CONTRACT_SCOPES = {"partial", "full-dolphin", "fixture-only"}
 
 
 def command(*args, **kwargs):
@@ -191,6 +193,64 @@ def validate_checks(manifest):
                 any(not isinstance(label, str) or not label.strip() or
                     label.splitlines() != [label] for label in checks)):
             raise ValueError(f"{case['symbol']} requires at least one single-line check label")
+        contracts = case.get("contracts")
+        if contracts is None:
+            continue
+        if not isinstance(contracts, list) or not contracts:
+            raise ValueError(f"{case['symbol']} contracts must be a non-empty list")
+        catalog = read_contract_catalog()
+        seen = set()
+        mapped = set()
+        for contract in contracts:
+            if not isinstance(contract, dict):
+                raise ValueError(f"{case['symbol']} has an invalid contract mapping")
+            contract_id = contract.get("id")
+            if not isinstance(contract_id, str) or not contract_id.strip() or contract_id in seen:
+                raise ValueError(f"{case['symbol']} contract IDs must be unique non-empty strings")
+            seen.add(contract_id)
+            rows = [row for row in catalog if row["contract_id"] == contract_id]
+            if not rows or any(
+                row["crate"] != case["crate"]
+                or row["symbol"] != case["symbol"]
+                or row["probe"] != manifest["probe"]
+                or row["evidence_path"] != case["evidence_path"]
+                or row["function"] != case["function"]
+                or row["api_path"] != case["api_path"]
+                or row["environment"] != contract.get("environment")
+                or row["scope"] != contract.get("scope")
+                for row in rows
+            ):
+                raise ValueError(f"{case['symbol']} contract `{contract_id}` does not match the catalog")
+            required = {row["check_label"] for row in rows}
+            listed = contract.get("checks")
+            if not isinstance(listed, list) or set(listed) != required:
+                raise ValueError(f"{case['symbol']} contract `{contract_id}` has incorrect check labels")
+            if not required <= set(case["checks"]):
+                raise ValueError(f"{case['symbol']} contract `{contract_id}` requires an unlisted check")
+            mapped.update(required)
+        if mapped != set(case["checks"]):
+            raise ValueError(f"{case['symbol']} has check labels without a contract")
+
+
+def read_contract_catalog():
+    path = ROOT / CONTRACTS
+    if not path.is_file():
+        raise ValueError(f"Contract catalog is missing: {path}")
+    with path.open(newline="") as stream:
+        rows = list(csv.DictReader(stream))
+    required = {
+        "contract_id", "crate", "symbol", "probe", "evidence_path", "function",
+        "api_path", "check_label",
+        "environment", "scope", "limitation",
+    }
+    if not rows or set(rows[0]) != required:
+        raise ValueError(f"{path} has an invalid contract catalog header or no contracts")
+    for row in rows:
+        if any(not value.strip() for value in row.values()):
+            raise ValueError(f"{path} has an incomplete contract row")
+        if row["scope"] not in CONTRACT_SCOPES:
+            raise ValueError(f"{path} has an unknown contract scope `{row['scope']}`")
+    return rows
 
 
 def result_for(directory, probe):
@@ -267,6 +327,29 @@ def evidence_report(directory, manifest, previous=None):
                 gaps.append(f"- {api} — {markdown_text(label) if label else 'No required check supplied'} ({status})")
             lines.append(
                 f"| {api} | {markdown_text(label)} | {status} | {', '.join(links)} |"
+            )
+
+    contract_rows = [
+        (case, contract)
+        for case in manifest["cases"]
+        for contract in case.get("contracts", [])
+    ]
+    if contract_rows:
+        lines.extend([
+            "", "## Behavioral contracts", "",
+            "| Contract | Environment | Scope | Required checks | Result |",
+            "| --- | --- | --- | --- | --- |",
+        ])
+        for case, contract in contract_rows:
+            outcomes = [
+                {hit[0] for hit in checks.get(label, [])} == {"PASS"}
+                for label in contract["checks"]
+            ]
+            status = "PASS" if all(outcomes) else "FAIL or missing"
+            labels = ", ".join(markdown_text(label) for label in contract["checks"])
+            lines.append(
+                f"| `{markdown_text(contract['id'])}` | {markdown_text(contract['environment'])} "
+                f"| {markdown_text(contract['scope'])} | {labels} | {status} |"
             )
 
     lines.extend(["", "## Evidence gaps", ""])
@@ -446,6 +529,10 @@ def record_evidence(selected):
             ]
             if scope := case.get("evidence_scope"):
                 fields.append(scope)
+            if case.get("contracts"):
+                if not scope:
+                    fields.append("")
+                fields.append(";".join(contract["id"] for contract in case["contracts"]))
             writer.writerow(fields)
 
 

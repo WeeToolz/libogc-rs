@@ -21,6 +21,32 @@ class BatchTests(unittest.TestCase):
     def test_no_pending_interrupt_keeps_dispatch_api_partial(self):
         self.assertIn("no-pending-interrupt", batch.PARTIAL_SCOPES)
 
+    def test_contracts_require_exact_catalog_checks(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "config").mkdir()
+            (root / batch.CONTRACTS).write_text(
+                "contract_id,crate,symbol,probe,evidence_path,function,api_path,check_label,environment,scope,limitation\n"
+                "ipc-format.sync,ogc-ipc,IOS_IoctlvFormat,runtime_probe,probes/main.rs,probe_format,IOS_IoctlvFormat,check A,dolphin,partial,limited\n"
+            )
+            manifest = {"probe": "runtime_probe", "cases": [{
+                "crate": "ogc-ipc", "symbol": "IOS_IoctlvFormat", "function": "probe_format",
+                "evidence_path": "probes/main.rs", "api_path": "IOS_IoctlvFormat",
+                "checks": ["check A"], "contracts": [{
+                    "id": "ipc-format.sync", "checks": ["check A"],
+                    "environment": "dolphin", "scope": "partial",
+                }],
+            }]}
+            with patch.object(batch, "ROOT", root):
+                batch.validate_checks(manifest)
+                manifest["cases"][0]["contracts"][0]["checks"] = []
+                with self.assertRaisesRegex(ValueError, "incorrect check labels"):
+                    batch.validate_checks(manifest)
+                manifest["cases"][0]["contracts"][0]["checks"] = ["check A"]
+                manifest["cases"][0]["api_path"] = "another::function"
+                with self.assertRaisesRegex(ValueError, "does not match the catalog"):
+                    batch.validate_checks(manifest)
+
     def test_selects_exact_entry_and_rejects_ambiguity(self):
         case = {"crate": "example", "path": "src/lib.rs", "symbol": "operation"}
         row = {
@@ -67,6 +93,10 @@ class BatchTests(unittest.TestCase):
             manifest = {"probe": probe, "cases": [{
                 "crate": "example", "symbol": "api",
                 "checks": ["known check", "missing check"],
+                "contracts": [{
+                    "id": "example.sync", "checks": ["known check"],
+                    "environment": "dolphin", "scope": "partial",
+                }],
             }], "limits": ["Dolphin only."]}
             for name, status in [("old", "FAIL"), ("new", "PASS")]:
                 directory = root / name
@@ -90,6 +120,8 @@ class BatchTests(unittest.TestCase):
             self.assertIn("| known check | 0 pass, 1 fail | 1 pass, 0 fail |", report)
             self.assertIn("missing check (Missing)", report)
             self.assertIn("Dolphin only.", report)
+            self.assertIn("## Behavioral contracts", report)
+            self.assertIn("`example.sync`", report)
 
     def test_run_requires_exact_success_line(self):
         with tempfile.TemporaryDirectory() as temp:

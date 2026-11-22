@@ -50,6 +50,14 @@ scope values. When a new run covers the
 production behavior, `finish` can replace an earlier partial evidence
 row. Keep the earlier run as a record of the original checks.
 
+For APIs listed in `config/ipc-format-contracts.csv`, each manifest case must
+list its contract IDs, exact required check labels, environment, and scope.
+The helper rejects unknown contracts, mismatched API or probe details,
+missing labels, and labels that have no contract. The evidence CSV stores the
+contract IDs beside the API evidence. This makes each PASS traceable to a
+named behavior, but it does not judge whether the assertion is strong enough.
+Review the probe code and keep partial scopes until the full contract passes.
+
 The `active-search-state` scope records inquiry-state changes and adapter
 activity in Dolphin. It keeps search and pairing APIs unverified until a usable
 controller channel and the related discovery or pairing behavior are confirmed.

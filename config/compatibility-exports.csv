@@ -1,0 +1,3 @@
+crate,source,symbol,line,classification,interface_kind,probe,known_limitations
+ogc-ipc,crates/core/ogc-ipc/src/lib.rs,IOS_IoctlvFormat,30,ios,assembly-export,ipc-format-probe,Public synchronous PowerPC variadic ABI; partial Dolphin coverage only
+ogc-ipc,crates/core/ogc-ipc/src/lib.rs,IOS_IoctlvFormatAsync,63,ios,assembly-export,ipc-format-probe,Public asynchronous PowerPC variadic ABI; partial Dolphin coverage only

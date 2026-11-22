@@ -50,6 +50,15 @@ struct Evidence {
     scope: Option<EvidenceScope>,
 }
 
+#[derive(Clone, Debug)]
+struct IpcEvidenceContract {
+    crate_name: String,
+    symbol: String,
+    evidence_path: String,
+    function: String,
+    api_path: String,
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum EvidenceScope {
     MockDispatch,
@@ -580,6 +589,53 @@ fn collect_inventory(root: &Path) -> Result<Vec<ApiEntry>, String> {
         }
     }
 
+    for export in load_compatibility_exports(root)? {
+        let role_path = role_path_for_package(root, &export.crate_name)?;
+        let source_path = Path::new(&export.implementation_file);
+        let relative_path = source_path
+            .strip_prefix(&role_path)
+            .map_err(|err| format!("{}: {err}", source_path.display()))?
+            .to_string_lossy()
+            .replace('\\', "/");
+        let key = (
+            export.crate_name.clone(),
+            relative_path,
+            export.symbol.clone(),
+            export.line,
+        );
+        if let Some(&index) = evidence_index.get(&key) {
+            let item = &evidence[index];
+            validate_evidence_classification(item, &export.declared_classification)?;
+            let cached = parsed_evidence.get_or_parse(&root.join(&item.evidence_path))?;
+            verify_evidence_cached(item, &export.declared_classification, cached)?;
+            used_evidence[index] = true;
+            let mut export = export;
+            export.evidence = match &item.api_path {
+                Some(api_path) => format!(
+                    "{}:{}::{} calls {} through `{api_path}`",
+                    item.kind, item.evidence_path, item.function, item.symbol
+                ),
+                None => format!(
+                    "{}:{}::{} calls {}",
+                    item.kind, item.evidence_path, item.function, item.symbol
+                ),
+            };
+            if let Some(scope) = item.scope {
+                export.classification = scope
+                    .classification(&export.declared_classification)
+                    .to_string();
+                export.limitations = format!(
+                    "{}; evidence scope: {}",
+                    export.limitations,
+                    scope.limitation()
+                );
+            }
+            entries.push(export);
+        } else {
+            entries.push(export);
+        }
+    }
+
     for (index, item) in evidence.iter().enumerate() {
         if !used_evidence[index] {
             return Err(format!(
@@ -612,18 +668,85 @@ fn collect_inventory(root: &Path) -> Result<Vec<ApiEntry>, String> {
     Ok(entries)
 }
 
+fn role_path_for_package(root: &Path, package: &str) -> Result<PathBuf, String> {
+    load_roles(root)?
+        .into_iter()
+        .find(|role| role.package == package)
+        .map(|role| role.path)
+        .ok_or_else(|| format!("compatibility export uses unknown crate `{package}`"))
+}
+
+fn load_compatibility_exports(root: &Path) -> Result<Vec<ApiEntry>, String> {
+    let path = root.join("config/compatibility-exports.csv");
+    if !path.exists() {
+        return Ok(Vec::new());
+    }
+    let rows = read_csv(&path)?;
+    let mut exports = Vec::new();
+    let mut keys = HashSet::new();
+    for (line_no, row) in rows.into_iter().enumerate().skip(1) {
+        if row.iter().all(|field| field.trim().is_empty()) {
+            continue;
+        }
+        if row.len() != 8 || row.iter().any(|field| field.trim().is_empty()) {
+            return Err(format!(
+                "{}:{}: expected crate, source, symbol, line, classification, kind, probe, and limitation",
+                path.display(),
+                line_no + 1
+            ));
+        }
+        let line = row[3].parse::<usize>().map_err(|_| {
+            format!(
+                "{}:{}: line must be an integer",
+                path.display(),
+                line_no + 1
+            )
+        })?;
+        let source = root.join(&row[1]);
+        if line == 0 || !source.is_file() {
+            return Err(format!(
+                "{}:{}: source or line is invalid",
+                path.display(),
+                line_no + 1
+            ));
+        }
+        if !keys.insert((row[0].clone(), row[1].clone(), row[2].clone(), line)) {
+            return Err(format!(
+                "{}:{}: duplicate compatibility export {}",
+                path.display(),
+                line_no + 1,
+                row[2]
+            ));
+        }
+        exports.push(ApiEntry {
+            crate_name: row[0].clone(),
+            symbol: row[2].clone(),
+            interface_kind: row[5].clone(),
+            implementation_file: row[1].clone(),
+            line,
+            classification: String::from("unverified"),
+            declared_classification: row[4].clone(),
+            evidence: String::from("none"),
+            probe: row[6].clone(),
+            limitations: row[7].clone(),
+        });
+    }
+    Ok(exports)
+}
+
 fn load_evidence(root: &Path) -> Result<Vec<Evidence>, String> {
     let path = root.join("config/implementation-evidence.csv");
     let rows = read_csv(&path)?;
+    let known_contracts = load_ipc_format_contracts(root)?;
     let mut evidence = Vec::new();
     let mut evidence_keys = HashSet::new();
     for (line_no, row) in rows.into_iter().enumerate().skip(1) {
         if row.iter().all(|field| field.trim().is_empty()) {
             continue;
         }
-        if !(8..=10).contains(&row.len()) || row[..8].iter().any(|field| field.trim().is_empty()) {
+        if !(8..=11).contains(&row.len()) || row[..8].iter().any(|field| field.trim().is_empty()) {
             return Err(format!(
-                "{}:{}: expected eight required evidence columns and optional API path and scope",
+                "{}:{}: expected eight required evidence columns and optional API path, scope, and contracts",
                 path.display(),
                 line_no + 1
             ));
@@ -658,6 +781,31 @@ fn load_evidence(root: &Path) -> Result<Vec<Evidence>, String> {
                 })
                 .transpose()?,
         };
+        if let Some(value) = row.get(10).filter(|value| !value.trim().is_empty()) {
+            for contract_id in value.split(';') {
+                let contract_rows = known_contracts.get(contract_id).ok_or_else(|| {
+                    format!(
+                        "{}:{}: unknown evidence contract `{contract_id}`",
+                        path.display(),
+                        line_no + 1
+                    )
+                })?;
+                let maps_to_evidence = contract_rows.iter().any(|contract| {
+                    contract.crate_name == item.crate_name
+                        && contract.symbol == item.symbol
+                        && contract.evidence_path == item.evidence_path
+                        && contract.function == item.function
+                        && item.api_path.as_deref() == Some(contract.api_path.as_str())
+                });
+                if !maps_to_evidence {
+                    return Err(format!(
+                        "{}:{}: evidence contract `{contract_id}` does not match its API, probe, function, and API path",
+                        path.display(),
+                        line_no + 1
+                    ));
+                }
+            }
+        }
         if !evidence_keys.insert(evidence_key(&item)) {
             return Err(format!(
                 "{}:{}: duplicate evidence for {}::{}",
@@ -670,6 +818,60 @@ fn load_evidence(root: &Path) -> Result<Vec<Evidence>, String> {
         evidence.push(item);
     }
     Ok(evidence)
+}
+
+fn load_ipc_format_contracts(
+    root: &Path,
+) -> Result<HashMap<String, Vec<IpcEvidenceContract>>, String> {
+    let path = root.join("config/ipc-format-contracts.csv");
+    if !path.exists() {
+        return Ok(HashMap::new());
+    }
+    let rows = read_csv(&path)?;
+    let expected_header = [
+        "contract_id",
+        "crate",
+        "symbol",
+        "probe",
+        "evidence_path",
+        "function",
+        "api_path",
+        "check_label",
+        "environment",
+        "scope",
+        "limitation",
+    ];
+    if rows
+        .first()
+        .map(|row| row.iter().map(String::as_str).collect::<Vec<_>>())
+        != Some(expected_header.to_vec())
+    {
+        return Err(format!(
+            "{}: invalid IPC format contract header",
+            path.display()
+        ));
+    }
+    let mut contracts = HashMap::<String, Vec<IpcEvidenceContract>>::new();
+    for (line_no, row) in rows.into_iter().enumerate().skip(1) {
+        if row.len() != expected_header.len() || row.iter().any(|value| value.trim().is_empty()) {
+            return Err(format!(
+                "{}:{}: incomplete IPC format contract",
+                path.display(),
+                line_no + 1
+            ));
+        }
+        contracts
+            .entry(row[0].clone())
+            .or_default()
+            .push(IpcEvidenceContract {
+                crate_name: row[1].clone(),
+                symbol: row[2].clone(),
+                evidence_path: row[4].clone(),
+                function: row[5].clone(),
+                api_path: row[6].clone(),
+            });
+    }
+    Ok(contracts)
 }
 
 type EvidenceKey = (String, String, String, usize);
@@ -1749,6 +1951,25 @@ fn csv_escape(value: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn global_assembly_exports_are_first_class_unverified_entries() {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .parent()
+            .expect("xtask is inside the workspace");
+        let entries = collect_inventory(root).expect("inventory loads assembly exports");
+        for (symbol, line) in [("IOS_IoctlvFormat", 30), ("IOS_IoctlvFormatAsync", 63)] {
+            let entry = entries
+                .iter()
+                .find(|entry| entry.crate_name == "ogc-ipc" && entry.symbol == symbol)
+                .expect("assembly export is inventoried");
+            assert_eq!(entry.interface_kind, "assembly-export");
+            assert_eq!(entry.implementation_file, "crates/core/ogc-ipc/src/lib.rs");
+            assert_eq!(entry.line, line);
+            assert_eq!(entry.classification, "unverified");
+            assert!(entry.evidence.contains("probe_ipc_format_bridge"));
+        }
+    }
 
     #[test]
     fn public_function_scan_excludes_restricted_visibility() {
