@@ -33,6 +33,71 @@ static BT_OWNED_ASYNC_COMPLETIONS: core::sync::atomic::AtomicU32 =
     core::sync::atomic::AtomicU32::new(0);
 
 #[cfg(feature = "dolphin-automation")]
+struct FormatAsyncProbeSlot {
+    completions: core::sync::atomic::AtomicU32,
+    result: AtomicI32,
+    userdata: core::sync::atomic::AtomicUsize,
+    output_matches: AtomicBool,
+    output: core::sync::atomic::AtomicUsize,
+    expected_scalar: core::sync::atomic::AtomicU32,
+    is_buffer: bool,
+}
+
+#[cfg(feature = "dolphin-automation")]
+impl FormatAsyncProbeSlot {
+    const fn new(is_buffer: bool) -> Self {
+        Self {
+            completions: core::sync::atomic::AtomicU32::new(0),
+            result: AtomicI32::new(i32::MIN),
+            userdata: core::sync::atomic::AtomicUsize::new(0),
+            output_matches: AtomicBool::new(false),
+            output: core::sync::atomic::AtomicUsize::new(0),
+            expected_scalar: core::sync::atomic::AtomicU32::new(u32::MAX),
+            is_buffer,
+        }
+    }
+
+    fn reset(&self, output: *mut u8, expected_scalar: u32) {
+        self.completions.store(0, Ordering::Release);
+        self.result.store(i32::MIN, Ordering::Release);
+        self.userdata.store(0, Ordering::Release);
+        self.output_matches.store(false, Ordering::Release);
+        self.output.store(output as usize, Ordering::Release);
+        self.expected_scalar
+            .store(expected_scalar, Ordering::Release);
+    }
+}
+
+#[cfg(feature = "dolphin-automation")]
+static FORMAT_ASYNC_SLOT_SCALAR: FormatAsyncProbeSlot = FormatAsyncProbeSlot::new(false);
+#[cfg(feature = "dolphin-automation")]
+static FORMAT_ASYNC_SLOT_BUFFER: FormatAsyncProbeSlot = FormatAsyncProbeSlot::new(true);
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn format_concurrent_completed(
+    result: i32,
+    userdata: *mut core::ffi::c_void,
+) -> i32 {
+    let Some(slot) = (unsafe { userdata.cast::<FormatAsyncProbeSlot>().as_ref() }) else {
+        return 0;
+    };
+    let output = slot.output.load(Ordering::Acquire) as *const u8;
+    let matches = if output.is_null() {
+        false
+    } else if slot.is_buffer {
+        (unsafe { core::slice::from_raw_parts(output, 29) }) == b"/title/00000001/00000002/data"
+            && unsafe { output.add(29).read() } == 0xff
+    } else {
+        (unsafe { output.cast::<u32>().read() }) == slot.expected_scalar.load(Ordering::Acquire)
+    };
+    slot.userdata.store(userdata as usize, Ordering::Release);
+    slot.output_matches.store(matches, Ordering::Release);
+    slot.result.store(result, Ordering::Release);
+    slot.completions.fetch_add(1, Ordering::AcqRel);
+    0
+}
+
+#[cfg(feature = "dolphin-automation")]
 unsafe extern "C" fn probe_alarm_callback(id: system::SysWd, arg: *mut core::ffi::c_void) {
     ALARM_ID.store(id, Ordering::Relaxed);
     ALARM_ARG.store(arg as usize as u32, Ordering::Relaxed);
@@ -1090,6 +1155,72 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 && unsafe { core::slice::from_raw_parts(async_path.cast::<u8>(), 29) }
                     == &typed_path[..29]
                 && unsafe { async_path.cast::<u8>().add(29).read() } == 0xff,
+        );
+
+        let scalar_slot = &FORMAT_ASYNC_SLOT_SCALAR;
+        let buffer_slot = &FORMAT_ASYNC_SLOT_BUFFER;
+        scalar_slot.reset(async_output.cast(), actual);
+        buffer_slot.reset(async_path.cast(), u32::MAX);
+        unsafe {
+            async_output.write(u32::MAX);
+            core::ptr::write_bytes(async_path.cast::<u8>(), 0xff, 30);
+        }
+        let concurrent_scalar_submission = unsafe {
+            IOS_IoctlvFormatAsync(
+                ipc::IPC_HEAP,
+                fd.raw(),
+                0x0e,
+                Some(format_concurrent_completed),
+                (scalar_slot as *const FormatAsyncProbeSlot)
+                    .cast_mut()
+                    .cast(),
+                c":i".as_ptr(),
+                async_output,
+            )
+        };
+        let concurrent_buffer_submission = unsafe {
+            IOS_IoctlvFormatAsync(
+                ipc::IPC_HEAP,
+                fd.raw(),
+                0x1d,
+                Some(format_concurrent_completed),
+                (buffer_slot as *const FormatAsyncProbeSlot)
+                    .cast_mut()
+                    .cast(),
+                c"q:d".as_ptr(),
+                0x0000_0001_0000_0002u64,
+                async_path,
+                30u32,
+            )
+        };
+        let mut both_completed = false;
+        for _ in 0..1000 {
+            if scalar_slot.completions.load(Ordering::Acquire) != 0
+                && buffer_slot.completions.load(Ordering::Acquire) != 0
+            {
+                both_completed = true;
+                break;
+            }
+            lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 100).max(1));
+        }
+        if both_completed {
+            lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 20).max(1));
+        }
+        logger.record(
+            "IPC format public async concurrent scalar and buffer requests keep callbacks separate",
+            concurrent_scalar_submission == 0
+                && concurrent_buffer_submission == 0
+                && both_completed
+                && scalar_slot.completions.load(Ordering::Acquire) == 1
+                && scalar_slot.result.load(Ordering::Acquire) == 0
+                && scalar_slot.userdata.load(Ordering::Acquire)
+                    == (scalar_slot as *const FormatAsyncProbeSlot) as usize
+                && scalar_slot.output_matches.load(Ordering::Acquire)
+                && buffer_slot.completions.load(Ordering::Acquire) == 1
+                && buffer_slot.result.load(Ordering::Acquire) == 0
+                && buffer_slot.userdata.load(Ordering::Acquire)
+                    == (buffer_slot as *const FormatAsyncProbeSlot) as usize
+                && buffer_slot.output_matches.load(Ordering::Acquire),
         );
         let closed = if completed || submission < 0 {
             fd.close().is_ok()
