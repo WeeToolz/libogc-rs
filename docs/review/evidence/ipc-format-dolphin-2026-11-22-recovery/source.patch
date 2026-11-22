@@ -1,0 +1,106 @@
+diff --git a/probes/ogc-system-probe/src/runtime_probe.rs b/probes/ogc-system-probe/src/runtime_probe.rs
+index 25b31a47..6f9c36f6 100644
+--- a/probes/ogc-system-probe/src/runtime_probe.rs
++++ b/probes/ogc-system-probe/src/runtime_probe.rs
+@@ -1401,7 +1401,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
+                 IOS_IoctlvFormat(ipc::IPC_HEAP, 0, 0, c":d".as_ptr(), output, length as u32)
+             };
+             ipc::FORMAT_PROBE_POSITIONAL_OUTPUT.store(false, Ordering::Release);
+-            sync_boundary_ok &= result == ipc::FORMAT_PROBE_COMPLETE
++            let sync_case_ok = result == ipc::FORMAT_PROBE_COMPLETE
+                 && guarded[..before].iter().all(|byte| *byte == 0xa5)
+                 && guarded[before..after]
+                     .iter()
+@@ -1417,6 +1417,14 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
+                     || (expected_allocation_len != 0
+                         && snapshot.vectors[0].data_address != output as usize
+                         && snapshot.vectors[0].data_address.is_multiple_of(32)));
++            if !sync_case_ok {
++                logger.note_i32_index(
++                    "IPC sync output boundary failure length/offset ",
++                    length as i32,
++                    misalignment as i32,
++                );
++            }
++            sync_boundary_ok &= sync_case_ok;
+ 
+             guarded.fill(0xa5);
+             let mut async_snapshot = ipc::FormatProbeSnapshot {
+@@ -1453,7 +1461,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
+             ipc::FORMAT_PROBE_POSITIONAL_OUTPUT.store(false, Ordering::Release);
+             ipc::FORMAT_PROBE_COMPLETE_ASYNC_CALLBACK.store(false, Ordering::Release);
+             let expected_userdata = async_userdata as usize;
+-            async_boundary_ok &= async_result == ipc::FORMAT_PROBE_COMPLETE
++            let async_case_ok = async_result == ipc::FORMAT_PROBE_COMPLETE
+                 && async_completion.completions.load(Ordering::Acquire) == 1
+                 && async_completion.result.load(Ordering::Acquire) == ipc::IPC_OK
+                 && async_completion.userdata.load(Ordering::Acquire) == expected_userdata
+@@ -1473,6 +1481,14 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
+                     || (expected_allocation_len != 0
+                         && async_snapshot.vectors[0].data_address != output as usize
+                         && async_snapshot.vectors[0].data_address.is_multiple_of(32)));
++            if !async_case_ok {
++                logger.note_i32_index(
++                    "IPC async output boundary failure length/offset ",
++                    length as i32,
++                    misalignment as i32,
++                );
++            }
++            async_boundary_ok &= async_case_ok;
+         }
+     }
+     logger.record(
+@@ -4005,6 +4021,13 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
+             scalar_exhaustion_clean,
+         );
+ 
++        let recovery_after_exhaustion = || {
++            let mut output = u32::MAX;
++            let result = unsafe {
++                IOS_IoctlvFormat(ipc::IPC_HEAP, fd.raw(), 0x0e, c":i".as_ptr(), &mut output)
++            };
++            result == 0 && output == actual
++        };
+         for (heap, two_scalars, expected_allocations) in [
+             (argv_exhaustion_heap, false, 0usize),
+             (scalar_exhaustion_heap, true, 2usize),
+@@ -4062,6 +4085,15 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
+                 },
+                 clean,
+             );
++            let recovered = recovery_after_exhaustion();
++            logger.record(
++                if two_scalars {
++                    "IPC async Scalar heap exhaustion immediately recovers with a formatted ES request"
++                } else {
++                    "IPC async Argv heap exhaustion immediately recovers with a formatted ES request"
++                },
++                clean && recovered,
++            );
+         }
+ 
+         let mut heap_recovery = ipc::FormatProbeSnapshot::default();
+@@ -4191,6 +4223,11 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
+                 && unsafe { async_output.read() } == u32::MAX
+                 && request_ledger_has_exact_pairs(0),
+         );
++        let state_recovered = recovery_after_exhaustion();
++        logger.record(
++            "IPC async FormatState workspace exhaustion immediately recovers with a formatted ES request",
++            async_state_exhaustion_result == ipc::IPC_ENOMEM && state_recovered,
++        );
+ 
+         // Keep one isolated workspace block large enough for FormatState but
+         // too small for FormatState plus the 64-byte staged d buffer. This
+@@ -4367,6 +4404,11 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
+                     .all(|b| *b == 0xa5)
+                 && request_ledger_has_exact_pairs(0),
+         );
++        let staging_recovered = recovery_after_exhaustion();
++        logger.record(
++            "IPC async staged-buffer workspace exhaustion immediately recovers with a formatted ES request",
++            async_staging_result == ipc::IPC_ENOMEM && staging_recovered,
++        );
+ 
+         static mut LATE_OOM_SOURCE: AlignedAesBytes<65> = AlignedAesBytes([0x45; 65]);
+         static mut LATE_OOM_OUTPUT: AlignedAesBytes<65> = AlignedAesBytes([0xa5; 65]);
