@@ -423,6 +423,32 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             == 1
     }
 
+    fn workspace_event_ledger_balanced(events: &[lwp::WorkspaceProbeEvent]) -> bool {
+        !events.is_empty()
+            && events.iter().all(|event| {
+                (event.kind == ipc::FORMAT_PROBE_WORKSPACE_ALLOC
+                    || event.kind == ipc::FORMAT_PROBE_WORKSPACE_FREE)
+                    && events
+                        .iter()
+                        .filter(|other| {
+                            other.kind == ipc::FORMAT_PROBE_WORKSPACE_ALLOC
+                                && other.pointer == event.pointer
+                                && other.size == event.size
+                        })
+                        .count()
+                        == 1
+                    && events
+                        .iter()
+                        .filter(|other| {
+                            other.kind == ipc::FORMAT_PROBE_WORKSPACE_FREE
+                                && other.pointer == event.pointer
+                                && other.size == event.size
+                        })
+                        .count()
+                        == 1
+            })
+    }
+
     fn workspace_did_not_own(snapshot: &ipc::FormatProbeSnapshot, pointer: usize) -> bool {
         snapshot.workspace_events[..snapshot.workspace_event_count as usize]
             .iter()
@@ -1634,25 +1660,24 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         let workspace_count = lwp::WORKSPACE_PROBE_EVENT_COUNT
             .load(Ordering::Acquire)
             .min(lwp::WORKSPACE_PROBE_CAPACITY);
-        let mut workspace_events_balanced = workspace_count != 0;
-        for index in 0..workspace_count {
+        let mut workspace_events =
+            [lwp::WorkspaceProbeEvent::default(); lwp::WORKSPACE_PROBE_CAPACITY];
+        for (index, event) in workspace_events
+            .iter_mut()
+            .take(workspace_count)
+            .enumerate()
+        {
             let Some(slot) = lwp::WORKSPACE_PROBE_EVENTS.get(index) else {
-                workspace_events_balanced = false;
                 continue;
             };
-            let kind = slot.kind.load(Ordering::Acquire);
-            let pointer = slot.pointer.load(Ordering::Relaxed);
-            let size = slot.size.load(Ordering::Relaxed);
-            if kind == ipc::FORMAT_PROBE_WORKSPACE_ALLOC {
-                let has_matching_free = (0..workspace_count).any(|other_index| {
-                    let other = &lwp::WORKSPACE_PROBE_EVENTS[other_index];
-                    other.kind.load(Ordering::Acquire) == ipc::FORMAT_PROBE_WORKSPACE_FREE
-                        && other.pointer.load(Ordering::Relaxed) == pointer
-                        && other.size.load(Ordering::Relaxed) == size
-                });
-                workspace_events_balanced &= has_matching_free;
-            }
+            *event = lwp::WorkspaceProbeEvent {
+                kind: slot.kind.load(Ordering::Acquire),
+                pointer: slot.pointer.load(Ordering::Relaxed),
+                size: slot.size.load(Ordering::Relaxed),
+            };
         }
+        let workspace_events_balanced =
+            workspace_event_ledger_balanced(&workspace_events[..workspace_count]);
         logger.record(
             "IPC format public async d input completes without a user callback",
             callbackless_submission == 0
