@@ -1173,6 +1173,95 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             public_path_result == 0 && public_path == typed_path,
         );
 
+        let mut ios_sync_boundary_ok = true;
+        for misalignment in [0usize, 1] {
+            // ES reads this output buffer as a pathname and does not safely
+            // reject undersized lengths in Dolphin. Keep only lengths that
+            // can hold the complete 29-byte fixture path.
+            for length in [31usize, 32, 33, 63, 64, 65] {
+                let mut guarded = [0xffu8; 160];
+                let base = guarded.as_mut_ptr() as usize;
+                let aligned = base + ((32 - (base & 31)) & 31);
+                let start = aligned + misalignment;
+                let before = start - base;
+                let output = start as *mut u8;
+                let result = unsafe {
+                    IOS_IoctlvFormat(
+                        ipc::IPC_HEAP,
+                        fd.raw(),
+                        0x1d,
+                        c"q:d".as_ptr(),
+                        0x0000_0001_0000_0002u64,
+                        output,
+                        length as u32,
+                    )
+                };
+                let actual = result == 0
+                    && guarded[before..before + 29] == typed_path[..29]
+                    && guarded[..before].iter().all(|byte| *byte == 0xff)
+                    && guarded[before + 29..].iter().all(|byte| *byte == 0xff);
+                ios_sync_boundary_ok &= actual;
+            }
+        }
+        logger.record(
+            "IPC format public sync ES output respects DMA boundary lengths and canaries",
+            ios_sync_boundary_ok,
+        );
+
+        let mut ios_async_boundary_ok = true;
+        let output_slot = &FORMAT_ASYNC_SLOT_BUFFER;
+        for misalignment in [0usize, 1] {
+            for length in [31usize, 32, 33, 63, 64, 65] {
+                let mut guarded = [0xffu8; 160];
+                let base = guarded.as_mut_ptr() as usize;
+                let aligned = base + ((32 - (base & 31)) & 31);
+                let start = aligned + misalignment;
+                let before = start - base;
+                let output = start as *mut u8;
+                output_slot.reset(output, u32::MAX);
+                let userdata = (output_slot as *const FormatAsyncProbeSlot)
+                    .cast_mut()
+                    .cast::<c_void>();
+                let submission = unsafe {
+                    IOS_IoctlvFormatAsync(
+                        ipc::IPC_HEAP,
+                        fd.raw(),
+                        0x1d,
+                        Some(format_concurrent_completed),
+                        userdata,
+                        c"q:d".as_ptr(),
+                        0x0000_0001_0000_0002u64,
+                        output,
+                        length as u32,
+                    )
+                };
+                let mut completed = false;
+                for _ in 0..1000 {
+                    if output_slot.completions.load(Ordering::Acquire) != 0 {
+                        completed = true;
+                        break;
+                    }
+                    lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 100).max(1));
+                }
+                if completed {
+                    lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 20).max(1));
+                }
+                ios_async_boundary_ok &= submission == 0
+                    && completed
+                    && output_slot.completions.load(Ordering::Acquire) == 1
+                    && output_slot.result.load(Ordering::Acquire) == 0
+                    && output_slot.userdata.load(Ordering::Acquire) == userdata as usize
+                    && output_slot.output_matches.load(Ordering::Acquire)
+                    && guarded[..before].iter().all(|byte| *byte == 0xff)
+                    && guarded[before..before + 29] == typed_path[..29]
+                    && guarded[before + 29..].iter().all(|byte| *byte == 0xff);
+            }
+        }
+        logger.record(
+            "IPC format public async ES output copyback preserves DMA boundary canaries",
+            ios_async_boundary_ok,
+        );
+
         // qi:d has five variadic words. The final length is beyond the four
         // synchronous GPR slots, so this valid ES request checks stack reads.
         let mut title_content_count = [0u8; 4];
