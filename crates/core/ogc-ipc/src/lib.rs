@@ -2274,6 +2274,28 @@ impl FormatOwned {
     };
 }
 
+#[inline]
+fn format_allocation_allowed() -> bool {
+    #[cfg(feature = "format-probe-hooks")]
+    {
+        return format_probe::allow_allocation();
+    }
+    #[cfg(not(feature = "format-probe-hooks"))]
+    true
+}
+
+#[inline]
+fn format_allocation_created() {
+    #[cfg(feature = "format-probe-hooks")]
+    format_probe::allocation_created();
+}
+
+#[inline]
+fn format_allocation_released() {
+    #[cfg(feature = "format-probe-hooks")]
+    format_probe::allocation_released();
+}
+
 struct FormatState {
     heap: HeapId,
     user_cb: Ipccallback,
@@ -2336,10 +2358,14 @@ unsafe fn format_state_new(
     user_data: *mut c_void,
 ) -> Result<NonNull<FormatState>, i32> {
     let bytes = core::mem::size_of::<FormatState>();
+    if !format_allocation_allowed() {
+        return Err(IPC_ENOMEM);
+    }
     let raw = unsafe { lwp_sys::allocate_workspace(bytes) }.cast::<FormatState>();
     let Some(state) = NonNull::new(raw) else {
         return Err(IPC_ENOMEM);
     };
+    format_allocation_created();
     unsafe {
         state.as_ptr().write(FormatState {
             heap,
@@ -2386,10 +2412,12 @@ unsafe fn format_release(
                 FORMAT_OWNER_HEAP => {
                     if let Some(ptr) = NonNull::new(entry.ipc_buf) {
                         unsafe { state.heap.free(ptr) };
+                        format_allocation_released();
                     }
                 }
                 FORMAT_OWNER_WORKSPACE => unsafe {
                     lwp_sys::release_workspace(entry.ipc_buf.cast(), entry.allocation_len);
+                    format_allocation_released();
                 },
                 _ => {}
             }
@@ -2400,6 +2428,7 @@ unsafe fn format_release(
     unsafe {
         lwp_sys::release_workspace(state_ptr.cast(), core::mem::size_of::<FormatState>());
     }
+    format_allocation_released();
     if invoke_callback && let Some(callback) = user_cb {
         return unsafe { callback(result, user_data) };
     }
@@ -2417,7 +2446,11 @@ unsafe fn format_heap_alloc(
     copy_len: usize,
 ) -> Result<*mut c_void, i32> {
     let size_i32 = i32::try_from(size).map_err(|_| IPC_EINVAL)?;
+    if !format_allocation_allowed() {
+        return Err(IPC_ENOMEM);
+    }
     let ptr = state.heap.alloc(size_i32).ok_or(IPC_ENOMEM)?.as_ptr();
+    format_allocation_created();
     if let Err(error) = unsafe {
         format_record(
             state,
@@ -2432,6 +2465,7 @@ unsafe fn format_heap_alloc(
     } {
         if let Some(ptr) = NonNull::new(ptr) {
             unsafe { state.heap.free(ptr) };
+            format_allocation_released();
         }
         return Err(error);
     }
@@ -2447,10 +2481,14 @@ unsafe fn format_vector_data(
     if data.is_null() || len == 0 || !dma_buffer::needs_staging(data as usize, len) {
         return Ok(data);
     }
+    if !format_allocation_allowed() {
+        return Err(IPC_ENOMEM);
+    }
     let raw = unsafe { lwp_sys::allocate_workspace(len) }.cast::<c_void>();
     let Some(staged) = NonNull::new(raw) else {
         return Err(IPC_ENOMEM);
     };
+    format_allocation_created();
     unsafe { core::ptr::copy_nonoverlapping(data.cast::<u8>(), staged.as_ptr().cast::<u8>(), len) };
     if let Err(error) = unsafe {
         format_record(
@@ -2465,6 +2503,7 @@ unsafe fn format_vector_data(
         )
     } {
         unsafe { lwp_sys::release_workspace(staged.as_ptr().cast(), len) };
+        format_allocation_released();
         return Err(error);
     }
     Ok(staged.as_ptr())
@@ -2501,6 +2540,9 @@ unsafe fn submit_format_request(
     }
 
     if asynchronous {
+        if !format_allocation_allowed() {
+            return IPC_ENOMEM;
+        }
         let Ok(req_ptr) = alloc_request() else {
             return IPC_ENOMEM;
         };
@@ -3084,7 +3126,8 @@ mod format_probe;
 
 #[cfg(feature = "format-probe-hooks")]
 pub use format_probe::{
-    FORMAT_PROBE_COMPLETE, FORMAT_PROBE_SNAPSHOT, FormatProbeSnapshot, FormatProbeVector,
+    FORMAT_PROBE_ALLOCATION_ATTEMPTS, FORMAT_PROBE_COMPLETE, FORMAT_PROBE_FAIL_ALLOCATION,
+    FORMAT_PROBE_LIVE_ALLOCATIONS, FORMAT_PROBE_SNAPSHOT, FormatProbeSnapshot, FormatProbeVector,
 };
 
 #[cfg(feature = "format-probe-hooks")]

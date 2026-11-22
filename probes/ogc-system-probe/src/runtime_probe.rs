@@ -1222,6 +1222,90 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                     == (buffer_slot as *const FormatAsyncProbeSlot) as usize
                 && buffer_slot.output_matches.load(Ordering::Acquire),
         );
+
+        let live_before_faults = ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire);
+        let mut sync_faults_clean = true;
+        for (fail_at, format) in [(1usize, c"i"), (2, c"i"), (4, c"ii")] {
+            ipc::FORMAT_PROBE_ALLOCATION_ATTEMPTS.store(0, Ordering::Release);
+            ipc::FORMAT_PROBE_FAIL_ALLOCATION.store(fail_at, Ordering::Release);
+            let result = match format.to_bytes() {
+                b"i" => unsafe {
+                    IOS_IoctlvFormat(ipc::IPC_HEAP, fd.raw(), 0, format.as_ptr(), 0x1122_3344u32)
+                },
+                _ => unsafe {
+                    IOS_IoctlvFormat(
+                        ipc::IPC_HEAP,
+                        fd.raw(),
+                        0,
+                        format.as_ptr(),
+                        0x1122_3344u32,
+                        0x5566_7788u32,
+                    )
+                },
+            };
+            ipc::FORMAT_PROBE_FAIL_ALLOCATION.store(0, Ordering::Release);
+            sync_faults_clean &= result == ipc::IPC_ENOMEM
+                && ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire) == live_before_faults;
+        }
+        let mut staging_input = [0x73u8; 65];
+        ipc::FORMAT_PROBE_ALLOCATION_ATTEMPTS.store(0, Ordering::Release);
+        ipc::FORMAT_PROBE_FAIL_ALLOCATION.store(3, Ordering::Release);
+        let staging_failure = unsafe {
+            IOS_IoctlvFormat(
+                ipc::IPC_HEAP,
+                fd.raw(),
+                0,
+                c"d".as_ptr(),
+                staging_input.as_mut_ptr().add(1),
+                33u32,
+            )
+        };
+        ipc::FORMAT_PROBE_FAIL_ALLOCATION.store(0, Ordering::Release);
+        sync_faults_clean &= staging_failure == ipc::IPC_ENOMEM
+            && ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire) == live_before_faults;
+        logger.record(
+            "IPC format public sync allocation failures release partial formatter state",
+            sync_faults_clean,
+        );
+
+        scalar_slot.reset(async_output.cast(), actual);
+        unsafe { async_output.write(u32::MAX) };
+        ipc::FORMAT_PROBE_ALLOCATION_ATTEMPTS.store(0, Ordering::Release);
+        ipc::FORMAT_PROBE_FAIL_ALLOCATION.store(4, Ordering::Release);
+        let async_allocation_failure = unsafe {
+            IOS_IoctlvFormatAsync(
+                ipc::IPC_HEAP,
+                fd.raw(),
+                0,
+                Some(format_concurrent_completed),
+                (scalar_slot as *const FormatAsyncProbeSlot)
+                    .cast_mut()
+                    .cast(),
+                c":i".as_ptr(),
+                async_output,
+            )
+        };
+        ipc::FORMAT_PROBE_FAIL_ALLOCATION.store(0, Ordering::Release);
+        let async_fault_clean = async_allocation_failure == ipc::IPC_ENOMEM
+            && scalar_slot.completions.load(Ordering::Acquire) == 0
+            && ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire) == live_before_faults;
+        logger.record(
+            "IPC format public async request allocation failure releases state without callback",
+            async_fault_clean,
+        );
+
+        let mut recovery_snapshot = ipc::FormatProbeSnapshot::default();
+        arm_format_snapshot!(recovery_snapshot);
+        let recovery_after_faults =
+            unsafe { IOS_IoctlvFormat(ipc::IPC_HEAP, fd.raw(), 0, c"i".as_ptr(), 0x0102_0304u32) };
+        let fault_recovery_ok = recovery_after_faults == ipc::FORMAT_PROBE_COMPLETE
+            && recovery_snapshot.input_count == 1
+            && recovery_snapshot.vectors[0].sample[..4] == [1, 2, 3, 4]
+            && ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire) == live_before_faults;
+        logger.record(
+            "IPC format formatter recovers after injected allocation failures",
+            fault_recovery_ok,
+        );
         let closed = if completed || submission < 0 {
             fd.close().is_ok()
         } else {

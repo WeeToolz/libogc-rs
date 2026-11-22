@@ -30,8 +30,29 @@ pub struct FormatProbeSnapshot {
 /// symbol exists only when the Dolphin probe feature is enabled.
 pub static FORMAT_PROBE_SNAPSHOT: AtomicUsize = AtomicUsize::new(0);
 
+/// Fail one formatter allocation during a Dolphin probe. Zero disables faults.
+pub static FORMAT_PROBE_FAIL_ALLOCATION: AtomicUsize = AtomicUsize::new(0);
+/// Count allocation points since the most recent fault arm.
+pub static FORMAT_PROBE_ALLOCATION_ATTEMPTS: AtomicUsize = AtomicUsize::new(0);
+/// Count live formatter allocations for cleanup checks.
+pub static FORMAT_PROBE_LIVE_ALLOCATIONS: AtomicUsize = AtomicUsize::new(0);
+
 /// Sentinel returned after the one-shot probe captured a formatted request.
 pub const FORMAT_PROBE_COMPLETE: i32 = i32::MIN + 101;
+
+pub(super) fn allow_allocation() -> bool {
+    let attempt = FORMAT_PROBE_ALLOCATION_ATTEMPTS.fetch_add(1, Ordering::AcqRel) + 1;
+    let fail_at = FORMAT_PROBE_FAIL_ALLOCATION.load(Ordering::Acquire);
+    fail_at == 0 || attempt != fail_at
+}
+
+pub(super) fn allocation_created() {
+    FORMAT_PROBE_LIVE_ALLOCATIONS.fetch_add(1, Ordering::AcqRel);
+}
+
+pub(super) fn allocation_released() {
+    FORMAT_PROBE_LIVE_ALLOCATIONS.fetch_sub(1, Ordering::AcqRel);
+}
 
 pub(super) unsafe fn parse_or_capture(
     call: &FormatCall,

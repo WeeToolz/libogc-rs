@@ -945,8 +945,8 @@ ogc-ipc,src/ioctl_buffers.rs,buffer_io,55,pure,host-test,crates/core/ogc-ipc/src
 ogc-ipc,src/dma_buffer.rs,needs_staging,5,pure,host-test,crates/core/ogc-ipc/src/dma_buffer.rs,only_complete_exclusive_cache_lines_can_be_transferred_directly
 ogc-ipc,src/dma_buffer.rs,staging_length,12,pure,host-test,crates/core/ogc-ipc/src/dma_buffer.rs,staging_reserves_the_entire_last_cache_line
 lwip-sys,src/ios_socket_flags.rs,option_to_ios,23,pure,host-test,crates/services/lwip-sys/src/ios_socket_flags.rs,tcp_option_number_changes_only_at_tcp_level
-ogc-ipc,src/lib.rs,open_file,2760,ios,hardware-probe,probes/lwp-probe/src/main.rs,ipc_contention_worker
-ogc-ipc,src/lib.rs,open_file_async,2764,ios,hardware-probe,probes/lwp-probe/src/main.rs,run_ipc_wakeup
+ogc-ipc,src/lib.rs,open_file,2802,ios,hardware-probe,probes/lwp-probe/src/main.rs,ipc_contention_worker
+ogc-ipc,src/lib.rs,open_file_async,2806,ios,hardware-probe,probes/lwp-probe/src/main.rs,run_ipc_wakeup
 ogc-ipc,src/lib.rs,poll,1275,ios,hardware-probe,probes/lwp-probe/src/main.rs,run_ipc_wakeup
 ogc-ipc,src/lib.rs,set_debug_hook,1264,ios,hardware-probe,probes/lwp-probe/src/main.rs,run
 ogc-lwp,src/lib.rs,close,146,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,async_ipc_callback
@@ -3252,7 +3252,7 @@ ogc-stm,src/lib.rs,init,276,ios,hardware-probe,probes/ogc-system-probe/src/stm_a
 ogc-stm,src/lib.rs,try_init,296,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_init
 ogc-stm,src/lib.rs,close,427,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::close
 ogc-stm,src/lib.rs,try_close,464,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_close
-ogc-ipc,src/lib.rs,validate_path,2752,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_path_limits,ipc::validate_path
+ogc-ipc,src/lib.rs,validate_path,2794,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_path_limits,ipc::validate_path
 ogc-network-sys,src/lib.rs,net_wc24cleanup,1067,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_wc24_cleanup,raw_network::net_wc24cleanup
 ogc-network-sys,src/lib.rs,net_wc24cleanup,1977,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_wc24_cleanup,raw_network::net_wc24cleanup
 libdb-sys,src/wii_network.rs,bind,30,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_debugger_network_lifecycle,WiiNetworkTransport::bind
@@ -3265,6 +3265,6 @@ libdb-sys,src/wii_network.rs,close,57,compatibility-forwarder,hardware-probe,pro
 lwip-sys,src/lib.rs,set_network_top_fd,530,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_network_descriptor,lwip::set_network_top_fd
 lwip-sys,src/lib.rs,set_network_top_fd,1493,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwip_network_descriptor,lwip::set_network_top_fd
 ogc-runtime,src/scheduler.rs,new,16,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,run,ThreadId::new
-ogc-ipc,src/lib.rs,__ogc_ipc_ioctlv_format_bridge,2685,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_format_bridge,ipc::__ogc_ipc_ioctlv_format_bridge,scalar-and-buffer,ipc-format.internal.null-call-guard;ipc-format.internal.scalar-output;ipc-format.internal.title-input-buffer-output
-ogc-ipc,src/lib.rs,IOS_IoctlvFormat,30,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_format_bridge,IOS_IoctlvFormat,scalar-and-buffer,ipc-format.sync.public-abi;ipc-format.sync.overflow-arguments;ipc-format.sync.input-scalars;ipc-format.sync.output-scalars;ipc-format.sync.input-string-and-buffer;ipc-format.sync.output-buffer;ipc-format.sync.mixed-vectors;ipc-format.sync.string-limits;ipc-format.sync.malformed-format;ipc-format.sync.dma-output-copyback
-ogc-ipc,src/lib.rs,IOS_IoctlvFormatAsync,63,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_format_bridge,IOS_IoctlvFormatAsync,scalar-and-buffer,ipc-format.async.public-abi;ipc-format.async.overflow-arguments;ipc-format.async.userdata;ipc-format.async.exactly-once;ipc-format.async.copyback-before-callback;ipc-format.async.input-scalars;ipc-format.async.output-scalars;ipc-format.async.mixed-vectors;ipc-format.async.dma-output-copyback;ipc-format.async.concurrent-requests
+ogc-ipc,src/lib.rs,__ogc_ipc_ioctlv_format_bridge,2727,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_format_bridge,ipc::__ogc_ipc_ioctlv_format_bridge,scalar-and-buffer,ipc-format.internal.null-call-guard;ipc-format.internal.scalar-output;ipc-format.internal.title-input-buffer-output
+ogc-ipc,src/lib.rs,IOS_IoctlvFormat,30,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_format_bridge,IOS_IoctlvFormat,scalar-and-buffer,ipc-format.sync.public-abi;ipc-format.sync.overflow-arguments;ipc-format.sync.input-scalars;ipc-format.sync.output-scalars;ipc-format.sync.input-string-and-buffer;ipc-format.sync.output-buffer;ipc-format.sync.mixed-vectors;ipc-format.sync.string-limits;ipc-format.sync.malformed-format;ipc-format.sync.dma-output-copyback;ipc-format.sync.cleanup-on-error;ipc-format.recovery-after-failure
+ogc-ipc,src/lib.rs,IOS_IoctlvFormatAsync,63,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_format_bridge,IOS_IoctlvFormatAsync,scalar-and-buffer,ipc-format.async.public-abi;ipc-format.async.overflow-arguments;ipc-format.async.userdata;ipc-format.async.exactly-once;ipc-format.async.copyback-before-callback;ipc-format.async.input-scalars;ipc-format.async.output-scalars;ipc-format.async.mixed-vectors;ipc-format.async.dma-output-copyback;ipc-format.async.concurrent-requests;ipc-format.async.cleanup-on-error
