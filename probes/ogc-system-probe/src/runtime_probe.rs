@@ -2089,6 +2089,8 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         static FORMAT_LWP_SUBMISSIONS: core::sync::atomic::AtomicU32 =
             core::sync::atomic::AtomicU32::new(0);
         static FORMAT_LWP_FD: AtomicI32 = AtomicI32::new(-1);
+        static FORMAT_LWP_EXPECTED_SCALAR: core::sync::atomic::AtomicU32 =
+            core::sync::atomic::AtomicU32::new(0);
         static FORMAT_LWP_RESULTS: [AtomicI32; 2] = [const { AtomicI32::new(i32::MIN) }; 2];
 
         unsafe extern "C" fn formatter_lwp_worker(arg: *mut c_void) -> *mut c_void {
@@ -2099,7 +2101,10 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             }
             let (slot, rc) = if index == 0 {
                 let output = core::ptr::addr_of_mut!(ASYNC_OUTPUT);
-                FORMAT_ASYNC_SLOT_SCALAR.reset(output.cast(), 0);
+                FORMAT_ASYNC_SLOT_SCALAR.reset(
+                    output.cast(),
+                    FORMAT_LWP_EXPECTED_SCALAR.load(Ordering::Acquire),
+                );
                 unsafe { output.write(u32::MAX) };
                 let userdata = (&FORMAT_ASYNC_SLOT_SCALAR as *const FormatAsyncProbeSlot)
                     .cast_mut()
@@ -2149,6 +2154,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         FORMAT_LWP_RESULTS[0].store(i32::MIN, Ordering::Release);
         FORMAT_LWP_RESULTS[1].store(i32::MIN, Ordering::Release);
         FORMAT_LWP_FD.store(fd.raw(), Ordering::Release);
+        FORMAT_LWP_EXPECTED_SCALAR.store(actual, Ordering::Release);
         scalar_slot.reset(core::ptr::addr_of_mut!(ASYNC_OUTPUT).cast(), actual);
         buffer_slot.reset(core::ptr::addr_of_mut!(ASYNC_PATH).cast::<u8>(), u32::MAX);
         let mut raw_threads = [ogc_lwp::sys::LWP_THREAD_NULL; 2];
