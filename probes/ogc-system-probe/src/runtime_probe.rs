@@ -1839,7 +1839,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                         ipc::IPC_HEAP,
                         aes_fd.raw(),
                         2,
-                        c"dd:d:d".as_ptr(),
+                        c"dd:dd".as_ptr(),
                         input,
                         length as u32,
                         key.0.as_ptr(),
@@ -1850,6 +1850,21 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                         16u32,
                     )
                 };
+                logger.note_i32_index(
+                    "IPC typed AES input result length=",
+                    length as i32,
+                    typed_result,
+                );
+                logger.note_i32_index(
+                    "IPC alternate typed AES input result length=",
+                    length as i32,
+                    alternate_result,
+                );
+                if ipc::FORMAT_PROBE_SUBMISSION.load(Ordering::Acquire)
+                    == (&mut submitted as *mut ipc::FormatProbeSubmission) as usize
+                {
+                    ipc::FORMAT_PROBE_SUBMISSION.store(0, Ordering::Release);
+                }
                 let expected_hash = probe_hash(payload);
                 let expected_tail_hash = probe_hash(&payload[32.min(length)..]);
                 let outputs_match = formatted_output.0[..length] == typed_output.0[..length]
