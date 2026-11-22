@@ -20,6 +20,8 @@ pub struct FormatProbeSnapshot {
     pub output_count: u32,
     pub asynchronous: u32,
     pub vector_count: u32,
+    /// Fill output vectors with this byte before formatter cleanup.
+    pub output_pattern: u8,
     pub vectors: [FormatProbeVector; super::IOS_MAXFMT_PARAMS],
 }
 
@@ -73,6 +75,21 @@ unsafe fn capture_format_probe(call: &FormatCall, snapshot: *mut FormatProbeSnap
             }
         }
     }
-    unsafe { super::format_release(super::IPC_OK, state, false, false) };
+    let output_pattern = snapshot_ref.output_pattern;
+    if output_pattern != 0 {
+        for index in cnt_in..total {
+            let entry = unsafe { &*argv.add(index) };
+            if !entry.data.is_null() && entry.len != 0 {
+                unsafe {
+                    core::ptr::write_bytes(
+                        entry.data.cast::<u8>(),
+                        output_pattern,
+                        entry.len as usize,
+                    )
+                };
+            }
+        }
+    }
+    unsafe { super::format_release(super::IPC_OK, state, output_pattern != 0, false) };
     FORMAT_PROBE_COMPLETE
 }

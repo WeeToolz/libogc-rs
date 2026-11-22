@@ -604,6 +604,63 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             && direct_output_snapshot.vectors[0].sample == output_buffer,
     );
 
+    let mut sync_boundary_ok = true;
+    let mut async_boundary_ok = true;
+    for misalignment in [0usize, 1] {
+        for length in [1usize, 31, 32, 33, 63, 64, 65] {
+            let mut guarded = [0xa5u8; 160];
+            let base = guarded.as_mut_ptr() as usize;
+            let aligned = base + ((32 - (base & 31)) & 31);
+            let start = aligned + misalignment;
+            let output = start as *mut u8;
+            let before = start - base;
+            let after = before + length;
+            let mut snapshot = ipc::FormatProbeSnapshot {
+                output_pattern: 0xd3,
+                ..ipc::FormatProbeSnapshot::default()
+            };
+            arm_format_snapshot!(snapshot);
+            let result = unsafe {
+                IOS_IoctlvFormat(ipc::IPC_HEAP, 0, 0, c":d".as_ptr(), output, length as u32)
+            };
+            sync_boundary_ok &= result == ipc::FORMAT_PROBE_COMPLETE
+                && guarded[..before].iter().all(|byte| *byte == 0xa5)
+                && guarded[before..after].iter().all(|byte| *byte == 0xd3)
+                && guarded[after..].iter().all(|byte| *byte == 0xa5);
+
+            guarded.fill(0xa5);
+            let mut async_snapshot = ipc::FormatProbeSnapshot {
+                output_pattern: 0xd3,
+                ..ipc::FormatProbeSnapshot::default()
+            };
+            arm_format_snapshot!(async_snapshot);
+            let async_result = unsafe {
+                IOS_IoctlvFormatAsync(
+                    ipc::IPC_HEAP,
+                    0,
+                    0,
+                    None,
+                    core::ptr::null_mut(),
+                    c":d".as_ptr(),
+                    output,
+                    length as u32,
+                )
+            };
+            async_boundary_ok &= async_result == ipc::FORMAT_PROBE_COMPLETE
+                && guarded[..before].iter().all(|byte| *byte == 0xa5)
+                && guarded[before..after].iter().all(|byte| *byte == 0xd3)
+                && guarded[after..].iter().all(|byte| *byte == 0xa5);
+        }
+    }
+    logger.record(
+        "IPC format public sync output copyback preserves DMA boundary canaries",
+        sync_boundary_ok,
+    );
+    logger.record(
+        "IPC format public async entry staging cleanup preserves DMA boundary canaries",
+        async_boundary_ok,
+    );
+
     let mut mixed_output = [0x6bu8; 5];
     let mut mixed_buffers = ipc::FormatProbeSnapshot::default();
     arm_format_snapshot!(mixed_buffers);
