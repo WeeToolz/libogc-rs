@@ -747,7 +747,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
     let mut sync_boundary_ok = true;
     let mut async_boundary_ok = true;
     for misalignment in [0usize, 1] {
-        for length in [1usize, 31, 32, 33, 63, 64, 65] {
+        for length in [0usize, 1, 31, 32, 33, 63, 64, 65] {
             let mut guarded = [0xa5u8; 160];
             let base = guarded.as_mut_ptr() as usize;
             let aligned = base + ((32 - (base & 31)) & 31);
@@ -799,6 +799,73 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
     logger.record(
         "IPC format public async entry staging cleanup preserves DMA boundary canaries",
         async_boundary_ok,
+    );
+
+    let mut sync_input_boundary_ok = true;
+    let mut async_input_boundary_ok = true;
+    for misalignment in [0usize, 1] {
+        for length in [0usize, 1, 31, 32, 33, 63, 64, 65] {
+            let mut guarded = [0xa5u8; 160];
+            let base = guarded.as_mut_ptr() as usize;
+            let aligned = base + ((32 - (base & 31)) & 31);
+            let start = aligned + misalignment;
+            let input = start as *const u8;
+            let before = start - base;
+            let after = before + length;
+            for index in 0..length {
+                guarded[before + index] = (index as u8).wrapping_mul(13).wrapping_add(7);
+            }
+            let sample_len = length.min(8);
+            let mut expected_sample = [0u8; 8];
+            for (index, byte) in expected_sample.iter_mut().take(sample_len).enumerate() {
+                *byte = (index as u8).wrapping_mul(13).wrapping_add(7);
+            }
+            let mut snapshot = ipc::FormatProbeSnapshot::default();
+            arm_format_snapshot!(snapshot);
+            let result = unsafe {
+                IOS_IoctlvFormat(ipc::IPC_HEAP, 0, 0, c"d".as_ptr(), input, length as u32)
+            };
+            sync_input_boundary_ok &= result == ipc::FORMAT_PROBE_COMPLETE
+                && snapshot.input_count == 1
+                && snapshot.output_count == 0
+                && snapshot.vectors[0].length == length as u32
+                && snapshot.vectors[0].sample_length as usize == sample_len
+                && snapshot.vectors[0].sample[..sample_len] == expected_sample[..sample_len]
+                && guarded[..before].iter().all(|byte| *byte == 0xa5)
+                && guarded[after..].iter().all(|byte| *byte == 0xa5);
+
+            let mut async_snapshot = ipc::FormatProbeSnapshot::default();
+            arm_format_snapshot!(async_snapshot);
+            let async_result = unsafe {
+                IOS_IoctlvFormatAsync(
+                    ipc::IPC_HEAP,
+                    0,
+                    0,
+                    None,
+                    core::ptr::null_mut(),
+                    c"d".as_ptr(),
+                    input,
+                    length as u32,
+                )
+            };
+            async_input_boundary_ok &= async_result == ipc::FORMAT_PROBE_COMPLETE
+                && async_snapshot.asynchronous == 1
+                && async_snapshot.input_count == 1
+                && async_snapshot.output_count == 0
+                && async_snapshot.vectors[0].length == length as u32
+                && async_snapshot.vectors[0].sample_length as usize == sample_len
+                && async_snapshot.vectors[0].sample[..sample_len] == expected_sample[..sample_len]
+                && guarded[..before].iter().all(|byte| *byte == 0xa5)
+                && guarded[after..].iter().all(|byte| *byte == 0xa5);
+        }
+    }
+    logger.record(
+        "IPC format public sync input staging reads selected DMA boundary lengths",
+        sync_input_boundary_ok,
+    );
+    logger.record(
+        "IPC format public async entry reads selected DMA boundary lengths",
+        async_input_boundary_ok,
     );
 
     let mut mixed_output = [0x6bu8; 5];
