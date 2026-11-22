@@ -696,6 +696,32 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             && mixed_snapshot.vectors[1].sample[..4] == *b"ios\0",
     );
 
+    let mut async_mixed_snapshot = ipc::FormatProbeSnapshot::default();
+    arm_format_snapshot!(async_mixed_snapshot);
+    let async_mixed_result = unsafe {
+        IOS_IoctlvFormatAsync(
+            ipc::IPC_HEAP,
+            0,
+            0,
+            None,
+            core::ptr::null_mut(),
+            c"ds".as_ptr(),
+            direct_input.as_ptr(),
+            direct_input.len() as u32,
+            input_string.as_ptr(),
+        )
+    };
+    logger.record(
+        "IPC format public async ds decodes input buffer and stack string",
+        async_mixed_result == ipc::FORMAT_PROBE_COMPLETE
+            && async_mixed_snapshot.asynchronous == 1
+            && async_mixed_snapshot.input_count == 2
+            && async_mixed_snapshot.vectors[0].length == direct_input.len() as u32
+            && async_mixed_snapshot.vectors[0].sample[..4] == direct_input
+            && async_mixed_snapshot.vectors[1].length == 4
+            && async_mixed_snapshot.vectors[1].sample[..4] == *b"ios\0",
+    );
+
     let mut output_buffer = [0x5au8; 8];
     let mut direct_output_snapshot = ipc::FormatProbeSnapshot::default();
     arm_format_snapshot!(direct_output_snapshot);
@@ -915,6 +941,32 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             && recovery_result == ipc::FORMAT_PROBE_COMPLETE
             && recovered_snapshot.input_count == 1
             && recovered_snapshot.vectors[0].sample[..4] == [0x00, 0x00, 0x12, 0x34]
+            && ipc::FORMAT_PROBE_SNAPSHOT.load(Ordering::Acquire) == 0,
+    );
+
+    let mut null_output_snapshot = ipc::FormatProbeSnapshot::default();
+    arm_format_snapshot!(null_output_snapshot);
+    let null_output_result = unsafe {
+        IOS_IoctlvFormat(
+            ipc::IPC_HEAP,
+            0,
+            0,
+            c":i".as_ptr(),
+            core::ptr::null_mut::<u32>(),
+        )
+    };
+    logger.record(
+        "IPC format public sync rejects a null scalar output pointer",
+        null_output_result == ipc::IPC_EINVAL
+            && ipc::FORMAT_PROBE_SNAPSHOT.load(Ordering::Acquire) == 0,
+    );
+
+    let mut invalid_heap_snapshot = ipc::FormatProbeSnapshot::default();
+    arm_format_snapshot!(invalid_heap_snapshot);
+    let invalid_heap_result = unsafe { IOS_IoctlvFormat(0x7fff, 0, 0, c"i".as_ptr(), 0x1234u32) };
+    logger.record(
+        "IPC format public sync rejects an unavailable heap",
+        invalid_heap_result == ipc::IPC_EINVAL
             && ipc::FORMAT_PROBE_SNAPSHOT.load(Ordering::Acquire) == 0,
     );
 
