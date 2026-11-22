@@ -104,9 +104,15 @@ testing must include aligned and misaligned 31, 32, 33, 63, 64, and 65 byte
 boundaries, dirty neighboring cache-line data, and both sync and async paths.
 Dolphin evidence does not promote these hardware contracts.
 
+The [869-check formatter run](review/evidence/ipc-format-dolphin-2026-11-22-869/README.md)
+adds live AES output boundaries, real async allocator exhaustion, ES error
+completion, callback re-entry failure, three linked requests, mixed output
+completion, and mixed async ABI coverage. It records the source patch and raw
+logs. The hardware contracts remain blocked.
+
 The two partial DMA output copyback rows record the formatter interception
 checks. The sync check verifies software copyback and canary bytes. The async
-check verifies staging and cleanup before submission. The same Dolphin run
+controlled completion also checks the callback after copyback. The earlier run
 also submits real ES requests through the emulated IOS paths. Both paths test
 31, 32, 33, 63, 64, and 65 byte output buffers at offsets zero and one from a
 32-byte boundary. They compare the returned title directory and check the

@@ -3205,16 +3205,18 @@ mod format_probe;
 #[cfg(feature = "format-probe-hooks")]
 pub use format_probe::{
     AllocationEvent, FORMAT_PROBE_ALLOCATION_ROLE_ATTEMPTS, FORMAT_PROBE_COMPLETE,
+    FORMAT_PROBE_COMPLETE_ASYNC_CALLBACK, FORMAT_PROBE_DISTINCT_OUTPUT,
     FORMAT_PROBE_FAIL_ALLOCATION_OCCURRENCE, FORMAT_PROBE_FAIL_ALLOCATION_ROLE,
     FORMAT_PROBE_FAIL_ASYNC_SUBMISSION, FORMAT_PROBE_LEDGER_CAPACITY,
-    FORMAT_PROBE_LIVE_ALLOCATIONS, FORMAT_PROBE_MAX_WORKSPACE_EVENTS, FORMAT_PROBE_ROLE_ARGV,
-    FORMAT_PROBE_ROLE_ASYNC_REQUEST, FORMAT_PROBE_ROLE_SCALAR, FORMAT_PROBE_ROLE_STAGING_BUFFER,
-    FORMAT_PROBE_ROLE_STATE, FORMAT_PROBE_SNAPSHOT, FORMAT_PROBE_SUBMISSION,
-    FORMAT_PROBE_WORKSPACE_ALLOC, FORMAT_PROBE_WORKSPACE_FREE, FormatProbeSnapshot,
-    FormatProbeSubmission, FormatProbeVector, FormatProbeWorkspaceEvent,
-    allocation_ledger_balanced, arm_two_thread_parse_barrier, hold_request_records_until_exhausted,
-    parse_barrier_arrivals, read_format_heap_ledger, read_request_ledger,
-    release_held_request_records, reset_format_heap_ledger, reset_request_ledger,
+    FORMAT_PROBE_LIVE_ALLOCATIONS, FORMAT_PROBE_MAX_WORKSPACE_EVENTS,
+    FORMAT_PROBE_POSITIONAL_OUTPUT, FORMAT_PROBE_ROLE_ARGV, FORMAT_PROBE_ROLE_ASYNC_REQUEST,
+    FORMAT_PROBE_ROLE_SCALAR, FORMAT_PROBE_ROLE_STAGING_BUFFER, FORMAT_PROBE_ROLE_STATE,
+    FORMAT_PROBE_SNAPSHOT, FORMAT_PROBE_SUBMISSION, FORMAT_PROBE_WORKSPACE_ALLOC,
+    FORMAT_PROBE_WORKSPACE_FREE, FormatProbeSnapshot, FormatProbeSubmission, FormatProbeVector,
+    FormatProbeWorkspaceEvent, allocation_ledger_balanced, arm_two_thread_parse_barrier,
+    hold_request_records_until_exhausted, parse_barrier_arrivals, read_format_heap_ledger,
+    read_request_ledger, release_held_request_records, reset_format_heap_ledger,
+    reset_request_ledger,
 };
 
 #[cfg(feature = "format-probe-hooks")]

@@ -75,6 +75,7 @@ static FORMAT_ASYNC_SLOT_BUFFER: FormatAsyncProbeSlot = FormatAsyncProbeSlot::ne
 
 struct FormatAesAsyncSlot {
     completions: core::sync::atomic::AtomicU32,
+    userdata: core::sync::atomic::AtomicUsize,
     result: AtomicI32,
     output_matches: AtomicBool,
     output: core::sync::atomic::AtomicUsize,
@@ -84,10 +85,47 @@ struct FormatAesAsyncSlot {
     length: core::sync::atomic::AtomicUsize,
 }
 
+#[cfg(feature = "dolphin-automation")]
+struct FormatControlledCompletionSlot {
+    output: core::sync::atomic::AtomicUsize,
+    length: core::sync::atomic::AtomicUsize,
+    seed: core::sync::atomic::AtomicU32,
+    userdata: core::sync::atomic::AtomicUsize,
+    result: AtomicI32,
+    completions: core::sync::atomic::AtomicU32,
+    output_matches: AtomicBool,
+}
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn format_controlled_completed(
+    result: i32,
+    userdata: *mut core::ffi::c_void,
+) -> i32 {
+    let Some(slot) = (unsafe { userdata.cast::<FormatControlledCompletionSlot>().as_ref() }) else {
+        return 0;
+    };
+    let output = slot.output.load(Ordering::Acquire) as *const u8;
+    let length = slot.length.load(Ordering::Acquire);
+    let seed = slot.seed.load(Ordering::Acquire) as u8;
+    let matches = !output.is_null()
+        && unsafe {
+            core::slice::from_raw_parts(output, length)
+                .iter()
+                .enumerate()
+                .all(|(index, byte)| *byte == seed.wrapping_add(index as u8))
+        };
+    slot.userdata.store(userdata as usize, Ordering::Release);
+    slot.result.store(result, Ordering::Release);
+    slot.output_matches.store(matches, Ordering::Release);
+    slot.completions.fetch_add(1, Ordering::AcqRel);
+    0
+}
+
 impl FormatAesAsyncSlot {
     const fn new() -> Self {
         Self {
             completions: core::sync::atomic::AtomicU32::new(0),
+            userdata: core::sync::atomic::AtomicUsize::new(0),
             result: AtomicI32::new(i32::MIN),
             output_matches: AtomicBool::new(false),
             output: core::sync::atomic::AtomicUsize::new(0),
@@ -107,6 +145,7 @@ impl FormatAesAsyncSlot {
         length: usize,
     ) {
         self.completions.store(0, Ordering::Release);
+        self.userdata.store(0, Ordering::Release);
         self.result.store(i32::MIN, Ordering::Release);
         self.output_matches.store(false, Ordering::Release);
         self.output.store(output as usize, Ordering::Release);
@@ -139,6 +178,7 @@ unsafe extern "C" fn format_aes_completed(result: i32, userdata: *mut core::ffi:
                     == core::slice::from_raw_parts(expected_iv, 16)
         };
     slot.output_matches.store(matches, Ordering::Release);
+    slot.userdata.store(userdata as usize, Ordering::Release);
     slot.result.store(result, Ordering::Release);
     slot.completions.fetch_add(1, Ordering::AcqRel);
     0
@@ -191,6 +231,8 @@ static FORMAT_REENTRY_FIRST_OUTPUT_OK: AtomicBool = AtomicBool::new(false);
 #[cfg(feature = "dolphin-automation")]
 static FORMAT_REENTRY_SECOND_OUTPUT_OK: AtomicBool = AtomicBool::new(false);
 #[cfg(feature = "dolphin-automation")]
+static FORMAT_REENTRY_REJECT_SECOND: AtomicBool = AtomicBool::new(false);
+#[cfg(feature = "dolphin-automation")]
 static FORMAT_REENTRY_FD: core::sync::atomic::AtomicI32 = core::sync::atomic::AtomicI32::new(-1);
 #[cfg(feature = "dolphin-automation")]
 static FORMAT_REENTRY_HEAP: core::sync::atomic::AtomicI32 = core::sync::atomic::AtomicI32::new(-1);
@@ -205,6 +247,61 @@ static mut FORMAT_REENTRY_SECOND_OUTPUT: u32 = u32::MAX;
 static FORMAT_REENTRY_FIRST_USERDATA: u8 = 0x41;
 #[cfg(feature = "dolphin-automation")]
 static FORMAT_REENTRY_SECOND_USERDATA: u8 = 0x42;
+
+#[cfg(feature = "dolphin-automation")]
+static FORMAT_CHAIN_USERDATA: [u8; 3] = [1, 2, 3];
+#[cfg(feature = "dolphin-automation")]
+static FORMAT_CHAIN_COUNTS: [core::sync::atomic::AtomicU32; 3] =
+    [const { core::sync::atomic::AtomicU32::new(0) }; 3];
+#[cfg(feature = "dolphin-automation")]
+static FORMAT_CHAIN_RESULTS: [AtomicI32; 3] = [const { AtomicI32::new(i32::MIN) }; 3];
+#[cfg(feature = "dolphin-automation")]
+static FORMAT_CHAIN_SUBMISSIONS: [AtomicI32; 3] = [const { AtomicI32::new(i32::MIN) }; 3];
+#[cfg(feature = "dolphin-automation")]
+static FORMAT_CHAIN_CHECKS: [AtomicBool; 3] = [const { AtomicBool::new(false) }; 3];
+#[cfg(feature = "dolphin-automation")]
+static mut FORMAT_CHAIN_OUTPUTS: [[u32; 3]; 3] = [[0xa5a5_a5a5, u32::MAX, 0x5a5a_5a5a]; 3];
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn format_chain_completed(result: i32, userdata: *mut core::ffi::c_void) -> i32 {
+    let base = FORMAT_CHAIN_USERDATA.as_ptr() as usize;
+    let Some(index) = (userdata as usize)
+        .checked_sub(base)
+        .filter(|index| *index < 3)
+    else {
+        return 0;
+    };
+    let outputs = core::ptr::addr_of!(FORMAT_CHAIN_OUTPUTS).cast::<[u32; 3]>();
+    let expected = FORMAT_REENTRY_EXPECTED.load(Ordering::Acquire);
+    let valid = (0..=index)
+        .all(|i| unsafe { outputs.add(i).read() } == [0xa5a5_a5a5, expected, 0x5a5a_5a5a]);
+    FORMAT_CHAIN_CHECKS[index].store(valid, Ordering::Release);
+    FORMAT_CHAIN_RESULTS[index].store(result, Ordering::Release);
+    FORMAT_CHAIN_COUNTS[index].fetch_add(1, Ordering::AcqRel);
+    if index < 2 {
+        let next = index + 1;
+        let next_output = unsafe {
+            core::ptr::addr_of_mut!(FORMAT_CHAIN_OUTPUTS)
+                .cast::<[u32; 3]>()
+                .add(next)
+                .cast::<u32>()
+                .add(1)
+        };
+        let submission = unsafe {
+            IOS_IoctlvFormatAsync(
+                ogc_ipc::IPC_HEAP,
+                FORMAT_REENTRY_FD.load(Ordering::Acquire),
+                0x0e,
+                Some(format_chain_completed),
+                FORMAT_CHAIN_USERDATA.as_ptr().add(next).cast_mut().cast(),
+                c":i".as_ptr(),
+                next_output,
+            )
+        };
+        FORMAT_CHAIN_SUBMISSIONS[next].store(submission, Ordering::Release);
+    }
+    0
+}
 
 #[cfg(feature = "dolphin-automation")]
 unsafe extern "C" {
@@ -260,6 +357,9 @@ unsafe extern "C" fn format_reentry_first_completed(
     let second_userdata = core::ptr::addr_of!(FORMAT_REENTRY_SECOND_USERDATA)
         .cast_mut()
         .cast();
+    if FORMAT_REENTRY_REJECT_SECOND.swap(false, Ordering::AcqRel) {
+        ogc_ipc::FORMAT_PROBE_FAIL_ASYNC_SUBMISSION.store(true, Ordering::Release);
+    }
     let submission = unsafe {
         IOS_IoctlvFormatAsync(
             FORMAT_REENTRY_HEAP.load(Ordering::Acquire),
@@ -689,44 +789,44 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         {
             return false;
         }
-        events
-            .iter()
-            .enumerate()
-            .all(|(index, event)| match (event.kind, event.pointer) {
-                (ipc::FORMAT_PROBE_WORKSPACE_ALLOC, 0) => event.size != 0,
-                (ipc::FORMAT_PROBE_WORKSPACE_ALLOC, _) => {
-                    events
+        let mut active = [false; lwp::WORKSPACE_PROBE_CAPACITY];
+        if events.len() > active.len() {
+            return false;
+        }
+        for (index, event) in events.iter().enumerate() {
+            match (event.kind, event.pointer) {
+                (ipc::FORMAT_PROBE_WORKSPACE_ALLOC, 0) if event.size != 0 => {}
+                (ipc::FORMAT_PROBE_WORKSPACE_ALLOC, _) if event.pointer != 0 => {
+                    if events[..index]
                         .iter()
-                        .filter(|other| {
-                            other.kind == ipc::FORMAT_PROBE_WORKSPACE_ALLOC
-                                && other.pointer == event.pointer
-                                && other.size == event.size
-                        })
-                        .count()
-                        == 1
-                        && events
+                        .enumerate()
+                        .any(|(prior, other)| active[prior] && other.pointer == event.pointer)
+                    {
+                        return false;
+                    }
+                    active[index] = true;
+                }
+                (ipc::FORMAT_PROBE_WORKSPACE_FREE, _) if event.pointer != 0 => {
+                    let Some(prior) =
+                        events[..index]
                             .iter()
-                            .filter(|other| {
-                                other.kind == ipc::FORMAT_PROBE_WORKSPACE_FREE
+                            .enumerate()
+                            .rev()
+                            .find_map(|(prior, other)| {
+                                (active[prior]
                                     && other.pointer == event.pointer
-                                    && other.size == event.size
+                                    && other.size == event.size)
+                                    .then_some(prior)
                             })
-                            .count()
-                            == 1
+                    else {
+                        return false;
+                    };
+                    active[prior] = false;
                 }
-                (ipc::FORMAT_PROBE_WORKSPACE_FREE, _) => {
-                    events[..index]
-                        .iter()
-                        .filter(|other| {
-                            other.kind == ipc::FORMAT_PROBE_WORKSPACE_ALLOC
-                                && other.pointer == event.pointer
-                                && other.size == event.size
-                        })
-                        .count()
-                        == 1
-                }
-                _ => false,
-            })
+                _ => return false,
+            }
+        }
+        active.iter().all(|outstanding| !outstanding)
     }
 
     fn workspace_did_not_own(snapshot: &ipc::FormatProbeSnapshot, pointer: usize) -> bool {
@@ -775,6 +875,44 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 .count()
                 == expected_allocations
             && events[..count].iter().all(|event| event.size == 64)
+    }
+
+    fn allocation_lifetimes_balance(events: &[ipc::AllocationEvent], expected: usize) -> bool {
+        let mut active = [false; ipc::FORMAT_PROBE_LEDGER_CAPACITY];
+        if events.len() != expected * 2 || events.len() > active.len() {
+            return false;
+        }
+        for (index, event) in events.iter().enumerate() {
+            if event.kind == 1 && event.pointer != 0 {
+                if events[..index]
+                    .iter()
+                    .enumerate()
+                    .any(|(prior, other)| active[prior] && other.pointer == event.pointer)
+                {
+                    return false;
+                }
+                active[index] = true;
+            } else if event.kind == 2 && event.pointer != 0 {
+                let Some(prior) =
+                    events[..index]
+                        .iter()
+                        .enumerate()
+                        .rev()
+                        .find_map(|(prior, other)| {
+                            (active[prior]
+                                && other.pointer == event.pointer
+                                && other.size == event.size)
+                                .then_some(prior)
+                        })
+                else {
+                    return false;
+                };
+                active[prior] = false;
+            } else {
+                return false;
+            }
+        }
+        active.iter().all(|live| !live)
     }
 
     unsafe extern "C" {
@@ -889,6 +1027,55 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             && input_sync.vectors[2].sample[..4] == [0x10, 0x20, 0x30, 0x40]
             && input_sync.vectors[3].length == 8
             && input_sync.vectors[3].sample == [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88],
+    );
+
+    let first_input = [0x21u8; 7];
+    let second_input = [0x43u8; 9];
+    let mut mixed_async_output = [0xa5u8; 13];
+    let mut mixed_async_abi = ipc::FormatProbeSnapshot {
+        output_pattern: 0x7b,
+        ..ipc::FormatProbeSnapshot::default()
+    };
+    arm_format_snapshot!(mixed_async_abi);
+    let mixed_async_abi_result = unsafe {
+        IOS_IoctlvFormatAsync(
+            ipc::IPC_HEAP,
+            0,
+            0,
+            None,
+            core::ptr::null_mut(),
+            c"bhqdd:d".as_ptr(),
+            0xabu32,
+            0x2345u32,
+            0x1122_3344_5566_7788u64,
+            first_input.as_ptr(),
+            first_input.len() as u32,
+            second_input.as_ptr(),
+            second_input.len() as u32,
+            mixed_async_output.as_mut_ptr(),
+            mixed_async_output.len() as u32,
+        )
+    };
+    logger.record(
+        "IPC async mixed b h stack q and d arguments decode vector order and destinations",
+        mixed_async_abi_result == ipc::FORMAT_PROBE_COMPLETE
+            && mixed_async_abi.asynchronous == 1
+            && mixed_async_abi.input_count == 5
+            && mixed_async_abi.output_count == 1
+            && mixed_async_abi.vectors[0].length == 1
+            && mixed_async_abi.vectors[0].sample[0] == 0xab
+            && mixed_async_abi.vectors[1].length == 2
+            && mixed_async_abi.vectors[1].sample[..2] == [0x23, 0x45]
+            && mixed_async_abi.vectors[2].length == 8
+            && mixed_async_abi.vectors[2].sample
+                == [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88]
+            && mixed_async_abi.vectors[3].length == 7
+            && mixed_async_abi.vectors[3].sample[..7] == first_input
+            && mixed_async_abi.vectors[4].length == 9
+            && mixed_async_abi.vectors[4].content_hash == probe_hash(&second_input)
+            && mixed_async_abi.vectors[5].length == 13
+            && mixed_async_abi.vectors[5].data_address != 0
+            && mixed_async_output == [0x7b; 13],
     );
 
     let mut input_iq = ipc::FormatProbeSnapshot::default();
@@ -1208,13 +1395,18 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 output_pattern: 0xd3,
                 ..ipc::FormatProbeSnapshot::default()
             };
+            ipc::FORMAT_PROBE_POSITIONAL_OUTPUT.store(true, Ordering::Release);
             arm_format_snapshot!(snapshot);
             let result = unsafe {
                 IOS_IoctlvFormat(ipc::IPC_HEAP, 0, 0, c":d".as_ptr(), output, length as u32)
             };
+            ipc::FORMAT_PROBE_POSITIONAL_OUTPUT.store(false, Ordering::Release);
             sync_boundary_ok &= result == ipc::FORMAT_PROBE_COMPLETE
                 && guarded[..before].iter().all(|byte| *byte == 0xa5)
-                && guarded[before..after].iter().all(|byte| *byte == 0xd3)
+                && guarded[before..after]
+                    .iter()
+                    .enumerate()
+                    .all(|(index, byte)| *byte == 0xd3u8.wrapping_add(index as u8))
                 && guarded[after..].iter().all(|byte| *byte == 0xa5)
                 && snapshot.vectors[0].length == length as u32
                 && snapshot.vectors[0].allocation_length == expected_allocation_len
@@ -1231,22 +1423,46 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 output_pattern: 0xd3,
                 ..ipc::FormatProbeSnapshot::default()
             };
+            let async_completion = FormatControlledCompletionSlot {
+                output: core::sync::atomic::AtomicUsize::new(output as usize),
+                length: core::sync::atomic::AtomicUsize::new(length),
+                seed: core::sync::atomic::AtomicU32::new(0xd3),
+                userdata: core::sync::atomic::AtomicUsize::new(0),
+                result: AtomicI32::new(i32::MIN),
+                completions: core::sync::atomic::AtomicU32::new(0),
+                output_matches: AtomicBool::new(false),
+            };
+            let async_userdata = (&async_completion as *const FormatControlledCompletionSlot)
+                .cast_mut()
+                .cast::<c_void>();
+            ipc::FORMAT_PROBE_POSITIONAL_OUTPUT.store(true, Ordering::Release);
+            ipc::FORMAT_PROBE_COMPLETE_ASYNC_CALLBACK.store(true, Ordering::Release);
             arm_format_snapshot!(async_snapshot);
             let async_result = unsafe {
                 IOS_IoctlvFormatAsync(
                     ipc::IPC_HEAP,
                     0,
                     0,
-                    None,
-                    core::ptr::null_mut(),
+                    Some(format_controlled_completed),
+                    async_userdata,
                     c":d".as_ptr(),
                     output,
                     length as u32,
                 )
             };
+            ipc::FORMAT_PROBE_POSITIONAL_OUTPUT.store(false, Ordering::Release);
+            ipc::FORMAT_PROBE_COMPLETE_ASYNC_CALLBACK.store(false, Ordering::Release);
+            let expected_userdata = async_userdata as usize;
             async_boundary_ok &= async_result == ipc::FORMAT_PROBE_COMPLETE
+                && async_completion.completions.load(Ordering::Acquire) == 1
+                && async_completion.result.load(Ordering::Acquire) == ipc::IPC_OK
+                && async_completion.userdata.load(Ordering::Acquire) == expected_userdata
+                && async_completion.output_matches.load(Ordering::Acquire)
                 && guarded[..before].iter().all(|byte| *byte == 0xa5)
-                && guarded[before..after].iter().all(|byte| *byte == 0xd3)
+                && guarded[before..after]
+                    .iter()
+                    .enumerate()
+                    .all(|(index, byte)| *byte == 0xd3u8.wrapping_add(index as u8))
                 && guarded[after..].iter().all(|byte| *byte == 0xa5)
                 && async_snapshot.vectors[0].length == length as u32
                 && async_snapshot.vectors[0].allocation_length == expected_allocation_len
@@ -1267,6 +1483,114 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         "IPC format public async entry staging cleanup preserves DMA boundary canaries",
         async_boundary_ok,
     );
+
+    struct MixedOutputSlot {
+        buffers: *const [[u8; 40]; 5],
+        callback_count: u32,
+        callback_result: i32,
+        callback_userdata: usize,
+        callback_matches: bool,
+    }
+    fn mixed_outputs_match(buffers: &[[u8; 40]; 5]) -> bool {
+        [1usize, 2, 4, 8, 33]
+            .into_iter()
+            .enumerate()
+            .all(|(vector, length)| {
+                buffers[vector][0] == 0xa5
+                    && buffers[vector][1..1 + length]
+                        .iter()
+                        .enumerate()
+                        .all(|(offset, byte)| {
+                            *byte == (0x20u8 + vector as u8 * 16).wrapping_add(offset as u8)
+                        })
+                    && buffers[vector][1 + length..]
+                        .iter()
+                        .all(|byte| *byte == 0xa5)
+            })
+    }
+    unsafe extern "C" fn mixed_output_completed(result: i32, userdata: *mut c_void) -> i32 {
+        let slot = unsafe { &mut *userdata.cast::<MixedOutputSlot>() };
+        slot.callback_result = result;
+        slot.callback_userdata = userdata as usize;
+        slot.callback_matches = mixed_outputs_match(unsafe { &*slot.buffers });
+        slot.callback_count += 1;
+        0
+    }
+    for asynchronous in [false, true] {
+        let mut buffers = [[0xa5u8; 40]; 5];
+        let mut slot = MixedOutputSlot {
+            buffers: &buffers,
+            callback_count: 0,
+            callback_result: i32::MIN,
+            callback_userdata: 0,
+            callback_matches: false,
+        };
+        let userdata = (&mut slot as *mut MixedOutputSlot).cast::<c_void>();
+        let pointers: [*mut u8; 5] =
+            core::array::from_fn(|index| unsafe { buffers[index].as_mut_ptr().add(1) });
+        let mut snapshot = ipc::FormatProbeSnapshot {
+            output_pattern: 0x20,
+            ..ipc::FormatProbeSnapshot::default()
+        };
+        ipc::FORMAT_PROBE_POSITIONAL_OUTPUT.store(true, Ordering::Release);
+        ipc::FORMAT_PROBE_DISTINCT_OUTPUT.store(true, Ordering::Release);
+        ipc::FORMAT_PROBE_COMPLETE_ASYNC_CALLBACK.store(asynchronous, Ordering::Release);
+        arm_format_snapshot!(snapshot);
+        let result = if asynchronous {
+            unsafe {
+                IOS_IoctlvFormatAsync(
+                    ipc::IPC_HEAP,
+                    0,
+                    0,
+                    Some(mixed_output_completed),
+                    userdata,
+                    c":bhiqd".as_ptr(),
+                    pointers[0],
+                    pointers[1],
+                    pointers[2],
+                    pointers[3],
+                    pointers[4],
+                    33u32,
+                )
+            }
+        } else {
+            unsafe {
+                IOS_IoctlvFormat(
+                    ipc::IPC_HEAP,
+                    0,
+                    0,
+                    c":bhiqd".as_ptr(),
+                    pointers[0],
+                    pointers[1],
+                    pointers[2],
+                    pointers[3],
+                    pointers[4],
+                    33u32,
+                )
+            }
+        };
+        ipc::FORMAT_PROBE_POSITIONAL_OUTPUT.store(false, Ordering::Release);
+        ipc::FORMAT_PROBE_DISTINCT_OUTPUT.store(false, Ordering::Release);
+        ipc::FORMAT_PROBE_COMPLETE_ASYNC_CALLBACK.store(false, Ordering::Release);
+        let callback_ok = if asynchronous {
+            slot.callback_count == 1
+                && slot.callback_result == 0
+                && slot.callback_userdata == userdata as usize
+                && slot.callback_matches
+        } else {
+            slot.callback_count == 0
+        };
+        let lengths_ok = [1u32, 2, 4, 8, 33]
+            .into_iter()
+            .enumerate()
+            .all(|(index, length)| snapshot.vectors[index].length == length);
+        logger.record(
+            if asynchronous { "IPC controlled async mixed scalar and buffer completion preserves widths and canaries" }
+            else { "IPC controlled sync mixed scalar and buffer completion preserves widths and canaries" },
+            result == ipc::FORMAT_PROBE_COMPLETE && snapshot.input_count == 0
+                && snapshot.output_count == 5 && lengths_ok && callback_ok && mixed_outputs_match(&buffers),
+        );
+    }
 
     let mut sync_input_boundary_ok = true;
     let mut async_input_boundary_ok = true;
@@ -1608,6 +1932,103 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             && maximum_staged_snapshot.output_count == 0
             && maximum_staged_snapshot.vector_count == 31
             && maximum_staged_workspace_complete
+            && formatter_heap_ledger_has_exact_allocations(1)
+            && request_ledger_has_exact_pairs(0),
+    );
+
+    macro_rules! call_async_maximum_staged_d_format {
+        ($userdata:expr; $($index:literal),+ $(,)?) => {
+            unsafe {
+                IOS_IoctlvFormatAsync(
+                    ipc::IPC_HEAP,
+                    0,
+                    0,
+                    Some(format_controlled_completed),
+                    $userdata,
+                    c"ddddddddddddddddddddddddddddddd".as_ptr(),
+                    $(workspace_stress_pointers[$index], 33u32),+
+                )
+            }
+        };
+    }
+    let async_stress_slot = FormatControlledCompletionSlot {
+        output: core::sync::atomic::AtomicUsize::new(workspace_stress_pointers[0] as usize),
+        length: core::sync::atomic::AtomicUsize::new(1),
+        seed: core::sync::atomic::AtomicU32::new(0x6d),
+        userdata: core::sync::atomic::AtomicUsize::new(0),
+        result: AtomicI32::new(i32::MIN),
+        completions: core::sync::atomic::AtomicU32::new(0),
+        output_matches: AtomicBool::new(false),
+    };
+    let async_stress_userdata = (&async_stress_slot as *const FormatControlledCompletionSlot)
+        .cast_mut()
+        .cast::<c_void>();
+    let mut maximum_async_snapshot = ipc::FormatProbeSnapshot::default();
+    ipc::reset_format_heap_ledger();
+    ipc::reset_request_ledger();
+    ipc::FORMAT_PROBE_COMPLETE_ASYNC_CALLBACK.store(true, Ordering::Release);
+    arm_format_snapshot!(maximum_async_snapshot);
+    let maximum_async_staged_result = call_async_maximum_staged_d_format!(async_stress_userdata;
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+        25, 26, 27, 28, 29, 30,
+    );
+    ipc::FORMAT_PROBE_COMPLETE_ASYNC_CALLBACK.store(false, Ordering::Release);
+    let async_stress_callback_ok = async_stress_slot.completions.load(Ordering::Acquire) == 1
+        && async_stress_slot.result.load(Ordering::Acquire) == ipc::IPC_OK
+        && async_stress_slot.userdata.load(Ordering::Acquire) == async_stress_userdata as usize
+        && async_stress_slot.output_matches.load(Ordering::Acquire);
+    let async_stress_buffers_ok = workspace_stress_inputs
+        .iter()
+        .all(|buffer| buffer.0.iter().all(|byte| *byte == 0x6d));
+    let async_stress_workspace_complete = maximum_async_snapshot.workspace_event_count as usize
+        == ipc::FORMAT_PROBE_MAX_WORKSPACE_EVENTS
+        && lwp::WORKSPACE_PROBE_EVENT_COUNT.load(Ordering::Acquire)
+            == ipc::FORMAT_PROBE_MAX_WORKSPACE_EVENTS
+        && maximum_async_snapshot
+            .vectors
+            .iter()
+            .take(31)
+            .all(|vector| vector.length == 33 && vector.allocation_length == 64)
+        && (0..31).all(|index| {
+            let vector = maximum_async_snapshot.vectors[index];
+            vector.data_address != 0
+                && workspace_round_trip(
+                    &maximum_async_snapshot,
+                    vector.data_address,
+                    vector.allocation_length,
+                )
+        });
+    logger.note_hex32(
+        "IPC async max staged d captured vector counts",
+        (maximum_async_snapshot.input_count << 16) | maximum_async_snapshot.output_count,
+    );
+    logger.note_hex32(
+        "IPC async max staged d workspace events",
+        maximum_async_snapshot.workspace_event_count,
+    );
+    logger.note_hex32(
+        "IPC async max staged d callback and buffer status",
+        u32::from(async_stress_callback_ok) | (u32::from(async_stress_buffers_ok) << 1),
+    );
+    logger.note_i32(
+        "IPC async max staged d controlled completion result",
+        maximum_async_staged_result,
+    );
+    logger.note_hex32(
+        "IPC async max staged d workspace and heap ledgers",
+        u32::from(async_stress_workspace_complete)
+            | (u32::from(formatter_heap_ledger_has_exact_allocations(1)) << 1)
+            | (u32::from(request_ledger_has_exact_pairs(0)) << 2),
+    );
+    logger.record(
+        "IPC format async maximum 31 staged d inputs remain intact through callback with 64 workspace events",
+        maximum_async_staged_result == ipc::FORMAT_PROBE_COMPLETE
+            && maximum_async_snapshot.asynchronous == 1
+            && maximum_async_snapshot.input_count == 31
+            && maximum_async_snapshot.output_count == 0
+            && async_stress_callback_ok
+            && async_stress_buffers_ok
+            && async_stress_workspace_complete
             && formatter_heap_ledger_has_exact_allocations(1)
             && request_ledger_has_exact_pairs(0),
     );
@@ -2149,6 +2570,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             let mut async_lengths_ok = true;
             let mut tail_changes_ciphertext = false;
             let mut async_tail_changes_ciphertext = false;
+            let mut mixed_aes_inputs_ok = false;
             for length in [32usize, 64] {
                 let mut source = [0xacu8; 128];
                 let base = source.as_mut_ptr() as usize;
@@ -2190,6 +2612,57 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                         ipc::IoctlvEntry::Out(&mut alternate_iv.0[..16]),
                     ],
                 );
+                if length == 64 {
+                    let mut mixed_output = AlignedAesBytes([0xa5; 96]);
+                    let mut mixed_iv = AlignedAesBytes([0x3c; 32]);
+                    mixed_iv.0[..16].copy_from_slice(&AES_CBC_IV);
+                    let mut mixed_capture = ipc::FormatProbeSnapshot::default();
+                    arm_format_snapshot!(mixed_capture);
+                    let layout = unsafe {
+                        IOS_IoctlvFormat(
+                            ipc::IPC_HEAP,
+                            aes_fd.raw(),
+                            2,
+                            c"dd:dd".as_ptr(),
+                            alternate.0.as_ptr(),
+                            64u32,
+                            key.0.as_ptr(),
+                            16u32,
+                            mixed_output.0.as_mut_ptr(),
+                            64u32,
+                            mixed_iv.0.as_mut_ptr(),
+                            16u32,
+                        )
+                    };
+                    let result = unsafe {
+                        IOS_IoctlvFormat(
+                            ipc::IPC_HEAP,
+                            aes_fd.raw(),
+                            2,
+                            c"dd:dd".as_ptr(),
+                            alternate.0.as_ptr(),
+                            64u32,
+                            key.0.as_ptr(),
+                            16u32,
+                            mixed_output.0.as_mut_ptr(),
+                            64u32,
+                            mixed_iv.0.as_mut_ptr(),
+                            16u32,
+                        )
+                    };
+                    mixed_aes_inputs_ok = layout == ipc::FORMAT_PROBE_COMPLETE
+                        && mixed_capture.input_count == 2
+                        && mixed_capture.vectors[0].data_address == alternate.0.as_ptr() as usize
+                        && mixed_capture.vectors[0].allocation_length == 0
+                        && mixed_capture.vectors[1].allocation_length == 32
+                        && mixed_capture.vectors[1].data_address != key.0.as_ptr() as usize
+                        && alternate_result == 0
+                        && result == 0
+                        && mixed_output.0[..64] == alternate_output.0[..64]
+                        && mixed_iv.0[..16] == alternate_iv.0[..16]
+                        && mixed_output.0[64..].iter().all(|byte| *byte == 0xa5)
+                        && mixed_iv.0[16..].iter().all(|byte| *byte == 0x3c);
+                }
 
                 let mut formatted_output = AlignedAesBytes([0xa5; 96]);
                 let mut formatted_iv = AlignedAesBytes([0x3c; 32]);
@@ -2361,6 +2834,123 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                     formatted_result,
                 );
             }
+            static mut LIVE_OUTPUT: AlignedAesBytes<128> = AlignedAesBytes([0xa5; 128]);
+            static mut LIVE_IV: AlignedAesBytes<64> = AlignedAesBytes([0x3c; 64]);
+            static LIVE_SLOT: FormatAesAsyncSlot = FormatAesAsyncSlot::new();
+            let mut full_output_ok = true;
+            let mut full_async_output_ok = true;
+            for length in [32usize, 64] {
+                for offset in [0usize, 1] {
+                    let output_base = core::ptr::addr_of_mut!(LIVE_OUTPUT).cast::<u8>();
+                    let iv_base = core::ptr::addr_of_mut!(LIVE_IV).cast::<u8>();
+                    let output = unsafe { output_base.add(32 + offset) };
+                    let iv = unsafe { iv_base.add(32 + offset) };
+                    let expected_iv = unsafe { AES_CBC_CIPHERTEXT.as_ptr().add(length - 16) };
+                    for asynchronous in [false, true] {
+                        unsafe {
+                            core::ptr::write_bytes(output_base, 0xa5, 128);
+                            core::ptr::write_bytes(iv_base, 0x3c, 64);
+                            core::ptr::copy_nonoverlapping(AES_CBC_IV.as_ptr(), iv, 16);
+                        }
+                        let result = if asynchronous {
+                            LIVE_SLOT.prepare(
+                                output,
+                                AES_CBC_CIPHERTEXT.as_ptr(),
+                                iv,
+                                expected_iv,
+                                length,
+                            );
+                            unsafe {
+                                IOS_IoctlvFormatAsync(
+                                    ipc::IPC_HEAP,
+                                    aes_fd.raw(),
+                                    2,
+                                    Some(format_aes_completed),
+                                    (&LIVE_SLOT as *const FormatAesAsyncSlot).cast_mut().cast(),
+                                    c"dd:dd".as_ptr(),
+                                    AES_CBC_PLAINTEXT.as_ptr(),
+                                    length as u32,
+                                    key.0.as_ptr(),
+                                    16u32,
+                                    output,
+                                    length as u32,
+                                    iv,
+                                    16u32,
+                                )
+                            }
+                        } else {
+                            unsafe {
+                                IOS_IoctlvFormat(
+                                    ipc::IPC_HEAP,
+                                    aes_fd.raw(),
+                                    2,
+                                    c"dd:dd".as_ptr(),
+                                    AES_CBC_PLAINTEXT.as_ptr(),
+                                    length as u32,
+                                    key.0.as_ptr(),
+                                    16u32,
+                                    output,
+                                    length as u32,
+                                    iv,
+                                    16u32,
+                                )
+                            }
+                        };
+                        if asynchronous && result == 0 {
+                            for _ in 0..1000 {
+                                if LIVE_SLOT.completions.load(Ordering::Acquire) != 0 {
+                                    break;
+                                }
+                                lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 100).max(1));
+                            }
+                            if LIVE_SLOT.completions.load(Ordering::Acquire) == 0 {
+                                logger.record(
+                                    "IPC async AES full output completion timed out",
+                                    false,
+                                );
+                                return;
+                            }
+                            lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 20).max(1));
+                        }
+                        let valid = result == 0
+                            && unsafe { core::slice::from_raw_parts(output, length) }
+                                == &AES_CBC_CIPHERTEXT[..length]
+                            && unsafe { core::slice::from_raw_parts(iv, 16) }
+                                == &AES_CBC_CIPHERTEXT[length - 16..length]
+                            && unsafe { output.sub(1).read() } == 0xa5
+                            && unsafe { output.add(length).read() } == 0xa5
+                            && unsafe { iv.sub(1).read() } == 0x3c
+                            && unsafe { iv.add(16).read() } == 0x3c;
+                        if asynchronous {
+                            full_async_output_ok &= valid
+                                && LIVE_SLOT.completions.load(Ordering::Acquire) == 1
+                                && LIVE_SLOT.userdata.load(Ordering::Acquire)
+                                    == (&LIVE_SLOT as *const FormatAesAsyncSlot) as usize
+                                && LIVE_SLOT.result.load(Ordering::Acquire) == 0
+                                && LIVE_SLOT.output_matches.load(Ordering::Acquire);
+                        } else {
+                            full_output_ok &= valid;
+                        }
+                        logger.note_hex32_index(
+                            "IPC AES live full output status length and offset",
+                            (length * 10 + offset) as i32,
+                            u32::from(valid) | (u32::from(asynchronous) << 1),
+                        );
+                    }
+                }
+            }
+            logger.record(
+                "IPC sync AES full 32 and 64 byte outputs preserve boundary canaries",
+                full_output_ok,
+            );
+            logger.record(
+                "IPC async AES callback sees full 32 and 64 byte outputs and IV",
+                full_async_output_ok,
+            );
+            logger.record(
+                "IPC AES direct plaintext and staged key match typed mutated-tail control",
+                mixed_aes_inputs_ok,
+            );
             aes_live_input_ok = all_lengths_ok && tail_changes_ciphertext && aes_fd.close().is_ok();
             async_aes_live_input_ok = async_lengths_ok && async_tail_changes_ciphertext;
         }
@@ -2679,6 +3269,121 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 && buffer_slot.output_matches.load(Ordering::Acquire),
         );
 
+        let mut error_control_output = [0xa5u8; 4];
+        let error_control = fd.ioctlv(
+            0x7fff_ffff,
+            0,
+            [ipc::IoctlvEntry::Out(&mut error_control_output)],
+        );
+        let error_expected = u32::from_be_bytes(error_control_output);
+        let mut error_sync_output = 0xa5a5_a5a5u32;
+        ipc::reset_format_heap_ledger();
+        ipc::reset_request_ledger();
+        lwp::WORKSPACE_PROBE_EVENT_COUNT.store(0, Ordering::Release);
+        let error_sync = unsafe {
+            IOS_IoctlvFormat(
+                ipc::IPC_HEAP,
+                fd.raw(),
+                0x7fff_ffff,
+                c":i".as_ptr(),
+                &mut error_sync_output,
+            )
+        };
+        let sync_error_clean = error_control < 0
+            && error_sync == error_control
+            && error_sync_output == error_expected
+            && formatter_heap_ledger_has_exact_allocations(2)
+            && request_ledger_has_exact_pairs(1)
+            && current_workspace_ledger_balanced(1);
+        let mut error_recovery = u32::MAX;
+        let sync_recovery = unsafe {
+            IOS_IoctlvFormat(
+                ipc::IPC_HEAP,
+                fd.raw(),
+                0x0e,
+                c":i".as_ptr(),
+                &mut error_recovery,
+            )
+        };
+        logger.record(
+            "IPC sync submitted ES error matches typed control and recovers",
+            sync_error_clean && sync_recovery == 0 && error_recovery == actual,
+        );
+
+        for with_callback in [true, false] {
+            scalar_slot.reset(async_output.cast(), error_expected);
+            unsafe { async_output.write(0xa5a5_a5a5) };
+            ipc::reset_format_heap_ledger();
+            ipc::reset_request_ledger();
+            lwp::WORKSPACE_PROBE_EVENT_COUNT.store(0, Ordering::Release);
+            let error_userdata = (scalar_slot as *const FormatAsyncProbeSlot)
+                .cast_mut()
+                .cast();
+            let submission = unsafe {
+                IOS_IoctlvFormatAsync(
+                    ipc::IPC_HEAP,
+                    fd.raw(),
+                    0x7fff_ffff,
+                    if with_callback {
+                        Some(format_concurrent_completed)
+                    } else {
+                        None
+                    },
+                    error_userdata,
+                    c":i".as_ptr(),
+                    async_output,
+                )
+            };
+            let mut error_completed = false;
+            for _ in 0..1000 {
+                if request_ledger_has_exact_pairs(1) {
+                    error_completed = true;
+                    break;
+                }
+                lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 100).max(1));
+            }
+            if submission == 0 && !error_completed {
+                logger.record(
+                    "IPC async submitted ES error completes and releases request",
+                    false,
+                );
+                return;
+            }
+            let callback_valid = if with_callback {
+                scalar_slot.completions.load(Ordering::Acquire) == 1
+                    && scalar_slot.result.load(Ordering::Acquire) == error_control
+                    && scalar_slot.userdata.load(Ordering::Acquire) == error_userdata as usize
+                    && scalar_slot.output_matches.load(Ordering::Acquire)
+            } else {
+                scalar_slot.completions.load(Ordering::Acquire) == 0
+            };
+            let clean = submission == 0
+                && error_completed
+                && callback_valid
+                && unsafe { async_output.read() } == error_expected
+                && formatter_heap_ledger_has_exact_allocations(2)
+                && request_ledger_has_exact_pairs(1)
+                && current_workspace_ledger_balanced(1);
+            error_recovery = u32::MAX;
+            let recovery = unsafe {
+                IOS_IoctlvFormat(
+                    ipc::IPC_HEAP,
+                    fd.raw(),
+                    0x0e,
+                    c":i".as_ptr(),
+                    &mut error_recovery,
+                )
+            };
+            logger.record(
+                if with_callback {
+                    "IPC async submitted ES error callback matches typed control and recovers"
+                } else {
+                    "IPC callback-less submitted ES error releases state and recovers"
+                },
+                clean && recovery == 0 && error_recovery == actual,
+            );
+        }
+
         FORMAT_REENTRY_FIRST_COMPLETIONS.store(0, Ordering::Release);
         FORMAT_REENTRY_SECOND_COMPLETIONS.store(0, Ordering::Release);
         FORMAT_REENTRY_FIRST_RESULT.store(i32::MIN, Ordering::Release);
@@ -2757,6 +3462,148 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 && reentry_request_ledger_balanced
                 && reentry_formatter_ledger_balanced
                 && reentry_workspace_ledger_balanced,
+        );
+
+        if !reentry_completed && reentry_first_submission == 0 {
+            logger.record(
+                "IPC format re-entry failure fixture can safely start",
+                false,
+            );
+            return;
+        }
+        FORMAT_REENTRY_FIRST_COMPLETIONS.store(0, Ordering::Release);
+        FORMAT_REENTRY_SECOND_COMPLETIONS.store(0, Ordering::Release);
+        FORMAT_REENTRY_FIRST_RESULT.store(i32::MIN, Ordering::Release);
+        FORMAT_REENTRY_SECOND_SUBMISSION.store(i32::MIN, Ordering::Release);
+        FORMAT_REENTRY_USERDATA_OK.store(false, Ordering::Release);
+        FORMAT_REENTRY_FIRST_OUTPUT_OK.store(false, Ordering::Release);
+        FORMAT_REENTRY_REJECT_SECOND.store(true, Ordering::Release);
+        unsafe {
+            first_reentry_output.write(u32::MAX);
+            second_reentry_output.write(u32::MAX);
+        }
+        ipc::reset_format_heap_ledger();
+        ipc::reset_request_ledger();
+        lwp::WORKSPACE_PROBE_EVENT_COUNT.store(0, Ordering::Release);
+        let rejected_first = match first_reentry_heap {
+            Ok(heap) => unsafe {
+                IOS_IoctlvFormatAsync(
+                    heap.raw(),
+                    fd.raw(),
+                    0x0e,
+                    Some(format_reentry_first_completed),
+                    first_reentry_userdata,
+                    c":i".as_ptr(),
+                    first_reentry_output,
+                )
+            },
+            Err(error) => error,
+        };
+        for _ in 0..1000 {
+            if FORMAT_REENTRY_SECOND_SUBMISSION.load(Ordering::Acquire) != i32::MIN {
+                break;
+            }
+            lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 100).max(1));
+        }
+        let rejected_second = FORMAT_REENTRY_SECOND_SUBMISSION.load(Ordering::Acquire);
+        if rejected_first == 0 && rejected_second == i32::MIN {
+            logger.record(
+                "IPC format re-entry submission failure completes without a second callback",
+                false,
+            );
+            return;
+        }
+        lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 20).max(1));
+        logger.record(
+            "IPC format re-entry submission failure completes without a second callback",
+            rejected_first == 0
+                && rejected_second == ipc::IPC_EQUEUEFULL
+                && FORMAT_REENTRY_FIRST_COMPLETIONS.load(Ordering::Acquire) == 1
+                && FORMAT_REENTRY_SECOND_COMPLETIONS.load(Ordering::Acquire) == 0
+                && FORMAT_REENTRY_FIRST_RESULT.load(Ordering::Acquire) == 0
+                && FORMAT_REENTRY_USERDATA_OK.load(Ordering::Acquire)
+                && FORMAT_REENTRY_FIRST_OUTPUT_OK.load(Ordering::Acquire)
+                && unsafe { first_reentry_output.read() } == actual
+                && unsafe { second_reentry_output.read() } == u32::MAX
+                && request_ledger_has_exact_pairs(2)
+                && formatter_heap_ledger_has_exact_allocations(4)
+                && current_workspace_ledger_balanced(2),
+        );
+
+        for index in 0..3 {
+            FORMAT_CHAIN_COUNTS[index].store(0, Ordering::Release);
+            FORMAT_CHAIN_RESULTS[index].store(i32::MIN, Ordering::Release);
+            FORMAT_CHAIN_SUBMISSIONS[index].store(i32::MIN, Ordering::Release);
+            FORMAT_CHAIN_CHECKS[index].store(false, Ordering::Release);
+        }
+        unsafe {
+            core::ptr::addr_of_mut!(FORMAT_CHAIN_OUTPUTS)
+                .write([[0xa5a5_a5a5, u32::MAX, 0x5a5a_5a5a]; 3])
+        };
+        ipc::reset_format_heap_ledger();
+        ipc::reset_request_ledger();
+        lwp::WORKSPACE_PROBE_EVENT_COUNT.store(0, Ordering::Release);
+        let first_chain_output = unsafe {
+            core::ptr::addr_of_mut!(FORMAT_CHAIN_OUTPUTS)
+                .cast::<u32>()
+                .add(1)
+        };
+        let chain_start = unsafe {
+            IOS_IoctlvFormatAsync(
+                ipc::IPC_HEAP,
+                fd.raw(),
+                0x0e,
+                Some(format_chain_completed),
+                FORMAT_CHAIN_USERDATA.as_ptr().cast_mut().cast(),
+                c":i".as_ptr(),
+                first_chain_output,
+            )
+        };
+        FORMAT_CHAIN_SUBMISSIONS[0].store(chain_start, Ordering::Release);
+        for _ in 0..1000 {
+            if FORMAT_CHAIN_COUNTS[2].load(Ordering::Acquire) != 0
+                || FORMAT_CHAIN_SUBMISSIONS[1..].iter().any(|value| {
+                    value.load(Ordering::Acquire) < 0 && value.load(Ordering::Acquire) != i32::MIN
+                })
+            {
+                break;
+            }
+            lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 100).max(1));
+        }
+        if chain_start == 0
+            && FORMAT_CHAIN_COUNTS[2].load(Ordering::Acquire) == 0
+            && FORMAT_CHAIN_SUBMISSIONS[1..].iter().all(|value| {
+                value.load(Ordering::Acquire) >= 0 || value.load(Ordering::Acquire) == i32::MIN
+            })
+        {
+            logger.record(
+                "IPC async three callback-linked requests retain separate outputs and ownership",
+                false,
+            );
+            return;
+        }
+        lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 20).max(1));
+        let mut chain_heap = [ipc::AllocationEvent::default(); ipc::FORMAT_PROBE_LEDGER_CAPACITY];
+        let mut chain_requests =
+            [ipc::AllocationEvent::default(); ipc::FORMAT_PROBE_LEDGER_CAPACITY];
+        let heap_count = ipc::read_format_heap_ledger(&mut chain_heap);
+        let request_count = ipc::read_request_ledger(&mut chain_requests);
+        let chain_clean = heap_count <= chain_heap.len()
+            && request_count <= chain_requests.len()
+            && allocation_lifetimes_balance(&chain_heap[..heap_count.min(chain_heap.len())], 6)
+            && allocation_lifetimes_balance(
+                &chain_requests[..request_count.min(chain_requests.len())],
+                3,
+            )
+            && current_workspace_ledger_balanced(3);
+        logger.record(
+            "IPC async three callback-linked requests retain separate outputs and ownership",
+            (0..3).all(|index| {
+                FORMAT_CHAIN_COUNTS[index].load(Ordering::Acquire) == 1
+                    && FORMAT_CHAIN_RESULTS[index].load(Ordering::Acquire) == 0
+                    && FORMAT_CHAIN_SUBMISSIONS[index].load(Ordering::Acquire) == 0
+                    && FORMAT_CHAIN_CHECKS[index].load(Ordering::Acquire)
+            }) && chain_clean,
         );
 
         static FORMAT_LWP_START: AtomicBool = AtomicBool::new(false);
@@ -3158,6 +4005,65 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             scalar_exhaustion_clean,
         );
 
+        for (heap, two_scalars, expected_allocations) in [
+            (argv_exhaustion_heap, false, 0usize),
+            (scalar_exhaustion_heap, true, 2usize),
+        ] {
+            scalar_slot.reset(async_output.cast(), actual);
+            unsafe { async_output.write(u32::MAX) };
+            ipc::reset_format_heap_ledger();
+            ipc::reset_request_ledger();
+            lwp::WORKSPACE_PROBE_EVENT_COUNT.store(0, Ordering::Release);
+            let userdata = (scalar_slot as *const FormatAsyncProbeSlot)
+                .cast_mut()
+                .cast();
+            let result = match heap {
+                Ok(heap) if two_scalars => unsafe {
+                    IOS_IoctlvFormatAsync(
+                        heap.raw(),
+                        fd.raw(),
+                        0,
+                        Some(format_concurrent_completed),
+                        userdata,
+                        c"ii".as_ptr(),
+                        0x1122_3344u32,
+                        0x5566_7788u32,
+                    )
+                },
+                Ok(heap) => unsafe {
+                    IOS_IoctlvFormatAsync(
+                        heap.raw(),
+                        fd.raw(),
+                        0,
+                        Some(format_concurrent_completed),
+                        userdata,
+                        c"i".as_ptr(),
+                        0x1122_3344u32,
+                    )
+                },
+                Err(error) => error,
+            };
+            if result == 0 {
+                logger.record("IPC async real heap exhaustion rejects allocation", false);
+                return;
+            }
+            let clean = result == ipc::IPC_ENOMEM
+                && scalar_slot.completions.load(Ordering::Acquire) == 0
+                && unsafe { async_output.read() } == u32::MAX
+                && ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire) == live_before_faults
+                && formatter_heap_ledger_has_exact_allocations(expected_allocations)
+                && request_ledger_has_exact_pairs(0)
+                && current_workspace_ledger_balanced(1);
+            logger.record(
+                if two_scalars {
+                    "IPC formatter async real heap exhaustion releases the first Scalar and Argv"
+                } else {
+                    "IPC formatter async real heap exhaustion rejects Argv"
+                },
+                clean,
+            );
+        }
+
         let mut heap_recovery = ipc::FormatProbeSnapshot::default();
         ipc::reset_format_heap_ledger();
         let heap_recovery_result = match scalar_exhaustion_heap {
@@ -3207,6 +4113,30 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         ipc::reset_format_heap_ledger();
         let workspace_state_exhaustion_result =
             unsafe { IOS_IoctlvFormat(ipc::IPC_HEAP, fd.raw(), 0, c"i".as_ptr(), 0x3141_5926u32) };
+        scalar_slot.reset(async_output.cast(), actual);
+        unsafe { async_output.write(u32::MAX) };
+        ipc::reset_request_ledger();
+        let async_state_failure_index = lwp::WORKSPACE_PROBE_EVENT_COUNT.load(Ordering::Acquire);
+        let async_state_exhaustion_result = unsafe {
+            IOS_IoctlvFormatAsync(
+                ipc::IPC_HEAP,
+                fd.raw(),
+                0,
+                Some(format_concurrent_completed),
+                (scalar_slot as *const FormatAsyncProbeSlot)
+                    .cast_mut()
+                    .cast(),
+                c":i".as_ptr(),
+                async_output,
+            )
+        };
+        if async_state_exhaustion_result == 0 {
+            logger.record(
+                "IPC async FormatState real workspace exhaustion balances all reservations",
+                false,
+            );
+            return;
+        }
         for (allocation, size) in workspace_reservations
             .iter()
             .take(workspace_reservation_count)
@@ -3245,6 +4175,22 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             "IPC formatter FormatState real workspace exhaustion balances all reservations",
             workspace_state_oom_clean,
         );
+        logger.record(
+            "IPC async FormatState real workspace exhaustion balances all reservations",
+            workspace_state_oom_clean
+                && async_state_exhaustion_result == ipc::IPC_ENOMEM
+                && async_state_failure_index < workspace_event_count
+                && workspace_oom_events
+                    .get(async_state_failure_index)
+                    .is_some_and(|event| {
+                        event.kind == ipc::FORMAT_PROBE_WORKSPACE_ALLOC
+                            && event.pointer == 0
+                            && event.size != 0
+                    })
+                && scalar_slot.completions.load(Ordering::Acquire) == 0
+                && unsafe { async_output.read() } == u32::MAX
+                && request_ledger_has_exact_pairs(0),
+        );
 
         // Keep one isolated workspace block large enough for FormatState but
         // too small for FormatState plus the 64-byte staged d buffer. This
@@ -3273,7 +4219,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             while staging_reservation_count < staging_reservations.len()
                 && lwp::WORKSPACE_PROBE_EVENT_COUNT.load(Ordering::Acquire)
                     + staging_reservation_count
-                    + 6
+                    + 9
                     <= lwp::WORKSPACE_PROBE_CAPACITY
             {
                 let allocation = unsafe { lwp::allocate_workspace(32) };
@@ -3306,6 +4252,37 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         } else {
             ipc::IPC_EINVAL
         };
+        static mut ASYNC_STAGING_OOM_OUTPUT: [u8; 65] = [0xa5; 65];
+        let staging_output = core::ptr::addr_of_mut!(ASYNC_STAGING_OOM_OUTPUT).cast::<u8>();
+        unsafe { core::ptr::write_bytes(staging_output, 0xa5, 65) };
+        scalar_slot.reset(async_output.cast(), actual);
+        ipc::reset_request_ledger();
+        let async_staging_state_index = lwp::WORKSPACE_PROBE_EVENT_COUNT.load(Ordering::Acquire);
+        let async_staging_result = if target_block_index.is_some() {
+            unsafe {
+                IOS_IoctlvFormatAsync(
+                    ipc::IPC_HEAP,
+                    fd.raw(),
+                    0,
+                    Some(format_concurrent_completed),
+                    (scalar_slot as *const FormatAsyncProbeSlot)
+                        .cast_mut()
+                        .cast(),
+                    c":d".as_ptr(),
+                    staging_output.add(1),
+                    33u32,
+                )
+            }
+        } else {
+            ipc::IPC_EINVAL
+        };
+        if async_staging_result == 0 {
+            logger.record(
+                "IPC async staged-buffer real workspace exhaustion releases state and argv",
+                false,
+            );
+            return;
+        }
         for (allocation, size) in staging_reservations
             .iter()
             .take(staging_reservation_count)
@@ -3355,7 +4332,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             && staging_workspace_result == ipc::IPC_ENOMEM
             && staging_workspace_state_allocated
             && staging_workspace_oom_observed
-            && formatter_heap_ledger_has_exact_allocations(1)
+            && formatter_heap_ledger_has_exact_allocations(2)
             && ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire) == live_before_faults
             && staging_workspace_event_count <= lwp::WORKSPACE_PROBE_CAPACITY
             && workspace_oom_ledger_complete(
@@ -3366,6 +4343,177 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             "IPC formatter staged-buffer real workspace exhaustion releases state and argv",
             staging_workspace_oom_clean,
         );
+        logger.record(
+            "IPC async staged-buffer real workspace exhaustion releases state and argv",
+            staging_workspace_oom_clean
+                && async_staging_result == ipc::IPC_ENOMEM
+                && staging_oom_events
+                    .get(async_staging_state_index)
+                    .is_some_and(|event| {
+                        event.kind == ipc::FORMAT_PROBE_WORKSPACE_ALLOC
+                            && event.pointer != 0
+                            && event.size == state_size
+                    })
+                && staging_oom_events
+                    .get(async_staging_state_index + 1)
+                    .is_some_and(|event| {
+                        event.kind == ipc::FORMAT_PROBE_WORKSPACE_ALLOC
+                            && event.pointer == 0
+                            && event.size == 64
+                    })
+                && scalar_slot.completions.load(Ordering::Acquire) == 0
+                && unsafe { core::slice::from_raw_parts(staging_output, 65) }
+                    .iter()
+                    .all(|b| *b == 0xa5)
+                && request_ledger_has_exact_pairs(0),
+        );
+
+        static mut LATE_OOM_SOURCE: AlignedAesBytes<65> = AlignedAesBytes([0x45; 65]);
+        static mut LATE_OOM_OUTPUT: AlignedAesBytes<65> = AlignedAesBytes([0xa5; 65]);
+        static mut LATE_OOM_LARGE_OUTPUT: AlignedAesBytes<4097> = AlignedAesBytes([0xa5; 4097]);
+        for asynchronous in [false, true] {
+            lwp::WORKSPACE_PROBE_EVENT_COUNT.store(0, Ordering::Release);
+            let mut held = [(core::ptr::null_mut(), 0usize); 32];
+            let mut held_count = 0usize;
+            let target_size = state_size + 512;
+            let filler_size = (512 * 1024usize).saturating_sub(target_size + 256) & !31usize;
+            let filler = unsafe { lwp::allocate_workspace(filler_size) };
+            if !filler.is_null() {
+                held[held_count] = (filler, filler_size);
+                held_count += 1;
+            }
+            let target = unsafe { lwp::allocate_workspace(target_size) };
+            if !target.is_null() {
+                held[held_count] = (target, target_size);
+                held_count += 1;
+            }
+            while !target.is_null()
+                && held_count < held.len()
+                && lwp::WORKSPACE_PROBE_EVENT_COUNT.load(Ordering::Acquire) + held_count + 12
+                    <= lwp::WORKSPACE_PROBE_CAPACITY
+            {
+                let allocation = unsafe { lwp::allocate_workspace(32) };
+                if allocation.is_null() {
+                    break;
+                }
+                held[held_count] = (allocation, 32);
+                held_count += 1;
+            }
+            if !target.is_null() {
+                unsafe { lwp::release_workspace(target, target_size) };
+                if let Some(entry) = held.iter_mut().find(|entry| entry.0 == target) {
+                    *entry = (core::ptr::null_mut(), 0);
+                }
+            }
+            let start = lwp::WORKSPACE_PROBE_EVENT_COUNT.load(Ordering::Acquire);
+            let input = core::ptr::addr_of_mut!(LATE_OOM_SOURCE).cast::<u8>();
+            let first = core::ptr::addr_of_mut!(LATE_OOM_OUTPUT).cast::<u8>();
+            let last = core::ptr::addr_of_mut!(LATE_OOM_LARGE_OUTPUT).cast::<u8>();
+            unsafe {
+                core::ptr::write_bytes(first, 0xa5, 65);
+                core::ptr::write_bytes(last, 0xa5, 4097);
+            }
+            scalar_slot.reset(async_output.cast(), actual);
+            ipc::reset_format_heap_ledger();
+            ipc::reset_request_ledger();
+            let result = if target.is_null() {
+                ipc::IPC_EINVAL
+            } else if asynchronous {
+                unsafe {
+                    IOS_IoctlvFormatAsync(
+                        ipc::IPC_HEAP,
+                        fd.raw(),
+                        0,
+                        Some(format_concurrent_completed),
+                        (scalar_slot as *const FormatAsyncProbeSlot)
+                            .cast_mut()
+                            .cast(),
+                        c"d:dd".as_ptr(),
+                        input.add(1),
+                        33u32,
+                        first.add(1),
+                        33u32,
+                        last.add(1),
+                        4096u32,
+                    )
+                }
+            } else {
+                unsafe {
+                    IOS_IoctlvFormat(
+                        ipc::IPC_HEAP,
+                        fd.raw(),
+                        0,
+                        c"d:dd".as_ptr(),
+                        input.add(1),
+                        33u32,
+                        first.add(1),
+                        33u32,
+                        last.add(1),
+                        4096u32,
+                    )
+                }
+            };
+            if asynchronous && result == 0 {
+                logger.record("IPC async final staged-buffer real workspace exhaustion cleans prior ownership", false);
+                return;
+            }
+            for (pointer, size) in held.iter().take(held_count).copied() {
+                if !pointer.is_null() {
+                    unsafe { lwp::release_workspace(pointer, size) };
+                }
+            }
+            let count = lwp::WORKSPACE_PROBE_EVENT_COUNT.load(Ordering::Acquire);
+            let mut events = [lwp::WorkspaceProbeEvent::default(); lwp::WORKSPACE_PROBE_CAPACITY];
+            if count <= events.len() {
+                for (index, event) in events.iter_mut().take(count).enumerate() {
+                    let slot = &lwp::WORKSPACE_PROBE_EVENTS[index];
+                    *event = lwp::WorkspaceProbeEvent {
+                        kind: slot.kind.load(Ordering::Acquire),
+                        pointer: slot.pointer.load(Ordering::Relaxed),
+                        size: slot.size.load(Ordering::Relaxed),
+                    };
+                }
+            }
+            let correct_stages = events.get(start..start + 4).is_some_and(|e| {
+                e[0].kind == ipc::FORMAT_PROBE_WORKSPACE_ALLOC
+                    && e[0].pointer != 0
+                    && e[0].size == state_size
+                    && e[1].kind == ipc::FORMAT_PROBE_WORKSPACE_ALLOC
+                    && e[1].pointer != 0
+                    && e[1].size == 64
+                    && e[2].kind == ipc::FORMAT_PROBE_WORKSPACE_ALLOC
+                    && e[2].pointer != 0
+                    && e[2].size == 64
+                    && e[3].kind == ipc::FORMAT_PROBE_WORKSPACE_ALLOC
+                    && e[3].pointer == 0
+                    && e[3].size == 4096
+            });
+            let clean = result == ipc::IPC_ENOMEM
+                && correct_stages
+                && count <= events.len()
+                && workspace_oom_ledger_complete(&events[..count.min(events.len())], start + 3)
+                && formatter_heap_ledger_has_exact_allocations(1)
+                && request_ledger_has_exact_pairs(0)
+                && scalar_slot.completions.load(Ordering::Acquire) == 0
+                && unsafe { core::slice::from_raw_parts(first, 65) }
+                    .iter()
+                    .all(|byte| *byte == 0xa5)
+                && unsafe { core::slice::from_raw_parts(last, 4097) }
+                    .iter()
+                    .all(|byte| *byte == 0xa5);
+            let mut recovery = u32::MAX;
+            let recovery_result = unsafe {
+                IOS_IoctlvFormat(ipc::IPC_HEAP, fd.raw(), 0x0e, c":i".as_ptr(), &mut recovery)
+            };
+            logger.record(
+                if asynchronous {
+                    "IPC async final staged-buffer real workspace exhaustion cleans prior ownership"
+                } else {
+                    "IPC sync final staged-buffer real workspace exhaustion cleans prior ownership"
+                },
+                clean && recovery_result == 0 && recovery == actual,
+            );
+        }
 
         logger.record(
             "IPC format public sync allocation failures release partial formatter state",

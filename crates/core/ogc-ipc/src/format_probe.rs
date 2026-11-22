@@ -350,6 +350,15 @@ pub(super) fn capture_submission(argv: *mut Ioctlv, input_count: usize) {
 /// symbol exists only when the Dolphin probe feature is enabled.
 pub static FORMAT_PROBE_SNAPSHOT: AtomicUsize = AtomicUsize::new(0);
 
+/// In probe builds, complete an intercepted async request by calling its
+/// callback after output copyback. This models controlled formatter
+/// completion; it does not model IOS DMA or cache behavior.
+pub static FORMAT_PROBE_COMPLETE_ASYNC_CALLBACK: AtomicBool = AtomicBool::new(false);
+/// Fill intercepted output buffers with a byte pattern that changes by offset.
+pub static FORMAT_PROBE_POSITIONAL_OUTPUT: AtomicBool = AtomicBool::new(false);
+/// Give each output vector a distinct pattern seed in a controlled completion.
+pub static FORMAT_PROBE_DISTINCT_OUTPUT: AtomicBool = AtomicBool::new(false);
+
 pub const FORMAT_PROBE_ROLE_STATE: usize = 1;
 pub const FORMAT_PROBE_ROLE_ARGV: usize = 2;
 pub const FORMAT_PROBE_ROLE_SCALAR: usize = 3;
@@ -473,18 +482,37 @@ unsafe fn capture_format_probe(call: &FormatCall, snapshot: *mut FormatProbeSnap
     if output_pattern != 0 {
         for index in cnt_in..total {
             let entry = unsafe { &*argv.add(index) };
+            let vector_pattern = if FORMAT_PROBE_DISTINCT_OUTPUT.load(Ordering::Acquire) {
+                output_pattern.wrapping_add(((index - cnt_in) * 16) as u8)
+            } else {
+                output_pattern
+            };
             if !entry.data.is_null() && entry.len != 0 {
-                unsafe {
-                    core::ptr::write_bytes(
-                        entry.data.cast::<u8>(),
-                        output_pattern,
-                        entry.len as usize,
-                    )
-                };
+                if FORMAT_PROBE_POSITIONAL_OUTPUT.load(Ordering::Acquire) {
+                    for offset in 0..entry.len as usize {
+                        unsafe {
+                            entry
+                                .data
+                                .cast::<u8>()
+                                .add(offset)
+                                .write(vector_pattern.wrapping_add(offset as u8))
+                        };
+                    }
+                } else {
+                    unsafe {
+                        core::ptr::write_bytes(
+                            entry.data.cast::<u8>(),
+                            vector_pattern,
+                            entry.len as usize,
+                        )
+                    };
+                }
             }
         }
     }
-    unsafe { super::format_release(super::IPC_OK, state, output_pattern != 0, false) };
+    let invoke_callback = call.asynchronous != 0
+        && FORMAT_PROBE_COMPLETE_ASYNC_CALLBACK.swap(false, Ordering::AcqRel);
+    unsafe { super::format_release(super::IPC_OK, state, output_pattern != 0, invoke_callback) };
     let event_count = super::lwp_sys::WORKSPACE_PROBE_EVENT_COUNT
         .load(Ordering::Acquire)
         .min(FORMAT_PROBE_MAX_WORKSPACE_EVENTS);
