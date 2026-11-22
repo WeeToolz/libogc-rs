@@ -58,6 +58,21 @@ contract IDs beside the API evidence. This makes each PASS traceable to a
 named behavior, but it does not judge whether the assertion is strong enough.
 Review the probe code and keep partial scopes until the full contract passes.
 
+Coverage IDs and Dolphin runner IDs are separate values. In
+`config/probe-coverage.csv`, the first column identifies API or inventory
+coverage, and `dolphin_runner` names a registered runner when one applies.
+For example, `ipc-format-probe` maps to the source
+`probes/ogc-system-probe/src/runtime_probe.rs` and the Dolphin runner
+`runtime_probe`. Do not infer a runner name from the source path. Contract
+validation binds the API's coverage ID to this row, then checks the mapped
+source and runner against the API evidence and contract. A blank runner field
+means that coverage ID has no Dolphin runner.
+
+Contract IDs may have several rows for their required check labels. Their
+shared API, runner, evidence, function, and API-path identity must stay
+consistent across those rows. The mapped runner must exist in the Dolphin
+registry; matching source paths alone do not identify a runner.
+
 The `active-search-state` scope records inquiry-state changes and adapter
 activity in Dolphin. It keeps search and pairing APIs unverified until a usable
 controller channel and the related discovery or pairing behavior are confirmed.

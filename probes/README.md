@@ -124,6 +124,34 @@ cargo xtask build-dolphin-probes
 cargo xtask dolphin-validate --no-build
 ```
 
+The IPC formatter is registered as `runtime_probe`. Its API coverage ID is
+`ipc-format-probe`; these names belong to different registries. The first
+column in `config/probe-coverage.csv` maps a coverage ID to its source and,
+when it runs in Dolphin, its explicit `dolphin_runner` name. The formatter row
+maps `ipc-format-probe` to
+`probes/ogc-system-probe/src/runtime_probe.rs` and `runtime_probe`. A shared
+source file does not imply a shared runner name. A blank runner field means
+that the coverage ID has no Dolphin runner.
+
+Run only the formatter probe with:
+
+```sh
+cargo xtask dolphin-validate --probe runtime_probe
+```
+
+This selected build does not need the external MP3 fixture. The full
+`cargo xtask build-dolphin-probes` set includes MP3 probe binaries and needs
+`LIBOGC_MAD_PROBE_MP3`; see [dependency notes](../docs/dependencies.md).
+Running Dolphin also needs a Dolphin executable and a Wii NAND that contains
+the Wii System Menu. Set `DOLPHIN_BIN` or pass `--dolphin PATH` for the
+executable, and set `DOLPHIN_WII_NAND` or pass `--nand-dir PATH` for the NAND.
+
+Formatter workspace allocation checks require exact event accounting for
+each `(pointer, size)` pair: one allocation and one free. Duplicate events,
+unmatched frees, and unknown event kinds fail the check. This is probe-side
+accounting; physical Wii cache and DMA behavior remain open until tested on
+hardware.
+
 Run one probe with:
 
 ```sh

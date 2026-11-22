@@ -1,5 +1,27 @@
 # Development results
 
+## 2026-11-22: IPC formatter probe mapping and workspace accounting
+
+Commit `941a1269` adds an explicit mapping from the API coverage ID
+`ipc-format-probe` to the Dolphin runner ID `runtime_probe` in
+`config/probe-coverage.csv`. Evidence validation uses the bound API's coverage
+ID and checks the mapping source, registered runner, contract identity, and
+evidence identity. The API coverage ID and runner ID are not interchangeable.
+Commit `26f6994c` makes the callback-less async workspace ledger require one
+allocation and one free for each recorded `(pointer, size)` pair. Duplicate
+and unmatched events fail.
+
+The saved [formatter ledger run](docs/dolphin-runs/2026-11-22-ipc-format-ledger-v1/README.md)
+contains an earlier Dolphin 2609a run with 830 passing probe checks. That run
+used source revision `0d1b856f` with a dirty worktree; it predates the two
+commits above and does not verify their final implementation. Verification of
+the updated code passed `cargo test -p xtask` (139 tests), `cargo test`,
+`cargo clippy --all-targets`, formatting, and a focused PowerPC build of
+`runtime_probe`. The full probe-set build stopped because
+`LIBOGC_MAD_PROBE_MP3` was not set. Dolphin was not available for a fresh run.
+The focused formatter build does not require the MP3 fixture. Physical Wii
+cache and DMA behavior remains open.
+
 ## 2026-11-21 locked-cache controls
 
 The [cache batch](docs/dolphin-runs/2026-11-21-ogc-cache-lock-controls/README.md)

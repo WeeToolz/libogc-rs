@@ -92,6 +92,12 @@ to see which checks passed. Dolphin does not replace real-Wii validation.
 See the [probe guide](probes/README.md) and [verification guide](docs/verification.md)
 for more commands and limits.
 
+For IPC formatter checks, use the Dolphin runner ID `runtime_probe`. Its API
+coverage ID is `ipc-format-probe`, which maps explicitly to that runner in
+`config/probe-coverage.csv`. A selected formatter build does not need the
+external MP3 fixture; the full Dolphin probe build does. See [dependency
+notes](docs/dependencies.md).
+
 The [read-only exFAT guide](docs/exfat.md) describes the Rust API for
 sector-zero volumes and primary MBR partitions.
 

@@ -60,6 +60,23 @@ The runner saves its report under `target/dolphin-validation/`. Read the
 report and check the named probe results. A DOL build or emulator launch alone
 does not count as a probe pass.
 
+For IPC formatter validation, the API coverage ID is `ipc-format-probe` and
+the registered Dolphin runner is `runtime_probe`. The explicit mapping is in
+`config/probe-coverage.csv`; use the runner ID with `dolphin-validate`:
+
+```sh
+cargo xtask dolphin-validate --probe runtime_probe
+```
+
+This command builds only the selected probe before it runs. The full
+`cargo xtask build-dolphin-probes` command also builds MP3 probes and therefore
+needs `LIBOGC_MAD_PROBE_MP3`. The selected formatter build passed without that
+fixture. A Dolphin run also needs an installed executable and a Wii NAND with
+the Wii System Menu. In the recorded verification, no Dolphin executable was
+available, so the formatter could be target-built but not rerun in Dolphin.
+The saved formatter report records an earlier Dolphin run and its limits.
+Physical Wii cache and DMA validation remains open.
+
 The [probe guide](../probes/README.md) lists focused build commands, probe
 coverage, Dolphin limits, and physical USB and AESND procedures. The
 [hardware validation guide](wii-hardware-validation.md) explains how to record
