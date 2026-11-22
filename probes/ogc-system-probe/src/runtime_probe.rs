@@ -1755,6 +1755,11 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                     output.len() as u32,
                 )
             };
+            logger.note_i32_index(
+                "IPC formatted ES large input result length=",
+                length as i32,
+                result,
+            );
             large_staged_inputs_ok &= result == 0
                 && output == title_content_count
                 && submitted.input_length == length as u32
@@ -2145,7 +2150,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         FORMAT_LWP_RESULTS[0].store(i32::MIN, Ordering::Release);
         FORMAT_LWP_RESULTS[1].store(i32::MIN, Ordering::Release);
         FORMAT_LWP_FD.store(fd.raw(), Ordering::Release);
-        scalar_slot.reset(core::ptr::addr_of_mut!(ASYNC_OUTPUT).cast(), 0);
+        scalar_slot.reset(core::ptr::addr_of_mut!(ASYNC_OUTPUT).cast(), actual);
         buffer_slot.reset(core::ptr::addr_of_mut!(ASYNC_PATH).cast::<u8>(), u32::MAX);
         let mut raw_threads = [ogc_lwp::sys::LWP_THREAD_NULL; 2];
         let mut thread_handles = [None; 2];
