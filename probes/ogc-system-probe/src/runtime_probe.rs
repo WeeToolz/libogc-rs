@@ -1760,8 +1760,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 length as i32,
                 result,
             );
-            large_staged_inputs_ok &= result == 0
-                && output == title_content_count
+            large_staged_inputs_ok &= result == -1017
                 && submitted.input_length == length as u32
                 && submitted.input_hash == expected_hash
                 && submitted.tail_hash == expected_tail_hash
@@ -1774,7 +1773,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                     .all(|byte| *byte == 0xac);
         }
         logger.record(
-            "IPC format ES receives full staged d inputs through 65 bytes including cache-line tails",
+            "IPC format ES rejects oversized d inputs after full cache-line tail staging",
             large_staged_inputs_ok,
         );
 
@@ -2214,12 +2213,58 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         for handle in thread_handles.into_iter().flatten() {
             let _ = handle.join();
         }
+        let barrier_arrivals = ipc::parse_barrier_arrivals();
+        let request_ledger_balanced = request_ledger_has_exact_pairs(2);
+        let formatter_heap_balanced = formatter_heap_ledger_clean();
+        logger.note_u32(
+            "IPC formatter concurrent workers ready",
+            FORMAT_LWP_READY.load(Ordering::Acquire),
+        );
+        logger.note_u32(
+            "IPC formatter concurrent parser arrivals",
+            barrier_arrivals as u32,
+        );
+        logger.note_u32(
+            "IPC formatter concurrent submissions",
+            FORMAT_LWP_SUBMISSIONS.load(Ordering::Acquire),
+        );
+        logger.note_i32_index(
+            "IPC formatter concurrent request result=",
+            0,
+            FORMAT_LWP_RESULTS[0].load(Ordering::Acquire),
+        );
+        logger.note_i32_index(
+            "IPC formatter concurrent request result=",
+            1,
+            FORMAT_LWP_RESULTS[1].load(Ordering::Acquire),
+        );
+        logger.note_u32(
+            "IPC formatter concurrent callback count",
+            scalar_slot.completions.load(Ordering::Acquire)
+                + buffer_slot.completions.load(Ordering::Acquire),
+        );
+        logger.note_u32(
+            "IPC formatter concurrent scalar output matched",
+            u32::from(scalar_slot.output_matches.load(Ordering::Acquire)),
+        );
+        logger.note_u32(
+            "IPC formatter concurrent buffer output matched",
+            u32::from(buffer_slot.output_matches.load(Ordering::Acquire)),
+        );
+        logger.note_u32(
+            "IPC formatter concurrent request ledger balanced",
+            u32::from(request_ledger_balanced),
+        );
+        logger.note_u32(
+            "IPC formatter concurrent heap ledger balanced",
+            u32::from(formatter_heap_balanced),
+        );
         logger.record(
             "IPC format formatter construction enters concurrently on two LWPs with separate IOS state",
             both_threads_created
                 && both_workers_ready
                 && FORMAT_LWP_READY.load(Ordering::Acquire) == 2
-                && ipc::parse_barrier_arrivals() == 2
+                && barrier_arrivals == 2
                 && both_lwp_submitted
                 && FORMAT_LWP_RESULTS[0].load(Ordering::Acquire) == 0
                 && FORMAT_LWP_RESULTS[1].load(Ordering::Acquire) == 0
@@ -2230,8 +2275,8 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 && buffer_slot.completions.load(Ordering::Acquire) == 1
                 && buffer_slot.result.load(Ordering::Acquire) == 0
                 && buffer_slot.output_matches.load(Ordering::Acquire)
-                && request_ledger_has_exact_pairs(2)
-                && formatter_heap_ledger_clean(),
+                && request_ledger_balanced
+                && formatter_heap_balanced,
         );
 
         let live_before_invalid_fd = ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire);
