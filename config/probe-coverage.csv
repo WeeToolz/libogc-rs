@@ -16,6 +16,7 @@ font-probe,probes/ogc-system-probe/src/font_probe.rs
 input-probe,probes/ogc-system-probe/src/input_probe.rs
 keyboard-probe,probes/ogc-system-probe/src/keyboard_probe.rs
 lwp-probe,probes/lwp-probe/src/main.rs
+ipc-format-probe,probes/ogc-system-probe/src/runtime_probe.rs
 network-probe,probes/ogc-system-probe/src/network_probe.rs
 smb-probe,probes/ogc-system-probe/src/network_probe.rs
 storage-probe,probes/ogc-system-probe/src/storage_probe.rs

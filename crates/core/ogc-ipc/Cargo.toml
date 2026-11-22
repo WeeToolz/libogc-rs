@@ -14,7 +14,7 @@ ogc-sys = { path = "../../abi/ogc-sys" }
 path = "src/lib.rs"
 
 [features]
-format-probe-hooks = []
+format-probe-hooks = ["ogc-lwp/workspace-probe-hooks"]
 
 [lints]
 workspace = true

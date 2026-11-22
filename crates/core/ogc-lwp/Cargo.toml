@@ -7,6 +7,10 @@ license.workspace = true
 [dependencies]
 ogc-lwp-sys = { path = "../ogc-lwp-sys" }
 
+[features]
+default = []
+workspace-probe-hooks = ["ogc-lwp-sys/workspace-probe-hooks"]
+
 [lib]
 path = "src/lib.rs"
 

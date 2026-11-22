@@ -14,6 +14,12 @@ pub use ogc_lwp_driver::{
     tls_destroy, tls_get, tls_set,
 };
 
+#[cfg(feature = "workspace-probe-hooks")]
+pub use ogc_lwp_driver::{
+    WORKSPACE_PROBE_ALLOC, WORKSPACE_PROBE_CAPACITY, WORKSPACE_PROBE_EVENT_COUNT,
+    WORKSPACE_PROBE_EVENTS, WORKSPACE_PROBE_FREE, WorkspaceProbeEvent, WorkspaceProbeSlot,
+};
+
 pub use ogc_lwp_driver::{
     DebugCounters, DebugEvent, DebugHook, DeferredCallback, LWP_ALREADY_SUSPENDED, LWP_CLOSED,
     LWP_COND_NULL, LWP_MUTEX_NULL, LWP_NOT_SUSPENDED, LWP_PRIO_HIGHEST, LWP_PRIO_IDLE,

@@ -88,7 +88,11 @@ unsafe extern "C" fn format_concurrent_completed(
         (unsafe { core::slice::from_raw_parts(output, 29) }) == b"/title/00000001/00000002/data"
             && unsafe { output.add(29).read() } == 0xff
     } else {
-        (unsafe { output.cast::<u32>().read() }) == slot.expected_scalar.load(Ordering::Acquire)
+        u32::from_be_bytes(
+            unsafe { core::slice::from_raw_parts(output, 4) }
+                .try_into()
+                .unwrap(),
+        ) == slot.expected_scalar.load(Ordering::Acquire)
     };
     slot.userdata.store(userdata as usize, Ordering::Release);
     slot.output_matches.store(matches, Ordering::Release);
@@ -378,6 +382,44 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
     use core::ffi::c_void;
     use ogc_ipc as ipc;
 
+    fn probe_hash(bytes: &[u8]) -> u64 {
+        bytes.iter().fold(0xcbf2_9ce4_8422_2325, |hash, byte| {
+            (hash ^ *byte as u64).wrapping_mul(0x0000_0100_0000_01b3)
+        })
+    }
+
+    fn workspace_round_trip(
+        snapshot: &ipc::FormatProbeSnapshot,
+        pointer: usize,
+        size: usize,
+    ) -> bool {
+        let events = &snapshot.workspace_events[..snapshot.workspace_event_count as usize];
+        events.iter().any(|event| {
+            event.kind == ipc::FORMAT_PROBE_WORKSPACE_ALLOC
+                && event.pointer == pointer
+                && event.size == size
+        }) && events.iter().any(|event| {
+            event.kind == ipc::FORMAT_PROBE_WORKSPACE_FREE
+                && event.pointer == pointer
+                && event.size == size
+        })
+    }
+
+    fn workspace_did_not_own(snapshot: &ipc::FormatProbeSnapshot, pointer: usize) -> bool {
+        snapshot.workspace_events[..snapshot.workspace_event_count as usize]
+            .iter()
+            .all(|event| event.pointer != pointer)
+    }
+
+    fn allocator_shape_matches(snapshot: &ipc::FormatProbeSnapshot, vector: usize) -> bool {
+        let sample = snapshot.vectors[vector];
+        if sample.allocation_length == 0 {
+            workspace_did_not_own(snapshot, sample.data_address)
+        } else {
+            workspace_round_trip(snapshot, sample.data_address, sample.allocation_length)
+        }
+    }
+
     unsafe extern "C" {
         fn IOS_IoctlvFormat(
             heap: i32,
@@ -490,6 +532,50 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             && input_sync.vectors[2].sample[..4] == [0x10, 0x20, 0x30, 0x40]
             && input_sync.vectors[3].length == 8
             && input_sync.vectors[3].sample == [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88],
+    );
+
+    let mut input_iq = ipc::FormatProbeSnapshot::default();
+    arm_format_snapshot!(input_iq);
+    let input_iq_result = unsafe {
+        IOS_IoctlvFormat(
+            ipc::IPC_HEAP,
+            0,
+            0,
+            c"iq".as_ptr(),
+            0x1020_3040u32,
+            0x1122_3344_5566_7788u64,
+        )
+    };
+    logger.record(
+        "IPC format public sync iq skips one GPR before aligned q",
+        input_iq_result == ipc::FORMAT_PROBE_COMPLETE
+            && input_iq.input_count == 2
+            && input_iq.vectors[0].length == 4
+            && input_iq.vectors[0].sample[..4] == [0x10, 0x20, 0x30, 0x40]
+            && input_iq.vectors[1].length == 8
+            && input_iq.vectors[1].sample == [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88],
+    );
+
+    let mut input_iqq = ipc::FormatProbeSnapshot::default();
+    arm_format_snapshot!(input_iqq);
+    let input_iqq_result = unsafe {
+        IOS_IoctlvFormat(
+            ipc::IPC_HEAP,
+            0,
+            0,
+            c"iqq".as_ptr(),
+            0x1020_3040u32,
+            0x1122_3344_5566_7788u64,
+            0x99aa_bbcc_ddee_ff00u64,
+        )
+    };
+    logger.record(
+        "IPC format public sync iqq advances from aligned GPR q to stack q",
+        input_iqq_result == ipc::FORMAT_PROBE_COMPLETE
+            && input_iqq.input_count == 3
+            && input_iqq.vectors[0].sample[..4] == [0x10, 0x20, 0x30, 0x40]
+            && input_iqq.vectors[1].sample == [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88]
+            && input_iqq.vectors[2].sample == [0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x00],
     );
 
     let mut input_async = ipc::FormatProbeSnapshot::default();
@@ -736,7 +822,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         )
     };
     logger.record(
-        "IPC format public sync :d constructs a direct output buffer",
+        "IPC format public sync :d stages an 8-byte output buffer",
         direct_output_result == ipc::FORMAT_PROBE_COMPLETE
             && direct_output_snapshot.input_count == 0
             && direct_output_snapshot.output_count == 1
@@ -775,6 +861,8 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 && guarded[after..].iter().all(|byte| *byte == 0xa5)
                 && snapshot.vectors[0].length == length as u32
                 && snapshot.vectors[0].allocation_length == expected_allocation_len
+                && allocator_shape_matches(&snapshot, 0)
+                && snapshot.vectors[0].padding_is_zero
                 && ((expected_allocation_len == 0
                     && snapshot.vectors[0].data_address == output as usize)
                     || (expected_allocation_len != 0
@@ -805,6 +893,8 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 && guarded[after..].iter().all(|byte| *byte == 0xa5)
                 && async_snapshot.vectors[0].length == length as u32
                 && async_snapshot.vectors[0].allocation_length == expected_allocation_len
+                && allocator_shape_matches(&async_snapshot, 0)
+                && async_snapshot.vectors[0].padding_is_zero
                 && ((expected_allocation_len == 0
                     && async_snapshot.vectors[0].data_address == output as usize)
                     || (expected_allocation_len != 0
@@ -842,6 +932,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 guarded[before + index] = (index as u8).wrapping_mul(13).wrapping_add(7);
             }
             let sample_len = length.min(8);
+            let input_hash = probe_hash(&guarded[before..after]);
             let mut expected_sample = [0u8; 8];
             for (index, byte) in expected_sample.iter_mut().take(sample_len).enumerate() {
                 *byte = (index as u8).wrapping_mul(13).wrapping_add(7);
@@ -857,7 +948,10 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 && snapshot.vectors[0].length == length as u32
                 && snapshot.vectors[0].sample_length as usize == sample_len
                 && snapshot.vectors[0].sample[..sample_len] == expected_sample[..sample_len]
+                && snapshot.vectors[0].content_hash == input_hash
                 && snapshot.vectors[0].allocation_length == expected_allocation_len
+                && allocator_shape_matches(&snapshot, 0)
+                && snapshot.vectors[0].padding_is_zero
                 && ((expected_allocation_len == 0
                     && snapshot.vectors[0].data_address == input as usize)
                     || (expected_allocation_len != 0
@@ -887,7 +981,10 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 && async_snapshot.vectors[0].length == length as u32
                 && async_snapshot.vectors[0].sample_length as usize == sample_len
                 && async_snapshot.vectors[0].sample[..sample_len] == expected_sample[..sample_len]
+                && async_snapshot.vectors[0].content_hash == input_hash
                 && async_snapshot.vectors[0].allocation_length == expected_allocation_len
+                && allocator_shape_matches(&async_snapshot, 0)
+                && async_snapshot.vectors[0].padding_is_zero
                 && ((expected_allocation_len == 0
                     && async_snapshot.vectors[0].data_address == input as usize)
                     || (expected_allocation_len != 0
@@ -969,6 +1066,31 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             && async_mixed_buffers.vectors[1].sample[..5] == async_mixed_output,
     );
 
+    let mut null_d_formats_ok = true;
+    for length in [0u32, 4] {
+        let mut snapshot = ipc::FormatProbeSnapshot::default();
+        arm_format_snapshot!(snapshot);
+        let result = unsafe {
+            IOS_IoctlvFormat(
+                ipc::IPC_HEAP,
+                0,
+                0,
+                c"d".as_ptr(),
+                core::ptr::null_mut::<u8>(),
+                length,
+            )
+        };
+        null_d_formats_ok &= result == ipc::FORMAT_PROBE_COMPLETE
+            && snapshot.input_count == 1
+            && snapshot.vectors[0].data_address == 0
+            && snapshot.vectors[0].length == length
+            && snapshot.vectors[0].allocation_length == 0;
+    }
+    logger.record(
+        "IPC format public sync preserves null d pointers and lengths",
+        null_d_formats_ok,
+    );
+
     let mut string_lengths_ok = true;
     let mut near_limit_string = [b'x'; 256];
     near_limit_string[255] = 0;
@@ -995,6 +1117,85 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
     logger.record(
         "IPC format public sync accepts empty normal and maximum length strings",
         string_lengths_ok,
+    );
+
+    let mut null_format_snapshot = ipc::FormatProbeSnapshot::default();
+    arm_format_snapshot!(null_format_snapshot);
+    let null_format_result = unsafe { IOS_IoctlvFormat(ipc::IPC_HEAP, 0, 0, core::ptr::null()) };
+    logger.record(
+        "IPC format public sync rejects a null format pointer",
+        null_format_result == ipc::IPC_EINVAL
+            && ipc::FORMAT_PROBE_SNAPSHOT.load(Ordering::Acquire) == 0,
+    );
+
+    let mut zero_vector_formats_ok = true;
+    for format in [c"".as_ptr(), c":".as_ptr()] {
+        let mut snapshot = ipc::FormatProbeSnapshot::default();
+        arm_format_snapshot!(snapshot);
+        let result = unsafe { IOS_IoctlvFormat(ipc::IPC_HEAP, 0, 0, format) };
+        zero_vector_formats_ok &= result == ipc::FORMAT_PROBE_COMPLETE
+            && snapshot.input_count == 0
+            && snapshot.output_count == 0
+            && snapshot.vector_count == 0;
+    }
+    logger.record(
+        "IPC format public sync accepts empty and colon-only formats",
+        zero_vector_formats_ok,
+    );
+
+    let mut maximum_format = [b'i'; 32];
+    maximum_format[31] = 0;
+    let mut maximum_snapshot = ipc::FormatProbeSnapshot::default();
+    arm_format_snapshot!(maximum_snapshot);
+    let maximum_result = unsafe {
+        IOS_IoctlvFormat(
+            ipc::IPC_HEAP,
+            0,
+            0,
+            maximum_format.as_ptr().cast(),
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+            0x1122_3344u32,
+        )
+    };
+    logger.record(
+        "IPC format public sync accepts the maximum valid format length",
+        maximum_result == ipc::FORMAT_PROBE_COMPLETE
+            && maximum_snapshot.input_count == 31
+            && maximum_snapshot.vector_count == 31
+            && maximum_snapshot
+                .vectors
+                .iter()
+                .take(31)
+                .all(|vector| vector.length == 4),
     );
 
     let mut invalid_format_ok = true;
@@ -1322,6 +1523,127 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         let content_count = u32::from_be_bytes(title_content_count);
         logger.note_i32("IPC typed ES title content count result", count_result);
         logger.note_hex32("IPC typed ES title content count", content_count);
+
+        let mut formatted_d_count = [0u8; 4];
+        let formatted_d_count_result = unsafe {
+            IOS_IoctlvFormat(
+                ipc::IPC_HEAP,
+                fd.raw(),
+                0x10,
+                c"d:d".as_ptr(),
+                title_id.as_ptr(),
+                title_id.len() as u32,
+                formatted_d_count.as_mut_ptr(),
+                formatted_d_count.len() as u32,
+            )
+        };
+        logger.record(
+            "IPC format public sync d input reaches ES with the complete title ID",
+            count_result == 0
+                && formatted_d_count_result == 0
+                && formatted_d_count == title_content_count,
+        );
+
+        let mut async_d_count = [0u8; 4];
+        let async_d_slot = &FORMAT_ASYNC_SLOT_SCALAR;
+        async_d_slot.reset(async_d_count.as_mut_ptr().cast(), content_count);
+        let async_d_userdata = (async_d_slot as *const FormatAsyncProbeSlot)
+            .cast_mut()
+            .cast::<c_void>();
+        let async_d_submission = unsafe {
+            IOS_IoctlvFormatAsync(
+                ipc::IPC_HEAP,
+                fd.raw(),
+                0x10,
+                Some(format_concurrent_completed),
+                async_d_userdata,
+                c"d:d".as_ptr(),
+                title_id.as_ptr(),
+                title_id.len() as u32,
+                async_d_count.as_mut_ptr(),
+                async_d_count.len() as u32,
+            )
+        };
+        let mut async_d_completed = false;
+        for _ in 0..1000 {
+            if async_d_slot.completions.load(Ordering::Acquire) != 0 {
+                async_d_completed = true;
+                break;
+            }
+            lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 100).max(1));
+        }
+        if async_d_completed {
+            lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 20).max(1));
+        }
+        logger.record(
+            "IPC format public async d input survives IOS completion",
+            async_d_submission == 0
+                && async_d_completed
+                && async_d_slot.completions.load(Ordering::Acquire) == 1
+                && async_d_slot.result.load(Ordering::Acquire) == 0
+                && async_d_slot.userdata.load(Ordering::Acquire) == async_d_userdata as usize
+                && async_d_slot.output_matches.load(Ordering::Acquire)
+                && async_d_count == title_content_count,
+        );
+
+        let mut callbackless_count = [0xffu8; 4];
+        lwp::WORKSPACE_PROBE_EVENT_COUNT.store(0, Ordering::Release);
+        let callbackless_submission = unsafe {
+            IOS_IoctlvFormatAsync(
+                ipc::IPC_HEAP,
+                fd.raw(),
+                0x10,
+                None,
+                core::ptr::null_mut(),
+                c"d:d".as_ptr(),
+                title_id.as_ptr(),
+                title_id.len() as u32,
+                callbackless_count.as_mut_ptr(),
+                callbackless_count.len() as u32,
+            )
+        };
+        let mut callbackless_completed = false;
+        for _ in 0..1000 {
+            if callbackless_count == title_content_count {
+                callbackless_completed = true;
+                break;
+            }
+            lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 100).max(1));
+        }
+        if callbackless_completed {
+            lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 20).max(1));
+        }
+        let workspace_count = lwp::WORKSPACE_PROBE_EVENT_COUNT
+            .load(Ordering::Acquire)
+            .min(lwp::WORKSPACE_PROBE_CAPACITY);
+        let mut workspace_events_balanced = workspace_count != 0;
+        for index in 0..workspace_count {
+            let Some(slot) = lwp::WORKSPACE_PROBE_EVENTS.get(index) else {
+                workspace_events_balanced = false;
+                continue;
+            };
+            let kind = slot.kind.load(Ordering::Acquire);
+            let pointer = slot.pointer.load(Ordering::Relaxed);
+            let size = slot.size.load(Ordering::Relaxed);
+            if kind == ipc::FORMAT_PROBE_WORKSPACE_ALLOC {
+                let has_matching_free = (0..workspace_count).any(|other_index| {
+                    let other = &lwp::WORKSPACE_PROBE_EVENTS[other_index];
+                    other.kind.load(Ordering::Acquire) == ipc::FORMAT_PROBE_WORKSPACE_FREE
+                        && other.pointer.load(Ordering::Relaxed) == pointer
+                        && other.size.load(Ordering::Relaxed) == size
+                });
+                workspace_events_balanced &= has_matching_free;
+            }
+        }
+        logger.record(
+            "IPC format public async d input completes without a user callback",
+            callbackless_submission == 0
+                && callbackless_completed
+                && content_count > 0
+                && callbackless_count == title_content_count
+                && workspace_events_balanced,
+        );
+
         let content_len = (content_count as usize).checked_mul(4);
         let mut typed_contents = [0u8; 4096];
         let mut public_contents = [0u8; 4096];
@@ -1571,9 +1893,14 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
 
         let live_before_faults = ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire);
         let mut sync_faults_clean = true;
-        for (fail_at, format) in [(1usize, c"i"), (2, c"i"), (4, c"ii")] {
-            ipc::FORMAT_PROBE_ALLOCATION_ATTEMPTS.store(0, Ordering::Release);
-            ipc::FORMAT_PROBE_FAIL_ALLOCATION.store(fail_at, Ordering::Release);
+        for (role, occurrence, format) in [
+            (ipc::FORMAT_PROBE_ROLE_STATE, 1usize, c"i"),
+            (ipc::FORMAT_PROBE_ROLE_ARGV, 1, c"i"),
+            (ipc::FORMAT_PROBE_ROLE_SCALAR, 2, c"ii"),
+        ] {
+            ipc::FORMAT_PROBE_ALLOCATION_ROLE_ATTEMPTS.store(0, Ordering::Release);
+            ipc::FORMAT_PROBE_FAIL_ALLOCATION_OCCURRENCE.store(occurrence, Ordering::Release);
+            ipc::FORMAT_PROBE_FAIL_ALLOCATION_ROLE.store(role, Ordering::Release);
             let result = match format.to_bytes() {
                 b"i" => unsafe {
                     IOS_IoctlvFormat(ipc::IPC_HEAP, fd.raw(), 0, format.as_ptr(), 0x1122_3344u32)
@@ -1589,13 +1916,15 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                     )
                 },
             };
-            ipc::FORMAT_PROBE_FAIL_ALLOCATION.store(0, Ordering::Release);
+            ipc::FORMAT_PROBE_FAIL_ALLOCATION_ROLE.store(0, Ordering::Release);
             sync_faults_clean &= result == ipc::IPC_ENOMEM
                 && ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire) == live_before_faults;
         }
         let mut staging_input = [0x73u8; 65];
-        ipc::FORMAT_PROBE_ALLOCATION_ATTEMPTS.store(0, Ordering::Release);
-        ipc::FORMAT_PROBE_FAIL_ALLOCATION.store(3, Ordering::Release);
+        ipc::FORMAT_PROBE_ALLOCATION_ROLE_ATTEMPTS.store(0, Ordering::Release);
+        ipc::FORMAT_PROBE_FAIL_ALLOCATION_OCCURRENCE.store(1, Ordering::Release);
+        ipc::FORMAT_PROBE_FAIL_ALLOCATION_ROLE
+            .store(ipc::FORMAT_PROBE_ROLE_STAGING_BUFFER, Ordering::Release);
         let staging_failure = unsafe {
             IOS_IoctlvFormat(
                 ipc::IPC_HEAP,
@@ -1606,7 +1935,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 33u32,
             )
         };
-        ipc::FORMAT_PROBE_FAIL_ALLOCATION.store(0, Ordering::Release);
+        ipc::FORMAT_PROBE_FAIL_ALLOCATION_ROLE.store(0, Ordering::Release);
         sync_faults_clean &= staging_failure == ipc::IPC_ENOMEM
             && ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire) == live_before_faults;
         logger.record(
@@ -1616,8 +1945,10 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
 
         scalar_slot.reset(async_output.cast(), actual);
         unsafe { async_output.write(u32::MAX) };
-        ipc::FORMAT_PROBE_ALLOCATION_ATTEMPTS.store(0, Ordering::Release);
-        ipc::FORMAT_PROBE_FAIL_ALLOCATION.store(4, Ordering::Release);
+        ipc::FORMAT_PROBE_ALLOCATION_ROLE_ATTEMPTS.store(0, Ordering::Release);
+        ipc::FORMAT_PROBE_FAIL_ALLOCATION_OCCURRENCE.store(1, Ordering::Release);
+        ipc::FORMAT_PROBE_FAIL_ALLOCATION_ROLE
+            .store(ipc::FORMAT_PROBE_ROLE_ASYNC_REQUEST, Ordering::Release);
         let async_allocation_failure = unsafe {
             IOS_IoctlvFormatAsync(
                 ipc::IPC_HEAP,
@@ -1631,7 +1962,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 async_output,
             )
         };
-        ipc::FORMAT_PROBE_FAIL_ALLOCATION.store(0, Ordering::Release);
+        ipc::FORMAT_PROBE_FAIL_ALLOCATION_ROLE.store(0, Ordering::Release);
         let async_fault_clean = async_allocation_failure == ipc::IPC_ENOMEM
             && scalar_slot.completions.load(Ordering::Acquire) == 0
             && ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire) == live_before_faults;

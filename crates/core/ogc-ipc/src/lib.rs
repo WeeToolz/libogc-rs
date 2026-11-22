@@ -2264,6 +2264,16 @@ struct FormatOwned {
     owner: u8,
 }
 
+#[repr(u8)]
+#[derive(Clone, Copy)]
+enum FormatAllocationRole {
+    State = 1,
+    Argv = 2,
+    Scalar = 3,
+    StagingBuffer = 4,
+    AsyncRequest = 5,
+}
+
 impl FormatOwned {
     const EMPTY: Self = Self {
         ipc_buf: core::ptr::null_mut(),
@@ -2275,13 +2285,16 @@ impl FormatOwned {
 }
 
 #[inline]
-fn format_allocation_allowed() -> bool {
+fn format_allocation_allowed(role: FormatAllocationRole) -> bool {
     #[cfg(feature = "format-probe-hooks")]
     {
-        return format_probe::allow_allocation();
+        return format_probe::allow_allocation(role as u8);
     }
     #[cfg(not(feature = "format-probe-hooks"))]
-    true
+    {
+        let _ = role;
+        true
+    }
 }
 
 #[inline]
@@ -2358,7 +2371,7 @@ unsafe fn format_state_new(
     user_data: *mut c_void,
 ) -> Result<NonNull<FormatState>, i32> {
     let bytes = core::mem::size_of::<FormatState>();
-    if !format_allocation_allowed() {
+    if !format_allocation_allowed(FormatAllocationRole::State) {
         return Err(IPC_ENOMEM);
     }
     let raw = unsafe { lwp_sys::allocate_workspace(bytes) }.cast::<FormatState>();
@@ -2444,9 +2457,10 @@ unsafe fn format_heap_alloc(
     size: usize,
     io_buf: *mut c_void,
     copy_len: usize,
+    role: FormatAllocationRole,
 ) -> Result<*mut c_void, i32> {
     let size_i32 = i32::try_from(size).map_err(|_| IPC_EINVAL)?;
-    if !format_allocation_allowed() {
+    if !format_allocation_allowed(role) {
         return Err(IPC_ENOMEM);
     }
     let ptr = state.heap.alloc(size_i32).ok_or(IPC_ENOMEM)?.as_ptr();
@@ -2482,7 +2496,7 @@ unsafe fn format_vector_data(
         return Ok(data);
     }
     let allocation_len = dma_buffer::staging_length(len).ok_or(IPC_EINVAL)?;
-    if !format_allocation_allowed() {
+    if !format_allocation_allowed(FormatAllocationRole::StagingBuffer) {
         return Err(IPC_ENOMEM);
     }
     let raw = unsafe { lwp_sys::allocate_workspace(allocation_len) }.cast::<c_void>();
@@ -2508,7 +2522,7 @@ unsafe fn format_vector_data(
             },
         )
     } {
-        unsafe { lwp_sys::release_workspace(staged.as_ptr().cast(), len) };
+        unsafe { lwp_sys::release_workspace(staged.as_ptr().cast(), allocation_len) };
         format_allocation_released();
         return Err(error);
     }
@@ -2546,7 +2560,7 @@ unsafe fn submit_format_request(
     }
 
     if asynchronous {
-        if !format_allocation_allowed() {
+        if !format_allocation_allowed(FormatAllocationRole::AsyncRequest) {
             return IPC_ENOMEM;
         }
         let Ok(req_ptr) = alloc_request() else {
@@ -2619,7 +2633,15 @@ unsafe fn parse_format_call(
     let argv_bytes = (len + 1)
         .checked_mul(core::mem::size_of::<Ioctlv>())
         .ok_or(IPC_EINVAL)?;
-    let argv = match unsafe { format_heap_alloc(state, argv_bytes, core::ptr::null_mut(), 0) } {
+    let argv = match unsafe {
+        format_heap_alloc(
+            state,
+            argv_bytes,
+            core::ptr::null_mut(),
+            0,
+            FormatAllocationRole::Argv,
+        )
+    } {
         Ok(ptr) => ptr.cast::<Ioctlv>(),
         Err(error) => {
             unsafe { format_release(error, state_ptr.as_ptr(), false, false) };
@@ -2662,7 +2684,9 @@ unsafe fn parse_format_call(
                         if io.is_null() {
                             return Err(IPC_EINVAL);
                         }
-                        let ptr = unsafe { format_heap_alloc(state, size, io, size)? };
+                        let ptr = unsafe {
+                            format_heap_alloc(state, size, io, size, FormatAllocationRole::Scalar)?
+                        };
                         unsafe {
                             core::ptr::copy_nonoverlapping(io.cast::<u8>(), ptr.cast::<u8>(), size)
                         };
@@ -2672,8 +2696,15 @@ unsafe fn parse_format_call(
                         };
                         cnt_io += 1;
                     } else {
-                        let ptr =
-                            unsafe { format_heap_alloc(state, size, core::ptr::null_mut(), 0)? };
+                        let ptr = unsafe {
+                            format_heap_alloc(
+                                state,
+                                size,
+                                core::ptr::null_mut(),
+                                0,
+                                FormatAllocationRole::Scalar,
+                            )?
+                        };
                         match size {
                             1 => unsafe { ptr.cast::<u8>().write(args.next_u32() as u8) },
                             2 => unsafe { ptr.cast::<u16>().write(args.next_u32() as u16) },
@@ -2714,7 +2745,15 @@ unsafe fn parse_format_call(
                         return Err(IPC_EINVAL);
                     }
                     let size = slen + 1;
-                    let ptr = unsafe { format_heap_alloc(state, size, core::ptr::null_mut(), 0)? };
+                    let ptr = unsafe {
+                        format_heap_alloc(
+                            state,
+                            size,
+                            core::ptr::null_mut(),
+                            0,
+                            FormatAllocationRole::Scalar,
+                        )?
+                    };
                     unsafe { core::ptr::copy_nonoverlapping(source, ptr.cast::<u8>(), size) };
                     *slot = Ioctlv {
                         data: ptr,
@@ -3143,9 +3182,12 @@ mod format_probe;
 
 #[cfg(feature = "format-probe-hooks")]
 pub use format_probe::{
-    FORMAT_PROBE_ALLOCATION_ATTEMPTS, FORMAT_PROBE_COMPLETE, FORMAT_PROBE_FAIL_ALLOCATION,
-    FORMAT_PROBE_FAIL_ASYNC_SUBMISSION, FORMAT_PROBE_LIVE_ALLOCATIONS, FORMAT_PROBE_SNAPSHOT,
-    FormatProbeSnapshot, FormatProbeVector,
+    FORMAT_PROBE_ALLOCATION_ROLE_ATTEMPTS, FORMAT_PROBE_COMPLETE,
+    FORMAT_PROBE_FAIL_ALLOCATION_OCCURRENCE, FORMAT_PROBE_FAIL_ALLOCATION_ROLE,
+    FORMAT_PROBE_FAIL_ASYNC_SUBMISSION, FORMAT_PROBE_LIVE_ALLOCATIONS, FORMAT_PROBE_ROLE_ARGV,
+    FORMAT_PROBE_ROLE_ASYNC_REQUEST, FORMAT_PROBE_ROLE_SCALAR, FORMAT_PROBE_ROLE_STAGING_BUFFER,
+    FORMAT_PROBE_ROLE_STATE, FORMAT_PROBE_SNAPSHOT, FORMAT_PROBE_WORKSPACE_ALLOC,
+    FORMAT_PROBE_WORKSPACE_FREE, FormatProbeSnapshot, FormatProbeVector, FormatProbeWorkspaceEvent,
 };
 
 #[cfg(feature = "format-probe-hooks")]

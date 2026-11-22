@@ -1,0 +1,522 @@
+{
+  "probe": "runtime_probe",
+  "limits": [
+    "Dolphin evidence only; physical Wii cache and DMA behavior remain unverified.",
+    "The internal bridge cases are compatibility checks, not public ABI evidence.",
+    "Boundary interception hashes every logical input byte and checks the actual workspace allocator request and release sizes.",
+    "Live ES d-input tests prove selected input bytes reach IOS and async ownership survives completion for this title fixture only.",
+    "Null d tests record current parser behavior; upstream compatibility remains open.",
+    "The complete runtime probe assertion count is broader than formatter coverage. Use scenario and contract tables for formatter evidence."
+  ],
+  "cases": [
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "__ogc_ipc_ioctlv_format_bridge",
+      "line": 2783,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_format_bridge",
+      "api_path": "ipc::__ogc_ipc_ioctlv_format_bridge",
+      "checks": [
+        "IPC format internal bridge null-call guard",
+        "IPC format internal bridge copies ES title count to output vector",
+        "IPC format internal bridge transfers title input and directory output"
+      ],
+      "evidence_scope": "scalar-and-buffer",
+      "contracts": [
+        {
+          "id": "ipc-format.internal.null-call-guard",
+          "checks": [
+            "IPC format internal bridge null-call guard"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.internal.scalar-output",
+          "checks": [
+            "IPC format internal bridge copies ES title count to output vector"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.internal.title-input-buffer-output",
+          "checks": [
+            "IPC format internal bridge transfers title input and directory output"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "IOS_IoctlvFormat",
+      "line": 30,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_format_bridge",
+      "api_path": "IOS_IoctlvFormat",
+      "checks": [
+        "IPC format public ABI sync :i returns the ES title count",
+        "IPC format public ABI sync q:d formats title directory",
+        "IPC format public ABI sync qi:d decodes the overflow length",
+        "IPC format public sync b/h/i/q decodes register and aligned overflow words",
+        "IPC format public sync :b/:h/:i/:q constructs exact scalar widths",
+        "IPC format public sync ds constructs input buffer and string vectors",
+        "IPC format public sync :d stages an 8-byte output buffer",
+        "IPC format public sync d:d separates input and output vectors",
+        "IPC format public sync accepts empty normal and maximum length strings",
+        "IPC format public sync rejects unknown malformed overlong and unterminated input",
+        "IPC format public sync output copyback preserves DMA boundary canaries",
+        "IPC format public sync allocation failures release partial formatter state",
+        "IPC format formatter recovers after injected allocation failures",
+        "IPC format public sync scalar output copyback preserves width canaries",
+        "IPC format public sync rejects a null scalar output pointer",
+        "IPC format public sync rejects an unavailable heap",
+        "IPC format public sync input staging reads selected DMA boundary lengths",
+        "IPC format public sync d vectors reserve full cache lines and keep logical lengths",
+        "IPC format public sync iq skips one GPR before aligned q",
+        "IPC format public sync iqq advances from aligned GPR q to stack q",
+        "IPC format public sync d input reaches ES with the complete title ID",
+        "IPC format public sync rejects a null format pointer",
+        "IPC format public sync accepts empty and colon-only formats",
+        "IPC format public sync accepts the maximum valid format length",
+        "IPC format public sync preserves null d pointers and lengths",
+        "IPC format public sync ES output respects DMA boundary lengths and canaries"
+      ],
+      "evidence_scope": "scalar-and-buffer",
+      "contracts": [
+        {
+          "id": "ipc-format.sync.public-abi",
+          "checks": [
+            "IPC format public ABI sync :i returns the ES title count",
+            "IPC format public ABI sync q:d formats title directory",
+            "IPC format public ABI sync qi:d decodes the overflow length"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.overflow-arguments",
+          "checks": [
+            "IPC format public ABI sync qi:d decodes the overflow length"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.input-scalars",
+          "checks": [
+            "IPC format public sync b/h/i/q decodes register and aligned overflow words"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.output-scalars",
+          "checks": [
+            "IPC format public sync :b/:h/:i/:q constructs exact scalar widths"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.input-string-and-buffer",
+          "checks": [
+            "IPC format public sync ds constructs input buffer and string vectors"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.output-buffer",
+          "checks": [
+            "IPC format public sync :d stages an 8-byte output buffer"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.mixed-vectors",
+          "checks": [
+            "IPC format public sync d:d separates input and output vectors"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.string-limits",
+          "checks": [
+            "IPC format public sync accepts empty normal and maximum length strings"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.malformed-format",
+          "checks": [
+            "IPC format public sync rejects unknown malformed overlong and unterminated input"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.dma-output-copyback",
+          "checks": [
+            "IPC format public sync output copyback preserves DMA boundary canaries"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.cleanup-on-error",
+          "checks": [
+            "IPC format public sync allocation failures release partial formatter state"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.recovery-after-failure",
+          "checks": [
+            "IPC format formatter recovers after injected allocation failures"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.scalar-copyback-width",
+          "checks": [
+            "IPC format public sync scalar output copyback preserves width canaries"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.input-buffer",
+          "checks": [
+            "IPC format public sync ds constructs input buffer and string vectors"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.input-string",
+          "checks": [
+            "IPC format public sync ds constructs input buffer and string vectors"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.null-output-pointer",
+          "checks": [
+            "IPC format public sync rejects a null scalar output pointer"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.invalid-heap",
+          "checks": [
+            "IPC format public sync rejects an unavailable heap"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.dma-input-boundaries",
+          "checks": [
+            "IPC format public sync input staging reads selected DMA boundary lengths"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.dma-staging-allocation",
+          "checks": [
+            "IPC format public sync d vectors reserve full cache lines and keep logical lengths"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.q-register-alignment",
+          "checks": [
+            "IPC format public sync iq skips one GPR before aligned q"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.q-register-to-stack",
+          "checks": [
+            "IPC format public sync iqq advances from aligned GPR q to stack q"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.live-input-buffer",
+          "checks": [
+            "IPC format public sync d input reaches ES with the complete title ID"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.null-format",
+          "checks": [
+            "IPC format public sync rejects a null format pointer"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.zero-vectors",
+          "checks": [
+            "IPC format public sync accepts empty and colon-only formats"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.maximum-format",
+          "checks": [
+            "IPC format public sync accepts the maximum valid format length"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.null-buffer",
+          "checks": [
+            "IPC format public sync preserves null d pointers and lengths"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.ios-output-boundaries",
+          "checks": [
+            "IPC format public sync ES output respects DMA boundary lengths and canaries"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "IOS_IoctlvFormatAsync",
+      "line": 63,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_format_bridge",
+      "api_path": "IOS_IoctlvFormatAsync",
+      "checks": [
+        "IPC format public ABI async :i preserves output and callback",
+        "IPC format public ABI async q:d spills and copies back before callback",
+        "IPC format public async b/h/i/q decodes register and aligned overflow words",
+        "IPC format public async :b/:h/:i/:q constructs exact scalar widths",
+        "IPC format public async d:d separates input and overflow output arguments",
+        "IPC format public async entry staging cleanup preserves DMA boundary canaries",
+        "IPC format public async concurrent scalar and buffer requests keep callbacks separate",
+        "IPC format public async request allocation failure releases state without callback",
+        "IPC format public async entry scalar cleanup preserves width canaries",
+        "IPC format public async invalid descriptor completes once with error and releases state",
+        "IPC format public async ds decodes input buffer and stack string",
+        "IPC format public async entry reads selected DMA boundary lengths",
+        "IPC format public async d vectors reserve full cache lines and keep logical lengths",
+        "IPC format public async d input survives IOS completion",
+        "IPC format public async d input completes without a user callback",
+        "IPC format public async submission failure releases request and formatter state",
+        "IPC format public async ES output copyback preserves DMA boundary canaries"
+      ],
+      "evidence_scope": "scalar-and-buffer",
+      "contracts": [
+        {
+          "id": "ipc-format.async.public-abi",
+          "checks": [
+            "IPC format public ABI async :i preserves output and callback",
+            "IPC format public ABI async q:d spills and copies back before callback"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.overflow-arguments",
+          "checks": [
+            "IPC format public ABI async q:d spills and copies back before callback"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.userdata",
+          "checks": [
+            "IPC format public ABI async :i preserves output and callback",
+            "IPC format public ABI async q:d spills and copies back before callback"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.exactly-once",
+          "checks": [
+            "IPC format public ABI async :i preserves output and callback",
+            "IPC format public ABI async q:d spills and copies back before callback"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.copyback-before-callback",
+          "checks": [
+            "IPC format public ABI async q:d spills and copies back before callback"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.input-scalars",
+          "checks": [
+            "IPC format public async b/h/i/q decodes register and aligned overflow words"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.output-scalars",
+          "checks": [
+            "IPC format public async :b/:h/:i/:q constructs exact scalar widths"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.mixed-vectors",
+          "checks": [
+            "IPC format public async d:d separates input and overflow output arguments"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.dma-output-copyback",
+          "checks": [
+            "IPC format public async entry staging cleanup preserves DMA boundary canaries"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.concurrent-requests",
+          "checks": [
+            "IPC format public async concurrent scalar and buffer requests keep callbacks separate"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.cleanup-on-error",
+          "checks": [
+            "IPC format public async request allocation failure releases state without callback"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.scalar-cleanup-width",
+          "checks": [
+            "IPC format public async entry scalar cleanup preserves width canaries"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.error-completion",
+          "checks": [
+            "IPC format public async invalid descriptor completes once with error and releases state"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.input-buffer",
+          "checks": [
+            "IPC format public async ds decodes input buffer and stack string"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.input-string",
+          "checks": [
+            "IPC format public async ds decodes input buffer and stack string"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.output-buffer",
+          "checks": [
+            "IPC format public async entry staging cleanup preserves DMA boundary canaries"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.dma-input-boundaries",
+          "checks": [
+            "IPC format public async entry reads selected DMA boundary lengths"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.dma-staging-allocation",
+          "checks": [
+            "IPC format public async d vectors reserve full cache lines and keep logical lengths"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.live-input-buffer",
+          "checks": [
+            "IPC format public async d input survives IOS completion"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.callback-less",
+          "checks": [
+            "IPC format public async d input completes without a user callback"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.submission-failure",
+          "checks": [
+            "IPC format public async submission failure releases request and formatter state"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.ios-output-boundaries",
+          "checks": [
+            "IPC format public async ES output copyback preserves DMA boundary canaries"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        }
+      ]
+    }
+  ]
+}

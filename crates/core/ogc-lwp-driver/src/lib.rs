@@ -22,6 +22,9 @@ mod runtime;
 mod thread;
 mod tls;
 
+#[cfg(feature = "workspace-probe-hooks")]
+mod workspace_probe;
+
 pub use futex::{FUTEX_MAX_TIMEOUT_TICKS, FutexError, FutexWait};
 pub use runtime::{
     StackBounds, ThreadCleanup, cleanup_current_thread, current_thread_checked,
@@ -30,6 +33,12 @@ pub use runtime::{
 };
 pub use thread::{STD_MIN_STACK_SIZE, THREAD_NAME_CAPACITY, ThreadError};
 pub use tls::{TLS_DESTRUCTOR_ITERATIONS, TLS_KEY_CAPACITY, TlsDestructor, TlsError, TlsKey};
+
+#[cfg(feature = "workspace-probe-hooks")]
+pub use workspace_probe::{
+    EventSlot as WorkspaceProbeSlot, WORKSPACE_PROBE_ALLOC, WORKSPACE_PROBE_CAPACITY,
+    WORKSPACE_PROBE_EVENT_COUNT, WORKSPACE_PROBE_EVENTS, WORKSPACE_PROBE_FREE, WorkspaceProbeEvent,
+};
 
 pub use arch::LwpContext;
 pub use contracts::{LwpClock, LwpDeferredExecutor, LwpInterruptWake, LwpTimerService};

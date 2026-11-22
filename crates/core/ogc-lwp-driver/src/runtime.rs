@@ -687,10 +687,17 @@ unsafe fn workspace_alloc(size: usize) -> *mut u8 {
         if size == 0 {
             return ptr::null_mut();
         }
-        match WORKSPACE_ALLOC {
+        let allocation = match WORKSPACE_ALLOC {
             Some(alloc) => alloc(size),
             None => ptr::null_mut(),
-        }
+        };
+        #[cfg(feature = "workspace-probe-hooks")]
+        super::workspace_probe::record(
+            super::workspace_probe::WORKSPACE_PROBE_ALLOC,
+            allocation,
+            size,
+        );
+        allocation
     }
 }
 
@@ -700,6 +707,12 @@ unsafe fn workspace_free(allocation: *mut u8, size: usize) {
             return;
         }
         if let Some(free) = WORKSPACE_FREE {
+            #[cfg(feature = "workspace-probe-hooks")]
+            super::workspace_probe::record(
+                super::workspace_probe::WORKSPACE_PROBE_FREE,
+                allocation,
+                size,
+            );
             free(allocation, size);
         }
     }

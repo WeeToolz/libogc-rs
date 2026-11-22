@@ -165,7 +165,7 @@ impl EvidenceScope {
                 "Synchronous and asynchronous scalar output in Dolphin. Other formats remain unverified."
             }
             Self::ScalarAndBuffer => {
-                "Scalar output and title input with buffer output in Dolphin. Other formats remain unverified."
+                "Selected scalar, string, and buffer cases are documented by separate contracts. Other format combinations and physical cache behavior remain unverified."
             }
             Self::DolphinCacheRegister => {
                 "Dolphin HID0 transitions and restoration only. Physical cache state and timing are unverified."
