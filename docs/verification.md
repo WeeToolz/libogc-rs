@@ -80,6 +80,21 @@ and async results. The async test also changes the staged input tail and checks
 the callback result. This is emulator evidence. Physical Wii cache and DMA
 validation remains open.
 
+The formatter runtime probe also checks real Argv and Scalar heap exhaustion,
+recovery after exhaustion, async callback re-entry, and maximum 31-parameter
+staged d ownership across all 64 workspace events. The latest targeted
+PowerPC `runtime_probe` build and DOL conversion passed. These new checks have
+not run in Dolphin: the installed Dolphin executable exits with `SIGABRT` on
+the runner's `--version` check. The formatter status report keeps these rows
+partial or unverified until a Dolphin run passes. Current counts are
+`verified: 55 | partial: 9 | blocked: 8 | unverified: 1`.
+
+Eight formatter contracts remain blocked on physical Wii validation of
+Broadway cache behavior and IOS DMA coherency. Hardware testing must include
+aligned and misaligned 31, 32, 33, 63, 64, and 65 byte boundaries, dirty
+neighboring cache-line data, and both sync and async paths. Dolphin evidence
+does not promote these hardware contracts.
+
 The [probe guide](../probes/README.md) lists focused build commands, probe
 coverage, Dolphin limits, and physical USB and AESND procedures. The
 [hardware validation guide](wii-hardware-validation.md) explains how to record

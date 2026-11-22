@@ -173,6 +173,109 @@ unsafe extern "C" fn format_concurrent_completed(
 }
 
 #[cfg(feature = "dolphin-automation")]
+static FORMAT_REENTRY_FIRST_COMPLETIONS: core::sync::atomic::AtomicU32 =
+    core::sync::atomic::AtomicU32::new(0);
+#[cfg(feature = "dolphin-automation")]
+static FORMAT_REENTRY_SECOND_COMPLETIONS: core::sync::atomic::AtomicU32 =
+    core::sync::atomic::AtomicU32::new(0);
+#[cfg(feature = "dolphin-automation")]
+static FORMAT_REENTRY_FIRST_RESULT: AtomicI32 = AtomicI32::new(i32::MIN);
+#[cfg(feature = "dolphin-automation")]
+static FORMAT_REENTRY_SECOND_RESULT: AtomicI32 = AtomicI32::new(i32::MIN);
+#[cfg(feature = "dolphin-automation")]
+static FORMAT_REENTRY_SECOND_SUBMISSION: AtomicI32 = AtomicI32::new(i32::MIN);
+#[cfg(feature = "dolphin-automation")]
+static FORMAT_REENTRY_USERDATA_OK: AtomicBool = AtomicBool::new(false);
+#[cfg(feature = "dolphin-automation")]
+static FORMAT_REENTRY_FIRST_OUTPUT_OK: AtomicBool = AtomicBool::new(false);
+#[cfg(feature = "dolphin-automation")]
+static FORMAT_REENTRY_SECOND_OUTPUT_OK: AtomicBool = AtomicBool::new(false);
+#[cfg(feature = "dolphin-automation")]
+static FORMAT_REENTRY_FD: core::sync::atomic::AtomicI32 = core::sync::atomic::AtomicI32::new(-1);
+#[cfg(feature = "dolphin-automation")]
+static FORMAT_REENTRY_HEAP: core::sync::atomic::AtomicI32 = core::sync::atomic::AtomicI32::new(-1);
+#[cfg(feature = "dolphin-automation")]
+static FORMAT_REENTRY_EXPECTED: core::sync::atomic::AtomicU32 =
+    core::sync::atomic::AtomicU32::new(u32::MAX);
+#[cfg(feature = "dolphin-automation")]
+static mut FORMAT_REENTRY_FIRST_OUTPUT: u32 = u32::MAX;
+#[cfg(feature = "dolphin-automation")]
+static mut FORMAT_REENTRY_SECOND_OUTPUT: u32 = u32::MAX;
+#[cfg(feature = "dolphin-automation")]
+static FORMAT_REENTRY_FIRST_USERDATA: u8 = 0x41;
+#[cfg(feature = "dolphin-automation")]
+static FORMAT_REENTRY_SECOND_USERDATA: u8 = 0x42;
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" {
+    fn IOS_IoctlvFormatAsync(
+        heap: i32,
+        fd: i32,
+        ioctl: i32,
+        callback: Option<unsafe extern "C" fn(i32, *mut core::ffi::c_void) -> i32>,
+        user_data: *mut core::ffi::c_void,
+        format: *const core::ffi::c_char,
+        ...
+    ) -> i32;
+}
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn format_reentry_second_completed(
+    result: i32,
+    userdata: *mut core::ffi::c_void,
+) -> i32 {
+    let expected_userdata = core::ptr::addr_of!(FORMAT_REENTRY_SECOND_USERDATA)
+        .cast_mut()
+        .cast();
+    let output = core::ptr::addr_of!(FORMAT_REENTRY_SECOND_OUTPUT);
+    FORMAT_REENTRY_USERDATA_OK.fetch_and(userdata == expected_userdata, Ordering::AcqRel);
+    FORMAT_REENTRY_SECOND_OUTPUT_OK.store(
+        unsafe { output.read() } == FORMAT_REENTRY_EXPECTED.load(Ordering::Acquire),
+        Ordering::Release,
+    );
+    FORMAT_REENTRY_SECOND_RESULT.store(result, Ordering::Release);
+    FORMAT_REENTRY_SECOND_COMPLETIONS.fetch_add(1, Ordering::AcqRel);
+    0
+}
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn format_reentry_first_completed(
+    result: i32,
+    userdata: *mut core::ffi::c_void,
+) -> i32 {
+    let expected_userdata = core::ptr::addr_of!(FORMAT_REENTRY_FIRST_USERDATA)
+        .cast_mut()
+        .cast();
+    let output = core::ptr::addr_of!(FORMAT_REENTRY_FIRST_OUTPUT);
+    FORMAT_REENTRY_USERDATA_OK.store(userdata == expected_userdata, Ordering::Release);
+    FORMAT_REENTRY_FIRST_OUTPUT_OK.store(
+        unsafe { output.read() } == FORMAT_REENTRY_EXPECTED.load(Ordering::Acquire),
+        Ordering::Release,
+    );
+    FORMAT_REENTRY_FIRST_RESULT.store(result, Ordering::Release);
+    FORMAT_REENTRY_FIRST_COMPLETIONS.fetch_add(1, Ordering::AcqRel);
+
+    let second_output = core::ptr::addr_of_mut!(FORMAT_REENTRY_SECOND_OUTPUT);
+    unsafe { second_output.write(u32::MAX) };
+    let second_userdata = core::ptr::addr_of!(FORMAT_REENTRY_SECOND_USERDATA)
+        .cast_mut()
+        .cast();
+    let submission = unsafe {
+        IOS_IoctlvFormatAsync(
+            FORMAT_REENTRY_HEAP.load(Ordering::Acquire),
+            FORMAT_REENTRY_FD.load(Ordering::Acquire),
+            0x0e,
+            Some(format_reentry_second_completed),
+            second_userdata,
+            c":i".as_ptr(),
+            second_output,
+        )
+    };
+    FORMAT_REENTRY_SECOND_SUBMISSION.store(submission, Ordering::Release);
+    0
+}
+
+#[cfg(feature = "dolphin-automation")]
 unsafe extern "C" fn probe_alarm_callback(id: system::SysWd, arg: *mut core::ffi::c_void) {
     ALARM_ID.store(id, Ordering::Relaxed);
     ALARM_ARG.store(arg as usize as u32, Ordering::Relaxed);
@@ -518,6 +621,58 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                         .count()
                         == 1
             })
+    }
+
+    fn current_workspace_ledger_balanced(min_allocations: usize) -> bool {
+        let count = lwp::WORKSPACE_PROBE_EVENT_COUNT.load(Ordering::Acquire);
+        if count > lwp::WORKSPACE_PROBE_CAPACITY {
+            return false;
+        }
+        let mut events = [lwp::WorkspaceProbeEvent::default(); lwp::WORKSPACE_PROBE_CAPACITY];
+        for (index, event) in events.iter_mut().take(count).enumerate() {
+            let Some(slot) = lwp::WORKSPACE_PROBE_EVENTS.get(index) else {
+                return false;
+            };
+            *event = lwp::WorkspaceProbeEvent {
+                kind: slot.kind.load(Ordering::Acquire),
+                pointer: slot.pointer.load(Ordering::Relaxed),
+                size: slot.size.load(Ordering::Relaxed),
+            };
+        }
+        if count < min_allocations.saturating_mul(2) {
+            return false;
+        }
+        let mut active = [false; lwp::WORKSPACE_PROBE_CAPACITY];
+        for (index, event) in events.iter().take(count).enumerate() {
+            if event.kind == ipc::FORMAT_PROBE_WORKSPACE_ALLOC {
+                if events.iter().take(index).enumerate().any(|(prior, other)| {
+                    other.pointer == event.pointer && other.size == event.size && active[prior]
+                }) {
+                    return false;
+                }
+                active[index] = true;
+            } else if event.kind == ipc::FORMAT_PROBE_WORKSPACE_FREE {
+                let Some(allocation) = events
+                    .iter()
+                    .take(index)
+                    .enumerate()
+                    .rev()
+                    .find(|(prior, other)| {
+                        active[*prior]
+                            && other.kind == ipc::FORMAT_PROBE_WORKSPACE_ALLOC
+                            && other.pointer == event.pointer
+                            && other.size == event.size
+                    })
+                    .map(|(prior, _)| prior)
+                else {
+                    return false;
+                };
+                active[allocation] = false;
+            } else {
+                return false;
+            }
+        }
+        active.iter().all(|outstanding| !outstanding)
     }
 
     fn workspace_did_not_own(snapshot: &ipc::FormatProbeSnapshot, pointer: usize) -> bool {
@@ -1344,6 +1499,63 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 .iter()
                 .take(31)
                 .all(|vector| vector.length == 4),
+    );
+
+    #[derive(Clone, Copy)]
+    #[repr(align(32))]
+    struct WorkspaceStressInput([u8; 64]);
+    let mut workspace_stress_inputs = [WorkspaceStressInput([0x6du8; 64]); 31];
+    let workspace_stress_pointers: [*mut c_void; 31] = core::array::from_fn(|index| unsafe {
+        workspace_stress_inputs[index].0.as_mut_ptr().add(1).cast()
+    });
+    macro_rules! call_maximum_staged_d_format {
+        ($($index:literal),+ $(,)?) => {
+            unsafe {
+                IOS_IoctlvFormat(
+                    ipc::IPC_HEAP,
+                    0,
+                    0,
+                    c"ddddddddddddddddddddddddddddddd".as_ptr(),
+                    $(workspace_stress_pointers[$index], 33u32),+
+                )
+            }
+        };
+    }
+    let mut maximum_staged_snapshot = ipc::FormatProbeSnapshot::default();
+    ipc::reset_format_heap_ledger();
+    ipc::reset_request_ledger();
+    arm_format_snapshot!(maximum_staged_snapshot);
+    let maximum_staged_result = call_maximum_staged_d_format!(
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+        25, 26, 27, 28, 29, 30,
+    );
+    let maximum_staged_workspace_complete = maximum_staged_snapshot.workspace_event_count as usize
+        == ipc::FORMAT_PROBE_MAX_WORKSPACE_EVENTS
+        && lwp::WORKSPACE_PROBE_EVENT_COUNT.load(Ordering::Acquire)
+            == ipc::FORMAT_PROBE_MAX_WORKSPACE_EVENTS
+        && maximum_staged_snapshot
+            .vectors
+            .iter()
+            .take(31)
+            .all(|vector| vector.length == 33 && vector.allocation_length == 64)
+        && (0..31).all(|index| {
+            let vector = maximum_staged_snapshot.vectors[index];
+            vector.data_address != 0
+                && workspace_round_trip(
+                    &maximum_staged_snapshot,
+                    vector.data_address,
+                    vector.allocation_length,
+                )
+        });
+    logger.record(
+        "IPC format maximum 31-parameter staged d ownership balances all 64 workspace events",
+        maximum_staged_result == ipc::FORMAT_PROBE_COMPLETE
+            && maximum_staged_snapshot.input_count == 31
+            && maximum_staged_snapshot.output_count == 0
+            && maximum_staged_snapshot.vector_count == 31
+            && maximum_staged_workspace_complete
+            && formatter_heap_ledger_has_exact_allocations(1)
+            && request_ledger_has_exact_pairs(0),
     );
 
     macro_rules! call_async_maximum_format {
@@ -2413,6 +2625,86 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 && buffer_slot.output_matches.load(Ordering::Acquire),
         );
 
+        FORMAT_REENTRY_FIRST_COMPLETIONS.store(0, Ordering::Release);
+        FORMAT_REENTRY_SECOND_COMPLETIONS.store(0, Ordering::Release);
+        FORMAT_REENTRY_FIRST_RESULT.store(i32::MIN, Ordering::Release);
+        FORMAT_REENTRY_SECOND_RESULT.store(i32::MIN, Ordering::Release);
+        FORMAT_REENTRY_SECOND_SUBMISSION.store(i32::MIN, Ordering::Release);
+        FORMAT_REENTRY_USERDATA_OK.store(false, Ordering::Release);
+        FORMAT_REENTRY_FIRST_OUTPUT_OK.store(false, Ordering::Release);
+        FORMAT_REENTRY_SECOND_OUTPUT_OK.store(false, Ordering::Release);
+        FORMAT_REENTRY_FD.store(fd.raw(), Ordering::Release);
+        let first_reentry_heap = ipc::HeapId::create(256);
+        let second_reentry_heap = ipc::HeapId::create(256);
+        FORMAT_REENTRY_HEAP.store(
+            second_reentry_heap.map_or(-1, ipc::HeapId::raw),
+            Ordering::Release,
+        );
+        FORMAT_REENTRY_EXPECTED.store(actual, Ordering::Release);
+        let first_reentry_output = core::ptr::addr_of_mut!(FORMAT_REENTRY_FIRST_OUTPUT);
+        let second_reentry_output = core::ptr::addr_of_mut!(FORMAT_REENTRY_SECOND_OUTPUT);
+        unsafe {
+            first_reentry_output.write(u32::MAX);
+            second_reentry_output.write(u32::MAX);
+        }
+        ipc::reset_format_heap_ledger();
+        ipc::reset_request_ledger();
+        lwp::WORKSPACE_PROBE_EVENT_COUNT.store(0, Ordering::Release);
+        let first_reentry_userdata = core::ptr::addr_of!(FORMAT_REENTRY_FIRST_USERDATA)
+            .cast_mut()
+            .cast();
+        let reentry_first_submission = match (first_reentry_heap, second_reentry_heap) {
+            (Ok(heap), Ok(_)) => unsafe {
+                IOS_IoctlvFormatAsync(
+                    heap.raw(),
+                    fd.raw(),
+                    0x0e,
+                    Some(format_reentry_first_completed),
+                    first_reentry_userdata,
+                    c":i".as_ptr(),
+                    first_reentry_output,
+                )
+            },
+            (Err(error), _) | (_, Err(error)) => error,
+        };
+        let mut reentry_completed = false;
+        for _ in 0..1000 {
+            if FORMAT_REENTRY_FIRST_COMPLETIONS.load(Ordering::Acquire) != 0
+                && FORMAT_REENTRY_SECOND_COMPLETIONS.load(Ordering::Acquire) != 0
+            {
+                reentry_completed = true;
+                break;
+            }
+            lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 100).max(1));
+        }
+        if reentry_completed {
+            lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 20).max(1));
+        }
+        let reentry_request_ledger_balanced = request_ledger_has_exact_pairs(2);
+        let reentry_formatter_ledger_balanced = formatter_heap_ledger_has_exact_allocations(4);
+        let reentry_workspace_ledger_balanced = current_workspace_ledger_balanced(2);
+        logger.record(
+            "IPC format async callback re-entry submits a separate second request exactly once",
+            reentry_first_submission == 0
+                && reentry_completed
+                && FORMAT_REENTRY_FIRST_COMPLETIONS.load(Ordering::Acquire) == 1
+                && FORMAT_REENTRY_SECOND_SUBMISSION.load(Ordering::Acquire) == 0
+                && FORMAT_REENTRY_SECOND_COMPLETIONS.load(Ordering::Acquire) == 1
+                && FORMAT_REENTRY_FIRST_RESULT.load(Ordering::Acquire) == 0
+                && FORMAT_REENTRY_SECOND_RESULT.load(Ordering::Acquire) == 0
+                && FORMAT_REENTRY_USERDATA_OK.load(Ordering::Acquire)
+                && first_reentry_userdata
+                    != core::ptr::addr_of!(FORMAT_REENTRY_SECOND_USERDATA)
+                        .cast_mut()
+                        .cast()
+                && FORMAT_REENTRY_FIRST_OUTPUT_OK.load(Ordering::Acquire)
+                && FORMAT_REENTRY_SECOND_OUTPUT_OK.load(Ordering::Acquire)
+                && first_reentry_output != second_reentry_output
+                && reentry_request_ledger_balanced
+                && reentry_formatter_ledger_balanced
+                && reentry_workspace_ledger_balanced,
+        );
+
         static FORMAT_LWP_START: AtomicBool = AtomicBool::new(false);
         static FORMAT_LWP_READY: core::sync::atomic::AtomicU32 =
             core::sync::atomic::AtomicU32::new(0);
@@ -2766,6 +3058,74 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             "IPC format StagingBuffer failure balances formatter argv ownership",
             staging_failure == ipc::IPC_ENOMEM && formatter_heap_ledger_has_exact_allocations(1),
         );
+
+        // These two small IOS heaps exercise the production allocator. The
+        // 40-byte heap has only 32 usable bytes after alignment, so it cannot
+        // satisfy the real argv block request. With 160 bytes, `ii` can own
+        // argv and its first scalar, but not the second scalar allocation.
+        let argv_exhaustion_heap = ipc::HeapId::create(40);
+        ipc::reset_format_heap_ledger();
+        let argv_exhaustion_result = match argv_exhaustion_heap {
+            Ok(heap) => unsafe {
+                IOS_IoctlvFormat(heap.raw(), fd.raw(), 0, c"i".as_ptr(), 0x1122_3344u32)
+            },
+            Err(error) => error,
+        };
+        let argv_exhaustion_clean = argv_exhaustion_heap.is_ok()
+            && argv_exhaustion_result == ipc::IPC_ENOMEM
+            && ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire) == live_before_faults
+            && formatter_heap_ledger_has_exact_allocations(0);
+        logger.record(
+            "IPC formatter real heap exhaustion rejects Argv allocation without leaks",
+            argv_exhaustion_clean,
+        );
+
+        let scalar_exhaustion_heap = ipc::HeapId::create(160);
+        ipc::reset_format_heap_ledger();
+        let scalar_exhaustion_result = match scalar_exhaustion_heap {
+            Ok(heap) => unsafe {
+                IOS_IoctlvFormat(
+                    heap.raw(),
+                    fd.raw(),
+                    0,
+                    c"ii".as_ptr(),
+                    0x1122_3344u32,
+                    0x5566_7788u32,
+                )
+            },
+            Err(error) => error,
+        };
+        let scalar_exhaustion_clean = scalar_exhaustion_heap.is_ok()
+            && scalar_exhaustion_result == ipc::IPC_ENOMEM
+            && ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire) == live_before_faults
+            && formatter_heap_ledger_has_exact_allocations(2);
+        logger.record(
+            "IPC formatter real heap exhaustion frees Argv and the first Scalar exactly once",
+            scalar_exhaustion_clean,
+        );
+
+        let mut heap_recovery = ipc::FormatProbeSnapshot::default();
+        ipc::reset_format_heap_ledger();
+        let heap_recovery_result = match scalar_exhaustion_heap {
+            Ok(heap) => {
+                ipc::FORMAT_PROBE_SNAPSHOT.store(
+                    (&mut heap_recovery as *mut ipc::FormatProbeSnapshot) as usize,
+                    Ordering::Release,
+                );
+                unsafe { IOS_IoctlvFormat(heap.raw(), fd.raw(), 0, c"i".as_ptr(), 0xaabb_ccddu32) }
+            }
+            Err(error) => error,
+        };
+        logger.record(
+            "IPC formatter real heap exhaustion recovers on the same heap",
+            scalar_exhaustion_clean
+                && heap_recovery_result == ipc::FORMAT_PROBE_COMPLETE
+                && heap_recovery.input_count == 1
+                && heap_recovery.vectors[0].sample[..4] == [0xaa, 0xbb, 0xcc, 0xdd]
+                && formatter_heap_ledger_has_exact_allocations(2)
+                && ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire) == live_before_faults,
+        );
+
         logger.record(
             "IPC format public sync allocation failures release partial formatter state",
             sync_faults_clean,

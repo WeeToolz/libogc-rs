@@ -65,6 +65,8 @@ struct IpcEvidenceContract {
     evidence_path: String,
     function: String,
     api_path: String,
+    status: String,
+    limitation: String,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -267,6 +269,11 @@ impl RuntimeInventory {
         fs::write(&status_path, status)
             .map_err(|err| format!("{}: {err}", status_path.display()))?;
 
+        let formatter_status = render_formatter_status(&load_ipc_format_contracts(root)?);
+        let formatter_status_path = root.join("docs/generated/ipc-format-status.md");
+        fs::write(&formatter_status_path, formatter_status)
+            .map_err(|err| format!("{}: {err}", formatter_status_path.display()))?;
+
         println!(
             "wrote {} API entries to {}",
             entries.len(),
@@ -300,6 +307,22 @@ impl RuntimeInventory {
             return Err(format!(
                 "{} is stale; run cargo xtask inventory",
                 status_path.display()
+            ));
+        }
+
+        let expected_formatter_status = render_formatter_status(&load_ipc_format_contracts(root)?);
+        let formatter_status_path = root.join("docs/generated/ipc-format-status.md");
+        let actual_formatter_status =
+            fs::read_to_string(&formatter_status_path).map_err(|err| {
+                format!(
+                    "{}: {err}; run cargo xtask inventory",
+                    formatter_status_path.display()
+                )
+            })?;
+        if actual_formatter_status != expected_formatter_status {
+            return Err(format!(
+                "{} is stale; run cargo xtask inventory",
+                formatter_status_path.display()
             ));
         }
 
@@ -899,6 +922,7 @@ fn load_ipc_format_contracts(
         "environment",
         "scope",
         "limitation",
+        "status",
     ];
     if rows
         .first()
@@ -919,6 +943,14 @@ fn load_ipc_format_contracts(
                 line_no + 1
             ));
         }
+        if !["verified", "partial", "blocked", "unverified"].contains(&row[11].as_str()) {
+            return Err(format!(
+                "{}:{}: invalid formatter evidence status `{}`",
+                path.display(),
+                line_no + 1,
+                row[11]
+            ));
+        }
         contracts
             .entry(row[0].clone())
             .or_default()
@@ -929,6 +961,8 @@ fn load_ipc_format_contracts(
                 evidence_path: row[4].clone(),
                 function: row[5].clone(),
                 api_path: row[6].clone(),
+                status: row[11].clone(),
+                limitation: row[10].clone(),
             });
     }
     Ok(contracts)
@@ -2051,6 +2085,40 @@ fn render_status(entries: &[ApiEntry]) -> String {
     output
 }
 
+fn render_formatter_status(contracts: &HashMap<String, Vec<IpcEvidenceContract>>) -> String {
+    let mut counts = BTreeMap::<&str, usize>::new();
+    let mut rows = Vec::new();
+    for (id, evidence) in contracts {
+        for item in evidence {
+            *counts.entry(item.status.as_str()).or_default() += 1;
+            rows.push((id.as_str(), item));
+        }
+    }
+    rows.sort_by_key(|(id, item)| (*id, item.symbol.as_str(), item.function.as_str()));
+    let mut output = String::from(
+        "# IPC formatter evidence status\n\nGenerated from `config/ipc-format-contracts.csv` by `cargo xtask inventory`. Status describes the stated contract evidence, not the implementation API classification.\n\n",
+    );
+    output.push_str("## Status counts\n\n");
+    output.push_str(&format!(
+        "verified: {} | partial: {} | blocked: {} | unverified: {}\n\n",
+        counts.get("verified").copied().unwrap_or(0),
+        counts.get("partial").copied().unwrap_or(0),
+        counts.get("blocked").copied().unwrap_or(0),
+        counts.get("unverified").copied().unwrap_or(0),
+    ));
+    output.push_str("`unverified` is the actionable count. `blocked` records requirements that need unavailable prerequisites.\n\n");
+    output.push_str("## Contracts\n\n| Contract | API | Status | Remaining evidence |\n| --- | --- | --- | --- |\n");
+    for (id, item) in rows {
+        output.push_str(&format!(
+            "| `{id}` | `{}` | `{}` | {} |\n",
+            item.symbol,
+            item.status,
+            item.limitation.replace('|', "\\|")
+        ));
+    }
+    output
+}
+
 fn csv_escape(value: &str) -> String {
     if value.contains(',') || value.contains('"') || value.contains('\n') {
         format!("\"{}\"", value.replace('"', "\"\""))
@@ -2105,6 +2173,8 @@ mod tests {
             evidence_path: item.evidence_path.clone(),
             function: item.function.clone(),
             api_path: "api".into(),
+            status: "partial".into(),
+            limitation: "remaining check".into(),
         };
         let mut contracts = HashMap::from([("contract".into(), vec![contract.clone(), contract])]);
         let mut coverage = BTreeMap::from([(
@@ -2135,6 +2205,39 @@ mod tests {
         coverage.get_mut("ipc-format-probe").unwrap().source = "source.rs".into();
         coverage.get_mut("ipc-format-probe").unwrap().dolphin_runner = Some("unknown_probe".into());
         assert!(validate_contracts(&item, "ipc-format-probe", &coverage, &contracts).is_err());
+    }
+
+    #[test]
+    fn formatter_status_report_keeps_hardware_blocked_separate() {
+        let make = |status: &str, limitation: &str| IpcEvidenceContract {
+            crate_name: "ogc-ipc".into(),
+            symbol: "IOS_IoctlvFormat".into(),
+            dolphin_runner: "runtime_probe".into(),
+            evidence_path: "probe.rs".into(),
+            function: "run".into(),
+            api_path: "api".into(),
+            status: status.into(),
+            limitation: limitation.into(),
+        };
+        let contracts = HashMap::from([
+            ("ready".into(), vec![make("verified", "complete")]),
+            (
+                "in-progress".into(),
+                vec![make("partial", "Dolphin cases remain")],
+            ),
+            (
+                "hardware".into(),
+                vec![make("blocked", "physical Wii required")],
+            ),
+            (
+                "actionable".into(),
+                vec![make("unverified", "probe missing")],
+            ),
+        ]);
+        let report = render_formatter_status(&contracts);
+        assert!(report.contains("verified: 1 | partial: 1 | blocked: 1 | unverified: 1"));
+        assert!(report.contains("`unverified` is the actionable count"));
+        assert!(report.contains("`blocked`"));
     }
 
     #[test]
