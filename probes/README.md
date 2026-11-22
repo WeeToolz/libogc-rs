@@ -139,6 +139,14 @@ Run only the formatter probe with:
 cargo xtask dolphin-validate --probe runtime_probe
 ```
 
+The [2026-11-22 formatter report](../docs/dolphin-runs/2026-11-22-ipc-format-aes-known-answer/batch-report.md)
+records a Dolphin 2609a run at source revision
+`324af80557f2b2115000219cbf2e096117ba989b`. It passed 844 checks with no
+failures. The sync and async AES checks compare results with a fixed NIST
+AES-128-CBC vector. The async case also mutates the staged tail and verifies
+the callback output. These checks do not establish physical Wii cache or DMA
+behavior.
+
 This selected build does not need the external MP3 fixture. The full
 `cargo xtask build-dolphin-probes` set includes MP3 probe binaries and needs
 `LIBOGC_MAD_PROBE_MP3`; see [dependency notes](../docs/dependencies.md).

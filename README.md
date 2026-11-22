@@ -95,8 +95,12 @@ for more commands and limits.
 For IPC formatter checks, use the Dolphin runner ID `runtime_probe`. Its API
 coverage ID is `ipc-format-probe`, which maps explicitly to that runner in
 `config/probe-coverage.csv`. A selected formatter build does not need the
-external MP3 fixture; the full Dolphin probe build does. See [dependency
-notes](docs/dependencies.md).
+external MP3 fixture; the full Dolphin probe build does. The formatter checks
+compare typed, synchronous, and asynchronous AES results with a fixed NIST
+AES-128-CBC vector. The asynchronous check also changes the staged input tail
+and checks the callback result. See the [fresh Dolphin report](docs/dolphin-runs/2026-11-22-ipc-format-aes-known-answer/batch-report.md)
+and the [probe guide](probes/README.md) for the result and its limits. Dolphin
+does not prove physical Wii cache or DMA behavior. See [dependency notes](docs/dependencies.md).
 
 The [read-only exFAT guide](docs/exfat.md) describes the Rust API for
 sector-zero volumes and primary MBR partitions.

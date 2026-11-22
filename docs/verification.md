@@ -72,10 +72,13 @@ This command builds only the selected probe before it runs. The full
 `cargo xtask build-dolphin-probes` command also builds MP3 probes and therefore
 needs `LIBOGC_MAD_PROBE_MP3`. The selected formatter build passed without that
 fixture. A Dolphin run also needs an installed executable and a Wii NAND with
-the Wii System Menu. In the recorded verification, no Dolphin executable was
-available, so the formatter could be target-built but not rerun in Dolphin.
-The saved formatter report records an earlier Dolphin run and its limits.
-Physical Wii cache and DMA validation remains open.
+the Wii System Menu. The [2026-11-22 formatter run](dolphin-runs/2026-11-22-ipc-format-aes-known-answer/batch-report.md)
+used Dolphin 2609a with source revision
+`324af80557f2b2115000219cbf2e096117ba989b`; it passed 844 checks with no
+failures. The AES checks use a fixed NIST AES-128-CBC vector for typed, sync,
+and async results. The async test also changes the staged input tail and checks
+the callback result. This is emulator evidence. Physical Wii cache and DMA
+validation remains open.
 
 The [probe guide](../probes/README.md) lists focused build commands, probe
 coverage, Dolphin limits, and physical USB and AESND procedures. The

@@ -68,6 +68,11 @@ validation binds the API's coverage ID to this row, then checks the mapped
 source and runner against the API evidence and contract. A blank runner field
 means that coverage ID has no Dolphin runner.
 
+The [2026-11-22 IPC formatter batch](dolphin-runs/2026-11-22-ipc-format-aes-known-answer/batch-report.md)
+shows this mapping in use. It passed 844 checks with no failures and records
+the sync and async AES known-answer checks. Dolphin evidence does not establish
+physical Wii cache or DMA behavior.
+
 Contract IDs may have several rows for their required check labels. Their
 shared API, runner, evidence, function, and API-path identity must stay
 consistent across those rows. The mapped runner must exist in the Dolphin

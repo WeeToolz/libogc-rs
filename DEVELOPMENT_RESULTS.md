@@ -1,5 +1,21 @@
 # Development results
 
+## 2026-11-22: IPC formatter AES known-answer checks
+
+Commit `324af80557f2b2115000219cbf2e096117ba989b` adds an independent
+AES-128-CBC known-answer check to the formatter probe. The typed IPC call and
+the sync and async formatted calls must all match the fixed NIST ciphertext
+and final IV for 32-byte and 64-byte inputs. The async check also changes the
+64-byte staged input tail, verifies the callback result against the changed
+typed result, and requires the ciphertext to change.
+
+The fresh [Dolphin batch report](docs/dolphin-runs/2026-11-22-ipc-format-aes-known-answer/batch-report.md)
+records Dolphin 2609a passing 844 checks with no failures. The saved
+[synchronous result page](docs/dolphin-runs/2026-11-22-ipc-format-aes-known-answer/runtime_probe/pages/page-019.png)
+and [asynchronous result page](docs/dolphin-runs/2026-11-22-ipc-format-aes-known-answer/runtime_probe/pages/page-020.png)
+show the AES assertions. This verifies emulator behavior only. Physical Wii
+cache and DMA behavior remains open.
+
 ## 2026-11-22: IPC formatter probe mapping and workspace accounting
 
 Commit `941a1269` adds an explicit mapping from the API coverage ID
@@ -20,7 +36,8 @@ the updated code passed `cargo test -p xtask` (139 tests), `cargo test`,
 `runtime_probe`. The full probe-set build stopped because
 `LIBOGC_MAD_PROBE_MP3` was not set. Dolphin was not available for a fresh run.
 The focused formatter build does not require the MP3 fixture. Physical Wii
-cache and DMA behavior remains open.
+cache and DMA behavior remains open. The later fresh Dolphin run and its
+results are recorded in the section above.
 
 ## 2026-11-21 locked-cache controls
 
