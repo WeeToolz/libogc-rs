@@ -8,6 +8,8 @@ use super::{FormatCall, FormatState, Ioctlv};
 pub struct FormatProbeVector {
     pub data_address: usize,
     pub length: u32,
+    /// Workspace bytes reserved for this vector, or zero for direct buffers.
+    pub allocation_length: usize,
     pub sample_length: u8,
     pub sample: [u8; 8],
 }
@@ -80,6 +82,7 @@ unsafe fn capture_format_probe(call: &FormatCall, snapshot: *mut FormatProbeSnap
         Err(error) => return error,
     };
     let total = cnt_in + cnt_io;
+    let state_ref = unsafe { &*state };
     let snapshot_ref = unsafe { &mut *snapshot };
     snapshot_ref.input_count = cnt_in as u32;
     snapshot_ref.output_count = cnt_io as u32;
@@ -91,6 +94,10 @@ unsafe fn capture_format_probe(call: &FormatCall, snapshot: *mut FormatProbeSnap
         let record = &mut snapshot_ref.vectors[index];
         record.data_address = entry.data as usize;
         record.length = entry.len;
+        record.allocation_length = state_ref.owned[..state_ref.num_owned]
+            .iter()
+            .find(|owned| owned.ipc_buf == entry.data)
+            .map_or(0, |owned| owned.allocation_len);
         record.sample_length = sample_len as u8;
         if sample_len > 0 && !entry.data.is_null() {
             unsafe {

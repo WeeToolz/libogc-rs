@@ -747,7 +747,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
     let mut sync_boundary_ok = true;
     let mut async_boundary_ok = true;
     for misalignment in [0usize, 1] {
-        for length in [0usize, 1, 31, 32, 33, 63, 64, 65] {
+        for length in [0usize, 1, 30, 31, 32, 33, 63, 64, 65] {
             let mut guarded = [0xa5u8; 160];
             let base = guarded.as_mut_ptr() as usize;
             let aligned = base + ((32 - (base & 31)) & 31);
@@ -755,6 +755,12 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             let output = start as *mut u8;
             let before = start - base;
             let after = before + length;
+            let needs_staging = length != 0 && (misalignment != 0 || length % 32 != 0);
+            let expected_allocation_len = if needs_staging {
+                (length + 31) & !31
+            } else {
+                0
+            };
             let mut snapshot = ipc::FormatProbeSnapshot {
                 output_pattern: 0xd3,
                 ..ipc::FormatProbeSnapshot::default()
@@ -766,7 +772,14 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             sync_boundary_ok &= result == ipc::FORMAT_PROBE_COMPLETE
                 && guarded[..before].iter().all(|byte| *byte == 0xa5)
                 && guarded[before..after].iter().all(|byte| *byte == 0xd3)
-                && guarded[after..].iter().all(|byte| *byte == 0xa5);
+                && guarded[after..].iter().all(|byte| *byte == 0xa5)
+                && snapshot.vectors[0].length == length as u32
+                && snapshot.vectors[0].allocation_length == expected_allocation_len
+                && ((expected_allocation_len == 0
+                    && snapshot.vectors[0].data_address == output as usize)
+                    || (expected_allocation_len != 0
+                        && snapshot.vectors[0].data_address != output as usize
+                        && snapshot.vectors[0].data_address.is_multiple_of(32)));
 
             guarded.fill(0xa5);
             let mut async_snapshot = ipc::FormatProbeSnapshot {
@@ -789,7 +802,14 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             async_boundary_ok &= async_result == ipc::FORMAT_PROBE_COMPLETE
                 && guarded[..before].iter().all(|byte| *byte == 0xa5)
                 && guarded[before..after].iter().all(|byte| *byte == 0xd3)
-                && guarded[after..].iter().all(|byte| *byte == 0xa5);
+                && guarded[after..].iter().all(|byte| *byte == 0xa5)
+                && async_snapshot.vectors[0].length == length as u32
+                && async_snapshot.vectors[0].allocation_length == expected_allocation_len
+                && ((expected_allocation_len == 0
+                    && async_snapshot.vectors[0].data_address == output as usize)
+                    || (expected_allocation_len != 0
+                        && async_snapshot.vectors[0].data_address != output as usize
+                        && async_snapshot.vectors[0].data_address.is_multiple_of(32)));
         }
     }
     logger.record(
@@ -804,7 +824,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
     let mut sync_input_boundary_ok = true;
     let mut async_input_boundary_ok = true;
     for misalignment in [0usize, 1] {
-        for length in [0usize, 1, 31, 32, 33, 63, 64, 65] {
+        for length in [0usize, 1, 30, 31, 32, 33, 63, 64, 65] {
             let mut guarded = [0xa5u8; 160];
             let base = guarded.as_mut_ptr() as usize;
             let aligned = base + ((32 - (base & 31)) & 31);
@@ -812,6 +832,12 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
             let input = start as *const u8;
             let before = start - base;
             let after = before + length;
+            let needs_staging = length != 0 && (misalignment != 0 || length % 32 != 0);
+            let expected_allocation_len = if needs_staging {
+                (length + 31) & !31
+            } else {
+                0
+            };
             for index in 0..length {
                 guarded[before + index] = (index as u8).wrapping_mul(13).wrapping_add(7);
             }
@@ -831,6 +857,12 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 && snapshot.vectors[0].length == length as u32
                 && snapshot.vectors[0].sample_length as usize == sample_len
                 && snapshot.vectors[0].sample[..sample_len] == expected_sample[..sample_len]
+                && snapshot.vectors[0].allocation_length == expected_allocation_len
+                && ((expected_allocation_len == 0
+                    && snapshot.vectors[0].data_address == input as usize)
+                    || (expected_allocation_len != 0
+                        && snapshot.vectors[0].data_address != input as usize
+                        && snapshot.vectors[0].data_address.is_multiple_of(32)))
                 && guarded[..before].iter().all(|byte| *byte == 0xa5)
                 && guarded[after..].iter().all(|byte| *byte == 0xa5);
 
@@ -855,6 +887,12 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 && async_snapshot.vectors[0].length == length as u32
                 && async_snapshot.vectors[0].sample_length as usize == sample_len
                 && async_snapshot.vectors[0].sample[..sample_len] == expected_sample[..sample_len]
+                && async_snapshot.vectors[0].allocation_length == expected_allocation_len
+                && ((expected_allocation_len == 0
+                    && async_snapshot.vectors[0].data_address == input as usize)
+                    || (expected_allocation_len != 0
+                        && async_snapshot.vectors[0].data_address != input as usize
+                        && async_snapshot.vectors[0].data_address.is_multiple_of(32)))
                 && guarded[..before].iter().all(|byte| *byte == 0xa5)
                 && guarded[after..].iter().all(|byte| *byte == 0xa5);
         }
@@ -866,6 +904,14 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
     logger.record(
         "IPC format public async entry reads selected DMA boundary lengths",
         async_input_boundary_ok,
+    );
+    logger.record(
+        "IPC format public sync d vectors reserve full cache lines and keep logical lengths",
+        sync_boundary_ok && sync_input_boundary_ok,
+    );
+    logger.record(
+        "IPC format public async d vectors reserve full cache lines and keep logical lengths",
+        async_boundary_ok && async_input_boundary_ok,
     );
 
     let mut mixed_output = [0x6bu8; 5];

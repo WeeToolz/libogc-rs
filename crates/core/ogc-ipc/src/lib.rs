@@ -2481,15 +2481,21 @@ unsafe fn format_vector_data(
     if data.is_null() || len == 0 || !dma_buffer::needs_staging(data as usize, len) {
         return Ok(data);
     }
+    let allocation_len = dma_buffer::staging_length(len).ok_or(IPC_EINVAL)?;
     if !format_allocation_allowed() {
         return Err(IPC_ENOMEM);
     }
-    let raw = unsafe { lwp_sys::allocate_workspace(len) }.cast::<c_void>();
+    let raw = unsafe { lwp_sys::allocate_workspace(allocation_len) }.cast::<c_void>();
     let Some(staged) = NonNull::new(raw) else {
         return Err(IPC_ENOMEM);
     };
     format_allocation_created();
-    unsafe { core::ptr::copy_nonoverlapping(data.cast::<u8>(), staged.as_ptr().cast::<u8>(), len) };
+    // The cache operation can cover the complete final cache line. Own that
+    // full line so it cannot overlap allocator metadata or another buffer.
+    unsafe {
+        core::ptr::write_bytes(staged.as_ptr().cast::<u8>(), 0, allocation_len);
+        core::ptr::copy_nonoverlapping(data.cast::<u8>(), staged.as_ptr().cast::<u8>(), len);
+    }
     if let Err(error) = unsafe {
         format_record(
             state,
@@ -2497,7 +2503,7 @@ unsafe fn format_vector_data(
                 ipc_buf: staged.as_ptr(),
                 io_buf: if output { data } else { core::ptr::null_mut() },
                 copy_len: if output { len } else { 0 },
-                allocation_len: len,
+                allocation_len,
                 owner: FORMAT_OWNER_WORKSPACE,
             },
         )
