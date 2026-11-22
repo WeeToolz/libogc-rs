@@ -1851,22 +1851,45 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
         #[repr(align(32))]
         struct AlignedAesBytes<const N: usize>([u8; N]);
 
+        const AES_CBC_KEY: [u8; 16] = [
+            0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf,
+            0x4f, 0x3c,
+        ];
+        const AES_CBC_IV: [u8; 16] = [
+            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d,
+            0x0e, 0x0f,
+        ];
+        const AES_CBC_PLAINTEXT: [u8; 64] = [
+            0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93,
+            0x17, 0x2a, 0xae, 0x2d, 0x8a, 0x57, 0x1e, 0x03, 0xac, 0x9c, 0x9e, 0xb7, 0x6f, 0xac,
+            0x45, 0xaf, 0x8e, 0x51, 0x30, 0xc8, 0x1c, 0x46, 0xa3, 0x5c, 0xe4, 0x11, 0xe5, 0xfb,
+            0xc1, 0x19, 0x1a, 0x0a, 0x52, 0xef, 0xf6, 0x9f, 0x24, 0x45, 0xdf, 0x4f, 0x9b, 0x17,
+            0xad, 0x2b, 0x41, 0x7b, 0xe6, 0x6c, 0x37, 0x10,
+        ];
+        const AES_CBC_CIPHERTEXT: [u8; 64] = [
+            0x76, 0x49, 0xab, 0xac, 0x81, 0x19, 0xb2, 0x46, 0xce, 0xe9, 0x8e, 0x9b, 0x12, 0xe9,
+            0x19, 0x7d, 0x50, 0x86, 0xcb, 0x9b, 0x50, 0x72, 0x19, 0xee, 0x95, 0xdb, 0x11, 0x3a,
+            0x91, 0x76, 0x78, 0xb2, 0x73, 0xbe, 0xd6, 0xb8, 0xe3, 0xc1, 0x74, 0x3b, 0x71, 0x16,
+            0xe6, 0x9e, 0x22, 0x22, 0x95, 0x16, 0x3f, 0xf1, 0xca, 0xa1, 0x68, 0x1f, 0xac, 0x09,
+            0x12, 0x0e, 0xca, 0x30, 0x75, 0x86, 0xe1, 0xa7,
+        ];
+
         let mut aes_live_input_ok = false;
         let mut async_aes_live_input_ok = false;
         if let Ok(aes_fd) = ipc::open_file(c"/dev/aes", ipc::IPC_OPEN_NONE) {
-            let key = AlignedAesBytes([0u8; 32]);
+            let mut key = AlignedAesBytes([0u8; 32]);
+            key.0[..16].copy_from_slice(&AES_CBC_KEY);
             let mut all_lengths_ok = true;
             let mut async_lengths_ok = true;
             let mut tail_changes_ciphertext = false;
+            let mut async_tail_changes_ciphertext = false;
             for length in [32usize, 64] {
                 let mut source = [0xacu8; 128];
                 let base = source.as_mut_ptr() as usize;
                 let aligned = base + ((32 - (base & 31)) & 31);
                 let input = (aligned + 16) as *mut u8;
                 let payload = unsafe { core::slice::from_raw_parts_mut(input, length) };
-                for (index, byte) in payload.iter_mut().enumerate() {
-                    *byte = (index as u8).wrapping_mul(29).wrapping_add(7);
-                }
+                payload.copy_from_slice(&AES_CBC_PLAINTEXT[..length]);
                 let mut alternate = AlignedAesBytes([0u8; 64]);
                 alternate.0[..length].copy_from_slice(payload);
                 if length > 32 {
@@ -1877,6 +1900,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
 
                 let mut typed_output = AlignedAesBytes([0xa5; 96]);
                 let mut typed_iv = AlignedAesBytes([0x3c; 32]);
+                typed_iv.0[..16].copy_from_slice(&AES_CBC_IV);
                 let typed_result = aes_fd.ioctlv(
                     2,
                     2,
@@ -1889,6 +1913,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 );
                 let mut alternate_output = AlignedAesBytes([0xa5; 96]);
                 let mut alternate_iv = AlignedAesBytes([0x3c; 32]);
+                alternate_iv.0[..16].copy_from_slice(&AES_CBC_IV);
                 let alternate_result = aes_fd.ioctlv(
                     2,
                     2,
@@ -1902,6 +1927,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
 
                 let mut formatted_output = AlignedAesBytes([0xa5; 96]);
                 let mut formatted_iv = AlignedAesBytes([0x3c; 32]);
+                formatted_iv.0[..16].copy_from_slice(&AES_CBC_IV);
                 let mut submitted = ipc::FormatProbeSubmission::default();
                 ipc::FORMAT_PROBE_SUBMISSION.store(
                     (&mut submitted as *mut ipc::FormatProbeSubmission) as usize,
@@ -1925,6 +1951,7 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 };
                 let mut async_output = AlignedAesBytes([0xa5; 96]);
                 let mut async_iv = AlignedAesBytes([0x3c; 32]);
+                async_iv.0[..16].copy_from_slice(&AES_CBC_IV);
                 let async_slot = FormatAesAsyncSlot::new();
                 async_slot.prepare(
                     async_output.0.as_ptr(),
@@ -1966,7 +1993,58 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                     && async_completed
                     && async_slot.completions.load(Ordering::Acquire) == 1
                     && async_slot.result.load(Ordering::Acquire) == 0
-                    && async_slot.output_matches.load(Ordering::Acquire);
+                    && async_slot.output_matches.load(Ordering::Acquire)
+                    && async_output.0[..length] == AES_CBC_CIPHERTEXT[..length]
+                    && async_iv.0[..16] == AES_CBC_CIPHERTEXT[length - 16..length];
+                if length > 32 {
+                    let mut async_alternate_output = AlignedAesBytes([0xa5; 96]);
+                    let mut async_alternate_iv = AlignedAesBytes([0x3c; 32]);
+                    async_alternate_iv.0[..16].copy_from_slice(&AES_CBC_IV);
+                    let async_alternate_slot = FormatAesAsyncSlot::new();
+                    async_alternate_slot.prepare(
+                        async_alternate_output.0.as_ptr(),
+                        alternate_output.0.as_ptr(),
+                        async_alternate_iv.0.as_ptr(),
+                        alternate_iv.0.as_ptr(),
+                        length,
+                    );
+                    let async_alternate_userdata = (&async_alternate_slot
+                        as *const FormatAesAsyncSlot)
+                        .cast_mut()
+                        .cast::<c_void>();
+                    let async_alternate_result = unsafe {
+                        IOS_IoctlvFormatAsync(
+                            ipc::IPC_HEAP,
+                            aes_fd.raw(),
+                            2,
+                            Some(format_aes_completed),
+                            async_alternate_userdata,
+                            c"dd:dd".as_ptr(),
+                            alternate.0.as_ptr(),
+                            length as u32,
+                            key.0.as_ptr(),
+                            16u32,
+                            async_alternate_output.0.as_mut_ptr(),
+                            length as u32,
+                            async_alternate_iv.0.as_mut_ptr(),
+                            16u32,
+                        )
+                    };
+                    let mut async_alternate_completed = false;
+                    for _ in 0..1000 {
+                        if async_alternate_slot.completions.load(Ordering::Acquire) != 0 {
+                            async_alternate_completed = true;
+                            break;
+                        }
+                        lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 100).max(1));
+                    }
+                    async_tail_changes_ciphertext = async_alternate_result == 0
+                        && async_alternate_completed
+                        && async_alternate_slot.completions.load(Ordering::Acquire) == 1
+                        && async_alternate_slot.result.load(Ordering::Acquire) == 0
+                        && async_alternate_slot.output_matches.load(Ordering::Acquire)
+                        && async_alternate_output.0[..length] != async_output.0[..length];
+                }
                 logger.note_i32_index(
                     "IPC typed AES input result length=",
                     length as i32,
@@ -1986,6 +2064,8 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 let expected_tail_hash = probe_hash(&payload[32.min(length)..]);
                 let outputs_match = formatted_output.0[..length] == typed_output.0[..length]
                     && formatted_iv.0[..16] == typed_iv.0[..16]
+                    && typed_output.0[..length] == AES_CBC_CIPHERTEXT[..length]
+                    && typed_iv.0[..16] == AES_CBC_CIPHERTEXT[length - 16..length]
                     && formatted_output.0[length..]
                         .iter()
                         .all(|byte| *byte == 0xa5)
@@ -2016,14 +2096,14 @@ fn probe_ipc_format_bridge(logger: &mut ProbeLogger) {
                 );
             }
             aes_live_input_ok = all_lengths_ok && tail_changes_ciphertext && aes_fd.close().is_ok();
-            async_aes_live_input_ok = async_lengths_ok;
+            async_aes_live_input_ok = async_lengths_ok && async_tail_changes_ciphertext;
         }
         logger.record(
-            "IPC format AES consumes staged 32/64-byte d inputs and matches typed ciphertext through tail bytes",
+            "IPC format AES matches NIST CBC known-answer ciphertext and consumes staged tail bytes",
             aes_live_input_ok,
         );
         logger.record(
-            "IPC async AES formatter consumes staged 32/64-byte d inputs before callback",
+            "IPC async AES matches NIST CBC known-answer ciphertext and consumes a mutated staged tail in the callback",
             async_aes_live_input_ok,
         );
 
