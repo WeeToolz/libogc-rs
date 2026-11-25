@@ -12,28 +12,49 @@ static VOICE_CALLBACK_COUNT: AtomicU32 = AtomicU32::new(0);
 #[repr(align(32))]
 struct AudioDmaBuffer([u8; 4096]);
 
+#[repr(align(16))]
+struct AudioCallbackStack([u8; 1024]);
+
 static mut AUDIO_DMA_BUFFER: AudioDmaBuffer = AudioDmaBuffer([0; 4096]);
+static mut AUDIO_CALLBACK_STACK: AudioCallbackStack = AudioCallbackStack([0; 1024]);
+
+fn prepare_dma_buffer() -> u32 {
+    // SAFETY: The aligned buffer remains allocated throughout DMA.
+    unsafe {
+        let base = core::ptr::addr_of!(AUDIO_DMA_BUFFER.0);
+        ogc_cache::dc_flush_range(base.cast(), 4096);
+        base as u32
+    }
+}
+
+fn callback_stack_top() -> *mut u8 {
+    // SAFETY: PowerPC grows the callback stack down from the aligned end.
+    unsafe { core::ptr::addr_of_mut!(AUDIO_CALLBACK_STACK.0).cast::<u8>().add(1024) }
+}
 
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("SOUND PROBE");
 
-    let mut stack = [0u8; 1024];
-    probe_audio_sys(logger, &mut stack);
-    audio::init(Some(&mut stack));
+    probe_audio_sys(logger);
+    logger.note("Audio wrapper: initialize and read state");
+    audio::init(None);
     let snap = audio::snapshot();
     logger.record("audio initialized", snap.initialized);
     logger.record(
-        "audio callback stack tracked",
-        snap.callback_stack == stack.as_mut_ptr(),
+        "audio wrapper reinit preserves the callback stack",
+        snap.callback_stack == callback_stack_top(),
     );
 
+    logger.note("Audio wrapper: configure stream and DSP sample rate");
     audio::set_stream_vol_left(19);
     audio::set_stream_vol_right(23);
     audio::set_stream_sample_rate(audio::AI_SAMPLERATE_48KHZ);
     audio::set_stream_trigger(7);
     audio::set_stream_play_state(audio::AI_STREAM_START);
-    audio::set_dsp_sample_rate(1);
-    audio::init_dma(0x8123_4000, 0x1000);
+    audio::set_dsp_sample_rate(audio::AI_SAMPLERATE_48KHZ as u8);
+    logger.note("Audio wrapper: start DMA from probe buffer");
+    let dma_address = prepare_dma_buffer();
+    audio::init_dma(dma_address, 0x1000);
     audio::start_dma();
 
     logger.record(
@@ -42,8 +63,8 @@ pub fn run(logger: &mut ProbeLogger) {
             && audio::get_stream_vol_right() == 23
             && audio::get_stream_sample_rate() == audio::AI_SAMPLERATE_48KHZ
             && audio::get_stream_play_state() == audio::AI_STREAM_START
-            && audio::get_dsp_sample_rate() == 1
-            && audio::get_dma_start_addr() == (0x8123_4000 & 0x1fff_ffff)
+            && audio::get_dsp_sample_rate() == audio::AI_SAMPLERATE_48KHZ
+            && audio::get_dma_start_addr() == (dma_address & 0x1fff_ffff)
             && audio::get_dma_length() == 0x1000
             && audio::get_dma_enable_flag() != 0,
     );
@@ -84,6 +105,7 @@ pub fn run(logger: &mut ProbeLogger) {
     );
 
     logger.section("ASND PROBE");
+    logger.note("ASND: initialize mixer");
     GLOBAL_CALLBACK_COUNT.store(0, Ordering::Release);
     VOICE_CALLBACK_COUNT.store(0, Ordering::Release);
     snd::init();
@@ -213,12 +235,13 @@ pub fn run(logger: &mut ProbeLogger) {
     );
 }
 
-pub fn probe_audio_sys(logger: &mut ProbeLogger, stack: &mut [u8; 1024]) {
-    audio_sys::audio_init(stack.as_mut_ptr());
+pub fn probe_audio_sys(logger: &mut ProbeLogger) {
+    let stack_top = callback_stack_top();
+    audio_sys::audio_init(stack_top);
     let initial = audio_sys::snapshot();
     logger.record(
         "ogc-audio-sys init stores callback stack",
-        initial.initialized && initial.callback_stack == stack.as_mut_ptr(),
+        initial.initialized && initial.callback_stack == stack_top,
     );
 
     audio_sys::audio_set_stream_vol_left(19);
@@ -251,7 +274,7 @@ pub fn probe_audio_sys(logger: &mut ProbeLogger, stack: &mut [u8; 1024]) {
             && audio_sys::snapshot().stream_trigger == 7,
     );
 
-    let dma_address = unsafe { core::ptr::addr_of_mut!(AUDIO_DMA_BUFFER.0) as u32 };
+    let dma_address = prepare_dma_buffer();
     audio_sys::audio_init_dma(dma_address, 0x1000);
     audio_sys::audio_start_dma();
     let dma_address_bus = dma_address & 0x1fff_ffff;
