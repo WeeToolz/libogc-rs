@@ -1144,6 +1144,52 @@ pub struct FatMetadata {
     pub readonly: bool,
 }
 
+/// Capacity and available space for a mounted FAT volume.
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub struct FatVolumeStatistics {
+    pub total_bytes: u64,
+    pub available_bytes: u64,
+}
+
+fn volume_statistics_from_fields(
+    fragment_size: u32,
+    total_blocks: u64,
+    available_blocks: u64,
+) -> Option<FatVolumeStatistics> {
+    let fragment_size = u64::from(fragment_size);
+    if fragment_size == 0 {
+        return None;
+    }
+    Some(FatVolumeStatistics {
+        total_bytes: total_blocks.checked_mul(fragment_size)?,
+        available_bytes: available_blocks.checked_mul(fragment_size)?,
+    })
+}
+
+/// Return total and available bytes for a mounted volume path, such as `sd:/`.
+/// `Ok(None)` means the mounted filesystem did not report a fragment size.
+pub fn volume_statistics(path: &CStr) -> Result<Option<FatVolumeStatistics>, FatError> {
+    let mut raw = StatVfs {
+        f_bsize: 0,
+        f_frsize: 0,
+        f_blocks: 0,
+        f_bfree: 0,
+        f_bavail: 0,
+        f_files: 0,
+        f_ffree: 0,
+        f_favail: 0,
+        f_fsid: 0,
+        f_flag: 0,
+        f_namemax: 0,
+    };
+    statvfs_path(path, &mut raw)?;
+    Ok(volume_statistics_from_fields(
+        raw.f_frsize,
+        raw.f_blocks,
+        raw.f_bavail,
+    ))
+}
+
 /// Return basic metadata for a mounted path.
 pub fn stat(path: &CStr) -> Result<FatMetadata, FatError> {
     let mut raw = Stat::default();
@@ -4739,6 +4785,19 @@ mod tests {
     use super::*;
 
     static SECTOR_FIXTURE: [u8; MIN_SECTOR_BYTES] = [0xa5; MIN_SECTOR_BYTES];
+
+    #[test]
+    fn volume_statistics_convert_blocks_and_reject_invalid_or_overflowed_sizes() {
+        assert_eq!(
+            volume_statistics_from_fields(4096, 100, 25),
+            Some(FatVolumeStatistics {
+                total_bytes: 409_600,
+                available_bytes: 102_400,
+            })
+        );
+        assert_eq!(volume_statistics_from_fields(0, 100, 25), None);
+        assert_eq!(volume_statistics_from_fields(u32::MAX, u64::MAX, 1), None);
+    }
 
     unsafe extern "C" fn read_aligned_sector(lba: u32, count: u32, output: *mut c_void) -> bool {
         if lba != 7 || count != 1 || output as usize % 32 != 0 {
