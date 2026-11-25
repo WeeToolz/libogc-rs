@@ -58,6 +58,18 @@ The retained `WPAD_SetVRes` value is Rust-side configuration for later Remote se
 
 The 2026-11-24 Dolphin 2609a WPAD probe passed 100 checks, including valid and invalid format calls without a connected Remote and the disabled-state error. The probe used a private Dolphin profile. See [the run result](../dolphin-runs/2026-11-24-wpad-preconnection-format/suite.json) and [raw log](../dolphin-runs/2026-11-24-wpad-preconnection-format/wpad_probe/probe.log). This run did not connect a Remote or verify its reports. The `wpad-sys` unit tests require a PowerPC test runner and were not executed on the host.
 
+## Automatic guest search disconnect
+
+A Dolphin trace of HBC startup found that `ControllerManager` automatically
+started a guest search after a Wii Remote connected. Guest search intentionally
+disconnects existing Wii Remotes before inquiry. The manager now uses general
+Bluetooth discovery for automatic searches. Guest search remains available for
+an explicit request. In the follow-up Dolphin run, the Remote stayed connected
+and supplied pointer and button input. The full UI test failed later while
+checking an Options click, so full UI acceptance and physical Wii behavior
+remain open. See the HBC review `wii-remote-dolphin-2026-11-24.md` for run
+identities and the trace.
+
 ## Fix handoff
 
 Implementer: `/root/worker_a`. Independent reviewer: `/root/reviewer_6` (review pending).

@@ -865,7 +865,6 @@ pub struct ControllerManager {
     bluetooth_scan_frames: u32,
     bluetooth_next_search_frame: u32,
     bluetooth_search_started: bool,
-    bluetooth_guest_search_next: bool,
     bluetooth_startup_hook: Option<fn(&'static str)>,
     bluetooth_event_hook: Option<fn(&'static str)>,
     bluetooth_diagnostics_hook: Option<fn(bt::HostDiagnostics)>,
@@ -902,7 +901,6 @@ impl ControllerManager {
             bluetooth_scan_frames: 0,
             bluetooth_next_search_frame: 0,
             bluetooth_search_started: false,
-            bluetooth_guest_search_next: true,
             bluetooth_startup_hook: None,
             bluetooth_event_hook: None,
             bluetooth_diagnostics_hook: None,
@@ -1048,18 +1046,13 @@ impl ControllerManager {
                     self.bluetooth_next_search_frame,
                 ))
         {
-            let result = if self.bluetooth_guest_search_next {
-                wpad::search()
-            } else {
-                wpad::search_bluetooth_hid()
-            };
+            // Guest Wii Remote inquiry disconnects existing remotes. Only an
+            // explicit pairing request may start that disruptive operation.
+            let result = wpad::search_bluetooth_hid();
             self.bluetooth_search_started = result == wpad::WPAD_ERR_NONE as i32;
             self.bluetooth_next_search_frame = self
                 .bluetooth_scan_frames
                 .wrapping_add(BLUETOOTH_SEARCH_RETRY_FRAMES);
-            if self.bluetooth_search_started {
-                self.bluetooth_guest_search_next = !self.bluetooth_guest_search_next;
-            }
         }
         true
     }
