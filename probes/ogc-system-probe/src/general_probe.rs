@@ -488,18 +488,31 @@ fn probe_es_disc_views(logger: &mut ProbeLogger) {
     logger.note("ES disc view: query current title size");
     // SAFETY: A null TMD requests the current title, and outputs are writable.
     let missing_rc = unsafe { es::di_get_tmd_view_size(core::ptr::null(), 0, &mut missing_size) };
-    let mut ticket = View([0xa5; 256]);
-    logger.note("ES disc view: query current ticket");
-    let ticket_rc = unsafe { es::get_ticket_view(core::ptr::null(), ticket.0.as_mut_ptr().cast()) };
-    let null_ticket = unsafe { es::get_ticket_view(core::ptr::null(), core::ptr::null_mut()) };
+    logger.note_i32("ES current title size result", missing_rc);
     logger.record(
         "ES disc view size reports no active title",
         missing_rc == -1017 && missing_size == u32::MAX,
     );
+    // SAFETY: The API rejects a null output before it sends an IOS request.
+    let null_ticket = unsafe { es::get_ticket_view(core::ptr::null(), core::ptr::null_mut()) };
     logger.record(
-        "ES disc ticket view reports no active title",
-        ticket_rc == -1017 && null_ticket == es::ES_EINVAL && ticket.0 == [0xa5; 256],
+        "ES disc ticket view rejects null output",
+        null_ticket == es::ES_EINVAL,
     );
+    #[cfg(feature = "dolphin-automation")]
+    {
+        let mut ticket = View([0xa5; 256]);
+        logger.note("ES disc view: query current ticket");
+        // SAFETY: The fixture has no current disc title and the output is aligned.
+        let ticket_rc =
+            unsafe { es::get_ticket_view(core::ptr::null(), ticket.0.as_mut_ptr().cast()) };
+        logger.record(
+            "ES disc ticket view reports no active title",
+            ticket_rc == -1017 && ticket.0 == [0xa5; 256],
+        );
+    }
+    #[cfg(not(feature = "dolphin-automation"))]
+    logger.note("SKIP current disc ticket query: IOS stalled on Wii");
     logger.record("ES disc view probe closes service", es::close() == 0);
 }
 
