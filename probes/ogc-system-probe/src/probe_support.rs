@@ -86,6 +86,8 @@ static AGENT_REPORT_NETWORK_READY: AtomicBool = AtomicBool::new(false);
 #[cfg(feature = "agent-report")]
 static AGENT_REPORT_SOCKET: AtomicI32 = AtomicI32::new(-1);
 #[cfg(feature = "agent-report")]
+static AGENT_LIVE_REPORT_FAILED: AtomicBool = AtomicBool::new(false);
+#[cfg(feature = "agent-report")]
 static WATCHDOG_LAST_HEARTBEAT_MS: AtomicU32 = AtomicU32::new(0);
 #[cfg(feature = "agent-report")]
 static WATCHDOG_TIMEOUT_MS: AtomicU32 = AtomicU32::new(0);
@@ -884,7 +886,7 @@ impl ProbeDisplay {
         self.captured_pages
             .set(self.captured_pages.get().saturating_add(1));
         #[cfg(feature = "agent-report")]
-        if self.agent_page_reports.get() {
+        if self.agent_page_reports.get() && !AGENT_LIVE_REPORT_FAILED.load(Ordering::Acquire) {
             let frame = video::retrace_count();
             let mut marker = LineBuf::new();
             if writeln!(
@@ -948,6 +950,7 @@ impl ProbeDisplay {
                     self.page_report_error.set(Some(error));
                 }
                 screen_report_error("page screenshot", error);
+                disable_agent_live_reports();
             }
         }
         #[cfg(feature = "dolphin-automation")]
@@ -2098,7 +2101,11 @@ fn send_agent_framebuffer_report_kind(
         return Err(network::SOCKET_ERROR);
     }
     let sent = (|| {
-        let socket = ensure_agent_report_socket()?;
+        let socket = if checkpoint {
+            ensure_agent_report_socket_once()
+        } else {
+            ensure_agent_report_socket()
+        }?;
         let mut header = [0u8; 156];
         header[..4].copy_from_slice(b"WIR2");
         header[4..6].copy_from_slice(&2u16.to_be_bytes());
@@ -2336,6 +2343,9 @@ pub fn send_agent_progress(stage: u32) {
 
 #[cfg(feature = "agent-report")]
 fn send_agent_progress_inner(stage: u32) {
+    if AGENT_LIVE_REPORT_FAILED.load(Ordering::Acquire) {
+        return;
+    }
     let identity = report_identity();
     let (run_id, build_id, identity_unavailable) = match identity {
         Some(identity) => (identity.run_id, identity.build_id, false),
@@ -2354,10 +2364,11 @@ fn send_agent_progress_inner(stage: u32) {
         return;
     }
 
-    let socket = match ensure_agent_report_socket() {
+    let socket = match ensure_agent_report_socket_once() {
         Ok(socket) => socket,
         Err(error) => {
             screen_report_error("progress connection", error);
+            disable_agent_live_reports();
             return;
         }
     };
@@ -2383,11 +2394,18 @@ fn send_agent_progress_inner(stage: u32) {
     match sent {
         Ok(()) => AGENT_PROGRESS_CURSOR.store(text.len(), Ordering::Release),
         Err(error) => {
+            disable_agent_live_reports();
             if let Err(error) = finish_agent_report_socket(Err(error)) {
                 screen_report_error("progress write", error);
             }
         }
     }
+}
+
+#[cfg(feature = "agent-report")]
+fn disable_agent_live_reports() {
+    AGENT_LIVE_REPORT_FAILED.store(true, Ordering::Release);
+    agent_log(b"INFO live reports stopped after transport failure; final report will retry\n");
 }
 
 #[cfg(not(feature = "agent-report"))]
