@@ -100,6 +100,7 @@ fn main() -> Result<(), String> {
         "build-pad-probes" => build_pad_probes(),
         "build-dolphin-probes" => build_dolphin_probes(),
         "build-agent-probes" => build_agent_probes(),
+        "build-agent-system-probe" => build_agent_system_probe(),
         "dolphin-validate" => {
             let rest = args.collect::<Vec<_>>();
             if rest.iter().any(|arg| arg == "--help" || arg == "-h") {
@@ -161,6 +162,7 @@ fn print_usage() {
     eprintln!("  cargo xtask build-pad-probes");
     eprintln!("  cargo xtask build-dolphin-probes");
     eprintln!("  cargo xtask build-agent-probes");
+    eprintln!("  cargo xtask build-agent-system-probe");
     eprintln!("  cargo xtask dolphin-validate [options]");
     eprintln!("  cargo xtask validate-pad-logs <log-directory>");
     eprintln!("  cargo xtask audit-hardware-register");
@@ -1067,6 +1069,14 @@ fn build_dolphin_probes() -> Result<(), String> {
 
 fn build_agent_probes() -> Result<(), String> {
     build_probe_artifacts(false, ProbeBuildMode::AgentReport)
+}
+
+fn build_agent_system_probe() -> Result<(), String> {
+    build_probe_selection(
+        false,
+        ProbeBuildMode::AgentReport,
+        Some(&["ogc-system-probe"]),
+    )
 }
 
 fn build_lwp_probe() -> Result<(), String> {

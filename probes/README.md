@@ -94,6 +94,35 @@ The debug hook can execute with interrupts masked. Probe hooks must use only bou
 
 Real-Wii execution is required for acceptance. Record the full log, hardware/loader details, and final counters when reporting results.
 
+## Single-upload real-Wii system probe
+
+For a broad first pass, build one report-enabled DOL:
+
+```sh
+cargo xtask build-agent-system-probe
+```
+
+The DOL is `target/xtask/probes-agent/ogc-system-probe.dol`. It runs the
+existing aggregate startup, runtime, SRAM, arena, callback, video, audio,
+network, storage, and keyboard checks in one upload. It enables `agent-report`
+and saves named checks, run and build identity, progress, elapsed time, frame
+count, heap use, frame-time min, average, and max, and failed checks. Existing
+debug counters appear where those checks collect them.
+
+This is a broad smoke and hardware pass, not every one of the focused probe
+cases. `cargo xtask build-agent-probes` still builds the separate focused DOLs
+for follow-up when the aggregate report shows a failure or when a specific
+hardware area needs deeper coverage. Some areas need a wired controller, Wii
+Remote, USB device, SD card, network setup, audible audio output, or prepared
+media. The aggregate does not test every such configuration. A missing device
+is not a pass.
+
+Use the current real-Wii procedure in [hardware validation](../docs/wii-hardware-validation.md)
+for each upload. Keep its report, progress, checkpoints, DOL hash, build
+identity, and capture evidence. Do not use the report-only results as proof of
+audible sound, visible output, controller quality, or other human-observed
+behavior. Record those observations and any hardware limits separately.
+
 ## WPAD lifecycle probe
 
 Build the report-enabled probe with:

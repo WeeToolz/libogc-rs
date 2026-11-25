@@ -500,20 +500,35 @@ fn finish_probe() -> i32 {
 /// Runs the full hardware probe suite, then enters the live input monitor.
 pub fn run_system_probe() -> i32 {
     configure_probe_app_dir("ogc-system-probe");
-    let mut logger = init_probe_logger();
+    let mut logger = init_probe_logger_with_page_reports(true);
 
+    logger.enable_activity_indicator();
+
+    logger.report_step("General");
     general_probe::run(&mut logger);
+    logger.report_step("Startup");
     startup_probe::run(&mut logger);
+    logger.report_step("SRAM");
     sram_probe::run(&mut logger);
+    logger.report_step("Arena");
     arena_probe::run(&mut logger);
+    logger.report_step("Callbacks");
     callback_probe::run(&mut logger);
+    logger.report_step("Runtime");
     runtime_probe::run(&mut logger);
+    logger.report_step("Font");
     font_probe::run(&mut logger);
+    logger.report_step("Bus");
     bus_probe::run(&mut logger);
+    logger.report_step("Video");
     video_probe::run(&mut logger);
+    logger.report_step("Sound");
     sound_probe::run(&mut logger);
+    logger.report_step("Network");
     network_probe::run(&mut logger);
+    logger.report_step("Storage");
     storage_probe::run(&mut logger, false);
+    logger.report_step("Keyboard");
     keyboard_probe::run(&mut logger);
 
     logger.summary();
