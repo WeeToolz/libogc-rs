@@ -515,8 +515,8 @@ fn probe_valid_channel_empty_queries(logger: &mut ProbeLogger) {
         wpad::set_data_format(chan, wpad::WPAD_FMT_BTNS_ACC) == wpad::WPAD_ERR_NONE as i32,
     );
     logger.record(
-        "WPAD empty channel ignores an invalid data format",
-        wpad::set_data_format(chan, i32::MAX) == wpad::WPAD_ERR_NONE as i32,
+        "WPAD initialized channel rejects an invalid data format",
+        wpad::set_data_format(chan, i32::MAX) == wpad::WPAD_ERR_BADVALUE as i32,
     );
     let resolution_result = wpad::set_v_res(chan, 640, 480);
     let data = wpad::data(chan);

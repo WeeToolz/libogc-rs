@@ -2466,14 +2466,13 @@ mod tests {
     }
 }
 
-pub(crate) fn set_data_format_preflight(status: i32, connected: bool, fmt: i32) -> i32 {
+pub(crate) fn store_data_format(format: &AtomicI32, status: i32, fmt: i32) -> i32 {
     if status == WPAD_STATE_DISABLED {
         WPAD_ERR_NOT_READY as i32
-    } else if !connected {
-        WPAD_ERR_NONE as i32
     } else if !(WPAD_FMT_BTNS..=WPAD_FMT_BTNS_ACC_IR).contains(&fmt) {
         WPAD_ERR_BADVALUE as i32
     } else {
+        format.store(fmt, Ordering::Release);
         WPAD_ERR_NONE as i32
     }
 }
@@ -2483,17 +2482,38 @@ mod set_data_format_contract_tests {
     use super::*;
 
     #[test]
-    fn empty_channel_is_a_noop_before_format_validation() {
+    fn disconnected_initialized_slot_retains_format_for_connection() {
+        let format = AtomicI32::new(WPAD_FMT_BTNS);
         assert_eq!(
-            set_data_format_preflight(WPAD_STATE_ENABLED, false, i32::MAX),
+            store_data_format(&format, WPAD_STATE_ENABLED, WPAD_FMT_BTNS_ACC_IR),
             WPAD_ERR_NONE as i32
         );
+        assert_eq!(format.load(Ordering::Acquire), WPAD_FMT_BTNS_ACC_IR);
+        assert_eq!(
+            store_data_format(&format, WPAD_STATE_ENABLED, i32::MAX),
+            WPAD_ERR_BADVALUE as i32
+        );
+        assert_eq!(format.load(Ordering::Acquire), WPAD_FMT_BTNS_ACC_IR);
+    }
+
+    #[test]
+    fn initialized_slot_validates_format_without_a_controller() {
+        let format = AtomicI32::new(WPAD_FMT_BTNS);
+        assert_eq!(
+            store_data_format(&format, WPAD_STATE_ENABLED, i32::MAX),
+            WPAD_ERR_BADVALUE as i32
+        );
+        assert_eq!(format.load(Ordering::Acquire), WPAD_FMT_BTNS);
     }
 
     #[test]
     fn disabled_state_precedes_channel_presence_and_format_validation() {
         assert_eq!(
-            set_data_format_preflight(WPAD_STATE_DISABLED, false, i32::MAX),
+            store_data_format(
+                &AtomicI32::new(WPAD_FMT_BTNS),
+                WPAD_STATE_DISABLED,
+                i32::MAX
+            ),
             WPAD_ERR_NOT_READY as i32
         );
     }
@@ -2501,11 +2521,15 @@ mod set_data_format_contract_tests {
     #[test]
     fn connected_channel_validates_format() {
         assert_eq!(
-            set_data_format_preflight(WPAD_STATE_ENABLED, true, i32::MAX),
+            store_data_format(&AtomicI32::new(WPAD_FMT_BTNS), WPAD_STATE_ENABLED, i32::MAX),
             WPAD_ERR_BADVALUE as i32
         );
         assert_eq!(
-            set_data_format_preflight(WPAD_STATE_ENABLED, true, WPAD_FMT_BTNS_ACC),
+            store_data_format(
+                &AtomicI32::new(WPAD_FMT_BTNS),
+                WPAD_STATE_ENABLED,
+                WPAD_FMT_BTNS_ACC
+            ),
             WPAD_ERR_NONE as i32
         );
     }

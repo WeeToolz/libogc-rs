@@ -2118,15 +2118,14 @@ pub(crate) fn set_data_format(chan: i32, fmt: i32) -> i32 {
         return WPAD_ERR_BAD_CHANNEL as i32;
     };
     let connected = WPAD_CONNECTED[chan].load(Ordering::Acquire);
-    let result = crate::set_data_format_preflight(
+    let result = crate::store_data_format(
+        &WPAD_FORMAT[chan],
         WPAD_GLOBAL_STATUS.load(Ordering::Acquire),
-        connected,
         fmt,
     );
     if result != WPAD_ERR_NONE as i32 || !connected {
         return result;
     }
-    WPAD_FORMAT[chan].store(fmt, Ordering::Release);
     if slot_is_wii_remote(chan) && !refresh_wii_remote_reporting(chan) {
         return WPAD_ERR_TRANSFER as i32;
     }
