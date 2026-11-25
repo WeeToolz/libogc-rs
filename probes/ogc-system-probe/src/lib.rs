@@ -172,11 +172,14 @@ pub fn init_named_probe_logger(app_dir: &'static str) -> probe_support::ProbeLog
 
 #[cfg(target_arch = "powerpc")]
 fn init_probe_logger() -> probe_support::ProbeLogger {
-    init_probe_logger_with_page_reports(false)
+    init_probe_logger_with_page_reports(false, log_options())
 }
 
 #[cfg(target_arch = "powerpc")]
-fn init_probe_logger_with_page_reports(page_reports: bool) -> probe_support::ProbeLogger {
+fn init_probe_logger_with_page_reports(
+    page_reports: bool,
+    options: probe_support::ProbeLoggerOptions,
+) -> probe_support::ProbeLogger {
     use ogc_system::{self as system};
 
     static IPC_PROGRESS: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
@@ -304,12 +307,15 @@ fn init_probe_logger_with_page_reports(page_reports: bool) -> probe_support::Pro
     system::sys::set_pre_main_progress_callback(None);
     ogc_ipc::set_debug_hook(None);
     probe_support::OGC_PROBE_BOOT_STAGE.store(3, core::sync::atomic::Ordering::Release);
-    probe_support::send_agent_progress(3);
-    if page_reports {
+    let sd_run_log = options.file_policy == probe_support::LogFilePolicy::SdRunLog;
+    if !sd_run_log {
+        probe_support::send_agent_progress(3);
+    }
+    if page_reports && !sd_run_log {
         display.enable_page_reports();
     }
     display.println("BOOT 3/3: IOS pre-main completed");
-    if page_reports {
+    if page_reports && !sd_run_log {
         display.capture_page();
     }
     display.wait_vsync();
@@ -317,7 +323,7 @@ fn init_probe_logger_with_page_reports(page_reports: bool) -> probe_support::Pro
     system::stdio_report(true);
     let mount_status = maybe_mount_external_logs();
 
-    let mut logger = probe_support::ProbeLogger::with_options(display, log_options());
+    let mut logger = probe_support::ProbeLogger::with_options(display, options);
     #[cfg(feature = "dolphin-automation")]
     {
         let pre_main = system::sys::snapshot_pre_main();
@@ -346,6 +352,12 @@ fn init_probe_logger_with_page_reports(page_reports: bool) -> probe_support::Pro
         logger.note(logger.log_backend_name());
     } else {
         logger.note("log backend disabled");
+    }
+    if sd_run_log {
+        if page_reports {
+            logger.enable_page_reports();
+        }
+        probe_support::send_agent_progress(3);
     }
     #[cfg(feature = "mounted-log")]
     if let Some(argv0) = probe_support::argv0_bytes() {
@@ -500,7 +512,23 @@ fn finish_probe() -> i32 {
 /// Runs the full hardware probe suite, then enters the live input monitor.
 pub fn run_system_probe() -> i32 {
     configure_probe_app_dir("ogc-system-probe");
-    let mut logger = init_probe_logger_with_page_reports(true);
+    let options = if cfg!(all(
+        feature = "agent-report",
+        not(feature = "dolphin-automation")
+    )) {
+        probe_support::ProbeLoggerOptions {
+            file_policy: probe_support::LogFilePolicy::SdRunLog,
+        }
+    } else {
+        log_options()
+    };
+    let mut logger = init_probe_logger_with_page_reports(true, options);
+    if logger.uses_mounted_log()
+        && let Some((run_id, build_id)) = probe_support::input_run_identity()
+    {
+        logger.note(&alloc::format!("SD run log: sd:/ogc-probe-{run_id}.log"));
+        logger.note(&alloc::format!("DOL SHA-256: {build_id}"));
+    }
 
     logger.enable_activity_indicator();
 
@@ -720,7 +748,7 @@ pub fn run_startup_probe_bin() -> i32 {
 /// Checks real AESND DSP output, process metrics and reset/reinit.
 pub fn run_aesnd_native_probe_bin() -> i32 {
     configure_probe_app_dir("aesnd-native-probe");
-    let mut logger = init_probe_logger_with_page_reports(true);
+    let mut logger = init_probe_logger_with_page_reports(true, log_options());
     logger.enable_activity_indicator();
     logger.report_step("AESND probe startup complete");
     aesnd_native_probe::run(&mut logger);

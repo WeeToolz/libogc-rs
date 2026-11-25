@@ -520,12 +520,13 @@ enum LogFile {
 /// `IsfsOnly` is the conservative default.
 /// `PreferMounted` and `MountedOnly` are intended for explicit Wii-side use
 /// when external FAT-backed storage has been mounted on purpose.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq)]
 pub enum LogFilePolicy {
     Disabled,
     IsfsOnly,
     PreferMounted,
     MountedOnly,
+    SdRunLog,
 }
 
 /// Options for the safe probe logger abstraction.
@@ -1334,11 +1335,18 @@ impl ProbeLogger {
     }
 
     pub fn record(&mut self, label: &str, ok: bool) {
+        self.record_check(label, ok, None);
+    }
+
+    fn record_check(&mut self, label: &str, ok: bool, detail: Option<&str>) {
         if ok {
             self.passes += 1;
         } else {
             self.fails += 1;
             self.failures.record(label);
+            if let Some(detail) = detail {
+                self.failures.detail_last(detail);
+            }
         }
 
         let mut line = LineBuf::new();
@@ -1349,15 +1357,26 @@ impl ProbeLogger {
             label
         );
         self.write_line_raw(line.as_str());
+        if !ok {
+            if self.file_policy == LogFilePolicy::SdRunLog {
+                if let Some(detail) = detail {
+                    self.note(detail);
+                    self.sync_sd_run_log();
+                }
+            }
+            #[cfg(feature = "agent-report")]
+            if self.file_policy == LogFilePolicy::SdRunLog
+                && AGENT_REPORT_SOCKET.load(Ordering::Acquire) >= 0
+            {
+                send_agent_progress(0x1_0000u32.saturating_add(self.fails as u32));
+            }
+        }
     }
 
     /// Record a failed check and keep its underlying error beside it on the
     /// final retained-failures screen.
     pub fn record_with_detail(&mut self, label: &str, ok: bool, detail: &str) {
-        self.record(label, ok);
-        if !ok {
-            self.failures.detail_last(detail);
-        }
+        self.record_check(label, ok, Some(detail));
     }
 
     /// Returns whether checks logged so far passed and the active log backend
@@ -1896,6 +1915,19 @@ impl ProbeLogger {
 
     fn write_line_raw(&mut self, line: &str) {
         activity_indicator::progress();
+        if self.file_policy == LogFilePolicy::SdRunLog {
+            self.append_log_bytes(line.as_bytes());
+            self.append_log_bytes(b"\n");
+            self.flush_pending_to_file();
+            if line.starts_with("FAIL ") || line.starts_with("INFO STEP ") {
+                self.sync_sd_run_log();
+            }
+            self.display.clear_if_near_bottom();
+            self.write_screen_bytes(line.as_bytes());
+            self.write_screen_bytes(b"\n");
+            self.display.wait_vsync();
+            return;
+        }
         self.display.clear_if_near_bottom();
         self.write_bytes(line.as_bytes());
         self.write_bytes(b"\n");
@@ -1903,6 +1935,18 @@ impl ProbeLogger {
     }
 
     fn write_bytes(&mut self, bytes: &[u8]) {
+        self.append_log_bytes(bytes);
+        self.write_screen_bytes(bytes);
+        self.flush_pending_to_file();
+    }
+
+    fn sync_sd_run_log(&mut self) {
+        if self.file.is_some() && !self.sync_log_file() {
+            self.display.println("FAIL SD run log write or sync failed");
+        }
+    }
+
+    fn append_log_bytes(&mut self, bytes: &[u8]) {
         if self.logging_requested() {
             let limit = self
                 .file
@@ -1911,6 +1955,9 @@ impl ProbeLogger {
                 .or_else(|| self.file.is_none().then_some(MOUNTED_LOG_WRITE_LIMIT));
             self.log_state.append(bytes, limit, self.file_bytes_written);
         }
+    }
+
+    fn write_screen_bytes(&mut self, bytes: &[u8]) {
         if self.display.console_ready() {
             match screen_write(bytes) {
                 Ok(written) if written == bytes.len() => {}
@@ -1920,9 +1967,6 @@ impl ProbeLogger {
         } else {
             #[cfg(feature = "dolphin-automation")]
             dolphin_transport_write(bytes);
-        }
-        if self.file.is_some() {
-            self.flush_pending_to_file();
         }
     }
 
@@ -2825,7 +2869,28 @@ fn open_log_file(policy: LogFilePolicy) -> Option<LogFile> {
             .map(LogFile::Mounted)
             .or_else(|| open_isfs_log_file().map(LogFile::Isfs)),
         LogFilePolicy::MountedOnly => open_mounted_log_file().map(LogFile::Mounted),
+        LogFilePolicy::SdRunLog => open_sd_run_log().map(LogFile::Mounted),
     }
+}
+
+fn open_sd_run_log() -> Option<MountedLogFile> {
+    let (run_id, _) = input_run_identity()?;
+    if !run_id
+        .bytes()
+        .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_'))
+    {
+        return None;
+    }
+    match ogc_fat::mount_sd() {
+        Ok(()) | Err(ogc_fat::FatError::AlreadyMounted) => {}
+        Err(_) => return None,
+    }
+    let path = alloc::ffi::CString::new(alloc::format!("sd:/ogc-probe-{run_id}.log")).ok()?;
+    let flags = sysbase::O_WRONLY | sysbase::O_CREAT | sysbase::O_EXCL;
+    Some(MountedLogFile {
+        file: sysbase::DeviceFile::open_checked(&path, flags).ok()?,
+        usb_backed: Some(false),
+    })
 }
 
 #[cfg(feature = "mounted-log")]

@@ -109,6 +109,19 @@ and saves named checks, run and build identity, progress, elapsed time, frame
 count, heap use, frame-time min, average, and max, and failed checks. Existing
 debug counters appear where those checks collect them.
 
+Insert a writable FAT SD card before a Wiiload run. The aggregate probe
+creates `ogc-probe-<run-id>.log` in the SD card root. It saves check output
+and flushes the file at each failure and named suite step, before attempting
+to send live output. A run can leave a readable log even if the probe stalls
+before its summary. An existing file with that run ID is preserved. If the
+SD log cannot open, the probe reports that failure on screen.
+
+When the host report connection is active, each failed check also sends the
+latest transcript to the host's `live-report.log`. If the connection fails,
+the SD log still records subsequent checks. Keep the SD card inserted during
+the run. Storage checks that require exclusive use of mounted media can be
+skipped while the log is open.
+
 This is a broad smoke and hardware pass, not every one of the focused probe
 cases. `cargo xtask build-agent-probes` still builds the separate focused DOLs
 for follow-up when the aggregate report shows a failure or when a specific

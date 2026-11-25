@@ -2186,7 +2186,11 @@ fn same_usb_device(a: usb_core::UsbDeviceEntry, b: usb_core::UsbDeviceEntry) -> 
 }
 
 fn probe_sd_interface(logger: &mut ProbeLogger) {
-    probe_disc_interface(logger, "wii sd", &wiisd::WII_SD_INTERFACE);
+    if logger.uses_mounted_log() && !logger.uses_usb_or_unknown_mounted_log() {
+        logger.note("Wii SD shutdown and restart checks skipped: SD log is open");
+    } else {
+        probe_disc_interface(logger, "wii sd", &wiisd::WII_SD_INTERFACE);
+    }
     #[cfg(not(feature = "dolphin-automation"))]
     {
         probe_disc_interface(logger, "gcsd a", &gcsd::GAMECUBE_SD_A_INTERFACE);
@@ -2241,6 +2245,8 @@ fn probe_sd_interface(logger: &mut ProbeLogger) {
         logger.record("sd file fsync", file_io.write_sync_rc == 0);
         logger.record("sd file roundtrip", file_io.matches(SD_PROBE_MSG));
         logger.record("sd file remove", file_io.remove_rc == 0);
+    } else if mounted {
+        logger.note("SD test file operations skipped: the volume was already mounted");
     }
 
     if owned_mount && !logger.uses_mounted_log() {

@@ -212,9 +212,10 @@ fn exercise_udp_pair(logger: &mut ProbeLogger, sender: i32, receiver: i32) {
     };
     let sender_bind = network::bind_addr(sender, &bind);
     let receiver_bind = network::bind_addr(receiver, &bind);
-    logger.record(
+    logger.record_with_detail(
         "UDP sockets bind loopback ephemeral ports",
         sender_bind == 0 && receiver_bind == 0,
+        &alloc::format!("sender bind={sender_bind}, receiver bind={receiver_bind}"),
     );
     if sender_bind != 0 || receiver_bind != 0 {
         return;
@@ -358,10 +359,19 @@ fn probe_socket_edges(logger: &mut ProbeLogger) {
         },
         sin_zero: [0; 8],
     };
-    logger.record(
+    let bind_result = network::bind_addr(socket, &addr);
+    logger.record_with_detail(
         "network bind ephemeral",
-        network::bind_addr(socket, &addr) == 0,
+        bind_result == 0,
+        &alloc::format!("bind result={bind_result}"),
     );
+    if bind_result != 0 {
+        logger.record(
+            "network edge socket close after bind failure",
+            network::close(socket) == 0,
+        );
+        return;
+    }
 
     let mut local = network::SockaddrIn::default();
     logger.record(
