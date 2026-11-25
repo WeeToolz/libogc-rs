@@ -203,6 +203,18 @@ impl ArenaAllocator {
 
     /// Return the payload bytes held by live allocations.
     pub fn used_bytes(&self) -> usize {
+        self.block_payload_bytes(false)
+    }
+
+    /// Return the payload bytes across all free blocks.
+    ///
+    /// This is aggregate free space. Fragmentation can prevent an allocation
+    /// from using all of it for one request.
+    pub fn free_bytes(&self) -> usize {
+        self.block_payload_bytes(true)
+    }
+
+    fn block_payload_bytes(&self, is_free: bool) -> usize {
         let _guard = self.lock();
         // SAFETY: State and all block headers are protected by the allocator lock.
         unsafe {
@@ -218,7 +230,7 @@ impl ArenaAllocator {
                 if size < HEADER_SIZE || address.saturating_add(size) > state.end {
                     break;
                 }
-                if !(*block).is_free {
+                if (*block).is_free == is_free {
                     used = used.saturating_add(size - HEADER_SIZE);
                 }
                 address += size;
@@ -655,6 +667,24 @@ mod tests {
         unsafe { allocator.deallocate(first, 17, 64) };
         let again = allocator.allocate(17, 64);
         assert_eq!(again, first);
+    }
+
+    #[test]
+    fn free_bytes_tracks_real_free_blocks_and_returns_to_baseline() {
+        let allocator = ArenaAllocator::new();
+        assert_eq!(allocator.free_bytes(), 0);
+        let mut memory = TestMemory([0; 2048]);
+        unsafe { allocator.initialize_region(memory.0.as_mut_ptr(), memory.0.len()) }.unwrap();
+        let initial = allocator.free_bytes();
+        assert!(initial > 1024);
+
+        let allocation = allocator.allocate(128, 16);
+        assert!(!allocation.is_null());
+        let after_allocate = allocator.free_bytes();
+        assert!(after_allocate < initial);
+
+        unsafe { allocator.deallocate(allocation, 128, 16) };
+        assert_eq!(allocator.free_bytes(), initial);
     }
 
     #[test]

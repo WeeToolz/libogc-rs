@@ -209,6 +209,7 @@ mod wii {
             logger.record("allocator initialized", false);
             return;
         }
+        let free_before_allocation = allocator.free_bytes();
         let allocation = allocator.allocate_zeroed(8, 64);
         if allocation.is_null() {
             logger.record("zeroed allocation succeeded", false);
@@ -218,6 +219,10 @@ mod wii {
             "allocation alignment and zero bytes",
             (allocation as usize).is_multiple_of(64)
                 && unsafe { core::slice::from_raw_parts(allocation, 8) } == [0; 8],
+        );
+        logger.record(
+            "free heap bytes decrease while allocated",
+            allocator.free_bytes() < free_before_allocation,
         );
         let expected = [0x13, 0x27, 0x39, 0x4b, 0x5d, 0x6f, 0x71, 0x83];
         unsafe { allocation.copy_from_nonoverlapping(expected.as_ptr(), 8) };
@@ -242,7 +247,10 @@ mod wii {
         } else {
             unsafe { allocator.deallocate(grown, 128, 64) };
         }
-        logger.record("allocation storage released", allocator.used_bytes() == 0);
+        logger.record(
+            "allocation storage released",
+            allocator.used_bytes() == 0 && allocator.free_bytes() == free_before_allocation,
+        );
 
         logger.section("STD FOUNDATION: SYSTEM ABI");
         let used_before = ogc_std_runtime::heap_used_bytes();
