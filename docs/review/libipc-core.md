@@ -424,3 +424,15 @@ Dolphin; the 889-check run is recorded in
 `../dolphin-runs/2026-11-26-ipc-ioctl-failure/suite.json`. A real relaunch
 remains unverified. Physical Wii evidence remains pending. These changes are not yet
 accepted as complete parity work.
+
+### Vector reply address review
+
+C converts each non-null vector address to its cached alias in the reply handler
+before it calls the user callback (`ipc.c:363-379`). The Rust reply handler does
+the same before it schedules the callback (`ogc-ipc/src/lib.rs`, reply handler).
+The synchronous raw wrapper then restores the exact original caller addresses,
+including zero-length protocol values. This is a deliberate Rust difference:
+callers retain their supplied aliases instead of receiving a cached alias. The
+async wrapper still exposes the cached alias on completion, as C does. The
+Dolphin MAC checks exercise aligned nonempty vectors; they do not verify alias
+preservation for all address spaces or a real IOS relaunch.
