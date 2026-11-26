@@ -746,3 +746,26 @@ starts adapter close before saving the guest list, matching C's operation order.
 Host tests cover key-cache behavior and ready-event content; PowerPC test code
 compiled but did not run. SYSCONF persistence and real-controller behavior
 remain unverified.
+
+## 2026-11-26 all-channel control API evidence update
+
+The 2026-10-05 blocker above is historical and does not describe the current
+implementation. `WPAD_Rumble`, `WPAD_ControlSpeaker`, and
+`WPAD_SetIdleThresholds` accept `WPAD_CHAN_ALL`, process channels in order, and
+stop on the first negative result, as C does
+(`../../C-sources/libogc/wiiuse/wpad.c:1805-1885`; Rust
+`crates/services/wpad-sys/src/lib.rs:898-916,1565-1643`). C skips controller
+operations for empty slots; the Rust PowerPC helpers use the same successful
+no-op behavior for those slots (`powerpc_backend.rs:1019-1031`). C stores the
+button threshold as `-1` for negative input and `0` otherwise, and stores the
+other thresholds directly; Rust matches these values.
+
+The expanded `wpad_probe` ran in Dolphin 2609a on 2026-11-26. It passed 110
+checks with zero failures. The new checks call all three APIs with
+`WPAD_CHAN_ALL` while no Remote is connected. They also check invalid channels
+and disabled WPAD results. The artifact is
+`docs/dolphin-runs/2026-11-26-wpad-all-channel-apis/`; the probe log records
+the individual pass results and the final summary. This verifies empty-slot
+behavior and return codes. It does not verify effects on a connected Remote or
+physical Wii behavior. The static crate status remains `parity_blocked`
+because broader source comparison and hardware/runtime behavior remain open.

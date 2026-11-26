@@ -144,6 +144,19 @@ pub fn run(logger: &mut ProbeLogger) {
         "WPAD disabled adapter rejects all-channel MotionPlus configuration",
         wpad::set_motion_plus(wpad::WPAD_CHAN_ALL, 1) == wpad::WPAD_ERR_NOT_READY as i32,
     );
+    logger.record(
+        "WPAD disabled adapter rejects all-channel speaker control",
+        wpad::control_speaker(wpad::WPAD_CHAN_ALL, 1) == wpad::WPAD_ERR_NOT_READY as i32,
+    );
+    logger.record(
+        "WPAD disabled adapter rejects all-channel rumble control",
+        wpad::rumble(wpad::WPAD_CHAN_ALL, 1) == wpad::WPAD_ERR_NOT_READY as i32,
+    );
+    logger.record(
+        "WPAD disabled adapter rejects all-channel idle thresholds",
+        wpad::set_idle_thresholds(wpad::WPAD_CHAN_ALL, 0, 0, 0, 0, 0, 0)
+            == wpad::WPAD_ERR_NOT_READY as i32,
+    );
 }
 
 #[cfg(feature = "dolphin-automation")]
@@ -469,6 +482,19 @@ fn probe_empty_channel_commands(logger: &mut ProbeLogger) {
         "WPAD empty channel rumble control succeeds",
         wpad::rumble(channel, 1) == wpad::WPAD_ERR_NONE as i32,
     );
+    logger.record(
+        "WPAD all-channel speaker control succeeds without controllers",
+        wpad::control_speaker(wpad::WPAD_CHAN_ALL, 1) == wpad::WPAD_ERR_NONE as i32,
+    );
+    logger.record(
+        "WPAD all-channel rumble control succeeds without controllers",
+        wpad::rumble(wpad::WPAD_CHAN_ALL, 1) == wpad::WPAD_ERR_NONE as i32,
+    );
+    logger.record(
+        "WPAD all-channel idle thresholds update succeeds",
+        wpad::set_idle_thresholds(wpad::WPAD_CHAN_ALL, -7, -2, -3, -4, -5, -6)
+            == wpad::WPAD_ERR_NONE as i32,
+    );
 
     let invalid = wpad::WPAD_MAX_WIIMOTES as i32;
     let bad_channel = wpad::WPAD_ERR_BAD_CHANNEL as i32;
@@ -479,6 +505,10 @@ fn probe_empty_channel_commands(logger: &mut ProbeLogger) {
     logger.record(
         "WPAD invalid channel rejects rumble control",
         wpad::rumble(invalid, 1) == bad_channel,
+    );
+    logger.record(
+        "WPAD invalid channel rejects idle threshold update",
+        wpad::set_idle_thresholds(invalid, 0, 0, 0, 0, 0, 0) == bad_channel,
     );
     logger.record(
         "WPAD invalid channel disconnect is rejected",
