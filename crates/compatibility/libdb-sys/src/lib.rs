@@ -19,6 +19,7 @@ use ogc_usbgecko as usb;
 use tuxedo_sys as tuxedo;
 
 mod bba;
+mod gdb_packet;
 mod private_net;
 mod tcp_accept;
 mod tcp_clock;
@@ -27,6 +28,7 @@ mod tcp_state;
 #[cfg(feature = "wii-network")]
 pub mod wii_network;
 
+use gdb_packet::{hex_nibble, parse_hex_u32};
 use private_net::{Ipv4Config, NetError, PrivateNet};
 
 const ERRNO_EADDRINUSE: i32 = -98;
@@ -160,6 +162,12 @@ fn select_tcp_socket(socket: i32) -> bool {
 #[doc(hidden)]
 pub fn validate_tcp_read_size(size: i32) -> Option<i32> {
     (size >= 0).then_some(size)
+}
+
+/// Parses one variable-width GDB hexadecimal field using the C stub's limit.
+#[doc(hidden)]
+pub fn validate_gdb_hex_field(bytes: &[u8]) -> Option<(u32, usize)> {
+    parse_hex_u32(bytes)
 }
 
 /// Preserves USB debugger transfer byte counts, including zero-byte results.
@@ -371,15 +379,6 @@ unsafe fn put_packet(device: *mut DbgInterface, payload: &[u8]) {
     }
 }
 
-fn hex_nibble(byte: u8) -> Option<u8> {
-    match byte {
-        b'0'..=b'9' => Some(byte - b'0'),
-        b'a'..=b'f' => Some(byte - b'a' + 10),
-        b'A'..=b'F' => Some(byte - b'A' + 10),
-        _ => None,
-    }
-}
-
 unsafe fn get_packet(device: *mut DbgInterface, buffer: &mut [u8; BUFMAX]) -> usize {
     loop {
         while unsafe { device_read_char(device) } & 0x7f != b'$' {}
@@ -471,19 +470,6 @@ fn push_thread_id(out: &mut [u8], pos: &mut usize, thread: *mut tuxedo::KThread)
             started = true;
         }
     }
-}
-
-fn parse_hex_u32(bytes: &[u8]) -> Option<(u32, usize)> {
-    let mut value = 0u32;
-    let mut count = 0usize;
-    for &byte in bytes {
-        let Some(nibble) = hex_nibble(byte) else {
-            break;
-        };
-        value = value.checked_shl(4)?.checked_add(nibble as u32)?;
-        count += 1;
-    }
-    (count != 0).then_some((value, count))
 }
 
 fn thread_from_id(id: u32, current: *mut tuxedo::KThread) -> *mut tuxedo::KThread {

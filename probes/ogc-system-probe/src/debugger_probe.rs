@@ -223,6 +223,15 @@ fn probe_usb_debugger(logger: &mut ProbeLogger) {
 fn probe_tcp_debugger(logger: &mut ProbeLogger) {
     logger.section("TCP DEBUGGER TRANSPORT");
 
+    logger.record(
+        "GDB hex parser accepts the C eight-digit limit",
+        debug::validate_gdb_hex_field(b"ffffffff,") == Some((u32::MAX, 8)),
+    );
+    logger.record(
+        "GDB hex parser rejects a ninth digit",
+        debug::validate_gdb_hex_field(b"100000000,").is_none(),
+    );
+
     let mut buf = [0u8; 4];
     logger.record(
         "tcp bind invalid rejected",

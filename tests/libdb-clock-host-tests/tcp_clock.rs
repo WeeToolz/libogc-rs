@@ -2,6 +2,8 @@
 mod tcp_clock;
 extern crate alloc;
 
+#[path = "../../crates/compatibility/libdb-sys/src/gdb_packet.rs"]
+mod gdb_packet;
 #[path = "../../crates/compatibility/libdb-sys/src/tcp_accept.rs"]
 mod tcp_accept;
 #[path = "../../crates/compatibility/libdb-sys/src/tcp_poll.rs"]

@@ -19,3 +19,7 @@ cargo xtask dolphin-validate --probe debugger_probe
 ```
 
 `cargo xtask dolphin-validate --probe debugger_probe` passed on 2026-10-04. Report: `target/dolphin-validation/1791171565-3b913c3450aa/suite.json`; result: `status=pass`, `summary_line=PASS summary passes=13 fails=0`. The probe verifies copied no-handle callbacks and the shared size validator. It does not verify a TCP accept or a network read because the Dolphin IOS backend did not establish a local peer.
+
+## GDB hexadecimal field parsing
+
+C `vhstr2int` accepts one to eight hexadecimal digits and rejects a ninth digit (`../../C-sources/libogc/libdb/debug_supp.c:46-72`). Rust's GDB packet parser previously accepted longer fields and could wrap their values. The shared parser now rejects a ninth digit. Host tests cover the eight-digit maximum, oversized fields, and empty or invalid input. The debugger probe calls the production parser helper for the maximum and over-limit cases. Dolphin passes 24 checks with no BBA; this verifies field parsing but not a live GDB exchange. Evidence: `docs/dolphin-runs/2026-11-26-libdb-gdb-hex-boundary/suite.json`.
