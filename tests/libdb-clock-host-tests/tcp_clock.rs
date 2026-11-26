@@ -13,3 +13,10 @@ fn stopped_time_does_not_advance_tcp_retransmission_clock() {
     clock.start(100);
     assert_eq!(clock.elapsed(105), 15);
 }
+
+#[test]
+fn running_time_handles_tick_counter_wrap() {
+    let mut clock = tcp_clock::TcpClock::default();
+    clock.start(u64::MAX - 2);
+    assert_eq!(clock.elapsed(2), 5);
+}
