@@ -404,14 +404,13 @@ archive found all ten exported symbols. `cargo check -p ogc-ipc --tests
 on the host, so the test suite was compile-checked, not run. No physical Wii
 check was done.
 
-Six C declarations remain without Rust exports: `IOS_Ioctl`, `IOS_IoctlAsync`,
+At the time of this file-operation fix, six C declarations still lacked Rust exports: `IOS_Ioctl`, `IOS_IoctlAsync`,
 `IOS_Ioctlv`, `IOS_IoctlvAsync`, `IOS_IoctlvReboot`, and
-`IOS_IoctlvRebootBackground`. These remain open parity work; this report does
-not claim complete `ogc-ipc` parity.
+`IOS_IoctlvRebootBackground`. The following section records their later implementation and verification limits.
 
 ## 2026-11-26 in progress — C ioctl and vector entry points
 
-The working tree adds C ABI entry points for `IOS_Ioctl`, `IOS_IoctlAsync`,
+Commit `f4f140b1` adds C ABI entry points for `IOS_Ioctl`, `IOS_IoctlAsync`,
 `IOS_Ioctlv`, `IOS_IoctlvAsync`, `IOS_IoctlvReboot`, and
 `IOS_IoctlvRebootBackground`. The existing runtime probe called the first four
 against file statistics and the network MAC service in Dolphin 2609a. It passed
