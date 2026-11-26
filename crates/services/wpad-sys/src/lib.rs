@@ -932,6 +932,12 @@ pub unsafe fn read_event(chan: i32, data: *mut WpadData) -> i32 {
 }
 pub fn dropped_events(chan: i32) -> i32 {
     if cfg!(target_arch = "powerpc") {
+        if chan != WPAD_CHAN_ALL && valid_chan(chan).is_none() {
+            return WPAD_ERR_BAD_CHANNEL as i32;
+        }
+        if !WPAD_INITED.load(Ordering::Acquire) {
+            return WPAD_ERR_NOT_READY as i32;
+        }
         if chan == WPAD_CHAN_ALL {
             let mut total = 0;
             for dropped in WPAD_DROPPED.iter().take(WPAD_MAX_DEVICES) {

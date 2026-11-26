@@ -1,5 +1,22 @@
 # `wpad-sys` static review
 
+## BUG FIX — disabled dropped-event query (2026-11-26)
+
+C `WPAD_DroppedEvents` returns `WPAD_ERR_NOT_READY` for a valid channel
+when WPAD is disabled. The Rust PowerPC path returned the saved count. It now
+checks channel validity and initialization before it reads the count. The
+all-channel query also returns the disabled result. Invalid channels retain
+their bad-channel result.
+
+The Dolphin 2609a `wpad_probe` reproduced the error before the fix. It
+recorded `0` and failed one of 101 checks in
+`docs/dolphin-runs/2026-11-26-wpad-disabled-red/wpad_probe/probe.log`.
+After the fix, the same probe recorded `-2` and passed all 101 checks in
+`docs/dolphin-runs/2026-11-26-wpad-disabled-green/wpad_probe/probe.log`.
+The probe uses the production API on an empty channel. Physical Wii evidence
+and independent source review remain pending. The event-buffer queue mismatch
+and broader WPAD parity remain open.
+
 Reviewer: `/root/reviewer_6`
 Implementer: `notOrrytrout`; latest relevant WPAD behavior commits `1ef870b` (button event coalescing), `a61a289` (scan event count), and `e0cc13b` (chunked audio streaming).
 Review type: independent first-pass source audit followed by an implementation handoff.

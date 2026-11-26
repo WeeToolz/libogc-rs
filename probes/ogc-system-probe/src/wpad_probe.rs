@@ -28,6 +28,12 @@ pub fn run(logger: &mut ProbeLogger) {
         "WPAD starts disabled",
         wpad::get_status() == wpad::WPAD_STATE_DISABLED,
     );
+    let disabled_dropped = wpad::dropped_events(wpad::WPAD_CHAN_0);
+    logger.note_i32("WPAD disabled dropped events result", disabled_dropped);
+    logger.record(
+        "WPAD disabled dropped events reports not ready",
+        disabled_dropped == wpad::WPAD_ERR_NOT_READY as i32,
+    );
 
     wpad::set_bluetooth_poll_hook(Some(count_bluetooth_poll_mark));
     let init = wpad::init();
