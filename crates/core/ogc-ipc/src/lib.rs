@@ -5,7 +5,7 @@ compile_error!(
     "This crate targets Wii/GameCube PowerPC only. Use the powerpc-nintendo-none target."
 );
 
-use core::ffi::{CStr, c_void};
+use core::ffi::{CStr, c_char, c_void};
 use core::ptr::NonNull;
 use core::sync::atomic::{AtomicBool, AtomicI32, AtomicU32, AtomicUsize, Ordering};
 
@@ -2922,6 +2922,169 @@ pub fn validate_path(path: &CStr) -> Result<(), i32> {
     }
 }
 
+/// Read a C path only after finding its terminator inside libogc's path limit.
+///
+/// # Safety
+/// `path` must point to readable memory through its NUL terminator.
+unsafe fn c_path<'a>(path: *const c_char) -> Result<&'a CStr, i32> {
+    if path.is_null() {
+        return Err(IPC_EINVAL);
+    }
+    for index in 0..IPC_MAXPATH_LEN as usize {
+        if unsafe { path.add(index).read() } == 0 {
+            return Ok(unsafe { CStr::from_ptr(path) });
+        }
+    }
+    Err(IPC_EINVAL)
+}
+
+/// Open a device or file through the IOS C ABI.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn IOS_Open(filepath: *const c_char, mode: u32) -> i32 {
+    let path = match unsafe { c_path(filepath) } {
+        Ok(path) => path,
+        Err(error) => return error,
+    };
+    open_file(path, mode).map_or_else(|error| error, |descriptor| descriptor.raw())
+}
+
+/// Queue an IOS open through the C ABI.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn IOS_OpenAsync(
+    filepath: *const c_char,
+    mode: u32,
+    ipc_cb: Ipccallback,
+    usrdata: *mut c_void,
+) -> i32 {
+    let path = match unsafe { c_path(filepath) } {
+        Ok(path) => path,
+        Err(error) => return error,
+    };
+    submit_open_async(path, mode, ipc_cb, usrdata)
+}
+
+/// Close a descriptor through the IOS C ABI.
+#[unsafe(no_mangle)]
+pub extern "C" fn IOS_Close(fd: i32) -> i32 {
+    FileDescriptor::new(fd)
+        .close()
+        .map_or_else(|error| error, |_| IPC_OK)
+}
+
+/// Queue a descriptor close through the IOS C ABI.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn IOS_CloseAsync(fd: i32, ipc_cb: Ipccallback, usrdata: *mut c_void) -> i32 {
+    submit_file_async(fd, IOS_CLOSE, ipc_cb, usrdata, |_| {})
+}
+
+/// Seek through the IOS C ABI.
+#[unsafe(no_mangle)]
+pub extern "C" fn IOS_Seek(fd: i32, where_: i32, whence: i32) -> i32 {
+    FileDescriptor::new(fd)
+        .seek(where_, whence)
+        .unwrap_or_else(|error| error)
+}
+
+/// Queue an IOS seek through the C ABI.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn IOS_SeekAsync(
+    fd: i32,
+    where_: i32,
+    whence: i32,
+    ipc_cb: Ipccallback,
+    usrdata: *mut c_void,
+) -> i32 {
+    unsafe { FileDescriptor::new(fd).seek_async(where_, whence, ipc_cb, usrdata) }
+}
+
+/// Read through the IOS C ABI.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn IOS_Read(fd: i32, buf: *mut c_void, len: i32) -> i32 {
+    if len < 0 || (len > 0 && buf.is_null()) {
+        return IPC_EINVAL;
+    }
+    if len == 0 {
+        return with_request(|req| {
+            req.cmd = IOS_READ;
+            req.fd = fd;
+            req.data.read.data = mem_virtual_to_physical(buf as usize) as *mut c_void;
+            req.data.read.len = 0;
+            unsafe { submit_request(req, || {}) }
+        })
+        .unwrap_or_else(|error| error);
+    }
+    let buffer = unsafe { core::slice::from_raw_parts_mut(buf.cast::<u8>(), len as usize) };
+    FileDescriptor::new(fd)
+        .read(buffer)
+        .map_or_else(|error| error, |count| count as i32)
+}
+
+/// Queue an IOS read through the C ABI.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn IOS_ReadAsync(
+    fd: i32,
+    buf: *mut c_void,
+    len: i32,
+    ipc_cb: Ipccallback,
+    usrdata: *mut c_void,
+) -> i32 {
+    if len < 0 || (len > 0 && buf.is_null()) {
+        return IPC_EINVAL;
+    }
+    if len == 0 {
+        return submit_file_async(fd, IOS_READ, ipc_cb, usrdata, |req| {
+            req.data.read.data = mem_virtual_to_physical(buf as usize) as *mut c_void;
+            req.data.read.len = 0;
+        });
+    }
+    let buffer = unsafe { core::slice::from_raw_parts_mut(buf.cast::<u8>(), len as usize) };
+    unsafe { FileDescriptor::new(fd).read_async(buffer, ipc_cb, usrdata) }
+}
+
+/// Write through the IOS C ABI.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn IOS_Write(fd: i32, buf: *const c_void, len: i32) -> i32 {
+    if len < 0 || (len > 0 && buf.is_null()) {
+        return IPC_EINVAL;
+    }
+    if len == 0 {
+        return with_request(|req| {
+            req.cmd = IOS_WRITE;
+            req.fd = fd;
+            req.data.write.data = mem_virtual_to_physical(buf as usize) as *mut c_void;
+            req.data.write.len = 0;
+            unsafe { submit_request(req, || {}) }
+        })
+        .unwrap_or_else(|error| error);
+    }
+    let buffer = unsafe { core::slice::from_raw_parts(buf.cast::<u8>(), len as usize) };
+    FileDescriptor::new(fd)
+        .write(buffer)
+        .map_or_else(|error| error, |count| count as i32)
+}
+
+/// Queue an IOS write through the C ABI.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn IOS_WriteAsync(
+    fd: i32,
+    buf: *const c_void,
+    len: i32,
+    ipc_cb: Ipccallback,
+    usrdata: *mut c_void,
+) -> i32 {
+    if len < 0 || (len > 0 && buf.is_null()) {
+        return IPC_EINVAL;
+    }
+    if len == 0 {
+        return submit_file_async(fd, IOS_WRITE, ipc_cb, usrdata, |req| {
+            req.data.write.data = mem_virtual_to_physical(buf as usize) as *mut c_void;
+            req.data.write.len = 0;
+        });
+    }
+    let buffer = unsafe { core::slice::from_raw_parts(buf.cast::<u8>(), len as usize) };
+    unsafe { FileDescriptor::new(fd).write_async(buffer, ipc_cb, usrdata) }
+}
+
 pub fn open_file(path: &CStr, mode: u32) -> Result<FileDescriptor, i32> {
     open_request(path, mode)
 }
@@ -2934,6 +3097,10 @@ pub fn open_file_async(path: &CStr, mode: u32, cb: Ipccallback, userdata: *mut c
         };
     }
 
+    submit_open_async(path, mode, cb, userdata)
+}
+
+fn submit_open_async(path: &CStr, mode: u32, cb: Ipccallback, userdata: *mut c_void) -> i32 {
     if let Err(rc) = validate_path(path) {
         return rc;
     }
@@ -3098,6 +3265,20 @@ mod tests {
         let _ = iosCreateHeap as extern "C" fn(i32) -> i32;
         let _ = iosAlloc as extern "C" fn(i32, i32) -> *mut c_void;
         let _ = iosFree as unsafe extern "C" fn(i32, *mut c_void);
+        let _ = IOS_Open as unsafe extern "C" fn(*const c_char, u32) -> i32;
+        let _ = IOS_OpenAsync
+            as unsafe extern "C" fn(*const c_char, u32, Ipccallback, *mut c_void) -> i32;
+        let _ = IOS_Close as extern "C" fn(i32) -> i32;
+        let _ = IOS_CloseAsync as unsafe extern "C" fn(i32, Ipccallback, *mut c_void) -> i32;
+        let _ = IOS_Seek as extern "C" fn(i32, i32, i32) -> i32;
+        let _ =
+            IOS_SeekAsync as unsafe extern "C" fn(i32, i32, i32, Ipccallback, *mut c_void) -> i32;
+        let _ = IOS_Read as unsafe extern "C" fn(i32, *mut c_void, i32) -> i32;
+        let _ = IOS_ReadAsync
+            as unsafe extern "C" fn(i32, *mut c_void, i32, Ipccallback, *mut c_void) -> i32;
+        let _ = IOS_Write as unsafe extern "C" fn(i32, *const c_void, i32) -> i32;
+        let _ = IOS_WriteAsync
+            as unsafe extern "C" fn(i32, *const c_void, i32, Ipccallback, *mut c_void) -> i32;
         let _ = FileDescriptor::close as fn(FileDescriptor) -> Result<(), i32>;
         let _ = FileDescriptor::seek as fn(&FileDescriptor, i32, i32) -> Result<i32, i32>;
         let _ = FileDescriptor::read as fn(&FileDescriptor, &mut [u8]) -> Result<usize, i32>;
@@ -3126,6 +3307,21 @@ mod tests {
         };
 
         assert_eq!(validate_path(path), Err(IPC_EINVAL));
+    }
+
+    #[test]
+    fn c_path_checks_null_and_the_c_api_path_limit() {
+        assert_eq!(unsafe { c_path(core::ptr::null()) }.err(), Some(IPC_EINVAL));
+
+        let mut accepted = [b'a'; IPC_MAXPATH_LEN as usize];
+        accepted[IPC_MAXPATH_LEN as usize - 1] = 0;
+        assert!(unsafe { c_path(accepted.as_ptr().cast()) }.is_ok());
+
+        let too_long = [b'a'; IPC_MAXPATH_LEN as usize + 1];
+        assert_eq!(
+            unsafe { c_path(too_long.as_ptr().cast()) }.err(),
+            Some(IPC_EINVAL)
+        );
     }
 
     #[test]

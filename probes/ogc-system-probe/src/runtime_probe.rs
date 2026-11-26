@@ -7749,6 +7749,60 @@ fn probe_ipc_file_reads(logger: &mut ProbeLogger) {
     struct Aligned<const N: usize>([u8; N]);
 
     logger.report_step("IPC file read and seek");
+    let c_open = unsafe {
+        ipc::IOS_Open(
+            c"/title/00000001/00000002/data/setting.txt".as_ptr(),
+            ipc::IPC_OPEN_READ,
+        )
+    };
+    let mut c_bytes = Aligned([0; 32]);
+    let c_read = if c_open >= 0 {
+        unsafe {
+            ipc::IOS_Read(
+                c_open,
+                c_bytes.0.as_mut_ptr().cast(),
+                c_bytes.0.len() as i32,
+            )
+        }
+    } else {
+        c_open
+    };
+    let c_seek = if c_open >= 0 {
+        ipc::IOS_Seek(c_open, 0, 0)
+    } else {
+        c_open
+    };
+    let mut c_repeat = Aligned([0; 32]);
+    let c_repeat_read = if c_open >= 0 {
+        unsafe {
+            ipc::IOS_Read(
+                c_open,
+                c_repeat.0.as_mut_ptr().cast(),
+                c_repeat.0.len() as i32,
+            )
+        }
+    } else {
+        c_open
+    };
+    let c_close = if c_open >= 0 {
+        ipc::IOS_Close(c_open)
+    } else {
+        c_open
+    };
+    logger.record(
+        "IPC C ABI open/read/seek/close uses the IOS file request path",
+        c_read == 32
+            && c_seek == 0
+            && c_repeat_read == 32
+            && c_bytes.0 == c_repeat.0
+            && c_close == ipc::IPC_OK,
+    );
+    logger.record(
+        "IPC C ABI open/read rejects invalid path and buffer inputs",
+        unsafe { ipc::IOS_Open(core::ptr::null(), ipc::IPC_OPEN_READ) } == ipc::IPC_EINVAL
+            && unsafe { ipc::IOS_Read(-1, core::ptr::null_mut(), 1) } == ipc::IPC_EINVAL
+            && unsafe { ipc::IOS_Read(-1, core::ptr::null_mut(), -1) } == ipc::IPC_EINVAL,
+    );
     let Ok(file) = ipc::open_file(
         c"/title/00000001/00000002/data/setting.txt",
         ipc::IPC_OPEN_READ,
@@ -15131,32 +15185,56 @@ fn probe_ipc_file_cycle(logger: &mut ProbeLogger) {
         }
         return;
     };
+    let raw = file.raw();
     let first = AlignedIsfsBytes([0x13; 32]);
     let second = AlignedIsfsBytes([0x57; 32]);
     let third = AlignedIsfsBytes([0xa9; 32]);
-    let write = file.write(&first.0) == Ok(32);
+    let c_write = unsafe { ipc::IOS_Write(raw, first.0.as_ptr().cast(), first.0.len() as i32) }
+        == first.0.len() as i32;
+    let c_seek = ipc::IOS_Seek(raw, 0, 0) == 0;
+    let mut c_read = AlignedIsfsBytes([0; 32]);
+    let c_read_ok =
+        unsafe { ipc::IOS_Read(raw, c_read.0.as_mut_ptr().cast(), c_read.0.len() as i32) }
+            == c_read.0.len() as i32
+            && c_read.0 == first.0;
+    let reset = ipc::IOS_Seek(raw, 0, 0) == 0;
+    let write = c_write && c_seek && c_read_ok && reset && file.write(&first.0) == Ok(32);
     let exact = file.write_exact(&second.0) == Ok(());
     // SAFETY: The buffer and callback remain valid until completion.
     let (write_submit, write_result) = run_isfs_async_and_wait(|| unsafe {
-        file.write_async(&third.0, Some(isfs_probe_callback), core::ptr::null_mut())
-    });
-    let (seek_submit, seek_result) = run_isfs_async_and_wait(|| unsafe {
-        file.seek_async(32, 0, Some(isfs_probe_callback), core::ptr::null_mut())
-    });
-    let mut read = AlignedIsfsBytes([0; 32]);
-    let (read_submit, read_result) = run_isfs_async_and_wait(|| unsafe {
-        file.read_async(
-            &mut read.0,
+        ipc::IOS_WriteAsync(
+            raw,
+            third.0.as_ptr().cast(),
+            third.0.len() as i32,
             Some(isfs_probe_callback),
             core::ptr::null_mut(),
         )
     });
-    let raw = file.raw();
+    let (seek_submit, seek_result) = run_isfs_async_and_wait(|| unsafe {
+        ipc::IOS_SeekAsync(raw, 32, 0, Some(isfs_probe_callback), core::ptr::null_mut())
+    });
+    let mut read = AlignedIsfsBytes([0; 32]);
+    let (read_submit, read_result) = run_isfs_async_and_wait(|| unsafe {
+        ipc::IOS_ReadAsync(
+            raw,
+            read.0.as_mut_ptr().cast(),
+            read.0.len() as i32,
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
+    });
     let (close_submit, close_result) = run_isfs_async_and_wait(|| unsafe {
-        file.close_async(Some(isfs_probe_callback), core::ptr::null_mut())
+        ipc::IOS_CloseAsync(raw, Some(isfs_probe_callback), core::ptr::null_mut())
     });
     let close_ok = close_submit >= 0 && close_result == 0;
     let fallback_close = close_ok || ipc::FileDescriptor::new(raw).close().is_ok();
+    let (rust_close_submit, rust_close_result) = run_isfs_async_and_wait(|| {
+        let Ok(file) = ipc::open_file(path, ipc::IPC_OPEN_RW) else {
+            return ipc::IPC_EINVAL;
+        };
+        // SAFETY: The callback uses static atomics and remains valid until completion.
+        unsafe { file.close_async(Some(isfs_probe_callback), core::ptr::null_mut()) }
+    });
 
     let mut persisted = AlignedIsfsBytes([0; 96]);
     let reopened = filesystem::open(path, filesystem::ISFS_OPEN_READ);
@@ -15167,6 +15245,47 @@ fn probe_ipc_file_cycle(logger: &mut ProbeLogger) {
     } else {
         false
     };
+    let fourth = AlignedIsfsBytes([0xc3; 32]);
+    let mut rust_read = AlignedIsfsBytes([0; 32]);
+    let (rust_write_submit, rust_write_result, rust_seek_end) =
+        if let Ok(file) = ipc::open_file(path, ipc::IPC_OPEN_RW) {
+            let seek_end = file.seek(0, 2) == Ok(96);
+            let (write_submit, write_result) = run_isfs_async_and_wait(|| unsafe {
+                file.write_async(&fourth.0, Some(isfs_probe_callback), core::ptr::null_mut())
+            });
+            let closed = file.close().is_ok();
+            (write_submit, write_result, seek_end && closed)
+        } else {
+            (ipc::IPC_EINVAL, ipc::IPC_EINVAL, false)
+        };
+    let rust_read_result = if let Ok(file) = ipc::open_file(path, ipc::IPC_OPEN_READ) {
+        let (seek_submit, seek_result) = run_isfs_async_and_wait(|| unsafe {
+            file.seek_async(96, 0, Some(isfs_probe_callback), core::ptr::null_mut())
+        });
+        let (read_async_submit, read_async_result) = run_isfs_async_and_wait(|| unsafe {
+            file.read_async(
+                &mut rust_read.0,
+                Some(isfs_probe_callback),
+                core::ptr::null_mut(),
+            )
+        });
+        let close_result = run_isfs_async_and_wait(|| unsafe {
+            file.close_async(Some(isfs_probe_callback), core::ptr::null_mut())
+        });
+        seek_submit >= 0
+            && seek_result == 96
+            && read_async_submit >= 0
+            && read_async_result == 32
+            && rust_read.0 == fourth.0
+            && close_result.0 >= 0
+            && close_result.1 == 0
+    } else {
+        false
+    };
+    logger.record(
+        "IPC Rust asynchronous file methods remain covered beside the C ABI",
+        rust_seek_end && rust_write_submit >= 0 && rust_write_result == 32 && rust_read_result,
+    );
     logger.record(
         "IPC write persists bytes",
         write && persisted_ok && persisted.0[..32] == first.0,
@@ -15189,7 +15308,7 @@ fn probe_ipc_file_cycle(logger: &mut ProbeLogger) {
     );
     logger.record(
         "IPC async close completes and persists",
-        close_ok && persisted_ok,
+        close_ok && persisted_ok && rust_close_submit >= 0 && rust_close_result == 0,
     );
     let deleted = filesystem::delete(path) == filesystem::ISFS_OK;
     logger.record("IPC test file cleanup", fallback_close && deleted);

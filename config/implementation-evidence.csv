@@ -948,8 +948,8 @@ ogc-ipc,src/ioctl_buffers.rs,buffer_io,55,pure,host-test,crates/core/ogc-ipc/src
 ogc-ipc,src/dma_buffer.rs,needs_staging,5,pure,host-test,crates/core/ogc-ipc/src/dma_buffer.rs,only_complete_exclusive_cache_lines_can_be_transferred_directly
 ogc-ipc,src/dma_buffer.rs,staging_length,12,pure,host-test,crates/core/ogc-ipc/src/dma_buffer.rs,staging_reserves_the_entire_last_cache_line
 lwip-sys,src/ios_socket_flags.rs,option_to_ios,23,pure,host-test,crates/services/lwip-sys/src/ios_socket_flags.rs,tcp_option_number_changes_only_at_tcp_level
-ogc-ipc,src/lib.rs,open_file,2925,ios,hardware-probe,probes/lwp-probe/src/main.rs,ipc_contention_worker
-ogc-ipc,src/lib.rs,open_file_async,2929,ios,hardware-probe,probes/lwp-probe/src/main.rs,run_ipc_wakeup
+ogc-ipc,src/lib.rs,open_file,3088,ios,hardware-probe,probes/lwp-probe/src/main.rs,ipc_contention_worker
+ogc-ipc,src/lib.rs,open_file_async,3092,ios,hardware-probe,probes/lwp-probe/src/main.rs,run_ipc_wakeup
 ogc-ipc,src/lib.rs,poll,1308,ios,hardware-probe,probes/lwp-probe/src/main.rs,run_ipc_wakeup
 ogc-ipc,src/lib.rs,set_debug_hook,1297,ios,hardware-probe,probes/lwp-probe/src/main.rs,run
 ogc-lwp,src/lib.rs,close,146,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,async_ipc_callback
@@ -3294,3 +3294,13 @@ ogc-ipc,src/lib.rs,IOS_IoctlvFormatAsync,63,ios,hardware-probe,probes/ogc-system
 ogc-si-sys,src/lib.rs,swap_wireless_id_accessors,1503,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_wireless_id_completion,raw_si::swap_wireless_id_accessors
 libdb-sys,src/lib.rs,validate_gdb_hex_field,169,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/debugger_probe.rs,probe_tcp_debugger
 libdb-sys,src/lib.rs,validate_gdb_signal,175,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/debugger_probe.rs,probe_tcp_debugger
+ogc-ipc,src/lib.rs,IOS_Open,2943,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_file_reads,ipc::IOS_Open
+ogc-ipc,src/lib.rs,IOS_OpenAsync,2953,ios,hardware-probe,probes/ogc-system-probe/src/ipc_async_probe.rs,submit_fs_open,IOS_OpenAsync
+ogc-ipc,src/lib.rs,IOS_Close,2968,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_file_reads,ipc::IOS_Close
+ogc-ipc,src/lib.rs,IOS_CloseAsync,2976,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_file_cycle,ipc::IOS_CloseAsync
+ogc-ipc,src/lib.rs,IOS_Seek,2982,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_file_reads,ipc::IOS_Seek
+ogc-ipc,src/lib.rs,IOS_SeekAsync,2990,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_file_cycle,ipc::IOS_SeekAsync
+ogc-ipc,src/lib.rs,IOS_Read,3002,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_file_reads,ipc::IOS_Read
+ogc-ipc,src/lib.rs,IOS_ReadAsync,3024,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_file_cycle,ipc::IOS_ReadAsync
+ogc-ipc,src/lib.rs,IOS_Write,3046,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_file_cycle,ipc::IOS_Write
+ogc-ipc,src/lib.rs,IOS_WriteAsync,3068,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_file_cycle,ipc::IOS_WriteAsync

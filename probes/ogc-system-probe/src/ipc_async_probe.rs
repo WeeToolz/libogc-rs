@@ -6,8 +6,8 @@ use core::sync::atomic::{AtomicI32, AtomicU32, Ordering};
 
 #[cfg(target_arch = "powerpc")]
 use ogc_ipc::{
-    HeapId, IPC_EINVAL, IPC_ENOMEM, IPC_OPEN_NONE, iosAlloc, iosCreateHeap, iosFree,
-    open_file_async, poll as ipc_poll, set_debug_hook,
+    HeapId, IOS_OpenAsync, IPC_EINVAL, IPC_ENOMEM, IPC_OPEN_NONE, iosAlloc, iosCreateHeap, iosFree,
+    poll as ipc_poll, set_debug_hook,
 };
 #[cfg(target_arch = "powerpc")]
 use ogc_system as system;
@@ -177,12 +177,14 @@ fn submit_fs_open(state: &mut IpcAsyncProbeState) {
     {
         RESULT_FS.store(IPC_ASYNC_PENDING, Ordering::Release);
         COUNT_FS.store(0, Ordering::Release);
-        let rc = open_file_async(
-            fs_path(),
-            IPC_OPEN_NONE,
-            Some(ipc_async_open_cb),
-            core::ptr::null_mut(),
-        );
+        let rc = unsafe {
+            IOS_OpenAsync(
+                fs_path().as_ptr(),
+                IPC_OPEN_NONE,
+                Some(ipc_async_open_cb),
+                core::ptr::null_mut(),
+            )
+        };
         state.submit_rc = rc;
         if rc < 0 {
             state.phase = "submit failed";

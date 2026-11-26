@@ -368,3 +368,43 @@ The PowerPC test build passed. The `ipc_async_probe` ran in Dolphin with 16
 checks and 0 failures. It tested zero-size creation, allocation and byte
 round-trip, freeing, and an invalid heap id. The linked target archive
 contains all three symbols. Physical Wii behavior remains pending.
+
+## 2026-11-26 fix — IOS file-operation C ABI
+
+The C header also declares `IOS_Open`, `IOS_OpenAsync`, `IOS_Close`,
+`IOS_CloseAsync`, `IOS_Seek`, `IOS_SeekAsync`, `IOS_Read`, `IOS_ReadAsync`,
+`IOS_Write`, and `IOS_WriteAsync` (`../../C-sources/libogc/gc/ogc/ipc.h:82-93`).
+Rust had the request behavior in `FileDescriptor` and `open_file*`, but did not
+export those C symbols. `ogc-ipc` now exports all ten as thin entry points that
+reuse the existing request allocation, submission, callback, cache, and cleanup
+paths. The C path reader rejects a null pointer or a missing terminator in the
+64-byte bound before it builds a `CStr`. Read and write reject negative lengths
+and null pointers for nonzero lengths. These checks prevent invalid slices and
+out-of-bounds path reads; the C implementations did not make these checks.
+
+The C `*Async` entry points always queue requests, including when the user
+callback is null. The Rust convenience `open_file_async` and `close_async`
+methods use synchronous behavior when their callback is null, so the C wrappers
+call shared async submit helpers directly. The async open trampoline still frees
+its path message when the user callback is null.
+
+The existing `runtime_probe` now calls the exported sync open/read/seek/close
+symbols on the settings file, tests invalid path and buffer inputs, and calls
+all four read/write/seek/close async symbols on the private `/tmp` ISFS probe
+file. It also keeps direct Rust async-method checks. The existing
+`ipc_async_probe` now calls the exported `IOS_OpenAsync` symbol. Dolphin 2609a
+passed `runtime_probe` (883 checks) and `ipc_async_probe` (16 checks), with zero
+failures. DOL SHA-256 values are `85bfc0c2d640b842d5c554c6f4128ea91fc816e5c0faf3952a4f3938fbbf6bf7`
+and `5dd9fa6803395ba954a67c5b760a0a792131f09dd8c30492e6bf2f6c9488081d`.
+The report and transport evidence are in
+`../dolphin-runs/2026-11-26-ipc-c-abi-file-apis/`. `nm -g` on the target IPC
+archive found all ten exported symbols. `cargo check -p ogc-ipc --tests
+--target powerpc-unknown-linux-gnu`, `cargo xtask check-inventory`, and
+`cargo xtask audit-source` passed. Cross-target test linking was not available
+on the host, so the test suite was compile-checked, not run. No physical Wii
+check was done.
+
+Six C declarations remain without Rust exports: `IOS_Ioctl`, `IOS_IoctlAsync`,
+`IOS_Ioctlv`, `IOS_IoctlvAsync`, `IOS_IoctlvReboot`, and
+`IOS_IoctlvRebootBackground`. These remain open parity work; this report does
+not claim complete `ogc-ipc` parity.
