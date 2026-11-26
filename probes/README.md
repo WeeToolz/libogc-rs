@@ -524,8 +524,12 @@ cargo xtask dolphin-validate --no-build --probe <probe> --dolphin /path/to/Dolph
 
 Select one probe only. The runner supplies the development wrapper's required
 arguments and uses the DOL SHA-256 as its build ID. It supplies a loopback
-report endpoint for startup; the runner does not collect or verify UDP
-development reports. The Dolphin USB Gecko transcript and page captures
+report endpoint for startup. The runner does not collect the development
+wrapper's TCP reports. The Dolphin USB Gecko transcript and page captures
 remain the probe evidence. A mismatched DOL and ELF can invalidate symbol and
 page capture results. The [current network result](../docs/dolphin-runs/2026-11-04-network-fixed/README.md)
 verifies the standard and development builds against the patched emulator.
+
+For the full suite in one DOL, use `ogc-system-probe` as both the package and
+binary name in the build command. Select `--probe ogc_system_probe` in the
+runner. This entry requires the development DOL and matching ELF.

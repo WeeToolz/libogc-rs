@@ -279,6 +279,13 @@ struct Options {
 }
 
 fn validate_format_selection(options: &Options, has_card: bool) -> Result<(), String> {
+    if options.probes.iter().any(|name| name == "ogc_system_probe")
+        && (!options.no_build
+            || std::env::var_os("LIBOGC_DOLPHIN_DEV_DOL").is_none()
+            || std::env::var_os("LIBOGC_DOLPHIN_DEV_ELF").is_none())
+    {
+        return Err("ogc_system_probe requires --no-build and matching LIBOGC_DOLPHIN_DEV_DOL and LIBOGC_DOLPHIN_DEV_ELF paths; build with --dev --probe-features dolphin-automation".to_string());
+    }
     if std::env::var_os("LIBOGC_DOLPHIN_DEV_DOL").is_some()
         && (options.probes.len() != 1
             || options.format_private_card
@@ -772,6 +779,13 @@ fn select_probes(names: &[String]) -> Result<Vec<ProbeSpec>, String> {
     names
         .iter()
         .map(|name| {
+            if name == "ogc_system_probe" {
+                return Ok(ProbeSpec {
+                    name: "ogc_system_probe",
+                    timeout_seconds: 360,
+                    input_pipe: false,
+                });
+            }
             if name == "exfat_sd_probe" {
                 return Ok(ProbeSpec {
                     name: "exfat_sd_probe",
@@ -1082,7 +1096,17 @@ fn run_probe(
             .filter(|address| *address < 0x817e0000)
             .ok_or_else(|| "no safe startup argument space".to_string())?;
         let dev_command = if dev_dol.is_some() {
-            format!("{}.dol\0--report=127.0.0.1:4298\0--run-id=dolphin-debug\0--build-id={}\0--recovery-reset-ms=180000\0", spec.name, sha256_file(&dol_path)?).into_bytes()
+            let recovery_ms = if spec.name == "ogc_system_probe" {
+                // Give the host time to capture its timeout diagnostic before
+                // the guest watchdog exits.
+                timeout_seconds
+                    .saturating_add(30)
+                    .saturating_mul(1000)
+                    .min(i32::MAX as u64)
+            } else {
+                180_000
+            };
+            format!("{}.dol\0--report=127.0.0.1:4298\0--run-id=dolphin-debug\0--build-id={}\0--recovery-reset-ms={recovery_ms}\0", spec.name, sha256_file(&dol_path)?).into_bytes()
         } else {
             Vec::new()
         };
@@ -2909,6 +2933,18 @@ mod tests {
         assert_eq!(
             selected.iter().map(|spec| spec.name).collect::<Vec<_>>(),
             ["font_probe", "arena_probe"]
+        );
+    }
+
+    #[test]
+    fn aggregate_requires_explicit_probe_selection() {
+        let selected = select_probes(&["ogc_system_probe".to_string()]).unwrap();
+        assert_eq!(selected[0].name, "ogc_system_probe");
+        assert!(
+            select_probes(&[])
+                .unwrap()
+                .iter()
+                .all(|spec| spec.name != "ogc_system_probe")
         );
     }
 
