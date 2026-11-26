@@ -21,6 +21,7 @@ use tuxedo_sys as tuxedo;
 mod bba;
 mod private_net;
 mod tcp_clock;
+mod tcp_state;
 #[cfg(feature = "wii-network")]
 pub mod wii_network;
 
