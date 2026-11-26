@@ -252,6 +252,7 @@ fn probe_newlib_mount(logger: &mut ProbeLogger) {
     if mounted.is_err() {
         return;
     }
+    probe_blockfs_public_apis(logger);
 
     use ogc_sysbase::{DeviceFile, EACCES, EBADF, O_RDONLY, O_RDWR, O_TRUNC, O_WRONLY};
     let mut byte = [0];
@@ -341,6 +342,75 @@ fn probe_newlib_mount(logger: &mut ProbeLogger) {
     logger.record(
         "Newlib file creation and data survive exFAT unmount and remount",
         unmounted && remounted && persisted && closed_again,
+    );
+}
+
+fn probe_blockfs_public_apis(logger: &mut ProbeLogger) {
+    use ogc_sysbase::{O_RDONLY, O_TRUNC};
+
+    logger.record(
+        "blockfs reports the mounted exFAT volume",
+        ogc_blockfs::exfat_is_mounted()
+            && ogc_blockfs::stat("ReadMe.txt").is_ok_and(|info| {
+                info.name == "ReadMe.txt" && info.size == PAYLOAD.len() as u64 && !info.is_dir
+            }),
+    );
+
+    let file_apis = ogc_blockfs::open("ReadMe.txt").is_ok_and(|mut file| {
+        let metadata = file.metadata();
+        let initial = file.len() == Ok(PAYLOAD.len() as u64)
+            && metadata == Ok((PAYLOAD.len() as u64, false))
+            && file.position() == 0;
+        let seek = file.seek(0).is_ok();
+        let mut bytes = [0; PAYLOAD.len()];
+        initial && seek && file.read(&mut bytes) == Ok(bytes.len()) && bytes == PAYLOAD
+    });
+    logger.record(
+        "blockfs file open, metadata, seek and read APIs work",
+        file_apis,
+    );
+
+    let directory_api = ogc_blockfs::open_dir("/")
+        .is_ok_and(|mut directory| directory.next().is_ok_and(|entry| entry.is_some()));
+    logger.record("blockfs directory APIs return a root entry", directory_api);
+
+    let created_file = ogc_blockfs::create_file("blockfs-api.txt").is_ok_and(|mut file| {
+        let created = file.write(b"blockfs") == Ok(7)
+            && file.position() == 7
+            && file.flush().is_ok()
+            && file.truncate(4).is_ok()
+            && file.flush().is_ok();
+        created && ogc_blockfs::unmount_sd() == Err(ogc_blockfs::Error::Busy)
+    });
+    logger.record(
+        "blockfs create, write, truncate, flush and busy unmount APIs work",
+        created_file,
+    );
+
+    let append = ogc_blockfs::open_append("blockfs-api.txt").is_ok_and(|mut file| {
+        file.write(b"+api") == Ok(4) && file.flush().is_ok() && file.position() == 8
+    });
+    let append_readback = ogc_blockfs::open("blockfs-api.txt").is_ok_and(|mut file| {
+        let mut bytes = [0; 8];
+        file.read(&mut bytes) == Ok(8) && bytes == *b"bloc+api"
+    });
+    logger.record(
+        "blockfs append and read APIs work",
+        append && append_readback,
+    );
+
+    let flags_and_errno = matches!(
+        ogc_blockfs::open_with_flags("ReadMe.txt", O_RDONLY | O_TRUNC),
+        Err(ogc_blockfs::Error::InvalidFlags)
+    ) && ogc_blockfs::open_with_flags("ReadMe.txt", O_RDONLY)
+        .is_ok_and(|mut file| file.len() == Ok(PAYLOAD.len() as u64))
+        && ogc_blockfs::errno(&ogc_blockfs::Error::InvalidFlags) == ogc_sysbase::EINVAL
+        && ogc_blockfs::open_write("blockfs-api.txt").is_ok_and(|mut file| {
+            file.seek(0).is_ok() && file.write(b"B").is_ok() && file.flush().is_ok()
+        });
+    logger.record(
+        "blockfs access flags, errno and write-open APIs work",
+        flags_and_errno,
     );
 }
 
