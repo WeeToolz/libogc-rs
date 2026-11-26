@@ -6,8 +6,8 @@ use core::sync::atomic::{AtomicI32, AtomicU32, Ordering};
 
 #[cfg(target_arch = "powerpc")]
 use ogc_ipc::{
-    HeapId, IPC_EINVAL, IPC_ENOMEM, IPC_OPEN_NONE, open_file_async, poll as ipc_poll,
-    set_debug_hook,
+    HeapId, IPC_EINVAL, IPC_ENOMEM, IPC_OPEN_NONE, iosAlloc, iosCreateHeap, iosFree,
+    open_file_async, poll as ipc_poll, set_debug_hook,
 };
 #[cfg(target_arch = "powerpc")]
 use ogc_system as system;
@@ -57,6 +57,33 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
         logger.record(
             "negative IPC heap size is rejected",
             HeapId::create(-1) == Err(IPC_EINVAL),
+        );
+        logger.record(
+            "C IPC heap creation returns no-memory for zero size",
+            iosCreateHeap(0) == IPC_ENOMEM,
+        );
+        let heap = iosCreateHeap(1024);
+        let allocation = iosAlloc(heap, 32);
+        let allocation_ok = heap >= 0 && !allocation.is_null();
+        let contents_ok = if allocation_ok {
+            // SAFETY: `iosAlloc` returned a live 32-byte allocation.
+            unsafe {
+                core::ptr::write_bytes(allocation.cast::<u8>(), 0x5a, 32);
+                core::slice::from_raw_parts(allocation.cast::<u8>(), 32)
+                    .iter()
+                    .all(|byte| *byte == 0x5a)
+            }
+        } else {
+            false
+        };
+        if allocation_ok {
+            // SAFETY: This pointer was returned by `iosAlloc` for `heap`.
+            unsafe { iosFree(heap, allocation) };
+        }
+        logger.record("C IPC heap allocation round trips bytes", contents_ok);
+        logger.record(
+            "C IPC heap rejects invalid heap IDs",
+            iosAlloc(-1, 32).is_null(),
         );
     }
 

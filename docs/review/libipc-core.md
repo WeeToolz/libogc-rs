@@ -353,3 +353,18 @@ slot, zero size with no free slot, and a size at the minimum. Dolphin 2609a's
 `b5d3d2b31381853f4df77fb6aed5baf3f1f258daec96253febd8ac60209e2c95`.
 PowerPC test code compiled with `cargo check -p ogc-ipc --tests --target
 powerpc-unknown-linux-gnu`. Physical Wii heap error behavior remains pending.
+
+
+## 2026-11-26 fix — C IPC heap entry points
+
+The C header declares `iosCreateHeap`, `iosAlloc`, and `iosFree`
+(`../../C-sources/libogc/gc/ogc/ipc.h:73-75`). Rust exposed only the typed
+`HeapId` methods, so C callers could not link these functions. The crate now
+exports all three C ABI symbols as thin wrappers around `HeapId`. A null
+`iosFree` pointer is ignored, and the unsafe Rust declaration documents the
+pointer ownership requirement.
+
+The PowerPC test build passed. The `ipc_async_probe` ran in Dolphin with 16
+checks and 0 failures. It tested zero-size creation, allocation and byte
+round-trip, freeing, and an invalid heap id. The linked target archive
+contains all three symbols. Physical Wii behavior remains pending.

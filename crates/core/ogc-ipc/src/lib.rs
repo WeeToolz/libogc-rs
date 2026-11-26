@@ -248,6 +248,31 @@ impl HeapId {
     }
 }
 
+/// Create an IPC heap and return its C-compatible heap id or error code.
+#[unsafe(no_mangle)]
+pub extern "C" fn iosCreateHeap(size: i32) -> i32 {
+    HeapId::create(size).map_or_else(|error| error, HeapId::raw)
+}
+
+/// Allocate memory from an IPC heap.
+#[unsafe(no_mangle)]
+pub extern "C" fn iosAlloc(hid: i32, size: i32) -> *mut c_void {
+    HeapId::new(hid)
+        .alloc(size)
+        .map_or(core::ptr::null_mut(), NonNull::as_ptr)
+}
+
+/// Free memory from an IPC heap.
+///
+/// # Safety
+/// `ptr` must be null or a live allocation returned by `iosAlloc` for `hid`.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn iosFree(hid: i32, ptr: *mut c_void) {
+    if let Some(ptr) = NonNull::new(ptr) {
+        unsafe { HeapId::new(hid).free(ptr) };
+    }
+}
+
 #[repr(transparent)]
 #[derive(Debug, Eq, PartialEq)]
 pub struct FileDescriptor(i32);
@@ -3070,6 +3095,9 @@ mod tests {
         let _ = HeapId::create as fn(i32) -> Result<HeapId, i32>;
         let _ = HeapId::alloc as unsafe fn(HeapId, i32) -> Option<core::ptr::NonNull<c_void>>;
         let _ = HeapId::free as unsafe fn(HeapId, core::ptr::NonNull<c_void>);
+        let _ = iosCreateHeap as extern "C" fn(i32) -> i32;
+        let _ = iosAlloc as extern "C" fn(i32, i32) -> *mut c_void;
+        let _ = iosFree as unsafe extern "C" fn(i32, *mut c_void);
         let _ = FileDescriptor::close as fn(FileDescriptor) -> Result<(), i32>;
         let _ = FileDescriptor::seek as fn(&FileDescriptor, i32, i32) -> Result<i32, i32>;
         let _ = FileDescriptor::read as fn(&FileDescriptor, &mut [u8]) -> Result<usize, i32>;
