@@ -207,3 +207,14 @@ no failures; see `../dolphin-runs/2026-11-26-es-inventory-precedence-red/` and
 `../dolphin-runs/2026-11-26-es-inventory-precedence-green/`. This only covers
 the tested invalid inputs. Independent review, other ES calls, and physical Wii
 validation remain open.
+
+The descriptor-first check was also moved ahead of argument validation for 24
+ES operations covering DI views, identification, ticket and title operations,
+content I/O, cryptography, device information, and boot import. The probe uses
+invalid arguments that are rejected before an IOS request; it does not write to
+NAND. Dolphin's baseline failed the grouped closed-service check. The fixed
+run passed both grouped checks, the earlier ES checks, and IOS 58 reload: 20
+checks passed. See `../dolphin-runs/2026-11-26-es-operation-precedence-red/`
+and `../dolphin-runs/2026-11-26-es-operation-precedence-green/`. This is not a
+successful-operation test for these APIs. Independent review and physical Wii
+validation remain pending.

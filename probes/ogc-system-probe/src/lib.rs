@@ -1170,6 +1170,53 @@ fn es_inventory_invalid_results() -> [i32; 16] {
 }
 
 #[cfg(all(target_arch = "powerpc", feature = "ios-reload-probe"))]
+fn es_operations_invalid_results() -> [i32; 24] {
+    use ogc_es_sys as es;
+    let p = core::ptr::null();
+    let m = core::ptr::null_mut();
+    // SAFETY: These inputs must be rejected before access or IOS submission.
+    unsafe {
+        [
+            es::get_data_dir(0, m),
+            es::di_get_tmd_view_size(p, 0, m.cast()),
+            es::di_get_tmd_view(p, 0, m.cast(), 0),
+            es::get_ticket_view(p, m.cast()),
+            es::identify(p, 0, p, 0, p, 0, m.cast()),
+            es::verify_with_ticket_view(p, 0, p, 0, p.cast(), m.cast()),
+            es::add_ticket(p, 0, p, 0, p, 0),
+            es::delete_ticket(p.cast()),
+            es::export_title_init(0, m.cast(), 0),
+            es::export_content_data(-1, m, 0),
+            es::reimport_title_init(p, 0),
+            es::add_title_start(p, 0, p, 0, p, 0),
+            es::add_content_data(-1, p.cast(), 0),
+            es::read_content(-1, m, 0),
+            es::seek_content(-1, 0, 0),
+            es::close_content(-1),
+            es::encrypt(0, m.cast(), p.cast(), 0, m),
+            es::decrypt(0, m.cast(), p.cast(), 0, m),
+            es::sign(p.cast(), 0, m, m.cast()),
+            es::verify_sign(p.cast(), 0, p.cast(), p, 0),
+            es::get_device_cert(m),
+            es::get_device_id(m.cast()),
+            es::get_boot2_version(m.cast()),
+            es::import_boot(es::ImportBootParams {
+                tik: p,
+                tik_size: 0,
+                tik_certs: p,
+                tik_certs_size: 0,
+                tmd: p,
+                tmd_size: 0,
+                tmd_certs: p,
+                tmd_certs_size: 0,
+                content: p.cast(),
+                content_size: 0,
+            }),
+        ]
+    }
+}
+
+#[cfg(all(target_arch = "powerpc", feature = "ios-reload-probe"))]
 /// Reloads the current IOS and checks IPC after it returns.
 pub fn run_ios_reload_probe_bin() -> i32 {
     configure_probe_app_dir("ios-reload-probe");
@@ -1207,6 +1254,12 @@ pub fn run_ios_reload_probe_bin() -> i32 {
             .iter()
             .all(|&rc| rc == ogc_es_sys::ES_ENOTINIT),
     );
+    logger.record(
+        "closed ES operation calls report not initialized first",
+        es_operations_invalid_results()
+            .iter()
+            .all(|&rc| rc == ogc_es_sys::ES_ENOTINIT),
+    );
     let initialized = ogc_es_sys::init();
     logger.record("ES reopens after argument checks", initialized == 0);
     if initialized != 0 {
@@ -1229,6 +1282,12 @@ pub fn run_ios_reload_probe_bin() -> i32 {
     logger.record(
         "open ES inventory calls reject invalid arguments",
         es_inventory_invalid_results()
+            .iter()
+            .all(|&rc| rc == ogc_es_sys::ES_EINVAL),
+    );
+    logger.record(
+        "open ES operation calls reject invalid arguments",
+        es_operations_invalid_results()
             .iter()
             .all(|&rc| rc == ogc_es_sys::ES_EINVAL),
     );

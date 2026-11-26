@@ -498,11 +498,11 @@ pub fn set_uid(uid: u64) -> i32 {
 pub unsafe fn get_data_dir(title_id: u64, filepath: *mut u8) -> i32 {
     unsafe {
         with_state(|state| {
-            if filepath.is_null() {
-                return ES_EINVAL;
-            }
             if let Err(rc) = require_initialized(state) {
                 return rc;
+            }
+            if filepath.is_null() {
+                return ES_EINVAL;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -1090,6 +1090,9 @@ pub unsafe fn di_get_tmd_view_size(
 ) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if view_size.is_null() {
                 return ES_EINVAL;
             }
@@ -1098,9 +1101,6 @@ pub unsafe fn di_get_tmd_view_size(
             }
             if !s_tmd.is_null() && signed_tmd_size_checked(s_tmd, tmd_size) != Some(tmd_size) {
                 return ES_EINVAL;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -1141,6 +1141,9 @@ pub unsafe fn di_get_tmd_view(
 ) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if view.is_null() || (view_size as usize) < core::mem::size_of::<TmdView>() {
                 return ES_EINVAL;
             }
@@ -1149,9 +1152,6 @@ pub unsafe fn di_get_tmd_view(
             }
             if !s_tmd.is_null() && signed_tmd_size_checked(s_tmd, tmd_size) != Some(tmd_size) {
                 return ES_EINVAL;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -1184,14 +1184,14 @@ pub unsafe fn di_get_tmd_view(
 pub unsafe fn get_ticket_view(s_tik: *const SignedBlob, view: *mut Tikview) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if view.is_null() {
                 return ES_EINVAL;
             }
             if !is_aligned(s_tik.cast(), 4) || !is_aligned(view.cast(), 4) {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -1357,6 +1357,9 @@ pub unsafe fn identify(
 ) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if ticket_size as usize != STD_SIGNED_TIK_SIZE {
                 return ES_EINVAL;
             }
@@ -1382,9 +1385,6 @@ pub unsafe fn identify(
             }
             if tmd_size as usize > MAX_SIGNED_TMD_SIZE {
                 return ES_EINVAL;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let heap = match current_heap(state) {
                 Ok(heap) => heap,
@@ -1459,6 +1459,9 @@ pub unsafe fn verify_with_ticket_view(
 ) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if s_tmd.is_null() || signed_tmd_size_checked(s_tmd, tmd_size) != Some(tmd_size) {
                 return ES_EINVAL;
             }
@@ -1475,9 +1478,6 @@ pub unsafe fn verify_with_ticket_view(
                 || !keynum.is_null() && !is_aligned(keynum.cast(), 4)
             {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let heap = match current_heap(state) {
                 Ok(heap) => heap,
@@ -1572,6 +1572,9 @@ pub unsafe fn add_ticket(
 ) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if tik_size as usize != STD_SIGNED_TIK_SIZE {
                 return ES_EINVAL;
             }
@@ -1595,9 +1598,6 @@ pub unsafe fn add_ticket(
                 || !is_aligned(crl.cast(), 4)
             {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -1631,14 +1631,14 @@ pub unsafe fn add_ticket(
 pub unsafe fn delete_ticket(view: *const Tikview) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if view.is_null() {
                 return ES_EINVAL;
             }
             if !is_aligned(view.cast(), 4) {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -1657,14 +1657,14 @@ pub unsafe fn delete_ticket(view: *const Tikview) -> i32 {
 pub unsafe fn export_title_init(title_id: u64, tmd_out: *mut SignedBlob, tmd_size: u32) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if tmd_out.is_null() || tmd_size == 0 || tmd_size as usize > MAX_SIGNED_TMD_SIZE {
                 return ES_EINVAL;
             }
             if !is_aligned(tmd_out.cast(), 4) {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -1708,14 +1708,14 @@ pub fn export_content_begin(title_id: u64, cid: u32) -> i32 {
 pub unsafe fn export_content_data(cfd: i32, data: *mut u8, data_size: u32) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if data.is_null() || data_size == 0 {
                 return ES_EINVAL;
             }
             if !is_aligned(data.cast(), 32) || !is_aligned_value(data_size as usize, 32) {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -1770,6 +1770,9 @@ pub fn export_title_done() -> i32 {
 pub unsafe fn reimport_title_init(tmd: *const SignedBlob, tmd_size: u32) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if tmd.is_null() || !is_valid_signature_type(read_u32_unaligned(tmd.cast::<u32>())) {
                 return ES_EINVAL;
             }
@@ -1778,9 +1781,6 @@ pub unsafe fn reimport_title_init(tmd: *const SignedBlob, tmd_size: u32) -> i32 
             }
             if !is_aligned(tmd.cast(), 4) {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -1806,6 +1806,9 @@ pub unsafe fn add_title_start(
 ) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if certificates.is_null()
                 || tmd.is_null()
                 || !is_valid_signature_type(read_u32_unaligned(tmd.cast::<u32>()))
@@ -1829,9 +1832,6 @@ pub unsafe fn add_title_start(
                 || !is_aligned(crl.cast(), 4)
             {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -1888,14 +1888,14 @@ pub fn add_content_start(title_id: u64, cid: u32) -> i32 {
 pub unsafe fn add_content_data(cid: i32, data: *const u8, data_size: u32) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if cid < 0 || data.is_null() || data_size == 0 {
                 return ES_EINVAL;
             }
             if !is_aligned(data.cast(), 4) {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -1964,6 +1964,9 @@ pub fn add_title_cancel() -> i32 {
 pub unsafe fn import_boot(params: ImportBootParams) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if params.tik.is_null() || params.tik_size == 0 {
                 return ES_EINVAL;
             }
@@ -1986,9 +1989,6 @@ pub unsafe fn import_boot(params: ImportBootParams) -> i32 {
                 || !is_aligned(params.content.cast(), 4)
             {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -2079,14 +2079,14 @@ pub unsafe fn open_title_content(title_id: u64, views: *const Tikview, index: u1
 pub unsafe fn read_content(cfd: i32, data: *mut u8, data_size: u32) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if cfd < 0 || data.is_null() || data_size == 0 {
                 return ES_EINVAL;
             }
             if !is_aligned(data.cast(), 32) {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -2105,11 +2105,11 @@ pub unsafe fn read_content(cfd: i32, data: *mut u8, data_size: u32) -> i32 {
 
 pub fn seek_content(cfd: i32, where_: i32, whence: i32) -> i32 {
     with_state(|state| {
-        if cfd < 0 {
-            return ES_EINVAL;
-        }
         if let Err(rc) = require_initialized(state) {
             return rc;
+        }
+        if cfd < 0 {
+            return ES_EINVAL;
         }
         let fd = match current_fd(state) {
             Ok(fd) => fd,
@@ -2129,11 +2129,11 @@ pub fn seek_content(cfd: i32, where_: i32, whence: i32) -> i32 {
 
 pub fn close_content(cfd: i32) -> i32 {
     with_state(|state| {
-        if cfd < 0 {
-            return ES_EINVAL;
-        }
         if let Err(rc) = require_initialized(state) {
             return rc;
+        }
+        if cfd < 0 {
+            return ES_EINVAL;
         }
         let fd = match current_fd(state) {
             Ok(fd) => fd,
@@ -2189,6 +2189,9 @@ pub unsafe fn encrypt(
 ) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if iv.is_null() || source.is_null() || size == 0 || dest.is_null() {
                 return ES_EINVAL;
             }
@@ -2198,9 +2201,6 @@ pub unsafe fn encrypt(
                 || !is_aligned_value(size as usize, 16)
             {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -2238,6 +2238,9 @@ pub unsafe fn decrypt(
 ) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if iv.is_null() || source.is_null() || size == 0 || dest.is_null() {
                 return ES_EINVAL;
             }
@@ -2247,9 +2250,6 @@ pub unsafe fn decrypt(
                 || !is_aligned_value(size as usize, 16)
             {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -2286,6 +2286,9 @@ pub unsafe fn sign(
 ) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if source.is_null() || size == 0 || ap_signature.is_null() || ap_certificate.is_null() {
                 return ES_EINVAL;
             }
@@ -2297,9 +2300,6 @@ pub unsafe fn sign(
             }
             if size > 0x10000 {
                 return ES_EINVAL;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -2334,6 +2334,9 @@ pub unsafe fn verify_sign(
 ) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if source.is_null()
                 || size == 0
                 || ap_signature.is_null()
@@ -2353,9 +2356,6 @@ pub unsafe fn verify_sign(
             }
             if size > 0x10000 {
                 return ES_EINVAL;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -2384,14 +2384,14 @@ pub unsafe fn verify_sign(
 pub unsafe fn get_device_cert(outbuf: *mut u8) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if outbuf.is_null() {
                 return ES_EINVAL;
             }
             if !is_aligned(outbuf.cast(), 4) {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -2409,11 +2409,11 @@ pub unsafe fn get_device_cert(outbuf: *mut u8) -> i32 {
 /// `device_id` must be valid for writes.
 pub unsafe fn get_device_id(device_id: *mut u32) -> i32 {
     with_state(|state| {
-        if device_id.is_null() {
-            return ES_EINVAL;
-        }
         if let Err(rc) = require_initialized(state) {
             return rc;
+        }
+        if device_id.is_null() {
+            return ES_EINVAL;
         }
         let fd = match current_fd(state) {
             Ok(fd) => fd,
@@ -2434,11 +2434,11 @@ pub unsafe fn get_device_id(device_id: *mut u32) -> i32 {
 /// `version` must be valid for writes.
 pub unsafe fn get_boot2_version(version: *mut u32) -> i32 {
     with_state(|state| {
-        if version.is_null() {
-            return ES_EINVAL;
-        }
         if let Err(rc) = require_initialized(state) {
             return rc;
+        }
+        if version.is_null() {
+            return ES_EINVAL;
         }
         let fd = match current_fd(state) {
             Ok(fd) => fd,
