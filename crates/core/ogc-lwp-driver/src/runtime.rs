@@ -1,7 +1,7 @@
 use core::ffi::c_void;
 use core::ops::{Index, IndexMut};
 use core::ptr;
-use core::sync::atomic::{AtomicU32, Ordering};
+use core::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 
 use crate::arch::{self, Context};
 use crate::deferred_slots::DeferredSlots;
@@ -572,6 +572,9 @@ static mut SEMAPHORES: [SemaphoreState; MAX_SEMAPHORES] = [SemaphoreState::empty
 static mut MESSAGE_QUEUE_HEAD: *mut MessageQueueState = ptr::null_mut();
 static mut TIMER_HEAD: *mut TimerNode = ptr::null_mut();
 static mut TIMER_FREE_HEAD: *mut TimerNode = ptr::null_mut();
+static TIMESLICE_EXPIRED: AtomicBool = AtomicBool::new(false);
+static mut TIMESLICE_TICKS: u64 = 0;
+static mut TIMESLICE_DEADLINE: u64 = NO_DEADLINE;
 static mut WORKSPACE_ALLOC: WorkspaceAlloc = None;
 static mut WORKSPACE_FREE: WorkspaceFree = None;
 static mut DEFERRED: [DeferredItem; MAX_DEFERRED] = [DeferredItem::empty(); MAX_DEFERRED];
@@ -1494,6 +1497,14 @@ unsafe fn process_timeouts_locked(now: u64, run_timer_callbacks: bool) {
                     callback(arg);
                 }
             }
+
+            let interval = TIMESLICE_TICKS;
+            if interval != 0 && timer_due(now, TIMESLICE_DEADLINE) {
+                let elapsed = now.wrapping_sub(TIMESLICE_DEADLINE);
+                let periods = elapsed / interval + 1;
+                TIMESLICE_DEADLINE = TIMESLICE_DEADLINE.wrapping_add(periods * interval);
+                TIMESLICE_EXPIRED.store(true, Ordering::Release);
+            }
         }
         reschedule_decrementer_locked(arch::read_timebase());
     }
@@ -1520,6 +1531,12 @@ unsafe fn reschedule_decrementer_locked(now: u64) {
                 nearest = Some(remaining);
             }
             timer_node = (*timer_node).next;
+        }
+        if TIMESLICE_TICKS != 0 {
+            let remaining = TIMESLICE_DEADLINE.wrapping_sub(now);
+            if nearest.is_none_or(|current| (remaining.wrapping_sub(current) as i64) < 0) {
+                nearest = Some(remaining);
+            }
         }
         let ticks = nearest.map_or(i32::MAX as u32, |remaining| {
             if remaining as i64 <= 0 {
@@ -1560,9 +1577,13 @@ unsafe extern "C" fn interrupt_return(frame: *const u32) -> *const u32 {
             );
         }
 
-        let should_reschedule = THREADS[current].state != ThreadState::Running || {
-            has_higher_priority_ready_locked(THREADS[current].effective_priority)
-        };
+        let timeslice_expired = TIMESLICE_EXPIRED.swap(false, Ordering::AcqRel);
+        if timeslice_expired && THREADS[current].state == ThreadState::Running {
+            rotate_priority_locked(THREADS[current].effective_priority);
+        }
+        let should_reschedule = timeslice_expired
+            || THREADS[current].state != ThreadState::Running
+            || { has_higher_priority_ready_locked(THREADS[current].effective_priority) };
 
         let next = if should_reschedule {
             if THREADS[current].state == ThreadState::Running {
@@ -1852,6 +1873,12 @@ unsafe fn create_thread_inner(
     } else {
         stackbase.cast::<u8>()
     };
+
+    // C LWP_CreateThread requests the default scheduler timeslice unless the
+    // caller sets the no-timeslice bit. Keep the same automatic request here.
+    if requests_timeslice(priority) {
+        let _ = set_timeslice(1);
+    }
 
     let irq = arch::disable_interrupts();
     unsafe {
@@ -3703,6 +3730,55 @@ pub unsafe fn timer_start(
     unsafe { timer_start_inner(key, callback, None, arg, delay, period) }
 }
 
+fn normalize_timeslice_ticks(requested: u32, current: u64) -> u64 {
+    match requested {
+        0 => 0,
+        1 if current != 0 => current,
+        1 => TICKS_PER_SECOND / 100,
+        ticks => ticks as u64,
+    }
+}
+
+const fn requests_timeslice(priority: u8) -> bool {
+    priority & 0x80 == 0
+}
+
+/// Set the interval for same-priority thread rotation.
+///
+/// A value of 0 disables rotation. A value of 1 keeps the current interval or
+/// selects 10 milliseconds when no interval is active, matching
+/// `SYS_SetTimeslice` in libogc.
+pub fn set_timeslice(ticks: u32) -> i32 {
+    ensure_initialized();
+    let irq = arch::disable_interrupts();
+    let current = unsafe { TIMESLICE_TICKS };
+    let next = normalize_timeslice_ticks(ticks, current);
+    if current == next {
+        arch::restore_interrupts(irq);
+        return LWP_SUCCESSFUL;
+    }
+
+    if next == 0 {
+        TIMESLICE_EXPIRED.store(false, Ordering::Release);
+        unsafe {
+            TIMESLICE_TICKS = 0;
+            TIMESLICE_DEADLINE = NO_DEADLINE;
+            reschedule_decrementer_locked(arch::read_timebase());
+        }
+        arch::restore_interrupts(irq);
+        return LWP_SUCCESSFUL;
+    }
+
+    TIMESLICE_EXPIRED.store(false, Ordering::Release);
+    unsafe {
+        TIMESLICE_TICKS = next;
+        TIMESLICE_DEADLINE = arch::read_timebase().wrapping_add(next);
+        reschedule_decrementer_locked(arch::read_timebase());
+    }
+    arch::restore_interrupts(irq);
+    LWP_SUCCESSFUL
+}
+
 /// Register a timer callback that receives its stable key.
 ///
 /// The callback runs with interrupts disabled in decrementer exception context.
@@ -3902,6 +3978,20 @@ mod waiter_priority_tests {
         let priority = unsafe { THREADS[CURRENT].base_priority };
         arch::restore_interrupts(irq);
         priority
+    }
+
+    #[test]
+    fn timeslice_request_one_keeps_the_active_interval_or_uses_ten_ms() {
+        assert_eq!(normalize_timeslice_ticks(0, 0), 0);
+        assert_eq!(normalize_timeslice_ticks(1, 0), TICKS_PER_SECOND / 100);
+        assert_eq!(normalize_timeslice_ticks(1, 1234), 1234);
+        assert_eq!(normalize_timeslice_ticks(1234, 0), 1234);
+    }
+
+    #[test]
+    fn priority_high_bit_controls_automatic_timeslice_request() {
+        assert!(requests_timeslice(64));
+        assert!(!requests_timeslice(64 | 0x80));
     }
 
     #[test]

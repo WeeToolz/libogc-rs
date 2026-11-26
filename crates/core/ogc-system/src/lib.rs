@@ -301,6 +301,10 @@ pub fn set_clock_utc_offset(seconds: i32) -> Result<(), ClockError> {
     sys::sys_set_clock_utc_offset(seconds)
 }
 
+pub fn set_timeslice(ticks: u32) {
+    sys::sys_set_timeslice(ticks)
+}
+
 /// Refresh the real RTC and counter bias after console configuration is ready.
 pub fn synchronize_clock() -> Result<(), ClockError> {
     sys::sys_synchronize_clock()

@@ -11,6 +11,7 @@ use ogc_exi as exi;
 use ogc_irq as irq;
 use ogc_lwp as lwp;
 use ogc_si as si;
+use ogc_system as system;
 use ogc_usb as usb;
 use ogc_usbgecko as usbgecko;
 
@@ -24,6 +25,17 @@ struct Align32<const N: usize>([u8; N]);
 static mut ARAM_BLOCKS: [u32; 32] = [0; 32];
 static DSP_CALLBACKS: AtomicU32 = AtomicU32::new(0);
 static DSP_SHUTDOWN_STAGES: AtomicU32 = AtomicU32::new(0);
+#[cfg(feature = "dolphin-automation")]
+static TIMESLICE_LAST_OWNER: AtomicU32 = AtomicU32::new(0);
+#[cfg(feature = "dolphin-automation")]
+static TIMESLICE_OWNER_SWITCHES: AtomicU32 = AtomicU32::new(0);
+
+#[cfg(feature = "dolphin-automation")]
+#[repr(align(32))]
+struct TimesliceStack([u8; 8192]);
+
+#[cfg(feature = "dolphin-automation")]
+static mut TIMESLICE_STACKS: [TimesliceStack; 2] = [const { TimesliceStack([0; 8192]) }; 2];
 
 unsafe extern "C" fn dsp_callback() {
     DSP_CALLBACKS.fetch_add(1, Ordering::AcqRel);
@@ -54,11 +66,76 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_aram(logger);
     probe_dsp(logger);
     probe_exi_si(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_timeslice(logger);
     probe_card_metadata_bits(logger);
     probe_card_helpers(logger);
     probe_disc(logger);
     probe_usb(logger);
     probe_runtime_helpers(logger);
+}
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn timeslice_worker(arg: *mut c_void) -> *mut c_void {
+    let owner = arg as usize as u32 + 1;
+    let start = lwp::sys::now_ticks();
+    while lwp::sys::now_ticks().wrapping_sub(start) < lwp::sys::TICKS_PER_SECOND / 10 {
+        let previous = TIMESLICE_LAST_OWNER.swap(owner, Ordering::AcqRel);
+        if previous != 0 && previous != owner {
+            TIMESLICE_OWNER_SWITCHES.fetch_add(1, Ordering::AcqRel);
+        }
+        core::hint::spin_loop();
+    }
+    core::ptr::null_mut()
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_timeslice(logger: &mut ProbeLogger) {
+    logger.section("TIMESLICE PROBE");
+    system::set_timeslice(100_000);
+    system::set_timeslice(1);
+    let (configured, configured_switches) = run_timeslice_workers([64 | 0x80; 2]);
+    logger.record(
+        "SYS_SetTimeslice keeps configured interval and rotates threads",
+        configured && configured_switches > 2,
+    );
+
+    system::set_timeslice(0);
+    let (auto_enabled, auto_switches) = run_timeslice_workers([64 | 0x80, 64]);
+    logger.record(
+        "LWP creation enables default timeslice and rotates equal priorities",
+        auto_enabled && auto_switches > 2,
+    );
+    logger.note_u32("configured interval worker switches", configured_switches);
+    logger.note_u32("automatic interval worker switches", auto_switches);
+    system::set_timeslice(0);
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn run_timeslice_workers(priorities: [u8; 2]) -> (bool, u32) {
+    TIMESLICE_LAST_OWNER.store(0, Ordering::Release);
+    TIMESLICE_OWNER_SWITCHES.store(0, Ordering::Release);
+    let mut raw_threads = [lwp::sys::LWP_THREAD_NULL; 2];
+    let mut handles = [None; 2];
+    for (index, priority) in priorities.into_iter().enumerate() {
+        let stack = unsafe { core::ptr::addr_of_mut!(TIMESLICE_STACKS[index].0) };
+        handles[index] = unsafe {
+            lwp::ThreadHandle::create(
+                &mut raw_threads[index],
+                Some(timeslice_worker),
+                index as *mut c_void,
+                stack.cast(),
+                8192,
+                priority,
+            )
+        }
+        .ok();
+    }
+    let created = handles.iter().all(Option::is_some);
+    for handle in handles.into_iter().flatten() {
+        let _ = handle.join();
+    }
+    (created, TIMESLICE_OWNER_SWITCHES.load(Ordering::Acquire))
 }
 
 fn probe_card_metadata_bits(logger: &mut ProbeLogger) {

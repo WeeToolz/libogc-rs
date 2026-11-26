@@ -506,6 +506,14 @@ pub fn sys_set_clock_utc_offset(seconds: i32) -> Result<(), ClockError> {
     with_clock(|state| state.set_utc_offset(seconds))
 }
 
+/// Configure the interval for same-priority LWP thread rotation.
+///
+/// A value of 0 disables rotation. A value of 1 keeps the active interval or
+/// selects the 10 ms default, matching libogc `SYS_SetTimeslice`.
+pub fn sys_set_timeslice(ticks: u32) {
+    let _ = ogc_lwp_driver::set_timeslice(ticks);
+}
+
 pub fn sys_clock_snapshot() -> ClockSnapshot {
     with_clock(|state| state.snapshot())
 }

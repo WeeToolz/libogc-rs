@@ -60,7 +60,7 @@ pub use runtime::{
     message_receive, message_send, mutex_lock, mutex_try_lock, mutex_unlock, note_ipc_wake,
     now_ticks, queue_broadcast, queue_signal, queue_sleep, release_workspace, reschedule,
     resume_thread, semaphore_get_value, semaphore_post, semaphore_wait, set_debug_hook,
-    set_thread_context_mirror, set_thread_priority, set_thread_reent_storage,
+    set_thread_context_mirror, set_thread_priority, set_thread_reent_storage, set_timeslice,
     set_workspace_allocator, sleep_ticks, suspend_thread, thread_argument, thread_cleanup_counters,
     thread_context_snapshot, thread_exit, thread_handle_by_argument, thread_is_suspended,
     timer_cancel, timer_start, timer_start_with_key, tls_create, tls_destroy, tls_get, tls_set,

@@ -394,3 +394,10 @@ probe build also passed with `cargo xtask build-agent-probes`.
 
 This is Dolphin-only evidence. The recovery watchdog is not armed in this DOL;
 no physical Wii run is claimed.
+# `SYS_SetTimeslice` and automatic LWP timeslicing — 2026-11-26
+
+**Confirmed parity gap:** C `SYS_SetTimeslice` stores the interval, maps input `1` to the current interval or a 10 ms default, starts/stops a periodic tick task, and rotates same-priority threads when the tick expires (`../../C-sources/libogc/libogc/system.c:254-307`). C `LWP_CreateThread` requests that 10 ms default when the priority high bit is clear (`../../C-sources/libogc/libogc/lwpcompat/lwpc_thread.c:38-45`). Rust had no public setter and did not request timeslicing during thread creation.
+
+The LWP driver now owns a dedicated periodic deadline in its decrementer scheduling path. On expiry, exception return rotates the current priority and schedules the next equal-priority thread. `set_timeslice` supports disable (`0`), retain (`1`), 10 ms default, and explicit tick counts. `create_thread` requests the default unless the priority high bit is set. The system facade exports `set_timeslice` and the raw system crate exports `sys_set_timeslice`.
+
+Dolphin 2609a run `docs/dolphin-runs/2026-11-26-lwp-timeslice-dedicated-timer` passed 73 checks. The probe verified explicit tick configuration, retain-current behavior, disable, automatic enable from thread creation, and repeated rotation between equal-priority worker threads. PowerPC checks for `ogc-system` and `ogc-lwp-sys` passed. Host `cargo test -p ogc-lwp-driver` cannot compile because its target-only workspace dependencies reject the host target. Physical Wii verification and independent parity re-review remain pending.
