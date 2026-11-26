@@ -90,3 +90,15 @@ interrupt masking and a subsequent `/dev/fs` open and close. The result is in
 `../dolphin-runs/2026-11-26-ios-ready-any-bit/`. This Dolphin run does not show
 which ready-bit combinations occurred. Independent review and physical Wii
 verification remain pending.
+
+## IOS ticket-view alignment — 2026-11-26
+
+C allocates the IOS launch ticket-view array with 32-byte alignment. Rust's
+`Tikview` is packed, so its previous array had no alignment guarantee; ES
+requires at least 4-byte alignment. Rust now uses a 32-byte aligned wrapper
+for this array and reuses that wrapper for the existing aligned TMD buffer.
+A host layout test failed for an unaligned wrapper and passes with the new
+wrapper. Dolphin 2609a reloaded IOS 58 and passed all 12 checks with this
+change; see `../dolphin-runs/2026-11-26-ios-ticket-alignment/`. This does not
+prove a failure occurred with the previous stack placement. Independent source
+review and physical Wii validation remain pending.

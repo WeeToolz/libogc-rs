@@ -3,6 +3,9 @@ pub(super) const IOS_MAX_VERSION: i32 = 61;
 pub(super) const MAX_TICKET_VIEWS: usize = 4;
 pub(super) const MAX_STORED_TMD_SIZE: u32 = 4096;
 
+#[repr(align(32))]
+pub(super) struct Aligned<T>(pub T);
+
 pub(super) const fn ipc_control_ready(control: u32, mask: u32) -> bool {
     control & mask != 0
 }
@@ -47,6 +50,13 @@ mod tests {
         initialization_result, preferred_version_from_title, stored_tmd_size_is_supported,
         ticket_view_count_is_supported, update_error,
     };
+
+    #[test]
+    fn ios_buffers_have_32_byte_alignment_for_packed_data() {
+        let mut buffer = super::Aligned([0u8; 4]);
+        assert_eq!(core::mem::align_of_val(&buffer), 32);
+        assert_eq!(buffer.0.as_mut_ptr() as usize % 32, 0);
+    }
 
     #[test]
     fn ipc_control_accepts_either_ready_bit() {

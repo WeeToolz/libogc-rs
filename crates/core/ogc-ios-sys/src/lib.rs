@@ -41,10 +41,6 @@ const DEFAULT_REVISION: i32 = 0x0100;
 const IOS_POLL_INTERVAL_TICKS: u64 = TICKS_PER_SECOND.div_ceil(1_000);
 #[cfg(target_arch = "powerpc")]
 const MAX_IPC_RETRIES: usize = 400;
-#[cfg(target_arch = "powerpc")]
-#[repr(align(32))]
-struct AlignedTmdBuffer([u8; MAX_STORED_TMD_SIZE as usize]);
-
 static IOS_SUBSYSTEMS_INITIALIZED: AtomicBool = AtomicBool::new(false);
 static IOS_CURRENT_VERSION: AtomicI32 = AtomicI32::new(DEFAULT_VERSION);
 static IOS_CURRENT_REVISION: AtomicI32 = AtomicI32::new(DEFAULT_REVISION);
@@ -128,8 +124,8 @@ fn launch_ios_from_es(version: i32) -> i32 {
         return IOS_ETOOMANYVIEWS;
     }
 
-    let mut views = [Tikview::default(); MAX_TICKET_VIEWS];
-    let rc = unsafe { es::get_ticket_views(title_id, views.as_mut_ptr(), num_views) };
+    let mut views = ios_logic::Aligned([Tikview::default(); MAX_TICKET_VIEWS]);
+    let rc = unsafe { es::get_ticket_views(title_id, views.0.as_mut_ptr(), num_views) };
     if rc < 0 {
         return rc;
     }
@@ -138,7 +134,7 @@ fn launch_ios_from_es(version: i32) -> i32 {
         core::ptr::write_volatile(IOS_VERSION_WORD_ADDR as *mut u32, 0);
     }
 
-    let rc = unsafe { es::launch_title_background(title_id, views.as_ptr()) };
+    let rc = unsafe { es::launch_title_background(title_id, views.0.as_ptr()) };
     if rc < 0 {
         return rc;
     }
@@ -210,7 +206,7 @@ fn preferred_version_powerpc() -> i32 {
         return rc;
     }
 
-    let mut tmd_buffer = AlignedTmdBuffer([0; 4096]);
+    let mut tmd_buffer = ios_logic::Aligned([0u8; MAX_STORED_TMD_SIZE as usize]);
     let mut preferred = IOS_EBADVERSION;
     for title in titles {
         // BUG FIX: C checks the complete title word and supports IOS versions 28 through 61.
