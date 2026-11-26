@@ -10,6 +10,12 @@ use crate::probe_support::ProbeLogger;
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("DEBUGGER PROBE");
 
+    // Verify C's guard before DEBUG_Init: an active trap needs a debugger peer
+    // to service the GDB exchange, which this Dolphin probe does not provide.
+    debug::_break();
+    logger.record("debug break returns before debugger initialization", true);
+    logger.note("active trap servicing requires a debugger peer; not exercised here");
+
     probe_wii_network_diagnostics(logger);
     probe_usb_gecko_lock_retry(logger);
     probe_usb_gecko(logger);
@@ -145,7 +151,7 @@ fn probe_usb_gecko(logger: &mut ProbeLogger) {
 fn probe_usb_debugger(logger: &mut ProbeLogger) {
     logger.section("USB DEBUGGER TRANSPORT");
 
-    debug::debug_init(debug::GDBSTUB_DEVICE_USB, debug::GDBSTUB_DEF_CHANNEL);
+    debug::DEBUG_Init(debug::GDBSTUB_DEVICE_USB, debug::GDBSTUB_DEF_CHANNEL);
     // SAFETY: the selected channel is owned by this probe until the interface
     // is closed below.
     let iface = unsafe { debug::init(debug::GDBSTUB_DEF_CHANNEL) };
@@ -212,8 +218,6 @@ fn probe_usb_debugger(logger: &mut ProbeLogger) {
             let _ = unsafe { ((*iface).close.expect("missing usb close callback"))(iface) };
         }
     }
-
-    debug::_break();
 }
 
 fn probe_tcp_debugger(logger: &mut ProbeLogger) {
@@ -260,7 +264,12 @@ fn probe_tcp_debugger(logger: &mut ProbeLogger) {
             debug::GDBSTUB_DEF_TCPPORT as u16,
         )
     };
-    logger.record("tcp debugger iface exported", !iface.is_null());
+    // The standard Dolphin profile has no EXI Broadband Adapter. Both C and
+    // Rust return no interface when the BBA network device cannot initialize.
+    logger.record(
+        "tcp debugger init reports missing EXI BBA",
+        iface.is_null(),
+    );
     if iface.is_null() {
         return;
     }

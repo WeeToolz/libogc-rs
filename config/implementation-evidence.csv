@@ -639,7 +639,8 @@ ogc-system,src/lib.rs,system_premain_sequence,2295,compatibility-forwarder,host-
 ogc-system,src/lib.rs,time,1499,compatibility-forwarder,host-test,crates/core/ogc-system/src/lib.rs,time_snapshot_tracks_recent_readback
 ogc-system,src/lib.rs,unregister_reset_func,903,compatibility-forwarder,host-test,crates/core/ogc-system/src/lib.rs,reset_registration_snapshot_tracks_host_calls
 ogc-system,src/lib.rs,normalize_sram_flags,1697,compatibility-forwarder,host-test,crates/core/ogc-system/src/lib.rs,refresh_checksum_normalizes_invalid_video_mode_bits
-libdb-sys,src/lib.rs,_break,1320,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/debugger_probe.rs,probe_usb_debugger
+libdb-sys,src/lib.rs,_break,1320,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/debugger_probe.rs,run
+libdb-sys,src/lib.rs,DEBUG_Init,1388,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/debugger_probe.rs,probe_usb_debugger
 libdb-sys,src/lib.rs,debug_init,1333,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/debugger_probe.rs,probe_tcp_debugger
 libdb-sys,src/lib.rs,init,1395,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/debugger_probe.rs,probe_usb_debugger
 libdb-sys,src/lib.rs,tcpip_accept,1577,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/debugger_probe.rs,probe_tcp_debugger

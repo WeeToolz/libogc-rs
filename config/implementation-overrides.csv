@@ -61,7 +61,7 @@ lwbt-sys,src/lib.rs,set_link_key_request_callback,hardware,bluetooth-probe,Invok
 lwbt-sys,src/lib.rs,set_link_key_notification_callback,hardware,bluetooth-probe,Invokes the registered callback after persisting HCI link-key notifications; hardware acceptance remains pending
 lwbt-sys,src/lib.rs,set_evt_filter,hardware,bluetooth-probe,Programs the HCI event filter with the libogc condition lengths; hardware acceptance remains pending
 lwbt-sys,src/lib.rs,set_host_sync_button_callback,hardware,bluetooth-probe,Delivers vendor begin/clear-pairing events to the registered host-sync callback; hardware acceptance remains pending
-libdb-sys,*,*,compatibility-forwarder,debugger-probe,USB delegates to ogc-usbgecko and TCP delegates to ogc-network; hardware acceptance remains pending
+libdb-sys,*,*,compatibility-forwarder,debugger-probe,USB uses ogc-usbgecko and TCP uses the private EXI BBA/IP/TCP implementation; active GDB and BBA hardware acceptance remain pending
 ogc-usbgecko,*,*,hardware,debugger-probe,EXI-backed Gecko transfers and flash operations report lock/timeout/verification failures; hardware acceptance remains pending
 asnd-sys,*,*,hardware,audio-probe,PCM voices are mixed into aligned DMA buffers with pitch/volume/looping/callbacks/timing metrics; hardware acceptance remains pending
 wpad-sys,src/lib.rs,control_speaker,hardware,wpad-probe,Transmits the complete speaker command/configuration sequence; hardware acceptance remains pending
