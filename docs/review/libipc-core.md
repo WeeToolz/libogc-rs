@@ -467,3 +467,13 @@ through its debugger, but its recovery-specific result does not establish the
 IPC C exports. A relaunch probe must retain a private NAND fixture, identify the
 installed title and ticket, and record the destination after the handoff. No
 such end-to-end IPC result is claimed here.
+
+The local Dolphin NAND has system menu title `00000001-00000002`. The existing
+runtime probe reported one ticket view and verified that the view identifies
+that title in the 889-check run. At inspection, its content `title.tmd` SHA-256
+was `1a5df7b0e72721c9ffae34664b00144eda2aeee0e327332deda84d3cfddb317b`
+and the content `ticket` SHA-256 was
+`71b4d356f4e46f3c4f18226a06b5cb758f4dc2dd6eb6ae1b96a52957aa5d7d86`.
+These identify the inspected files only; they do not prove the copied NAND or
+launched title in a future run. The existing probe can obtain the ticket view,
+but a new handoff observation is still needed.
