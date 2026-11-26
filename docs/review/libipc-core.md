@@ -541,5 +541,12 @@ disabled interrupt checks and 16 other IPC checks. Results are in
 `../dolphin-runs/2026-11-26-ipc-reinitialize-msr-red/` and
 `../dolphin-runs/2026-11-26-ipc-reinitialize-final/`. The probe calls
 reinitialization directly with no request pending. It does not test an actual
-IOS reload, outstanding replies, or the separate relaunch abort. Physical Wii
+IOS reload, outstanding replies, or the separate relaunch abort.
+
+A separate `ios_reload_probe` run in Dolphin 2609a reloaded IOS 58. The probe
+reported return code zero, the same IOS version after the call, and a
+successful `/dev/fs` open and close. Dolphin's IOS log records IOS 58 starting
+twice, once at boot and again during the probe. The result and log are in
+`../dolphin-runs/2026-11-26-ios-reload-run/`. This covers one IOS version and
+does not exercise pending IPC replies or the menu relaunch abort. Physical Wii
 verification remains pending.

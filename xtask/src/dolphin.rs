@@ -32,7 +32,8 @@ struct ProbeSpec {
 }
 
 pub(crate) fn is_known_probe(name: &str) -> bool {
-    name == "ipc_relaunch_probe" || PROBES.iter().any(|probe| probe.name == name)
+    matches!(name, "ipc_relaunch_probe" | "ios_reload_probe")
+        || PROBES.iter().any(|probe| probe.name == name)
 }
 
 const PROBES: &[ProbeSpec] = &[
@@ -782,9 +783,13 @@ fn select_probes(names: &[String]) -> Result<Vec<ProbeSpec>, String> {
     names
         .iter()
         .map(|name| {
-            if name == "ipc_relaunch_probe" {
+            if name == "ipc_relaunch_probe" || name == "ios_reload_probe" {
                 return Ok(ProbeSpec {
-                    name: "ipc_relaunch_probe",
+                    name: if name == "ios_reload_probe" {
+                        "ios_reload_probe"
+                    } else {
+                        "ipc_relaunch_probe"
+                    },
                     timeout_seconds: 90,
                     input_pipe: false,
                 });
@@ -828,6 +833,19 @@ fn select_probes(names: &[String]) -> Result<Vec<ProbeSpec>, String> {
 
 #[cfg(test)]
 mod wpad_probe_selection_tests {
+    #[test]
+    fn ios_reload_probe_requires_explicit_selection() {
+        assert!(
+            !super::select_probes(&[])
+                .unwrap()
+                .iter()
+                .any(|p| p.name == "ios_reload_probe")
+        );
+        assert_eq!(
+            super::select_probes(&["ios_reload_probe".into()]).unwrap()[0].name,
+            "ios_reload_probe"
+        );
+    }
     #[test]
     fn panic_alert_override_is_limited_to_explicit_relaunch_diagnostics() {
         let mut args = vec!["Dolphin.Interface.AbortOnPanicAlert=True".to_string()];

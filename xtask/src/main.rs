@@ -603,6 +603,19 @@ mod probe_artifact_tests {
     }
 
     #[test]
+    fn ios_reload_probe_feature_is_enabled_only_when_selected() {
+        use super::ProbeBuildMode;
+        assert_eq!(
+            ProbeBuildMode::Dolphin.features_for(Some(&["ios_reload_probe"])),
+            Some("ogc-system-probe/dolphin-automation,ogc-system-probe/ios-reload-probe".to_string()),
+        );
+        assert_eq!(
+            ProbeBuildMode::Dolphin.features_for(None),
+            Some("ogc-system-probe/dolphin-automation".to_string()),
+        );
+    }
+
+    #[test]
     fn modes_preserve_the_dol_output_sets() {
         use super::ProbeBuildMode::*;
         for mode in [Plain, MountedLog, Dolphin, AgentReport] {
@@ -1380,6 +1393,12 @@ impl ProbeBuildMode {
             }
             features.push_str("ogc-system-probe/ipc-relaunch-probe");
         }
+        if selected.is_some_and(|names| names.contains(&"ios_reload_probe")) {
+            if !features.is_empty() {
+                features.push(',');
+            }
+            features.push_str("ogc-system-probe/ios-reload-probe");
+        }
         if selected.is_some_and(|names| names.contains(&"stm_api_probe")) {
             if !features.is_empty() {
                 features.push(',');
@@ -1478,6 +1497,9 @@ fn build_probe_selection(
         binaries.retain(|name| names.contains(name));
         if names.contains(&"ipc_relaunch_probe") {
             binaries.push("ipc_relaunch_probe");
+        }
+        if names.contains(&"ios_reload_probe") {
+            binaries.push("ios_reload_probe");
         }
     }
     let rustflags = encoded_powerpc_wii_rustflags(&root);

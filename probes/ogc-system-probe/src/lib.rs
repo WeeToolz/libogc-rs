@@ -1129,6 +1129,33 @@ pub fn run_ipc_relaunch_probe_bin() -> i32 {
     finish_probe()
 }
 
+#[cfg(all(target_arch = "powerpc", feature = "ios-reload-probe"))]
+/// Reloads the current IOS and checks IPC after it returns.
+pub fn run_ios_reload_probe_bin() -> i32 {
+    configure_probe_app_dir("ios-reload-probe");
+    let mut logger = init_probe_logger();
+    let version = ogc_ios::get_version();
+    logger.note_i32("IOS version before reload", version);
+    if !(3..=255).contains(&version) {
+        logger.record("current IOS version is valid", false);
+        logger.summary();
+        return finish_probe();
+    }
+    logger.record("current IOS version is valid", true);
+    logger.note("IOS reload begins");
+    let result = ogc_ios::reload_ios(version);
+    logger.note_i32("IOS reload result", result);
+    logger.record("IOS reload succeeds", result == 0);
+    logger.record("IOS version is preserved", ogc_ios::get_version() == version);
+    let ipc_ok = match ogc_ipc::open_file(c"/dev/fs", ogc_ipc::IPC_OPEN_NONE) {
+        Ok(fd) => fd.close().is_ok(),
+        Err(_) => false,
+    };
+    logger.record("IPC opens and closes FS after reload", ipc_ok);
+    logger.summary();
+    finish_probe()
+}
+
 #[cfg(target_arch = "powerpc")]
 /// Tests Bluetooth startup, pairing, buttons, axes, and adapter shutdown.
 pub fn run_bluetooth_probe_bin() -> i32 {
