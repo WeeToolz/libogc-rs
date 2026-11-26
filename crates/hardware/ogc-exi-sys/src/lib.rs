@@ -51,6 +51,7 @@ const EXI_EXT_IRQ: u32 = 0x0800;
 const EXI_EXT_BIT: u32 = 0x1000;
 
 const EXI_SYNC_QUEUE_COUNT: usize = EXI_CHANNEL_MAX as usize * EXI_DEVICE_MAX as usize;
+const EXI_LOCK_DEVS: usize = 32;
 static EXI_SYNC_QUEUES: [AtomicU32; EXI_SYNC_QUEUE_COUNT] =
     [const { AtomicU32::new(lwp::LWP_TQUEUE_NULL) }; EXI_SYNC_QUEUE_COUNT];
 static EXI_TRANSFER_QUEUES: [AtomicU32; EXI_CHANNEL_MAX as usize] =
@@ -68,10 +69,29 @@ pub const EXI_MEMCARD2043: u32 = 0x0000_0080;
 pub type ExiCallback = Option<unsafe extern "C" fn(chn: i32, dev: i32) -> i32>;
 
 #[derive(Copy, Clone)]
+struct QueuedUnlock {
+    channel: i32,
+    device: i32,
+    callback: ExiCallback,
+    order: u64,
+}
+
+impl QueuedUnlock {
+    const EMPTY: Self = Self {
+        channel: -1,
+        device: -1,
+        callback: None,
+        order: 0,
+    };
+}
+
+static mut EXI_QUEUED_UNLOCKS: [QueuedUnlock; EXI_LOCK_DEVS] = [QueuedUnlock::EMPTY; EXI_LOCK_DEVS];
+static mut EXI_LOCK_QUEUE_ORDER: u64 = 0;
+
+#[derive(Copy, Clone)]
 struct ExiBus {
     flags: u32,
     lockeddev: i32,
-    queued_unlocks: [(i32, ExiCallback); 3],
     cb_exi: ExiCallback,
     cb_tc: ExiCallback,
     cb_ext: ExiCallback,
@@ -89,7 +109,6 @@ impl ExiBus {
         Self {
             flags: 0,
             lockeddev: -1,
-            queued_unlocks: [(-1, None); 3],
             cb_exi: None,
             cb_tc: None,
             cb_ext: None,
@@ -581,6 +600,11 @@ pub fn init() {
             core::ptr::write(core::ptr::addr_of_mut!(EXI_BUS[idx]), ExiBus::new());
             idx += 1;
         }
+        core::ptr::write(
+            core::ptr::addr_of_mut!(EXI_QUEUED_UNLOCKS),
+            [QueuedUnlock::EMPTY; EXI_LOCK_DEVS],
+        );
+        core::ptr::write(core::ptr::addr_of_mut!(EXI_LOCK_QUEUE_ORDER), 0);
         #[cfg(target_arch = "powerpc")]
         {
             EXI_IRQS_READY.store(install_irq_handlers(), Ordering::Release);
@@ -616,19 +640,23 @@ pub fn lock(chn: i32, dev: i32, unlock_cb: ExiCallback) -> i32 {
     let bus = unsafe { &mut EXI_BUS[chn as usize] };
     if bus.flags & EXI_FLAG_LOCKED != 0 {
         if let Some(callback) = unlock_cb {
-            if bus
-                .queued_unlocks
-                .iter()
-                .any(|(queued_dev, _)| *queued_dev == dev)
-            {
-                return 0;
-            }
-            if let Some(slot) = bus
-                .queued_unlocks
-                .iter_mut()
-                .find(|(queued_dev, _)| *queued_dev < 0)
-            {
-                *slot = (dev, Some(callback));
+            // C keeps one shared pool of 32 queued lock callbacks. Each
+            // request gets its own entry, including requests for one device.
+            let slots = unsafe { &mut *core::ptr::addr_of_mut!(EXI_QUEUED_UNLOCKS) };
+            if let Some(slot) = slots.iter_mut().find(|slot| slot.channel < 0) {
+                let order = unsafe { *core::ptr::addr_of!(EXI_LOCK_QUEUE_ORDER) };
+                unsafe {
+                    core::ptr::write(
+                        core::ptr::addr_of_mut!(EXI_LOCK_QUEUE_ORDER),
+                        order.wrapping_add(1),
+                    );
+                }
+                *slot = QueuedUnlock {
+                    channel: chn,
+                    device: dev,
+                    callback: Some(callback),
+                    order,
+                };
             }
         }
         return 0;
@@ -644,7 +672,7 @@ unsafe extern "C" fn lock_sync_callback(chn: i32, dev: i32) -> i32 {
     if let Some(index) = lock_sync_queue_index(chn, dev) {
         let queue = EXI_SYNC_QUEUES[index].load(Ordering::Acquire);
         if queue != lwp::LWP_TQUEUE_NULL {
-            lwp::queue_broadcast(queue);
+            lwp::queue_signal(queue);
         }
     }
     0
@@ -733,14 +761,17 @@ pub fn unlock(chn: i32) -> i32 {
         bus.lockeddev = -1;
         #[cfg(target_arch = "powerpc")]
         refresh_exi_interrupt(chn as usize, bus);
-        let slot = bus
-            .queued_unlocks
-            .iter_mut()
-            .find(|(dev, cb)| *dev >= 0 && cb.is_some());
-        slot.map(|entry| {
-            let queued = *entry;
-            *entry = (-1, None);
-            queued
+        let slots = unsafe { &mut *core::ptr::addr_of_mut!(EXI_QUEUED_UNLOCKS) };
+        let next = slots
+            .iter()
+            .enumerate()
+            .filter(|(_, slot)| slot.channel == chn && slot.callback.is_some())
+            .min_by_key(|(_, slot)| slot.order)
+            .map(|(index, _)| index);
+        next.map(|index| {
+            let queued = slots[index];
+            slots[index] = QueuedUnlock::EMPTY;
+            (queued.device, queued.callback)
         })
     };
 

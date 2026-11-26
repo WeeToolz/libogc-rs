@@ -28,6 +28,9 @@ struct ExiTransferBuffer([u8; 96]);
 static mut ARAM_BLOCKS: [u32; 32] = [0; 32];
 static DSP_CALLBACKS: AtomicU32 = AtomicU32::new(0);
 static DSP_SHUTDOWN_STAGES: AtomicU32 = AtomicU32::new(0);
+static EXI_LOCK_WAITERS_READY: AtomicU32 = AtomicU32::new(0);
+static EXI_LOCK_WAITERS_ACQUIRED: AtomicU32 = AtomicU32::new(0);
+static EXI_LOCK_WAITERS_UNLOCK_FAILED: AtomicU32 = AtomicU32::new(0);
 #[cfg(feature = "dolphin-automation")]
 static EXI_TRANSFER_IMMEDIATE_CALLS: AtomicU32 = AtomicU32::new(0);
 #[cfg(feature = "dolphin-automation")]
@@ -927,6 +930,7 @@ fn probe_exi_si(logger: &mut ProbeLogger) {
     let safe_lock = exi::try_lock_sync(exi::EXI_CHANNEL_2, exi::EXI_DEVICE_0).is_ok();
     let safe_unlock = safe_lock && exi::try_unlock(exi::EXI_CHANNEL_2).is_ok();
     logger.record("exi safe synchronous lock wrapper", safe_unlock);
+    probe_exi_lock_contention(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_exi_transfer(logger);
 
@@ -935,6 +939,74 @@ fn probe_exi_si(logger: &mut ProbeLogger) {
         logger.note_hex32_index("si type ch", chan, si::get_type(chan));
         logger.note_hex32_index("si status ch", chan, si::get_status(chan));
     }
+}
+
+unsafe extern "C" fn probe_exi_lock_waiter(_: *mut c_void) -> *mut c_void {
+    EXI_LOCK_WAITERS_READY.fetch_add(1, Ordering::AcqRel);
+    if exi::lock_sync(exi::EXI_CHANNEL_2, exi::EXI_DEVICE_0) == 1 {
+        EXI_LOCK_WAITERS_ACQUIRED.fetch_add(1, Ordering::AcqRel);
+        if exi::unlock(exi::EXI_CHANNEL_2) != 1 {
+            EXI_LOCK_WAITERS_UNLOCK_FAILED.fetch_add(1, Ordering::AcqRel);
+        }
+    }
+    core::ptr::null_mut()
+}
+
+fn probe_exi_lock_contention(logger: &mut ProbeLogger) {
+    EXI_LOCK_WAITERS_READY.store(0, Ordering::Release);
+    EXI_LOCK_WAITERS_ACQUIRED.store(0, Ordering::Release);
+    EXI_LOCK_WAITERS_UNLOCK_FAILED.store(0, Ordering::Release);
+    if exi::lock_sync(exi::EXI_CHANNEL_2, exi::EXI_DEVICE_0) != 1 {
+        logger.record("EXI LockSync wakes same-device callers in turn", false);
+        return;
+    }
+
+    let mut raw = [lwp::sys::LWP_THREAD_NULL; 2];
+    let mut handles = [None; 2];
+    for index in 0..2 {
+        // SAFETY: The worker uses only static state. EXI remains initialized.
+        handles[index] = unsafe {
+            lwp::ThreadHandle::create(
+                &mut raw[index],
+                Some(probe_exi_lock_waiter),
+                core::ptr::null_mut(),
+                core::ptr::null_mut(),
+                8192,
+                64,
+            )
+        }
+        .ok();
+    }
+
+    for _ in 0..1000 {
+        if EXI_LOCK_WAITERS_READY.load(Ordering::Acquire) == 2 {
+            break;
+        }
+        lwp::yield_now();
+    }
+    for _ in 0..16 {
+        lwp::yield_now();
+    }
+    let both_waiting = EXI_LOCK_WAITERS_READY.load(Ordering::Acquire) == 2;
+    let released = exi::unlock(exi::EXI_CHANNEL_2) == 1;
+    for _ in 0..1000 {
+        if EXI_LOCK_WAITERS_ACQUIRED.load(Ordering::Acquire) == 2 {
+            break;
+        }
+        lwp::yield_now();
+    }
+    let joined = handles
+        .into_iter()
+        .flatten()
+        .all(|handle| handle.join().is_ok());
+    logger.record(
+        "EXI LockSync wakes same-device callers in turn",
+        both_waiting
+            && released
+            && joined
+            && EXI_LOCK_WAITERS_ACQUIRED.load(Ordering::Acquire) == 2
+            && EXI_LOCK_WAITERS_UNLOCK_FAILED.load(Ordering::Acquire) == 0,
+    );
 }
 
 #[cfg(feature = "dolphin-automation")]
