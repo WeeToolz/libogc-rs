@@ -3,6 +3,10 @@ pub(super) const IOS_MAX_VERSION: i32 = 61;
 pub(super) const MAX_TICKET_VIEWS: usize = 4;
 pub(super) const MAX_STORED_TMD_SIZE: u32 = 4096;
 
+pub(super) const fn ipc_control_ready(control: u32, mask: u32) -> bool {
+    control & mask != 0
+}
+
 pub(super) const fn stored_tmd_size_is_supported(size: u32) -> bool {
     size <= MAX_STORED_TMD_SIZE
 }
@@ -43,6 +47,16 @@ mod tests {
         initialization_result, preferred_version_from_title, stored_tmd_size_is_supported,
         ticket_view_count_is_supported, update_error,
     };
+
+    #[test]
+    fn ipc_control_accepts_either_ready_bit() {
+        let mask = 2 | 4;
+        assert!(!super::ipc_control_ready(0, mask));
+        assert!(!super::ipc_control_ready(8, mask));
+        assert!(super::ipc_control_ready(2, mask));
+        assert!(super::ipc_control_ready(4, mask));
+        assert!(super::ipc_control_ready(6, mask));
+    }
 
     #[test]
     fn initialization_attempts_both_subsystems_and_returns_last_error() {

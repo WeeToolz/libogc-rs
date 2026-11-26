@@ -15,6 +15,9 @@ mod card_metadata_submit_error_tests;
 mod dol_mode;
 mod dolphin;
 #[cfg(test)]
+#[path = "../../crates/core/ogc-ios-sys/src/ios_logic.rs"]
+mod ios_reload_logic_tests;
+#[cfg(test)]
 #[path = "../../crates/hardware/ogc-dsp-sys/src/mailbox.rs"]
 mod dsp_mailbox_tests;
 #[cfg(test)]

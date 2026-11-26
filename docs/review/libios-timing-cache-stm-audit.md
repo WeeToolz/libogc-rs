@@ -78,3 +78,15 @@ The named non-safety IOS blocker is closed in the current source. The independen
 ## Independent re-review — IOS cache invalidation sequence (2026-10-07)
 
 **Result: PASSED for `ogc-ios` and `ogc-ios-sys`.** Reviewer: `/root` in a new review thread. The current source removes the `sync` instruction after `dcbi` in `ios_read_version_word`. This matches the supplied `PPCDCacheInvalidate`, whose implementation loops over covered cache lines and issues `dcbi` without a trailing synchronization (`../../C-sources/libogc/tuxedo/cache.c:8–30`). The version-word address and covered range remain aligned as described in the earlier source comparison. The previously recorded launch ordering and shared STM lifecycle fixes remain present. PowerPC target test code compiled with `RUSTFLAGS='-Aunsafe-op-in-unsafe-fn'`; tests were not run. Runtime IOS reload behavior was not tested.
+
+## IPC ready-bit condition — 2026-11-26
+
+C `__IOS_LaunchNewIOS` leaves the IPC startup wait when either bit in
+`HW_IPC_PPC_CTRL_REGS` is set. Rust previously required both bits. The Rust
+condition now accepts either bit. A host test checks neither bit, an unrelated
+bit, each ready bit alone, and both bits; it failed on the former condition.
+Dolphin 2609a then reloaded IOS 58 and passed all 12 checks, including IPC
+interrupt masking and a subsequent `/dev/fs` open and close. The result is in
+`../dolphin-runs/2026-11-26-ios-ready-any-bit/`. This Dolphin run does not show
+which ready-bit combinations occurred. Independent review and physical Wii
+verification remain pending.

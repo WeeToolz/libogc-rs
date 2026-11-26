@@ -82,7 +82,7 @@ fn ipc_control_ready() -> bool {
     unsafe {
         let control =
             core::ptr::read_volatile((ogc_ipc::HW_IPC_PPCBASE as usize as *const u32).add(1));
-        (control & ogc_ipc::HW_IPC_PPC_CTRL_REGS) == ogc_ipc::HW_IPC_PPC_CTRL_REGS
+        ios_logic::ipc_control_ready(control, ogc_ipc::HW_IPC_PPC_CTRL_REGS)
     }
 }
 
