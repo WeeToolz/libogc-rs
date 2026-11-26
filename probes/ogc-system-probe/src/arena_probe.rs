@@ -4,6 +4,15 @@ use ogc_system::{self as system};
 use ogc_system_sys as raw;
 
 use crate::probe_support::ProbeLogger;
+use ogc_alloc::ArenaAllocator;
+
+const FREE_BYTES_HEAP_SIZE: usize = 4096;
+
+#[repr(align(32))]
+struct FreeBytesHeap([u8; FREE_BYTES_HEAP_SIZE]);
+
+static mut FREE_BYTES_HEAP: FreeBytesHeap = FreeBytesHeap([0; FREE_BYTES_HEAP_SIZE]);
+static FREE_BYTES_ALLOCATOR: ArenaAllocator = ArenaAllocator::new();
 
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("ARENA PROBE");
@@ -28,6 +37,7 @@ pub fn run(logger: &mut ProbeLogger) {
     );
     logger.record("arena1 low alloc math", test_arena1(original.arena1_lo));
     logger.record("arena2 low alloc math", test_arena2(original.arena2_lo));
+    logger.record("allocator free bytes track allocate and free", probe_free_bytes());
 
     // SAFETY: these are the arena bounds captured at probe entry, before the
     // probe's temporary allocations changed them.
@@ -45,6 +55,33 @@ pub fn run(logger: &mut ProbeLogger) {
         "raw and ABI arena2 bounds and allocation",
         probe_raw_arena2(),
     );
+}
+
+fn probe_free_bytes() -> bool {
+    // SAFETY: This private, aligned static range belongs only to this probe
+    // allocator and remains valid for the allocator's lifetime.
+    let initialized = unsafe {
+        FREE_BYTES_ALLOCATOR.initialize_region(
+            core::ptr::addr_of_mut!(FREE_BYTES_HEAP.0).cast::<u8>(),
+            FREE_BYTES_HEAP_SIZE,
+        )
+    };
+    if initialized.is_err() {
+        return false;
+    }
+
+    let before = FREE_BYTES_ALLOCATOR.free_bytes();
+    let allocation = FREE_BYTES_ALLOCATOR.allocate(64, 32);
+    let after_allocate = FREE_BYTES_ALLOCATOR.free_bytes();
+    if allocation.is_null() {
+        return false;
+    }
+    // SAFETY: `allocation` is live and returned by this allocator with the
+    // same size and alignment passed to allocate.
+    unsafe { FREE_BYTES_ALLOCATOR.deallocate(allocation, 64, 32) };
+    let after_free = FREE_BYTES_ALLOCATOR.free_bytes();
+
+    before > 0 && after_allocate < before && after_free == before
 }
 
 fn probe_arena1_bounds() -> bool {

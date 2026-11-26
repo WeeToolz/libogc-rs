@@ -68,3 +68,7 @@ The original Rust allocator used only an `AtomicBool` spin lock (`lib.rs:382-390
 ## Completeness check and limits
 
 Completeness was checked by enumerating every top-level `pub` declaration in both Rust source files, tracing all private cache helpers used by those declarations, and matching the cache names against all declarations in `cache.h` plus definitions in `cache.c`, `cache_asm.S`, and `tuxedo/cache.c`. For allocation, all exported Rust items and their full allocator paths were read, then compared with every public LWP heap declaration and implementation plus Wii arena and `_sbrk_r` reservation behavior. No other Rust source module exists under either crate's `src` directory. This is a source review only: no compiler, tests, emulator, or console were run. `ogc-cache` is crate-gated to PowerPC (`lib.rs:3-4`), and target-specific behavior was inspected as source rather than executed.
+
+## 2026-11-26 `ArenaAllocator::free_bytes` runtime evidence
+
+Host tests passed all 13 `ogc-alloc` tests, including `free_bytes_tracks_real_free_blocks_and_returns_to_baseline`. The PowerPC test target compiled. The `arena_probe` now creates a private aligned 4 KiB arena, calls `free_bytes` before and after one allocation, frees that allocation, and checks that the free-byte count returns to its baseline. Dolphin 2609a run `docs/dolphin-runs/2026-11-26-alloc-free-bytes` passed 17 checks with zero failures. This is a Rust-only accounting API; no C function counterpart is claimed. Physical Wii evidence remains pending.

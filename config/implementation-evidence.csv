@@ -555,6 +555,7 @@ ogc-alloc,src/lib.rs,initialize_region,77,pure,host-test,crates/core/ogc-alloc/s
 ogc-alloc,src/lib.rs,initialize_wii,547,pure,host-test,crates/core/ogc-alloc/src/lib.rs,initialize_wii_caps_heap_and_leaves_reserved_space
 ogc-alloc,src/lib.rs,new,63,pure,host-test,crates/core/ogc-alloc/src/lib.rs,allocations_are_aligned_and_reused_after_free
 ogc-alloc,src/lib.rs,used_bytes,205,pure,host-test,crates/core/ogc-alloc/src/lib.rs,reports_live_allocation_bytes
+ogc-alloc,src/lib.rs,free_bytes,213,pure,hardware-probe,probes/ogc-system-probe/src/arena_probe.rs,probe_free_bytes,FREE_BYTES_ALLOCATOR.free_bytes
 ogc-gu-sys,src/math.rs,deg_to_rad,34,pure,host-test,crates/hardware/ogc-gu-sys/src/math.rs,scalar_helpers_match_c_macros
 ogc-gu-sys,src/math.rs,fix32tof,46,pure,host-test,crates/hardware/ogc-gu-sys/src/math.rs,scalar_helpers_match_c_macros
 ogc-gu-sys,src/math.rs,ftofix32,42,pure,host-test,crates/hardware/ogc-gu-sys/src/math.rs,scalar_helpers_match_c_macros
