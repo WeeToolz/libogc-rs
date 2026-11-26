@@ -8,6 +8,7 @@ compile_error!(
 use core::ffi::c_void;
 use core::ptr::{read_volatile, write_volatile};
 use core::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use tuxedo_sys::KThrQueue;
 
 #[cfg(target_arch = "powerpc")]
 use ogc_irq::{
@@ -47,6 +48,11 @@ const EXI_EXI_IRQ: u32 = 0x0002;
 const EXI_TC_IRQ: u32 = 0x0008;
 const EXI_EXT_IRQ: u32 = 0x0800;
 const EXI_EXT_BIT: u32 = 0x1000;
+
+static mut EXI_SYNC_QUEUE: KThrQueue = KThrQueue {
+    next: core::ptr::null_mut(),
+    prev: core::ptr::null_mut(),
+};
 
 pub const EXI_MEMCARD59: u32 = 0x0000_0004;
 pub const EXI_MEMCARD123: u32 = 0x0000_0008;
@@ -627,6 +633,49 @@ pub fn lock(chn: i32, dev: i32, unlock_cb: ExiCallback) -> i32 {
     bus.lockeddev = dev;
     #[cfg(target_arch = "powerpc")]
     refresh_exi_interrupt(chn as usize, bus);
+    1
+}
+
+unsafe extern "C" fn lock_sync_callback(chn: i32, dev: i32) -> i32 {
+    let token = (chn | (dev << 2)) as u32;
+    unsafe {
+        tuxedo_sys::k_thr_queue_unblock_one_by_value(
+            core::ptr::addr_of_mut!(EXI_SYNC_QUEUE),
+            token,
+        );
+    }
+    0
+}
+
+#[cfg(target_arch = "powerpc")]
+fn in_exception() -> bool {
+    let msr: u32;
+    unsafe {
+        core::arch::asm!("mfmsr {msr}", msr = out(reg) msr, options(nomem, nostack, preserves_flags));
+    }
+    msr & 0x0000_0002 == 0 // MSR_RI is clear while the processor handles an exception.
+}
+
+/// Acquire an EXI channel lock, blocking the current Tuxedo thread while it is busy.
+pub fn lock_sync(chn: i32, dev: i32) -> i32 {
+    if !exi_runtime_enabled() || !chan_valid(chn) || !dev_valid(dev) {
+        return 0;
+    }
+    if lock(chn, dev, None) != 0 {
+        return 1;
+    }
+    if in_exception() {
+        return 0;
+    }
+
+    let irq_state = irq::irq_disable();
+    let token = (chn | (dev << 2)) as u32;
+    while lock(chn, dev, Some(lock_sync_callback)) == 0 {
+        unsafe {
+            tuxedo_sys::k_thr_queue_block(core::ptr::addr_of_mut!(EXI_SYNC_QUEUE), token);
+        }
+    }
+    irq::irq_restore(irq_state);
     1
 }
 

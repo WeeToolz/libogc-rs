@@ -60,3 +60,10 @@ Compared the changed EXI paths with `../../C-sources/libogc/libogc/exi.c` and `.
 **Confirmed parity gap — probe insertion debounce.** C `__exi_probe` (`exi.c:164-207`) records `last_exi_idtime` on first detection and returns absent until its elapsed-time calculation reaches the approximately 20 microsecond threshold. Rust `device_zero_probe_locked` (`crates/hardware/ogc-exi-sys/src/lib.rs:660-682`) reported present as soon as `EXI_EXT_BIT` was set and `EXI_EXT_IRQ` was clear. Worker_c implemented this missing debounce in commit `00a3df5`; worker_a independently compared it with C and accepted the fix. See “Follow-up debounce fix” above.
 
 No source changes were made during this review. No tests were run; this was a static comparison.
+# EXI_LockSync API parity follow-up — 2026-11-26
+
+**Confirmed API gap:** C `EXI_LockSync` first attempts a non-blocking EXI lock, returns 0 in exception context when the channel is busy, and otherwise waits on `exi_sync_queue` until the unlock callback wakes it (`../../C-sources/libogc/libogc/exi.c:291-316`). Rust exposed only `lock` and `unlock`.
+
+The Rust sys crate now exposes `lock_sync`, which uses the Tuxedo keyed wait queue and restores the prior interrupt state after the lock succeeds. The safe EXI crate exposes `lock_sync` and `try_lock_sync`. The shared `bus_probe` exercises immediate acquire/unlock, invalid-channel rejection, and the safe wrapper under Dolphin 2609a. Run `docs/dolphin-runs/2026-11-26-exi-lock-sync-final`: 71 checks passed, 0 failed. The PowerPC `cargo check -p ogc-exi` passed.
+
+Contended blocking and exception-context behavior still need runtime coverage. Physical Wii verification is pending. Independent review of the callback, queue, and retry path is also pending; these APIs are not declared fully parity-reviewed until that review is complete.

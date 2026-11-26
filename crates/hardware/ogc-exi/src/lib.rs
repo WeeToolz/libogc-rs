@@ -50,6 +50,14 @@ pub unsafe fn try_lock(channel: i32, device: i32, unlock_callback: ExiCallback) 
     unsafe { ogc_sys::unit_from_bool_status(lock(channel, device, unlock_callback)) }
 }
 
+pub fn lock_sync(channel: i32, device: i32) -> i32 {
+    sys::lock_sync(channel, device)
+}
+
+pub fn try_lock_sync(channel: i32, device: i32) -> Result<()> {
+    ogc_sys::unit_from_bool_status(lock_sync(channel, device))
+}
+
 pub fn unlock(chn: i32) -> i32 {
     sys::unlock(chn)
 }

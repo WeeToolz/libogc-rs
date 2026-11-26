@@ -820,6 +820,24 @@ fn probe_exi_si(logger: &mut ProbeLogger) {
         logger.note_i32_index("exi state ch", chan, exi::get_state(chan));
     }
 
+    let sync_lock = exi::lock_sync(exi::EXI_CHANNEL_2, exi::EXI_DEVICE_0);
+    let sync_unlock = if sync_lock != 0 {
+        exi::unlock(exi::EXI_CHANNEL_2)
+    } else {
+        0
+    };
+    logger.record(
+        "exi synchronous lock acquires and unlocks channel 2",
+        sync_lock == 1 && sync_unlock == 1,
+    );
+    logger.record(
+        "exi synchronous lock rejects invalid channel",
+        exi::lock_sync(exi::EXI_CHANNEL_MAX, exi::EXI_DEVICE_0) == 0,
+    );
+    let safe_lock = exi::try_lock_sync(exi::EXI_CHANNEL_2, exi::EXI_DEVICE_0).is_ok();
+    let safe_unlock = safe_lock && exi::try_unlock(exi::EXI_CHANNEL_2).is_ok();
+    logger.record("exi safe synchronous lock wrapper", safe_unlock);
+
     for chan in 0..4 {
         logger.note_hex32_index("si probe ch", chan, si::probe(chan));
         logger.note_hex32_index("si type ch", chan, si::get_type(chan));
