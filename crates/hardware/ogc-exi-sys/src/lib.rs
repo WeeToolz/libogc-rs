@@ -1565,11 +1565,12 @@ pub fn register_exi_callback(chn: i32, exi_cb: ExiCallback) -> ExiCallback {
 #[cfg(all(test, target_arch = "powerpc"))]
 mod tests {
     use super::*;
-    use core::sync::atomic::{AtomicBool, AtomicI32, Ordering};
+    use core::sync::atomic::{AtomicBool, AtomicI32, AtomicU32, Ordering};
 
     static TEST_LOCK: AtomicBool = AtomicBool::new(false);
     static CALLBACK_CHAN: AtomicI32 = AtomicI32::new(-1);
     static CALLBACK_DEV: AtomicI32 = AtomicI32::new(-1);
+    static CALLBACK_CALLS: AtomicU32 = AtomicU32::new(0);
 
     struct TestGuard;
 
@@ -1582,6 +1583,7 @@ mod tests {
     unsafe extern "C" fn cb_a(chn: i32, dev: i32) -> i32 {
         CALLBACK_CHAN.store(chn, Ordering::SeqCst);
         CALLBACK_DEV.store(dev, Ordering::SeqCst);
+        CALLBACK_CALLS.fetch_add(1, Ordering::SeqCst);
         0
     }
 
@@ -1601,6 +1603,7 @@ mod tests {
         }
         CALLBACK_CHAN.store(-1, Ordering::SeqCst);
         CALLBACK_DEV.store(-1, Ordering::SeqCst);
+        CALLBACK_CALLS.store(0, Ordering::SeqCst);
     }
 
     fn test_guard() -> TestGuard {
@@ -1669,7 +1672,7 @@ mod tests {
     }
 
     #[test]
-    fn lock_queues_one_unlock_callback_per_waiting_device() {
+    fn lock_queues_one_unlock_callback_per_lock_request() {
         let _guard = test_guard();
         assert_eq!(lock(EXI_CHANNEL_0, EXI_DEVICE_0, None), 1);
         assert_eq!(lock(EXI_CHANNEL_0, EXI_DEVICE_1, Some(cb_a)), 0);
@@ -1677,6 +1680,10 @@ mod tests {
         assert_eq!(unlock(EXI_CHANNEL_0), 1);
         assert_eq!(CALLBACK_CHAN.load(Ordering::SeqCst), EXI_CHANNEL_0);
         assert_eq!(CALLBACK_DEV.load(Ordering::SeqCst), EXI_DEVICE_1);
+        assert_eq!(CALLBACK_CALLS.load(Ordering::SeqCst), 1);
+        assert_eq!(lock(EXI_CHANNEL_0, EXI_DEVICE_1, None), 1);
+        assert_eq!(unlock(EXI_CHANNEL_0), 1);
+        assert_eq!(CALLBACK_CALLS.load(Ordering::SeqCst), 2);
     }
 
     #[test]

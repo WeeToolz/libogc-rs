@@ -6765,7 +6765,7 @@ fn probe_exi_raw_lock_queue(logger: &mut ProbeLogger) {
     let relocked = raw_exi::lock(1, 2, None);
     let released = raw_exi::unlock(1);
     logger.record(
-        "Raw EXI lock delivers queued callback once",
+        "Raw EXI lock delivers each queued callback once",
         locked == 1
             && blocked == 0
             && duplicate == 0
@@ -6773,7 +6773,7 @@ fn probe_exi_raw_lock_queue(logger: &mut ProbeLogger) {
             && callback
             && relocked == 1
             && released == 1
-            && EXI_UNLOCK_CALLS.load(Ordering::Acquire) == 1,
+            && EXI_UNLOCK_CALLS.load(Ordering::Acquire) == 2,
     );
 }
 
