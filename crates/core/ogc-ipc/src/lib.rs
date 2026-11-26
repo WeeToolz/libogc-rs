@@ -157,6 +157,10 @@ const IPC_REQUEST_INTERRUPT_MASK: u32 = 0x0022;
 const IPC_REPLY_INTERRUPT_MASK: u32 = 0x0014;
 const ACR_REGISTER_IRQ_CLEAR: usize = 48;
 const ACR_IRQ_CLEAR_VALUE: u32 = 0x4000_0000;
+#[cfg(not(gamecube))]
+const RVL_IPC_BUFFER_LO: usize = 0x8000_3130;
+#[cfg(not(gamecube))]
+const RVL_IPC_BUFFER_HI: usize = 0x8000_3134;
 #[cfg(target_arch = "powerpc")]
 const MSR_EE: u32 = 0x8000;
 #[cfg(target_arch = "powerpc")]
@@ -1701,8 +1705,20 @@ fn initialize_ipc_buffer_locked() {
     if IPC_BUFFER_LO.load(Ordering::Acquire) != 0 {
         return;
     }
-    let lo = core::ptr::addr_of!(__ipcbufferLo) as usize;
-    let hi = core::ptr::addr_of!(__ipcbufferHi) as usize;
+    let linker = (
+        core::ptr::addr_of!(__ipcbufferLo) as usize,
+        core::ptr::addr_of!(__ipcbufferHi) as usize,
+    );
+    #[cfg(not(gamecube))]
+    let loader = unsafe {
+        (
+            core::ptr::read_volatile(RVL_IPC_BUFFER_LO as *const u32) as usize,
+            core::ptr::read_volatile(RVL_IPC_BUFFER_HI as *const u32) as usize,
+        )
+    };
+    #[cfg(gamecube)]
+    let loader = (0, 0);
+    let (lo, hi) = raw_contract::default_buffer_bounds(linker, loader);
     IPC_BUFFER_LO.store(lo, Ordering::Release);
     IPC_BUFFER_HI.store(hi, Ordering::Release);
     IPC_BUFFER_CURRENT_LO.store(lo, Ordering::Release);

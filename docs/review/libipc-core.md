@@ -18,9 +18,14 @@ The direct IPC C interface is `../../C-sources/libogc/gc/ogc/ipc.h` (lines 36–
 
 `ipc.c` defines a 4096-byte default IPC heap and 16 heap slots (`../../C-sources/libogc/libogc/ipc.c:55–57, 168–171`). `iosCreateHeap` allocates from the current IPC buffer, finds the next free heap slot, and returns `IPC_ENOHEAP` when all slots are used (`ipc.c:721–755`). `iosAlloc` and `iosFree` accept any valid heap id (`ipc.c:758–774`). Rust instead provides one statically reserved 8192-byte heap, accepts only heap id zero for allocation/free, and treats repeated `HeapId::create` calls as the same heap (`crates/core/ogc-ipc/src/lib.rs:56–59, 164–225, 1513–1542`). Therefore Rust does not preserve the C heap creation, allocation capacity, or multiple-heap behavior. Programs that use a second heap, expect `IPC_ENOHEAP` after slot exhaustion, or depend on C's default heap size will observe different behavior. The Rust heap code also ignores the requested size when it initializes the allocator (`lib.rs:199–202, 1531–1538`).
 
-### Fix blocker: IPC buffer bounds are not available in the Rust runtime
+### Historical blocker: IPC buffer bounds were not available
 
-The C implementation obtains the IPC heap range from `__SYS_GetIPCBufferLo/Hi` (`../../C-sources/libogc/libogc/ipc.c:175–176, 799–800`). Those functions return private bounds initialized from linker symbols `__ipcbufferLo` and `__ipcbufferHi` in `system.c:433–436, 914–922`. This Rust workspace does not define or declare those linker symbols or functions. Its active linker script, `targets/powerpc-nintendo-none.ld`, defines `__bss_start` and `__bss_end` only; Rust code already uses those bounds in `ogc-system-sys` and `ogc-sys`, but they do not identify the IPC buffer. The Rust workspace also implements system behavior in Rust and has no link to the C `system.c` that exports the IPC bound functions. A fixed arena or inferred address would not preserve the C runtime bounds, so the 16-slot allocator change is blocked until the Rust runtime exposes the IPC buffer bounds (or the build supplies the C runtime symbols). This finding remains open and is not marked fixed.
+This finding is superseded by the 2026-11-26 current-source follow-up below.
+The active linker script now defines `__ipcbufferLo` and `__ipcbufferHi`,
+`ogc-ipc` reads those bounds, and its Wii path applies nonzero loader overrides
+from `EnvRvlLowMem`. The remaining evidence gap is direct execution with
+nonzero override values on Wii; see the current follow-up for verification
+limits.
 
 ## Differences and additions
 
@@ -292,12 +297,33 @@ stale. `targets/powerpc-nintendo-none.ld` now defines `__ipcbufferLo` and
 current heap implementation also scans 16 heap slots and advances the low
 bound after heap creation.
 
-A separate default-bound mismatch remains to review. Wii libogc selects
-`ios_ipc_lo` and `ios_ipc_hi` from `EnvRvlLowMem` when those values are nonzero
+A separate default-bound mismatch existed. Wii libogc selects `ios_ipc_lo` and
+`ios_ipc_hi` from `EnvRvlLowMem` when those values are nonzero
 (`../../C-sources/libogc/gc/tuxedo/mm_env.h:16`,
 `../../C-sources/libogc/gc/tuxedo/env.h:145-159`,
-`../../C-sources/libogc/libogc/system.c:496-503,536-537`). Rust currently
-initializes directly from linker symbols. This can ignore a loader-provided
-IPC range. The C defaulting rule is confirmed, but the Rust parity fix and
-runtime verification remain open. No code or runtime evidence was changed in
-this follow-up.
+`../../C-sources/libogc/libogc/system.c:496-503,536-537`). Rust now reads both
+loader values with volatile reads during first IPC buffer initialization and
+uses the linker bound for each zero loader value. This matches C's independent
+fallback for the low and high bounds. GameCube continues to use linker bounds.
+
+The shared bounds-selection regression first failed because the production
+helper was absent, then passed after the helper was added. It checks low-only,
+high-only, and zero-value fallbacks. `cargo check -p ogc-ipc --tests --target
+powerpc-unknown-linux-gnu` passed. Dolphin 2609a ran `ipc_async_probe`: 11
+checks passed, 0 failed, DOL SHA-256
+`c35c859fe18144b118a21dc713cd1887c5b3248a99fc81da0ebae6cd5d4d5fed`. The
+broader `runtime_probe` first timed out at its 90-second limit after 790 checks.
+At 240 seconds it passed 880 checks, including the Rust and C ABI buffer
+setter/getter checks; DOL SHA-256
+`af672d9cd218ee14d17bd016d78f424aa4e79e95a5cd97797aa3cb959af43761`. Both
+Dolphin suites use the linker-default path and do not establish behavior with
+nonzero loader overrides. Evidence is under
+`target/dolphin-validation/1795711175-448b559fcfa6/` and
+`target/dolphin-validation/1795711611-448b559fcfa6/`.
+
+`cargo xtask audit-source`, `cargo fmt --all --check`, and `cargo xtask
+check-inventory` passed. The source structure portion of `cargo xtask
+audit-stubs` passed; its final completeness gate reports 148 unverified API
+entries across the workspace. The loader-bound mismatch is fixed in source.
+Direct verification with nonzero override values on Wii, full IPC parity, and
+physical Wii validation remain open.

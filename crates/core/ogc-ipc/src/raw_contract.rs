@@ -1,4 +1,14 @@
 //! Bounds and address rules for synchronous raw IOCTLV requests.
+pub(crate) fn default_buffer_bounds(
+    linker: (usize, usize),
+    loader: (usize, usize),
+) -> (usize, usize) {
+    (
+        if loader.0 == 0 { linker.0 } else { loader.0 },
+        if loader.1 == 0 { linker.1 } else { loader.1 },
+    )
+}
+
 pub(crate) fn vector_layout(
     input: usize,
     output: usize,
@@ -44,6 +54,20 @@ pub(crate) fn request_address(pointer: usize, length: usize) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn ipc_bounds_use_each_nonzero_loader_override() {
+        let linker = (0x933e_0000, 0x9340_0000);
+        assert_eq!(
+            default_buffer_bounds(linker, (0x933d_0000, 0)),
+            (0x933d_0000, 0x9340_0000)
+        );
+        assert_eq!(
+            default_buffer_bounds(linker, (0, 0x9341_0000)),
+            (0x933e_0000, 0x9341_0000)
+        );
+        assert_eq!(default_buffer_bounds(linker, (0, 0)), linker);
+    }
 
     #[test]
     fn vector_layout_checks_counts_and_aligned_storage() {
