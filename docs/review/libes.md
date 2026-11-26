@@ -180,3 +180,20 @@ The current source has no remaining confirmed non-safety ES mismatch in the name
 ## Independent re-review — ES raw IOS return values (2026-10-07)
 
 **Result: PASSED for the current ES return-value fix.** Reviewer: `/root` in a new review thread. C `ES_GetTitleID`, scalar count getters, and direct ioctlv wrappers return the raw nonnegative `IOS_IoctlvFormat` result (`../../C-sources/libogc/libogc/es.c:187–190, 286–303, 311–326`). Rust now preserves that result through scalar output helpers and direct ioctlv paths in `crates/core/ogc-es-sys/src/imp.rs`; it writes output values only after nonnegative completion. No mismatch was found in the current change. PowerPC target test code compiled with `RUSTFLAGS='-Aunsafe-op-in-unsafe-fn'`; tests were not run. Existing ES filesystem and ABI scope has no confirmed open parity finding after the earlier fixes recorded above. No hardware verification was performed.
+
+## IOS launch ES error precedence — 2026-11-26
+
+C checks the ES descriptor before validating arguments in
+`ES_GetNumTicketViews`, `ES_GetTicketViews`, `ES_LaunchTitle`, and
+`ES_LaunchTitleBackground`. Rust checked arguments first. These four Rust
+entry points now check the descriptor first. In Dolphin, the baseline probe
+failed the closed-ES precedence check; after the change, the four calls return
+`ES_ENOTINIT` with invalid arguments while ES is closed and `ES_EINVAL` for
+those arguments while ES is open. The same run reloaded IOS 58 and passed 16
+checks. Evidence is in
+`../dolphin-runs/2026-11-26-es-argument-precedence-red/` and
+`../dolphin-runs/2026-11-26-es-argument-precedence-green/`.
+
+This covers the four named calls and the tested invalid arguments. Other ES
+entry points and other validation combinations require separate review.
+Independent review and physical Wii validation remain pending.

@@ -524,11 +524,11 @@ pub unsafe fn get_data_dir(title_id: u64, filepath: *mut u8) -> i32 {
 /// `cnt` must be valid for writes.
 pub unsafe fn get_num_ticket_views(title_id: u64, cnt: *mut u32) -> i32 {
     with_state(|state| {
-        if cnt.is_null() {
-            return ES_EINVAL;
-        }
         if let Err(rc) = require_initialized(state) {
             return rc;
+        }
+        if cnt.is_null() {
+            return ES_EINVAL;
         }
         let fd = match current_fd(state) {
             Ok(fd) => fd,
@@ -558,14 +558,14 @@ pub unsafe fn get_num_ticket_views(title_id: u64, cnt: *mut u32) -> i32 {
 pub unsafe fn get_ticket_views(title_id: u64, views: *mut Tikview, cnt: u32) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if cnt == 0 || views.is_null() {
                 return ES_EINVAL;
             }
             if !is_aligned(views.cast(), 4) {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -1282,14 +1282,14 @@ pub unsafe fn get_shared_contents(contents: *mut Sha1, cnt: u32) -> i32 {
 pub unsafe fn launch_title(title_id: u64, view: *const Tikview) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if view.is_null() {
                 return ES_EINVAL;
             }
             if !is_aligned(view.cast(), 4) {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -1314,14 +1314,14 @@ pub unsafe fn launch_title(title_id: u64, view: *const Tikview) -> i32 {
 pub unsafe fn launch_title_background(title_id: u64, view: *const Tikview) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if view.is_null() {
                 return ES_EINVAL;
             }
             if !is_aligned(view.cast(), 4) {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,

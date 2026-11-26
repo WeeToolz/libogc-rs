@@ -1156,6 +1156,44 @@ pub fn run_ios_reload_probe_bin() -> i32 {
         return finish_probe();
     }
     logger.record("current IOS version is valid", true);
+    let closed = ogc_es_sys::close();
+    logger.record("ES closes before argument checks", closed == 0);
+    if closed != 0 {
+        logger.summary();
+        return finish_probe();
+    }
+    // SAFETY: These invalid inputs are checked before any dereference.
+    let closed_results = unsafe {
+        [
+            ogc_es_sys::get_num_ticket_views(0, core::ptr::null_mut()),
+            ogc_es_sys::get_ticket_views(0, core::ptr::null_mut(), 0),
+            ogc_es_sys::launch_title(0, core::ptr::null()),
+            ogc_es_sys::launch_title_background(0, core::ptr::null()),
+        ]
+    };
+    logger.record(
+        "closed ES reports not initialized before invalid arguments",
+        closed_results.iter().all(|&rc| rc == ogc_es_sys::ES_ENOTINIT),
+    );
+    let initialized = ogc_es_sys::init();
+    logger.record("ES reopens after argument checks", initialized == 0);
+    if initialized != 0 {
+        logger.summary();
+        return finish_probe();
+    }
+    // SAFETY: These invalid inputs are checked before any dereference.
+    let open_results = unsafe {
+        [
+            ogc_es_sys::get_num_ticket_views(0, core::ptr::null_mut()),
+            ogc_es_sys::get_ticket_views(0, core::ptr::null_mut(), 0),
+            ogc_es_sys::launch_title(0, core::ptr::null()),
+            ogc_es_sys::launch_title_background(0, core::ptr::null()),
+        ]
+    };
+    logger.record(
+        "open ES rejects invalid arguments",
+        open_results.iter().all(|&rc| rc == ogc_es_sys::ES_EINVAL),
+    );
     IOS_RELOAD_RESET_MSR.store(u32::MAX, core::sync::atomic::Ordering::Release);
     ogc_ipc::set_debug_hook(Some(ios_reload_ipc_debug_hook));
     logger.note("IOS reload begins");
