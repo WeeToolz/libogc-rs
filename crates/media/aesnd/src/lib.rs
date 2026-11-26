@@ -117,10 +117,6 @@ pub struct VoiceHandle {
 }
 
 impl VoiceHandle {
-    pub const fn new(raw: *mut sys::Aesndpb) -> Self {
-        Self { raw }
-    }
-
     pub const fn as_ptr(&self) -> *mut sys::Aesndpb {
         self.raw
     }
@@ -135,8 +131,9 @@ impl VoiceHandle {
 
     /// # Safety
     ///
-    /// `raw` must remain valid for the lifetime of the returned handle, and
-    /// the caller must ensure ownership rules are respected by the backend.
+    /// `raw` must be null or point to a live voice owned by the caller. Do not
+    /// create another owning handle for the same voice. The voice must remain
+    /// live until this handle is freed or converted back into its raw pointer.
     pub const unsafe fn from_raw(raw: *mut sys::Aesndpb) -> Self {
         Self { raw }
     }
@@ -361,7 +358,8 @@ pub fn allocate_voice(cb: VoiceCallback) -> Option<VoiceHandle> {
     if raw.is_null() {
         None
     } else {
-        Some(VoiceHandle::new(raw))
+        // SAFETY: `allocate_voice` returned a new, live voice owned here.
+        Some(unsafe { VoiceHandle::from_raw(raw) })
     }
 }
 
@@ -378,12 +376,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn voice_handle_round_trips_raw_pointer() {
-        let ptr = 0x1234usize as *mut sys::Aesndpb;
-        let handle = VoiceHandle::new(ptr);
-        assert_eq!(handle.as_ptr(), ptr);
-        assert!(!handle.is_null());
-        assert_eq!(handle.into_raw(), ptr);
+    fn default_voice_handle_is_null() {
+        let handle = VoiceHandle::default();
+        assert!(handle.is_null());
+        assert!(handle.as_ptr().is_null());
+        assert!(handle.into_raw().is_null());
     }
 
     #[test]

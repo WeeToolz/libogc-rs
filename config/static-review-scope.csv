@@ -1,6 +1,6 @@
 package,review_status,owner,work_status,note,updated,summary
 abi-probe,reviewed,,idle,docs/review/abi-probe.md,2026-10-01,No declared layout mismatch found; C compiler size/offset comparison remains unverified; see note.
-aesnd,parity_blocked,,idle,docs/review/libaesnd.md,2026-11-26,"Cross-form callback replacement returns the prior pointer and passes Dolphin; independent review, VoiceHandle ownership safety, full native DSP parity, and physical playback remain open."
+aesnd,parity_blocked,,idle,docs/review/libaesnd.md,2026-11-26,"Cross-form callback return parity passes Dolphin; raw VoiceHandle construction is unsafe and safe allocation remains unique. Independent review, full native DSP parity, and physical playback remain open."
 aesnd-sys,parity_blocked,,idle,docs/review/libaesnd.md,2026-11-26,"Cross-form callback return parity passes Dolphin; independent review, full native DSP parity, callback timing, DMA/cache behavior, and physical playback remain open."
 asnd-sys,reviewed,,idle,docs/review/libaesnd.md,2026-10-07,Fresh source re-review accepted the current implementation against the supplied C reference. No confirmed non-safety parity mismatch remains in the reviewed scope; documented safety deviations remain accepted. Runtime/hardware validation is outside the static parity ledger.
 gc-binary,reviewed,,idle,docs/review/libgc-binary.md,2026-10-01,Rust-only checked binary helpers; primitive endian/alignment behavior agrees where comparable; no public C counterpart.

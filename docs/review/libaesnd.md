@@ -402,6 +402,24 @@ the safe `VoiceHandle` ownership constructor, full native DSP parity, and
 physical Wii/GameCube verification remain open. Dolphin evidence does not
 establish physical playback behavior.
 
+## 2026-11-26 safety fix — raw voice ownership
+
+`VoiceHandle::new` let safe Rust create multiple owning handles for one live
+voice or create a handle from an arbitrary pointer. Either handle could call
+`free`, and a later voice allocation could reuse the slot before another
+handle frees it. The raw constructor is now `unsafe` as `VoiceHandle::from_raw`.
+Its contract requires a null pointer or a live voice owned by the caller, with
+no other owning handle. `allocate_voice` remains safe and creates the unique
+handle for the voice it allocates. This is a Rust-only ownership helper and a
+documented safety restriction; it does not change the C voice API. The default
+handle still represents null.
+
+The PowerPC target check compiles the constructor and its callers. The native
+AESND Dolphin probe exercises the `from_raw` path with a live allocated voice
+and checks its public wrapper lifecycle. Dolphin 2609a run
+`docs/dolphin-runs/2026-11-26-aesnd-voice-handle-ownership` passed 104 checks.
+Physical Wii/GameCube ownership and playback verification remain pending.
+
 ## Bounded parity fixes — 2026-10-15
 
 **BUG FIX:** The GameCube ARQ completion callback now sets `VOICE_RUNNING` on

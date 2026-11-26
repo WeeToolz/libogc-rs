@@ -12315,13 +12315,9 @@ fn probe_owned_audio_buffer(logger: &mut ProbeLogger) {
         source = expected;
     }
     logger.record("owned audio buffers preserve aligned copied bytes", valid);
-    let handle = aesnd::VoiceHandle::new(core::ptr::null_mut());
+    let handle = aesnd::VoiceHandle::default();
     let null = handle.is_null() && handle.as_ptr().is_null() && handle.into_raw().is_null();
-    let mut storage = 0u32;
-    let pointer = (&mut storage as *mut u32).cast::<aesnd::sys::Aesndpb>();
-    let handle = aesnd::VoiceHandle::new(pointer);
-    let nonnull = !handle.is_null() && handle.as_ptr() == pointer && handle.into_raw() == pointer;
-    logger.record("audio voice handle pointer roundtrip", null && nonnull);
+    logger.record("default audio voice handle is null", null);
 }
 
 fn probe_l2cap_packets(logger: &mut ProbeLogger) {
