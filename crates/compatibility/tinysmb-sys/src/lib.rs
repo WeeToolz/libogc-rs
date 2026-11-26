@@ -1328,3 +1328,13 @@ mod tests {
         }
     }
 }
+
+#[cfg(feature = "dolphin-fixture")]
+static SMB_DOLPHIN_FIXTURE_PORT: AtomicU16 = AtomicU16::new(0);
+
+/// Selects a TCP port for an isolated Dolphin SMB fixture. Zero restores the
+/// standard SMB ports. Set this only while no SMB connections are active.
+#[cfg(feature = "dolphin-fixture")]
+pub fn set_dolphin_fixture_port(port: u16) {
+    SMB_DOLPHIN_FIXTURE_PORT.store(port, Ordering::Release);
+}

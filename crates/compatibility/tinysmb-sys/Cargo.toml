@@ -4,6 +4,9 @@ version.workspace = true
 edition.workspace = true
 license = "LGPL-2.1-or-later"
 
+[features]
+dolphin-fixture = []
+
 [dependencies]
 ogc-sys = { path = "../../abi/ogc-sys" }
 

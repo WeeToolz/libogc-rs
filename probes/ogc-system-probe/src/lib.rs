@@ -915,6 +915,8 @@ pub fn run_tinysmb_probe_bin() -> i32 {
     configure_probe_app_dir("tinysmb-probe");
     let mut logger = init_probe_logger();
     network_probe::probe_smb_invalid_arguments(&mut logger);
+    #[cfg(feature = "dolphin-automation")]
+    network_probe::probe_smb_fixture(&mut logger);
     logger.summary();
     finish_probe()
 }

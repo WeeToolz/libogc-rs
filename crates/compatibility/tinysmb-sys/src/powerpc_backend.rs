@@ -80,10 +80,11 @@ const CIFS_FLAGS1: u8 = 0x08;
 const CIFS_FLAGS2: u16 = 0x0001;
 const CIFS_FLAGS2_UNICODE: u16 = 0x8001;
 const TCP_NODELAY: i32 = 0x01;
-const EAGAIN: i32 = 11;
-const EISCONN: i32 = 106;
-const EALREADY: i32 = 114;
-const EINPROGRESS: i32 = 115;
+// lwip-sys returns IOS socket errors directly on PowerPC.
+const EAGAIN: i32 = 6;
+const EISCONN: i32 = 30;
+const EALREADY: i32 = 7;
+const EINPROGRESS: i32 = 26;
 
 static SMB_SEARCH_FLAGS: AtomicU16 = AtomicU16::new(0);
 
@@ -1545,7 +1546,7 @@ fn negotiate_protocol(session: &mut Session, packet: &mut [u8]) -> i32 {
     make_header(packet, SMB_NEG_PROTOCOL, session);
     let mut pos = SMB_HEADER_SIZE + 3;
     packet[SMB_HEADER_SIZE] = 0;
-    write_u16_le(packet, SMB_HEADER_SIZE + 1, 11);
+    write_u16_le(packet, SMB_HEADER_SIZE + 1, 12);
     packet[pos] = 0x02;
     pos += 1;
     packet[pos..pos + 10].copy_from_slice(b"NT LM 0.12");
@@ -1912,6 +1913,14 @@ fn do_smbconnect(session: &mut Session) -> bool {
 }
 
 fn connect_session(session: &mut Session) -> bool {
+    #[cfg(feature = "dolphin-fixture")]
+    {
+        let port = super::SMB_DOLPHIN_FIXTURE_PORT.load(Ordering::Acquire);
+        if port != 0 {
+            session.port_be = port.to_be();
+            return do_netconnect(session) && do_smbconnect(session);
+        }
+    }
     session.port_be = 445u16.to_be();
     if do_netconnect(session) && do_smbconnect(session) {
         return true;
