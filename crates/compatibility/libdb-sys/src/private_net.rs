@@ -131,7 +131,7 @@ impl TcpConnection {
             id,
             socket: None,
             state: TcpState::SynReceived,
-            state_entered_at: now_ticks(),
+            state_entered_at: 0,
             remote_ip,
             remote_mac,
             local_port,
@@ -610,8 +610,10 @@ impl PrivateNet {
         );
         self.tcp_clock.start(now_ticks());
         let mut connection = connection;
+        let connection_started_at = self.tcp_clock.elapsed(now_ticks());
+        connection.state_entered_at = connection_started_at;
         if let Some(pending) = connection.pending.as_mut() {
-            pending.sent_at = self.tcp_clock.elapsed(now_ticks());
+            pending.sent_at = connection_started_at;
         }
         self.connections.push(connection);
         self.selected_connection = Some(id);
@@ -737,7 +739,7 @@ impl PrivateNet {
             .connections
             .iter()
             .filter_map(|connection| {
-                tcp_state::close_state_expired(
+                tcp_state::state_timeout_expired(
                     connection.state,
                     now,
                     connection.state_entered_at,

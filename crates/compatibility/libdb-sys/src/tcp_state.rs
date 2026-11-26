@@ -19,6 +19,7 @@ pub(crate) enum CloseProgress {
 }
 
 pub(crate) const FIN_WAIT_2_TIMEOUT_MS: u64 = 20_000;
+pub(crate) const SYN_RECEIVED_TIMEOUT_MS: u64 = 20_000;
 pub(crate) const TIME_WAIT_TIMEOUT_MS: u64 = 120_000;
 
 pub(crate) fn time_wait_receive_next(seq: u32, tcp_len: u32, rcv_nxt: u32) -> Option<u32> {
@@ -59,16 +60,41 @@ pub(crate) fn advance_close_state(
     }
 }
 
-pub(crate) fn close_state_expired(
+pub(crate) fn state_timeout_expired(
     state: TcpState,
     now: u64,
     entered_at: u64,
     ticks_per_second: u64,
 ) -> bool {
     let timeout_ms = match state {
+        TcpState::SynReceived => SYN_RECEIVED_TIMEOUT_MS,
         TcpState::FinWait2 => FIN_WAIT_2_TIMEOUT_MS,
         TcpState::TimeWait => TIME_WAIT_TIMEOUT_MS,
         _ => return false,
     };
     now.wrapping_sub(entered_at) > timeout_ms.saturating_mul(ticks_per_second) / 1000
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{TcpState, state_timeout_expired};
+
+    #[test]
+    fn syn_received_expires_after_the_libogc_timeout() {
+        let ticks_per_second = 1000;
+        let timeout_ticks = 20_000;
+
+        assert!(!state_timeout_expired(
+            TcpState::SynReceived,
+            timeout_ticks,
+            0,
+            ticks_per_second,
+        ));
+        assert!(state_timeout_expired(
+            TcpState::SynReceived,
+            timeout_ticks + 1,
+            0,
+            ticks_per_second,
+        ));
+    }
 }

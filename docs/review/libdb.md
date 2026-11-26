@@ -10,6 +10,18 @@ C `opentcpip` accepts a connection, then calls `tcpip_starttimer` for that accep
 
 Rust starts `TcpClock` when it receives the first SYN, before the connection is accepted, and `iface_open` calls `tcpip_starttimer` again after accept. The second start is idempotent. This matches C's `UIP_TCP_REG` call for the new active PCB, which invokes `tcpip_tmr_needed` before the handshake completes. Rust close removes the connection state and its pending expiry; the shared clock remains available for other connections. A poll-order gap was found and fixed: C drains available BBA frames before it advances TCP timers, while Rust previously advanced timers first and read only one frame. Rust now drains available frames before timer work. Host tests cover the drain order and error continuation.
 
+C also expires an uncompleted `SYN_RCVD` PCB after the 20-second timeout in
+`uip_tcp_slowtmr` (`../../C-sources/libogc/libdb/uIP/uip_tcp.h:45-46`,
+`uip_tcp.c:850-867`). Rust previously kept retrying the SYN through its general
+retransmit limit and did not apply that state timeout. Rust now applies the
+same 20-second limit through the shared TCP state expiry path. The initial
+state timestamp now uses the same elapsed `TcpClock` origin as later state
+timestamps; it previously used absolute LWP ticks. A focused test failed
+before the change and passes at the timeout boundary. The PowerPC test build
+passes. Dolphin's debugger probe passes 26 checks, but this run has no usable
+BBA and does not exercise a live TCP handshake or SYN timeout. Live BBA and
+physical Wii checks remain open. Evidence: `target/dolphin-validation/1795713231-aafc54f2eddc/suite.json`.
+
 The first BBA-profile attempt did not apply the requested slot setting: its wrapper put the override after `--exec`, and the recorded runner arguments show the standard `Dolphin.Core.SlotB=7`. Its timeout diagnostic in `docs/dolphin-runs/2026-11-26-libdb-bba-init/` is not BBA evidence. A corrected wrapper places `Dolphin.Core.SlotB=12` before `--exec`; the wrapper is saved with the run evidence in `docs/dolphin-runs/2026-11-26-libdb-bba-slot12-retry/`. This DOL reached the probe summary, then timed out while `ProbeDisplay::capture_page` sent a page through USB Gecko. It produced no summary, so it does not prove the TCP checks passed. The standard Dolphin profile passed the debugger probe with 22 checks and zero failures. It reported no usable EXI BBA, so it verified the missing-adapter path only. Evidence: `docs/dolphin-runs/2026-11-26-libdb-timer-order/suite.json`.
 
 Probe source: `probes/ogc-system-probe/src/debugger_probe.rs`. Run with:
