@@ -20,6 +20,7 @@ use tuxedo_sys as tuxedo;
 
 mod bba;
 mod private_net;
+mod tcp_accept;
 mod tcp_clock;
 mod tcp_state;
 #[cfg(feature = "wii-network")]
@@ -139,8 +140,18 @@ fn allocate_socket_handle() -> i32 {
 
 fn release_socket_handle(socket: i32) {
     if (0..32).contains(&socket) {
+        TCP_SOCKET_CONNECTION[socket as usize].store(0, Ordering::Release);
         TCP_SOCKET_MASK.fetch_and(!(1u32 << socket as u32), Ordering::AcqRel);
     }
+}
+
+fn socket_has_connection(socket: i32) -> bool {
+    (0..32).contains(&socket) && TCP_SOCKET_CONNECTION[socket as usize].load(Ordering::Acquire) != 0
+}
+
+fn select_tcp_socket(socket: i32) -> bool {
+    socket_has_connection(socket)
+        && with_private_net(|stack| stack.select_socket(socket)).unwrap_or(false)
 }
 
 /// Validates a signed TCP debugger callback length before converting it to the
@@ -168,6 +179,7 @@ static TCP_LISTENING: AtomicBool = AtomicBool::new(false);
 static TCP_PORT: AtomicU16 = AtomicU16::new(GDBSTUB_DEF_TCPPORT as u16);
 static TCP_LISTEN_SOCKET: AtomicI32 = AtomicI32::new(-1);
 static TCP_ACTIVE_SOCKET: AtomicI32 = AtomicI32::new(-1);
+static TCP_SOCKET_CONNECTION: [AtomicU32; 32] = [const { AtomicU32::new(0) }; 32];
 static CURRENT_DEVICE: AtomicPtr<DbgInterface> = AtomicPtr::new(ptr::null_mut());
 static USB_FLUSH_COUNT: AtomicI32 = AtomicI32::new(0);
 
@@ -1109,6 +1121,9 @@ fn parse_ipv4_text(bytes: &[u8]) -> Option<[u8; 4]> {
 fn reset_tcp_state() {
     replace_private_net(None);
     TCP_SOCKET_MASK.store(0, Ordering::Release);
+    for socket in &TCP_SOCKET_CONNECTION {
+        socket.store(0, Ordering::Release);
+    }
     TCP_ACTIVE_SOCKET.store(-1, Ordering::Release);
     TCP_LISTEN_SOCKET.store(-1, Ordering::Release);
     TCP_BOUND_SOCKET.store(-1, Ordering::Release);
@@ -1463,15 +1478,23 @@ pub extern "C" fn tcpip_close(s: i32) {
         return;
     }
 
+    if socket_has_connection(s) {
+        let _ = with_private_net(|stack| stack.close_socket(s));
+        TCP_SOCKET_CONNECTION[s as usize].store(0, Ordering::Release);
+    }
     if TCP_ACTIVE_SOCKET.load(Ordering::Acquire) == s {
-        let _ = with_private_net(|stack| stack.close());
         TCP_ACTIVE_SOCKET.store(-1, Ordering::Release);
-        TCP_OPEN.store(false, Ordering::Release);
         unsafe {
             if TCP_IFACE.fhndl == s {
                 TCP_IFACE.fhndl = -1;
             }
         }
+    }
+    if TCP_SOCKET_CONNECTION
+        .iter()
+        .all(|connection| connection.load(Ordering::Acquire) == 0)
+    {
+        TCP_OPEN.store(false, Ordering::Release);
     }
 
     if TCP_LISTEN_SOCKET.load(Ordering::Acquire) == s {
@@ -1486,7 +1509,7 @@ pub extern "C" fn tcpip_close(s: i32) {
 
 #[unsafe(no_mangle)]
 pub extern "C" fn tcpip_starttimer(s: i32) {
-    if !socket_is_allocated(s) || TCP_ACTIVE_SOCKET.load(Ordering::Acquire) != s {
+    if !socket_is_allocated(s) || !select_tcp_socket(s) {
         return;
     }
     let _ = with_private_net(|stack| stack.start_timer());
@@ -1497,7 +1520,7 @@ pub extern "C" fn tcpip_stoptimer(s: i32) {
     if !socket_is_allocated(s) {
         return;
     }
-    if TCP_ACTIVE_SOCKET.load(Ordering::Acquire) == s {
+    if socket_has_connection(s) {
         let _ = with_private_net(|stack| stack.stop_timer());
     }
 }
@@ -1575,28 +1598,31 @@ pub extern "C" fn tcpip_accept(s: i32) -> i32 {
     {
         return -1;
     }
-    let existing = TCP_ACTIVE_SOCKET.load(Ordering::Acquire);
-    if existing >= 0 {
-        return existing;
-    }
-
     loop {
         let status = with_private_net(|stack| {
             let result = stack.poll();
-            (result, stack.is_accepted())
+            (result, stack.take_accepted())
         });
         match status {
-            Some((Ok(()), true)) => {
+            Some((Ok(()), Some(connection_id))) => {
                 let accepted = allocate_socket_handle();
                 if accepted < 0 {
+                    let _ = with_private_net(|stack| stack.discard_connection(connection_id));
                     return -1;
                 }
+                if !with_private_net(|stack| stack.attach_socket(connection_id, accepted))
+                    .unwrap_or(false)
+                {
+                    release_socket_handle(accepted);
+                    return -1;
+                }
+                TCP_SOCKET_CONNECTION[accepted as usize].store(connection_id, Ordering::Release);
                 TCP_ACTIVE_SOCKET.store(accepted, Ordering::Release);
                 TCP_OPEN.store(true, Ordering::Release);
                 unsafe { TCP_IFACE.fhndl = accepted };
                 return accepted;
             }
-            Some((Ok(()), false)) | Some((Err(NetError::ConnectionReset), false)) => {}
+            Some((Ok(()), None)) | Some((Err(NetError::ConnectionReset), None)) => {}
             Some((Err(_), _)) | None => return -1,
         }
     }
@@ -1607,16 +1633,19 @@ pub extern "C" fn tcpip_accept(s: i32) -> i32 {
 /// For nonzero `len`, `buffer` must point to writable storage for `len` bytes.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn tcpip_read(s: i32, buffer: *mut c_void, len: u32) -> i32 {
-    if !socket_is_allocated(s)
-        || TCP_ACTIVE_SOCKET.load(Ordering::Acquire) != s
-        || !TCP_OPEN.load(Ordering::Acquire)
-    {
+    if !socket_is_allocated(s) || !socket_has_connection(s) {
         return -1;
     }
     if len == 0 {
         loop {
             let result = with_private_net(|stack| {
+                if !stack.select_socket(s) {
+                    return Err(NetError::NotConnected);
+                }
                 stack.poll()?;
+                if !stack.select_socket(s) {
+                    return Err(NetError::NotConnected);
+                }
                 Ok::<bool, NetError>(stack.has_receive_data())
             });
             match result {
@@ -1632,7 +1661,13 @@ pub unsafe extern "C" fn tcpip_read(s: i32, buffer: *mut c_void, len: u32) -> i3
     let output = unsafe { core::slice::from_raw_parts_mut(buffer.cast::<u8>(), len as usize) };
     loop {
         let result = with_private_net(|stack| {
+            if !stack.select_socket(s) {
+                return Err(NetError::NotConnected);
+            }
             stack.poll()?;
+            if !stack.select_socket(s) {
+                return Err(NetError::NotConnected);
+            }
             stack.read(output)
         });
         match result {
@@ -1652,10 +1687,7 @@ pub unsafe extern "C" fn tcpip_read(s: i32, buffer: *mut c_void, len: u32) -> i3
 /// For nonzero `len`, `buffer` must point to readable storage for `len` bytes.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn tcpip_write(s: i32, buffer: *const c_void, len: u32) -> i32 {
-    if !socket_is_allocated(s)
-        || TCP_ACTIVE_SOCKET.load(Ordering::Acquire) != s
-        || !TCP_OPEN.load(Ordering::Acquire)
-    {
+    if !socket_is_allocated(s) || !socket_has_connection(s) {
         return -1;
     }
     if len == 0 {
@@ -1668,7 +1700,13 @@ pub unsafe extern "C" fn tcpip_write(s: i32, buffer: *const c_void, len: u32) ->
     let mut written = 0usize;
     while written < input.len() {
         let result = with_private_net(|stack| {
+            if !stack.select_socket(s) {
+                return Err(NetError::NotConnected);
+            }
             stack.poll()?;
+            if !stack.select_socket(s) {
+                return Err(NetError::NotConnected);
+            }
             stack.write(&input[written..])
         });
         match result {

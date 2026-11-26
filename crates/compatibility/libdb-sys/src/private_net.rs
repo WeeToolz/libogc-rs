@@ -13,6 +13,7 @@ use core::cmp;
 use ogc_lwp_driver::{TICKS_PER_SECOND, now_ticks};
 
 use crate::bba::{BBA_RX_MAX_PACKET_SIZE, BBA_TX_MAX_PACKET_SIZE, BbaDevice, BbaError};
+use crate::tcp_accept::{AcceptedConnections, has_control_block_capacity};
 use crate::tcp_clock::TcpClock;
 use crate::tcp_state::{self, CloseProgress, TcpState, seq_after, seq_before};
 
@@ -97,6 +98,8 @@ struct PendingSegment {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 struct TcpConnection {
+    id: u32,
+    socket: Option<i32>,
     state: TcpState,
     state_entered_at: u64,
     remote_ip: [u8; 4],
@@ -115,6 +118,7 @@ struct TcpConnection {
 
 impl TcpConnection {
     fn new_syn_received(
+        id: u32,
         remote_ip: [u8; 4],
         remote_mac: [u8; 6],
         local_port: u16,
@@ -124,6 +128,8 @@ impl TcpConnection {
         peer_mss: usize,
     ) -> Self {
         Self {
+            id,
+            socket: None,
             state: TcpState::SynReceived,
             state_entered_at: now_ticks(),
             remote_ip,
@@ -200,8 +206,10 @@ pub(crate) struct PrivateNet {
     arp: [ArpEntry; ARP_TABLE_SIZE],
     arp_timer_at: u64,
     listen_port: Option<u16>,
-    accepted: bool,
-    connection: Option<TcpConnection>,
+    connections: Vec<TcpConnection>,
+    accepted_connections: AcceptedConnections,
+    selected_connection: Option<u32>,
+    next_connection_id: u32,
     frame: [u8; BBA_RX_MAX_PACKET_SIZE],
     ip_id: u16,
 }
@@ -215,8 +223,10 @@ impl PrivateNet {
             arp: [ArpEntry::EMPTY; ARP_TABLE_SIZE],
             arp_timer_at: now_ticks(),
             listen_port: None,
-            accepted: false,
-            connection: None,
+            connections: Vec::new(),
+            accepted_connections: AcceptedConnections::default(),
+            selected_connection: None,
+            next_connection_id: 1,
             frame: [0; BBA_RX_MAX_PACKET_SIZE],
             ip_id: 0,
         })
@@ -230,18 +240,84 @@ impl PrivateNet {
         self.listen_port = None;
     }
 
-    pub(crate) fn is_accepted(&self) -> bool {
-        self.accepted
+    fn connection_index(&self, id: u32) -> Option<usize> {
+        self.connections
+            .iter()
+            .position(|connection| connection.id == id)
+    }
+
+    fn connection(&self) -> Option<&TcpConnection> {
+        let id = self.selected_connection?;
+        self.connection_index(id)
+            .map(|index| &self.connections[index])
+    }
+
+    fn connection_mut(&mut self) -> Option<&mut TcpConnection> {
+        let id = self.selected_connection?;
+        let index = self.connection_index(id)?;
+        self.connections.get_mut(index)
+    }
+
+    pub(crate) fn take_accepted(&mut self) -> Option<u32> {
+        self.accepted_connections.dequeue()
+    }
+
+    pub(crate) fn attach_socket(&mut self, id: u32, socket: i32) -> bool {
+        let Some(index) = self.connection_index(id) else {
+            return false;
+        };
+        self.connections[index].socket = Some(socket);
+        true
+    }
+
+    pub(crate) fn discard_connection(&mut self, id: u32) {
+        self.remove_connection(id);
+    }
+
+    pub(crate) fn select_socket(&mut self, socket: i32) -> bool {
+        let Some(connection) = self
+            .connections
+            .iter()
+            .find(|connection| connection.socket == Some(socket))
+        else {
+            return false;
+        };
+        self.selected_connection = Some(connection.id);
+        true
+    }
+
+    pub(crate) fn close_socket(&mut self, socket: i32) -> Result<(), NetError> {
+        let Some(index) = self
+            .connections
+            .iter()
+            .position(|connection| connection.socket == Some(socket))
+        else {
+            return Ok(());
+        };
+        let id = self.connections[index].id;
+        self.selected_connection = Some(id);
+        let close_result = self.close();
+        if let Some(connection) = self.connections.get_mut(index) {
+            connection.socket = None;
+        }
+        close_result
+    }
+
+    fn remove_connection(&mut self, id: u32) {
+        self.connections.retain(|connection| connection.id != id);
+        self.accepted_connections.remove(id);
+        if self.selected_connection == Some(id) {
+            self.selected_connection = None;
+        }
     }
 
     pub(crate) fn has_receive_data(&self) -> bool {
-        self.connection
-            .as_ref()
+        self.connection()
             .is_some_and(|connection| !connection.receive.is_empty())
     }
 
     pub(crate) fn start_timer(&mut self) {
-        if self.connection.is_some() {
+        if !self.connections.is_empty() {
             self.tcp_clock.start(now_ticks());
         }
     }
@@ -254,7 +330,15 @@ impl PrivateNet {
         self.age_arp_table();
         if self.tcp_clock.is_running() {
             self.expire_close_state();
-            self.retransmit_if_needed()?;
+            let connection_ids: Vec<u32> = self
+                .connections
+                .iter()
+                .map(|connection| connection.id)
+                .collect();
+            for connection_id in connection_ids {
+                self.selected_connection = Some(connection_id);
+                self.retransmit_if_needed()?;
+            }
         }
         if let Some(len) = self.device.poll_frame(&mut self.frame)? {
             self.process_ethernet(len)?;
@@ -263,7 +347,7 @@ impl PrivateNet {
     }
 
     pub(crate) fn read(&mut self, output: &mut [u8]) -> Result<usize, NetError> {
-        let Some(connection) = self.connection.as_mut() else {
+        let Some(connection) = self.connection_mut() else {
             return Err(NetError::NotConnected);
         };
         if !matches!(
@@ -283,7 +367,7 @@ impl PrivateNet {
     }
 
     pub(crate) fn write(&mut self, input: &[u8]) -> Result<usize, NetError> {
-        let Some(connection) = self.connection.as_ref() else {
+        let Some(connection) = self.connection() else {
             return Err(NetError::NotConnected);
         };
         if connection.state != TcpState::Established {
@@ -306,46 +390,44 @@ impl PrivateNet {
         let payload = input[..count].to_vec();
         let seq = connection.snd_nxt;
         let flags = TCP_FLAG_ACK | TCP_FLAG_PSH;
+        let sent_at = self.tcp_clock.elapsed(now_ticks());
         self.send_connection_segment(seq, flags, &payload, &[])?;
 
-        let connection = self.connection.as_mut().ok_or(NetError::NotConnected)?;
+        let connection = self.connection_mut().ok_or(NetError::NotConnected)?;
         connection.snd_nxt = connection.snd_nxt.wrapping_add(count as u32);
         connection.pending = Some(PendingSegment {
             seq,
             flags,
             payload,
-            sent_at: self.tcp_clock.elapsed(now_ticks()),
+            sent_at,
             retries: 0,
         });
         Ok(count)
     }
 
     pub(crate) fn close(&mut self) -> Result<(), NetError> {
-        let Some(connection) = self.connection.as_mut() else {
-            self.accepted = false;
+        let Some(connection) = self.connection_mut() else {
             return Ok(());
         };
         if connection.pending.is_some() {
             connection.close_requested = true;
-            self.accepted = false;
             return Ok(());
         }
         self.start_close()
     }
 
     fn start_close(&mut self) -> Result<(), NetError> {
-        let Some(connection) = self.connection.as_ref() else {
-            self.accepted = false;
+        let Some(connection) = self.connection() else {
             return Ok(());
         };
         let state = connection.state;
         if !matches!(state, TcpState::Established | TcpState::CloseWait) {
-            self.accepted = false;
             return Ok(());
         }
         let seq = connection.snd_nxt;
+        let sent_at = self.tcp_clock.elapsed(now_ticks());
         self.send_connection_segment(seq, TCP_FLAG_FIN | TCP_FLAG_ACK, &[], &[])?;
-        let connection = self.connection.as_mut().ok_or(NetError::NotConnected)?;
+        let connection = self.connection_mut().ok_or(NetError::NotConnected)?;
         connection.snd_nxt = connection.snd_nxt.wrapping_add(1);
         connection.state = if state == TcpState::Established {
             TcpState::FinWait1
@@ -357,10 +439,9 @@ impl PrivateNet {
             seq,
             flags: TCP_FLAG_FIN | TCP_FLAG_ACK,
             payload: Vec::new(),
-            sent_at: self.tcp_clock.elapsed(now_ticks()),
+            sent_at,
             retries: 0,
         });
-        self.accepted = false;
         Ok(())
     }
 
@@ -469,20 +550,22 @@ impl PrivateNet {
         }
 
         if packet.flags & TCP_FLAG_RST != 0 {
-            if self.connection.as_ref().is_some_and(|connection| {
+            if let Some(connection) = self.connections.iter().find(|connection| {
                 connection.matches(source_ip, packet.source_port, packet.destination_port)
                     && connection.state != TcpState::TimeWait
             }) {
-                self.connection = None;
-                self.accepted = false;
+                let id = connection.id;
+                self.remove_connection(id);
                 return Err(NetError::ConnectionReset);
             }
             return Ok(());
         }
 
-        if let Some(connection) = self.connection.as_ref()
-            && connection.matches(source_ip, packet.source_port, packet.destination_port)
-        {
+        if let Some(connection) = self.connections.iter().find(|connection| {
+            connection.matches(source_ip, packet.source_port, packet.destination_port)
+        }) {
+            let id = connection.id;
+            self.selected_connection = Some(id);
             return self.process_connected_tcp(packet);
         }
 
@@ -496,7 +579,15 @@ impl PrivateNet {
             return Ok(());
         }
 
+        if !has_control_block_capacity(self.connections.len()) {
+            self.send_reset(source_mac, source_ip, packet)?;
+            return Ok(());
+        }
+
+        let id = self.next_connection_id;
+        self.next_connection_id = self.next_connection_id.wrapping_add(1).max(1);
         let connection = TcpConnection::new_syn_received(
+            id,
             source_ip,
             source_mac,
             listen_port,
@@ -510,8 +601,8 @@ impl PrivateNet {
         if let Some(pending) = connection.pending.as_mut() {
             pending.sent_at = self.tcp_clock.elapsed(now_ticks());
         }
-        self.connection = Some(connection);
-        self.accepted = false;
+        self.connections.push(connection);
+        self.selected_connection = Some(id);
         self.send_connection_segment(
             TCP_INITIAL_SEQUENCE,
             TCP_FLAG_SYN | TCP_FLAG_ACK,
@@ -522,8 +613,7 @@ impl PrivateNet {
 
     fn process_connected_tcp(&mut self, packet: TcpPacket<'_>) -> Result<(), NetError> {
         if self
-            .connection
-            .as_ref()
+            .connection()
             .is_some_and(|connection| connection.state == TcpState::TimeWait)
         {
             return self.process_time_wait_tcp(packet);
@@ -531,9 +621,10 @@ impl PrivateNet {
 
         let mut send_ack = false;
         let mut close_after_ack = false;
+        let mut completed_accept = None;
         let entered_at = self.tcp_clock.elapsed(now_ticks());
         {
-            let connection = self.connection.as_mut().ok_or(NetError::NotConnected)?;
+            let connection = self.connection_mut().ok_or(NetError::NotConnected)?;
             connection.peer_window = packet.window;
             let local_control_acked =
                 packet.flags & TCP_FLAG_ACK != 0 && packet.ack == connection.snd_nxt;
@@ -565,7 +656,7 @@ impl PrivateNet {
                 CloseProgress::State(state) => {
                     connection.state = state;
                     if state == TcpState::Established {
-                        self.accepted = true;
+                        completed_accept = Some(connection.id);
                     }
                 }
                 CloseProgress::TimeWait => {
@@ -580,21 +671,20 @@ impl PrivateNet {
                 connection.state_entered_at = entered_at;
             }
         }
+        if let Some(id) = completed_accept {
+            self.accepted_connections.enqueue(id);
+        }
 
         if send_ack {
-            let seq = self
-                .connection
-                .as_ref()
-                .ok_or(NetError::NotConnected)?
-                .snd_nxt;
+            let seq = self.connection().ok_or(NetError::NotConnected)?.snd_nxt;
             self.send_connection_segment(seq, TCP_FLAG_ACK, &[], &[])?;
         }
         if close_after_ack {
-            self.connection = None;
-            self.accepted = false;
+            let id = self.selected_connection.ok_or(NetError::NotConnected)?;
+            self.remove_connection(id);
             return Ok(());
         }
-        let should_start_close = self.connection.as_ref().is_some_and(|connection| {
+        let should_start_close = self.connection().is_some_and(|connection| {
             connection.close_requested
                 && connection.pending.is_none()
                 && matches!(
@@ -616,17 +706,13 @@ impl PrivateNet {
             return Ok(());
         }
 
-        let current_rcv_nxt = self
-            .connection
-            .as_ref()
-            .ok_or(NetError::NotConnected)?
-            .rcv_nxt;
+        let current_rcv_nxt = self.connection().ok_or(NetError::NotConnected)?.rcv_nxt;
         let Some(rcv_nxt) = tcp_state::time_wait_receive_next(packet.seq, tcp_len, current_rcv_nxt)
         else {
             return Ok(());
         };
         let seq = {
-            let connection = self.connection.as_mut().ok_or(NetError::NotConnected)?;
+            let connection = self.connection_mut().ok_or(NetError::NotConnected)?;
             connection.rcv_nxt = rcv_nxt;
             connection.snd_nxt
         };
@@ -635,17 +721,21 @@ impl PrivateNet {
 
     fn expire_close_state(&mut self) {
         let now = self.tcp_clock.elapsed(now_ticks());
-        let expired = self.connection.as_ref().is_some_and(|connection| {
-            tcp_state::close_state_expired(
-                connection.state,
-                now,
-                connection.state_entered_at,
-                TICKS_PER_SECOND,
-            )
-        });
-        if expired {
-            self.connection = None;
-            self.accepted = false;
+        let expired: Vec<u32> = self
+            .connections
+            .iter()
+            .filter_map(|connection| {
+                tcp_state::close_state_expired(
+                    connection.state,
+                    now,
+                    connection.state_entered_at,
+                    TICKS_PER_SECOND,
+                )
+                .then_some(connection.id)
+            })
+            .collect();
+        for id in expired {
+            self.remove_connection(id);
         }
     }
 
@@ -688,7 +778,7 @@ impl PrivateNet {
         options: &[u8],
     ) -> Result<(), NetError> {
         let (remote_mac, remote_ip, local_port, remote_port, ack) = {
-            let connection = self.connection.as_ref().ok_or(NetError::NotConnected)?;
+            let connection = self.connection().ok_or(NetError::NotConnected)?;
             (
                 connection.remote_mac,
                 connection.remote_ip,
@@ -778,7 +868,7 @@ impl PrivateNet {
     }
 
     fn retransmit_if_needed(&mut self) -> Result<(), NetError> {
-        let Some(connection) = self.connection.as_ref() else {
+        let Some(connection) = self.connection() else {
             return Ok(());
         };
         let Some(pending) = connection.pending.as_ref() else {
@@ -789,8 +879,9 @@ impl PrivateNet {
             return Ok(());
         }
         if pending.retries >= TCP_MAX_RETRIES {
-            self.connection = None;
-            self.accepted = false;
+            if let Some(id) = self.selected_connection {
+                self.remove_connection(id);
+            }
             return Err(NetError::ConnectionReset);
         }
 
@@ -805,8 +896,7 @@ impl PrivateNet {
         };
         self.send_connection_segment(seq, flags, &payload, options)?;
         let pending = self
-            .connection
-            .as_mut()
+            .connection_mut()
             .and_then(|connection| connection.pending.as_mut())
             .ok_or(NetError::NotConnected)?;
         pending.sent_at = now;

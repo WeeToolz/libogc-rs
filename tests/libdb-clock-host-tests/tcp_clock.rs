@@ -1,5 +1,9 @@
 #[path = "../../crates/compatibility/libdb-sys/src/tcp_clock.rs"]
 mod tcp_clock;
+extern crate alloc;
+
+#[path = "../../crates/compatibility/libdb-sys/src/tcp_accept.rs"]
+mod tcp_accept;
 #[path = "../../crates/compatibility/libdb-sys/src/tcp_state.rs"]
 mod tcp_state;
 
@@ -114,4 +118,38 @@ fn time_wait_receive_next_preserves_duplicates_and_consumes_new_sequence_space()
     assert_eq!(tcp_state::time_wait_receive_next(100, 1, 101), Some(101));
     assert_eq!(tcp_state::time_wait_receive_next(101, 4, 101), Some(105));
     assert_eq!(tcp_state::time_wait_receive_next(101, 0, 101), None);
+}
+
+#[test]
+fn completed_tcp_connections_are_accepted_in_fifo_order() {
+    let mut accepted = tcp_accept::AcceptedConnections::default();
+    accepted.enqueue(17);
+    accepted.enqueue(23);
+    accepted.enqueue(41);
+
+    assert_eq!(accepted.dequeue(), Some(17));
+    assert_eq!(accepted.dequeue(), Some(23));
+    assert_eq!(accepted.dequeue(), Some(41));
+    assert_eq!(accepted.dequeue(), None);
+}
+
+#[test]
+fn closing_a_queued_connection_does_not_shift_other_accepts() {
+    let mut accepted = tcp_accept::AcceptedConnections::default();
+    accepted.enqueue(17);
+    accepted.enqueue(23);
+    accepted.enqueue(41);
+    accepted.remove(23);
+
+    assert_eq!(accepted.dequeue(), Some(17));
+    assert_eq!(accepted.dequeue(), Some(41));
+    assert_eq!(accepted.dequeue(), None);
+}
+
+#[test]
+fn tcp_connection_limit_matches_four_c_control_blocks() {
+    assert_eq!(tcp_accept::TCP_CONTROL_BLOCK_LIMIT, 4);
+    assert!(tcp_accept::has_control_block_capacity(0));
+    assert!(tcp_accept::has_control_block_capacity(3));
+    assert!(!tcp_accept::has_control_block_capacity(4));
 }
