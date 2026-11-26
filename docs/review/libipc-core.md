@@ -408,3 +408,19 @@ Six C declarations remain without Rust exports: `IOS_Ioctl`, `IOS_IoctlAsync`,
 `IOS_Ioctlv`, `IOS_IoctlvAsync`, `IOS_IoctlvReboot`, and
 `IOS_IoctlvRebootBackground`. These remain open parity work; this report does
 not claim complete `ogc-ipc` parity.
+
+## 2026-11-26 in progress — C ioctl and vector entry points
+
+The working tree adds C ABI entry points for `IOS_Ioctl`, `IOS_IoctlAsync`,
+`IOS_Ioctlv`, `IOS_IoctlvAsync`, `IOS_IoctlvReboot`, and
+`IOS_IoctlvRebootBackground`. The existing runtime probe called the first four
+against file statistics and the network MAC service in Dolphin 2609a. It passed
+888 checks, with zero failures. Its DOL SHA-256 is
+`099aae5bc0841e1b0aed9f095f2fc897e1a60c1e4582a670007ed9a8843fdeab`;
+see `../dolphin-runs/2026-11-26-ipc-ioctl-c-abi-final/suite.json` and the
+probe transport. The reboot entry points were called only with negative vector
+counts. A forced async submission failure restored both caller vector addresses in
+Dolphin; the 889-check run is recorded in
+`../dolphin-runs/2026-11-26-ipc-ioctl-failure/suite.json`. A real relaunch
+remains unverified. Physical Wii evidence remains pending. These changes are not yet
+accepted as complete parity work.

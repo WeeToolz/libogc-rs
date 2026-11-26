@@ -12,6 +12,28 @@ pub struct IoctlBuffers<'a> {
 }
 
 impl<'a> IoctlBuffers<'a> {
+    /// Build borrowed buffer metadata from the C IOS ioctl arguments.
+    ///
+    /// # Safety
+    /// Each non-null pointer must remain valid for its non-negative length
+    /// through request completion. Input buffers must be readable. Output
+    /// buffers must be writable. The caller must keep the buffers exclusive
+    /// while an asynchronous request is pending.
+    pub unsafe fn from_raw_parts(
+        buffer_in: *mut c_void,
+        len_in: i32,
+        buffer_io: *mut c_void,
+        len_io: i32,
+    ) -> Self {
+        Self {
+            buffer_in,
+            len_in,
+            buffer_io,
+            len_io,
+            lifetime: PhantomData,
+        }
+    }
+
     pub const fn empty() -> Self {
         Self {
             buffer_in: core::ptr::null_mut(),
@@ -84,5 +106,19 @@ mod tests {
         assert_eq!(buffers.buffer_in(), input_pointer);
         assert_eq!(buffers.buffer_io(), output_pointer);
         assert_eq!((buffers.len_in(), buffers.len_io()), (36, 5));
+    }
+
+    #[test]
+    fn raw_buffers_keep_c_addresses_and_lengths() {
+        let mut input = [1u8; 32];
+        let mut output = [2u8; 32];
+        let input_ptr = input.as_mut_ptr().cast();
+        let output_ptr = output.as_mut_ptr().cast();
+        let buffers = unsafe {
+            IoctlBuffers::from_raw_parts(input_ptr, 32, output_ptr, 8)
+        };
+        assert_eq!(buffers.buffer_in(), input_ptr);
+        assert_eq!(buffers.buffer_io(), output_ptr);
+        assert_eq!((buffers.len_in(), buffers.len_io()), (32, 8));
     }
 }

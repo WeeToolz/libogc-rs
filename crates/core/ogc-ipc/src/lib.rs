@@ -603,56 +603,18 @@ impl FileDescriptor {
         cnt_io: usize,
         vectors: &mut [Ioctlv; N],
     ) -> i32 {
-        let argv = vectors.as_mut_ptr();
-        let Some((total, raw_len)) = raw_contract::vector_layout(
-            cnt_in,
-            cnt_io,
-            N,
-            core::mem::size_of::<Ioctlv>(),
-            argv as usize,
-        ) else {
-            return IPC_EINVAL;
-        };
-        for entry in vectors.iter().take(total) {
-            if !raw_contract::buffer_valid(entry.data as usize, entry.len as usize) {
-                return IPC_EINVAL;
-            }
-        }
-        let originals: [*mut c_void; N] = core::array::from_fn(|index| vectors[index].data);
-        for entry in vectors.iter_mut().take(total) {
-            unsafe {
-                dc_flush_range(entry.data.cast_const(), entry.len as usize);
-            }
-            entry.data = raw_contract::request_address(entry.data as usize, entry.len as usize)
-                as *mut c_void;
-        }
-        let result = with_request(|req| {
-            req.cmd = IOS_IOCTLV;
-            req.fd = self.0;
-            req.data.ioctlv.ioctl = ioctl as u32;
-            req.data.ioctlv.argcin = cnt_in as u32;
-            req.data.ioctlv.argcio = cnt_io as u32;
-            req.data.ioctlv.argv = mem_virtual_to_physical(argv as usize) as *mut Ioctlv;
-            unsafe {
-                dc_flush_range(argv.cast_const().cast(), raw_len);
-                submit_request(req, || {
-                    dc_invalidate_range(argv.cast_const().cast(), raw_len);
-                    for entry in core::slice::from_raw_parts(argv, total).iter().skip(cnt_in) {
-                        if entry.len > 0 {
-                            dc_invalidate_range(entry.data.cast_const(), entry.len as usize);
-                        }
-                    }
-                })
-            }
-        });
-        // The reply handler maps non-null vectors to cached aliases. Restore
-        // caller addresses also on request-allocation failure and for the IOS
-        // zero-length address, which must retain its protocol value.
-        for (entry, original) in vectors.iter_mut().zip(originals).take(total) {
-            entry.data = original;
-        }
-        match result {
-            Ok(rc) | Err(rc) => rc,
+        let mut originals = [core::ptr::null_mut(); N];
+        unsafe {
+            ioctlv_raw_slice_with_options(
+                self.0,
+                ioctl,
+                cnt_in,
+                cnt_io,
+                vectors,
+                &mut originals,
+                0,
+                0,
+            )
         }
     }
 
@@ -700,17 +662,31 @@ impl FileDescriptor {
             let Some(total) = cnt_in.checked_add(cnt_io) else {
                 return IPC_EINVAL;
             };
-            if ipc_cb.is_none()
-                || total == 0
-                || argv.is_null()
-                || cnt_in > i32::MAX as usize
-                || cnt_io > i32::MAX as usize
+            if ipc_cb.is_none() || raw_contract::vector_layout(
+                cnt_in, cnt_io, total, core::mem::size_of::<Ioctlv>(), argv as usize,
+            ).is_none() {
+                return IPC_EINVAL;
+            }
+            if core::slice::from_raw_parts(argv, total)
+                .iter()
+                .any(|entry| !raw_contract::buffer_valid(entry.data as usize, entry.len as usize))
             {
                 return IPC_EINVAL;
             }
             let Some(raw_len) = total.checked_mul(core::mem::size_of::<Ioctlv>()) else {
                 return IPC_EINVAL;
             };
+            let Some(backup_len) = total.checked_mul(core::mem::size_of::<*mut c_void>()) else {
+                return IPC_EINVAL;
+            };
+            let Some(req_ptr) = alloc_request().ok() else {
+                return IPC_ENOMEM;
+            };
+            let backup = lwp_sys::allocate_workspace(backup_len).cast::<*mut c_void>();
+            if backup.is_null() {
+                free_request(req_ptr);
+                return IPC_ENOMEM;
+            }
             let mut debug_original = [0u32; 8];
             let mut debug_physical = [0u32; 8];
             let mut debug_len = [0u32; 8];
@@ -718,13 +694,12 @@ impl FileDescriptor {
             {
                 let raw = core::slice::from_raw_parts_mut(argv, total);
                 for (idx, entry) in raw.iter_mut().enumerate() {
+                    backup.add(idx).write(entry.data);
                     let original = entry.data as usize as u32;
                     if !entry.data.is_null() && entry.len > 0 {
                         dc_flush_range(entry.data.cast_const(), entry.len as usize);
                     }
-                    if !entry.data.is_null() {
-                        entry.data = mem_virtual_to_physical(entry.data as usize) as *mut _;
-                    }
+                    entry.data = raw_contract::request_address(entry.data as usize, entry.len as usize) as *mut _;
                     if idx < debug_original.len() {
                         debug_original[idx] = original;
                         debug_physical[idx] = entry.data as usize as u32;
@@ -734,9 +709,6 @@ impl FileDescriptor {
                 dc_flush_range(argv.cast_const().cast(), raw_len);
             }
 
-            let Ok(req_ptr) = alloc_request() else {
-                return IPC_ENOMEM;
-            };
             let req = { &mut *req_ptr.as_ptr() };
             *req = IpcRequest::zeroed();
             req.cmd = IOS_IOCTLV;
@@ -772,12 +744,21 @@ impl FileDescriptor {
                 );
             }
 
-            let rc = { submit_async_request(req) };
+            #[cfg(feature = "format-probe-hooks")]
+            let rc = if format_probe::fail_async_submission() {
+                IPC_EQUEUEFULL
+            } else {
+                submit_async_request(req)
+            };
+            #[cfg(not(feature = "format-probe-hooks"))]
+            let rc = submit_async_request(req);
             if rc < 0 {
-                {
-                    free_request(req_ptr);
+                for (index, entry) in core::slice::from_raw_parts_mut(argv, total).iter_mut().enumerate() {
+                    entry.data = backup.add(index).read();
                 }
+                free_request(req_ptr);
             }
+            lwp_sys::release_workspace(backup.cast(), backup_len);
             rc
         }
     }
@@ -819,6 +800,132 @@ impl FileDescriptor {
     }
 }
 
+unsafe fn ioctlv_raw_slice_with_options(
+    fd: i32,
+    ioctl: i32,
+    cnt_in: usize,
+    cnt_io: usize,
+    vectors: &mut [Ioctlv],
+    originals: &mut [*mut c_void],
+    relnch: u32,
+    result: i32,
+) -> i32 {
+    let argv = vectors.as_mut_ptr();
+    let Some((total, raw_len)) = raw_contract::vector_layout(
+        cnt_in,
+        cnt_io,
+        vectors.len(),
+        core::mem::size_of::<Ioctlv>(),
+        argv as usize,
+    ) else {
+        return IPC_EINVAL;
+    };
+    if originals.len() < total {
+        return IPC_EINVAL;
+    }
+    for entry in vectors.iter().take(total) {
+        if !raw_contract::buffer_valid(entry.data as usize, entry.len as usize) {
+            return IPC_EINVAL;
+        }
+    }
+    for index in 0..total {
+        originals[index] = vectors[index].data;
+    }
+    for entry in vectors.iter_mut().take(total) {
+        unsafe { dc_flush_range(entry.data.cast_const(), entry.len as usize) };
+        entry.data = raw_contract::request_address(entry.data as usize, entry.len as usize)
+            as *mut c_void;
+    }
+    let result = with_request(|req| {
+        req.cmd = IOS_IOCTLV;
+        req.fd = fd;
+        req.result = result;
+        req.relnch = relnch;
+        req.data.ioctlv.ioctl = ioctl as u32;
+        req.data.ioctlv.argcin = cnt_in as u32;
+        req.data.ioctlv.argcio = cnt_io as u32;
+        req.data.ioctlv.argv = mem_virtual_to_physical(argv as usize) as *mut Ioctlv;
+        unsafe {
+            dc_flush_range(argv.cast_const().cast(), raw_len);
+            submit_request(req, || {
+                dc_invalidate_range(argv.cast_const().cast(), raw_len);
+                for entry in core::slice::from_raw_parts(argv, total).iter().skip(cnt_in) {
+                    if entry.len > 0 {
+                        dc_invalidate_range(entry.data.cast_const(), entry.len as usize);
+                    }
+                }
+            })
+        }
+    });
+    for index in 0..total {
+        vectors[index].data = originals[index];
+    }
+    match result {
+        Ok(code) | Err(code) => code,
+    }
+}
+
+unsafe fn ioctlv_raw_c(
+    fd: i32,
+    ioctl: i32,
+    cnt_in: i32,
+    cnt_io: i32,
+    argv: *mut Ioctlv,
+    relnch: u32,
+    result: i32,
+) -> i32 {
+    if cnt_in < 0 || cnt_io < 0 {
+        return IPC_EINVAL;
+    }
+    let cnt_in = cnt_in as usize;
+    let cnt_io = cnt_io as usize;
+    let Some(total) = cnt_in.checked_add(cnt_io) else {
+        return IPC_EINVAL;
+    };
+    if total == 0 {
+        return with_request(|req| {
+            req.cmd = IOS_IOCTLV;
+            req.fd = fd;
+            req.result = result;
+            req.relnch = relnch;
+            req.data.ioctlv.ioctl = ioctl as u32;
+            req.data.ioctlv.argcin = 0;
+            req.data.ioctlv.argcio = 0;
+            req.data.ioctlv.argv = mem_virtual_to_physical(argv as usize) as *mut Ioctlv;
+            unsafe { submit_request(req, || {}) }
+        })
+        .unwrap_or_else(|error| error);
+    }
+    if raw_contract::vector_layout(
+        cnt_in,
+        cnt_io,
+        total,
+        core::mem::size_of::<Ioctlv>(),
+        argv as usize,
+    )
+    .is_none()
+    {
+        return IPC_EINVAL;
+    }
+    let Some(backup_len) = total.checked_mul(core::mem::size_of::<*mut c_void>()) else {
+        return IPC_EINVAL;
+    };
+    let backup = unsafe { lwp_sys::allocate_workspace(backup_len) }.cast::<*mut c_void>();
+    let Some(backup_ptr) = NonNull::new(backup) else {
+        return IPC_ENOMEM;
+    };
+    unsafe { core::ptr::write_bytes(backup_ptr.as_ptr(), 0, total) };
+    let vectors = unsafe { core::slice::from_raw_parts_mut(argv, total) };
+    let originals = unsafe { core::slice::from_raw_parts_mut(backup_ptr.as_ptr(), total) };
+    let code = unsafe {
+        ioctlv_raw_slice_with_options(
+            fd, ioctl, cnt_in, cnt_io, vectors, originals, relnch, result,
+        )
+    };
+    unsafe { lwp_sys::release_workspace(backup_ptr.as_ptr().cast(), backup_len) };
+    code
+}
+
 fn submit_file_async(
     fd: i32,
     cmd: u32,
@@ -842,6 +949,41 @@ fn submit_file_async(
         unsafe { free_request(req_ptr) };
     }
     rc
+}
+
+fn submit_ioctl_async(
+    fd: i32,
+    ioctl: i32,
+    buffers: IoctlBuffers<'_>,
+    ipc_cb: Ipccallback,
+    usrdata: *mut c_void,
+) -> i32 {
+    if buffers.len_in() < 0
+        || buffers.len_io() < 0
+        || (buffers.len_in() > 0 && buffers.buffer_in().is_null())
+        || (buffers.len_io() > 0 && buffers.buffer_io().is_null())
+    {
+        return IPC_EINVAL;
+    }
+    let in_ptr = buffers.buffer_in();
+    let io_ptr = buffers.buffer_io();
+    let in_len = buffers.len_in() as usize;
+    let io_len = buffers.len_io() as usize;
+    unsafe {
+        if !in_ptr.is_null() && in_len > 0 {
+            dc_flush_range(in_ptr.cast_const(), in_len);
+        }
+        if !io_ptr.is_null() && io_len > 0 {
+            dc_flush_range(io_ptr.cast_const(), io_len);
+        }
+    }
+    submit_file_async(fd, IOS_IOCTL, ipc_cb, usrdata, |req| {
+        req.data.ioctl.ioctl = ioctl as u32;
+        req.data.ioctl.buffer_in = mem_virtual_to_physical(in_ptr as usize) as *mut c_void;
+        req.data.ioctl.len_in = in_len as u32;
+        req.data.ioctl.buffer_io = mem_virtual_to_physical(io_ptr as usize) as *mut c_void;
+        req.data.ioctl.len_io = io_len as u32;
+    })
 }
 
 unsafe extern "C" fn async_noop_callback(_result: i32, _usrdata: *mut c_void) -> i32 {
@@ -3083,6 +3225,141 @@ pub unsafe extern "C" fn IOS_WriteAsync(
     }
     let buffer = unsafe { core::slice::from_raw_parts(buf.cast::<u8>(), len as usize) };
     unsafe { FileDescriptor::new(fd).write_async(buffer, ipc_cb, usrdata) }
+}
+
+/// Submit an IOS ioctl through the C ABI and wait for its reply.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn IOS_Ioctl(
+    fd: i32,
+    ioctl: i32,
+    buffer_in: *mut c_void,
+    len_in: i32,
+    buffer_io: *mut c_void,
+    len_io: i32,
+) -> i32 {
+    if len_in < 0
+        || len_io < 0
+        || (len_in > 0 && buffer_in.is_null())
+        || (len_io > 0 && buffer_io.is_null())
+    {
+        return IPC_EINVAL;
+    }
+    let buffers = unsafe { IoctlBuffers::from_raw_parts(buffer_in, len_in, buffer_io, len_io) };
+    FileDescriptor::new(fd)
+        .ioctl_result(ioctl, buffers)
+        .unwrap_or_else(|error| error)
+}
+
+/// Queue an IOS ioctl through the C ABI.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn IOS_IoctlAsync(
+    fd: i32,
+    ioctl: i32,
+    buffer_in: *mut c_void,
+    len_in: i32,
+    buffer_io: *mut c_void,
+    len_io: i32,
+    ipc_cb: Ipccallback,
+    usrdata: *mut c_void,
+) -> i32 {
+    let buffers = unsafe { IoctlBuffers::from_raw_parts(buffer_in, len_in, buffer_io, len_io) };
+    submit_ioctl_async(fd, ioctl, buffers, ipc_cb, usrdata)
+}
+
+/// Submit raw IOS vectors through the C ABI and wait for the reply.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn IOS_Ioctlv(
+    fd: i32,
+    ioctl: i32,
+    cnt_in: i32,
+    cnt_io: i32,
+    argv: *mut Ioctlv,
+) -> i32 {
+    unsafe { ioctlv_raw_c(fd, ioctl, cnt_in, cnt_io, argv, 0, 0) }
+}
+
+/// Queue raw IOS vectors through the C ABI.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn IOS_IoctlvAsync(
+    fd: i32,
+    ioctl: i32,
+    cnt_in: i32,
+    cnt_io: i32,
+    argv: *mut Ioctlv,
+    ipc_cb: Ipccallback,
+    usrdata: *mut c_void,
+) -> i32 {
+    if cnt_in < 0 || cnt_io < 0 {
+        return IPC_EINVAL;
+    }
+    let cnt_in_usize = cnt_in as usize;
+    let cnt_io_usize = cnt_io as usize;
+    let Some(total) = cnt_in_usize.checked_add(cnt_io_usize) else {
+        return IPC_EINVAL;
+    };
+    if total == 0 {
+        return submit_file_async(fd, IOS_IOCTLV, ipc_cb, usrdata, |req| {
+            req.data.ioctlv.ioctl = ioctl as u32;
+            req.data.ioctlv.argcin = 0;
+            req.data.ioctlv.argcio = 0;
+            req.data.ioctlv.argv = mem_virtual_to_physical(argv as usize) as *mut Ioctlv;
+        });
+    }
+    if raw_contract::vector_layout(
+        cnt_in_usize,
+        cnt_io_usize,
+        total,
+        core::mem::size_of::<Ioctlv>(),
+        argv as usize,
+    )
+    .is_none()
+    {
+        return IPC_EINVAL;
+    }
+    unsafe {
+        FileDescriptor::new(fd).ioctlv_async_raw(
+            ioctl,
+            cnt_in_usize,
+            cnt_io_usize,
+            argv,
+            Some(ipc_cb.unwrap_or(async_noop_callback)),
+            usrdata,
+        )
+    }
+}
+
+/// Submit an IOS ioctlv with the C relaunch flag.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn IOS_IoctlvReboot(
+    fd: i32,
+    ioctl: i32,
+    cnt_in: i32,
+    cnt_io: i32,
+    argv: *mut Ioctlv,
+) -> i32 {
+    unsafe { ioctlv_raw_c(fd, ioctl, cnt_in, cnt_io, argv, RELNCH_RELAUNCH, 0) }
+}
+
+/// Submit an IOS ioctlv with the C background relaunch flags.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn IOS_IoctlvRebootBackground(
+    fd: i32,
+    ioctl: i32,
+    cnt_in: i32,
+    cnt_io: i32,
+    argv: *mut Ioctlv,
+) -> i32 {
+    unsafe {
+        ioctlv_raw_c(
+            fd,
+            ioctl,
+            cnt_in,
+            cnt_io,
+            argv,
+            RELNCH_RELAUNCH | RELNCH_BACKGROUND,
+            0,
+        )
+    }
 }
 
 pub fn open_file(path: &CStr, mode: u32) -> Result<FileDescriptor, i32> {

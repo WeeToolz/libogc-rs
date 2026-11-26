@@ -7875,6 +7875,16 @@ fn probe_ipc_ioctl_file_stats(logger: &mut ProbeLogger) {
     };
     let positioned = file.seek(64, 0) == Ok(64);
     let expected = [0, 0, 1, 0, 0, 0, 0, 64];
+    let mut c_stats = AlignedIsfsBytes([0xa5; 32]);
+    let c_result = unsafe {
+        ipc::IOS_Ioctl(file.raw(), 11, core::ptr::null_mut(), 0, c_stats.0.as_mut_ptr().cast(), 8)
+    };
+    logger.record("IPC C ioctl returns file stats", positioned && c_result == 0 && c_stats.0[..8] == expected);
+    c_stats.0.fill(0xa5);
+    let (c_submit, c_reply) = run_isfs_async_and_wait(|| unsafe {
+        ipc::IOS_IoctlAsync(file.raw(), 11, core::ptr::null_mut(), 0, c_stats.0.as_mut_ptr().cast(), 8, Some(isfs_probe_callback), core::ptr::null_mut())
+    });
+    logger.record("IPC C ioctl async returns file stats", positioned && c_submit == 0 && c_reply == 0 && c_stats.0[..8] == expected);
     let mut first = AlignedIsfsBytes([0xa5; 32]);
     let result = file.ioctl(
         11,
@@ -10983,6 +10993,11 @@ fn probe_ipc_ioctlv_mac(logger: &mut ProbeLogger) {
     #[repr(align(32))]
     struct Vectors([ipc::Ioctlv; 2]);
     logger.report_step("IPC vector MAC queries");
+    let invalid_reboot = unsafe {
+        ipc::IOS_IoctlvReboot(-1, 0, -1, 0, core::ptr::null_mut()) == ipc::IPC_EINVAL
+            && ipc::IOS_IoctlvRebootBackground(-1, 0, 0, -1, core::ptr::null_mut()) == ipc::IPC_EINVAL
+    };
+    logger.record("IPC C reboot vector calls reject negative counts", invalid_reboot);
     let mut expected = [0; 6];
     let reference = unsafe { raw_network::net_get_mac_address(expected.as_mut_ptr().cast()) } == 0
         && expected != [0; 6];
@@ -11042,6 +11057,14 @@ fn probe_ipc_ioctlv_mac(logger: &mut ProbeLogger) {
             len: 6,
         },
     ]);
+    #[cfg(feature = "dolphin-automation")]
+    {
+        ipc::FORMAT_PROBE_FAIL_ASYNC_SUBMISSION.store(true, Ordering::Release);
+        let failed = unsafe {
+            ipc::IOS_IoctlvAsync(fd.raw(), 8, 0, 2, vectors.0.as_mut_ptr(), Some(isfs_probe_callback), core::ptr::null_mut())
+        };
+        logger.record("IPC C ioctlv async submission failure restores vectors", failed == ipc::IPC_EQUEUEFULL && vectors.0[0].data == status_ptr && vectors.0[1].data == mac_ptr);
+    }
     // SAFETY: Both DMA buffers and the vector list own complete aligned cache lines.
     let rc = unsafe { fd.ioctlv_raw(8, 0, 2, &mut vectors.0) };
     logger.record(
@@ -11052,6 +11075,20 @@ fn probe_ipc_ioctlv_mac(logger: &mut ProbeLogger) {
             && vectors.0[1].data == mac_ptr
             && valid(&status.0, &mac.0),
     );
+    status.0.fill(0xa5);
+    mac.0.fill(0xa5);
+    let c_rc = unsafe { ipc::IOS_Ioctlv(fd.raw(), 8, 0, 2, vectors.0.as_mut_ptr()) };
+    logger.record("IPC C ioctlv returns MAC", reference && c_rc == 0 && vectors.0[0].data == status_ptr && vectors.0[1].data == mac_ptr && valid(&status.0, &mac.0));
+    status.0.fill(0xa5);
+    mac.0.fill(0xa5);
+    let (c_submit, c_reply) = run_isfs_async_and_wait(|| unsafe {
+        ipc::IOS_IoctlvAsync(fd.raw(), 8, 0, 2, vectors.0.as_mut_ptr(), Some(isfs_probe_callback), core::ptr::null_mut())
+    });
+    unsafe {
+        ogc_cache::dc_invalidate_range(status.0.as_ptr().cast(), 32);
+        ogc_cache::dc_invalidate_range(mac.0.as_ptr().cast(), 32);
+    }
+    logger.record("IPC C ioctlv async returns MAC", reference && c_submit == 0 && c_reply == 0 && valid(&status.0, &mac.0));
     status.0.fill(0xa5);
     mac.0.fill(0xa5);
     let mut vectors = Vectors([
