@@ -37,6 +37,8 @@ static DEBUG_B: AtomicU32 = AtomicU32::new(0);
 static DEBUG_C: AtomicU32 = AtomicU32::new(0);
 #[cfg(target_arch = "powerpc")]
 static DEBUG_COUNT: AtomicU32 = AtomicU32::new(0);
+#[cfg(target_arch = "powerpc")]
+static REINIT_MSR: AtomicU32 = AtomicU32::new(u32::MAX);
 
 pub fn monitor(logger: &mut ProbeLogger) -> ! {
     logger.section("IPC ASYNC FS PROBE START");
@@ -50,6 +52,29 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
         state.start_ticks = system::time();
         reset_probe();
         set_debug_hook(Some(ipc_debug_hook));
+        let before = read_msr();
+        ogc_ipc::reinitialize();
+        let after = read_msr();
+        logger.note_u32("IPC reinitialize MSR before", before);
+        logger.note_u32(
+            "IPC reinitialize MSR during",
+            REINIT_MSR.load(Ordering::Acquire),
+        );
+        logger.note_u32("IPC reinitialize MSR after", after);
+        logger.record(
+            "IPC reinitialize masks and restores interrupts",
+            REINIT_MSR.load(Ordering::Acquire) & 0x8000 == 0
+                && after & 0x8000 == before & 0x8000,
+        );
+        let saved = ogc_irq::irq_disable();
+        REINIT_MSR.store(u32::MAX, Ordering::Release);
+        ogc_ipc::reinitialize();
+        let nested_after = read_msr();
+        ogc_irq::irq_restore(saved);
+        logger.record(
+            "IPC reinitialize preserves disabled interrupts",
+            REINIT_MSR.load(Ordering::Acquire) & 0x8000 == 0 && nested_after & 0x8000 == 0,
+        );
         logger.record(
             "zero-sized IPC heap returns no-memory",
             HeapId::create(0) == Err(IPC_ENOMEM),
@@ -250,11 +275,22 @@ unsafe extern "C" fn ipc_async_open_cb(result: i32, _userdata: *mut c_void) -> i
 
 #[cfg(target_arch = "powerpc")]
 unsafe fn ipc_debug_hook(stage: u32, a: u32, b: u32, c: u32) {
+    if stage == 70 {
+        REINIT_MSR.store(read_msr(), Ordering::Release);
+    }
     DEBUG_STAGE.store(stage, Ordering::Release);
     DEBUG_A.store(a, Ordering::Release);
     DEBUG_B.store(b, Ordering::Release);
     DEBUG_C.store(c, Ordering::Release);
     let _ = DEBUG_COUNT.fetch_add(1, Ordering::AcqRel);
+}
+
+#[cfg(target_arch = "powerpc")]
+fn read_msr() -> u32 {
+    let value: u32;
+    // SAFETY: Reading MSR has no side effects.
+    unsafe { core::arch::asm!("mfmsr {value}", value = out(reg) value, options(nomem, nostack)) };
+    value
 }
 
 #[cfg(target_arch = "powerpc")]

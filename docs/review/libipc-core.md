@@ -524,17 +524,22 @@ needed before the relaunch result can be resolved.
 
 ### Reinitialization interrupt exclusion
 
-Source comparison found an additional open ordering gap. C's
+Source comparison found an ordering gap. C's
 `__IPC_Reinitialize` disables CPU interrupts before it writes IPC control and
 resets the mailbox credit, relaunch marker, and request queue; it restores the
-previous interrupt state after those operations. Rust's `reinitialize` resets
+previous interrupt state after those operations. Rust's `reinitialize` reset
 the same shared state without an equivalent critical section. The Rust IOS
 reload path restores and unmasks the IPC interrupt before calling it, so the
-IPC interrupt handler can potentially observe an incomplete reset. Rust also
-regenerates the request magic, while C preserves it across reinitialization.
-The effect of that difference on outstanding replies needs a separate review.
+IPC interrupt handler could potentially observe an incomplete reset. Rust now
+uses the existing interrupt guard around reinitialization and preserves the
+request magic, as C does.
 
-This is a source-level finding, not a reproduced runtime failure. Add a
-regression that exercises interrupt exclusion and the saved interrupt state,
-then verify the production path and its reload behavior in Dolphin. Do not
-infer a fix for the separate relaunch abort from this finding.
+The instrumented Dolphin baseline recorded MSR 41010 before and during the
+reset and failed the interrupt exclusion check. The fixed run recorded 41010
+before, 50 during, and 41010 after; it passed both the enabled and nested
+disabled interrupt checks and 16 other IPC checks. Results are in
+`../dolphin-runs/2026-11-26-ipc-reinitialize-msr-red/` and
+`../dolphin-runs/2026-11-26-ipc-reinitialize-final/`. The probe calls
+reinitialization directly with no request pending. It does not test an actual
+IOS reload, outstanding replies, or the separate relaunch abort. Physical Wii
+verification remains pending.

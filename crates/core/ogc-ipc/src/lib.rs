@@ -1471,11 +1471,18 @@ pub fn poll() -> bool {
 /// This keeps the installed IRQ handler and mailbox setup in sync with the new
 /// IOS instance before new requests are submitted.
 pub fn reinitialize() {
-    REQUEST_MAGIC.store(0, Ordering::Release);
-    IPC_MAILBOX_ACK.store(1, Ordering::Release);
-    reset_request_queue();
-    IPC_INITIALIZED.store(false, Ordering::Release);
-    ensure_client_initialized();
+    poll_guard::protected_poll(
+        || unsafe { lock_by_msr() },
+        |state| unsafe { unlock_by_msr(state) },
+        || {
+            #[cfg(feature = "format-probe-hooks")]
+            debug_mark(70, 0, 0, 0);
+            IPC_MAILBOX_ACK.store(1, Ordering::Release);
+            reset_request_queue();
+            IPC_INITIALIZED.store(false, Ordering::Release);
+            ensure_client_initialized();
+        },
+    );
 }
 
 fn debug_mark(stage: u32, a: u32, b: u32, c: u32) {
