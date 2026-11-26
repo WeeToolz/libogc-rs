@@ -377,6 +377,31 @@ result was claimed. The bounded Wii stream callback fix passes its ordinary
 valid-voice comparison, but both AESND rows remain blocked by the findings
 above.
 
+## 2026-11-26 fix — callback replacement across API forms
+
+**Confirmed mismatch:** C exposes the `WithArg` callback setters and defines
+the legacy setters as inline casts around those functions
+(`../../C-sources/libogc/gc/aesndlib.h:48-51,70-73`). Each setter therefore
+returns the callback pointer that was previously stored, even when the caller
+switches between legacy and with-argument forms. Rust stored the callback
+forms separately and returned `None` when replacement crossed forms.
+
+The audio and voice registration paths now convert the previous optional
+function pointer to the requested return type while preserving its address.
+The internal conversion follows C's callback pointer cast; callers must use
+the original callback signature when they invoke a returned pointer. The
+existing `aesnd_native_probe` checks both replacement directions for audio and
+voice callbacks through the production setters. Dolphin 2609a run
+`docs/dolphin-runs/2026-11-26-aesnd-callback-cross-form-verified` passed 104
+checks, including the new assertion. `RUSTFLAGS='--check-cfg=cfg(gamecube)
+-D warnings' cargo check -p aesnd-sys -p aesnd --target
+powerpc-unknown-linux-gnu --tests` passed and compiled target test code.
+
+This closes the callback-return mismatch only. Independent review of this fix,
+the safe `VoiceHandle` ownership constructor, full native DSP parity, and
+physical Wii/GameCube verification remain open. Dolphin evidence does not
+establish physical playback behavior.
+
 ## Bounded parity fixes — 2026-10-15
 
 **BUG FIX:** The GameCube ARQ completion callback now sets `VOICE_RUNNING` on

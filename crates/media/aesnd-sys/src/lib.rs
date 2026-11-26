@@ -138,6 +138,30 @@ pub type AesndAudioCallbackArg =
     Option<unsafe extern "C" fn(audio_buffer: *mut c_void, len: u32, cb_arg: *mut c_void)>;
 pub type AesndAudioCallback = Option<unsafe extern "C" fn(audio_buffer: *mut c_void, len: u32)>;
 
+fn audio_callback_arg_as_legacy(callback: AesndAudioCallbackArg) -> AesndAudioCallback {
+    // SAFETY: The C inline compatibility wrapper casts these callback pointer
+    // types. This preserves the stored pointer; callers must use the original
+    // callback ABI if they invoke a pointer returned across callback forms.
+    unsafe { core::mem::transmute(callback) }
+}
+
+fn audio_callback_legacy_as_arg(callback: AesndAudioCallback) -> AesndAudioCallbackArg {
+    // SAFETY: See `audio_callback_arg_as_legacy`.
+    unsafe { core::mem::transmute(callback) }
+}
+
+fn voice_callback_arg_as_legacy(callback: AesndVoiceCallbackArg) -> AesndVoiceCallback {
+    // SAFETY: The C inline compatibility wrapper casts these callback pointer
+    // types. This preserves the stored pointer; callers must use the original
+    // callback ABI if they invoke a pointer returned across callback forms.
+    unsafe { core::mem::transmute(callback) }
+}
+
+fn voice_callback_legacy_as_arg(callback: AesndVoiceCallback) -> AesndVoiceCallbackArg {
+    // SAFETY: See `voice_callback_arg_as_legacy`.
+    unsafe { core::mem::transmute(callback) }
+}
+
 const MSR_EE: u32 = 1 << 15;
 
 #[inline(always)]
@@ -706,7 +730,8 @@ pub unsafe fn register_audio_callback_with_arg(
     cb_arg: *mut c_void,
 ) -> AesndAudioCallbackArg {
     let mut state = AESND_STATE.lock();
-    let old = state.command.audio_callback;
+    let current = state.command.audio_callback;
+    let old = current.or_else(|| audio_callback_legacy_as_arg(state.legacy_audio_callback));
     state.command.audio_callback = cb;
     state.command.audio_callback_arg = cb_arg;
     state.legacy_audio_callback = None;
@@ -717,7 +742,8 @@ pub unsafe fn register_audio_callback_with_arg(
 /// function-pointer signature.
 pub fn register_audio_callback(cb: AesndAudioCallback) -> AesndAudioCallback {
     let mut state = AESND_STATE.lock();
-    let old = state.legacy_audio_callback;
+    let legacy = state.legacy_audio_callback;
+    let old = legacy.or_else(|| audio_callback_arg_as_legacy(state.command.audio_callback));
 
     state.legacy_audio_callback = cb;
     state.command.audio_callback = None;
@@ -970,8 +996,9 @@ pub unsafe fn register_voice_callback_with_arg(
 ) -> AesndVoiceCallbackArg {
     let mut state = AESND_STATE.lock();
     let index = voice_index_from_ptr(&state, pb)?;
+    let legacy = state.legacy_voice_callbacks[index];
     let voice = voice_mut_by_ptr(&mut state, pb)?;
-    let old = voice.cb;
+    let old = voice.cb.or_else(|| voice_callback_legacy_as_arg(legacy));
     voice.cb = cb;
     voice.callback_arg = cb_arg;
     state.legacy_voice_callbacks[index] = None;
@@ -982,11 +1009,15 @@ pub unsafe fn register_voice_callback_with_arg(
 pub fn register_voice_callback(pb: *mut Aesndpb, cb: AesndVoiceCallback) -> AesndVoiceCallback {
     let mut state = AESND_STATE.lock();
     let index = voice_index_from_ptr(&state, pb)?;
-    let old = state.legacy_voice_callbacks[index];
+    let legacy = state.legacy_voice_callbacks[index];
+    let old = {
+        let voice = voice_mut_by_ptr(&mut state, pb)?;
+        let old = legacy.or_else(|| voice_callback_arg_as_legacy(voice.cb));
+        voice.cb = None;
+        voice.callback_arg = null_mut();
+        old
+    };
     state.legacy_voice_callbacks[index] = cb;
-    let voice = voice_mut_by_ptr(&mut state, pb)?;
-    voice.cb = None;
-    voice.callback_arg = null_mut();
     old
 }
 

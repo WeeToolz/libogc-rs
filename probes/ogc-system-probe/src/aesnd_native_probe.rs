@@ -506,6 +506,10 @@ unsafe extern "C" fn wrapper_audio(ptr: *mut c_void, len: u32) {
     unsafe { audio(ptr, len, core::ptr::null_mut()) };
 }
 
+unsafe extern "C" fn wrapper_audio_with_arg(ptr: *mut c_void, len: u32, _arg: *mut c_void) {
+    unsafe { wrapper_audio(ptr, len) };
+}
+
 unsafe extern "C" fn wrapper_voice(_pb: *mut snd::Aesndpb, event: u32) {
     if event == snd::VOICE_STATE_RUNNING {
         RUNNING_CALLS.fetch_add(1, Ordering::Relaxed);
@@ -513,6 +517,10 @@ unsafe extern "C" fn wrapper_voice(_pb: *mut snd::Aesndpb, event: u32) {
     if event == snd::VOICE_STATE_STREAM {
         STREAM_CALLS.fetch_add(1, Ordering::Relaxed);
     }
+}
+
+unsafe extern "C" fn wrapper_voice_with_arg(pb: *mut snd::Aesndpb, event: u32, _arg: *mut c_void) {
+    unsafe { wrapper_voice(pb, event) };
 }
 
 fn probe_wrapper_lifecycle(logger: &mut ProbeLogger) {
@@ -523,6 +531,23 @@ fn probe_wrapper_lifecycle(logger: &mut ProbeLogger) {
     INVALID_BUFFER.store(0, Ordering::Release);
     aesnd::init();
     let previous_audio = aesnd::register_audio_callback(Some(wrapper_audio));
+    // SAFETY: The callback pointer returned across forms is inspected only for
+    // identity. It is not called through the temporary, mismatched type.
+    let legacy_audio_as_arg = unsafe {
+        snd::register_audio_callback_with_arg(Some(wrapper_audio_with_arg), core::ptr::null_mut())
+    };
+    let legacy_audio_round_trip = unsafe {
+        core::mem::transmute::<snd::AesndAudioCallbackArg, snd::AesndAudioCallback>(
+            legacy_audio_as_arg,
+        )
+    };
+    let arg_audio_as_legacy = snd::register_audio_callback(Some(wrapper_audio));
+    // SAFETY: As above, inspect the returned function pointer only.
+    let arg_audio_round_trip = unsafe {
+        core::mem::transmute::<snd::AesndAudioCallback, snd::AesndAudioCallbackArg>(
+            arg_audio_as_legacy,
+        )
+    };
     let Some(handle) = aesnd::allocate_voice(None) else {
         logger.record("wrapper voice allocation", false);
         aesnd::reset();
@@ -532,8 +557,40 @@ fn probe_wrapper_lifecycle(logger: &mut ProbeLogger) {
     // SAFETY: The allocated voice remains owned by this probe.
     let handle = unsafe { aesnd::VoiceHandle::from_raw(raw) };
     let first = handle.register_voice_callback(Some(wrapper_voice));
+    // SAFETY: `raw` is a live allocated voice; the returned pointer is only
+    // converted back for identity checks and is not called through that type.
+    let legacy_voice_as_arg = unsafe {
+        snd::register_voice_callback_with_arg(
+            raw,
+            Some(wrapper_voice_with_arg),
+            core::ptr::null_mut(),
+        )
+    };
+    let legacy_voice_round_trip = unsafe {
+        core::mem::transmute::<snd::AesndVoiceCallbackArg, snd::AesndVoiceCallback>(
+            legacy_voice_as_arg,
+        )
+    };
+    let arg_voice_as_legacy = snd::register_voice_callback(raw, Some(wrapper_voice));
+    // SAFETY: As above, inspect the returned function pointer only.
+    let arg_voice_round_trip = unsafe {
+        core::mem::transmute::<snd::AesndVoiceCallback, snd::AesndVoiceCallbackArg>(
+            arg_voice_as_legacy,
+        )
+    };
     let second = aesnd::register_voice_callback(&handle, Some(wrapper_voice));
     let backend_voice = snd::register_voice_callback(raw, Some(wrapper_voice));
+    logger.record(
+        "AESND callback registration returns prior callback across forms",
+        legacy_audio_round_trip.map(|callback| callback as *const () as usize)
+            == Some(wrapper_audio as *const () as usize)
+            && arg_audio_round_trip.map(|callback| callback as usize)
+                == Some(wrapper_audio_with_arg as *const () as usize)
+            && legacy_voice_round_trip.map(|callback| callback as usize)
+                == Some(wrapper_voice as *const () as usize)
+            && arg_voice_round_trip.map(|callback| callback as usize)
+                == Some(wrapper_voice_with_arg as *const () as usize),
+    );
     handle.set_volume(0x80, 0x40);
     // SAFETY: INPUT is aligned static storage and remains live through reset.
     unsafe {
