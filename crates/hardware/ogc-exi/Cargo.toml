@@ -4,6 +4,9 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 
+[features]
+dolphin-automation = ["ogc-exi-sys/dolphin-automation"]
+
 [dependencies]
 ogc-exi-sys = { path = "../ogc-exi-sys" }
 ogc-sys = { path = "../../abi/ogc-sys" }

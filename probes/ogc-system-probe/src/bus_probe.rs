@@ -22,9 +22,22 @@ mod dsp_tasks;
 #[repr(align(32))]
 struct Align32<const N: usize>([u8; N]);
 
+#[repr(align(32))]
+struct ExiTransferBuffer([u8; 96]);
+
 static mut ARAM_BLOCKS: [u32; 32] = [0; 32];
 static DSP_CALLBACKS: AtomicU32 = AtomicU32::new(0);
 static DSP_SHUTDOWN_STAGES: AtomicU32 = AtomicU32::new(0);
+#[cfg(feature = "dolphin-automation")]
+static EXI_TRANSFER_IMMEDIATE_CALLS: AtomicU32 = AtomicU32::new(0);
+#[cfg(feature = "dolphin-automation")]
+static EXI_TRANSFER_IMMEDIATE_BYTES: AtomicU32 = AtomicU32::new(0);
+#[cfg(feature = "dolphin-automation")]
+static EXI_TRANSFER_DMA_CALLS: AtomicU32 = AtomicU32::new(0);
+#[cfg(feature = "dolphin-automation")]
+static EXI_TRANSFER_DMA_BYTES: AtomicU32 = AtomicU32::new(0);
+#[cfg(feature = "dolphin-automation")]
+static EXI_TRANSFER_DMA_ALIGNED: AtomicU32 = AtomicU32::new(1);
 #[cfg(feature = "dolphin-automation")]
 static TIMESLICE_LAST_OWNER: AtomicU32 = AtomicU32::new(0);
 #[cfg(feature = "dolphin-automation")]
@@ -914,12 +927,148 @@ fn probe_exi_si(logger: &mut ProbeLogger) {
     let safe_lock = exi::try_lock_sync(exi::EXI_CHANNEL_2, exi::EXI_DEVICE_0).is_ok();
     let safe_unlock = safe_lock && exi::try_unlock(exi::EXI_CHANNEL_2).is_ok();
     logger.record("exi safe synchronous lock wrapper", safe_unlock);
+    #[cfg(feature = "dolphin-automation")]
+    probe_exi_transfer(logger);
 
     for chan in 0..4 {
         logger.note_hex32_index("si probe ch", chan, si::probe(chan));
         logger.note_hex32_index("si type ch", chan, si::get_type(chan));
         logger.note_hex32_index("si status ch", chan, si::get_status(chan));
     }
+}
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn exi_transfer_probe_hook(
+    stage: u32,
+    _channel: i32,
+    data: *mut c_void,
+    len: u32,
+    _mode: i32,
+) -> i32 {
+    if stage == 0 {
+        EXI_TRANSFER_IMMEDIATE_CALLS.fetch_add(1, Ordering::AcqRel);
+        EXI_TRANSFER_IMMEDIATE_BYTES.fetch_add(len, Ordering::AcqRel);
+        // SAFETY: the caller supplies a live span within the aligned probe buffer.
+        return unsafe { exi::imm_ex(_channel, data, len, _mode) };
+    } else if stage == 1 {
+        EXI_TRANSFER_DMA_CALLS.fetch_add(1, Ordering::AcqRel);
+        EXI_TRANSFER_DMA_BYTES.fetch_add(len, Ordering::AcqRel);
+        if data as usize & 0x1f != 0 {
+            EXI_TRANSFER_DMA_ALIGNED.store(0, Ordering::Release);
+        }
+    }
+    1
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_exi_transfer(logger: &mut ProbeLogger) {
+    logger.section("EXI TRANSFER PROBE");
+    let channel = exi::EXI_CHANNEL_2;
+    let locked = exi::lock_sync(channel, exi::EXI_DEVICE_0) == 1;
+    let selected = locked && exi::select(channel, exi::EXI_DEVICE_0, exi::EXI_SPEED1MHZ) != 0;
+    let mut buffer = ExiTransferBuffer([0x5a; 96]);
+    EXI_TRANSFER_IMMEDIATE_CALLS.store(0, Ordering::Release);
+    EXI_TRANSFER_IMMEDIATE_BYTES.store(0, Ordering::Release);
+    EXI_TRANSFER_DMA_CALLS.store(0, Ordering::Release);
+    EXI_TRANSFER_DMA_BYTES.store(0, Ordering::Release);
+    EXI_TRANSFER_DMA_ALIGNED.store(1, Ordering::Release);
+    // SAFETY: this static callback remains live for the duration of the probe.
+    unsafe { exi::sys::set_transfer_probe_hook(Some(exi_transfer_probe_hook)) };
+    let small = if selected {
+        // SAFETY: the live buffer holds the complete immediate transfer.
+        unsafe {
+            exi::transfer(
+                channel,
+                buffer.0.as_mut_ptr().cast(),
+                12,
+                exi::EXI_WRITE as i32,
+            )
+        }
+    } else {
+        0
+    };
+    let aligned_dma = if selected {
+        // SAFETY: the aligned, live buffer holds the complete DMA transfer.
+        unsafe {
+            exi::try_transfer(
+                channel,
+                buffer.0.as_mut_ptr().cast(),
+                64,
+                exi::EXI_WRITE as i32,
+            )
+            .is_ok()
+        }
+    } else {
+        false
+    };
+    let misaligned_dma = if selected {
+        // SAFETY: offset 1 leaves 64 live bytes for the head/DMA/tail path.
+        unsafe {
+            exi::transfer(
+                channel,
+                buffer.0.as_mut_ptr().add(1).cast(),
+                64,
+                exi::EXI_WRITE as i32,
+            )
+        }
+    } else {
+        0
+    };
+    let read_dma = if selected {
+        // SAFETY: the aligned, writable buffer holds the DMA read destination.
+        unsafe {
+            exi::transfer(
+                channel,
+                buffer.0.as_mut_ptr().cast(),
+                32,
+                exi::EXI_READ as i32,
+            )
+        }
+    } else {
+        0
+    };
+    let read_write_rejected = if selected {
+        // SAFETY: a valid buffer is provided; this unsupported mode must fail
+        // before it accesses the buffer.
+        unsafe {
+            exi::transfer(
+                channel,
+                buffer.0.as_mut_ptr().cast(),
+                32,
+                exi::EXI_READWRITE as i32,
+            ) == 0
+        }
+    } else {
+        false
+    };
+    // SAFETY: the hook is no longer used after this point.
+    unsafe { exi::sys::set_transfer_probe_hook(None) };
+    let deselected = selected && exi::deselect(channel) != 0;
+    let unlocked = locked && exi::unlock(channel) != 0;
+    let immediate_calls = EXI_TRANSFER_IMMEDIATE_CALLS.load(Ordering::Acquire);
+    let immediate_bytes = EXI_TRANSFER_IMMEDIATE_BYTES.load(Ordering::Acquire);
+    let dma_calls = EXI_TRANSFER_DMA_CALLS.load(Ordering::Acquire);
+    let dma_bytes = EXI_TRANSFER_DMA_BYTES.load(Ordering::Acquire);
+    let dma_aligned = EXI_TRANSFER_DMA_ALIGNED.load(Ordering::Acquire) != 0;
+    logger.record(
+        "EXI transfer immediate, aligned DMA, unaligned head-tail, and read paths",
+        small != 0
+            && aligned_dma
+            && misaligned_dma != 0
+            && read_dma != 0
+            && deselected
+            && unlocked
+            && immediate_calls == 3
+            && immediate_bytes == 44
+            && dma_calls == 3
+            && dma_bytes == 128
+            && dma_aligned,
+    );
+    logger.record("EXI transfer rejects read-write mode", read_write_rejected);
+    logger.note_u32("EXI transfer immediate spans", immediate_calls);
+    logger.note_u32("EXI transfer immediate bytes", immediate_bytes);
+    logger.note_u32("EXI transfer DMA chunks", dma_calls);
+    logger.note_u32("EXI transfer DMA bytes", dma_bytes);
 }
 
 fn probe_card_helpers(logger: &mut ProbeLogger) {

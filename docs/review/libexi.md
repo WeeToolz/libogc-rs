@@ -69,3 +69,11 @@ The Rust sys crate now exposes `lock_sync`, which uses lazily initialized LWP qu
 The initial committed draft used the Tuxedo thread queue. Follow-up inspection showed that not every Rust LWP thread has a Tuxedo thread object, so the draft could not safely represent all callers. The follow-up commit replaces it with the LWP driver's keyed queues before independent review.
 
 Contended blocking and exception-context behavior still need runtime coverage. Physical Wii verification is pending. Independent review of the callback, queue, and retry path is also pending; these APIs are not declared fully parity-reviewed until that review is complete.
+
+## `EXI_Transfer` API parity follow-up — 2026-11-26
+
+**Confirmed API gap:** C exports `EXI_Transfer`, which rejects read/write mode, uses immediate transfers below its alignment-dependent threshold, sends an immediate head to align the pointer, transfers aligned full cache lines by DMA, then sends the tail immediately (`../../C-sources/libogc/gc/ogc/exi.h:277-286`; `../../C-sources/libogc/libogc/exi.c:608-659`). Rust had the lower-level `imm_ex` and `dma` operations but no combined transfer API.
+
+Rust now exposes raw `transfer` and safe-wrapper `try_transfer`. The shared planner follows C's 32-byte alignment and length rules, uses the existing cache helpers, blocks on a channel queue for threaded DMA completion, and uses synchronous DMA in exception context. A Dolphin probe invokes both public wrappers. It performs real immediate head/tail transactions and cache operations, and it injects successful DMA results through a feature-gated hook so Dolphin does not wait for an unconnected EXI DMA peripheral. Dolphin 2609a run `docs/dolphin-runs/2026-11-26-exi-transfer-verified` passed 75 checks; transfer checks covered 12-byte immediate, aligned 64-byte DMA, misaligned 31-byte head plus 32-byte DMA plus 1-byte tail, a 32-byte read, and read/write rejection.
+
+An earlier attempt to wait for real EXI2 DMA in Dolphin timed out in the LWP idle thread because this setup did not produce a DMA completion interrupt. The injected run does not verify the production DMA completion callback/wakeup or exception-context DMA branch. Those runtime checks and physical Wii verification remain pending. Independent static re-review also remains pending.

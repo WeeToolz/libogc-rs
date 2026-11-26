@@ -166,6 +166,22 @@ pub unsafe fn try_dma(
     unsafe { ogc_sys::unit_from_bool_status(dma(channel, data, len, mode, callback)) }
 }
 
+/// # Safety
+///
+/// `data` must be live for `len` bytes and must remain accessible until the
+/// transfer completes. Full DMA lines must satisfy the EXI cache and memory
+/// alignment requirements.
+pub unsafe fn transfer(channel: i32, data: *mut c_void, len: u32, mode: i32) -> i32 {
+    unsafe { sys::transfer(channel, data, len, mode) }
+}
+
+/// # Safety
+///
+/// `data` must satisfy [`transfer`] and remain live until completion.
+pub unsafe fn try_transfer(channel: i32, data: *mut c_void, len: u32, mode: i32) -> Result<()> {
+    unsafe { ogc_sys::unit_from_bool_status(transfer(channel, data, len, mode)) }
+}
+
 pub fn get_state(chn: i32) -> i32 {
     sys::get_state(chn)
 }

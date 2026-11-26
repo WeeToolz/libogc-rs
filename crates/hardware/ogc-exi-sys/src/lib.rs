@@ -8,6 +8,7 @@ compile_error!(
 use core::ffi::c_void;
 use core::ptr::{read_volatile, write_volatile};
 use core::sync::atomic::{AtomicBool, AtomicU32, AtomicUsize, Ordering};
+use ogc_cache as cache;
 use ogc_lwp_driver as lwp;
 
 #[cfg(target_arch = "powerpc")]
@@ -52,6 +53,10 @@ const EXI_EXT_BIT: u32 = 0x1000;
 const EXI_SYNC_QUEUE_COUNT: usize = EXI_CHANNEL_MAX as usize * EXI_DEVICE_MAX as usize;
 static EXI_SYNC_QUEUES: [AtomicU32; EXI_SYNC_QUEUE_COUNT] =
     [const { AtomicU32::new(lwp::LWP_TQUEUE_NULL) }; EXI_SYNC_QUEUE_COUNT];
+static EXI_TRANSFER_QUEUES: [AtomicU32; EXI_CHANNEL_MAX as usize] =
+    [const { AtomicU32::new(lwp::LWP_TQUEUE_NULL) }; EXI_CHANNEL_MAX as usize];
+#[cfg(feature = "dolphin-automation")]
+static EXI_TRANSFER_PROBE_HOOK: AtomicUsize = AtomicUsize::new(0);
 
 pub const EXI_MEMCARD59: u32 = 0x0000_0004;
 pub const EXI_MEMCARD123: u32 = 0x0000_0008;
@@ -1153,6 +1158,182 @@ pub unsafe fn dma(
         write((chn as usize) * 5 + 3, ((n_mode as u32 & 0x3) << 2) | 0x03);
     }
     1
+}
+
+fn transfer_queue(chn: i32) -> Option<lwp::QueueHandle> {
+    if !chan_valid(chn) {
+        return None;
+    }
+    let slot = &EXI_TRANSFER_QUEUES[chn as usize];
+    let current = slot.load(Ordering::Acquire);
+    if current != lwp::LWP_TQUEUE_NULL {
+        return Some(current);
+    }
+
+    let mut candidate = lwp::LWP_TQUEUE_NULL;
+    if unsafe { lwp::init_queue(&mut candidate) } != lwp::LWP_SUCCESSFUL {
+        return None;
+    }
+    match slot.compare_exchange(
+        lwp::LWP_TQUEUE_NULL,
+        candidate,
+        Ordering::AcqRel,
+        Ordering::Acquire,
+    ) {
+        Ok(_) => Some(candidate),
+        Err(existing) => {
+            lwp::close_queue(candidate);
+            Some(existing)
+        }
+    }
+}
+
+unsafe extern "C" fn transfer_dma_callback(chn: i32, _dev: i32) -> i32 {
+    if chan_valid(chn) {
+        let queue = EXI_TRANSFER_QUEUES[chn as usize].load(Ordering::Acquire);
+        if queue != lwp::LWP_TQUEUE_NULL {
+            lwp::queue_broadcast(queue);
+        }
+    }
+    1
+}
+
+unsafe fn transfer_with(
+    p_data: *mut c_void,
+    n_len: u32,
+    n_mode: i32,
+    mut immediate: impl FnMut(*mut c_void, u32, i32) -> i32,
+    mut aligned_dma: impl FnMut(*mut c_void, u32, i32) -> i32,
+) -> i32 {
+    if n_mode == EXI_READWRITE as i32 {
+        return 0;
+    }
+
+    let mut data = p_data.cast::<u8>();
+    let mut len = n_len as usize;
+    let misalignment = data as usize & 0x1f;
+    let minimum = if misalignment != 0 { 0x40 } else { 0x20 };
+    if len < minimum {
+        return immediate(data.cast(), n_len, n_mode);
+    }
+
+    if misalignment != 0 {
+        let head = 0x20 - misalignment;
+        if immediate(data.cast(), head as u32, n_mode) == 0 {
+            return 0;
+        }
+        data = unsafe { data.add(head) };
+        len -= head;
+    }
+
+    let tail = len & 0x1f;
+    let dma_len = len & !0x1f;
+    let result = aligned_dma(data.cast(), dma_len as u32, n_mode);
+    if result != 0 && tail != 0 {
+        immediate(unsafe { data.add(dma_len) }.cast(), tail as u32, n_mode)
+    } else {
+        result
+    }
+}
+
+#[cfg(feature = "dolphin-automation")]
+pub type ExiTransferProbeHook =
+    unsafe extern "C" fn(stage: u32, chn: i32, data: *mut c_void, len: u32, mode: i32) -> i32;
+
+/// Set a hook for the shared transfer chunking path in Dolphin probes.
+///
+/// # Safety
+/// The callback must remain valid until it is replaced or cleared.
+#[cfg(feature = "dolphin-automation")]
+pub unsafe fn set_transfer_probe_hook(hook: Option<ExiTransferProbeHook>) {
+    let hook = hook.map_or(0, |callback| callback as usize);
+    EXI_TRANSFER_PROBE_HOOK.store(hook, Ordering::Release);
+}
+
+/// Transfer data with libogc's immediate-head, aligned-DMA, immediate-tail path.
+///
+/// # Safety
+/// `p_data` must be live for `n_len` bytes. The aligned DMA section must remain
+/// writable/readable as required by the selected mode until this call returns.
+pub unsafe fn transfer(chn: i32, p_data: *mut c_void, n_len: u32, n_mode: i32) -> i32 {
+    if !exi_runtime_enabled() || !chan_valid(chn) {
+        return 0;
+    }
+    if get_state(chn) as u32 & EXI_FLAG_SELECT == 0 {
+        return 0;
+    }
+
+    #[cfg(feature = "dolphin-automation")]
+    {
+        let hook = EXI_TRANSFER_PROBE_HOOK.load(Ordering::Acquire);
+        if hook != 0 {
+            // SAFETY: the hook is installed and kept live by the probe caller.
+            let hook: ExiTransferProbeHook = unsafe { core::mem::transmute(hook) };
+            return unsafe {
+                transfer_with(
+                    p_data,
+                    n_len,
+                    n_mode,
+                    |data, len, mode| hook(0, chn, data, len, mode),
+                    |data, len, mode| {
+                        if mode == EXI_READ as i32 {
+                            // SAFETY: the shared planner supplies aligned full cache lines.
+                            cache::dc_invalidate_range(data, len);
+                        } else {
+                            // SAFETY: the shared planner supplies aligned full cache lines.
+                            cache::dc_store_range(data, len);
+                        }
+                        hook(1, chn, data, len, mode)
+                    },
+                )
+            };
+        }
+    }
+
+    unsafe {
+        transfer_with(
+            p_data,
+            n_len,
+            n_mode,
+            |data, len, mode| imm_ex(chn, data, len, mode),
+            |data, len, mode| transfer_aligned_dma(chn, data, len, mode),
+        )
+    }
+}
+
+unsafe fn transfer_aligned_dma(chn: i32, data: *mut c_void, len: u32, mode: i32) -> i32 {
+    if mode == EXI_READ as i32 {
+        // SAFETY: `transfer_with` supplies a full cache-line DMA span.
+        unsafe { cache::dc_invalidate_range(data, len) };
+    } else {
+        // SAFETY: `transfer_with` supplies a full cache-line DMA span.
+        unsafe { cache::dc_store_range(data, len) };
+    }
+
+    if in_exception() {
+        let irq_state = lwp::critical_enter();
+        let started = unsafe { dma(chn, data, len, mode, None) };
+        let result = if started != 0 && sync(chn) == 0 {
+            0
+        } else {
+            started
+        };
+        lwp::critical_exit(irq_state);
+        return result;
+    }
+
+    let Some(queue) = transfer_queue(chn) else {
+        return 0;
+    };
+    let irq_state = lwp::critical_enter();
+    let started = unsafe { dma(chn, data, len, mode, Some(transfer_dma_callback)) };
+    let result = if started != 0 && lwp::queue_sleep(queue) != lwp::LWP_SUCCESSFUL {
+        0
+    } else {
+        started
+    };
+    lwp::critical_exit(irq_state);
+    result
 }
 
 /// # Safety
