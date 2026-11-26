@@ -283,3 +283,21 @@ scope and physical Wii validation remain open. The fix does not claim that
 callbacks run on the same stack or in the same context as C; Rust continues to
 run user callbacks on the deferred worker to keep user code out of the
 interrupt handler.
+
+## 2026-11-26 current-source follow-up — IPC buffer bounds
+
+The earlier blocker that said the Rust runtime lacks IPC buffer bounds is
+stale. `targets/powerpc-nintendo-none.ld` now defines `__ipcbufferLo` and
+`__ipcbufferHi`, and `ogc-ipc::initialize_ipc_buffer_locked` uses them. The
+current heap implementation also scans 16 heap slots and advances the low
+bound after heap creation.
+
+A separate default-bound mismatch remains to review. Wii libogc selects
+`ios_ipc_lo` and `ios_ipc_hi` from `EnvRvlLowMem` when those values are nonzero
+(`../../C-sources/libogc/gc/tuxedo/mm_env.h:16`,
+`../../C-sources/libogc/gc/tuxedo/env.h:145-159`,
+`../../C-sources/libogc/libogc/system.c:496-503,536-537`). Rust currently
+initializes directly from linker symbols. This can ignore a loader-provided
+IPC range. The C defaulting rule is confirmed, but the Rust parity fix and
+runtime verification remain open. No code or runtime evidence was changed in
+this follow-up.
