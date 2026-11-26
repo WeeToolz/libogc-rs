@@ -94,6 +94,21 @@ pub fn probe_smb_fixture(logger: &mut ProbeLogger) {
         let stale = unsafe { smb::path_info(c"probe-data.bin".as_ptr(), &mut entry, connection) };
         logger.record("TinySMB closed connection handle is rejected", stale == smb::SMB_ERROR);
     }
+    // SAFETY: The device name and credentials are static NUL-terminated data.
+    let mounted = unsafe {
+        smb::init_device(
+            c"smbtest".as_ptr(),
+            c"probe".as_ptr(),
+            c"probe".as_ptr(),
+            c"OGC".as_ptr(),
+            c"127.0.0.1".as_ptr(),
+        )
+    };
+    logger.record("TinySMB fixture mounts device", mounted);
+    // SAFETY: The name remains valid and close_device accepts a C string.
+    unsafe { smb::close_device(c"smbtest".as_ptr()) };
+    let stale_device = unsafe { smb::check_connection(c"smbtest".as_ptr()) };
+    logger.record("TinySMB closed device is invalidated", mounted && !stale_device);
     smb::set_dolphin_fixture_port(0);
     logger.record("TinySMB fixture deinitializes network", network::deinit() >= 0);
 }

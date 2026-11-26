@@ -1,47 +1,47 @@
-00:46:612 Core/Boot/DolReader.cpp:67 W[BOOT]: DolReader: Text section 0 size is not aligned to 32 bytes and can cause issues when loaded
-00:46:612 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 0 size is not aligned to 32 bytes and can cause issues when loaded
-00:46:612 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 1 size is not aligned to 32 bytes and can cause issues when loaded
-00:46:613 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
-00:46:613 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-00:46:614 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-00:46:663 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
-00:46:664 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
-00:46:664 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
-00:46:664 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
-00:46:782 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App name: org.dolphin-emu.dolphin
-00:46:782 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App version: <unspecified>
-00:46:782 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App ID: <unspecified>
-00:46:782 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: SDL revision: SDL-3.4.12-f87239e71
-00:46:798 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
-00:46:798 InputCommon/ControllerInterface/DualShockUDPClient/DualShockUDPClient.cpp:492 I[CI]: DualShockUDPClient PopulateDevices
-00:46:798 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:141 I[CI]: SteamDeck PopulateDevices
-00:46:810 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:171 I[CI]: No Steam Deck interface found
-00:46:827 Core/ConfigManager.cpp:279 N[CORE]: Active title: 
-00:46:828 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
-00:46:829 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-00:46:829 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-00:46:829 Core/Core.cpp:237 I[BOOT]: Starting core = Wii mode
-00:46:829 Core/Core.cpp:238 I[BOOT]: CPU Thread separate = No
-00:46:863 InputCommon/ControllerInterface/ControllerInterface.cpp:310 N[CI]: Removed device: Quartz/0/Keyboard & Mouse
-00:46:869 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
-00:46:877 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 0000000100000050
-00:46:877 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
-00:46:878 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
-00:46:878 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-00:46:878 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-00:46:883 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:fc:72:31
-00:46:929 Core/Boot/Boot.cpp:546 N[BOOT]: Booting from executable: /Volumes/SSD/WiiDev/WeeToolz/libogc-rs/target/xtask/probes-dolphin/tinysmb_probe.dol
-00:46:930 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/sys/uid.sys): Result 0
-00:46:930 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/sys/uid.sys): Result 0
-00:46:931 Core/Boot/Boot_BS2Emu.cpp:435 I[BOOT]: Using serial number: 372730284
-00:46:931 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /title/00000001/00000002/data/setting.txt (NAND)
-00:46:931 Core/Boot/Boot_BS2Emu.cpp:463 I[BOOT]: Setup Wii Memory...
-00:46:931 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 000000010000003a
-00:46:931 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
-00:46:932 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
-00:46:932 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-00:46:932 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
-00:46:933 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:fc:72:31
+08:36:807 Core/Boot/DolReader.cpp:67 W[BOOT]: DolReader: Text section 0 size is not aligned to 32 bytes and can cause issues when loaded
+08:36:807 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 0 size is not aligned to 32 bytes and can cause issues when loaded
+08:36:807 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 1 size is not aligned to 32 bytes and can cause issues when loaded
+08:36:808 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+08:36:808 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+08:36:809 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+08:36:857 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+08:36:858 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
+08:36:858 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
+08:36:858 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
+08:36:974 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App name: org.dolphin-emu.dolphin
+08:36:974 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App version: <unspecified>
+08:36:974 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App ID: <unspecified>
+08:36:974 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: SDL revision: SDL-3.4.12-f87239e71
+08:36:990 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
+08:36:990 InputCommon/ControllerInterface/DualShockUDPClient/DualShockUDPClient.cpp:492 I[CI]: DualShockUDPClient PopulateDevices
+08:36:990 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:141 I[CI]: SteamDeck PopulateDevices
+08:37:003 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:171 I[CI]: No Steam Deck interface found
+08:37:020 Core/ConfigManager.cpp:279 N[CORE]: Active title: 
+08:37:021 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+08:37:022 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+08:37:022 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+08:37:023 Core/Core.cpp:237 I[BOOT]: Starting core = Wii mode
+08:37:023 Core/Core.cpp:238 I[BOOT]: CPU Thread separate = No
+08:37:057 InputCommon/ControllerInterface/ControllerInterface.cpp:310 N[CI]: Removed device: Quartz/0/Keyboard & Mouse
+08:37:063 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
+08:37:071 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 0000000100000050
+08:37:072 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+08:37:072 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
+08:37:072 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+08:37:073 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+08:37:077 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:f0:60:32
+08:37:124 Core/Boot/Boot.cpp:546 N[BOOT]: Booting from executable: /Volumes/SSD/WiiDev/WeeToolz/libogc-rs/target/xtask/probes-dolphin/tinysmb_probe.dol
+08:37:124 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/sys/uid.sys): Result 0
+08:37:125 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/sys/uid.sys): Result 0
+08:37:126 Core/Boot/Boot_BS2Emu.cpp:435 I[BOOT]: Using serial number: 372730284
+08:37:126 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /title/00000001/00000002/data/setting.txt (NAND)
+08:37:126 Core/Boot/Boot_BS2Emu.cpp:463 I[BOOT]: Setup Wii Memory...
+08:37:126 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 000000010000003a
+08:37:126 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+08:37:127 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
+08:37:127 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+08:37:127 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+08:37:128 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:f0:60:32
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -449,6 +449,7 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:37:238 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/es (mode 0, fd 0)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -465,7 +466,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:47:039 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/es (mode 0, fd 0)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -485,6 +485,7 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:37:242 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 1)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -502,7 +503,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:47:042 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 1)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -524,6 +524,7 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:37:245 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 2)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -537,7 +538,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:47:046 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 2)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -590,6 +590,7 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:37:254 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 3)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -615,10 +616,10 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:37:257 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 4)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:47:055 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 3)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -649,7 +650,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:47:058 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 4)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -709,6 +709,8 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:37:267 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/SYSCONF (mode 1, fd 3)
+08:37:267 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/SYSCONF): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -743,6 +745,7 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:37:271 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/SYSCONF, 0x006bdcf2, 16384): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -758,8 +761,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:47:068 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/SYSCONF (mode 1, fd 3)
-00:47:068 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/SYSCONF): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -794,11 +795,15 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:47:072 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/SYSCONF, 0x006c1972, 16384): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:37:277 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/SYSCONF): Result 0
+08:37:277 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/setting.txt (mode 1, fd 3)
+08:37:277 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/setting.txt): Result 0
+08:37:277 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/setting.txt, 0x006c1cf2, 256): Result 0
+08:37:278 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/setting.txt): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -843,11 +848,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:47:078 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/SYSCONF): Result 0
-00:47:078 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/setting.txt (mode 1, fd 3)
-00:47:078 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/setting.txt): Result 0
-00:47:078 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/setting.txt, 0x006c5972, 256): Result 0
-00:47:081 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/setting.txt): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -871,6 +871,8 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:37:286 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/state.dat (mode 1, fd 3)
+08:37:286 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/state.dat): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -904,6 +906,7 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:37:290 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/state.dat, 0x017f4dc0, 32): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -911,8 +914,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:47:088 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/state.dat (mode 1, fd 3)
-00:47:088 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/state.dat): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -945,9 +946,13 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:47:092 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/state.dat, 0x017f4dc0, 32): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:37:294 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/state.dat): Result 0
+08:37:294 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/NANDBOOTINFO (mode 1, fd 3)
+08:37:294 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/NANDBOOTINFO): Result 0
+08:37:294 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/NANDBOOTINFO, 0x017f4dc0, 4128): Result 0
+08:37:295 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/NANDBOOTINFO): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -977,11 +982,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:47:095 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/state.dat): Result 0
-00:47:095 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/NANDBOOTINFO (mode 1, fd 3)
-00:47:096 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/NANDBOOTINFO): Result 0
-00:47:096 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/NANDBOOTINFO, 0x017f4dc0, 4128): Result 0
-00:47:096 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/NANDBOOTINFO): Result 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -1897,6 +1897,11 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:40:054 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ncd/manage (mode 0, fd 3)
+08:40:054 Core/IOS/Network/NCD/Manage.cpp:112 I[IOS_NET]: NET_NCD_MANAGE: IOCTLV_NCD_GETLINKSTATUS
+08:40:055 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ip/top (mode 0, fd 3)
+08:40:055 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/kd/request (mode 0, fd 4)
+08:40:056 Core/IOS/Network/IP/Top.cpp:809 I[IOS_NET]: IOCTL_SO_GETHOSTID = 192.168.1.52
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -1905,11 +1910,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:49:852 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ncd/manage (mode 0, fd 3)
-00:49:852 Core/IOS/Network/NCD/Manage.cpp:112 I[IOS_NET]: NET_NCD_MANAGE: IOCTLV_NCD_GETLINKSTATUS
-00:49:853 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ip/top (mode 0, fd 3)
-00:49:853 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/kd/request (mode 0, fd 4)
-00:49:854 Core/IOS/Network/IP/Top.cpp:809 I[IOS_NET]: IOCTL_SO_GETHOSTID = 192.168.1.52
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -1919,6 +1919,14 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:40:068 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,1,0), BufferIn: (007c9d60, 12), BufferOut: (00000000, 0)
+08:40:068 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 0000ffff, 00001002, 00000004) BufferIn: (007c9d60, 36), BufferOut: (00000000, 0)00 00 80 00 14 cf 46 00 01 00 00 00 20 00 00 00 00 00 00 00
+08:40:069 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000003, 00000000)
+08:40:069 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000004, 00000004)
+08:40:069 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 36: Operation now in progress, ret = -1
+08:40:069 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000000, 127.0.0.1:14445) = -1
+08:40:069 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 56: Socket is already connected, ret = -1
+08:40:069 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000000, 127.0.0.1:14445) = -1
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -1936,14 +1944,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:49:868 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,1,0), BufferIn: (007cd9e0, 12), BufferOut: (00000000, 0)
-00:49:868 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 0000ffff, 00001002, 00000004) BufferIn: (007cd9e0, 36), BufferOut: (00000000, 0)00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-00:49:868 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000003, 00000000)
-00:49:869 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000004, 00000004)
-00:49:869 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 36: Operation now in progress, ret = -1
-00:49:869 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000000, 127.0.0.1:14445) = -1
-00:49:869 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 56: Socket is already connected, ret = -1
-00:49:869 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000000, 127.0.0.1:14445) = -1
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -2001,6 +2001,7 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:40:120 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(0) 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -2025,10 +2026,34 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:49:918 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(0) 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:40:138 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,1,0), BufferIn: (007c9d60, 12), BufferOut: (00000000, 0)
+08:40:138 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 0000ffff, 00001002, 00000004) BufferIn: (007c9d60, 36), BufferOut: (00000000, 0)00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+08:40:138 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 00000006, 00002001, 00000004) BufferIn: (007c9d60, 36), BufferOut: (00000000, 0)00 00 00 01 a8 25 be 49 7b 00 00 00 7c 16 72 31 01 00 00 00
+08:40:138 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000003, 00000000)
+08:40:138 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000004, 00000004)
+08:40:138 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 36: Operation now in progress, ret = -1
+08:40:138 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000000, 127.0.0.1:14445) = -1
+08:40:139 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 56: Socket is already connected, ret = -1
+08:40:139 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000000, 127.0.0.1:14445) = -1
+08:40:140 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007c9d60, 4), BufferIn2: (007c9da0, 40), 0.0.0.0
+08:40:140 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 47 Socket: 00000000, BufferIn: (007c9d60, 47), BufferIn2: (007c9dc0, 40), 0.0.0.0
+08:40:141 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:40:141 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (77, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 77), BufferOut2: (00000000, 0)
+08:40:143 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007c9d60, 4), BufferIn2: (007c9da0, 40), 0.0.0.0
+08:40:143 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 144 Socket: 00000000, BufferIn: (007c9d60, 144), BufferIn2: (007c9e20, 40), 0.0.0.0
+08:40:143 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
+08:40:143 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:40:144 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:40:144 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (60, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 60), BufferOut2: (00000000, 0)
+08:40:144 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007c9d60, 4), BufferIn2: (007c9da0, 40), 0.0.0.0
+08:40:144 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 66 Socket: 00000000, BufferIn: (007c9d60, 66), BufferIn2: (007c9de0, 40), 0.0.0.0
+08:40:145 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
+08:40:145 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:40:145 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:40:145 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (50, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 50), BufferOut2: (00000000, 0)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -2049,31 +2074,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:49:934 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,1,0), BufferIn: (007cd9e0, 12), BufferOut: (00000000, 0)
-00:49:934 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 0000ffff, 00001002, 00000004) BufferIn: (007cd9e0, 36), BufferOut: (00000000, 0)00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-00:49:935 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 00000006, 00002001, 00000004) BufferIn: (007cd9e0, 36), BufferOut: (00000000, 0)00 00 00 01 68 ec a2 56 7c 00 00 00 ac cf b9 31 01 00 00 00
-00:49:935 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000003, 00000000)
-00:49:935 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000004, 00000004)
-00:49:935 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 36: Operation now in progress, ret = -1
-00:49:935 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000000, 127.0.0.1:14445) = -1
-00:49:936 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 56: Socket is already connected, ret = -1
-00:49:936 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000000, 127.0.0.1:14445) = -1
-00:49:936 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007cd9e0, 4), BufferIn2: (007cda20, 40), 0.0.0.0
-00:49:937 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 47 Socket: 00000000, BufferIn: (007cd9e0, 47), BufferIn2: (007cda40, 40), 0.0.0.0
-00:49:937 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 4), BufferOut2: (00000000, 0)
-00:49:938 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (77, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 77), BufferOut2: (00000000, 0)
-00:49:940 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007cd9e0, 4), BufferIn2: (007cda20, 40), 0.0.0.0
-00:49:940 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 144 Socket: 00000000, BufferIn: (007cd9e0, 144), BufferIn2: (007cdaa0, 40), 0.0.0.0
-00:49:940 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
-00:49:940 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 4), BufferOut2: (00000000, 0)
-00:49:940 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 4), BufferOut2: (00000000, 0)
-00:49:941 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (60, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 60), BufferOut2: (00000000, 0)
-00:49:941 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007cd9e0, 4), BufferIn2: (007cda20, 40), 0.0.0.0
-00:49:941 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 66 Socket: 00000000, BufferIn: (007cd9e0, 66), BufferIn2: (007cda60, 40), 0.0.0.0
-00:49:942 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
-00:49:942 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 4), BufferOut2: (00000000, 0)
-00:49:942 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 4), BufferOut2: (00000000, 0)
-00:49:942 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (50, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 50), BufferOut2: (00000000, 0)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -2090,6 +2090,14 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:40:170 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007c9d60, 4), BufferIn2: (007c9da0, 40), 0.0.0.0
+08:40:170 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 82 Socket: 00000000, BufferIn: (007c9d60, 82), BufferIn2: (007c9de0, 40), 0.0.0.0
+08:40:170 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
+08:40:170 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:40:171 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
+08:40:171 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:40:171 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:40:171 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (65, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 65), BufferOut2: (00000000, 0)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -2104,17 +2112,19 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:49:968 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007cd9e0, 4), BufferIn2: (007cda20, 40), 0.0.0.0
-00:49:968 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 82 Socket: 00000000, BufferIn: (007cd9e0, 82), BufferIn2: (007cda60, 40), 0.0.0.0
-00:49:968 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
-00:49:969 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 4), BufferOut2: (00000000, 0)
-00:49:969 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
-00:49:969 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 4), BufferOut2: (00000000, 0)
-00:49:969 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 4), BufferOut2: (00000000, 0)
-00:49:969 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (65, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 65), BufferOut2: (00000000, 0)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:40:185 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007c9d60, 4), BufferIn2: (007c9da0, 40), 0.0.0.0
+08:40:185 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 85 Socket: 00000000, BufferIn: (007c9d60, 85), BufferIn2: (007c9de0, 40), 0.0.0.0
+08:40:186 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:40:187 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (47, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 47), BufferOut2: (00000000, 0)
+08:40:187 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007c9d60, 4), BufferIn2: (007c9da0, 40), 0.0.0.0
+08:40:187 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 59 Socket: 00000000, BufferIn: (007c9d60, 59), BufferIn2: (007c9dc0, 40), 0.0.0.0
+08:40:188 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
+08:40:188 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:40:188 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:40:188 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (81, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 81), BufferOut2: (00000000, 0)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -2133,16 +2143,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:49:983 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007cd9e0, 4), BufferIn2: (007cda20, 40), 0.0.0.0
-00:49:984 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 85 Socket: 00000000, BufferIn: (007cd9e0, 85), BufferIn2: (007cda60, 40), 0.0.0.0
-00:49:985 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 4), BufferOut2: (00000000, 0)
-00:49:985 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (47, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 47), BufferOut2: (00000000, 0)
-00:49:986 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007cd9e0, 4), BufferIn2: (007cda20, 40), 0.0.0.0
-00:49:986 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 59 Socket: 00000000, BufferIn: (007cd9e0, 59), BufferIn2: (007cda40, 40), 0.0.0.0
-00:49:986 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
-00:49:986 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 4), BufferOut2: (00000000, 0)
-00:49:986 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 4), BufferOut2: (00000000, 0)
-00:49:986 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (81, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 81), BufferOut2: (00000000, 0)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -2188,6 +2188,12 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:40:235 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007c9d60, 4), BufferIn2: (007c9da0, 40), 0.0.0.0
+08:40:236 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 41 Socket: 00000000, BufferIn: (007c9d60, 41), BufferIn2: (007c9dc0, 40), 0.0.0.0
+08:40:236 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
+08:40:236 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:40:236 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:40:236 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (35, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 35), BufferOut2: (00000000, 0)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -2207,12 +2213,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:50:033 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007cd9e0, 4), BufferIn2: (007cda20, 40), 0.0.0.0
-00:50:034 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 41 Socket: 00000000, BufferIn: (007cd9e0, 41), BufferIn2: (007cda40, 40), 0.0.0.0
-00:50:034 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
-00:50:034 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 4), BufferOut2: (00000000, 0)
-00:50:034 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 4), BufferOut2: (00000000, 0)
-00:50:035 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (35, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 35), BufferOut2: (00000000, 0)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -2266,6 +2266,14 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:41:377 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007c9d60, 4), BufferIn2: (007c9da0, 40), 0.0.0.0
+08:41:377 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 95 Socket: 00000000, BufferIn: (007c9d60, 95), BufferIn2: (007c9de0, 40), 0.0.0.0
+08:41:378 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
+08:41:378 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:41:378 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
+08:41:378 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:41:378 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:41:378 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (180, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 180), BufferOut2: (00000000, 0)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -2285,14 +2293,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:51:176 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007cd9e0, 4), BufferIn2: (007cda20, 40), 0.0.0.0
-00:51:176 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 95 Socket: 00000000, BufferIn: (007cd9e0, 95), BufferIn2: (007cda60, 40), 0.0.0.0
-00:51:176 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
-00:51:176 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 4), BufferOut2: (00000000, 0)
-00:51:177 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
-00:51:177 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 4), BufferOut2: (00000000, 0)
-00:51:177 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 4), BufferOut2: (00000000, 0)
-00:51:177 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (180, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 180), BufferOut2: (00000000, 0)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -2324,6 +2324,10 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:41:410 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007c9d60, 4), BufferIn2: (007c9da0, 40), 0.0.0.0
+08:41:410 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 37 Socket: 00000000, BufferIn: (007c9d60, 37), BufferIn2: (007c9dc0, 40), 0.0.0.0
+08:41:410 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:41:410 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (35, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 35), BufferOut2: (00000000, 0)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -2342,10 +2346,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:51:209 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007cd9e0, 4), BufferIn2: (007cda20, 40), 0.0.0.0
-00:51:210 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 37 Socket: 00000000, BufferIn: (007cd9e0, 37), BufferIn2: (007cda40, 40), 0.0.0.0
-00:51:210 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 4), BufferOut2: (00000000, 0)
-00:51:210 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (35, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 35), BufferOut2: (00000000, 0)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -2399,6 +2399,12 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:41:457 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007c9d60, 4), BufferIn2: (007c9da0, 40), 0.0.0.0
+08:41:458 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 54 Socket: 00000000, BufferIn: (007c9d60, 54), BufferIn2: (007c9dc0, 40), 0.0.0.0
+08:41:458 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
+08:41:458 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:41:458 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:41:458 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (35, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 35), BufferOut2: (00000000, 0)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -2411,12 +2417,6 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:51:257 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007cd9e0, 4), BufferIn2: (007cda20, 40), 0.0.0.0
-00:51:257 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 54 Socket: 00000000, BufferIn: (007cd9e0, 54), BufferIn2: (007cda40, 40), 0.0.0.0
-00:51:258 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
-00:51:258 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 4), BufferOut2: (00000000, 0)
-00:51:258 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 4), BufferOut2: (00000000, 0)
-00:51:258 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (35, 0x12424da20) Socket: 00000000, Flags: 00000000, BufferIn: (007cd9e0, 8), BufferIn2: (00000000, 0), BufferOut: (007cda20, 35), BufferOut2: (00000000, 0)
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -2428,6 +2428,7 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+08:41:477 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(0) 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
@@ -2438,13 +2439,75 @@ Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
-00:51:274 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(0) 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+08:41:490 Core/IOS/Network/IP/Top.cpp:591 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,1,0), BufferIn: (007c9d60, 12), BufferOut: (00000000, 0)
+08:41:491 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 0000ffff, 00001002, 00000004) BufferIn: (007c9d60, 36), BufferOut: (00000000, 0)00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+08:41:491 Core/IOS/Network/IP/Top.cpp:728 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 00000006, 00002001, 00000004) BufferIn: (007c9d60, 36), BufferOut: (00000000, 0)00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+08:41:491 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000003, 00000000)
+08:41:491 Core/IOS/Network/Socket.cpp:260 I[IOS_NET]: IOCTL_SO_FCNTL(00000000, 00000004, 00000004)
+08:41:492 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 36: Operation now in progress, ret = -1
+08:41:492 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000000, 127.0.0.1:14445) = -1
+08:41:492 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 56: Socket is already connected, ret = -1
+08:41:492 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000000, 127.0.0.1:14445) = -1
+08:41:492 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007c9d60, 4), BufferIn2: (007c9da0, 40), 0.0.0.0
+08:41:492 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 47 Socket: 00000000, BufferIn: (007c9d60, 47), BufferIn2: (007c9dc0, 40), 0.0.0.0
+08:41:492 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
+08:41:492 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:41:493 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:41:493 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (77, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 77), BufferOut2: (00000000, 0)
+08:41:493 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007c9d60, 4), BufferIn2: (007c9da0, 40), 0.0.0.0
+08:41:493 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 144 Socket: 00000000, BufferIn: (007c9d60, 144), BufferIn2: (007c9e20, 40), 0.0.0.0
+08:41:494 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
+08:41:494 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:41:494 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:41:494 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (60, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 60), BufferOut2: (00000000, 0)
+08:41:494 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 4 Socket: 00000000, BufferIn: (007c9d60, 4), BufferIn2: (007c9da0, 40), 0.0.0.0
+08:41:494 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SEND  = 66 Socket: 00000000, BufferIn: (007c9d60, 66), BufferIn2: (007c9de0, 40), 0.0.0.0
+08:41:495 Core/IOS/Network/Socket.cpp:124 I[IOS_NET]: SO_RECV failed with error 35: Resource temporarily unavailable, ret = -1
+08:41:495 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (-6, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:41:495 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (4, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 4), BufferOut2: (00000000, 0)
+08:41:495 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECV (50, 0x123a41da0) Socket: 00000000, Flags: 00000000, BufferIn: (007c9d60, 8), BufferIn2: (00000000, 0), BufferOut: (007c9da0, 50), BufferOut2: (00000000, 0)
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+08:41:509 Core/IOS/Network/IP/Top.cpp:619 I[IOS_NET]: IOCTL_SO_CLOSE(0) 0
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.
 Warning: Partial sends might not be handled properly.

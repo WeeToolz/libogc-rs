@@ -55,7 +55,7 @@ IPC: request sent
 IPC: polling, no completion bits
 IPC: ctrl=0x00000031 arm=0x133e0f40
 PRE 7/7: complete
-OGC_DOLPHIN_PAGE_CAPTURE page=1 capture=1 addr=0x8084d9c0 width=640 height=480 stride=640
+OGC_DOLPHIN_PAGE_CAPTURE page=1 capture=1 addr=0x80849d40 width=640 height=480 stride=640
 -- page 2 --
 BOOT 3/3: IOS pre-main completed
 PASS Video console_init_framebuffer initializes the buffered console
@@ -79,7 +79,7 @@ PASS TinySMB connection query rejects null name
 PASS TinySMB init rejects missing credentials
 PASS TinySMB connect rejects missing credentials
 PASS TinySMB reconnect rejects an unknown handle
-OGC_DOLPHIN_PAGE_CAPTURE page=2 capture=2 addr=0x8084d9c0 width=640 height=480 stride=640
+OGC_DOLPHIN_PAGE_CAPTURE page=2 capture=2 addr=0x80849d40 width=640 height=480 stride=640
 -- page 3 --
 PASS TinySMB path query rejects null path
 PASS TinySMB first search rejects null path
@@ -104,7 +104,7 @@ PASS TinySMB fixture creates a file
 INFO TinySMB fixture write result=22
 INFO TinySMB fixture read result=22
 PASS TinySMB fixture writes and reads known bytes
-OGC_DOLPHIN_PAGE_CAPTURE page=3 capture=3 addr=0x8084d9c0 width=640 height=480 stride=640
+OGC_DOLPHIN_PAGE_CAPTURE page=3 capture=3 addr=0x80849d40 width=640 height=480 stride=640
 -- page 4 --
 PASS TinySMB closed file handle is rejected
 INFO TinySMB fixture search result=0
@@ -114,10 +114,12 @@ PASS TinySMB search closes
 PASS TinySMB closed search handle is invalidated
 PASS TinySMB fixture removes its file
 PASS TinySMB closed connection handle is rejected
+PASS TinySMB fixture mounts device
+PASS TinySMB closed device is invalidated
 PASS TinySMB fixture deinitializes network
 PASS probe VI retraces complete within 100 ms
 PASS Dolphin screen-data transport completed
-INFO summary_candidate passes=34 fails=0
-PASS summary passes=34 fails=0
-OGC_DOLPHIN_PAGE_CAPTURE page=4 capture=4 addr=0x8084d9c0 width=640 height=480 stride=640
+INFO summary_candidate passes=36 fails=0
+PASS summary passes=36 fails=0
+OGC_DOLPHIN_PAGE_CAPTURE page=4 capture=4 addr=0x80849d40 width=640 height=480 stride=640
 OGC_DOLPHIN_CAPTURE_COMPLETE

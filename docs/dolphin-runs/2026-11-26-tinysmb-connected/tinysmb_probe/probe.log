@@ -111,8 +111,10 @@ PASS TinySMB search closes
 PASS TinySMB closed search handle is invalidated
 PASS TinySMB fixture removes its file
 PASS TinySMB closed connection handle is rejected
+PASS TinySMB fixture mounts device
+PASS TinySMB closed device is invalidated
 PASS TinySMB fixture deinitializes network
 PASS probe VI retraces complete within 100 ms
 PASS Dolphin screen-data transport completed
-INFO summary_candidate passes=34 fails=0
-PASS summary passes=34 fails=0
+INFO summary_candidate passes=36 fails=0
+PASS summary passes=36 fails=0
