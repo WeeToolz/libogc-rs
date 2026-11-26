@@ -458,3 +458,12 @@ and zero failures; evidence is in
 `../dolphin-runs/2026-11-26-ipc-mailbox-order/suite.json`. That probe checks
 ordinary async IPC and does not exercise an IOS relaunch. A real relaunch and
 physical Wii behavior remain unverified.
+
+The existing `runtime_probe` has only invalid-argument ES launch checks. The
+Dolphin validation runner expects the probe's completion summary; a successful
+title launch replaces the probe and therefore needs a separate observation of
+the launched title. The HBC recovery runner observes an installed title entry
+through its debugger, but its recovery-specific result does not establish the
+IPC C exports. A relaunch probe must retain a private NAND fixture, identify the
+installed title and ticket, and record the destination after the handoff. No
+such end-to-end IPC result is claimed here.
