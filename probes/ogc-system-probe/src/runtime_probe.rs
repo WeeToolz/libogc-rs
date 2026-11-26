@@ -33,6 +33,48 @@ static BT_OWNED_ASYNC_COMPLETIONS: core::sync::atomic::AtomicU32 =
     core::sync::atomic::AtomicU32::new(0);
 
 #[cfg(feature = "dolphin-automation")]
+static SI_WIRELESS_GET_CHANNEL: core::sync::atomic::AtomicU32 =
+    core::sync::atomic::AtomicU32::new(u32::MAX);
+#[cfg(feature = "dolphin-automation")]
+static SI_WIRELESS_SET_CHANNEL: core::sync::atomic::AtomicU32 =
+    core::sync::atomic::AtomicU32::new(u32::MAX);
+#[cfg(feature = "dolphin-automation")]
+static SI_WIRELESS_SET_ID: core::sync::atomic::AtomicU32 =
+    core::sync::atomic::AtomicU32::new(u32::MAX);
+#[cfg(feature = "dolphin-automation")]
+static SI_WIRELESS_SET_CALLS: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+#[cfg(feature = "dolphin-automation")]
+static SI_TYPE_CALLBACK_COUNT: core::sync::atomic::AtomicU32 =
+    core::sync::atomic::AtomicU32::new(0);
+#[cfg(feature = "dolphin-automation")]
+static SI_TYPE_CALLBACK_CHANNEL: AtomicI32 = AtomicI32::new(-1);
+#[cfg(feature = "dolphin-automation")]
+static SI_TYPE_CALLBACK_VALUE: core::sync::atomic::AtomicU32 =
+    core::sync::atomic::AtomicU32::new(0);
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn probe_si_type_callback(chan: i32, value: u32) {
+    SI_TYPE_CALLBACK_CHANNEL.store(chan, Ordering::Release);
+    SI_TYPE_CALLBACK_VALUE.store(value, Ordering::Release);
+    SI_TYPE_CALLBACK_COUNT.fetch_add(1, Ordering::Release);
+}
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn probe_si_wireless_id_getter(chan: u32) -> u16 {
+    SI_WIRELESS_GET_CHANNEL.store(chan, Ordering::Release);
+    unsafe { raw_system::sys_get_wireless_id(chan) }
+}
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn probe_si_wireless_id_setter(chan: u32, id: u16) {
+    if SI_WIRELESS_SET_CALLS.fetch_add(1, Ordering::AcqRel) == 0 {
+        SI_WIRELESS_SET_CHANNEL.store(chan, Ordering::Release);
+        SI_WIRELESS_SET_ID.store(u32::from(id), Ordering::Release);
+    }
+    unsafe { raw_system::sys_set_wireless_id(chan, id) };
+}
+
+#[cfg(feature = "dolphin-automation")]
 struct FormatAsyncProbeSlot {
     completions: core::sync::atomic::AtomicU32,
     result: AtomicI32,
@@ -554,6 +596,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_si_polling_registers(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_si_polling_handlers_and_transfer(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_si_wireless_id_completion(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_si_sampling_rates(logger);
     probe_ui_adapters(logger);
@@ -6702,6 +6746,106 @@ fn probe_si_polling_handlers_and_transfer(logger: &mut ProbeLogger) {
             && raw_result == si::SI_ERROR_NO_RESPONSE
             && raw_idle == 0
             && raw_input & 0xff == 0xa5,
+    );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_si_wireless_id_completion(logger: &mut ProbeLogger) {
+    use ogc_si as si;
+    use ogc_si::sys as raw_si;
+
+    const CHANNEL: u32 = 2;
+    let old_id = system::get_wireless_id(CHANNEL);
+    SI_WIRELESS_GET_CHANNEL.store(u32::MAX, Ordering::Release);
+    SI_WIRELESS_SET_CHANNEL.store(u32::MAX, Ordering::Release);
+    SI_WIRELESS_SET_ID.store(u32::MAX, Ordering::Release);
+    SI_WIRELESS_SET_CALLS.store(0, Ordering::Release);
+    SI_TYPE_CALLBACK_COUNT.store(0, Ordering::Release);
+    SI_TYPE_CALLBACK_CHANNEL.store(-1, Ordering::Release);
+    SI_TYPE_CALLBACK_VALUE.store(0, Ordering::Release);
+    // SAFETY: These callbacks accept all valid SI channels and delegate access
+    // to the production SRAM getter and setter. Their atomics record arguments.
+    let previous_accessors = unsafe {
+        raw_si::swap_wireless_id_accessors(Some((
+            probe_si_wireless_id_getter,
+            probe_si_wireless_id_setter,
+        )))
+    };
+    system::set_wireless_id(CHANNEL, 0);
+
+    let discovered_type = si::SI_GC_WAVEBIRD | 0x0042_3100;
+    let steps = [
+        raw_si::SiFaultStep::new(
+            raw_si::SI_FAULT_OPERATION_TRANSFER,
+            CHANNEL as i32,
+            0x00,
+            0,
+            raw_si::SI_FAULT_HOLD,
+            0,
+            (3, [0x8b, 0x52, 0x31, 0, 0, 0, 0, 0, 0, 0]),
+        ),
+        raw_si::SiFaultStep::new(
+            raw_si::SI_FAULT_OPERATION_TRANSFER,
+            CHANNEL as i32,
+            0x4e,
+            0,
+            raw_si::SI_FAULT_HOLD,
+            0,
+            (3, [0x8b, 0x52, 0x31, 0, 0, 0, 0, 0, 0, 0]),
+        ),
+    ];
+    let installed = raw_si::si_fault_install(&steps);
+    let query_result = si::get_type_async(CHANNEL as i32, Some(probe_si_type_callback));
+    let queued_before_completion = SI_TYPE_CALLBACK_COUNT.load(Ordering::Acquire) == 0;
+    let first_released = raw_si::si_fault_release(CHANNEL as i32) == 1;
+    let callback_waited_for_handshake = SI_TYPE_CALLBACK_COUNT.load(Ordering::Acquire) == 0;
+    let second_released = raw_si::si_fault_release(CHANNEL as i32) == 1;
+    let expected_id = ((raw_si::SI_WIRELESS_FIX_ID
+        | (discovered_type & raw_si::SI_WIRELESS_TYPE_ID))
+        >> 8) as u16;
+    let fault_report = raw_si::si_fault_report();
+    let getter_called_for_channel = SI_WIRELESS_GET_CHANNEL.load(Ordering::Acquire) == CHANNEL;
+    let setter_called_with_expected_id = SI_WIRELESS_SET_CALLS.load(Ordering::Acquire) >= 1
+        && SI_WIRELESS_SET_CHANNEL.load(Ordering::Acquire) == CHANNEL
+        && SI_WIRELESS_SET_ID.load(Ordering::Acquire) == u32::from(expected_id);
+    logger.note(&alloc::format!(
+        "SI wireless completion query={query_result:#x} expected_id={expected_id:#x} get_channel={} set_channel={} set_id={:#x} set_calls={} fault_installed={} fault_consumed={} fault_unmatched={} fault_held={}",
+        SI_WIRELESS_GET_CHANNEL.load(Ordering::Acquire),
+        SI_WIRELESS_SET_CHANNEL.load(Ordering::Acquire),
+        SI_WIRELESS_SET_ID.load(Ordering::Acquire),
+        SI_WIRELESS_SET_CALLS.load(Ordering::Acquire),
+        fault_report.installed,
+        fault_report.consumed,
+        fault_report.unmatched_operations,
+        fault_report.held_operations,
+    ));
+    raw_si::si_fault_clear();
+    let new_id = system::get_wireless_id(CHANNEL);
+    system::set_wireless_id(CHANNEL, old_id);
+    // SAFETY: The previous callbacks were already registered by system startup.
+    unsafe { raw_si::swap_wireless_id_accessors(previous_accessors) };
+
+    logger.record(
+        "SI wireless type completion calls registered SRAM accessors",
+        installed == 2
+            && query_result == si::SI_ERROR_BUSY
+            && queued_before_completion
+            && first_released
+            && callback_waited_for_handshake
+            && second_released
+            && SI_TYPE_CALLBACK_COUNT.load(Ordering::Acquire) == 1
+            && SI_TYPE_CALLBACK_CHANNEL.load(Ordering::Acquire) == CHANNEL as i32
+            && SI_TYPE_CALLBACK_VALUE.load(Ordering::Acquire) == discovered_type
+            && getter_called_for_channel
+            && setter_called_with_expected_id
+            && new_id == expected_id
+            && fault_report.installed == 2
+            && fault_report.consumed == 2
+            // The public async query has no scripted type-level override.
+            && fault_report.unmatched_operations == 1
+            && fault_report.dropped_steps == 0
+            && fault_report.held_operations == 0
+            && system::get_wireless_id(CHANNEL) == old_id,
     );
 }
 

@@ -1495,6 +1495,23 @@ pub fn init() {
     }
 }
 
+/// Replaces the wireless ID callbacks and returns the previous registration.
+///
+/// # Safety
+/// Registered callbacks must satisfy `register_wireless_id_accessors`.
+#[cfg(feature = "diagnostics")]
+pub unsafe fn swap_wireless_id_accessors(
+    accessors: Option<(WirelessIdGetter, WirelessIdSetter)>,
+) -> Option<(WirelessIdGetter, WirelessIdSetter)> {
+    let _interrupt_guard = ogc_sys::InterruptGuard::new();
+    unsafe {
+        core::mem::replace(
+            &mut *core::ptr::addr_of_mut!(SI_WIRELESS_ID_ACCESSORS),
+            accessors,
+        )
+    }
+}
+
 #[cfg(all(test, target_arch = "powerpc"))]
 mod tests {
     use super::*;
