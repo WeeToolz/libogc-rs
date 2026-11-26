@@ -567,6 +567,7 @@ fn probe_dvd_no_media_async(logger: &mut ProbeLogger) -> bool {
             Some(dvd_async_callback),
         )
     };
+    mark_async_returned();
     logger.note_i32(
         "DVD no-media boot-sector async read submission returned",
         submit,
