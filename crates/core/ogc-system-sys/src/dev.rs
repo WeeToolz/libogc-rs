@@ -177,6 +177,15 @@ pub fn capture(args: fmt::Arguments<'_>) {
     }
     LOG_LOCK.store(false, Ordering::Release);
 }
+
+/// Return the run and build identities accepted by the development wrapper.
+pub fn run_identity() -> Option<(&'static str, &'static str)> {
+    // SAFETY: IDENTITY is written once before application entry and never changed.
+    let identity = unsafe { (&*IDENTITY.0.get()).as_ref()? };
+    let run = core::str::from_utf8(&identity.run[..identity.run_len]).ok()?;
+    let build = core::str::from_utf8(&identity.build).ok()?;
+    Some((run, build))
+}
 fn snapshot(out: &mut [u8; LOG_CAPACITY]) -> Option<(usize, usize)> {
     if LOG_LOCK
         .compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed)

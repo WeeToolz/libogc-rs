@@ -1,8 +1,10 @@
 use alloc::alloc::{alloc_zeroed, dealloc};
 use alloc::boxed::Box;
 use core::alloc::Layout;
+use core::cell::UnsafeCell;
 use core::ffi::{CStr, c_char, c_void};
 use core::fmt::{self, Write};
+use core::mem::MaybeUninit;
 use core::ptr::null_mut;
 use core::sync::atomic::{AtomicBool, AtomicI32, AtomicU32, Ordering};
 
@@ -45,6 +47,15 @@ struct UsbInterfaceSector([u8; 512]);
 
 #[repr(align(32))]
 struct DvdSector([u8; 0x800]);
+
+struct Persistent<T>(UnsafeCell<MaybeUninit<T>>);
+// SAFETY: the two slots below have one writer before submission and are never
+// reused. The DVD callback is the only asynchronous reader after submission.
+unsafe impl<T> Sync for Persistent<T> {}
+static DVD_BS_ASYNC_BLOCK: Persistent<dvd::DvdCmdBlk> =
+    Persistent(UnsafeCell::new(MaybeUninit::uninit()));
+static DVD_BS_ASYNC_SECTOR: Persistent<DvdSector> =
+    Persistent(UnsafeCell::new(MaybeUninit::uninit()));
 
 #[repr(align(32))]
 struct DvdTwoSectors([u8; 0x1000]);
@@ -94,7 +105,9 @@ pub fn run(logger: &mut ProbeLogger, destructive_card_format: bool) {
     lwp::set_debug_hook(Some(storage_debug_hook));
 
     OGC_STORAGE_PROBE_STAGE.store(1, Ordering::Release);
-    probe_dvd(logger);
+    if !probe_dvd(logger) {
+        return;
+    }
     OGC_STORAGE_PROBE_STAGE.store(2, Ordering::Release);
     probe_usb_storage(logger);
     OGC_STORAGE_PROBE_STAGE.store(3, Ordering::Release);
@@ -292,7 +305,9 @@ pub fn probe_dvd(logger: &mut ProbeLogger) -> bool {
         logger.record("dvd presence reports no disc", disc_present == 0);
         logger.record("dvd no fake success without media", dvd::mount() < 0);
         probe_dvd_no_media_helpers(logger);
-        probe_dvd_no_media_async(logger);
+        if !probe_dvd_no_media_async(logger) {
+            return false;
+        }
         probe_dvd_sys_no_media(logger);
         return true;
     }
@@ -500,7 +515,7 @@ pub fn probe_dvd(logger: &mut ProbeLogger) -> bool {
     false
 }
 
-fn probe_dvd_no_media_async(logger: &mut ProbeLogger) {
+fn probe_dvd_no_media_async(logger: &mut ProbeLogger) -> bool {
     let mut block = dvd::DvdCmdBlk::default();
     prepare_async_probe();
     // SAFETY: `block` remains live until the callback completes.
@@ -527,19 +542,35 @@ fn probe_dvd_no_media_async(logger: &mut ProbeLogger) {
         10,
     );
 
-    let mut bs_block = dvd::DvdCmdBlk::default();
-    let mut sector = DvdSector([0; 0x800]);
+    // Keep these in static storage because a timed-out DI request may still
+    // own both pointers after this function returns.
+    let bs_block = unsafe {
+        let pointer = (*DVD_BS_ASYNC_BLOCK.0.get()).as_mut_ptr();
+        pointer.write(dvd::DvdCmdBlk::default());
+        pointer
+    };
+    let sector = unsafe {
+        let pointer = (*DVD_BS_ASYNC_SECTOR.0.get()).as_mut_ptr();
+        pointer.write(DvdSector([0; 0x800]));
+        pointer
+    };
+    logger.report_step("DVD no-media boot-sector async read submission");
+    logger.note("DVD no-media boot-sector async read: submitting");
     prepare_async_probe();
     // SAFETY: the aligned sector and command block remain live until callback.
     let submit = unsafe {
         dvd::read_abs_async_for_bs(
-            &mut bs_block,
-            sector.0.as_mut_ptr().cast(),
-            sector.0.len() as u32,
+            &mut *bs_block,
+            (*sector).0.as_mut_ptr().cast(),
+            (*sector).0.len() as u32,
             0,
             Some(dvd_async_callback),
         )
     };
+    logger.note_i32(
+        "DVD no-media boot-sector async read submission returned",
+        submit,
+    );
     record_async(
         logger,
         "dvd bs read async without media",
@@ -547,6 +578,11 @@ fn probe_dvd_no_media_async(logger: &mut ProbeLogger) {
         dvd::DVD_ERROR_COVER_CLOSED,
         10,
     );
+    let callback_completed = ASYNC_DONE.load(Ordering::Acquire);
+    if !callback_completed {
+        logger.note("DVD boot-sector async read timed out; later storage probes stopped while request may remain active");
+        return false;
+    }
 
     let mut control_block = dvd::DvdCmdBlk::default();
     prepare_async_probe();
@@ -661,6 +697,7 @@ fn probe_dvd_no_media_async(logger: &mut ProbeLogger) {
     let stop_motor = dvd::sys::stop_motor();
     logger.note_i32("dvd stop motor without media result", stop_motor);
     logger.record("dvd stop motor call completes", stop_motor == 0);
+    true
 }
 
 fn probe_dvd_sys_no_media(logger: &mut ProbeLogger) {

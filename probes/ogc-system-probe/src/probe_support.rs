@@ -13,7 +13,6 @@ use core::cell::Cell;
 use core::ffi::{CStr, c_void};
 use core::fmt::{self, Write};
 use core::ptr::null_mut;
-#[cfg(any(feature = "dolphin-automation", feature = "agent-report"))]
 use core::sync::atomic::AtomicI32;
 #[cfg(feature = "agent-report")]
 use core::sync::atomic::AtomicUsize;
@@ -66,6 +65,7 @@ mod failure_summary;
 use failure_summary::{FailureSummary, PAGE_SIZE};
 
 static VSYNC_TIMEOUTS: AtomicU32 = AtomicU32::new(0);
+static SD_RUN_LOG_OPEN_ERROR: AtomicI32 = AtomicI32::new(0);
 static POWER_REQUESTED: AtomicBool = AtomicBool::new(false);
 #[cfg(feature = "dolphin-automation")]
 static DOLPHIN_TRANSPORT_ERROR: AtomicI32 = AtomicI32::new(0);
@@ -1257,6 +1257,10 @@ impl ProbeLogger {
                 self.flush_pending_to_file();
             } else {
                 self.log_state.fail(LogError::BackendUnavailable);
+                if self.file_policy == LogFilePolicy::SdRunLog {
+                    let error = sd_run_log_open_error();
+                    self.note(error.as_str());
+                }
             }
         }
         self.file.is_some()
@@ -1915,6 +1919,8 @@ impl ProbeLogger {
 
     fn write_line_raw(&mut self, line: &str) {
         activity_indicator::progress();
+        #[cfg(ogc_dev)]
+        ogc_system_sys::capture_dev_report(format_args!("{line}\n"));
         if self.file_policy == LogFilePolicy::SdRunLog {
             self.append_log_bytes(line.as_bytes());
             self.append_log_bytes(b"\n");
@@ -1942,7 +1948,13 @@ impl ProbeLogger {
 
     fn sync_sd_run_log(&mut self) {
         if self.file.is_some() && !self.sync_log_file() {
-            self.display.println("FAIL SD run log write or sync failed");
+            let mut line = LineBuf::new();
+            let _ = write!(
+                &mut line,
+                "FAIL SD run log write or sync failed: {:?}",
+                self.log_state.first_error()
+            );
+            self.note(line.as_str());
         }
     }
 
@@ -1991,7 +2003,12 @@ impl ProbeLogger {
             Ok(written) => {
                 self.file_bytes_written = self.file_bytes_written.saturating_add(written);
             }
-            Err(code) => self.log_state.fail(LogError::FileWrite(code)),
+            Err(code) => {
+                self.log_state.fail(LogError::FileWrite(code));
+                if self.file_policy == LogFilePolicy::SdRunLog {
+                    self.note(&alloc::format!("FAIL SD run log write error rc={code}"));
+                }
+            }
         }
     }
 
@@ -2055,7 +2072,14 @@ pub fn input_run_identity() -> Option<(&'static str, &'static str)> {
     }
     #[cfg(not(feature = "agent-report"))]
     {
-        None
+        #[cfg(ogc_dev)]
+        {
+            ogc_system_sys::dev_run_identity()
+        }
+        #[cfg(not(ogc_dev))]
+        {
+            None
+        }
     }
 }
 
@@ -2874,23 +2898,87 @@ fn open_log_file(policy: LogFilePolicy) -> Option<LogFile> {
 }
 
 fn open_sd_run_log() -> Option<MountedLogFile> {
-    let (run_id, _) = input_run_identity()?;
+    let Some((run_id, _)) = input_run_identity() else {
+        SD_RUN_LOG_OPEN_ERROR.store(-1, Ordering::Release);
+        return None;
+    };
     if !run_id
         .bytes()
         .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_'))
     {
+        SD_RUN_LOG_OPEN_ERROR.store(-2, Ordering::Release);
         return None;
     }
     match ogc_fat::mount_sd() {
         Ok(()) | Err(ogc_fat::FatError::AlreadyMounted) => {}
-        Err(_) => return None,
+        Err(error) => {
+            SD_RUN_LOG_OPEN_ERROR.store(-100 - ogc_fat::fat_errno(error), Ordering::Release);
+            return None;
+        }
     }
-    let path = alloc::ffi::CString::new(alloc::format!("sd:/ogc-probe-{run_id}.log")).ok()?;
+    let path = match alloc::ffi::CString::new(alloc::format!("sd:/ogc-probe-{run_id}.log")) {
+        Ok(path) => path,
+        Err(_) => {
+            SD_RUN_LOG_OPEN_ERROR.store(-3, Ordering::Release);
+            return None;
+        }
+    };
     let flags = sysbase::O_WRONLY | sysbase::O_CREAT | sysbase::O_EXCL;
+    let file = match sysbase::DeviceFile::open_checked(&path, flags) {
+        Ok(file) => file,
+        Err(code) => {
+            SD_RUN_LOG_OPEN_ERROR.store(-1000 - code.abs(), Ordering::Release);
+            return None;
+        }
+    };
+    SD_RUN_LOG_OPEN_ERROR.store(0, Ordering::Release);
     Some(MountedLogFile {
-        file: sysbase::DeviceFile::open_checked(&path, flags).ok()?,
+        file,
         usb_backed: Some(false),
     })
+}
+
+fn sd_run_log_open_error() -> LineBuf {
+    let error = SD_RUN_LOG_OPEN_ERROR.load(Ordering::Acquire);
+    let mut line = LineBuf::new();
+    match error {
+        -1 => {
+            let _ = write!(
+                &mut line,
+                "FAIL SD run log: missing or rejected run identity"
+            );
+        }
+        -2 => {
+            let _ = write!(
+                &mut line,
+                "FAIL SD run log: rejected run identity for file name"
+            );
+        }
+        -3 => {
+            let _ = write!(&mut line, "FAIL SD run log: file path creation failed");
+        }
+        value if value <= -1000 => {
+            let _ = write!(
+                &mut line,
+                "FAIL SD run log: file creation error rc={}",
+                -1000 - value
+            );
+        }
+        value if value <= -100 => {
+            let _ = write!(
+                &mut line,
+                "FAIL SD run log: SD mount error errno={}",
+                -100 - value
+            );
+        }
+        _ => {
+            let _ = write!(
+                &mut line,
+                "FAIL SD run log: open failed without an error code"
+            );
+        }
+    }
+    line
 }
 
 #[cfg(feature = "mounted-log")]

@@ -491,7 +491,7 @@ fn configure_probe_app_dir(app_dir: &'static str) {
     probe_support::set_probe_app_dir(app_dir);
 }
 
-#[cfg(all(target_arch = "powerpc", not(feature = "agent-report")))]
+#[cfg(all(target_arch = "powerpc", not(any(feature = "agent-report", ogc_dev))))]
 fn idle_forever() -> ! {
     loop {
         probe_support::wait_vsync();
@@ -500,20 +500,20 @@ fn idle_forever() -> ! {
 
 #[cfg(target_arch = "powerpc")]
 fn finish_probe() -> i32 {
-    #[cfg(not(feature = "agent-report"))]
+    #[cfg(all(not(feature = "agent-report"), not(ogc_dev)))]
     idle_forever();
-    #[cfg(feature = "agent-report")]
+    #[cfg(any(feature = "agent-report", ogc_dev))]
     {
         0
     }
 }
 
 #[cfg(all(target_arch = "powerpc", not(feature = "gamecube-card-probe")))]
-/// Runs the full hardware probe suite, then enters the live input monitor.
+/// Runs the full hardware probe suite, then enters the live input monitor in standalone mode.
 pub fn run_system_probe() -> i32 {
     configure_probe_app_dir("ogc-system-probe");
     let options = if cfg!(all(
-        feature = "agent-report",
+        any(feature = "agent-report", ogc_dev),
         not(feature = "dolphin-automation")
     )) {
         probe_support::ProbeLoggerOptions {
@@ -560,9 +560,11 @@ pub fn run_system_probe() -> i32 {
     keyboard_probe::run(&mut logger);
 
     logger.summary();
-    #[cfg(feature = "agent-report")]
-    return finish_probe();
-    #[cfg(not(feature = "agent-report"))]
+    #[cfg(any(feature = "agent-report", ogc_dev))]
+    {
+        return finish_probe();
+    }
+    #[cfg(all(not(feature = "agent-report"), not(ogc_dev)))]
     input_probe::monitor(&mut logger);
 }
 

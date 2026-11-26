@@ -10,6 +10,8 @@ mod startup_plan;
 pub use clock::{ClockError, ClockSnapshot, RtcStage};
 #[cfg(ogc_dev)]
 pub use dev::capture as capture_dev_report;
+#[cfg(ogc_dev)]
+pub use dev::run_identity as dev_run_identity;
 #[cfg(not(target_arch = "powerpc"))]
 compile_error!(
     "This crate targets Wii/GameCube PowerPC only. Use the powerpc-nintendo-none target."
