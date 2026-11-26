@@ -6775,6 +6775,29 @@ fn probe_exi_raw_lock_queue(logger: &mut ProbeLogger) {
             && released == 1
             && EXI_UNLOCK_CALLS.load(Ordering::Acquire) == 2,
     );
+
+    EXI_UNLOCK_CALLS.store(0, Ordering::Release);
+    EXI_UNLOCK_ARGS.store(0, Ordering::Release);
+    let locked = raw_exi::lock(1, 1, None) == 1;
+    let queued_all = (0..33).all(|_| {
+        raw_exi::lock(1, 2, Some(probe_exi_unlock_callback)) == 0
+    });
+    let mut drained = true;
+    for index in 0..32 {
+        drained &= raw_exi::unlock(1) == 1;
+        if index < 31 {
+            drained &= raw_exi::lock(1, 2, None) == 1;
+        }
+    }
+    let released_after_drain = raw_exi::lock(1, 2, None) == 1 && raw_exi::unlock(1) == 1;
+    logger.record(
+        "Raw EXI lock queue holds 32 callbacks and drops overflow",
+        locked
+            && queued_all
+            && drained
+            && released_after_drain
+            && EXI_UNLOCK_CALLS.load(Ordering::Acquire) == 32,
+    );
 }
 
 fn probe_exi_dma_write(logger: &mut ProbeLogger) {

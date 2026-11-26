@@ -1687,6 +1687,24 @@ mod tests {
     }
 
     #[test]
+    fn lock_queue_matches_the_32_entry_callback_pool() {
+        let _guard = test_guard();
+        assert_eq!(lock(EXI_CHANNEL_0, EXI_DEVICE_0, None), 1);
+        for _ in 0..33 {
+            assert_eq!(lock(EXI_CHANNEL_0, EXI_DEVICE_1, Some(cb_a)), 0);
+        }
+        for index in 0..32 {
+            assert_eq!(unlock(EXI_CHANNEL_0), 1);
+            if index < 31 {
+                assert_eq!(lock(EXI_CHANNEL_0, EXI_DEVICE_1, None), 1);
+            }
+        }
+        assert_eq!(lock(EXI_CHANNEL_0, EXI_DEVICE_1, None), 1);
+        assert_eq!(unlock(EXI_CHANNEL_0), 1);
+        assert_eq!(CALLBACK_CALLS.load(Ordering::SeqCst), 32);
+    }
+
+    #[test]
     fn probe_ex_preserves_unknown_state() {
         assert_eq!(probe_ex_result(1, false), 1);
         assert_eq!(probe_ex_result(0, true), 0);
