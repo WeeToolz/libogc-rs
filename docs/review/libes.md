@@ -197,3 +197,13 @@ checks. Evidence is in
 This covers the four named calls and the tested invalid arguments. Other ES
 entry points and other validation combinations require separate review.
 Independent review and physical Wii validation remain pending.
+
+The same descriptor-first comparison was extended to 16 title enumeration,
+TMD, title-content, consumption, and shared-content entry points. The Dolphin
+baseline failed the closed-service check and passed the open-service check;
+after the change both passed, as did the IOS 58 reload. The grouped probe
+checks every one of the 16 return values. The final run reports 18 checks and
+no failures; see `../dolphin-runs/2026-11-26-es-inventory-precedence-red/` and
+`../dolphin-runs/2026-11-26-es-inventory-precedence-green/`. This only covers
+the tested invalid inputs. Independent review, other ES calls, and physical Wii
+validation remain open.

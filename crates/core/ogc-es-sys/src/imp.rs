@@ -594,11 +594,11 @@ pub unsafe fn get_ticket_views(title_id: u64, views: *mut Tikview, cnt: u32) -> 
 /// `cnt` must be valid for writes.
 pub unsafe fn get_num_owned_titles(cnt: *mut u32) -> i32 {
     with_state(|state| {
-        if cnt.is_null() {
-            return ES_EINVAL;
-        }
         if let Err(rc) = require_initialized(state) {
             return rc;
+        }
+        if cnt.is_null() {
+            return ES_EINVAL;
         }
         let fd = match current_fd(state) {
             Ok(fd) => fd,
@@ -620,14 +620,14 @@ pub unsafe fn get_num_owned_titles(cnt: *mut u32) -> i32 {
 pub unsafe fn get_owned_titles(titles: *mut u64, cnt: u32) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if cnt == 0 || titles.is_null() {
                 return ES_EINVAL;
             }
             if !is_aligned(titles.cast(), 4) {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -652,11 +652,11 @@ pub unsafe fn get_owned_titles(titles: *mut u64, cnt: u32) -> i32 {
 /// `cnt` must be valid for writes.
 pub unsafe fn get_num_titles(cnt: *mut u32) -> i32 {
     with_state(|state| {
-        if cnt.is_null() {
-            return ES_EINVAL;
-        }
         if let Err(rc) = require_initialized(state) {
             return rc;
+        }
+        if cnt.is_null() {
+            return ES_EINVAL;
         }
         let fd = match current_fd(state) {
             Ok(fd) => fd,
@@ -678,14 +678,14 @@ pub unsafe fn get_num_titles(cnt: *mut u32) -> i32 {
 pub unsafe fn get_titles(titles: *mut u64, cnt: u32) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if cnt == 0 || titles.is_null() {
                 return ES_EINVAL;
             }
             if !is_aligned(titles.cast(), 4) {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -715,6 +715,9 @@ pub unsafe fn get_num_stored_tmd_contents(
 ) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if cnt.is_null() {
                 return ES_EINVAL;
             }
@@ -723,9 +726,6 @@ pub unsafe fn get_num_stored_tmd_contents(
             }
             if !is_aligned(stmd.cast(), 64) {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -762,6 +762,9 @@ pub unsafe fn get_stored_tmd_contents(
 ) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if cnt == 0 || contents.is_null() {
                 return ES_EINVAL;
             }
@@ -773,9 +776,6 @@ pub unsafe fn get_stored_tmd_contents(
             }
             if tmd_size as usize > MAX_SIGNED_TMD_SIZE {
                 return ES_EINVAL;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -805,11 +805,11 @@ pub unsafe fn get_stored_tmd_contents(
 /// `size` must be valid for writes.
 pub unsafe fn get_stored_tmd_size(title_id: u64, size: *mut u32) -> i32 {
     with_state(|state| {
-        if size.is_null() {
-            return ES_EINVAL;
-        }
         if let Err(rc) = require_initialized(state) {
             return rc;
+        }
+        if size.is_null() {
+            return ES_EINVAL;
         }
         let fd = match current_fd(state) {
             Ok(fd) => fd,
@@ -839,6 +839,9 @@ pub unsafe fn get_stored_tmd_size(title_id: u64, size: *mut u32) -> i32 {
 pub unsafe fn get_stored_tmd(title_id: u64, stmd: *mut SignedBlob, size: u32) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if size == 0 || stmd.is_null() {
                 return ES_EINVAL;
             }
@@ -847,9 +850,6 @@ pub unsafe fn get_stored_tmd(title_id: u64, stmd: *mut SignedBlob, size: u32) ->
             }
             if size as usize > MAX_SIGNED_TMD_SIZE {
                 return ES_EINVAL;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -875,11 +875,11 @@ pub unsafe fn get_stored_tmd(title_id: u64, stmd: *mut SignedBlob, size: u32) ->
 /// `num` must be valid for writes.
 pub unsafe fn get_title_contents_count(title_id: u64, num: *mut u32) -> i32 {
     with_state(|state| {
-        if num.is_null() {
-            return ES_EINVAL;
-        }
         if let Err(rc) = require_initialized(state) {
             return rc;
+        }
+        if num.is_null() {
+            return ES_EINVAL;
         }
         let fd = match current_fd(state) {
             Ok(fd) => fd,
@@ -909,14 +909,14 @@ pub unsafe fn get_title_contents_count(title_id: u64, num: *mut u32) -> i32 {
 pub unsafe fn get_title_contents(title_id: u64, contents: *mut u32, num: u32) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if num == 0 || contents.is_null() {
                 return ES_EINVAL;
             }
             if !is_aligned(contents.cast(), 4) {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -945,11 +945,11 @@ pub unsafe fn get_title_contents(title_id: u64, contents: *mut u32, num: u32) ->
 /// `size` must be valid for writes.
 pub unsafe fn get_tmd_view_size(title_id: u64, size: *mut u32) -> i32 {
     with_state(|state| {
-        if size.is_null() {
-            return ES_EINVAL;
-        }
         if let Err(rc) = require_initialized(state) {
             return rc;
+        }
+        if size.is_null() {
+            return ES_EINVAL;
         }
         let fd = match current_fd(state) {
             Ok(fd) => fd,
@@ -979,14 +979,14 @@ pub unsafe fn get_tmd_view_size(title_id: u64, size: *mut u32) -> i32 {
 pub unsafe fn get_tmd_view(title_id: u64, view: *mut TmdView, size: u32) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if size == 0 || view.is_null() {
                 return ES_EINVAL;
             }
             if !is_aligned(view.cast(), 4) {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -1012,11 +1012,11 @@ pub unsafe fn get_tmd_view(title_id: u64, view: *mut TmdView, size: u32) -> i32 
 /// `n_limits` must be valid for writes.
 pub unsafe fn get_consumption_count(ticket_id: u64, n_limits: *mut u32) -> i32 {
     with_state(|state| {
-        if n_limits.is_null() {
-            return ES_EINVAL;
-        }
         if let Err(rc) = require_initialized(state) {
             return rc;
+        }
+        if n_limits.is_null() {
+            return ES_EINVAL;
         }
         let fd = match current_fd(state) {
             Ok(fd) => fd,
@@ -1048,14 +1048,14 @@ pub unsafe fn get_consumption_count(ticket_id: u64, n_limits: *mut u32) -> i32 {
 pub unsafe fn get_consumption(ticket_id: u64, limits: *mut Tiklimit, n_limits: u32) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if n_limits == 0 || limits.is_null() {
                 return ES_EINVAL;
             }
             if !is_aligned(limits.cast(), 4) {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
@@ -1223,11 +1223,11 @@ pub unsafe fn get_ticket_view(s_tik: *const SignedBlob, view: *mut Tikview) -> i
 /// `cnt` must be valid for writes.
 pub unsafe fn get_num_shared_contents(cnt: *mut u32) -> i32 {
     with_state(|state| {
-        if cnt.is_null() {
-            return ES_EINVAL;
-        }
         if let Err(rc) = require_initialized(state) {
             return rc;
+        }
+        if cnt.is_null() {
+            return ES_EINVAL;
         }
         let fd = match current_fd(state) {
             Ok(fd) => fd,
@@ -1249,14 +1249,14 @@ pub unsafe fn get_num_shared_contents(cnt: *mut u32) -> i32 {
 pub unsafe fn get_shared_contents(contents: *mut Sha1, cnt: u32) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if cnt == 0 || contents.is_null() {
                 return ES_EINVAL;
             }
             if !is_aligned(contents.cast(), 4) {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,

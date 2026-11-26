@@ -1144,6 +1144,32 @@ unsafe fn ios_reload_ipc_debug_hook(stage: u32, _: u32, _: u32, _: u32) {
 }
 
 #[cfg(all(target_arch = "powerpc", feature = "ios-reload-probe"))]
+fn es_inventory_invalid_results() -> [i32; 16] {
+    let null = core::ptr::null_mut();
+    // SAFETY: All pointers are null and must be rejected before dereference.
+    unsafe {
+        [
+            ogc_es_sys::get_num_owned_titles(null),
+            ogc_es_sys::get_owned_titles(core::ptr::null_mut(), 0),
+            ogc_es_sys::get_num_titles(null),
+            ogc_es_sys::get_titles(core::ptr::null_mut(), 0),
+            ogc_es_sys::get_num_stored_tmd_contents(core::ptr::null(), 0, null),
+            ogc_es_sys::get_stored_tmd_contents(core::ptr::null(), 0, null, 0),
+            ogc_es_sys::get_stored_tmd_size(0, null),
+            ogc_es_sys::get_stored_tmd(0, core::ptr::null_mut(), 0),
+            ogc_es_sys::get_title_contents_count(0, null),
+            ogc_es_sys::get_title_contents(0, null, 0),
+            ogc_es_sys::get_tmd_view_size(0, null),
+            ogc_es_sys::get_tmd_view(0, core::ptr::null_mut(), 0),
+            ogc_es_sys::get_consumption_count(0, null),
+            ogc_es_sys::get_consumption(0, core::ptr::null_mut(), 0),
+            ogc_es_sys::get_num_shared_contents(null),
+            ogc_es_sys::get_shared_contents(core::ptr::null_mut(), 0),
+        ]
+    }
+}
+
+#[cfg(all(target_arch = "powerpc", feature = "ios-reload-probe"))]
 /// Reloads the current IOS and checks IPC after it returns.
 pub fn run_ios_reload_probe_bin() -> i32 {
     configure_probe_app_dir("ios-reload-probe");
@@ -1175,6 +1201,12 @@ pub fn run_ios_reload_probe_bin() -> i32 {
         "closed ES reports not initialized before invalid arguments",
         closed_results.iter().all(|&rc| rc == ogc_es_sys::ES_ENOTINIT),
     );
+    logger.record(
+        "closed ES inventory calls report not initialized first",
+        es_inventory_invalid_results()
+            .iter()
+            .all(|&rc| rc == ogc_es_sys::ES_ENOTINIT),
+    );
     let initialized = ogc_es_sys::init();
     logger.record("ES reopens after argument checks", initialized == 0);
     if initialized != 0 {
@@ -1193,6 +1225,12 @@ pub fn run_ios_reload_probe_bin() -> i32 {
     logger.record(
         "open ES rejects invalid arguments",
         open_results.iter().all(|&rc| rc == ogc_es_sys::ES_EINVAL),
+    );
+    logger.record(
+        "open ES inventory calls reject invalid arguments",
+        es_inventory_invalid_results()
+            .iter()
+            .all(|&rc| rc == ogc_es_sys::ES_EINVAL),
     );
     IOS_RELOAD_RESET_MSR.store(u32::MAX, core::sync::atomic::Ordering::Release);
     ogc_ipc::set_debug_hook(Some(ios_reload_ipc_debug_hook));
