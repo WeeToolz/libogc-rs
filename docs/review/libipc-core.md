@@ -521,3 +521,20 @@ macOS denied the debugger attach. The raw control output is in
 `../dolphin-runs/2026-11-26-ipc-lldb-permission/lldb-true.log`. This does not
 identify the cause of the Dolphin abort. A working diagnostic method is still
 needed before the relaunch result can be resolved.
+
+### Reinitialization interrupt exclusion
+
+Source comparison found an additional open ordering gap. C's
+`__IPC_Reinitialize` disables CPU interrupts before it writes IPC control and
+resets the mailbox credit, relaunch marker, and request queue; it restores the
+previous interrupt state after those operations. Rust's `reinitialize` resets
+the same shared state without an equivalent critical section. The Rust IOS
+reload path restores and unmasks the IPC interrupt before calling it, so the
+IPC interrupt handler can potentially observe an incomplete reset. Rust also
+regenerates the request magic, while C preserves it across reinitialization.
+The effect of that difference on outstanding replies needs a separate review.
+
+This is a source-level finding, not a reproduced runtime failure. Add a
+regression that exercises interrupt exclusion and the saved interrupt state,
+then verify the production path and its reload behavior in Dolphin. Do not
+infer a fix for the separate relaunch abort from this finding.
