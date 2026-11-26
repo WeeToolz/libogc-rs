@@ -6637,6 +6637,10 @@ fn probe_si_polling_handlers_and_transfer(logger: &mut ProbeLogger) {
         )
     };
     let busy = si::busy();
+    si::init();
+    let busy_after_wrapper_init = si::busy();
+    raw_si::init();
+    let busy_after_raw_init = raw_si::busy();
     let result = si::sync();
     let idle = si::busy();
     let mut raw_input = 0xa5a5_a5a5u32;
@@ -6672,6 +6676,16 @@ fn probe_si_polling_handlers_and_transfer(logger: &mut ProbeLogger) {
     logger.record(
         "SI raw polling handler registration and removal",
         raw_registered == 1 && raw_duplicate == 1 && raw_removed == 1 && raw_removed_again == 0,
+    );
+    logger.record(
+        "SI repeated initialization preserves an active transfer",
+        submit == 1
+            && busy == 1
+            && busy_after_wrapper_init == 1
+            && busy_after_raw_init == 1
+            && result == si::SI_ERROR_NO_RESPONSE
+            && idle == 0
+            && input & 0xff == 0xa5,
     );
     logger.record(
         "SI wrapper transfer reports no controller and clears busy",

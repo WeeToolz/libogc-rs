@@ -33,3 +33,7 @@ The checked state and register paths align: `SI_Sync` completion and queue resta
 ## 2026-11-26 `SI_TransferCommands` Dolphin evidence
 
 The runtime probe now calls `ogc-si::transfer_commands` directly, then calls `SI_Sync` and checks that the transfer-start bit and SI driver's busy state are clear. This matches the C contract: `SI_TransferCommands` writes `0x80000000` to the SI status register (`libogc/si.c:696`), and `SI_Sync` waits for the transfer-start bit to clear (`si.c:405–415`). Dolphin 2609a run `docs/dolphin-runs/2026-11-26-si-transfer-commands-api` passed 875 checks with zero failures. The observed status was `0x20080808`, and the SI path returned to idle. Physical controller and Wii timing evidence remains pending.
+
+## 2026-11-26 repeated SI initialization
+
+The runtime probe submits a transfer with interrupts masked, calls both the wrapper and raw `init`, and checks that the transfer stays busy and completes with the expected no-controller result. Dolphin 2609a run `docs/dolphin-runs/2026-11-26-si-init-active-transfer` passed 877 checks with zero failures. DOL SHA-256: `329e0116ae506abcfe1557abe10bbff7006fba65fd0f63bad2e21bd35b9c7a85`. First initialization, the wireless ID handshake, and physical Wii behavior remain unverified by this check.
