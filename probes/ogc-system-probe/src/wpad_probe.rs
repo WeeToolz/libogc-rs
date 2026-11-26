@@ -217,6 +217,20 @@ fn probe_active_search(logger: &mut ProbeLogger) {
         i32::from(guest_active.hci_command_failures > guest_before.hci_command_failures),
     );
     logger.note_i32("WPAD status after guest inquiry", wpad::get_status());
+    if guest_active.hci_command_failures == guest_before.hci_command_failures {
+        let guest_search_deadline = ogc_system::time() + 60_750_000 * 16;
+        while wpad::bluetooth_diagnostics().searching && ogc_system::time() < guest_search_deadline
+        {
+            let _ = wpad::scan_pads();
+            logger.display().wait_vsync();
+        }
+        logger.record(
+            "WPAD periodic guest search stays active beyond 15 seconds",
+            wpad::bluetooth_diagnostics().searching,
+        );
+    } else {
+        logger.note("SKIP periodic guest search duration: Dolphin rejected the HCI command");
+    }
     let guest_stop = wpad::stop_search();
     logger.record(
         "WPAD stop_search clears guest inquiry state",

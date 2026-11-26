@@ -250,7 +250,7 @@ pub struct HidHost {
     acl_capacity: u16,
     acl_size: usize,
     signal_id: u8,
-    search_deadline: u64,
+    search_deadline: Option<u64>,
     search_mode: SearchMode,
     setup_step: u8,
     stored_keys_expected: Option<u16>,
@@ -304,7 +304,7 @@ impl HidHost {
             acl_capacity: 0,
             acl_size: 0,
             signal_id: 0,
-            search_deadline: 0,
+            search_deadline: None,
             search_mode: SearchMode::General,
             setup_step: 0,
             stored_keys_expected: None,
@@ -391,6 +391,7 @@ impl HidHost {
         self.diagnostic.failure = Some(failure);
         self.diagnostic.stage = HostStage::Failed;
         self.diagnostic.searching = false;
+        self.search_deadline = None;
         self.hci.clear();
         self.acl.clear();
         self.command = None;
@@ -539,7 +540,8 @@ impl HidHost {
         if self.stored_keys_expected.is_some() && now >= self.stored_keys_deadline {
             self.fail(Failure::Timeout);
         }
-        if self.diagnostic.searching && now >= self.search_deadline {
+        if self.diagnostic.searching && self.search_deadline.is_some_and(|deadline| now >= deadline)
+        {
             self.stop_search();
         }
         for slot in 0..HID_SLOTS {
@@ -648,7 +650,10 @@ impl HidHost {
             self.clear_guest_link_keys();
         }
         self.diagnostic.searching = true;
-        self.search_deadline = now + 15_000;
+        self.search_deadline = match mode {
+            SearchMode::General => Some(now + 15_000),
+            SearchMode::WiiGuest => None,
+        };
         self.search_mode = mode;
         // WPAD_Search uses BTE_PeriodicInquiry with LIAC. Guest Wii Remotes
         // use their own address as the PIN, including before name lookup ends.
@@ -669,6 +674,7 @@ impl HidHost {
             };
             self.queue_hci(opcode, &[]);
             self.diagnostic.searching = false;
+            self.search_deadline = None;
         }
     }
     /// Return whether the adapter still owns a connection in this slot.
@@ -812,6 +818,7 @@ impl HidHost {
                     {
                         self.command = None;
                         self.diagnostic.searching = false;
+                        self.search_deadline = None;
                         self.diagnostic.failed_opcode = Some(opcode);
                         self.diagnostic.hci_status = None;
                         self.diagnostic.hci_command_failures += 1;
@@ -952,6 +959,7 @@ impl HidHost {
                 // An inquiry cycle can end while periodic inquiry stays active.
                 if self.search_mode == SearchMode::General {
                     self.diagnostic.searching = false;
+                    self.search_deadline = None;
                 }
                 if status != 0 {
                     self.stop_search();
@@ -2451,6 +2459,26 @@ mod tests {
                 ]
             )
         );
+    }
+
+    #[test]
+    fn guest_periodic_search_does_not_expire_after_fifteen_seconds() {
+        let mut host = ready();
+        assert!(host.search_wii_guest(100));
+
+        host.tick(15_100);
+
+        assert!(host.diagnostics().searching);
+    }
+
+    #[test]
+    fn general_search_still_expires_after_fifteen_seconds() {
+        let mut host = ready();
+        assert!(host.search(100));
+
+        host.tick(15_100);
+
+        assert!(!host.diagnostics().searching);
     }
 
     #[test]

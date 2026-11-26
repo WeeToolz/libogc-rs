@@ -536,10 +536,9 @@ class-of-device filter defect was real and is fixed, but the available report
 does not prove it was the only cause. Hardware validation of the rebuilt DOL
 remains pending. The bounded guest-search window, retained per-link guest PIN
 state, and requirement to observe authentication completion are Rust safety
-and lifecycle choices. Full `WPAD_Search` parity also remains open: C clears
-existing active and guest state before guest search, while Rust preserves
-connected controllers. Broader Bluetooth parity has not been audited as
-complete.
+and lifecycle choices. At the time of this audit, the Rust search path did not
+clear the connected WPAD state as C does. The later fix is recorded below.
+Broader Bluetooth parity has not been audited as complete.
 
 The Dolphin Wii Remote smoke test found another initialization mismatch after
 this source review: Rust skipped libogc's second `BTE_InitCore` setup before
@@ -767,5 +766,45 @@ and disabled WPAD results. The artifact is
 `docs/dolphin-runs/2026-11-26-wpad-all-channel-apis/`; the probe log records
 the individual pass results and the final summary. This verifies empty-slot
 behavior and return codes. It does not verify effects on a connected Remote or
-physical Wii behavior. The static crate status remains `parity_blocked`
-because broader source comparison and hardware/runtime behavior remain open.
+physical Wii behavior. At the time of this update, the static crate status was
+`parity_blocked` because broader source comparison and hardware/runtime
+behavior remained open. The current ledger classification is recorded below.
+
+### WPAD guest periodic inquiry timeout parity — fixed; re-review pending
+
+C `WPAD_Search` starts `BTE_PeriodicInquiry`, which continues until
+`WPAD_StopSearch` calls `BTE_ExitPeriodicInquiry`
+(`../../C-sources/libogc/wiiuse/wpad.c:1188-1218`;
+`../../C-sources/libogc/lwbt/bte.c:718-745`). Rust previously applied its
+15-second one-shot discovery deadline to periodic guest inquiry too. The host
+now sets a deadline only for general discovery; guest periodic search remains
+active until the caller stops it (`crates/services/ogc-bt-sync/src/hid_host.rs`).
+Host regressions check that guest search remains active after 15 seconds and
+that general discovery still expires. `cargo test -p ogc-bt-sync` passes all
+106 tests.
+
+The `wpad_probe` DOL builds and runs in Dolphin 2609a with 110 checks passing.
+The Dolphin Bluetooth path rejects the periodic inquiry HCI command, so the
+probe records the duration check as skipped. The first attempt treated that
+adapter failure as a failed duration check; its report is preserved in
+`docs/dolphin-runs/2026-11-26-wpad-periodic-search-parity/`. The corrected
+report is in
+`docs/dolphin-runs/2026-11-26-wpad-periodic-search-parity-retry/`. Dolphin
+therefore verifies the API setup, error observation, and explicit stop path,
+but it does not verify 15-second persistence. The host regression verifies
+the timeout branch. A controller-backed Dolphin run or a physical Wii run
+must still verify accepted periodic inquiry behavior. Physical Wii evidence
+remains pending.
+
+The earlier statement that guest search preserves connected controllers is
+also superseded by the current code. Before starting inquiry, Rust requests
+disconnect for each Wii Remote and immediately hides that controller from the
+WPAD API by clearing connection state and data. It retains the HID transport
+link until the adapter reports disconnect completion. C also requests
+disconnect and clears WPAD-visible active and guest state in `WPAD_Search`.
+The retained transport lifetime is required for safe asynchronous cleanup.
+Broader `wpad-sys` source review and independent review of these fixes remain
+open. The static ledger now marks the crate `needs_re_review`: this pass found
+and fixed the recorded timeout mismatch, and the earlier confirmed WPAD
+findings in this note have bounded fixes. This does not mark the full crate
+parity review complete.
