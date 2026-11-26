@@ -2820,8 +2820,15 @@ mod tests {
 
     #[test]
     fn exited_process_keeps_signal_detail() {
+        #[cfg(unix)]
+        let exit_status = {
+            use std::os::unix::process::ExitStatusExt;
+            std::process::ExitStatus::from_raw(6).to_string()
+        };
+        #[cfg(not(unix))]
+        let exit_status = "signal: 6 (SIGABRT)".to_string();
         let (status, detail) = classify_probe_completion(
-            &Completion::Exited("signal: 6 (SIGABRT)".to_string()),
+            &Completion::Exited(exit_status.clone()),
             30,
             CompletionEvidence {
                 parsed: None, frames_valid: false, pages_valid: false,
@@ -2829,7 +2836,9 @@ mod tests {
             },
         );
         assert_eq!(status, "crash");
-        assert!(detail.contains("SIGABRT"));
+        assert!(detail.contains(&exit_status));
+        #[cfg(unix)]
+        assert!(detail.contains("6"));
     }
 
     #[test]
