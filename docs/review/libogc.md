@@ -208,7 +208,9 @@ The current debugger probe passed under Dolphin's `dolphin-validate` runner on 2
 
 ### TCP timer stop mismatch (2026-11-26)
 
-C `tcpip_stoptimer` clears `tcpip_time` for a valid active socket, and `__tcpip_poll` calls `uip_tcp_tmr` only while that time is nonzero (`libdb/tcpip.c:210-228,444-453`). Rust `tcpip_stoptimer` clears `TCP_TIMER`, but `PrivateNet::poll` calls `retransmit_if_needed` without reading that flag (`crates/compatibility/libdb-sys/src/lib.rs:1501-1509`, `private_net.rs:246-252`). Thus a stopped timer can still cause a retransmission when the network is polled. This is an open production parity defect. The correct restart timing and socket lifecycle require further comparison before a fix. A Dolphin run with an active BBA and TCP peer is still required; physical Wii evidence remains pending.
+C `tcpip_stoptimer` clears `tcpip_time` for a valid active socket, and `__tcpip_poll` calls `uip_tcp_tmr` only while that time is nonzero (`libdb/tcpip.c:210-228,444-453`). Rust `tcpip_stoptimer` clears `TCP_TIMER`, but `PrivateNet::poll` calls `retransmit_if_needed` without reading that flag (`crates/compatibility/libdb-sys/src/lib.rs:1501-1509`, `private_net.rs:246-252`). Thus a stopped timer can still cause a retransmission when the network is polled. This is an open production parity defect. The correct restart timing and socket lifecycle require further comparison before a fix. In particular, C starts the timer when active TCP control blocks are registered, including during a handshake; gating all polls on the current Rust flag would suppress handshake retransmissions. A Dolphin run with an active BBA and TCP peer is still required; physical Wii evidence remains pending.
+
+The local C configuration sets `UIP_IP_REASSEMBLY` to zero (`libdb/uIP/uipopt.h:154`). The Rust fragment rejection therefore does not establish a reassembly parity gap.
 
 ## 2026-10-08 HBC power-off path review
 

@@ -427,9 +427,7 @@ impl PrivateNet {
             return Ok(());
         }
         if be16(&packet[6..8]) & IP_FRAGMENT_MASK != 0 {
-            // The private libdb uIP enables reassembly. This compact server
-            // intentionally does not accept fragmented TCP datagrams yet, so
-            // the public backend must remain blocked until integration review.
+            // The local libdb uIP configuration disables IP reassembly.
             return Ok(());
         }
         let source_ip = array4(&packet[12..16]);
