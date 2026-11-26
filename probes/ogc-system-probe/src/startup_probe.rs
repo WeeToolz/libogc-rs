@@ -121,6 +121,9 @@ fn probe_si_startup(logger: &mut ProbeLogger, si_init_completed: bool) {
     SI_RESULT.store(u32::MAX, Ordering::Release);
     let output = 0u32;
     let mut input = 0xa5a5_a5a5u32;
+    let irq_mask = 1u32 << ogc_irq::IRQ_PI_SI;
+    let originally_unmasked = ogc_irq::sys::mask() & irq_mask != 0;
+    ogc_irq::mask(irq_mask);
     // SAFETY: The aligned buffers stay live until the callback completes.
     let submitted = unsafe {
         si::transfer(
@@ -133,6 +136,36 @@ fn probe_si_startup(logger: &mut ProbeLogger, si_init_completed: bool) {
             0,
         )
     };
+    let control_base = if ogc_core::powerpc::hollywood_revision() == 0 {
+        0xcc00_6400usize
+    } else {
+        0xcd00_6400usize
+    };
+    let control = (control_base + 13 * 4) as *const u32;
+    let mut pending = false;
+    for _ in 0..120 {
+        // SAFETY: The SI control register is a valid hardware register.
+        if unsafe { core::ptr::read_volatile(control) } & (1 << 31) != 0 {
+            pending = true;
+            break;
+        }
+        if !ogc_video::wait_vsync_timeout_us(100_000) {
+            break;
+        }
+    }
+    let interrupt_state = ogc_irq::irq_disable();
+    let _other_pending = ogc_irq::dispatch_pending();
+    let deferred = SI_COMPLETIONS.load(Ordering::Acquire) == 0;
+    ogc_irq::unmask(irq_mask);
+    let mut dispatched = false;
+    for _ in 0..16 {
+        dispatched |= ogc_irq::dispatch_pending();
+        if SI_COMPLETIONS.load(Ordering::Acquire) != 0 {
+            break;
+        }
+    }
+    let dispatched_si = SI_COMPLETIONS.load(Ordering::Acquire) == 1;
+    ogc_irq::irq_restore(interrupt_state);
     for _ in 0..120 {
         if SI_COMPLETIONS.load(Ordering::Acquire) != 0 {
             break;
@@ -142,6 +175,14 @@ fn probe_si_startup(logger: &mut ProbeLogger, si_init_completed: bool) {
         }
     }
     let completed = SI_COMPLETIONS.load(Ordering::Acquire) == 1;
+    logger.record(
+        "SI interrupt stays pending while masked",
+        originally_unmasked && submitted == 1 && pending && deferred,
+    );
+    logger.record(
+        "IRQ pending dispatch delivers the unmasked SI interrupt",
+        pending && dispatched && dispatched_si,
+    );
     logger.record(
         "SI startup delivers a transfer interrupt",
         submitted == 1
@@ -154,6 +195,9 @@ fn probe_si_startup(logger: &mut ProbeLogger, si_init_completed: bool) {
     if submitted == 1 && !completed {
         // Keep the stack buffers live until the outstanding transfer is drained.
         let _ = si::sync();
+    }
+    if !originally_unmasked {
+        ogc_irq::mask(irq_mask);
     }
 }
 
