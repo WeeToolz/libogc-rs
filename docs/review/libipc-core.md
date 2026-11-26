@@ -514,3 +514,10 @@ and exited with SIGABRT before a probe summary. The recorded arguments and
 result are in `../dolphin-runs/2026-11-26-ipc-relaunch-metal/suite.json`.
 This rules out the choice between these two backends as a sufficient explanation
 for the observed abort; it does not identify the cause or prove menu usability.
+
+Native LLDB is not currently a usable way to inspect this failure. A direct
+control run of `/usr/bin/true` under `/usr/bin/lldb` exited with status 1:
+macOS denied the debugger attach. The raw control output is in
+`../dolphin-runs/2026-11-26-ipc-lldb-permission/lldb-true.log`. This does not
+identify the cause of the Dolphin abort. A working diagnostic method is still
+needed before the relaunch result can be resolved.
