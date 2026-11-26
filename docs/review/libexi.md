@@ -64,6 +64,8 @@ No source changes were made during this review. No tests were run; this was a st
 
 **Confirmed API gap:** C `EXI_LockSync` first attempts a non-blocking EXI lock, returns 0 in exception context when the channel is busy, and otherwise waits on `exi_sync_queue` until the unlock callback wakes it (`../../C-sources/libogc/libogc/exi.c:291-316`). Rust exposed only `lock` and `unlock`.
 
-The Rust sys crate now exposes `lock_sync`, which uses the Tuxedo keyed wait queue and restores the prior interrupt state after the lock succeeds. The safe EXI crate exposes `lock_sync` and `try_lock_sync`. The shared `bus_probe` exercises immediate acquire/unlock, invalid-channel rejection, and the safe wrapper under Dolphin 2609a. Run `docs/dolphin-runs/2026-11-26-exi-lock-sync-final`: 71 checks passed, 0 failed. The PowerPC `cargo check -p ogc-exi` passed.
+The Rust sys crate now exposes `lock_sync`, which uses lazily initialized LWP queues keyed by EXI channel and device. It disables interrupts across the failed-lock-to-sleep path and restores the prior interrupt state after success. The safe EXI crate exposes `lock_sync` and `try_lock_sync`. The shared `bus_probe` exercises immediate acquire/unlock, invalid-channel rejection, and the safe wrapper under Dolphin 2609a. Run `docs/dolphin-runs/2026-11-26-exi-lock-sync-lwp-queue`: 71 checks passed, 0 failed. The PowerPC `cargo check -p ogc-exi` passed.
+
+The initial committed draft used the Tuxedo thread queue. Follow-up inspection showed that not every Rust LWP thread has a Tuxedo thread object, so the draft could not safely represent all callers. The follow-up commit replaces it with the LWP driver's keyed queues before independent review.
 
 Contended blocking and exception-context behavior still need runtime coverage. Physical Wii verification is pending. Independent review of the callback, queue, and retry path is also pending; these APIs are not declared fully parity-reviewed until that review is complete.

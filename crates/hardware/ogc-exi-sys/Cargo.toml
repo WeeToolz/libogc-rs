@@ -7,7 +7,7 @@ license.workspace = true
 [dependencies]
 ogc-irq = { path = "../../core/ogc-irq" }
 ogc-sys = { path = "../../abi/ogc-sys" }
-tuxedo-sys = { path = "../../compatibility/tuxedo-sys" }
+ogc-lwp-driver = { path = "../../core/ogc-lwp-driver" }
 
 [lib]
 path = "src/lib.rs"

@@ -7,8 +7,8 @@ compile_error!(
 
 use core::ffi::c_void;
 use core::ptr::{read_volatile, write_volatile};
-use core::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
-use tuxedo_sys::KThrQueue;
+use core::sync::atomic::{AtomicBool, AtomicU32, AtomicUsize, Ordering};
+use ogc_lwp_driver as lwp;
 
 #[cfg(target_arch = "powerpc")]
 use ogc_irq::{
@@ -49,10 +49,9 @@ const EXI_TC_IRQ: u32 = 0x0008;
 const EXI_EXT_IRQ: u32 = 0x0800;
 const EXI_EXT_BIT: u32 = 0x1000;
 
-static mut EXI_SYNC_QUEUE: KThrQueue = KThrQueue {
-    next: core::ptr::null_mut(),
-    prev: core::ptr::null_mut(),
-};
+const EXI_SYNC_QUEUE_COUNT: usize = EXI_CHANNEL_MAX as usize * EXI_DEVICE_MAX as usize;
+static EXI_SYNC_QUEUES: [AtomicU32; EXI_SYNC_QUEUE_COUNT] =
+    [const { AtomicU32::new(lwp::LWP_TQUEUE_NULL) }; EXI_SYNC_QUEUE_COUNT];
 
 pub const EXI_MEMCARD59: u32 = 0x0000_0004;
 pub const EXI_MEMCARD123: u32 = 0x0000_0008;
@@ -637,14 +636,43 @@ pub fn lock(chn: i32, dev: i32, unlock_cb: ExiCallback) -> i32 {
 }
 
 unsafe extern "C" fn lock_sync_callback(chn: i32, dev: i32) -> i32 {
-    let token = (chn | (dev << 2)) as u32;
-    unsafe {
-        tuxedo_sys::k_thr_queue_unblock_one_by_value(
-            core::ptr::addr_of_mut!(EXI_SYNC_QUEUE),
-            token,
-        );
+    if let Some(index) = lock_sync_queue_index(chn, dev) {
+        let queue = EXI_SYNC_QUEUES[index].load(Ordering::Acquire);
+        if queue != lwp::LWP_TQUEUE_NULL {
+            lwp::queue_broadcast(queue);
+        }
     }
     0
+}
+
+fn lock_sync_queue_index(chn: i32, dev: i32) -> Option<usize> {
+    (chan_valid(chn) && dev_valid(dev))
+        .then_some(chn as usize * EXI_DEVICE_MAX as usize + dev as usize)
+}
+
+fn lock_sync_queue(chn: i32, dev: i32) -> Option<lwp::QueueHandle> {
+    let index = lock_sync_queue_index(chn, dev)?;
+    let current = EXI_SYNC_QUEUES[index].load(Ordering::Acquire);
+    if current != lwp::LWP_TQUEUE_NULL {
+        return Some(current);
+    }
+
+    let mut candidate = lwp::LWP_TQUEUE_NULL;
+    if unsafe { lwp::init_queue(&mut candidate) } != lwp::LWP_SUCCESSFUL {
+        return None;
+    }
+    match EXI_SYNC_QUEUES[index].compare_exchange(
+        lwp::LWP_TQUEUE_NULL,
+        candidate,
+        Ordering::AcqRel,
+        Ordering::Acquire,
+    ) {
+        Ok(_) => Some(candidate),
+        Err(existing) => {
+            lwp::close_queue(candidate);
+            Some(existing)
+        }
+    }
 }
 
 #[cfg(target_arch = "powerpc")]
@@ -668,14 +696,17 @@ pub fn lock_sync(chn: i32, dev: i32) -> i32 {
         return 0;
     }
 
-    let irq_state = irq::irq_disable();
-    let token = (chn | (dev << 2)) as u32;
+    let Some(queue) = lock_sync_queue(chn, dev) else {
+        return 0;
+    };
+    let irq_state = lwp::critical_enter();
     while lock(chn, dev, Some(lock_sync_callback)) == 0 {
-        unsafe {
-            tuxedo_sys::k_thr_queue_block(core::ptr::addr_of_mut!(EXI_SYNC_QUEUE), token);
+        if lwp::queue_sleep(queue) != lwp::LWP_SUCCESSFUL {
+            lwp::critical_exit(irq_state);
+            return 0;
         }
     }
-    irq::irq_restore(irq_state);
+    lwp::critical_exit(irq_state);
     1
 }
 
