@@ -405,9 +405,15 @@ fn checked(result: i32) -> Result<(), i32> {
     if result < 0 { Err(result) } else { Ok(()) }
 }
 fn connect(identity: &Identity) -> Result<i32, i32> {
-    checked(net::net_attach_active())?;
+    // The development DOL boots directly, so initialize NWC24 and the IOS
+    // socket service instead of assuming an HBC process already started them.
+    checked(net::net_init())?;
     let socket = net::net_socket(net::AF_INET, net::SOCK_STREAM, net::IPPROTO_TCP);
     if socket < 0 {
+        let deinit = net::net_deinit();
+        if deinit < 0 {
+            capture(format_args!("FAIL dev network cleanup error={deinit}\n"));
+        }
         return Err(socket);
     }
     let result = (|| {
@@ -468,6 +474,10 @@ fn connect(identity: &Identity) -> Result<i32, i32> {
         let close = net::net_close(socket);
         if close < 0 {
             capture(format_args!("FAIL dev socket cleanup error={close}\n"));
+        }
+        let deinit = net::net_deinit();
+        if deinit < 0 {
+            capture(format_args!("FAIL dev network cleanup error={deinit}\n"));
         }
         return Err(error);
     }

@@ -10324,6 +10324,8 @@ fn probe_raw_udp(logger: &mut ProbeLogger) {
     probe_network_numeric_resolver(logger);
     let sender = net::net_socket(net::PF_INET, net::SOCK_DGRAM, net::IPPROTO_IP);
     let receiver = net::net_socket(net::PF_INET, net::SOCK_DGRAM, net::IPPROTO_IP);
+    logger.note_i32("Network raw UDP sender descriptor", sender);
+    logger.note_i32("Network raw UDP receiver descriptor", receiver);
     logger.record("Raw UDP sockets open", sender >= 0 && receiver >= 0);
     if sender >= 0 && receiver >= 0 {
         let mut bind = net::SockaddrIn {
@@ -10732,6 +10734,10 @@ fn probe_network_numeric_resolver(logger: &mut ProbeLogger) {
         null_result.is_null() && empty_result.is_null(),
     );
     let result = unsafe { raw::net_gethostbyname(c"127.0.0.1".as_ptr()) };
+    logger.note_i32(
+        "network raw numeric resolver null",
+        i32::from(result.is_null()),
+    );
     let matches = if result.is_null() {
         false
     } else {
@@ -10742,6 +10748,14 @@ fn probe_network_numeric_resolver(logger: &mut ProbeLogger) {
                 || entry.h_addr_list.is_null()
                 || (*entry.h_addr_list).is_null()
             {
+                logger.note_i32(
+                    "network raw resolver address type",
+                    i32::from(entry.h_addrtype),
+                );
+                logger.note_i32(
+                    "network raw resolver address length",
+                    i32::from(entry.h_length),
+                );
                 false
             } else {
                 core::slice::from_raw_parts((*entry.h_addr_list).cast::<u8>(), 4) == [127, 0, 0, 1]
@@ -10751,6 +10765,10 @@ fn probe_network_numeric_resolver(logger: &mut ProbeLogger) {
     };
     logger.record("Network resolver returns numeric loopback address", matches);
     let result = unsafe { net::get_host_by_name(c"127.0.0.1".as_ptr()) };
+    logger.note_i32(
+        "network wrapper numeric resolver null",
+        i32::from(result.is_null()),
+    );
     let matches = if result.is_null() {
         false
     } else {
@@ -10789,6 +10807,10 @@ fn probe_network_interface_addresses(logger: &mut ProbeLogger) {
     let result =
         unsafe { raw::if_configex(&mut address, &mut mask, core::ptr::null_mut(), true, 1) };
     let host = raw::net_gethostip();
+    logger.note_i32("Network DHCP if_configex result", result);
+    logger.note_hex32("Network DHCP address", address.s_addr);
+    logger.note_hex32("Network IOS host address", host);
+    logger.note_hex32("Network DHCP netmask", mask.s_addr);
     logger.record(
         "Network DHCP address matches IOS host address",
         result == 0 && address.s_addr != 0 && address.s_addr == host && mask.s_addr != 0,
@@ -10808,6 +10830,8 @@ fn probe_network_interface_addresses(logger: &mut ProbeLogger) {
     } else {
         u32::MAX
     };
+    logger.note_i32("Network DHCP text result", text_result);
+    logger.note_hex32("Network DHCP parsed text address", parsed);
     logger.record(
         "Network DHCP text address matches binary address",
         text_result == 0 && text.contains(&0) && parsed == address.s_addr && parsed != 0,
@@ -10823,6 +10847,9 @@ fn probe_network_interface_addresses(logger: &mut ProbeLogger) {
             1,
         )
     };
+    logger.note_i32("Network wrapper DHCP result", wrapper);
+    logger.note_hex32("Network wrapper DHCP address", wrapper_address.s_addr);
+    logger.note_hex32("Network wrapper DHCP netmask", wrapper_mask.s_addr);
     logger.record(
         "Network wrapper DHCP addresses match IOS",
         wrapper == 0
@@ -13116,6 +13143,11 @@ fn probe_ios_version_queries(logger: &mut ProbeLogger) {
 
 fn probe_ios_stm(logger: &mut ProbeLogger) {
     logger.section("IOS STM PROBE");
+    let es_init = es::init();
+    logger.record(
+        "ES service initializes before the IOS preferred-version query",
+        es_init == 0,
+    );
     logger.note_i32("ios preferred", ios::get_preferred_version());
     logger.note_i32("ios version", ios::get_version());
     logger.note_i32("ios revision", ios::get_revision());

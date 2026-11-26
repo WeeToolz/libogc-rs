@@ -675,6 +675,19 @@ fn probe_locked_cache_dma(logger: &mut ProbeLogger) {
             && destination.0[96..] == original_destination[96..],
     );
 
+    // SAFETY: The source and locked-cache destination each cover one valid,
+    // aligned cache line. The flush must complete queued DMA before readback.
+    unsafe { cache::lc_load_blocks(locked_base.cast(), source_ptr.add(64), 1) };
+    cache::lc_flush_queue();
+    let mut flushed_load = [0; 32];
+    // SAFETY: Read back the cache line loaded by the queued DMA operation.
+    unsafe { read_locked(locked_base, 0, &mut flushed_load) };
+    let queue_after_flush = cache::lc_queue_length();
+    logger.record(
+        "lc_flush_queue completes pending DMA and drains the queue",
+        flushed_load == source.0[64..96] && queue_after_flush == 0,
+    );
+
     if let Some(bytes) = restore_locked_cache.as_ref() {
         // SAFETY: Restore the three locked-cache lines saved before the probe.
         unsafe { write_locked(locked_base, 0, bytes) };

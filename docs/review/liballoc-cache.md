@@ -72,3 +72,7 @@ Completeness was checked by enumerating every top-level `pub` declaration in bot
 ## 2026-11-26 `ArenaAllocator::free_bytes` runtime evidence
 
 Host tests passed all 13 `ogc-alloc` tests, including `free_bytes_tracks_real_free_blocks_and_returns_to_baseline`. The PowerPC test target compiled. The `arena_probe` now creates a private aligned 4 KiB arena, calls `free_bytes` before and after one allocation, frees that allocation, and checks that the free-byte count returns to its baseline. Dolphin 2609a run `docs/dolphin-runs/2026-11-26-alloc-free-bytes` passed 17 checks with zero failures. This is a Rust-only accounting API; no C function counterpart is claimed. Physical Wii evidence remains pending.
+
+## 2026-11-26 locked-cache queue runtime evidence
+
+The `bus_probe` submits a one-line locked-cache load, calls `lc_flush_queue`, then checks the loaded bytes and that `lc_queue_length` reports an empty queue. It does not check that the queue was nonempty before the flush. The same path checks `lc_queue_wait` after load and store transfers. Dolphin 2609a run `docs/dolphin-runs/2026-11-26-lc-flush-pending-dma` passed 78 checks with zero failures; DOL SHA-256: `e52eb8ddacd13cf3ec5ea78d486820674c8f4880364de2c60d73e60918bb7cc1`. Rust register accesses and transfer ordering match C `LCFlushQueue`, `LCQueueLength`, and `LCQueueWait` (`cache.c:93-111`). This is Dolphin-only evidence; physical Wii verification remains pending.

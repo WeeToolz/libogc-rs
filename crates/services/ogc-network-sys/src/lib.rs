@@ -25,8 +25,8 @@ pub const SOCKET_ERROR: i32 = -1;
 
 mod startup_ip;
 #[cfg(test)]
-use startup_ip::{MAX_NETWORK_IP_RETRIES, retry_network_ip};
-use startup_ip::{active_attach_ip, startup_network_ip};
+use startup_ip::retry_network_ip;
+use startup_ip::startup_network_ip;
 
 pub const SOCK_STREAM: u32 = 1;
 pub const SOCK_DGRAM: u32 = 2;
@@ -709,17 +709,10 @@ mod wii_backend {
             Ok(fd) => fd,
             Err(rc) => return rc,
         };
-        // An HBC launch does not guarantee that the new IOS descriptor already
-        // has an address. Start the socket interface only when its host ID is zero.
-        let ready = run_cancellable_init_step(
-            || NET_INIT_ABORT.load(Ordering::Acquire),
-            || Ok(ip_top.ioctl(IOCTL_SO_GETHOSTID, IoctlBuffers::empty())),
-            |_| {},
-        )
-        .and_then(|host_id| {
-            active_attach_ip(host_id, -ETIMEDOUT, || startup_interface_ip(&ip_top))
-        });
-        if let Err(error) = ready {
+        // libogc starts the socket interface before it checks whether DHCP has
+        // assigned an address. A pre-existing host ID does not prove that this
+        // process has started the socket interface on its IOS descriptor.
+        if let Err(error) = startup_interface_ip(&ip_top) {
             return finish_file_operation(ip_top, error);
         }
         if NET_INIT_ABORT.load(Ordering::Acquire) {
@@ -2459,50 +2452,6 @@ mod tests {
         );
         assert_eq!(attempts, 3);
         assert_eq!(waits, 2);
-    }
-
-    #[test]
-    fn active_attach_reuses_an_address_without_startup() {
-        assert_eq!(
-            active_attach_ip(0x0a00_00f2, -110, || panic!("unneeded startup")),
-            Ok(0x0a00_00f2)
-        );
-        assert_eq!(
-            active_attach_ip(-6, -110, || panic!("startup after query failure")),
-            Err(-6)
-        );
-    }
-
-    #[test]
-    fn active_attach_starts_an_interface_with_no_address() {
-        let queries = core::cell::Cell::new(0);
-        let startups = core::cell::Cell::new(0);
-        let waits = core::cell::Cell::new(0);
-        let result = active_attach_ip(0, -110, || {
-            startup_network_ip(
-                -110,
-                || {
-                    startups.set(startups.get() + 1);
-                    Ok(0)
-                },
-                || {
-                    queries.set(queries.get() + 1);
-                    Ok(if queries.get() == 6 { 0x0a00_00f2 } else { 0 })
-                },
-                || waits.set(waits.get() + 1),
-            )
-        });
-        assert_eq!(result, Ok(0x0a00_00f2));
-        assert_eq!(startups.get(), 6);
-        assert_eq!(queries.get(), 6);
-        assert_eq!(waits.get(), 5);
-    }
-
-    #[test]
-    fn active_attach_returns_startup_timeout_and_failures() {
-        for (startup_result, expected) in [(Err(-100), -100), (Ok(-4), -4), (Ok(0), -110)] {
-            assert_eq!(active_attach_ip(0, -110, || startup_result), Err(expected));
-        }
     }
 
     #[test]

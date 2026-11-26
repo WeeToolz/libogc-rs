@@ -46,9 +46,14 @@ pub fn run(logger: &mut ProbeLogger) {
     keyboard::close();
     logger.record("keyboard deinit", keyboard::deinit() == 1);
     let mut entries = [usb::UsbDeviceEntry::default(); 8];
+    let device_list = usb::device_list(&mut entries, 0);
+    let device_list_matches_environment = device_list.is_ok()
+        || device_list
+            .as_ref()
+            .is_err_and(|error| error.raw() == ogc_ipc::IPC_ENOENT);
     logger.record(
-        "usb core device list works after keyboard deinit",
-        usb::device_list(&mut entries, 0).is_ok(),
+        "usb core device list succeeds or reports absent OH0 after keyboard deinit",
+        device_list_matches_environment,
     );
 }
 

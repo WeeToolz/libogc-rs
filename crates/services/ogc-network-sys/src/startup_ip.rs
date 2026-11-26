@@ -12,19 +12,6 @@ fn checked_host_id(value: i32) -> Result<i32, i32> {
     }
 }
 
-pub(super) fn active_attach_ip(
-    host_id: i32,
-    timeout_error: i32,
-    startup: impl FnOnce() -> Result<i32, i32>,
-) -> Result<i32, i32> {
-    let host_id = checked_host_id(host_id)?;
-    let host_id = if host_id == 0 { startup()? } else { host_id };
-    match host_id {
-        0 => Err(timeout_error),
-        value => checked_host_id(value),
-    }
-}
-
 pub(super) const MAX_NETWORK_IP_RETRIES: usize = 100;
 
 pub(super) fn retry_network_ip(
@@ -68,7 +55,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn active_attach_accepts_signed_unicast_addresses_without_restarting_ios() {
+    fn startup_checks_signed_unicast_addresses_after_startup() {
         for address in [
             0x0a00_00f2u32,
             0x8000_0001,
@@ -76,10 +63,20 @@ mod tests {
             0xc0a8_0203,
             0xdfff_fffe,
         ] {
+            let mut calls = 0;
             assert_eq!(
-                active_attach_ip(address as i32, -110, || panic!("unneeded startup")),
+                startup_network_ip(
+                    -110,
+                    || {
+                        calls += 1;
+                        Ok(0)
+                    },
+                    || Ok(address as i32),
+                    || {}
+                ),
                 Ok(address as i32)
             );
+            assert_eq!(calls, 1);
         }
     }
 
@@ -90,7 +87,7 @@ mod tests {
         let mut waits = 0;
         let address = 0xc0a8_0203u32 as i32;
         assert_eq!(
-            active_attach_ip(0, -110, || startup_network_ip(
+            startup_network_ip(
                 -110,
                 || {
                     startups += 1;
@@ -101,7 +98,7 @@ mod tests {
                     Ok(if queries < 3 { 0 } else { address })
                 },
                 || waits += 1,
-            )),
+            ),
             Ok(address)
         );
         assert_eq!((queries, startups, waits), (3, 3, 2));
@@ -110,11 +107,6 @@ mod tests {
     #[test]
     fn negative_startup_and_query_errors_remain_failures() {
         for error in [-1, -4, -6, -110, -10000] {
-            assert_eq!(
-                active_attach_ip(error, -110, || panic!("startup after error")),
-                Err(error)
-            );
-            assert_eq!(active_attach_ip(0, -110, || Ok(error)), Err(error));
             assert_eq!(
                 startup_network_ip(-110, || Ok(error), || panic!("query after error"), || {}),
                 Err(error)
@@ -140,6 +132,5 @@ mod tests {
         );
         assert_eq!(queries, 101);
         assert_eq!(waits, 100);
-        assert_eq!(active_attach_ip(0, -110, || Ok(0)), Err(-110));
     }
 }

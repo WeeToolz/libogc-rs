@@ -1633,7 +1633,10 @@ fn probe_usb_storage(logger: &mut ProbeLogger) {
     if list_rc < 0 {
         logger.note_i32("usb storage list rc", list_rc);
     }
-    let no_usb_device = !inserted && device_count == 0 && list_rc == 0;
+    // USB_GetDeviceList returns the IOS open error when Dolphin has no USB
+    // host service. C returns the same error when /dev/usb/oh0 is unavailable.
+    let no_usb_device =
+        !inserted && device_count == 0 && (list_rc == 0 || list_rc == ogc_ipc::IPC_ENOENT);
     logger.record(
         "usb insertion state matches device enumeration",
         (inserted && device_count > 0) || no_usb_device,

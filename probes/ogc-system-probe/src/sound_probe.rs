@@ -92,17 +92,22 @@ pub fn run(logger: &mut ProbeLogger) {
         before.initialized && after.initialized,
     );
 
-    audio::reset_stream_sample_cnt();
-    logger.record(
-        "stream sample counter reset",
-        audio::snapshot().stream_sample_count == 0,
-    );
+    // The counter can advance between the reset and the stop while AI plays.
     audio::set_stream_play_state(audio::AI_STREAM_STOP);
+    audio::reset_stream_sample_cnt();
+    let reset_count = audio::snapshot().stream_sample_count;
+    ogc_video::wait_vsync();
+    let stopped = audio::snapshot();
+    logger.note_u32("audio sample count after reset request", reset_count);
+    logger.note_u32("audio stop sample count", stopped.stream_sample_count);
+    logger.note_u32("audio stop play state", stopped.stream_play_state);
     logger.record(
         "audio timing probe",
-        audio::snapshot().stream_sample_count == 0
-            && audio::snapshot().stream_play_state == audio::AI_STREAM_STOP,
+        stopped.stream_sample_count == reset_count
+            && stopped.stream_play_state == audio::AI_STREAM_STOP,
     );
+    audio::register_stream_callback(None);
+    audio::register_dma_callback(None);
 
     logger.section("ASND PROBE");
     logger.note("ASND: initialize mixer");
@@ -124,7 +129,8 @@ pub fn run(logger: &mut ProbeLogger) {
         *chunk = [0xff, 0x7f, 0xff, 0x7f];
     }
 
-    let mut mono = snd::OwnedVoiceBuffer::copy_from_slice(&[0xff; 64])
+    // Keep the first buffer live for several 1024-sample DMA periods.
+    let mut mono = snd::OwnedVoiceBuffer::copy_from_slice(&[0xff; 8192])
         .ok()
         .and_then(|buffer| {
             snd::set_voice_owned(
@@ -178,7 +184,8 @@ pub fn run(logger: &mut ProbeLogger) {
 
     snd::pause(0);
     let mut progressed = false;
-    for _ in 0..250_000 {
+    let start = ogc_lwp::sys::now_ticks();
+    while ogc_lwp::sys::now_ticks().wrapping_sub(start) < ogc_lwp::sys::TICKS_PER_SECOND {
         if snd::get_sample_counter() > 0
             && GLOBAL_CALLBACK_COUNT.load(Ordering::Acquire) > 0
             && VOICE_CALLBACK_COUNT.load(Ordering::Acquire) > 0
@@ -186,8 +193,10 @@ pub fn run(logger: &mut ProbeLogger) {
             progressed = true;
             break;
         }
-        core::hint::spin_loop();
+        ogc_lwp::sys::sleep_ticks((ogc_lwp::sys::TICKS_PER_SECOND / 1_000).max(1));
     }
+    // Keep the DMA callback from consuming the buffer before the ready check.
+    let irq_state = ogc_irq::irq_disable();
     let add_ok = match (mono.as_mut(), second.take()) {
         (Some(voice), Some(buffer)) => match voice.add_buffer(buffer) {
             Ok(()) => true,
@@ -195,10 +204,23 @@ pub fn run(logger: &mut ProbeLogger) {
         },
         _ => false,
     };
-    logger.record(
-        "asnd double buffer queued",
-        add_ok && snd::test_voice_buffer_ready(voice0) == 0,
+    let both_buffers_queued = snd::test_voice_buffer_ready(voice0) == 0;
+    ogc_irq::irq_restore(irq_state);
+    logger.note_u32("ASND playback sample counter", snd::get_sample_counter());
+    logger.note_u32(
+        "ASND global callback count",
+        GLOBAL_CALLBACK_COUNT.load(Ordering::Acquire),
     );
+    logger.note_u32(
+        "ASND voice callback count",
+        VOICE_CALLBACK_COUNT.load(Ordering::Acquire),
+    );
+    logger.note_u32("ASND second buffer add result", u32::from(add_ok));
+    logger.note_i32(
+        "ASND buffer ready result",
+        snd::test_voice_buffer_ready(voice0),
+    );
+    logger.record("asnd double buffer queued", add_ok && both_buffers_queued);
     logger.record("asnd playback progressed", progressed);
     logger.record(
         "asnd voices active",
