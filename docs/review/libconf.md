@@ -129,3 +129,7 @@ No checks or tests were run during this independent pass. The handoff records th
 ## 2026-10-05 completion review
 
 `ogc-conf` and `ogc-conf-sys` are now `reviewed`. The SCv0 save signature, embedded-NUL parser behavior, C's CR-before-LF terminator precedence, and negative IOS read/write mapping have all been reconciled against current source. The sys crate is constants/layout only and has no separate confirmed mismatch. Bounds handling for malformed input is treated as safety behavior.
+
+## 2026-11-26 `save_changes` Dolphin API evidence
+
+The `wpad_probe` now supplies exact API evidence for `ogc-conf::save_changes`. Dolphin 2609a run `docs/dolphin-runs/2026-11-26-conf-save-api` passed 103 checks with zero failures. In the runner's private NAND profile, the probe saved seeded controller records, read them back, then restored and saved the original records. Both save calls returned zero, and the restored records matched the originals. This verifies the production save path in Dolphin; it does not establish physical Wii filesystem behavior. Physical Wii evidence remains pending.

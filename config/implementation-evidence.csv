@@ -187,6 +187,7 @@ ogc-conf,src/lib.rs,get,385,compatibility-forwarder,hardware-probe,probes/ogc-sy
 ogc-conf,src/lib.rs,get_type,372,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_fixture,conf::get_type
 ogc-conf,src/lib.rs,get_length,366,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_fixture,conf::get_length
 ogc-conf,src/lib.rs,init,301,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_conf_fixture,conf::init
+ogc-conf,src/lib.rs,save_changes,340,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_wipe_saved_controllers,conf::save_changes
 ogc-gx,src/lib.rs,set_tev_swap_mode_table,7050,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tev_selector_commands,gx::set_tev_swap_mode_table
 ogc-gx,src/lib.rs,set_tev_swap_mode,7039,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tev_selector_commands,gx::set_tev_swap_mode
 ogc-gx,src/lib.rs,set_tev_k_alpha_sel,7025,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tev_selector_commands,gx::set_tev_k_alpha_sel
