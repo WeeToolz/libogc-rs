@@ -559,6 +559,8 @@ static mut EVENT_BUFS: [*mut WpadData; WPAD_MAX_DEVICES] =
     [core::ptr::null_mut(); WPAD_MAX_DEVICES];
 static mut EVENT_BUF_COUNTS: [u32; WPAD_MAX_DEVICES] = [0; WPAD_MAX_DEVICES];
 static mut EVENT_BUF_WRITE: [u32; WPAD_MAX_DEVICES] = [0; WPAD_MAX_DEVICES];
+static mut EVENT_BUF_HEAD: [u32; WPAD_MAX_DEVICES] = [0; WPAD_MAX_DEVICES];
+static mut EVENT_BUF_QUEUED: [u32; WPAD_MAX_DEVICES] = [0; WPAD_MAX_DEVICES];
 static mut REPORT_RING: [[WpadData; WPAD_REPORT_RING_LEN]; WPAD_MAX_DEVICES] =
     [EMPTY_REPORT_RING; WPAD_MAX_DEVICES];
 static mut REPORT_RING_HEAD: [usize; WPAD_MAX_DEVICES] = [0; WPAD_MAX_DEVICES];
@@ -687,6 +689,29 @@ fn notify_status(chan: usize) {
     }
 }
 
+unsafe fn pop_event(chan: usize) -> Option<WpadData> {
+    unsafe {
+        let bufs = EVENT_BUFS[chan];
+        let capacity = EVENT_BUF_COUNTS[chan];
+        if !bufs.is_null() && capacity != 0 {
+            if EVENT_BUF_QUEUED[chan] == 0 {
+                return None;
+            }
+            let event = *bufs.add(EVENT_BUF_HEAD[chan] as usize);
+            EVENT_BUF_HEAD[chan] = (EVENT_BUF_HEAD[chan] + 1) % capacity;
+            EVENT_BUF_QUEUED[chan] -= 1;
+            return Some(event);
+        }
+        if REPORT_RING_COUNT[chan] == 0 {
+            return None;
+        }
+        let event = REPORT_RING[chan][REPORT_RING_HEAD[chan]];
+        REPORT_RING_HEAD[chan] = (REPORT_RING_HEAD[chan] + 1) % WPAD_REPORT_RING_LEN;
+        REPORT_RING_COUNT[chan] -= 1;
+        Some(event)
+    }
+}
+
 fn set_connected(chan: usize, connected: bool) {
     WPAD_CONNECTED[chan].store(connected, Ordering::Release);
     unsafe {
@@ -708,14 +733,28 @@ fn set_connected(chan: usize, connected: bool) {
 
 fn push_event(chan: usize) {
     unsafe {
-        if REPORT_RING_COUNT[chan] == WPAD_REPORT_RING_LEN {
-            REPORT_RING_HEAD[chan] = (REPORT_RING_HEAD[chan] + 1) % WPAD_REPORT_RING_LEN;
-            WPAD_DROPPED[chan].fetch_add(1, Ordering::AcqRel);
+        let bufs = EVENT_BUFS[chan];
+        let count = EVENT_BUF_COUNTS[chan];
+        if !bufs.is_null() && count != 0 {
+            let tail = EVENT_BUF_WRITE[chan] % count;
+            if EVENT_BUF_QUEUED[chan] == count {
+                EVENT_BUF_HEAD[chan] = (EVENT_BUF_HEAD[chan] + 1) % count;
+                WPAD_DROPPED[chan].fetch_add(1, Ordering::AcqRel);
+            } else {
+                EVENT_BUF_QUEUED[chan] += 1;
+            }
+            *bufs.add(tail as usize) = WPAD_DATA_STATE[chan];
+            EVENT_BUF_WRITE[chan] = (tail + 1) % count;
         } else {
-            REPORT_RING_COUNT[chan] += 1;
+            if REPORT_RING_COUNT[chan] == WPAD_REPORT_RING_LEN {
+                REPORT_RING_HEAD[chan] = (REPORT_RING_HEAD[chan] + 1) % WPAD_REPORT_RING_LEN;
+                WPAD_DROPPED[chan].fetch_add(1, Ordering::AcqRel);
+            } else {
+                REPORT_RING_COUNT[chan] += 1;
+            }
+            REPORT_RING[chan][REPORT_RING_TAIL[chan]] = WPAD_DATA_STATE[chan];
+            REPORT_RING_TAIL[chan] = (REPORT_RING_TAIL[chan] + 1) % WPAD_REPORT_RING_LEN;
         }
-        REPORT_RING[chan][REPORT_RING_TAIL[chan]] = WPAD_DATA_STATE[chan];
-        REPORT_RING_TAIL[chan] = (REPORT_RING_TAIL[chan] + 1) % WPAD_REPORT_RING_LEN;
         if WPAD_CONNECTED[chan].load(Ordering::Acquire) {
             if let Some(cb) = READPENDING_CB {
                 cb(chan as i32, core::ptr::addr_of!(WPAD_DATA_STATE[chan]));
@@ -724,16 +763,6 @@ fn push_event(chan: usize) {
                 && let Some(cb) = BATTERY_CB
             {
                 cb(chan as i32);
-            }
-        }
-        let bufs = EVENT_BUFS[chan];
-        let count = EVENT_BUF_COUNTS[chan];
-        if !bufs.is_null() && count != 0 {
-            let idx = (EVENT_BUF_WRITE[chan] % count) as usize;
-            *bufs.add(idx) = WPAD_DATA_STATE[chan];
-            EVENT_BUF_WRITE[chan] = EVENT_BUF_WRITE[chan].wrapping_add(1);
-            if EVENT_BUF_WRITE[chan] > count {
-                WPAD_DROPPED[chan].fetch_add(1, Ordering::AcqRel);
             }
         }
     }
@@ -763,6 +792,29 @@ fn connect_with_defaults(chan: usize) {
         WPAD_DATA_STATE[chan].data_present = WPAD_DATA_BUTTONS;
     }
     push_event(chan);
+}
+
+/// Inject a button report through the normal WPAD event producer for Dolphin checks.
+#[cfg(feature = "dolphin-probe-hooks")]
+pub fn dolphin_probe_push_buttons(chan: i32, buttons: u32) -> i32 {
+    let Some(chan) = valid_chan(chan) else {
+        return WPAD_ERR_BAD_CHANNEL as i32;
+    };
+    set_connected(chan, true);
+    unsafe {
+        WPAD_DATA_STATE[chan].battery_level = 0x80;
+        WPAD_DATA_STATE[chan].data_present = WPAD_DATA_BUTTONS;
+    }
+    unsafe {
+        let previous = WPAD_DATA_STATE[chan].btns_h;
+        WPAD_DATA_STATE[chan].btns_l = previous;
+        WPAD_DATA_STATE[chan].btns_h = buttons;
+        WPAD_DATA_STATE[chan].btns_d = buttons & !previous;
+        WPAD_DATA_STATE[chan].btns_u = previous & !buttons;
+        WPAD_DATA_STATE[chan].data_present |= WPAD_DATA_BUTTONS;
+    }
+    push_event(chan);
+    WPAD_ERR_NONE as i32
 }
 
 #[cfg(all(test, target_arch = "powerpc"))]
@@ -887,13 +939,10 @@ pub unsafe fn read_event(chan: i32, data: *mut WpadData) -> i32 {
         if !WPAD_CONNECTED[chan].load(Ordering::Acquire) {
             return WPAD_ERR_NO_CONTROLLER as i32;
         }
-        if unsafe { REPORT_RING_COUNT[chan] } == 0 {
-            return WPAD_ERR_QUEUE_EMPTY as i32;
-        }
         unsafe {
-            let entry = REPORT_RING[chan][REPORT_RING_HEAD[chan]];
-            REPORT_RING_HEAD[chan] = (REPORT_RING_HEAD[chan] + 1) % WPAD_REPORT_RING_LEN;
-            REPORT_RING_COUNT[chan] -= 1;
+            let Some(entry) = pop_event(chan) else {
+                return WPAD_ERR_QUEUE_EMPTY as i32;
+            };
             WPAD_DATA_STATE[chan] = entry;
             if !data.is_null() {
                 *data = entry;
@@ -913,13 +962,10 @@ pub unsafe fn read_event(chan: i32, data: *mut WpadData) -> i32 {
     if !WPAD_CONNECTED[chan].load(Ordering::Acquire) {
         return WPAD_ERR_NO_CONTROLLER as i32;
     }
-    if unsafe { REPORT_RING_COUNT[chan] } == 0 {
-        return WPAD_ERR_QUEUE_EMPTY as i32;
-    }
     unsafe {
-        let entry = REPORT_RING[chan][REPORT_RING_HEAD[chan]];
-        REPORT_RING_HEAD[chan] = (REPORT_RING_HEAD[chan] + 1) % WPAD_REPORT_RING_LEN;
-        REPORT_RING_COUNT[chan] -= 1;
+        let Some(entry) = pop_event(chan) else {
+            return WPAD_ERR_QUEUE_EMPTY as i32;
+        };
         WPAD_DATA_STATE[chan] = entry;
         if !data.is_null() {
             *data = entry;
@@ -1269,6 +1315,11 @@ pub unsafe fn set_event_bufs(chan: i32, bufs: *mut WpadData, cnt: u32) -> i32 {
             EVENT_BUFS[chan] = bufs;
             EVENT_BUF_COUNTS[chan] = cnt;
             EVENT_BUF_WRITE[chan] = 0;
+            EVENT_BUF_HEAD[chan] = 0;
+            EVENT_BUF_QUEUED[chan] = 0;
+            REPORT_RING_HEAD[chan] = 0;
+            REPORT_RING_TAIL[chan] = 0;
+            REPORT_RING_COUNT[chan] = 0;
             *bufs = WPAD_DATA_STATE[chan];
         }
         return WPAD_ERR_NONE as i32;
@@ -1286,6 +1337,11 @@ pub unsafe fn set_event_bufs(chan: i32, bufs: *mut WpadData, cnt: u32) -> i32 {
         EVENT_BUFS[chan] = bufs;
         EVENT_BUF_COUNTS[chan] = cnt;
         EVENT_BUF_WRITE[chan] = 0;
+        EVENT_BUF_HEAD[chan] = 0;
+        EVENT_BUF_QUEUED[chan] = 0;
+        REPORT_RING_HEAD[chan] = 0;
+        REPORT_RING_TAIL[chan] = 0;
+        REPORT_RING_COUNT[chan] = 0;
         *bufs = WPAD_DATA_STATE[chan];
     }
     WPAD_ERR_NONE as i32
@@ -2238,6 +2294,12 @@ mod tests {
         assert_eq!(ring[0].btns_h, WPAD_BUTTON_B);
         assert_eq!(dropped_events(WPAD_CHAN_0), 1);
         assert_eq!(dropped_events(WPAD_CHAN_0), 0);
+        let mut queued = WpadData::default();
+        assert_eq!(
+            unsafe { read_event(WPAD_CHAN_0, &mut queued) },
+            WPAD_ERR_NONE as i32
+        );
+        assert_eq!(queued.btns_h, WPAD_BUTTON_B);
         assert_eq!(buttons_down(WPAD_CHAN_0), WPAD_BUTTON_B);
         assert_eq!(buttons_up(WPAD_CHAN_0), WPAD_BUTTON_A);
     }

@@ -93,6 +93,7 @@ pub fn run(logger: &mut ProbeLogger) {
     );
 
     probe_active_search(logger);
+    probe_event_buffer_queue(logger);
 
     STATUS_CALLBACK_CHANNELS.store(0, Ordering::Release);
     STATUS_CALLBACK_INVALID.store(0, Ordering::Release);
@@ -142,6 +143,30 @@ pub fn run(logger: &mut ProbeLogger) {
         "WPAD disabled adapter rejects all-channel MotionPlus configuration",
         wpad::set_motion_plus(wpad::WPAD_CHAN_ALL, 1) == wpad::WPAD_ERR_NOT_READY as i32,
     );
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_event_buffer_queue(logger: &mut ProbeLogger) {
+    let channel = wpad::WPAD_CHAN_0;
+    let mut buffer = [wpad::WpadData::default(); 1];
+    let configured = unsafe { wpad::set_event_bufs(channel, buffer.as_mut_ptr(), 1) };
+    let first = wpad::dolphin_probe_push_buttons(channel, wpad::WPAD_BUTTON_A);
+    let second = wpad::dolphin_probe_push_buttons(channel, wpad::WPAD_BUTTON_B);
+    let mut event = wpad::WpadData::default();
+    let read = unsafe { wpad::read_event(channel, &mut event) };
+    logger.record(
+        "WPAD caller event buffer receives latest queued event",
+        configured == wpad::WPAD_ERR_NONE as i32
+            && first == wpad::WPAD_ERR_NONE as i32
+            && second == wpad::WPAD_ERR_NONE as i32
+            && read == wpad::WPAD_ERR_NONE as i32
+            && event.btns_h == wpad::WPAD_BUTTON_B,
+    );
+    logger.record(
+        "WPAD caller event buffer reports one dropped event",
+        wpad::dropped_events(channel) == 1,
+    );
+    let _ = wpad::disconnect(channel);
 }
 
 fn probe_active_search(logger: &mut ProbeLogger) {

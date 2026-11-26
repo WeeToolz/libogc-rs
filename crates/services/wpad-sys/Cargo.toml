@@ -4,6 +4,9 @@ version.workspace = true
 edition.workspace = true
 license = "GPL-3.0-only AND Zlib"
 
+[features]
+dolphin-probe-hooks = []
+
 [dependencies]
 ogc-bt-sync = { path = "../ogc-bt-sync" }
 wiiuse-rs = { path = "../wiiuse-rs" }

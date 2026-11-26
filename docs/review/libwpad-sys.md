@@ -17,6 +17,24 @@ The probe uses the production API on an empty channel. Physical Wii evidence
 and independent source review remain pending. The event-buffer queue mismatch
 and broader WPAD parity remain open.
 
+## BUG FIX — configured event buffer is the read queue (2026-11-26)
+
+When `WPAD_SetEventBufs` configured a caller buffer, Rust copied reports to
+that buffer but continued to read and flush a separate fixed ring. C uses the
+configured buffer as the queue. Rust now tracks the configured buffer's head,
+tail, and queued count, drops the oldest event when full, and reads from that
+buffer through `WPAD_ReadEvent`. The fixed internal ring remains the default
+when no caller buffer is set. Installing a buffer clears both queue states.
+
+The Dolphin 2609a `wpad_probe` reproduced the mismatch. Before the fix, the
+caller buffer held the latest event and the drop count was one, but
+`WPAD_ReadEvent` did not return the latest event. After the fix, both focused
+checks passed and the full probe passed 103 checks with no failures. Evidence
+is in `docs/dolphin-runs/2026-11-26-wpad-queue-red3/` and
+`docs/dolphin-runs/2026-11-26-wpad-queue-green/`. The production library also
+passes its PowerPC target check. Physical Wii testing, independent source
+review, and broader WPAD behavior remain open.
+
 Reviewer: `/root/reviewer_6`
 Implementer: `notOrrytrout`; latest relevant WPAD behavior commits `1ef870b` (button event coalescing), `a61a289` (scan event count), and `e0cc13b` (chunked audio streaming).
 Review type: independent first-pass source audit followed by an implementation handoff.
