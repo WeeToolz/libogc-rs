@@ -1,0 +1,8 @@
+Stub executable output for the wrapper argument-preservation check:
+<--user>
+<profile>
+<--batch>
+<-C>
+<Dolphin.Core.SlotB=12>
+<--exec>
+<game.dol>

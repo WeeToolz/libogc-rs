@@ -1,0 +1,24 @@
+{
+  "boot_stage_address": 2150318072,
+  "boot_stage": 3,
+  "program_counter": 2147917640,
+  "program_counter_symbol": "_RNvNtCs61OQOPKN68G_14ogc_lwp_driver7runtime18select_next_locked+0x114",
+  "program_counter_reply": "80069F48",
+  "debugger_stop": "T0540:80067574;01:817fbd90;",
+  "stack_trace": [
+    "sp=817fbd80 lr=24490d22 __ogc_ps_reg+0x24490d02",
+    "sp=817fbd90 lr=80067574 _RNvNtCs61OQOPKN68G_14ogc_lwp_driver7runtime13switch_locked+0x38",
+    "sp=817fbdd0 lr=80067110 _RNvNtCs61OQOPKN68G_14ogc_lwp_driver7runtime12yield_thread+0x114",
+    "sp=817fbde0 lr=800398a4 _RNvCscYPYrpv4XIT_12ogc_usbgecko10send_bytes+0x1c4",
+    "sp=817fbe20 lr=8003a3e0 _RNvCscYPYrpv4XIT_12ogc_usbgecko18sendbuffer_safe_ex+0x14",
+    "sp=817fbe30 lr=800069ac _RNvMs2_NtCs8Uo2U2lwB49_16ogc_system_probe13probe_supportNtB5_12ProbeDisplay12capture_page+0x204",
+    "sp=817fbfa0 lr=80006c00 _RNvMs2_NtCs8Uo2U2lwB49_16ogc_system_probe13probe_supportNtB5_12ProbeDisplay20clear_if_near_bottom+0x68",
+    "sp=817fc0e0 lr=800080ac _RNvMs3_NtCs8Uo2U2lwB49_16ogc_system_probe13probe_supportNtB5_11ProbeLogger14write_line_raw.llvm.14967322164232417175+0x16c",
+    "sp=817fc330 lr=80007784 _RNvMs3_NtCs8Uo2U2lwB49_16ogc_system_probe13probe_supportNtB5_11ProbeLogger12record_check.llvm.14967322164232417175+0x2d8",
+    "sp=817fc690 lr=80009228 _RNvMs3_NtCs8Uo2U2lwB49_16ogc_system_probe13probe_supportNtB5_11ProbeLogger7summary+0x134",
+    "sp=817fca30 lr=80004bc8 _RNvCs8Uo2U2lwB49_16ogc_system_probe22run_debugger_probe_bin+0x50",
+    "sp=817fffc0 lr=80004078 main+0x10",
+    "sp=817fffd0 lr=800711dc _start_rust+0x2a8"
+  ],
+  "error": null
+}
