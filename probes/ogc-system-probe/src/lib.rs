@@ -172,13 +172,27 @@ pub fn init_named_probe_logger(app_dir: &'static str) -> probe_support::ProbeLog
 
 #[cfg(target_arch = "powerpc")]
 fn init_probe_logger() -> probe_support::ProbeLogger {
-    init_probe_logger_with_page_reports(false, log_options())
+    init_probe_logger_with_page_reports_and_sync(false, log_options(), true)
 }
 
 #[cfg(target_arch = "powerpc")]
 fn init_probe_logger_with_page_reports(
     page_reports: bool,
     options: probe_support::ProbeLoggerOptions,
+) -> probe_support::ProbeLogger {
+    init_probe_logger_with_page_reports_and_sync(page_reports, options, true)
+}
+
+#[cfg(target_arch = "powerpc")]
+fn init_probe_logger_without_display_sync() -> probe_support::ProbeLogger {
+    init_probe_logger_with_page_reports_and_sync(false, log_options(), false)
+}
+
+#[cfg(target_arch = "powerpc")]
+fn init_probe_logger_with_page_reports_and_sync(
+    page_reports: bool,
+    options: probe_support::ProbeLoggerOptions,
+    wait_for_display_sync: bool,
 ) -> probe_support::ProbeLogger {
     use ogc_system::{self as system};
 
@@ -297,9 +311,13 @@ fn init_probe_logger_with_page_reports(
     #[cfg(not(feature = "agent-report"))]
     display.println("INFO Wiiload report check disabled for this probe build");
     display.println("BOOT before first vsync");
-    display.wait_vsync();
+    if wait_for_display_sync {
+        display.wait_vsync();
+    }
     display.println("BOOT 2/3: entering IOS pre-main");
-    display.wait_vsync();
+    if wait_for_display_sync {
+        display.wait_vsync();
+    }
     probe_support::OGC_PROBE_BOOT_STAGE.store(2, core::sync::atomic::Ordering::Release);
     ogc_ipc::set_debug_hook(Some(ipc_progress));
     system::sys::set_pre_main_progress_callback(Some(pre_main_progress));
@@ -318,7 +336,9 @@ fn init_probe_logger_with_page_reports(
     if page_reports && !sd_run_log {
         display.capture_page();
     }
-    display.wait_vsync();
+    if wait_for_display_sync {
+        display.wait_vsync();
+    }
 
     system::stdio_report(true);
     let mount_status = maybe_mount_external_logs();
@@ -925,7 +945,7 @@ pub fn run_tinysmb_probe_bin() -> i32 {
 /// Runs only debugger/USB Gecko probes.
 pub fn run_debugger_probe_bin() -> i32 {
     configure_probe_app_dir("debugger-probe");
-    let mut logger = init_probe_logger();
+    let mut logger = init_probe_logger_without_display_sync();
     debugger_probe::run(&mut logger);
     logger.summary();
     finish_probe()

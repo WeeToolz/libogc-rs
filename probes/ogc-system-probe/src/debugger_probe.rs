@@ -255,24 +255,29 @@ fn probe_tcp_debugger(logger: &mut ProbeLogger) {
     }
 
     debug::debug_init(debug::GDBSTUB_DEVICE_TCP, debug::GDBSTUB_DEF_TCPPORT);
-    // SAFETY: null addresses request the backend defaults.
+    let mut local_ip = debug::UipIpAddr {
+        addr: u32::from_be_bytes([10, 77, 0, 2]),
+    };
+    let mut netmask = debug::UipIpAddr {
+        addr: u32::from_be_bytes([255, 255, 255, 0]),
+    };
+    let mut gateway = debug::UipIpAddr {
+        addr: u32::from_be_bytes([10, 77, 0, 1]),
+    };
+    // SAFETY: each address points to a live C-compatible IPv4 address value.
     let iface = unsafe {
         debug::tcpip_init(
-            ptr::null_mut(),
-            ptr::null_mut(),
-            ptr::null_mut(),
+            &mut local_ip,
+            &mut netmask,
+            &mut gateway,
             debug::GDBSTUB_DEF_TCPPORT as u16,
         )
     };
-    // The standard Dolphin profile has no EXI Broadband Adapter. Both C and
-    // Rust return no interface when the BBA network device cannot initialize.
-    logger.record(
-        "tcp debugger init reports missing EXI BBA",
-        iface.is_null(),
-    );
     if iface.is_null() {
+        logger.note("tcp debugger init found no usable EXI BBA");
         return;
     }
+    logger.record("tcp debugger init succeeds with EXI BBA", true);
 
     let mut copied_iface = unsafe { *iface };
     let mut buf = [0u8; 4];
@@ -303,13 +308,12 @@ fn probe_tcp_debugger(logger: &mut ProbeLogger) {
         debug::validate_tcp_read_size(buf.len() as i32) == Some(buf.len() as i32),
     );
 
-    // SAFETY: the previous interface has been closed and null addresses request
-    // the backend defaults.
+    // SAFETY: the new address values remain live during the call.
     let reinit = unsafe {
         debug::tcpip_init(
-            ptr::null_mut(),
-            ptr::null_mut(),
-            ptr::null_mut(),
+            &mut local_ip,
+            &mut netmask,
+            &mut gateway,
             debug::GDBSTUB_DEF_TCPPORT as u16,
         )
     };

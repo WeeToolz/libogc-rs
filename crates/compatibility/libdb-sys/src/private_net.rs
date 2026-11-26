@@ -328,6 +328,14 @@ impl PrivateNet {
 
     pub(crate) fn poll(&mut self) -> Result<(), NetError> {
         self.age_arp_table();
+        let mut frame_error = None;
+        while let Some(len) = self.device.poll_frame(&mut self.frame)? {
+            if let Err(error) = self.process_ethernet(len) {
+                if frame_error.is_none() {
+                    frame_error = Some(error);
+                }
+            }
+        }
         if self.tcp_clock.is_running() {
             self.expire_close_state();
             let connection_ids: Vec<u32> = self
@@ -340,10 +348,7 @@ impl PrivateNet {
                 self.retransmit_if_needed()?;
             }
         }
-        if let Some(len) = self.device.poll_frame(&mut self.frame)? {
-            self.process_ethernet(len)?;
-        }
-        Ok(())
+        frame_error.map_or(Ok(()), Err)
     }
 
     pub(crate) fn read(&mut self, output: &mut [u8]) -> Result<usize, NetError> {
