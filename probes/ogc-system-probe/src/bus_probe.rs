@@ -108,12 +108,14 @@ unsafe extern "C" fn timeslice_worker(arg: *mut c_void) -> *mut c_void {
 #[cfg(feature = "dolphin-automation")]
 fn probe_timeslice(logger: &mut ProbeLogger) {
     logger.section("TIMESLICE PROBE");
+    let driver_configured = ogc_lwp_driver::set_timeslice(100_000) == 0;
+    system::sys::sys_set_timeslice(100_000);
     system::set_timeslice(100_000);
     system::set_timeslice(1);
     let (configured, configured_switches) = run_timeslice_workers([64 | 0x80; 2]);
     logger.record(
         "SYS_SetTimeslice keeps configured interval and rotates threads",
-        configured && configured_switches > 2,
+        driver_configured && configured && configured_switches > 2,
     );
 
     system::set_timeslice(0);
@@ -929,7 +931,10 @@ fn probe_exi_si(logger: &mut ProbeLogger) {
     );
     let raw_sync_lock = exi::sys::lock_sync(exi::EXI_CHANNEL_2, exi::EXI_DEVICE_0);
     let raw_sync_unlock = raw_sync_lock == 1 && exi::sys::unlock(exi::EXI_CHANNEL_2) == 1;
-    logger.record("raw EXI synchronous lock acquires and unlocks", raw_sync_unlock);
+    logger.record(
+        "raw EXI synchronous lock acquires and unlocks",
+        raw_sync_unlock,
+    );
     let safe_lock = exi::try_lock_sync(exi::EXI_CHANNEL_2, exi::EXI_DEVICE_0).is_ok();
     let safe_unlock = safe_lock && exi::try_unlock(exi::EXI_CHANNEL_2).is_ok();
     logger.record("exi safe synchronous lock wrapper", safe_unlock);

@@ -113,3 +113,5 @@ of the watchdog return remains open.
 # `SYS_SetTimeslice` API follow-up — 2026-11-26
 
 C exports `SYS_SetTimeslice(u32)` in `libogc/system.c`; Rust previously had no equivalent. The raw Rust API is `ogc_system_sys::sys_set_timeslice`, and the safe facade is `ogc_system::set_timeslice`. Both delegate to the LWP driver's dedicated timeslice deadline, which implements C's zero-disable, one-retain-or-default, and explicit-tick behavior. See the detailed scheduler comparison and Dolphin evidence in [`liblwp.md`](liblwp.md#sys_settimeslice-and-automatic-lwp-timeslicing--2026-11-26).
+
+The raw and safe setters now have direct probe calls. Dolphin 2609a run `docs/dolphin-runs/2026-11-26-timeslice-api-inventory` passed 77 checks with 0 failures, including the C-configured interval and equal-priority thread rotation. Physical Wii verification and independent parity re-review remain pending.
