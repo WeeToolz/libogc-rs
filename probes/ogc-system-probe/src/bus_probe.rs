@@ -927,6 +927,9 @@ fn probe_exi_si(logger: &mut ProbeLogger) {
         "exi synchronous lock rejects invalid channel",
         exi::lock_sync(exi::EXI_CHANNEL_MAX, exi::EXI_DEVICE_0) == 0,
     );
+    let raw_sync_lock = exi::sys::lock_sync(exi::EXI_CHANNEL_2, exi::EXI_DEVICE_0);
+    let raw_sync_unlock = raw_sync_lock == 1 && exi::sys::unlock(exi::EXI_CHANNEL_2) == 1;
+    logger.record("raw EXI synchronous lock acquires and unlocks", raw_sync_unlock);
     let safe_lock = exi::try_lock_sync(exi::EXI_CHANNEL_2, exi::EXI_DEVICE_0).is_ok();
     let safe_unlock = safe_lock && exi::try_unlock(exi::EXI_CHANNEL_2).is_ok();
     logger.record("exi safe synchronous lock wrapper", safe_unlock);
@@ -1076,7 +1079,7 @@ fn probe_exi_transfer(logger: &mut ProbeLogger) {
     let misaligned_dma = if selected {
         // SAFETY: offset 1 leaves 64 live bytes for the head/DMA/tail path.
         unsafe {
-            exi::transfer(
+            exi::sys::transfer(
                 channel,
                 buffer.0.as_mut_ptr().add(1).cast(),
                 64,
