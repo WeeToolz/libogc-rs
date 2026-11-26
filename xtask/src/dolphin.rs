@@ -837,6 +837,16 @@ mod wpad_probe_selection_tests {
         super::configure_relaunch_panic_diagnostic(&mut other, "runtime_probe", true);
         assert_eq!(other[0], "Dolphin.Interface.AbortOnPanicAlert=True");
     }
+
+    #[test]
+    fn relaunch_backend_override_does_not_change_other_probes() {
+        let mut args = vec!["--video_backend=OGL".to_string()];
+        super::configure_relaunch_backend(&mut args, "ipc_relaunch_probe", true);
+        assert_eq!(args[0], "--video_backend=Metal");
+        let mut other = vec!["--video_backend=OGL".to_string()];
+        super::configure_relaunch_backend(&mut other, "runtime_probe", true);
+        assert_eq!(other[0], "--video_backend=OGL");
+    }
     #[test]
     fn relaunch_probe_requires_explicit_selection() {
         let defaults = super::select_probes(&[]).unwrap();
@@ -1086,6 +1096,11 @@ fn run_probe(
         &mut arguments,
         spec.name,
         std::env::var_os("LIBOGC_DOLPHIN_RELAUNCH_PANIC_DIAGNOSTIC").is_some(),
+    );
+    configure_relaunch_backend(
+        &mut arguments,
+        spec.name,
+        std::env::var_os("LIBOGC_DOLPHIN_RELAUNCH_METAL").is_some(),
     );
     if spec.name == "usbstorage_transport_probe" {
         let device = std::env::var("LIBOGC_DOLPHIN_USB_READ_DEVICE")
@@ -1549,6 +1564,16 @@ impl Drop for ChildGuard {
         if self.0.try_wait().ok().flatten().is_none() {
             let _ = self.0.kill();
             let _ = self.0.wait();
+        }
+    }
+}
+
+fn configure_relaunch_backend(arguments: &mut [String], probe: &str, enabled: bool) {
+    if enabled && probe == "ipc_relaunch_probe" {
+        for argument in arguments {
+            if argument == "--video_backend=OGL" {
+                *argument = "--video_backend=Metal".to_string();
+            }
         }
     }
 }

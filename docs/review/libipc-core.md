@@ -507,3 +507,10 @@ contains no program counter. The setting change and outcome are recorded in
 `../dolphin-runs/2026-11-26-ipc-relaunch-panic-diagnostic/suite.json`. No alert
 text was captured. This comparison does not establish the cause of SIGABRT or
 prove a usable menu.
+
+A controlled foreground comparison used the same DOL with Dolphin's Metal
+backend instead of OpenGL. Dolphin again logged system menu `state.dat` access
+and exited with SIGABRT before a probe summary. The recorded arguments and
+result are in `../dolphin-runs/2026-11-26-ipc-relaunch-metal/suite.json`.
+This rules out the choice between these two backends as a sufficient explanation
+for the observed abort; it does not identify the cause or prove menu usability.
