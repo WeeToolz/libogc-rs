@@ -448,3 +448,13 @@ the foreground path can return after the first acknowledgement in Rust while C
 waits for the count to become positive. The current invalid-count Dolphin
 checks do not reach either path. Implement and test the acknowledgement state
 machine for both relaunch modes before treating those APIs as verified.
+
+The current mailbox change uses a signed count and applies C's extra foreground
+relaunch decrement. The acknowledgement handler wakes the relaunch waiter only
+when the count is positive. The reply handler clears the relaunch marker and
+returns a credit before waking the waiter, as C does. Host tests cover the count
+transitions. Dolphin 2609a passed the existing `ipc_async_probe` with 16 checks
+and zero failures; evidence is in
+`../dolphin-runs/2026-11-26-ipc-mailbox-order/suite.json`. That probe checks
+ordinary async IPC and does not exercise an IOS relaunch. A real relaunch and
+physical Wii behavior remain unverified.

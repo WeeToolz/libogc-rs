@@ -1212,7 +1212,7 @@ static IPC_BUFFER_CURRENT_HI: AtomicUsize = AtomicUsize::new(0);
 static mut IPC_HEAPS: [HeapState; IPC_NUM_HEAPS] = [HeapState::EMPTY; IPC_NUM_HEAPS];
 
 static IPC_INITIALIZED: AtomicBool = AtomicBool::new(false);
-static IPC_MAILBOX_ACK: AtomicU32 = AtomicU32::new(1);
+static IPC_MAILBOX_ACK: AtomicI32 = AtomicI32::new(1);
 static IPC_QUEUE: [AtomicUsize; IPC_QUEUE_CAPACITY] =
     [const { AtomicUsize::new(0) }; IPC_QUEUE_CAPACITY];
 static IPC_QUEUE_WRITE: AtomicU32 = AtomicU32::new(0);
@@ -1572,7 +1572,6 @@ unsafe fn write_request(req: &mut IpcRequest) {
     req.magic = request_magic();
     if req.relnch & RELNCH_RELAUNCH != 0 {
         RELAUNCH_REQ.store(req as *mut IpcRequest as usize, Ordering::Release);
-        IPC_MAILBOX_ACK.store(0, Ordering::Release);
     }
 
     let req_ptr = req as *mut IpcRequest as *mut c_void;
@@ -1602,7 +1601,7 @@ fn queue_request(req: &mut IpcRequest) -> i32 {
 
 unsafe fn send_next_request() {
     unsafe {
-        if IPC_MAILBOX_ACK.load(Ordering::Acquire) == 0 {
+        if IPC_MAILBOX_ACK.load(Ordering::Acquire) <= 0 {
             return;
         }
 
@@ -1621,7 +1620,8 @@ unsafe fn send_next_request() {
 
         IPC_QUEUE_SEND.store(send.wrapping_add(1), Ordering::Relaxed);
         IPC_SENT_COUNT.store(sent.wrapping_add(1), Ordering::Release);
-        IPC_MAILBOX_ACK.store(0, Ordering::Release);
+        let count = IPC_MAILBOX_ACK.load(Ordering::Relaxed);
+        IPC_MAILBOX_ACK.store(raw_contract::mailbox_after_send(count, (*req).relnch & RELNCH_RELAUNCH != 0, (*req).relnch & RELNCH_BACKGROUND != 0), Ordering::Release);
         write_request(&mut *req);
     }
 }
@@ -1717,6 +1717,15 @@ unsafe fn reply_handler() {
                 }
             }
 
+            // C clears the relaunch marker and returns the mailbox credit
+            // before waking the waiter or invoking its callback.
+            if RELAUNCH_REQ.compare_exchange(req as usize, 0, Ordering::AcqRel, Ordering::Acquire)
+                == Ok(req as usize)
+            {
+                let count = IPC_MAILBOX_ACK.load(Ordering::Relaxed);
+                IPC_MAILBOX_ACK.store(raw_contract::mailbox_after_ack(count), Ordering::Release);
+            }
+
             if (*req).cb.is_some() {
                 // User callbacks must not execute in the PI/ACR interrupt handler.
                 // The LWP deferred worker owns callback execution and request release.
@@ -1751,11 +1760,6 @@ unsafe fn reply_handler() {
                 };
             }
 
-            if RELAUNCH_REQ.compare_exchange(req as usize, 0, Ordering::AcqRel, Ordering::Acquire)
-                == Ok(req as usize)
-            {
-                IPC_MAILBOX_ACK.store(1, Ordering::Release);
-            }
         }
 
         let ipc_ack = (read_reg(1) & 0x30) | IPC_ACK_INTERRUPT_COMPLETE;
@@ -1768,7 +1772,11 @@ unsafe fn ackhandler() {
         let ipc_ack = (read_reg(1) & 0x30) | IPC_ACK_REQUEST_INTERRUPT;
         write_reg(1, ipc_ack);
         acr_write_reg(ACR_REGISTER_IRQ_CLEAR, ACR_IRQ_CLEAR_VALUE);
-        IPC_MAILBOX_ACK.store(1, Ordering::Release);
+        let count = raw_contract::mailbox_after_ack(IPC_MAILBOX_ACK.load(Ordering::Relaxed));
+        IPC_MAILBOX_ACK.store(count, Ordering::Release);
+        if count <= 0 {
+            return;
+        }
 
         let relaunch = RELAUNCH_REQ.swap(0, Ordering::AcqRel);
         if relaunch != 0 {
@@ -1779,6 +1787,8 @@ unsafe fn ackhandler() {
                 lwp_sys::note_ipc_wake((*req).syncqueue);
                 lwp_sys::thread_signal((*req).syncqueue);
             }
+            let ipc_ack = (read_reg(1) & 0x30) | IPC_ACK_INTERRUPT_COMPLETE;
+            write_reg(1, ipc_ack);
         }
         send_next_request();
     }

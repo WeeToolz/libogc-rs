@@ -1,4 +1,11 @@
 //! Bounds and address rules for synchronous raw IOCTLV requests.
+pub(crate) fn mailbox_after_send(count: i32, relaunch: bool, background: bool) -> i32 {
+    count - 1 - i32::from(relaunch && !background)
+}
+
+pub(crate) fn mailbox_after_ack(count: i32) -> i32 {
+    if count < 1 { count + 1 } else { count }
+}
 pub(crate) fn default_buffer_bounds(
     linker: (usize, usize),
     loader: (usize, usize),
@@ -70,6 +77,22 @@ pub(crate) fn request_address(pointer: usize, length: usize) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn relaunch_acknowledgements_match_c_mailbox_count() {
+        assert_eq!(mailbox_after_send(1, true, false), -1);
+        assert_eq!(mailbox_after_send(1, true, true), 0);
+        assert_eq!(mailbox_after_send(1, false, false), 0);
+        assert_eq!(mailbox_after_ack(-1), 0);
+        assert_eq!(mailbox_after_ack(0), 1);
+        assert_eq!(mailbox_after_ack(1), 1);
+        // A reply also returns one mailbox credit while a relaunch is pending.
+        // Either event order leaves the same count after two events.
+        let foreground = mailbox_after_send(1, true, false);
+        assert_eq!(mailbox_after_ack(mailbox_after_ack(foreground)), 1);
+        let background = mailbox_after_send(1, true, true);
+        assert_eq!(mailbox_after_ack(mailbox_after_ack(background)), 1);
+    }
 
     #[test]
     fn zero_sized_heap_error_matches_c_slot_and_memory_order() {
