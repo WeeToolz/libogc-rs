@@ -20,6 +20,8 @@ ogc-aram,reviewed,,idle,docs/review/libaram.md,2026-10-03,Independent re-review 
 ogc-audio,reviewed,,idle,docs/review/libaudio.md,2026-10-01,Static review recorded in the linked note.
 ogc-audio-sys,reviewed,,idle,docs/review/libaudio.md,2026-10-01,Static review recorded in the linked note.
 ogc-bt-sync,review_incomplete,,idle,docs/review/libwpad-sys.md,2026-10-28,Scoped guest-search disconnect ordering passed independent source review; broader source review and hardware validation remain incomplete.
+ogc-blockfs,review_incomplete,,idle,docs/review/libblockfs-exfat.md,2026-11-25,Source parity review remains incomplete; compare the Rust block filesystem service with the libogc filesystem and storage paths. Dolphin API coverage is also pending.
+ogc-exfat,review_incomplete,,idle,docs/review/libblockfs-exfat.md,2026-11-25,Rust-only exFAT support has no direct libogc API counterpart; review its block device integration and document the added-feature boundary. Dolphin API coverage is also pending.
 ogc-cache,reviewed,,idle,docs/review/liballoc-cache-audit.md,2026-10-03,"reviewer_d independently passed bd602f7: L2Enhance and helper APIs are Wii-only as in C; no other recorded cache mismatch remains. Target test code compiled, not run."
 ogc-card,reviewed,,idle,docs/review/libcard.md,2026-10-01,Independent re-review confirms repeated CARD_Init preserves identifiers and mounted-card state.
 ogc-card-metadata,reviewed,,idle,docs/review/libcard.md,2026-10-01,Grouped CARD metadata crate; no metadata implementation changes in the fix pass.
