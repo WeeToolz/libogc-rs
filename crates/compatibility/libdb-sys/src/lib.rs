@@ -22,6 +22,7 @@ mod bba;
 mod private_net;
 mod tcp_accept;
 mod tcp_clock;
+mod tcp_poll;
 mod tcp_state;
 #[cfg(feature = "wii-network")]
 pub mod wii_network;

@@ -4,8 +4,11 @@ extern crate alloc;
 
 #[path = "../../crates/compatibility/libdb-sys/src/tcp_accept.rs"]
 mod tcp_accept;
+#[path = "../../crates/compatibility/libdb-sys/src/tcp_poll.rs"]
+mod tcp_poll;
 #[path = "../../crates/compatibility/libdb-sys/src/tcp_state.rs"]
 mod tcp_state;
+use std::collections::VecDeque;
 
 #[test]
 fn stopped_time_does_not_advance_tcp_retransmission_clock() {
@@ -152,4 +155,62 @@ fn tcp_connection_limit_matches_four_c_control_blocks() {
     assert!(tcp_accept::has_control_block_capacity(0));
     assert!(tcp_accept::has_control_block_capacity(3));
     assert!(!tcp_accept::has_control_block_capacity(4));
+}
+
+#[derive(Default)]
+struct PollPipeline {
+    frames: VecDeque<usize>,
+    events: Vec<&'static str>,
+}
+
+#[test]
+fn tcp_poll_processes_all_queued_frames_before_timers() {
+    let mut pipeline = PollPipeline {
+        frames: [1, 2].into(),
+        events: Vec::new(),
+    };
+    let result = tcp_poll::poll_frames_before_timers(
+        &mut pipeline,
+        |pipeline| {
+            pipeline.events.push("poll");
+            Ok::<_, ()>(pipeline.frames.pop_front())
+        },
+        |pipeline, _frame| {
+            pipeline.events.push("process");
+            Ok(())
+        },
+        |pipeline| {
+            pipeline.events.push("timers");
+            Ok(())
+        },
+    );
+
+    assert_eq!(result, Ok(()));
+    assert_eq!(
+        pipeline.events,
+        ["poll", "process", "poll", "process", "poll", "timers"]
+    );
+}
+
+#[test]
+fn tcp_poll_runs_timers_after_a_frame_error_and_keeps_draining() {
+    let mut pipeline = PollPipeline {
+        frames: [1, 2].into(),
+        events: Vec::new(),
+    };
+    let result = tcp_poll::poll_frames_before_timers(
+        &mut pipeline,
+        |pipeline| Ok::<_, u8>(pipeline.frames.pop_front()),
+        |pipeline, frame| {
+            pipeline.events.push("process");
+            if frame == 1 { Err(7) } else { Ok(()) }
+        },
+        |pipeline| {
+            pipeline.events.push("timers");
+            Ok(())
+        },
+    );
+
+    assert_eq!(result, Err(7));
+    assert_eq!(pipeline.events, ["process", "process", "timers"]);
 }
