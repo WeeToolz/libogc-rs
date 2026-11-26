@@ -216,6 +216,14 @@ The close-state mismatch is implemented in the current worktree. Rust now tracks
 
 The local C configuration sets `UIP_IP_REASSEMBLY` to zero (`libdb/uIP/uipopt.h:154`). The Rust fragment rejection therefore does not establish a reassembly parity gap.
 
+### TCP concurrent accept gap (2026-11-26)
+
+C supports multiple concurrent TCP control blocks: `UIP_TCP_PCBS` is 4 while the public socket pool has 32 entries (`../../C-sources/libogc/libdb/uIP/uipopt.h:237,257`). On each completed handshake, `tcpip_accept_func` allocates a socket, attaches that socket to the new PCB, and appends it to `tcpip_accepted_sockets` (`../../C-sources/libogc/libdb/tcpip.c:178-205`). `tcpip_accept` polls until that queue has an entry, removes its head, and returns that socket (`tcpip.c:341-354`). Each returned socket then routes read, write, close, and callbacks through its own PCB/socket association.
+
+Rust currently stores one `Option<TcpConnection>` and one `accepted` flag in `PrivateNet` (`crates/compatibility/libdb-sys/src/private_net.rs:196-205`). An unmatched SYN replaces that connection (`private_net.rs:480-515`). At the ABI layer, `TCP_ACTIVE_SOCKET` permits only one accepted handle, and `tcpip_accept` returns that same handle while it remains active rather than dequeuing another completed connection (`crates/compatibility/libdb-sys/src/lib.rs:170,1571-1600`). Therefore a new client can replace an existing connection, and completed connections do not follow C's accepted-socket queue contract.
+
+This is a confirmed production parity gap. The required fix is per-connection TCP state with a bounded capacity matching the four C PCBs, a FIFO of completed accepts, and socket-handle routing for read, write, timer, and close operations. It needs host coverage for multiple handshakes and dequeue order plus a BBA-enabled Dolphin probe that observes multiple live connections. Current no-BBA Dolphin debugger checks do not cover this behavior; physical Wii evidence remains pending.
+
 ## 2026-10-08 HBC power-off path review
 
 C initializes `/dev/stm/immediate` with IOS open mode zero (`../../C-sources/libogc/libogc/stm.c:80-91`). The standalone Rust `ogc-stm` backend also uses `IPC_OPEN_NONE`. The `ogc-system-sys` private STM implementation instead used `IPC_OPEN_RW` in both `stm_init_local` and `stm_ioctl`. Both now use `IPC_OPEN_NONE`, matching C for initialization, reboot, standby, idle, and LED requests. No persistent storage operation was changed.
