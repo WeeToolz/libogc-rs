@@ -23,7 +23,7 @@ pub mod arena_probe;
 pub mod bluetooth_probe;
 #[cfg(target_arch = "powerpc")]
 pub mod bt_sync_menu;
-#[cfg(target_arch = "powerpc")]
+#[cfg(all(target_arch = "powerpc", not(feature = "gamecube-card-probe")))]
 pub mod bus_probe;
 #[cfg(target_arch = "powerpc")]
 pub mod callback_probe;
@@ -68,7 +68,7 @@ pub mod sound_probe;
 pub mod sram_probe;
 #[cfg(target_arch = "powerpc")]
 pub mod startup_probe;
-#[cfg(target_arch = "powerpc")]
+#[cfg(all(target_arch = "powerpc", not(feature = "gamecube-card-probe")))]
 mod stm_api_probe;
 #[cfg(target_arch = "powerpc")]
 pub mod storage_probe;
@@ -620,7 +620,7 @@ pub fn run_pad_reset_probe_bin() -> i32 {
     run_pad_probe("pad-reset-probe", pad_diagnostics_probe::run_reset)
 }
 
-#[cfg(target_arch = "powerpc")]
+#[cfg(all(target_arch = "powerpc", not(feature = "gamecube-card-probe")))]
 /// Runs only bus-related probes.
 pub fn run_bus_probe_bin() -> i32 {
     configure_probe_app_dir("bus-probe");
