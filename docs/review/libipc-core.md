@@ -435,3 +435,16 @@ callers retain their supplied aliases instead of receiving a cached alias. The
 async wrapper still exposes the cached alias on completion, as C does. The
 Dolphin MAC checks exercise aligned nonempty vectors; they do not verify alias
 preservation for all address spaces or a real IOS relaunch.
+
+### Open relaunch mailbox ordering gap
+
+C's send path decrements the mailbox acknowledgement count twice for a
+foreground relaunch and once for a background relaunch. Its acknowledgement
+handler signals the relaunch waiter only when that count becomes positive
+(`ipc.c:300-319,409-429`). Rust stores a zero acknowledgement state for both
+forms and signals the waiter on the first acknowledgement (`ogc-ipc/src/lib.rs`,
+`write_request` and `ackhandler`). This is a confirmed ordering difference:
+the foreground path can return after the first acknowledgement in Rust while C
+waits for the count to become positive. The current invalid-count Dolphin
+checks do not reach either path. Implement and test the acknowledgement state
+machine for both relaunch modes before treating those APIs as verified.
