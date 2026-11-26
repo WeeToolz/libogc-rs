@@ -32,7 +32,7 @@ struct ProbeSpec {
 }
 
 pub(crate) fn is_known_probe(name: &str) -> bool {
-    PROBES.iter().any(|probe| probe.name == name)
+    name == "ipc_relaunch_probe" || PROBES.iter().any(|probe| probe.name == name)
 }
 
 const PROBES: &[ProbeSpec] = &[
@@ -734,6 +734,9 @@ pub fn print_help() {
     eprintln!("  --timeout-seconds N     override every probe timeout");
     eprintln!("  --disable-wii-sd-card   run probes without Dolphin's virtual Wii SD card");
     eprintln!(
+        "  LIBOGC_DOLPHIN_RELAUNCH_PANIC_DIAGNOSTIC=1 disables automatic abort on panic alerts for ipc_relaunch_probe"
+    );
+    eprintln!(
         "  {DOLPHIN_CARD_IMAGE_ENV}=PATH attaches a copied raw card image to storage_probe or card_probe"
     );
 }
@@ -779,6 +782,13 @@ fn select_probes(names: &[String]) -> Result<Vec<ProbeSpec>, String> {
     names
         .iter()
         .map(|name| {
+            if name == "ipc_relaunch_probe" {
+                return Ok(ProbeSpec {
+                    name: "ipc_relaunch_probe",
+                    timeout_seconds: 90,
+                    input_pipe: false,
+                });
+            }
             if name == "ogc_system_probe" {
                 return Ok(ProbeSpec {
                     name: "ogc_system_probe",
@@ -818,6 +828,24 @@ fn select_probes(names: &[String]) -> Result<Vec<ProbeSpec>, String> {
 
 #[cfg(test)]
 mod wpad_probe_selection_tests {
+    #[test]
+    fn panic_alert_override_is_limited_to_explicit_relaunch_diagnostics() {
+        let mut args = vec!["Dolphin.Interface.AbortOnPanicAlert=True".to_string()];
+        super::configure_relaunch_panic_diagnostic(&mut args, "ipc_relaunch_probe", true);
+        assert_eq!(args[0], "Dolphin.Interface.AbortOnPanicAlert=False");
+        let mut other = vec!["Dolphin.Interface.AbortOnPanicAlert=True".to_string()];
+        super::configure_relaunch_panic_diagnostic(&mut other, "runtime_probe", true);
+        assert_eq!(other[0], "Dolphin.Interface.AbortOnPanicAlert=True");
+    }
+    #[test]
+    fn relaunch_probe_requires_explicit_selection() {
+        let defaults = super::select_probes(&[]).unwrap();
+        assert!(!defaults.iter().any(|probe| probe.name == "ipc_relaunch_probe"));
+        let selected = super::select_probes(&["ipc_relaunch_probe".to_string()]).unwrap();
+        assert_eq!(selected.len(), 1);
+        assert_eq!(selected[0].name, "ipc_relaunch_probe");
+    }
+
     #[test]
     fn selects_wpad_probe() {
         let selected = super::select_probes(&["wpad_probe".to_string()]).unwrap();
@@ -1054,6 +1082,11 @@ fn run_probe(
         private_sd.as_ref().map(|(path, _, _)| path.as_path()),
         media.allow_sd_image_writes,
     );
+    configure_relaunch_panic_diagnostic(
+        &mut arguments,
+        spec.name,
+        std::env::var_os("LIBOGC_DOLPHIN_RELAUNCH_PANIC_DIAGNOSTIC").is_some(),
+    );
     if spec.name == "usbstorage_transport_probe" {
         let device = std::env::var("LIBOGC_DOLPHIN_USB_READ_DEVICE")
             .map_err(|_| "USB read device was not set".to_string())?;
@@ -1223,7 +1256,7 @@ fn run_probe(
             break;
         }
         if let Some(status) = child.try_wait().map_err(|err| err.to_string())? {
-            completion = Completion::Exited(status.code());
+            completion = Completion::Exited(status.to_string());
             break;
         }
         if Instant::now() >= deadline {
@@ -1411,7 +1444,7 @@ fn run_probe(
 enum Completion {
     Summary,
     CaptureError,
-    Exited(Option<i32>),
+    Exited(String),
     TimedOut,
 }
 
@@ -1446,9 +1479,9 @@ fn classify_probe_completion(
                 "probe did not complete within {timeout_seconds} seconds; captured {page_frames} page PNG(s) for {page_markers} acknowledged page(s)"
             ),
         ),
-        Completion::Exited(code) => (
+        Completion::Exited(status) => (
             "crash",
-            format!("Dolphin exited before the probe summary with code {code:?}"),
+            format!("Dolphin exited before the probe summary: {status}"),
         ),
         Completion::CaptureError => (
             "setup_error",
@@ -1516,6 +1549,16 @@ impl Drop for ChildGuard {
         if self.0.try_wait().ok().flatten().is_none() {
             let _ = self.0.kill();
             let _ = self.0.wait();
+        }
+    }
+}
+
+fn configure_relaunch_panic_diagnostic(arguments: &mut [String], probe: &str, enabled: bool) {
+    if enabled && probe == "ipc_relaunch_probe" {
+        for argument in arguments {
+            if argument == "Dolphin.Interface.AbortOnPanicAlert=True" {
+                *argument = "Dolphin.Interface.AbortOnPanicAlert=False".to_string();
+            }
         }
     }
 }
@@ -2773,6 +2816,20 @@ mod tests {
         assert!(parse_summary("PASS summary passes=12").is_none());
         assert!(parse_summary("PASS summary passes=12 fails=0 trailing").is_none());
         assert!(parse_summary("INFO PASS summary passes=12 fails=0").is_none());
+    }
+
+    #[test]
+    fn exited_process_keeps_signal_detail() {
+        let (status, detail) = classify_probe_completion(
+            &Completion::Exited("signal: 6 (SIGABRT)".to_string()),
+            30,
+            CompletionEvidence {
+                parsed: None, frames_valid: false, pages_valid: false,
+                page_capture_error: None, page_frames: 0, page_markers: 0, summary_count: 0,
+            },
+        );
+        assert_eq!(status, "crash");
+        assert!(detail.contains("SIGABRT"));
     }
 
     #[test]

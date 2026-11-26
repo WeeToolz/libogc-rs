@@ -477,3 +477,33 @@ and the content `ticket` SHA-256 was
 These identify the inspected files only; they do not prove the copied NAND or
 launched title in a future run. The existing probe can obtain the ticket view,
 but a new handoff observation is still needed.
+
+The first focused foreground probe ran in Dolphin 2609a with a private NAND.
+The probe retrieved the system menu ticket view and logged that handoff began.
+Dolphin logged `Re-launching title 0000000100000002 after IOS reload` and then
+read and wrote the system menu's `state.dat`. The runner classified the session
+as a crash because the probe did not emit its completion summary. The saved
+result and logs are in `../dolphin-runs/2026-11-26-ipc-relaunch-initial/`.
+This is evidence that Dolphin entered the target title path, not evidence that
+the system menu reached a usable state or that background relaunch works.
+The DOL SHA-256 was
+`13317a4a659692f7ed6fefeab5a26e8c050699c508fc40ab949d3eeedeb5c622`.
+
+A subsequent foreground run captured Dolphin's process status as SIGABRT. A
+background build returned zero to the probe, and Dolphin logged the system menu
+relaunch before it also exited with SIGABRT. Both runs logged system menu
+`state.dat` access after the title reload. The reports are at
+`../dolphin-runs/2026-11-26-ipc-relaunch-signal/suite.json` and
+`../dolphin-runs/2026-11-26-ipc-relaunch-background/suite.json`. The foreground
+probe did not record its return value before handoff. Neither run establishes a
+usable menu or explains the emulator abort. The background result establishes
+that the call returned zero and Dolphin entered the title reload path.
+
+A foreground diagnostic run used the same DOL with
+`Dolphin.Interface.AbortOnPanicAlert=False`. Dolphin logged the system menu
+reload and remained running until the runner's 45-second timeout. The debugger
+then failed to answer the interrupt and memory requests, so the saved diagnostic
+contains no program counter. The setting change and outcome are recorded in
+`../dolphin-runs/2026-11-26-ipc-relaunch-panic-diagnostic/suite.json`. No alert
+text was captured. This comparison does not establish the cause of SIGABRT or
+prove a usable menu.

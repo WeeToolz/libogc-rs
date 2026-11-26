@@ -1072,6 +1072,64 @@ pub fn run_ipc_async_probe_bin() -> i32 {
 }
 
 #[cfg(target_arch = "powerpc")]
+/// Starts a system menu handoff for an external Dolphin observer.
+pub fn run_ipc_relaunch_probe_bin() -> i32 {
+    use ogc_es_sys as es;
+    use ogc_ipc as ipc;
+    #[repr(align(32))]
+    struct Aligned<T>(T);
+
+    const MENU: u64 = 0x0000_0001_0000_0002;
+    configure_probe_app_dir("ipc-relaunch-probe");
+    let mut logger = init_probe_logger();
+    let initialized = es::init();
+    let mut view = Aligned(es::Tikview::default());
+    let view_result = if initialized >= 0 {
+        unsafe { es::get_ticket_views(MENU, &mut view.0, 1) }
+    } else {
+        initialized
+    };
+    let valid = view_result == 0 && view.0.titleid == MENU;
+    logger.record("IPC relaunch system menu ticket view", valid);
+    if !valid {
+        logger.summary();
+        return finish_probe();
+    }
+    let fd = match ipc::open_file(c"/dev/es", ipc::IPC_OPEN_NONE) {
+        Ok(fd) => fd,
+        Err(error) => {
+            logger.note_i32("IPC relaunch open error", error);
+            logger.record("IPC relaunch opens ES", false);
+            logger.summary();
+            return finish_probe();
+        }
+    };
+    let mut title = Aligned(MENU);
+    let mut vectors = Aligned([
+        ipc::Ioctlv { data: (&mut title.0 as *mut u64).cast(), len: 8 },
+        ipc::Ioctlv { data: (&mut view.0 as *mut es::Tikview).cast(), len: core::mem::size_of::<es::Tikview>() as u32 },
+    ]);
+    logger.note("IPC relaunch handoff begins");
+    #[cfg(not(feature = "ipc-relaunch-background"))]
+    let result = unsafe { ipc::IOS_IoctlvReboot(fd.raw(), 8, 2, 0, vectors.0.as_mut_ptr()) };
+    #[cfg(feature = "ipc-relaunch-background")]
+    let result = unsafe {
+        ipc::IOS_IoctlvRebootBackground(fd.raw(), 8, 2, 0, vectors.0.as_mut_ptr())
+    };
+    logger.note_i32("IPC relaunch returned", result);
+    logger.record("IPC relaunch request accepted", result == 0);
+    if result == 0 {
+        // IOS may still consume the vectors after acknowledging the request.
+        // Keep this frame alive until the launched title replaces the probe.
+        loop {
+            core::hint::spin_loop();
+        }
+    }
+    logger.summary();
+    finish_probe()
+}
+
+#[cfg(target_arch = "powerpc")]
 /// Tests Bluetooth startup, pairing, buttons, axes, and adapter shutdown.
 pub fn run_bluetooth_probe_bin() -> i32 {
     configure_probe_app_dir("bluetooth-probe");

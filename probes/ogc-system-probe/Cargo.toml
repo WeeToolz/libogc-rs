@@ -7,6 +7,8 @@ license.workspace = true
 [features]
 default = ["dep:ogc-ui", "ogc-ui/pad-input", "ogc-ui/wpad-input", "ogc-ui/gx-backend"]
 std-system-allocator = []
+ipc-relaunch-probe = []
+ipc-relaunch-background = ["ipc-relaunch-probe"]
 mounted-log = []
 dolphin-automation = ["mounted-log", "pad-diagnostics", "lwbt-sys/dolphin-automation", "ogc-exi/dolphin-automation", "ogc-ipc/format-probe-hooks", "wpad-sys/dolphin-probe-hooks", "tinysmb-sys/dolphin-fixture"]
 gamecube-card-probe = []
@@ -88,6 +90,11 @@ ogc-ui = { path = "../../crates/services/ogc-ui", optional = true }
 ogc-video = { path = "../../crates/hardware/ogc-video" }
 ogc-wiisd = { path = "../../crates/services/ogc-wiisd" }
 ogc-wd = { path = "../../crates/services/ogc-wd" }
+
+[[bin]]
+name = "ipc_relaunch_probe"
+path = "src/ipc_relaunch_probe/main.rs"
+required-features = ["ipc-relaunch-probe"]
 
 [[bin]]
 name = "bus_probe"

@@ -1,0 +1,2406 @@
+02:24:425 Core/Boot/DolReader.cpp:67 W[BOOT]: DolReader: Text section 0 size is not aligned to 32 bytes and can cause issues when loaded
+02:24:425 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 0 size is not aligned to 32 bytes and can cause issues when loaded
+02:24:425 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 1 size is not aligned to 32 bytes and can cause issues when loaded
+02:24:426 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+02:24:426 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+02:24:426 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+02:24:479 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+02:24:479 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
+02:24:479 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
+02:24:479 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
+02:24:592 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App name: org.dolphin-emu.dolphin
+02:24:592 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App version: <unspecified>
+02:24:592 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App ID: <unspecified>
+02:24:592 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: SDL revision: SDL-3.4.12-f87239e71
+02:24:608 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
+02:24:608 InputCommon/ControllerInterface/DualShockUDPClient/DualShockUDPClient.cpp:492 I[CI]: DualShockUDPClient PopulateDevices
+02:24:608 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:141 I[CI]: SteamDeck PopulateDevices
+02:24:620 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:171 I[CI]: No Steam Deck interface found
+02:24:637 Core/ConfigManager.cpp:279 N[CORE]: Active title: 
+02:24:639 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+02:24:639 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+02:24:639 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+02:24:640 Core/Core.cpp:237 I[BOOT]: Starting core = Wii mode
+02:24:640 Core/Core.cpp:238 I[BOOT]: CPU Thread separate = No
+02:24:675 InputCommon/ControllerInterface/ControllerInterface.cpp:310 N[CI]: Removed device: Quartz/0/Keyboard & Mouse
+02:24:680 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
+02:24:688 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 0000000100000050
+02:24:689 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+02:24:689 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
+02:24:689 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+02:24:690 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+02:24:694 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:41:d0:df
+02:24:741 Core/Boot/Boot.cpp:546 N[BOOT]: Booting from executable: /Volumes/SSD/WiiDev/WeeToolz/libogc-rs/target/xtask/probes-dolphin/ipc_relaunch_probe.dol
+02:24:741 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/sys/uid.sys): Result 0
+02:24:742 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/sys/uid.sys): Result 0
+02:24:743 Core/Boot/Boot_BS2Emu.cpp:435 I[BOOT]: Using serial number: 372730284
+02:24:743 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /title/00000001/00000002/data/setting.txt (NAND)
+02:24:743 Core/Boot/Boot_BS2Emu.cpp:463 I[BOOT]: Setup Wii Memory...
+02:24:743 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 000000010000003a
+02:24:743 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+02:24:743 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
+02:24:744 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+02:24:744 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+02:24:745 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:41:d0:df
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+02:24:817 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/es (mode 0, fd 0)
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+02:24:820 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 1)
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+02:24:824 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 2)
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+02:24:833 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 3)
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+02:24:837 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 4)
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+02:24:847 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/SYSCONF (mode 1, fd 3)
+02:24:847 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/SYSCONF): Result 0
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+02:24:851 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/SYSCONF, 0x00698872, 16384): Result 0
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+02:24:857 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/SYSCONF): Result 0
+02:24:857 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/setting.txt (mode 1, fd 3)
+02:24:857 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/setting.txt): Result 0
+02:24:857 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/setting.txt, 0x0069c872, 256): Result 0
+02:24:858 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/setting.txt): Result 0
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+02:24:865 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/state.dat (mode 1, fd 3)
+02:24:865 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/state.dat): Result 0
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+02:24:869 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/state.dat, 0x017f4b40, 32): Result 0
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+02:24:873 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/state.dat): Result 0
+02:24:873 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/NANDBOOTINFO (mode 1, fd 3)
+02:24:873 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/NANDBOOTINFO): Result 0
+02:24:873 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/NANDBOOTINFO, 0x017f4b40, 4128): Result 0
+02:24:874 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/NANDBOOTINFO): Result 0
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+02:26:212 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/es (mode 0, fd 3)
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+02:26:231 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
+02:26:231 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
+02:26:231 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
+02:26:231 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/sys/launch.sys): Result -106
+02:26:231 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Delete(/sys/space.sys): Result 0
+02:26:231 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/launch.sys (NAND)
+02:26:231 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: CreateFile(/tmp/launch.sys): Result 0
+02:26:232 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/tmp/launch.sys): Result 0
+02:26:232 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/tmp/launch.sys): Result 0
+02:26:232 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /sys/launch.sys (NAND)
+02:26:232 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Rename(/tmp/launch.sys, /sys/launch.sys): Result 0
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+Warning: Partial sends might not be handled properly.
+02:26:481 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 0000000100000050
+02:26:482 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+02:26:482 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+02:26:483 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+02:26:483 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:41:d0:df
+02:27:097 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
+02:27:098 Core/IOS/ES/ES.cpp:171 N[IOS]: Re-launching title 0000000100000002 after IOS reload.
+02:27:098 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
+02:27:098 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
+02:27:098 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
+02:27:098 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/sys/launch.sys): Result 0
+02:27:098 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/sys/launch.sys): Result 0
+02:27:098 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Delete(/sys/launch.sys): Result 0
+02:27:098 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/space.sys (NAND)
+02:27:098 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: CreateFile(/tmp/space.sys): Result 0
+02:27:098 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/tmp/space.sys): Result 0
+02:27:098 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/tmp/space.sys): Result 0
+02:27:098 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /sys/space.sys (NAND)
+02:27:099 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Rename(/tmp/space.sys, /sys/space.sys): Result 0
+02:27:100 Core/ConfigManager.cpp:279 N[CORE]: Active title: Wii Menu (0000000100000002)
+02:27:102 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/sys/uid.sys): Result 0
+02:27:103 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/sys/uid.sys): Result 0
+02:27:333 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/00000098.app): Result 0
+02:27:333 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/00000098.app): Result 0
+02:27:334 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/00000098.app): Result 0
+02:27:334 Core/Boot/DolReader.cpp:67 W[BOOT]: DolReader: Text section 0 size is not aligned to 32 bytes and can cause issues when loaded
+02:27:335 Core/IOS/IOS.cpp:445 I[IOS]: BootstrapPPC: /title/00000001/00000002/content/00000098.app
+02:27:433 Core/IOS/IOS.cpp:957 I[IOS]: Bootstrapping done.
+02:27:456 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/es (mode 0, fd 0)
+02:27:456 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 1)
+02:27:456 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 2)
+02:27:456 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/SYSCONF (mode 1, fd 3)
+02:27:456 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/SYSCONF): Result 0
+02:27:456 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/SYSCONF, 0x01475780, 16384): Result 0
+02:27:457 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/SYSCONF): Result 0
+02:27:457 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/setting.txt (mode 1, fd 3)
+02:27:457 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/setting.txt): Result 0
+02:27:457 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/setting.txt, 0x01475660, 256): Result 0
+02:27:458 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/setting.txt): Result 0
+02:27:458 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/state.dat (mode 1, fd 3)
+02:27:458 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/state.dat): Result 0
+02:27:458 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/state.dat, 0x014797e0, 32): Result 0
+02:27:458 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/state.dat): Result 0
+02:27:458 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/NANDBOOTINFO (mode 1, fd 3)
+02:27:458 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/NANDBOOTINFO): Result 0
+02:27:458 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/NANDBOOTINFO, 0x01479800, 4128): Result 0
+02:27:459 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/NANDBOOTINFO): Result 0
+02:27:460 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/fs (mode 0, fd 3)
+02:27:461 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/title/00010001/48415858/content/title.tmd): Result -106
+02:27:461 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/title/00010001/4a4f4449/content/title.tmd): Result -106
+02:27:461 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/title/00010001/af1bf516/content/title.tmd): Result -106
+02:27:461 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00010001/4c554c5a/content/title.tmd): Result 0
+02:27:461 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00010001/4c554c5a/content/title.tmd): Result 0
+02:27:462 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00010001/4c554c5a/content/title.tmd): Result 0
+02:27:462 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00010001/4c554c5a/content/title.tmd): Result 0
+02:27:462 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00010001/4c554c5a/content/title.tmd): Result 0
+02:27:462 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00010001/4c554c5a/content/title.tmd): Result 0
+02:27:462 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00010001/4c554c5a/content/title.tmd): Result 0
+02:27:462 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00010001/4c554c5a/content/title.tmd): Result 0
+02:27:462 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00010001/4c554c5a/content/title.tmd): Result 0
+02:27:462 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00010001/4f484243/content/title.tmd): Result 0
+02:27:462 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00010001/4f484243/content/title.tmd): Result 0
+02:27:462 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00010001/4f484243/content/title.tmd): Result 0
+02:27:462 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00010001/4f484243/content/title.tmd): Result 0
+02:27:462 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00010001/4f484243/content/title.tmd): Result 0
+02:27:462 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00010001/4f484243/content/title.tmd): Result 0
+02:27:462 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00010001/4f484243/content/title.tmd): Result 0
+02:27:462 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00010001/4f484243/content/title.tmd): Result 0
+02:27:462 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00010001/4f484243/content/title.tmd): Result 0
+02:27:463 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/loader.ini (mode 1, fd 4)
+02:27:463 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/loader.ini): Result 0
+02:27:463 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/data/loader.ini): Result 0
+02:27:463 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/loader.ini, 0x133dffa0, 32): Result 0
+02:27:464 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/loader.ini): Result 0
+02:27:464 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/state.dat (mode 1, fd 4)
+02:27:464 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/state.dat): Result 0
+02:27:464 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/state.dat, 0x133dff60, 32): Result 0
+02:27:465 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/state.dat): Result 0
+02:27:465 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/state.dat (mode 1, fd 4)
+02:27:465 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/state.dat): Result 0
+02:27:465 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/state.dat, 0x0146e7a0, 32): Result 0
+02:27:465 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/state.dat): Result 0
+02:27:466 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/ven (mode 0, fd 4)
+02:27:466 Core/IOS/IOS.cpp:698 E[IOS]: Unknown device: /dev/usb/ven
+02:27:466 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/hid (mode 0, fd 4)
+02:27:467 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh1/57e/305 (mode 0, fd 4)
+02:27:469 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/SYSCONF (mode 2, fd 5)
+02:27:469 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/SYSCONF): Result 0
+02:27:469 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/ven (mode 0, fd 6)
+02:27:469 Core/IOS/IOS.cpp:698 E[IOS]: Unknown device: /dev/usb/ven
+02:27:469 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Write(/shared2/sys/SYSCONF, 0x01475780, 16384): Result 0
+02:27:469 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/hid (mode 0, fd 6)
+02:27:471 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/SYSCONF): Result 0
+02:27:524 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/SYSCONF (mode 2, fd 5)
+02:27:524 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/SYSCONF): Result 0
+02:27:524 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Write(/shared2/sys/SYSCONF, 0x01475780, 16384): Result 0
+02:27:524 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 6)
+02:27:530 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/SYSCONF): Result 0
+02:27:587 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:587 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:587 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:588 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:588 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:588 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:588 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:588 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:592 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:593 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:593 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:593 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:593 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:595 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:596 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:596 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:597 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:597 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:598 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:598 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:598 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:598 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:598 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:598 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:599 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:603 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:603 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:603 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:603 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:604 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:604 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:604 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:604 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:608 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:609 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:609 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:609 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:609 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:609 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:609 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:612 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:613 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:613 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:614 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:614 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:614 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:614 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:614 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:614 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:615 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:619 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:619 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:620 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:620 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:620 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:620 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:620 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:620 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:620 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:624 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:625 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:625 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:625 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:625 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:625 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:625 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:629 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:630 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:630 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:630 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:630 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:630 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:630 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:631 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:631 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:635 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:635 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:635 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:635 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:635 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:636 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:636 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:636 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:636 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:640 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:641 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:641 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:641 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:641 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:641 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:641 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:641 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:646 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:646 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:646 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:647 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:647 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:647 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:647 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:647 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:647 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:651 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:651 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:651 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:651 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:651 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:652 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:652 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:652 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:656 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:657 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:657 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:657 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:657 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:657 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:657 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:658 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:662 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:662 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:662 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:663 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:663 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:663 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:664 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:664 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:664 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:667 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:667 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:667 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:667 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:667 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:668 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:668 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:668 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:673 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:673 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:673 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:673 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:673 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:673 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:673 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:674 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:674 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:677 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:678 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:679 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:680 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:680 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:680 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:680 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:680 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:683 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:683 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:683 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:683 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:683 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:684 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:684 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:684 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:684 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:688 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:689 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:689 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:689 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:689 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:689 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:689 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:690 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:694 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:694 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:694 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:695 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:696 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:696 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:697 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:697 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:699 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:699 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:699 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:699 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:699 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:700 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:700 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:700 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:700 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:704 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:704 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:704 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:705 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:706 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:706 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:706 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:706 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:709 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:710 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:710 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:710 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:712 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:713 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:713 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:713 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:713 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:715 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:715 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:715 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:715 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:715 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:716 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:716 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:716 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:720 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:720 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:721 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:721 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:721 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:721 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:721 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:721 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:725 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:726 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:726 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:726 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:726 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:726 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:729 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:730 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:730 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:731 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:731 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:731 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:731 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:731 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:732 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:732 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:732 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:737 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:737 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:737 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:737 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:737 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:737 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:738 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:738 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:738 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:742 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:742 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:742 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:742 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:742 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:742 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:745 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:746 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:747 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:747 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:747 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:747 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:747 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:748 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:748 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:748 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:752 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:753 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:753 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:753 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:753 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:753 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:753 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:754 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:754 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:758 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:758 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:758 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:758 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:758 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:758 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:759 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:762 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:763 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:763 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:763 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:764 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:764 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:764 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:764 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:764 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:764 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:768 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:769 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:769 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:769 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:769 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:769 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:769 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:769 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:774 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:774 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:774 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:774 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:774 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:775 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:775 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:775 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:779 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:779 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:780 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:780 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:780 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:780 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:780 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:781 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:781 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:784 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:784 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:785 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:785 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:785 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:785 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:785 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:785 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:789 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:790 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:790 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:790 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:790 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:790 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:790 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:791 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:791 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:795 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:796 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:796 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:797 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:797 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:797 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:797 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:797 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:800 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:800 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:800 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:801 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:801 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:801 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:801 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:801 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:806 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:806 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:806 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:806 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:806 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:806 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:807 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:807 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:807 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:811 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:811 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:812 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:813 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:813 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:813 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:814 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:814 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:816 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:816 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:816 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:817 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:817 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:817 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:817 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:817 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:817 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:821 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:822 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:822 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:822 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:822 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:822 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:822 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:823 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:827 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:827 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:828 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:829 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:829 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:830 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:830 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:830 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:832 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:832 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:832 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:832 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:833 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:833 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:833 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:833 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:833 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:838 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:838 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:838 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:838 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:839 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:839 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:839 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:839 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:843 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:843 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:843 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:843 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:843 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:846 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:847 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:847 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:847 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:848 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:848 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:848 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:849 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:849 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:849 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:849 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:849 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:853 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:854 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:854 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:854 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:854 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:854 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:854 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:855 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:855 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:859 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:859 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:859 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:859 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:859 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:862 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:863 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:863 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:864 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:864 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:864 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:865 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:865 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:865 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:865 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:865 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:870 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:870 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:870 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:870 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:871 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:871 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:871 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:871 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:871 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:875 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:875 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:875 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:876 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:876 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:876 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:879 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:879 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:880 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:880 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:880 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:881 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:881 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:881 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:881 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:881 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:881 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:886 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:886 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:886 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:886 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:887 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:887 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:887 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:887 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:891 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:891 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:891 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:891 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:892 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:892 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:892 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:892 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:896 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:897 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:897 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:897 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:897 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:897 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:897 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:898 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:898 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:902 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:902 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:902 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:902 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:902 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:902 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:903 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:903 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:907 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:907 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:907 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:908 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:908 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:908 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:908 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:908 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:908 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:912 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:913 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:913 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:914 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:914 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:914 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:914 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:914 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:917 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:918 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:918 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:918 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:918 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:918 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:918 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:919 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:923 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:923 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:923 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:923 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:923 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:924 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:924 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:924 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:924 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:928 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:929 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:929 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:930 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:930 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:930 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:931 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:931 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:933 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:934 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:934 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:934 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:934 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:934 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:934 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:934 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:935 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:939 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:939 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:940 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:940 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:940 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:940 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:940 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:940 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:944 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:944 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:946 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:946 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:947 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:947 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:947 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:947 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:949 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:950 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:950 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:950 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:950 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:950 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:950 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:950 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:951 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:955 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:955 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:956 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:956 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:956 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:956 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:956 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:956 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:960 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:960 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:961 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:961 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:963 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:963 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:963 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:964 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:964 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:965 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:966 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:966 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:966 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:966 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:966 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:966 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:967 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:971 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:971 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:971 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:971 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:972 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:972 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:972 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:972 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:976 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:977 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:977 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:977 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:977 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:979 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:979 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:980 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:980 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:981 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:982 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:982 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:982 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:982 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:982 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:982 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:983 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:987 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:987 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:987 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:988 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:988 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:988 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:988 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:988 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:988 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:992 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:992 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:992 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:993 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:993 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:996 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:996 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:997 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:997 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:998 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:998 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:998 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:998 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:998 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:998 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:27:999 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:003 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:003 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:003 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:003 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:003 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:003 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:004 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:004 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:004 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:009 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:009 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:009 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:009 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:009 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:009 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:010 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:013 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:013 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:014 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:014 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:014 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:014 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:014 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:014 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:015 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:015 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:019 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:019 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:020 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:020 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:020 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:020 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:020 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:020 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:024 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:024 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:025 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:026 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:026 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/title/00010001/48415858/content/title.tmd): Result -106
+02:28:026 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/title/00010001/4a4f4449/content/title.tmd): Result -106
+02:28:026 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/title/00010001/af1bf516/content/title.tmd): Result -106
+02:28:026 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:026 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00010001/4c554c5a/content/title.tmd): Result 0
+02:28:026 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00010001/4c554c5a/content/title.tmd): Result 0
+02:28:026 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00010001/4c554c5a/content/title.tmd): Result 0
+02:28:026 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00010001/4c554c5a/content/title.tmd): Result 0
+02:28:026 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00010001/4c554c5a/content/title.tmd): Result 0
+02:28:026 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00010001/4c554c5a/content/title.tmd): Result 0
+02:28:026 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00010001/4c554c5a/content/title.tmd): Result 0
+02:28:026 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00010001/4c554c5a/content/title.tmd): Result 0
+02:28:026 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00010001/4c554c5a/content/title.tmd): Result 0
+02:28:027 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00010001/4f484243/content/title.tmd): Result 0
+02:28:027 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00010001/4f484243/content/title.tmd): Result 0
+02:28:027 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00010001/4f484243/content/title.tmd): Result 0
+02:28:027 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00010001/4f484243/content/title.tmd): Result 0
+02:28:027 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00010001/4f484243/content/title.tmd): Result 0
+02:28:027 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00010001/4f484243/content/title.tmd): Result 0
+02:28:027 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00010001/4f484243/content/title.tmd): Result 0
+02:28:027 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00010001/4f484243/content/title.tmd): Result 0
+02:28:027 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00010001/4f484243/content/title.tmd): Result 0
+02:28:028 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:028 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00010001/4f484243/content/title.tmd): Result 0
+02:28:028 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00010001/4f484243/content/title.tmd): Result 0
+02:28:028 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00010001/4f484243/content/title.tmd): Result 0
+02:28:028 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00010001/4f484243/content/00000000.app): Result 0
+02:28:028 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:031 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00010001/4f484243/content/00000000.app): Result 0
+02:28:031 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/kd/request (mode 0, fd 5)
+02:28:031 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/state.dat (mode 3, fd 5)
+02:28:031 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/state.dat): Result 0
+02:28:031 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/state.dat, 0x133dff60, 32): Result 0
+02:28:031 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 6)
+02:28:035 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Seek(/title/00000001/00000002/data/state.dat, 0x00000000, 0): Result 0
+02:28:035 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Write(/title/00000001/00000002/data/state.dat, 0x133dff60, 32): Result 0
+02:28:035 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/state.dat): Result 0
+02:28:035 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:096 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/NANDBOOTINFO (mode 3, fd 6)
+02:28:096 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/NANDBOOTINFO): Result 0
+02:28:096 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Write(/shared2/sys/NANDBOOTINFO, 0x0146d540, 4128): Result 0
+02:28:096 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:097 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/NANDBOOTINFO): Result 0
+02:28:158 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/SYSCONF (mode 2, fd 6)
+02:28:158 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/SYSCONF): Result 0
+02:28:158 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Write(/shared2/sys/SYSCONF, 0x01475780, 16384): Result 0
+02:28:159 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh0 (mode 0, fd 5)
+02:28:164 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/SYSCONF): Result 0

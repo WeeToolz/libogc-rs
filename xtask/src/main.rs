@@ -590,6 +590,19 @@ mod probe_artifact_tests {
     }
 
     #[test]
+    fn relaunch_probe_feature_is_enabled_only_when_selected() {
+        use super::ProbeBuildMode;
+        assert_eq!(
+            ProbeBuildMode::Dolphin.features_for(Some(&["ipc_relaunch_probe"])),
+            Some("ogc-system-probe/dolphin-automation,ogc-system-probe/ipc-relaunch-probe".to_string()),
+        );
+        assert_eq!(
+            ProbeBuildMode::Dolphin.features_for(None),
+            Some("ogc-system-probe/dolphin-automation".to_string()),
+        );
+    }
+
+    #[test]
     fn modes_preserve_the_dol_output_sets() {
         use super::ProbeBuildMode::*;
         for mode in [Plain, MountedLog, Dolphin, AgentReport] {
@@ -1361,6 +1374,12 @@ impl ProbeBuildMode {
 
     fn features_for(self, selected: Option<&[&str]>) -> Option<String> {
         let mut features = self.features().unwrap_or_default().to_string();
+        if selected.is_some_and(|names| names.contains(&"ipc_relaunch_probe")) {
+            if !features.is_empty() {
+                features.push(',');
+            }
+            features.push_str("ogc-system-probe/ipc-relaunch-probe");
+        }
         if selected.is_some_and(|names| names.contains(&"stm_api_probe")) {
             if !features.is_empty() {
                 features.push(',');
@@ -1457,6 +1476,9 @@ fn build_probe_selection(
     let mut binaries = mode.binaries();
     if let Some(names) = selected {
         binaries.retain(|name| names.contains(name));
+        if names.contains(&"ipc_relaunch_probe") {
+            binaries.push("ipc_relaunch_probe");
+        }
     }
     let rustflags = encoded_powerpc_wii_rustflags(&root);
 
