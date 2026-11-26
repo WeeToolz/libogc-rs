@@ -93,6 +93,7 @@ pub fn run(logger: &mut ProbeLogger) {
     );
 
     probe_active_search(logger);
+    #[cfg(feature = "dolphin-automation")]
     probe_event_buffer_queue(logger);
 
     STATUS_CALLBACK_CHANNELS.store(0, Ordering::Release);
