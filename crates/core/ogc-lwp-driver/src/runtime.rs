@@ -4328,3 +4328,22 @@ mod reent_tests {
         );
     }
 }
+
+/// Replaces the workspace callbacks and returns the previous pair.
+///
+/// # Safety
+/// Each live allocation must be freed by the allocator that created it.
+#[cfg(feature = "workspace-probe-hooks")]
+pub unsafe fn swap_workspace_allocator_for_probe(
+    alloc: WorkspaceAlloc,
+    free: WorkspaceFree,
+) -> (WorkspaceAlloc, WorkspaceFree) {
+    let irq = arch::disable_interrupts();
+    let previous = unsafe { (WORKSPACE_ALLOC, WORKSPACE_FREE) };
+    unsafe {
+        WORKSPACE_ALLOC = alloc;
+        WORKSPACE_FREE = free;
+    }
+    arch::restore_interrupts(irq);
+    previous
+}

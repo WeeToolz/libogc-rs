@@ -972,6 +972,7 @@ ogc-lwp,src/lib.rs,wait,280,compatibility-forwarder,hardware-probe,probes/lwp-pr
 ogc-lwp-driver,src/runtime.rs,cond_signal,3058,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,sync_worker
 ogc-lwp-driver,src/runtime.rs,cond_wait,3013,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,run_synchronization
 ogc-lwp-driver,src/runtime.rs,create_thread,1814,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,create_with_stack
+ogc-lwp-driver,src/runtime.rs,swap_workspace_allocator_for_probe,4337,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_workspace_thread_lifecycle,driver::swap_workspace_allocator_for_probe
 ogc-lwp-driver,src/runtime.rs,debug_counters,3944,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,run_switch_and_join
 ogc-lwp-driver,src/runtime.rs,debug_drain,3950,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,dump_debug
 ogc-lwp-driver,src/runtime.rs,join_thread,2591,scheduler,hardware-probe,probes/lwp-probe/src/futex_probe.rs,join

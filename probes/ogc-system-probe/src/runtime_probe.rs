@@ -468,6 +468,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_lwp_suspend_resume(logger);
     probe_lwp_driver_suspend(logger);
     probe_lwp_driver_thread_metadata(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_lwp_workspace_thread_lifecycle(logger);
     probe_lwp_queue_wake(logger);
     probe_lwp_driver_queue_wake(logger);
     probe_lwp_sys_queue_wake(logger);
@@ -5356,6 +5358,155 @@ fn probe_lwp_abi_queue_wake(logger: &mut ProbeLogger) {
         logger.record("LWP ABI queue signal wakes one waiter", false);
         logger.record("LWP ABI queue broadcast wakes remaining waiter", false);
     }
+}
+
+#[cfg(feature = "dolphin-automation")]
+static LWP_PROBE_ALLOC: core::sync::atomic::AtomicUsize = core::sync::atomic::AtomicUsize::new(0);
+#[cfg(feature = "dolphin-automation")]
+static LWP_PROBE_FREE: core::sync::atomic::AtomicUsize = core::sync::atomic::AtomicUsize::new(0);
+#[cfg(feature = "dolphin-automation")]
+static LWP_PROBE_POINTER: core::sync::atomic::AtomicUsize = core::sync::atomic::AtomicUsize::new(0);
+#[cfg(feature = "dolphin-automation")]
+static LWP_PROBE_FREED: core::sync::atomic::AtomicUsize = core::sync::atomic::AtomicUsize::new(0);
+#[cfg(feature = "dolphin-automation")]
+static LWP_PROBE_FAILURE: AtomicBool = AtomicBool::new(false);
+#[cfg(feature = "dolphin-automation")]
+static LWP_PROBE_ALLOC_CALLS: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+#[cfg(feature = "dolphin-automation")]
+static LWP_PROBE_FREE_CALLS: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+
+#[cfg(feature = "dolphin-automation")]
+unsafe fn probe_lwp_workspace_alloc(size: usize) -> *mut u8 {
+    LWP_PROBE_ALLOC_CALLS.fetch_add(1, Ordering::Relaxed);
+    if LWP_PROBE_FAILURE.load(Ordering::Acquire) {
+        return core::ptr::null_mut();
+    }
+    let address = LWP_PROBE_ALLOC.load(Ordering::Acquire);
+    // SAFETY: The address was saved from the registered workspace allocator.
+    let alloc: unsafe fn(usize) -> *mut u8 = unsafe { core::mem::transmute(address) };
+    let pointer = unsafe { alloc(size) };
+    LWP_PROBE_POINTER.store(pointer as usize, Ordering::Release);
+    pointer
+}
+
+#[cfg(feature = "dolphin-automation")]
+unsafe fn probe_lwp_workspace_free(pointer: *mut u8, size: usize) {
+    LWP_PROBE_FREE_CALLS.fetch_add(1, Ordering::Relaxed);
+    LWP_PROBE_FREED.store(pointer as usize, Ordering::Release);
+    let address = LWP_PROBE_FREE.load(Ordering::Acquire);
+    // SAFETY: The address was saved from the registered workspace allocator.
+    let free: unsafe fn(*mut u8, usize) = unsafe { core::mem::transmute(address) };
+    unsafe { free(pointer, size) };
+}
+
+#[cfg(feature = "dolphin-automation")]
+unsafe extern "C" fn probe_lwp_workspace_worker(
+    arg: *mut core::ffi::c_void,
+) -> *mut core::ffi::c_void {
+    arg
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn probe_lwp_workspace_thread_lifecycle(logger: &mut ProbeLogger) {
+    use ogc_lwp_driver as driver;
+
+    let irq = ogc_irq::irq_disable();
+    // SAFETY: Interrupts are disabled while the previous callbacks are saved.
+    let previous = unsafe { driver::swap_workspace_allocator_for_probe(None, None) };
+    let (Some(alloc), Some(free)) = previous else {
+        unsafe { driver::swap_workspace_allocator_for_probe(previous.0, previous.1) };
+        ogc_irq::irq_restore(irq);
+        logger.record("LWP tracked workspace allocator is available", false);
+        return;
+    };
+    LWP_PROBE_ALLOC.store(alloc as usize, Ordering::Release);
+    LWP_PROBE_FREE.store(free as usize, Ordering::Release);
+    LWP_PROBE_POINTER.store(0, Ordering::Release);
+    LWP_PROBE_FREED.store(0, Ordering::Release);
+    LWP_PROBE_FAILURE.store(false, Ordering::Release);
+    LWP_PROBE_ALLOC_CALLS.store(0, Ordering::Release);
+    LWP_PROBE_FREE_CALLS.store(0, Ordering::Release);
+    // SAFETY: The wrapper delegates all live allocations to the original pair.
+    unsafe {
+        driver::swap_workspace_allocator_for_probe(
+            Some(probe_lwp_workspace_alloc),
+            Some(probe_lwp_workspace_free),
+        )
+    };
+    ogc_irq::irq_restore(irq);
+
+    let mut thread = driver::LWP_THREAD_NULL;
+    let marker = 0x5231usize as *mut core::ffi::c_void;
+    // SAFETY: The entry returns its opaque argument and owns a workspace stack.
+    let created = unsafe {
+        driver::create_thread(
+            &mut thread,
+            Some(probe_lwp_workspace_worker),
+            marker,
+            core::ptr::null_mut(),
+            40 * 1024,
+            64,
+        )
+    };
+    let allocated = LWP_PROBE_POINTER.load(Ordering::Acquire);
+    let mut result = core::ptr::null_mut();
+    let joined = created == driver::LWP_SUCCESSFUL
+        && unsafe { driver::join_thread(thread, &mut result) } == driver::LWP_SUCCESSFUL;
+    let freed = LWP_PROBE_FREED.load(Ordering::Acquire);
+    LWP_PROBE_FAILURE.store(true, Ordering::Release);
+    let mut rejected_thread = 0;
+    // SAFETY: Allocation failure is injected before any stack is published.
+    let rejected = unsafe {
+        driver::create_thread(
+            &mut rejected_thread,
+            Some(probe_lwp_workspace_worker),
+            marker,
+            core::ptr::null_mut(),
+            40 * 1024,
+            64,
+        )
+    };
+    LWP_PROBE_FAILURE.store(false, Ordering::Release);
+    if rejected == driver::LWP_SUCCESSFUL {
+        // SAFETY: Join any thread that was unexpectedly accepted.
+        let cleanup = unsafe { driver::join_thread(rejected_thread, core::ptr::null_mut()) };
+        logger.record(
+            "LWP unexpected thread cleanup completes",
+            cleanup == driver::LWP_SUCCESSFUL,
+        );
+    }
+    let mut recovered_thread = driver::LWP_THREAD_NULL;
+    let recovered = unsafe {
+        driver::create_thread(
+            &mut recovered_thread,
+            Some(probe_lwp_workspace_worker),
+            marker,
+            core::ptr::null_mut(),
+            40 * 1024,
+            64,
+        )
+    };
+    let recovered_joined = recovered == driver::LWP_SUCCESSFUL
+        && unsafe { driver::join_thread(recovered_thread, core::ptr::null_mut()) }
+            == driver::LWP_SUCCESSFUL;
+    let recovered_pointer = LWP_PROBE_POINTER.load(Ordering::Acquire);
+    let recovered_freed = LWP_PROBE_FREED.load(Ordering::Acquire);
+    // SAFETY: Both successfully created threads have been joined before restore.
+    unsafe { driver::swap_workspace_allocator_for_probe(previous.0, previous.1) };
+    logger.record(
+        "LWP tracked workspace frees the joined thread stack",
+        allocated != 0 && joined && result == marker && freed == allocated,
+    );
+    logger.record(
+        "LWP failed stack allocation releases its slot and recovers",
+        rejected == driver::LWP_CLOSED
+            && rejected_thread == driver::LWP_THREAD_NULL
+            && recovered_joined
+            && recovered_pointer != 0
+            && recovered_freed == recovered_pointer
+            && LWP_PROBE_ALLOC_CALLS.load(Ordering::Acquire) == 3
+            && LWP_PROBE_FREE_CALLS.load(Ordering::Acquire) == 2,
+    );
 }
 
 static LWP_WORKER_READY: AtomicBool = AtomicBool::new(false);

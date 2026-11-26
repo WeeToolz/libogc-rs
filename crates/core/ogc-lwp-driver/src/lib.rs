@@ -40,6 +40,9 @@ pub use workspace_probe::{
     WORKSPACE_PROBE_EVENT_COUNT, WORKSPACE_PROBE_EVENTS, WORKSPACE_PROBE_FREE, WorkspaceProbeEvent,
 };
 
+#[cfg(feature = "workspace-probe-hooks")]
+pub use runtime::swap_workspace_allocator_for_probe;
+
 pub use arch::LwpContext;
 pub use contracts::{LwpClock, LwpDeferredExecutor, LwpInterruptWake, LwpTimerService};
 pub use runtime::{
