@@ -211,7 +211,7 @@ impl HeapId {
     }
 
     pub fn create(size: i32) -> Result<Self, i32> {
-        if size <= 0 {
+        if size < 0 {
             return Err(IPC_EINVAL);
         }
         let _guard = HEAP_LOCK.lock_irq();
@@ -1803,9 +1803,6 @@ pub unsafe extern "C" fn IPC_SetBufferHi(bufferhi: *mut c_void) {
 
 fn create_heap_locked(size: usize) -> Result<i32, i32> {
     initialize_ipc_buffer_locked();
-    if size < IPC_HEAP_HEADER + IPC_HEAP_ALIGN {
-        return Err(IPC_ENOMEM);
-    }
 
     let mut heap_index = None;
     // Heap creation runs with IPC serialized. Read through a slice built from
@@ -1823,6 +1820,13 @@ fn create_heap_locked(size: usize) -> Result<i32, i32> {
             break;
         }
     }
+    raw_contract::heap_create_preflight(
+        size,
+        heap_index.is_some(),
+        IPC_HEAP_HEADER + IPC_HEAP_ALIGN,
+        IPC_ENOHEAP,
+        IPC_ENOMEM,
+    )?;
     let index = heap_index.ok_or(IPC_ENOHEAP)?;
 
     let lo = IPC_BUFFER_CURRENT_LO
@@ -3098,7 +3102,7 @@ mod tests {
 
     #[test]
     fn heap_create_rejects_invalid_sizes() {
-        assert_eq!(HeapId::create(0), Err(IPC_EINVAL));
+        assert_eq!(HeapId::create(-1), Err(IPC_EINVAL));
     }
 
     #[test]

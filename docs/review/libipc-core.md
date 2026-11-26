@@ -12,11 +12,16 @@ Reviewed all Rust production source files in `ogc-ipc`, `ogc-sys`, and `ogc-sysb
 
 The direct IPC C interface is `../../C-sources/libogc/gc/ogc/ipc.h` (lines 36–104) and its implementation is `../../C-sources/libogc/libogc/ipc.c` (lines 55–1327). The IOS version/reload interface is `../../C-sources/libogc/gc/ogc/ios.h` (lines 39–57), implemented by `../../C-sources/libogc/libogc/ios.c` (lines 44–406). For interrupt and startup primitives in `ogc-sys`, relevant public C declarations include `gc/ogc/irq.h` (lines 57–112); exception and runtime call sites are in `libogc/system.c` and the C startup sources. `ogc-sysbase` models newlib `_reent` and `devoptab_t` APIs, but the matching newlib implementation/header is not present in the supplied `C-sources/libogc` tree. The only in-tree evidence found for this interface is its use in `libogc/sys_report.c` (lines 61–112), `console.c` (lines 20, 485–486), and `ogc_sockets/soc_init.c` (lines 65–104).
 
-## Confirmed mismatch
+## Historical mismatch — heap model and capacity
 
-### IPC heap model and capacity differ
-
-`ipc.c` defines a 4096-byte default IPC heap and 16 heap slots (`../../C-sources/libogc/libogc/ipc.c:55–57, 168–171`). `iosCreateHeap` allocates from the current IPC buffer, finds the next free heap slot, and returns `IPC_ENOHEAP` when all slots are used (`ipc.c:721–755`). `iosAlloc` and `iosFree` accept any valid heap id (`ipc.c:758–774`). Rust instead provides one statically reserved 8192-byte heap, accepts only heap id zero for allocation/free, and treats repeated `HeapId::create` calls as the same heap (`crates/core/ogc-ipc/src/lib.rs:56–59, 164–225, 1513–1542`). Therefore Rust does not preserve the C heap creation, allocation capacity, or multiple-heap behavior. Programs that use a second heap, expect `IPC_ENOHEAP` after slot exhaustion, or depend on C's default heap size will observe different behavior. The Rust heap code also ignores the requested size when it initializes the allocator (`lib.rs:199–202, 1531–1538`).
+An earlier Rust version used one fixed heap and did not preserve C's 16 heap
+slots or requested sizes. The current implementation tracks 16 heaps, allocates
+each from the IPC buffer using its requested size, and advances the current
+buffer low bound (`../../C-sources/libogc/libogc/ipc.c:721–774`,
+`crates/core/ogc-ipc/src/lib.rs:1804–1855`). The original model/capacity
+finding is superseded by the 2026-10-02 implementation note below. A custom
+allocator remains an implementation difference; the current note does not
+claim identical fragmentation behavior.
 
 ### Historical blocker: IPC buffer bounds were not available
 
@@ -327,3 +332,24 @@ audit-stubs` passed; its final completeness gate reports 148 unverified API
 entries across the workspace. The loader-bound mismatch is fixed in source.
 Direct verification with nonzero override values on Wii, full IPC parity, and
 physical Wii validation remain open.
+
+## 2026-11-26 fix — zero-sized heap error result
+
+C `iosCreateHeap` checks for a free heap slot first. For a zero-sized heap with
+a free slot, `__lwp_heap_init` returns zero because the requested size is below
+`HEAP_MIN_SIZE`, and `iosCreateHeap` returns `IPC_ENOMEM`
+(`../../C-sources/libogc/libogc/ipc.c:721-755`,
+`../../C-sources/libogc/libogc/lwp_heap.c:9-14`). When all slots are occupied,
+C returns `IPC_ENOHEAP` before it checks the size. Rust previously returned
+`IPC_EINVAL` for zero before checking either condition. `HeapId::create(0)` now
+uses the heap creation path, which returns the C result in the same order.
+Negative sizes still return `IPC_EINVAL` as a safety check because C's signed
+to unsigned size conversion can reach invalid memory bounds.
+
+The production-shared preflight regression checks zero size with an available
+slot, zero size with no free slot, and a size at the minimum. Dolphin 2609a's
+`ipc_async_probe` calls the public API and checks `IPC_ENOMEM` for zero and
+`IPC_EINVAL` for a negative size. It passed 13 checks, 0 failed; DOL SHA-256
+`b5d3d2b31381853f4df77fb6aed5baf3f1f258daec96253febd8ac60209e2c95`.
+PowerPC test code compiled with `cargo check -p ogc-ipc --tests --target
+powerpc-unknown-linux-gnu`. Physical Wii heap error behavior remains pending.

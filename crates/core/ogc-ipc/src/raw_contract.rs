@@ -9,6 +9,22 @@ pub(crate) fn default_buffer_bounds(
     )
 }
 
+pub(crate) fn heap_create_preflight(
+    size: usize,
+    slot_available: bool,
+    minimum_size: usize,
+    no_heap_error: i32,
+    no_memory_error: i32,
+) -> Result<(), i32> {
+    if !slot_available {
+        Err(no_heap_error)
+    } else if size < minimum_size {
+        Err(no_memory_error)
+    } else {
+        Ok(())
+    }
+}
+
 pub(crate) fn vector_layout(
     input: usize,
     output: usize,
@@ -54,6 +70,13 @@ pub(crate) fn request_address(pointer: usize, length: usize) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn zero_sized_heap_error_matches_c_slot_and_memory_order() {
+        assert_eq!(heap_create_preflight(0, true, 40, -5, -22), Err(-22));
+        assert_eq!(heap_create_preflight(0, false, 40, -5, -22), Err(-5));
+        assert_eq!(heap_create_preflight(40, true, 40, -5, -22), Ok(()));
+    }
 
     #[test]
     fn ipc_bounds_use_each_nonzero_loader_override() {

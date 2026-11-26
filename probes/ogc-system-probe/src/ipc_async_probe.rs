@@ -5,7 +5,10 @@ use core::fmt::Write;
 use core::sync::atomic::{AtomicI32, AtomicU32, Ordering};
 
 #[cfg(target_arch = "powerpc")]
-use ogc_ipc::{IPC_OPEN_NONE, open_file_async, poll as ipc_poll, set_debug_hook};
+use ogc_ipc::{
+    HeapId, IPC_EINVAL, IPC_ENOMEM, IPC_OPEN_NONE, open_file_async, poll as ipc_poll,
+    set_debug_hook,
+};
 #[cfg(target_arch = "powerpc")]
 use ogc_system as system;
 use ogc_video as video;
@@ -47,6 +50,14 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
         state.start_ticks = system::time();
         reset_probe();
         set_debug_hook(Some(ipc_debug_hook));
+        logger.record(
+            "zero-sized IPC heap returns no-memory",
+            HeapId::create(0) == Err(IPC_ENOMEM),
+        );
+        logger.record(
+            "negative IPC heap size is rejected",
+            HeapId::create(-1) == Err(IPC_EINVAL),
+        );
     }
 
     submit_fs_open(&mut state);
