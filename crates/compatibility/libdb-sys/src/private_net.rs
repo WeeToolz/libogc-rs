@@ -13,6 +13,7 @@ use core::cmp;
 use ogc_lwp_driver::{TICKS_PER_SECOND, now_ticks};
 
 use crate::bba::{BBA_RX_MAX_PACKET_SIZE, BBA_TX_MAX_PACKET_SIZE, BbaDevice, BbaError};
+use crate::tcp_clock::TcpClock;
 
 const ETH_HEADER_LEN: usize = 14;
 const ETH_TYPE_IPV4: u16 = 0x0800;
@@ -200,6 +201,7 @@ struct TcpSegment<'a> {
 
 pub(crate) struct PrivateNet {
     device: BbaDevice,
+    tcp_clock: TcpClock,
     config: Ipv4Config,
     arp: [ArpEntry; ARP_TABLE_SIZE],
     arp_timer_at: u64,
@@ -214,6 +216,7 @@ impl PrivateNet {
     pub(crate) fn initialize(config: Ipv4Config) -> Result<Self, NetError> {
         Ok(Self {
             device: BbaDevice::initialize()?,
+            tcp_clock: TcpClock::default(),
             config,
             arp: [ArpEntry::EMPTY; ARP_TABLE_SIZE],
             arp_timer_at: now_ticks(),
@@ -243,9 +246,21 @@ impl PrivateNet {
             .is_some_and(|connection| !connection.receive.is_empty())
     }
 
+    pub(crate) fn start_timer(&mut self) {
+        if self.connection.is_some() {
+            self.tcp_clock.start(now_ticks());
+        }
+    }
+
+    pub(crate) fn stop_timer(&mut self) {
+        self.tcp_clock.stop(now_ticks());
+    }
+
     pub(crate) fn poll(&mut self) -> Result<(), NetError> {
         self.age_arp_table();
-        self.retransmit_if_needed()?;
+        if self.tcp_clock.is_running() {
+            self.retransmit_if_needed()?;
+        }
         if let Some(len) = self.device.poll_frame(&mut self.frame)? {
             self.process_ethernet(len)?;
         }
@@ -304,7 +319,7 @@ impl PrivateNet {
             seq,
             flags,
             payload,
-            sent_at: now_ticks(),
+            sent_at: self.tcp_clock.elapsed(now_ticks()),
             retries: 0,
         });
         Ok(count)
@@ -347,7 +362,7 @@ impl PrivateNet {
             seq,
             flags: TCP_FLAG_FIN | TCP_FLAG_ACK,
             payload: Vec::new(),
-            sent_at: now_ticks(),
+            sent_at: self.tcp_clock.elapsed(now_ticks()),
             retries: 0,
         });
         self.accepted = false;
@@ -494,6 +509,11 @@ impl PrivateNet {
             packet.window,
             packet.peer_mss,
         );
+        self.tcp_clock.start(now_ticks());
+        let mut connection = connection;
+        if let Some(pending) = connection.pending.as_mut() {
+            pending.sent_at = self.tcp_clock.elapsed(now_ticks());
+        }
         self.connection = Some(connection);
         self.accepted = false;
         self.send_connection_segment(
@@ -712,7 +732,7 @@ impl PrivateNet {
         let Some(pending) = connection.pending.as_ref() else {
             return Ok(());
         };
-        let now = now_ticks();
+        let now = self.tcp_clock.elapsed(now_ticks());
         if now.wrapping_sub(pending.sent_at) < TCP_RTO_TICKS {
             return Ok(());
         }

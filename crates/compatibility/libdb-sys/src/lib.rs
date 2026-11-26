@@ -20,6 +20,7 @@ use tuxedo_sys as tuxedo;
 
 mod bba;
 mod private_net;
+mod tcp_clock;
 #[cfg(feature = "wii-network")]
 pub mod wii_network;
 
@@ -161,13 +162,11 @@ static DEBUG_ACTIVE: AtomicBool = AtomicBool::new(false);
 static DEBUG_INSTEP: AtomicBool = AtomicBool::new(false);
 static DEBUG_INITIALIZED: AtomicBool = AtomicBool::new(false);
 static TCP_OPEN: AtomicBool = AtomicBool::new(false);
-static TCP_TIMER: AtomicBool = AtomicBool::new(false);
 static TCP_BOUND: AtomicBool = AtomicBool::new(false);
 static TCP_LISTENING: AtomicBool = AtomicBool::new(false);
 static TCP_PORT: AtomicU16 = AtomicU16::new(GDBSTUB_DEF_TCPPORT as u16);
 static TCP_LISTEN_SOCKET: AtomicI32 = AtomicI32::new(-1);
 static TCP_ACTIVE_SOCKET: AtomicI32 = AtomicI32::new(-1);
-static TCP_TIMER_SOCKET: AtomicI32 = AtomicI32::new(-1);
 static CURRENT_DEVICE: AtomicPtr<DbgInterface> = AtomicPtr::new(ptr::null_mut());
 static USB_FLUSH_COUNT: AtomicI32 = AtomicI32::new(0);
 
@@ -1113,10 +1112,8 @@ fn reset_tcp_state() {
     TCP_LISTEN_SOCKET.store(-1, Ordering::Release);
     TCP_BOUND_SOCKET.store(-1, Ordering::Release);
     TCP_OPEN.store(false, Ordering::Release);
-    TCP_TIMER.store(false, Ordering::Release);
     TCP_BOUND.store(false, Ordering::Release);
     TCP_LISTENING.store(false, Ordering::Release);
-    TCP_TIMER_SOCKET.store(-1, Ordering::Release);
 
     unsafe {
         if current_device_is(core::ptr::addr_of_mut!(TCP_IFACE)) {
@@ -1469,8 +1466,6 @@ pub extern "C" fn tcpip_close(s: i32) {
         let _ = with_private_net(|stack| stack.close());
         TCP_ACTIVE_SOCKET.store(-1, Ordering::Release);
         TCP_OPEN.store(false, Ordering::Release);
-        TCP_TIMER.store(false, Ordering::Release);
-        TCP_TIMER_SOCKET.store(-1, Ordering::Release);
         unsafe {
             if TCP_IFACE.fhndl == s {
                 TCP_IFACE.fhndl = -1;
@@ -1493,8 +1488,7 @@ pub extern "C" fn tcpip_starttimer(s: i32) {
     if !socket_is_allocated(s) || TCP_ACTIVE_SOCKET.load(Ordering::Acquire) != s {
         return;
     }
-    TCP_TIMER.store(true, Ordering::Release);
-    TCP_TIMER_SOCKET.store(s, Ordering::Release);
+    let _ = with_private_net(|stack| stack.start_timer());
 }
 
 #[unsafe(no_mangle)]
@@ -1502,9 +1496,8 @@ pub extern "C" fn tcpip_stoptimer(s: i32) {
     if !socket_is_allocated(s) {
         return;
     }
-    if TCP_TIMER_SOCKET.load(Ordering::Acquire) == s {
-        TCP_TIMER.store(false, Ordering::Release);
-        TCP_TIMER_SOCKET.store(-1, Ordering::Release);
+    if TCP_ACTIVE_SOCKET.load(Ordering::Acquire) == s {
+        let _ = with_private_net(|stack| stack.stop_timer());
     }
 }
 

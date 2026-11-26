@@ -5,6 +5,10 @@ use crate::workspace;
 
 const EXTRA_HOST_TEST_PACKAGES: &[(&str, &str)] = &[
     ("libmad-rs", "vendor/libmad-rs/Cargo.toml"),
+    (
+        "libdb-clock-host-tests",
+        "tests/libdb-clock-host-tests/Cargo.toml",
+    ),
     ("mad-sys-host-tests", "tests/mad-sys-host-tests/Cargo.toml"),
     ("ogc-di-host-tests", "tests/ogc-di-host-tests/Cargo.toml"),
     ("ogc-gu-host-tests", "tests/ogc-gu-host-tests/Cargo.toml"),
