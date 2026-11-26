@@ -127,6 +127,12 @@ The current Rust module implements its own mounted FAT volume (`crates/services/
 
 Validation: `cargo check -p ogc-fat --target powerpc-unknown-linux-gnu --tests` passed, which compiled the target crate in test mode. The Rust source contains no `#[test]` functions, so no `ogc-fat` regression tests were present or executed. This compile does not establish filesystem correctness or C parity. No hardware/media verification was performed. The existing source-availability result and open state are preserved; no ledger or implementation changes were made.
 
+### `volume_statistics` Dolphin probe (2026-11-26)
+
+The public `volume_statistics` path was exercised on the runner's writable virtual Wii SD volume. The first run failed because the probe passed the mount key `sd` instead of a filesystem path. The API documents a mounted path such as `sd:/`; the probe now passes `sd:/`. The rerun on Dolphin 2609a passed all 49 checks, including nonzero total bytes and available bytes no greater than total bytes. DOL SHA-256: `9067126a5ccc12a9b51baa32b5af6cfb787613929b1746c0be2d4b9a090476b7`. Evidence: `docs/dolphin-runs/2026-11-26-fat-volume-statistics-rerun/suite.json` and `fat_sd_probe/probe.log`.
+
+`cargo check -p ogc-fat --tests --target powerpc-unknown-linux-gnu` passed. A host `cargo test -p ogc-fat volume_statistics` attempt was rejected by the crate's PowerPC-only transitive dependencies, so host execution is unavailable. This probe verifies runtime behavior on Dolphin's virtual SD. It does not establish direct libfat source parity because the matching C filesystem source is absent. Physical Wii media evidence remains pending.
+
 ## Independent `ogc-fat` and `DiscInterface` audit (2026-10-03)
 
 **Result: UNVERIFIED; `ogc-fat` remains open.** Reviewer: `/root/reviewer_d`. This independently confirms the source-availability boundary; no implementer or parity fix applies to this bounded audit. I did not treat another FAT implementation or a binary archive as the C reference.

@@ -1346,6 +1346,7 @@ ogc-std-runtime,src/fs_abi.rs,seek_position,169,pure,host-test,crates/services/o
 ogc-std-runtime,src/fs_abi.rs,new,200,pure,hardware-probe,probes/lwp-probe/src/std_fs_probe.rs,raw_provider
 ogc-fat,src/file_transfer.rs,allocation,58,pure,host-test,crates/services/ogc-fat/src/file_transfer.rs,new_allocation_is_not_lost_after_a_later_failure,allocation
 ogc-fat,src/lib.rs,stat,1194,protocol,hardware-probe,probes/lwp-probe/src/std_fs_probe.rs,file_checks,ogc_fat::stat
+ogc-fat,src/lib.rs,volume_statistics,1171,protocol,hardware-probe,probes/ogc-system-probe/src/fat_sd_probe.rs,run,fat::volume_statistics
 ogc-fat,src/file_transfer.rs,close,47,pure,host-test,crates/services/ogc-fat/src/file_transfer.rs,close_releases_ownership_after_success_and_flush_failures,close
 ogc-std-runtime,src/fs_abi.rs,directory_name_visible,41,pure,host-test,crates/services/ogc-std-runtime/src/fs_abi.rs,directory_names_preserve_bytes_and_reject_invalid_entries
 ogc-std-runtime,src/fs_abi.rs,next_directory_entry,52,pure,host-test,crates/services/ogc-std-runtime/src/fs_abi.rs,directory_reads_skip_dots_and_preserve_end_and_failures

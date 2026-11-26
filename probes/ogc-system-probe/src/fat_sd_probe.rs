@@ -290,6 +290,17 @@ pub fn run(logger: &mut ProbeLogger) {
     let inserted = fat::device_is_inserted(fat::MountSource::Sd);
     logger.record("FAT SD insertion query", inserted == Ok(true));
 
+    let volume_statistics = fat::volume_statistics(c"sd:/");
+    let volume_statistics_valid = volume_statistics.as_ref().is_ok_and(|statistics| {
+        statistics.is_some_and(|statistics| {
+            statistics.total_bytes > 0 && statistics.available_bytes <= statistics.total_bytes
+        })
+    });
+    logger.record(
+        "FAT volume statistics report valid total and available bytes",
+        volume_statistics_valid,
+    );
+
     let generation = fat::media_generation(MOUNT);
     logger.record(
         "FAT mounted media generation is available",
