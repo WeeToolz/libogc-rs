@@ -550,3 +550,9 @@ twice, once at boot and again during the probe. The result and log are in
 `../dolphin-runs/2026-11-26-ios-reload-run/`. This covers one IOS version and
 does not exercise pending IPC replies or the menu relaunch abort. Physical Wii
 verification remains pending.
+
+An instrumented repeat in `../dolphin-runs/2026-11-26-ios-reload-masked/`
+observed IPC reinitialization during the IOS 58 reload. Its saved MSR was 50,
+with external interrupts disabled, and all 12 probe checks passed. The probe
+build enabled the `format-probe-hooks` feature. This run still
+does not cover pending IPC requests during reload.

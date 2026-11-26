@@ -1130,6 +1130,20 @@ pub fn run_ipc_relaunch_probe_bin() -> i32 {
 }
 
 #[cfg(all(target_arch = "powerpc", feature = "ios-reload-probe"))]
+static IOS_RELOAD_RESET_MSR: core::sync::atomic::AtomicU32 =
+    core::sync::atomic::AtomicU32::new(u32::MAX);
+
+#[cfg(all(target_arch = "powerpc", feature = "ios-reload-probe"))]
+unsafe fn ios_reload_ipc_debug_hook(stage: u32, _: u32, _: u32, _: u32) {
+    if stage == 70 {
+        let msr: u32;
+        // SAFETY: Reading MSR does not change processor state.
+        unsafe { core::arch::asm!("mfmsr {value}", value = out(reg) msr, options(nomem, nostack)) };
+        IOS_RELOAD_RESET_MSR.store(msr, core::sync::atomic::Ordering::Release);
+    }
+}
+
+#[cfg(all(target_arch = "powerpc", feature = "ios-reload-probe"))]
 /// Reloads the current IOS and checks IPC after it returns.
 pub fn run_ios_reload_probe_bin() -> i32 {
     configure_probe_app_dir("ios-reload-probe");
@@ -1142,10 +1156,16 @@ pub fn run_ios_reload_probe_bin() -> i32 {
         return finish_probe();
     }
     logger.record("current IOS version is valid", true);
+    IOS_RELOAD_RESET_MSR.store(u32::MAX, core::sync::atomic::Ordering::Release);
+    ogc_ipc::set_debug_hook(Some(ios_reload_ipc_debug_hook));
     logger.note("IOS reload begins");
     let result = ogc_ios::reload_ios(version);
+    ogc_ipc::set_debug_hook(None);
     logger.note_i32("IOS reload result", result);
     logger.record("IOS reload succeeds", result == 0);
+    let reset_msr = IOS_RELOAD_RESET_MSR.load(core::sync::atomic::Ordering::Acquire);
+    logger.note_u32("IOS reload IPC reset MSR", reset_msr);
+    logger.record("IOS reload masks interrupts during IPC reset", reset_msr & 0x8000 == 0);
     logger.record("IOS version is preserved", ogc_ios::get_version() == version);
     let ipc_ok = match ogc_ipc::open_file(c"/dev/fs", ogc_ipc::IPC_OPEN_NONE) {
         Ok(fd) => fd.close().is_ok(),
