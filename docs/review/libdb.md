@@ -23,3 +23,7 @@ cargo xtask dolphin-validate --probe debugger_probe
 ## GDB hexadecimal field parsing
 
 C `vhstr2int` accepts one to eight hexadecimal digits and rejects a ninth digit (`../../C-sources/libogc/libdb/debug_supp.c:46-72`). Rust's GDB packet parser previously accepted longer fields and could wrap their values. The shared parser now rejects a ninth digit. Host tests cover the eight-digit maximum, oversized fields, and empty or invalid input. The debugger probe calls the production parser helper for the maximum and over-limit cases. Dolphin passes 24 checks with no BBA; this verifies field parsing but not a live GDB exchange. Evidence: `docs/dolphin-runs/2026-11-26-libdb-gdb-hex-boundary/suite.json`.
+
+## GDB exception signal mapping
+
+C maps PowerPC external interrupt (exception 5) to `SIGINT` (2) and decrementer (exception 9) to `SIGALRM` (14); the Rust signal mapper previously returned the default `SIGHUP` for both (`../../C-sources/libogc/libdb/debug.c:52-68`). Rust now matches the C hard-trap table. A host test covers every listed exception and the default, and the Dolphin probe checks both corrected values. Dolphin passes 26 checks with no BBA. This verifies the mapper, not delivery of those exception vectors to an active GDB session. Evidence: `docs/dolphin-runs/2026-11-26-libdb-signal-map/suite.json`.

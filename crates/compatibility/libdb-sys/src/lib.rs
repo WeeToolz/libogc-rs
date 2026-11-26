@@ -28,7 +28,7 @@ mod tcp_state;
 #[cfg(feature = "wii-network")]
 pub mod wii_network;
 
-use gdb_packet::{hex_nibble, parse_hex_u32};
+use gdb_packet::{hex_nibble, parse_hex_u32, signal_for_exception};
 use private_net::{Ipv4Config, NetError, PrivateNet};
 
 const ERRNO_EADDRINUSE: i32 = -98;
@@ -170,6 +170,12 @@ pub fn validate_gdb_hex_field(bytes: &[u8]) -> Option<(u32, usize)> {
     parse_hex_u32(bytes)
 }
 
+/// Maps a PowerPC exception ID to the C GDB stub's signal value.
+#[doc(hidden)]
+pub fn validate_gdb_signal(exid: u32) -> u8 {
+    signal_for_exception(exid)
+}
+
 /// Preserves USB debugger transfer byte counts, including zero-byte results.
 #[doc(hidden)]
 pub fn usb_transfer_callback_result(transferred: i32) -> i32 {
@@ -282,13 +288,6 @@ const PPC_EXCPT_SYSCALL: u32 = 12;
 const PPC_EXCPT_TRACE: u32 = 13;
 const PPC_EXCPT_BKPT: u32 = 19;
 
-const SIG_HUP: u8 = 1;
-const SIG_BUS: u8 = 10;
-const SIG_FPE: u8 = 8;
-const SIG_SEGV: u8 = 11;
-const SIG_SYS: u8 = 12;
-const SIG_TRAP: u8 = 5;
-
 const HEX: &[u8; 16] = b"0123456789abcdef";
 const BPCODE: u32 = 0x7d82_1008;
 const MAX_BREAKPOINTS: usize = 256;
@@ -327,17 +326,6 @@ fn frame_msr(frame: *mut u32) -> *mut u32 {
 #[inline]
 fn frame_gpr(frame: *mut u32, reg: usize) -> *mut u32 {
     frame_word(frame, 6 + reg)
-}
-
-fn compute_signal(exid: u32) -> u8 {
-    match exid {
-        PPC_EXCPT_MCHK | PPC_EXCPT_DSI => SIG_SEGV,
-        PPC_EXCPT_ISI | PPC_EXCPT_ALIGN => SIG_BUS,
-        PPC_EXCPT_UNDEF | PPC_EXCPT_TRACE | PPC_EXCPT_BKPT => SIG_TRAP,
-        PPC_EXCPT_SYSCALL => SIG_SYS,
-        8 => SIG_FPE,
-        _ => SIG_HUP,
-    }
 }
 
 unsafe fn device_read_char(device: *mut DbgInterface) -> u8 {
@@ -652,7 +640,7 @@ unsafe fn report_exception(
     let mut pos = 0usize;
     out[pos] = b'T';
     pos += 1;
-    push_hex_byte(out, &mut pos, compute_signal(exid));
+    push_hex_byte(out, &mut pos, signal_for_exception(exid));
     push_hex_byte(out, &mut pos, SP_REGNUM);
     out[pos] = b':';
     pos += 1;

@@ -7,6 +7,19 @@ pub(crate) fn hex_nibble(byte: u8) -> Option<u8> {
     }
 }
 
+pub(crate) fn signal_for_exception(exid: u32) -> u8 {
+    match exid {
+        2 | 3 => 11,      // SIGSEGV: machine check and data storage
+        4 | 6 => 10,      // SIGBUS: instruction storage and alignment
+        5 => 2,           // SIGINT: external interrupt
+        7 | 13 | 19 => 5, // SIGTRAP: undefined, trace, and breakpoint
+        8 => 8,           // SIGFPE: floating point unavailable
+        9 => 14,          // SIGALRM: decrementer
+        12 => 12,         // SIGSYS: system call
+        _ => 1,           // SIGHUP
+    }
+}
+
 /// Parse one C-compatible variable-width hexadecimal `u32` field.
 ///
 /// C's `vhstr2int` accepts at most eight hexadecimal digits. It leaves the
@@ -48,5 +61,26 @@ mod tests {
     fn variable_hex_rejects_empty_and_non_hex_fields() {
         assert_eq!(parse_hex_u32(b","), None);
         assert_eq!(parse_hex_u32(b"xyz"), None);
+    }
+
+    #[test]
+    fn exception_signals_match_the_c_hard_trap_table() {
+        for (exid, signal) in [
+            (2, 11),
+            (3, 11),
+            (4, 10),
+            (5, 2),
+            (6, 10),
+            (7, 5),
+            (8, 8),
+            (9, 14),
+            (12, 12),
+            (13, 5),
+            (19, 5),
+            (1, 1),
+            (15, 1),
+        ] {
+            assert_eq!(signal_for_exception(exid), signal, "exception {exid}");
+        }
     }
 }

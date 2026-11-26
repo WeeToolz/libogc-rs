@@ -231,6 +231,14 @@ fn probe_tcp_debugger(logger: &mut ProbeLogger) {
         "GDB hex parser rejects a ninth digit",
         debug::validate_gdb_hex_field(b"100000000,").is_none(),
     );
+    logger.record(
+        "GDB IRQ maps to the C SIGINT value",
+        debug::validate_gdb_signal(5) == 2,
+    );
+    logger.record(
+        "GDB decrementer maps to the C SIGALRM value",
+        debug::validate_gdb_signal(9) == 14,
+    );
 
     let mut buf = [0u8; 4];
     logger.record(
