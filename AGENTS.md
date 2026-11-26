@@ -16,6 +16,20 @@ tests, scripts, or build configuration. Read external paths from environment
 variables or command-line arguments. Build internal paths from the repository
 root, a system temporary directory, or another portable base path.
 
+## Compare C and Rust with Rust Anything
+
+Use the `rust-anything` skill and CLI for parity checks when the C reference
+and production Rust code can run on the host. Reuse existing test programs
+when available. Run the C test program with `rust-anything app record` in
+a temporary directory. Use `rust-anything app replay --build` with the Rust
+test program. Record the source revisions, test inputs, and comparison result
+in the existing parity ledger when the result supports a ledger change.
+
+Keep the C code as a test reference. The production build must use the Rust
+implementation. Do not add a bridge, dispatch rule, or fallback that calls
+the C implementation at runtime. Use the existing Dolphin runner for
+behavior that depends on PowerPC or Wii devices.
+
 ## Run DOL files in Dolphin
 
 This repository has a Dolphin runner for testing Wii DOL probes. Use it when a task needs DOL runtime validation; do not stop after building a DOL if Dolphin is available.
