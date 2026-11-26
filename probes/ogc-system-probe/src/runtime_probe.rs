@@ -6489,6 +6489,12 @@ fn probe_si_polling_registers(logger: &mut ProbeLogger) {
     let restored_poll = unsafe { core::ptr::read_volatile(poll_reg) };
     let restored_command = unsafe { core::ptr::read_volatile(command_reg) };
     ogc_irq::irq_restore(saved_irq);
+    si::transfer_commands();
+    let transfer_status = si::sync();
+    // SAFETY: SI was initialized, and the completed transfer status is read
+    // after SI_Sync has waited for the hardware transfer-start bit to clear.
+    let transfer_idle = unsafe { core::ptr::read_volatile((base + 13 * 4) as *const u32) } & 1 == 0
+        && si::busy() == 0;
     logger.record(
         "SI wrapper sets polling coordinates",
         xy & 0x03ff_ff00 == 0x0155_4600 && xy & !0x03ff_ff00 == original_poll & !0x03ff_ff00,
@@ -6512,6 +6518,8 @@ fn probe_si_polling_registers(logger: &mut ProbeLogger) {
         "SI polling and command registers restored",
         restored_poll == original_poll && restored_command == original_command,
     );
+    logger.note_hex32("SI direct transfer command status", transfer_status);
+    logger.record("SI direct transfer command syncs to idle", transfer_idle);
 }
 
 #[cfg(feature = "dolphin-automation")]
