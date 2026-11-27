@@ -76,6 +76,19 @@ static RESET_FORMAT_OUTPUT: core::sync::atomic::AtomicUsize =
 #[cfg(target_arch = "powerpc")]
 static RESET_FORMAT_OUTPUT_UNTOUCHED: core::sync::atomic::AtomicBool =
     core::sync::atomic::AtomicBool::new(false);
+#[cfg(target_arch = "powerpc")]
+static RESET_RAW_IOCTLV_RESULT: AtomicI32 = AtomicI32::new(IPC_ASYNC_UNSET);
+#[cfg(target_arch = "powerpc")]
+static RESET_RAW_IOCTLV_CALLS: AtomicU32 = AtomicU32::new(0);
+#[cfg(target_arch = "powerpc")]
+static RESET_RAW_IOCTLV_POINTERS_RESTORED: core::sync::atomic::AtomicBool =
+    core::sync::atomic::AtomicBool::new(false);
+#[cfg(target_arch = "powerpc")]
+static RESET_RAW_IOCTLV_INPUT: core::sync::atomic::AtomicUsize =
+    core::sync::atomic::AtomicUsize::new(0);
+#[cfg(target_arch = "powerpc")]
+static RESET_RAW_IOCTLV_OUTPUT: core::sync::atomic::AtomicUsize =
+    core::sync::atomic::AtomicUsize::new(0);
 
 pub fn monitor(logger: &mut ProbeLogger) -> ! {
     logger.section("IPC ASYNC FS PROBE START");
@@ -297,6 +310,20 @@ fn probe_unsent_queue_reinitialize(logger: &mut ProbeLogger) {
         result
     }
 
+    unsafe extern "C" fn raw_ioctlv_complete(result: i32, userdata: *mut c_void) -> i32 {
+        let vectors = userdata.cast::<ipc::Ioctlv>();
+        // SAFETY: The probe retains this two-entry vector array through callback completion.
+        let restored = unsafe {
+            (*vectors).data as usize == RESET_RAW_IOCTLV_INPUT.load(Ordering::Acquire)
+                && (*vectors.add(1)).data as usize
+                    == RESET_RAW_IOCTLV_OUTPUT.load(Ordering::Acquire)
+        };
+        RESET_RAW_IOCTLV_POINTERS_RESTORED.store(restored, Ordering::Release);
+        RESET_RAW_IOCTLV_RESULT.store(result, Ordering::Release);
+        RESET_RAW_IOCTLV_CALLS.fetch_add(1, Ordering::AcqRel);
+        result
+    }
+
     ipc::reinitialize();
     let mut queue_wrap_ready = true;
     for _ in 0..7 {
@@ -326,6 +353,9 @@ fn probe_unsent_queue_reinitialize(logger: &mut ProbeLogger) {
     RESET_FORMAT_CALLBACK_ORDER.store(0, Ordering::Release);
     RESET_FORMAT_USERDATA.store(0, Ordering::Release);
     RESET_FORMAT_OUTPUT_UNTOUCHED.store(false, Ordering::Release);
+    RESET_RAW_IOCTLV_RESULT.store(IPC_ASYNC_UNSET, Ordering::Release);
+    RESET_RAW_IOCTLV_CALLS.store(0, Ordering::Release);
+    RESET_RAW_IOCTLV_POINTERS_RESTORED.store(false, Ordering::Release);
     let mut output = [0xa5u8; 4];
     let title_id = 0x0000_0001_0000_0002u64.to_be_bytes();
     RESET_FORMAT_OUTPUT.store(output.as_mut_ptr() as usize, Ordering::Release);
@@ -357,18 +387,50 @@ fn probe_unsent_queue_reinitialize(logger: &mut ProbeLogger) {
             output.len() as u32,
         )
     };
+    #[repr(align(32))]
+    struct RawVectors([ipc::Ioctlv; 2]);
+    #[repr(align(32))]
+    struct RawBuffer([u8; 32]);
+    let mut raw_input = RawBuffer([0; 32]);
+    let mut raw_output = RawBuffer([0xa5; 32]);
+    let mut raw_vectors = RawVectors([
+        ipc::Ioctlv {
+            data: raw_input.0.as_mut_ptr().cast(),
+            len: raw_input.0.len() as u32,
+        },
+        ipc::Ioctlv {
+            data: raw_output.0.as_mut_ptr().cast(),
+            len: raw_output.0.len() as u32,
+        },
+    ]);
+    RESET_RAW_IOCTLV_INPUT.store(raw_vectors.0[0].data as usize, Ordering::Release);
+    RESET_RAW_IOCTLV_OUTPUT.store(raw_vectors.0[1].data as usize, Ordering::Release);
+    let raw_ioctlv_submission = unsafe {
+        ipc::IOS_IoctlvAsync(
+            fd.raw(),
+            0x10,
+            1,
+            1,
+            raw_vectors.0.as_mut_ptr(),
+            Some(raw_ioctlv_complete),
+            raw_vectors.0.as_mut_ptr().cast(),
+        )
+    };
     let sent_before_reset = SENT_DEBUG_COUNT
         .load(Ordering::Acquire)
         .wrapping_sub(sent_before);
     ipc::reinitialize();
     ogc_irq::irq_restore(irq);
 
-    let accepted = submissions.iter().all(|result| *result == 0) && formatted_submission == 0;
+    let accepted = submissions.iter().all(|result| *result == 0)
+        && formatted_submission == 0
+        && raw_ioctlv_submission == 0;
     let start = system::time();
     while accepted
-        && RESET_QUEUE_CALLS
+        && (RESET_QUEUE_CALLS
             .iter()
             .any(|calls| calls.load(Ordering::Acquire) == 0)
+            || RESET_RAW_IOCTLV_CALLS.load(Ordering::Acquire) == 0)
         && system::time().wrapping_sub(start) < WII_TIMER_CLOCK_HZ * 2
     {
         ipc_poll();
@@ -408,6 +470,13 @@ fn probe_unsent_queue_reinitialize(logger: &mut ProbeLogger) {
             && RESET_FORMAT_USERDATA.load(Ordering::Acquire) == userdata as usize as u32
             && RESET_FORMAT_OUTPUT_UNTOUCHED.load(Ordering::Acquire)
             && output == [0xa5; 4],
+    );
+    logger.record(
+        "IPC reset restores raw IOCTLV vector pointers before callback",
+        RESET_RAW_IOCTLV_CALLS.load(Ordering::Acquire) == 1
+            && RESET_RAW_IOCTLV_RESULT.load(Ordering::Acquire) == ipc::IPC_ENOENT
+            && RESET_RAW_IOCTLV_POINTERS_RESTORED.load(Ordering::Acquire)
+            && raw_output.0 == [0xa5; 32],
     );
     logger.record(
         "IPC reset cancellation callbacks preserve queue order",

@@ -1356,7 +1356,7 @@ impl IosReplacement {
             for slot in &ASYNC_IN_FLIGHT {
                 let address = slot.swap(0, Ordering::AcqRel);
                 if address != 0 {
-                    unsafe { cancel_abandoned_request(address as *mut IpcRequest) };
+                    unsafe { prepare_cancelled_request_completion(address as *mut IpcRequest) };
                 }
             }
             // Release the submission scope before enabling the deferred worker.
@@ -1551,7 +1551,11 @@ unsafe fn cancel_unsent_queue_requests() {
                 if !take_async_request(address) {
                     debug_mark(64, address as u32, (*req).cmd, (*req).magic);
                 }
-                complete_cancelled_async_request(req, mem_virtual_to_physical(address));
+                // Reuse the replacement cleanup path so raw IOCTLV vector
+                // pointers return to cached K0 form before the callback.
+                // The request was not sent, so this does not invalidate DMA
+                // buffers or change their contents.
+                prepare_cancelled_request_completion(req);
             } else if SYNC_WAIT_REQ.load(Ordering::Acquire) == address {
                 (*req).result = IPC_ENOENT;
                 SYNC_WAIT_DONE.store(true, Ordering::Release);
@@ -1859,8 +1863,10 @@ unsafe fn enqueue_async_completion(req: *mut IpcRequest, physical: u32) {
     }
 }
 
-// Only called after confirmed IOS replacement, with interrupts disabled.
-unsafe fn cancel_abandoned_request(req: *mut IpcRequest) {
+// Called with interrupts disabled when a request can no longer receive an IOS
+// reply. Sent requests need cache invalidation; all IOCTLV requests need their
+// caller-visible vector pointers restored before deferred callback delivery.
+unsafe fn prepare_cancelled_request_completion(req: *mut IpcRequest) {
     unsafe {
         let submission = (*req).submission_cmd;
         let sent = submission & SUBMISSION_SENT != 0;
