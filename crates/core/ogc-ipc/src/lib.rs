@@ -287,6 +287,12 @@ pub unsafe extern "C" fn iosFree(hid: i32, ptr: *mut c_void) {
 #[derive(Debug, Eq, PartialEq)]
 pub struct FileDescriptor(i32);
 
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub enum FileCloseError {
+    Submission(i32),
+    Reply(i32),
+}
+
 impl FileDescriptor {
     pub const fn new(raw: i32) -> Self {
         Self(raw)
@@ -297,12 +303,27 @@ impl FileDescriptor {
     }
 
     pub fn close(self) -> Result<(), i32> {
-        let rc = with_request(|req| {
+        match self.close_ref_with_status() {
+            Ok(()) => Ok(()),
+            Err(FileCloseError::Submission(rc) | FileCloseError::Reply(rc)) => Err(rc),
+        }
+    }
+
+    /// Close this descriptor and report whether the request failed before IOS
+    /// replied or IOS returned an error.
+    pub fn close_ref_with_status(&self) -> Result<(), FileCloseError> {
+        let reply = with_request(|req| {
             req.cmd = IOS_CLOSE;
             req.fd = self.0;
-            unsafe { submit_request(req, || {}) }
-        })?;
-        if rc == IPC_OK { Ok(()) } else { Err(rc) }
+            unsafe { submit_request_result(req, || {}) }
+        })
+        .map_err(FileCloseError::Submission)?
+        .map_err(FileCloseError::Submission)?;
+        if reply == IPC_OK {
+            Ok(())
+        } else {
+            Err(FileCloseError::Reply(reply))
+        }
     }
 
     /// # Safety

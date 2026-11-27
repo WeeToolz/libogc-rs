@@ -870,3 +870,14 @@ rejection gate can leave local ES state changed before the close request is
 accepted. Runtime behavior for these concurrent sequences has not been tested.
 The four related crates remain open while the safety gap is addressed and
 independently reviewed.
+
+## ES descriptor retention after rejected close — 2026-11-27
+
+`FileDescriptor::close_ref_with_status` distinguishes a request rejected
+before an IOS reply from an IOS error reply. ES removes the `es:` registration
+before it waits for IPC, then restores the registration and keeps its
+descriptor only for a rejected submission. An IOS reply clears local state as
+C does. This fixes the reviewed state-loss path. It does not
+serialize the full `reload_ios` sequence or verify the concurrent path in
+Dolphin. PowerPC test code compiles, but the installed linker cannot link the
+target test binary; runtime concurrency and physical Wii evidence remain open.

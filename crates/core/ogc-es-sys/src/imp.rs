@@ -213,6 +213,32 @@ fn current_heap(state: &EsState) -> Result<HeapId, i32> {
     state.heap.ok_or(ES_ENOTINIT)
 }
 
+fn close_state_with_restore<T>(
+    slot: &mut Option<T>,
+    remove_registration: impl FnOnce() -> i32,
+    close: impl FnOnce(&T) -> Result<(), ogc_ipc::FileCloseError>,
+    restore_registration: impl FnOnce() -> i32,
+) -> i32 {
+    let Some(value) = slot.as_ref() else {
+        return 0;
+    };
+    let registration_rc = remove_registration();
+    match close(value) {
+        Ok(()) => {
+            slot.take();
+            registration_rc
+        }
+        Err(ogc_ipc::FileCloseError::Submission(rc)) => {
+            let restore_rc = restore_registration();
+            if restore_rc < 0 { restore_rc } else { rc }
+        }
+        Err(ogc_ipc::FileCloseError::Reply(rc)) => {
+            slot.take();
+            rc
+        }
+    }
+}
+
 fn reopen_after_verify(state: &mut EsState) {
     // C closes and initializes ES after successful verification. Both secondary
     // results are discarded; the caller receives the original IOS result.
@@ -428,16 +454,14 @@ pub fn init() -> i32 {
 }
 
 fn close_state(state: &mut EsState) -> i32 {
-    let Some(fd) = state.fd.take() else {
-        return 0;
-    };
-    // C closes the descriptor even if device removal fails.
-    let registration_rc = filesystem::deinit_fs();
-    match fd.close() {
-        Ok(()) if registration_rc < 0 => registration_rc,
-        Ok(()) => 0,
-        Err(rc) => rc,
-    }
+    // Remove es: before waiting for IPC, as C does. If IOS never receives the
+    // close request, restore the registration and keep the descriptor.
+    close_state_with_restore(
+        &mut state.fd,
+        filesystem::deinit_fs,
+        FileDescriptor::close_ref_with_status,
+        filesystem::init_fs,
+    )
 }
 
 pub fn close() -> i32 {
@@ -2486,6 +2510,76 @@ fn certificate_total_size(signature_type: Sigtype, cert_type: u32) -> usize {
 #[cfg(all(test, target_arch = "powerpc"))]
 mod tests {
     use super::*;
+
+    #[test]
+    fn close_state_restores_registration_when_ipc_rejects_close() {
+        let mut slot = Some(7);
+        let stage = core::cell::Cell::new(0);
+        let result = close_state_with_restore(
+            &mut slot,
+            || {
+                assert_eq!(stage.get(), 0);
+                stage.set(1);
+                0
+            },
+            |_| {
+                assert_eq!(stage.get(), 1);
+                stage.set(2);
+                Err(ogc_ipc::FileCloseError::Submission(-8))
+            },
+            || {
+                assert_eq!(stage.get(), 2);
+                stage.set(3);
+                0
+            },
+        );
+
+        assert_eq!(result, -8);
+        assert_eq!(slot, Some(7));
+        assert_eq!(stage.get(), 3);
+    }
+
+    #[test]
+    fn close_state_reports_registration_restore_failure() {
+        let mut slot = Some(7);
+        let result = close_state_with_restore(
+            &mut slot,
+            || 0,
+            |_| Err(ogc_ipc::FileCloseError::Submission(-8)),
+            || -12,
+        );
+
+        assert_eq!(result, -12);
+        assert_eq!(slot, Some(7));
+    }
+
+    #[test]
+    fn close_state_clears_descriptor_after_success() {
+        let mut slot = Some(7);
+        let result = close_state_with_restore(&mut slot, || -12, |_| Ok(()), || panic!());
+
+        assert_eq!(result, -12);
+        assert_eq!(slot, None);
+    }
+
+    #[test]
+    fn close_state_clears_descriptor_after_ios_reply_error() {
+        let mut slot = Some(7);
+        let mut restored = false;
+        let result = close_state_with_restore(
+            &mut slot,
+            || 0,
+            |_| Err(ogc_ipc::FileCloseError::Reply(-6)),
+            || {
+                restored = true;
+                0
+            },
+        );
+
+        assert_eq!(result, -6);
+        assert!(!restored);
+        assert_eq!(slot, None);
+    }
 
     #[test]
     fn public_layout_matches_c() {

@@ -226,6 +226,25 @@ and `../dolphin-runs/2026-11-26-es-operation-precedence-green/`. This is not a
 successful-operation test for these APIs. Independent review and physical Wii
 validation remain pending.
 
+## ES close preserves state after IPC rejection — 2026-11-27
+
+The independent lifecycle review found that `close_state` removed the ES
+descriptor and filesystem registration before IPC accepted the close request.
+The IOS replacement gate can reject that request while the old IOS still owns
+the descriptor. Rust removes `es:` before it waits for IPC, as C does. If IPC
+rejects the request before IOS replies, Rust restores `es:` and keeps the
+descriptor. If IOS replies with a close error, Rust clears local state as C
+does. This is a Rust safety difference from C's unguarded submission sequence.
+
+The lifecycle regression tests cover cleanup order, IPC rejection, IOS reply
+error, and success. PowerPC test code compiles with `cargo check --tests`; the
+target test binary cannot link with the installed host linker, so these
+assertions have not run. If IPC rejects close and `es:` registration cannot be
+restored, Rust keeps the descriptor, returns the registration error, and leaves
+`es:` absent until a later `init` succeeds. Runtime concurrency behavior
+remains unverified. This fix does not add a lock around the full reload
+sequence; that source-level gap remains open.
+
 ## 2026-11-26 follow-up: operation order and lifecycle
 
 Reference: C `7d4b8b3e7b84`; Rust base `ae51d7e19a13` plus local changes.
