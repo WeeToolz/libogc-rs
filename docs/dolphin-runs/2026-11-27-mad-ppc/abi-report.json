@@ -1,0 +1,36 @@
+{
+  "mode": "candidate",
+  "initial_stop": "T0f40:80004000;01:00000000;",
+  "completion_stop": "T0540:80004010;01:816fffe0;",
+  "dol_sha256": "252dcd69b2f5603acda8cd64fb6ac90b80cacb8238661e5c84d84893ba486cfd",
+  "rows": [
+    {
+      "c_frames": 21,
+      "rust_frames": 21,
+      "header_fields": 126,
+      "header_mismatches": 0,
+      "subband_values": 48384,
+      "subband_mismatches": 0,
+      "pcm_values": 48384,
+      "pcm_mismatches": 0,
+      "c_recoverable_errors": 1,
+      "rust_recoverable_errors": 1,
+      "arena_bytes": 273634,
+      "terminal_status": 0
+    },
+    {
+      "c_frames": 116,
+      "rust_frames": 116,
+      "header_fields": 696,
+      "header_mismatches": 0,
+      "subband_values": 267264,
+      "subband_mismatches": 0,
+      "pcm_values": 267264,
+      "pcm_mismatches": 0,
+      "c_recoverable_errors": 1,
+      "rust_recoverable_errors": 1,
+      "arena_bytes": 6059811,
+      "terminal_status": 0
+    }
+  ]
+}

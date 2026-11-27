@@ -1,10 +1,14 @@
 //! Layer III inverse MDCT and block windowing from `layer3.c`.
 //!
-//! The reference C build uses `FPM_DEFAULT`. Keep its operand rounding and
-//! 32-bit multiply-accumulate behavior here. A wide dot product gives a more
-//! accurate result, but it does not match that C build.
+//! Keep the arithmetic profile and operation order of each C reference.
+//! The host profile retains its historical fast DCT and FPM_DEFAULT rounding;
+//! the Wii/GameCube profile uses the bundled libmad long-block graph.
 
 use crate::fixed::Fixed;
+
+#[cfg(target_arch = "powerpc")]
+#[path = "imdct_ppc.rs"]
+mod ppc;
 
 const WINDOW_LONG: [Fixed; 36] = [
     11708990, 35037858, 58100066, 80720098, 102725802, 123949700, 144230265, 163413152, 181352365,
@@ -70,6 +74,7 @@ const IMDCT_SHORT: [[Fixed; 6]; 6] = [
     ],
 ];
 
+#[cfg(not(target_arch = "powerpc"))]
 const SDCT_SCALE: [Fixed; 9] = [
     0x1fe0_d3b4,
     0x1ee8_dd47,
@@ -82,6 +87,7 @@ const SDCT_SCALE: [Fixed; 9] = [
     0x02c9_fad7,
 ];
 
+#[cfg(not(target_arch = "powerpc"))]
 const DCT_IV_SCALE: [Fixed; 18] = [
     0x1ff8_33fa,
     0x1fb9_ea93,
@@ -103,10 +109,13 @@ const DCT_IV_SCALE: [Fixed; 18] = [
     0x0165_547c,
 ];
 
-/// Compute and window one long IMDCT block using the active fast `dctIV()` C
+/// Compute and window one long IMDCT block using the configured reference
 /// operation graph. `block_type` uses the Layer III values: 0 normal, 1
 /// start, 3 stop. Other values leave the raw transform unwindowed, as C does.
 pub fn imdct_long(input: &[Fixed; 18], output: &mut [Fixed; 36], block_type: u32) {
+    #[cfg(target_arch = "powerpc")]
+    let x = ppc::transform(input);
+    #[cfg(not(target_arch = "powerpc"))]
     let x = imdct36(input);
     output.copy_from_slice(&x);
 
@@ -187,7 +196,8 @@ pub fn imdct_short(input: &[Fixed; 18], output: &mut [Fixed; 36]) {
     }
 }
 
-/// Active fast `imdct36()` in the `# if 1` branch of C `layer3.c`.
+/// Historical host-reference fast IMDCT, not the bundled Wii long-block graph.
+#[cfg(not(target_arch = "powerpc"))]
 fn imdct36(input: &[Fixed; 18]) -> [Fixed; 36] {
     let mut dct = [0; 18];
     dct_iv(input, &mut dct);
@@ -203,6 +213,7 @@ fn imdct36(input: &[Fixed; 18]) -> [Fixed; 36] {
 }
 
 /// Active `dctIV()` → `sdctII()` sequence selected by `# if 1` in C.
+#[cfg(not(target_arch = "powerpc"))]
 fn dct_iv(input: &[Fixed; 18], output: &mut [Fixed; 18]) {
     let mut scaled = [0; 18];
     for i in 0..18 {
@@ -222,6 +233,7 @@ fn dct_iv(input: &[Fixed; 18], output: &mut [Fixed; 18]) {
 }
 
 /// Active `sdctII()` with the source's even/odd butterflies and accumulation.
+#[cfg(not(target_arch = "powerpc"))]
 fn sdct_ii(input: &[Fixed; 18], output: &mut [Fixed; 18]) {
     let mut temporary = [0; 9];
     for i in 0..9 {
@@ -244,6 +256,7 @@ fn sdct_ii(input: &[Fixed; 18], output: &mut [Fixed; 18]) {
 /// Active `fastsdct()` kernel. `offset` is zero for C's even output pass and
 /// one for its odd output pass.
 #[allow(clippy::too_many_lines)]
+#[cfg(not(target_arch = "powerpc"))]
 fn fast_sdct(x: &[Fixed; 9], y: &mut [Fixed; 18], offset: usize) {
     const C0: Fixed = 0x1f83_8b8d;
     const C1: Fixed = 0x1bb6_7ae8;

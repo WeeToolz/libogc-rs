@@ -1,0 +1,142 @@
+   Compiling libmad-rs v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/vendor/libmad-rs)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.20s
+     Running unittests src/lib.rs (target/debug/build/libmad-rs/439f456332022daa/out/libmad_rs-439f456332022daa)
+
+running 109 tests
+test bit::tests::bit_distances_preserve_partial_bytes_and_signed_results ... ok
+test bit::tests::read_failure_does_not_advance_cursor ... ok
+test bit::tests::reads_cross_byte_boundaries_and_tracks_c_cursor ... ok
+test bit::tests::writes_and_crc_match_mpeg_bit_order ... ok
+test decoder::driver::tests::recoverable_errors_keep_failed_frames_only_after_decode_ignore ... ok
+test decoder::driver::tests::stage_flows_skip_or_stop_at_the_correct_boundary ... ok
+test decoder::driver::tests::terminal_errors_fail_and_buffer_exhaustion_requests_input ... ok
+test decoder::tests::buffer_exhaustion_refills_input_and_resumes_frame_output ... ok
+test decoder::tests::default_bad_crc_handler_mutes_repeated_bad_frame ... ok
+test decoder::tests::header_ignore_skips_frame_decode_and_filtering ... ok
+test decoder::tests::recoverable_decode_flows_preserve_callback_frame_changes_and_original_error ... ok
+test decoder::tests::successful_frame_resets_default_crc_mute_history ... ok
+test decoder::tests::sync_driver_keeps_callback_order_and_stops_cleanly ... ok
+test decoder::tests::terminal_decode_errors_stop_before_filter_and_synthesis ... ok
+test decoder::tests::terminal_header_error_is_reported_as_failure ... ok
+test fixed::tests::fixed_multiply_and_divide_keep_fractional_bits ... ok
+test fixed::tests::fixed_parts_match_twos_complement_format ... ok
+test fixed::tests::fpm_default_multiply_matches_rounded_operand_macro_and_order ... ok
+test fixed::tests::fpm_default_rounding_additions_do_not_wrap_at_fixed_limits ... ok
+test frame::tests::detects_free_format_bitrate_from_following_sync ... ok
+test frame::tests::parses_mpeg1_layer3_header_and_frame_boundary ... ok
+test frame::tests::protected_header_reads_crc_word_and_flags ... ok
+test frame::tests::rejects_reserved_layer_rate_and_sampling_index ... ok
+test frame::tests::scanning_retries_after_a_false_frame_boundary ... ok
+test layer::decode::tests::crc_error_is_reported_after_side_information_parse ... ok
+test layer::decode::tests::decodes_complete_zeroed_mpeg1_and_lsf_frames ... ok
+test layer::decode::tests::mute_overlap_clears_saved_imdct_history ... ok
+test layer::decode::tests::nonzero_mpeg1_mono_frame_runs_the_full_decode_path ... ok
+test layer::decode::tests::real_mpeg1_frame_matches_compiled_c_default_samples ... ok
+test layer::decode::tests::rejects_short_side_information_and_resets_reservoir ... ok
+test layer::decode::tests::reservoir_capacity_overflow_loses_sync_and_overrides_crc_error ... ok
+test layer::huffdecode::tests::count1_quad_uses_selected_table_and_requantizes_nonzero_values ... ok
+test layer::huffdecode::tests::exhausted_part3_leaves_remaining_big_values_zero ... ok
+test layer::huffdecode::tests::region_boundary_selects_next_pair_table_and_zero_fills_tail ... ok
+test layer::huffdecode::tests::rejects_part_lengths_big_values_and_reserved_tables ... ok
+test layer::huffdecode::tests::truncated_count1_stuffing_ends_successfully ... ok
+test layer::huffman::tests::double_linbits_escape_reads_x_sign_before_y_extension ... ok
+test layer::huffman::tests::pair_linbits_escape_adds_extension_before_sign ... ok
+test layer::huffman::tests::pair_zero_code_consumes_one_bit_and_reserved_tables_fail ... ok
+test layer::huffman::tests::quad_table_b_decodes_each_value_sign_in_order ... ok
+test layer::huffman::tests::table_one_pair_reads_code_then_x_and_y_sign_bits ... ok
+test layer::imdct::tests::fpm_default_mla_accumulates_low_32_bits_after_each_product ... ok
+test layer::imdct::tests::fpm_default_rounds_operands_before_multiplication ... ok
+test layer::imdct::tests::long_impulse_uses_c_factorized_default_arithmetic ... ok
+test layer::imdct::tests::long_start_and_stop_apply_c_window_regions ... ok
+test layer::imdct::tests::short_impulse_has_c_guard_regions_and_signal ... ok
+test layer::imdct::tests::zero_input_produces_zero_for_each_block_type ... ok
+test layer::layer12::tests::allocated_samples_cannot_read_guard_bytes_past_frame_end ... ok
+test layer::layer12::tests::decodes_silence_into_subband_samples ... ok
+test layer::layer12::tests::rejects_reserved_bit_allocation ... ok
+test layer::layer12::tests::requantizes_an_allocated_subband_for_each_sample_slot ... ok
+test layer::layer12::tests::sign_extension_and_sign_bit_inversion_match_c ... ok
+test layer::layer2::tests::decodes_layer2_silence_and_clears_unused_subbands ... ok
+test layer::layer2::tests::grouped_samples_are_degrouped_and_scaled ... ok
+test layer::layer2::tests::rejects_invalid_bitrate_and_channel_mode_combination ... ok
+test layer::layer3::tests::parses_zeroed_lsf_mono_side_info ... ok
+test layer::layer3::tests::parses_zeroed_mpeg1_stereo_side_info ... ok
+test layer::layer3::tests::private_widths_cover_mpeg_versions_and_channel_counts ... ok
+test layer::layer3::tests::rejects_truncated_side_info_without_advancing_failed_read ... ok
+test layer::layer3::tests::reservoir_carries_main_data_across_frame_boundary ... ok
+test layer::layer3::tests::reservoir_rejects_data_that_exceeds_guarded_capacity ... ok
+test layer::layer3::tests::reservoir_underflow_reports_error_and_keeps_following_frame_bytes ... ok
+test layer::overlap::tests::frequency_inversion_negates_odd_lines_only_in_selected_subband ... ok
+test layer::overlap::tests::overlap_add_combines_current_and_previous_samples_then_saves_tail ... ok
+test layer::overlap::tests::zero_and_impulse_overlap_inputs_match_expected_samples ... ok
+test layer::overlap::tests::zero_overlap_emits_tail_once_and_clears_it ... ok
+test layer::requantize::tests::long_exponents_apply_scalefactor_scale_and_preemphasis ... ok
+test layer::requantize::tests::requantization_matches_table_power_and_rejects_invalid_values ... ok
+test layer::requantize::tests::short_exponents_use_window_gains_and_zero_coefficients_stay_zero ... ok
+test layer::scalefactor::tests::lsf_budget_and_buffer_errors_preserve_read_cursor ... ok
+test layer::scalefactor::tests::lsf_long_block_and_intensity_values_match_zero_width_case ... ok
+test layer::scalefactor::tests::lsf_sets_preflag_for_compress_values_at_least_500 ... ok
+test layer::scalefactor::tests::mpeg1_budget_error_keeps_cursor_at_last_complete_value ... ok
+test layer::scalefactor::tests::mpeg1_long_block_reads_both_slen_groups ... ok
+test layer::scalefactor::tests::mpeg1_scfsi_copies_the_selected_granule_zero_groups ... ok
+test layer::spectral::tests::alias_reduction_rejects_a_line_count_outside_the_spectral_buffer ... ok
+test layer::spectral::tests::alias_reduction_uses_c_coefficients_and_boundary_equations ... ok
+test layer::spectral::tests::alias_reduction_wraps_negation_of_minimum_fixed_value ... ok
+test layer::spectral::tests::mixed_reorder_preserves_first_two_subbands ... ok
+test layer::spectral::tests::short_reorder_places_window_lines_in_subband_order ... ok
+test layer::stereo::tests::combined_stereo_keeps_all_bands_through_last_nonzero_right_band_in_ms ... ok
+test layer::stereo::tests::lsf_intensity_stereo_honors_illegal_position_and_scale ... ok
+test layer::stereo::tests::middle_side_converts_mid_and_side_to_left_and_right ... ok
+test layer::stereo::tests::mpeg1_intensity_stereo_uses_right_scalefactor_position ... ok
+test layer::tests::bounded_read_rejects_bits_past_partial_byte_end ... ok
+test layer::tests::bounded_reads_accept_exact_end_and_reject_one_extra_bit_at_every_offset ... ok
+test layer::transform::tests::invalid_block_type_is_reported ... ok
+test layer::transform::tests::long_impulse_produces_signal_in_first_two_bands ... ok
+test layer::transform::tests::short_mixed_and_nonmixed_paths_accept_valid_band_widths ... ok
+test layer::transform::tests::zero_long_granule_drains_all_saved_overlap ... ok
+test stream::error_definition_tests::error_codes_round_trip_and_c_text_matches ... ok
+test stream::tests::distinguishes_unset_buffer_from_empty_buffer ... ok
+test stream::tests::recoverable_errors_use_c_error_class_mask ... ok
+test stream::tests::skip_accumulates_with_c_unsigned_wrapping ... ok
+test stream::tests::sync_requires_guard_and_preserves_cursor_on_failure ... ok
+test synth::tests::factorized_dct_stores_q16_shifted_samples ... ok
+test synth::tests::fpm_default_multiply_uses_split_operand_rounding ... ok
+test synth::tests::half_rate_halves_sample_rate_and_output_length ... ok
+test synth::tests::half_rate_selects_every_second_full_rate_sample ... ok
+test synth::tests::mirrored_polyphase_pairs_filter_values_in_c_order ... ok
+test synth::tests::polyphase_sso_accumulator_wraps_in_32_bits_and_truncates ... ok
+test synth::tests::silence_stays_silent_and_advances_phase ... ok
+test synth::tests::sso_window_is_preshifted_to_q14_with_c_rounding ... ok
+test tables::bands::tests::all_sfbwidth_layouts_cover_576_lines ... ok
+test tables::bands::tests::hz_44100_rows_match_mpeg1_reference_data ... ok
+test tables::bands::tests::lsf_alias_rows_follow_the_c_samplerate_mapping ... ok
+test timer::tests::formats_seconds_and_fraction_fields ... ok
+test timer::tests::negate_uses_borrowed_fraction_representation ... ok
+test timer::tests::set_add_and_count_preserve_fractional_time ... ok
+
+test result: ok. 109 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/bit_write.rs (target/debug/build/libmad-rs/31920756feced904/out/bit_write-31920756feced904)
+
+running 5 tests
+test excessive_width_is_rejected_before_input_or_cursor_changes ... ok
+test full_width_write_spans_five_bytes_without_losing_high_bits ... ok
+test write_keeps_bits_outside_the_requested_range ... ok
+test write_that_runs_out_of_input_keeps_bytes_and_cursor_unchanged ... ok
+test zero_width_operations_at_buffer_end_do_not_access_input ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/synth_state.rs (target/debug/build/libmad-rs/1798e843f07cceb7/out/synth_state-1798e843f07cceb7)
+
+running 3 tests
+test full_half_full_transitions_preserve_history_and_select_the_correct_samples ... ok
+test mute_keeps_phase_and_pcm_but_clears_history_before_next_frame ... ok
+test stereo_to_mono_clears_unused_pcm_and_keeps_right_channel_history ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+   Doc-tests libmad_rs
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

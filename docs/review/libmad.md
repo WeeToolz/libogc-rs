@@ -304,3 +304,16 @@ compare frame headers, active subband values, and active PCM values. Keep
 `mad-sys` at `review_incomplete` until this comparison is recorded. The
 bounded decoder fix in `8179f9d` passed its independent review; no hardware
 test was performed here.
+
+## 2026-11-27 — target numerical differential
+
+The previously missing FPM_PPC comparison is now recorded in the
+[PowerPC differential](../dolphin-runs/2026-11-27-mad-ppc/README.md).
+The long-block IMDCT used the historical host operation graph on PowerPC;
+its fixed-point truncation order differs from bundled C. Select the bundled
+long-block graph on PowerPC while preserving the host graph. Both production
+codec and mad-sys stream/frame/synthesis paths match all 137 MPEG-1 frames
+(822 header fields, 315648 subband values, 315648 PCM samples, zero mismatches).
+Host codec 117/117 and target ABI compilation pass. Move to needs_re_review
+for the new production graph and remaining MPEG, ABI, malformed input and
+physical evidence. Do not infer full ABI or allocator parity from this test.

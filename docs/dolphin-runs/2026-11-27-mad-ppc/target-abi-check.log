@@ -1,0 +1,6 @@
+   Compiling compiler_builtins v0.1.160 (/mnt/data/setup/rust/lib/rustlib/src/rust/library/compiler-builtins/compiler-builtins)
+   Compiling core v0.0.0 (/mnt/data/setup/rust/lib/rustlib/src/rust/library/core)
+   Compiling alloc v0.0.0 (/mnt/data/setup/rust/lib/rustlib/src/rust/library/alloc)
+    Checking libmad-rs v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/vendor/libmad-rs)
+    Checking mad-sys v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/media/mad-sys)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 13.15s

@@ -1,0 +1,5 @@
+initial T0f40:80004000;01:00000000;
+interrupt T0540:80004010;01:816fffe0;
+discard non-memory reply ''
+discard non-memory reply 'T0540:80004010;01:816fffe0;'
+PowerPC C/Rust IMDCT differences 544 of 1152
