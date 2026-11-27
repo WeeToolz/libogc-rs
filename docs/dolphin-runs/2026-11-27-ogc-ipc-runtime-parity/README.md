@@ -4,6 +4,8 @@ Date: 2026-11-27. Dolphin 2609a. The current `runtime_probe` passed **901 checks
 
 The read-only file-stat and mixed file-attribute requests used the System Menu `setting.txt` fixture (256 bytes, SHA-256 `9eeb543b7a25494c098c7dce7fa6abb6faa417fed9560b3c6c49e13078ebe22c`). Its `title.tmd` is 808 bytes, SHA-256 `1a5df7b0e72721c9ffae34664b00144eda2aeee0e327332deda84d3cfddb317b`. These hashes identify the source fixture; the probe ran on the runner's private NAND copy.
 
+The later [914-check runtime run](../2026-11-27-lwbt-last-status/README.md) passed five IOS version checks on the current source tree. The version and revision getters matched the low-memory IOS version word. `get_preferred_version` selected IOS 58 from its installed TMD. The named checks are `IOS version matches low memory`, `IOS revision matches low memory`, `IOS revision major matches low memory`, `IOS revision minor matches low memory`, and `IOS preferred version selects installed IOS 58`. This is partial Dolphin evidence; physical IOS behavior remains open.
+
 ## Raw IOS ioctl behavior
 
 The run passed exact file-stat output checks for C `IOS_Ioctl`, C `IOS_IoctlAsync`, and the Rust ioctl wrappers, including untouched bytes past the output range. It passed invalid argument rejection for sync and async C ioctl and observed no callback for the rejected async submission. The mixed file-attribute request passed for both an existing file and a missing path: the valid request returned zero, the missing request returned `ISFS_ENOENT`, async reply codes matched, input path bytes stayed unchanged, output tail canaries stayed intact, and callback count and userdata matched.
