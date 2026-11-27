@@ -1,0 +1,113 @@
+PASS SYS_Init completed
+PASS Video console_init_framebuffer initializes the buffered console
+PASS pre-main progress callback reports stages in order
+PASS system pre-main completes without a failed stage
+PASS display initialized
+PASS power button callback installed
+PASS WPAD discovery starts with adapter disabled
+PASS WPAD Wii discovery requires an adapter
+PASS WPAD HID discovery requires an adapter
+PASS WPAD stop discovery requires an adapter
+PASS WPAD pairing rejects discovery without an adapter
+PASS WPAD sync callback fires once and can be removed
+PASS WPAD discovery leaves adapter disabled
+PASS WPAD invalid channel has no data pointer
+PASS WPAD invalid channel battery level is zero
+PASS WPAD invalid channel button edges are zero
+PASS WPAD invalid channel held buttons are zero
+PASS WPAD invalid channel leaves acceleration output unchanged
+PASS WPAD invalid channel leaves infrared output unchanged
+PASS WPAD invalid channel leaves orientation output unchanged
+PASS WPAD invalid channel leaves g-force output unchanged
+PASS WPAD invalid channel leaves expansion output unchanged
+PASS WPAD starts disabled
+PASS WPAD disabled dropped events reports not ready
+PASS WPAD init succeeds
+PASS WPAD valid channel rejects a null event buffer
+PASS WPAD valid channel rejects a zero event count without writing
+PASS WPAD empty channel installs and initializes an event buffer
+PASS WPAD valid channel rejects a null stream buffer
+PASS WPAD valid channel rejects a zero stream length
+PASS WPAD wipe seeds saved controller records
+PASS WPAD wipe clears saved controller and guest records
+PASS WPAD wipe restores original saved records
+PASS WPAD Bluetooth poll hook observes scan boundary
+PASS WPAD reports enabled
+PASS WPAD setter checks confirm an empty channel
+PASS WPAD empty channel data pointer is available
+PASS WPAD empty channel battery level is zero
+PASS WPAD empty channel battery is not critical
+PASS WPAD empty channel speaker query reports not ready
+PASS WPAD empty channel data format update returns success
+PASS WPAD initialized channel rejects an invalid data format
+PASS WPAD empty channel retains IR resolution before Remote connection
+PASS WPAD empty channel idle thresholds update returns success
+PASS WPAD empty channel MotionPlus configuration succeeds
+PASS WPAD all-channel MotionPlus configuration succeeds without controllers
+PASS WPAD invalid channel MotionPlus configuration is rejected
+PASS WPAD empty channel button states are zero
+PASS WPAD empty channel acceleration is zero
+PASS WPAD empty channel g-force is zero
+PASS WPAD empty channel infrared state is zero
+PASS WPAD empty channel expansion type is none
+PASS WPAD disconnect checks confirm an empty channel
+PASS WPAD empty channel disconnect succeeds
+PASS WPAD empty channel speaker control succeeds
+PASS WPAD empty channel rumble control succeeds
+PASS WPAD all-channel speaker control succeeds without controllers
+PASS WPAD all-channel rumble control succeeds without controllers
+PASS WPAD all-channel idle thresholds update succeeds
+PASS WPAD invalid channel rejects speaker control
+PASS WPAD invalid channel rejects rumble control
+PASS WPAD invalid channel rejects idle threshold update
+PASS WPAD invalid channel disconnect is rejected
+PASS WPAD stream probe confirms empty channel
+PASS WPAD empty channel speaker stream succeeds
+PASS WPAD empty channel rejects malformed speaker stream arguments
+PASS WPAD empty channel read reports no controller
+PASS WPAD empty channel flush reports no controller
+PASS WPAD empty channel dropped-event count is zero
+PASS WPAD invalid channel rejects speaker control
+PASS WPAD invalid channel rejects disconnect
+PASS WPAD invalid channel rejects dropped-event query
+PASS WPAD invalid channel rejects event flush
+PASS WPAD invalid channel rejects speaker query
+PASS WPAD invalid channel rejects event read and preserves output
+PASS WPAD invalid channel rejects pending-event read
+PASS WPAD invalid channel pad status leaves lifecycle state unchanged
+PASS WPAD invalid channel rejects rumble
+PASS WPAD invalid channel rejects speaker stream
+PASS WPAD invalid channel rejects data format
+PASS WPAD invalid channel rejects event buffers
+PASS WPAD invalid channel rejects idle thresholds
+PASS WPAD invalid channel rejects MotionPlus configuration
+PASS WPAD invalid channel rejects IR resolution
+PASS WPAD Bluetooth diagnostics report ready adapter
+PASS WPAD Bluetooth invalid HID slot is empty
+PASS WPAD Bluetooth event queue is empty without HID devices
+PASS WPAD Switch calibration rejects invalid slot
+PASS empty channel probe preserves output on no controller
+PASS invalid WPAD channel is rejected
+PASS empty channel event read reports no controller
+PASS WPAD guest search enters inquiry state
+INFO SKIP periodic guest search duration: Dolphin rejected the HCI command
+PASS WPAD stop_search clears guest inquiry state
+PASS WPAD HID search enters general inquiry state
+PASS WPAD stop_search clears general inquiry state
+PASS WPAD caller event buffer receives latest queued event
+PASS WPAD caller event buffer reports one dropped event
+PASS WPAD status callback receives valid shutdown channel notifications
+PASS WPAD shutdown succeeds
+PASS WPAD adapter close completed
+PASS WPAD Bluetooth shutdown query reports complete
+PASS WPAD reports disabled after shutdown
+PASS WPAD disabled adapter rejects data format
+PASS WPAD disabled adapter rejects disconnect
+PASS WPAD disabled adapter rejects MotionPlus configuration
+PASS WPAD disabled adapter rejects all-channel MotionPlus configuration
+PASS WPAD disabled adapter rejects all-channel speaker control
+PASS WPAD disabled adapter rejects all-channel rumble control
+PASS WPAD disabled adapter rejects all-channel idle thresholds
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+PASS summary passes=110 fails=0

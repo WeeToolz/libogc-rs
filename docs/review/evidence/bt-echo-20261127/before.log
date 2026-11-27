@@ -1,0 +1,10 @@
+test hid_host::tests::echo_request_returns_empty_response_and_keeps_channels ... FAILED
+---- hid_host::tests::echo_request_returns_empty_response_and_keeps_channels stdout ----
+thread 'hid_host::tests::echo_request_returns_empty_response_and_keeps_channels' (22854) panicked at crates/services/ogc-bt-sync/src/hid_host.rs:3026:46:
+echo response queued
+  22:     0x55d307dbf4f9 - ogc_bt_sync[441450a36674df91]::hid_host::tests::echo_request_returns_empty_response_and_keeps_channels
+  23:     0x55d307db2e67 - ogc_bt_sync[441450a36674df91]::hid_host::tests::echo_request_returns_empty_response_and_keeps_channels::{closure#0}
+  24:     0x55d307e15226 - <ogc_bt_sync[441450a36674df91]::hid_host::tests::echo_request_returns_empty_response_and_keeps_channels::{closure#0} as core[ba9b1abbe0fbf050]::ops::function::FnOnce<()>>::call_once
+    hid_host::tests::echo_request_returns_empty_response_and_keeps_channels
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 112 filtered out; finished in 0.01s
+error: test failed, to rerun pass `-p ogc-bt-sync --lib`

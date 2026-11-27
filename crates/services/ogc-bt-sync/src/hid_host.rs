@@ -1903,15 +1903,21 @@ impl HidHost {
                     self.queue_acl(&response[..len]);
                 }
             }
+            L2capSignalPayload::Unknown { .. } if signal.code == L2CAP_ECHO_REQ => {
+                // lwBT returns an empty Echo Response with the request ID.
+                // Use the live ACL handle, not a possibly absent channel PCB.
+                if let Ok(len) = build_l2cap_echo_response(&mut response, handle, signal.identifier) {
+                    self.queue_acl(&response[..len]);
+                }
+            }
             L2capSignalPayload::Unknown { .. }
                 if !matches!(
                     signal.code,
-                    L2CAP_CMD_REJECT | L2CAP_ECHO_REQ | L2CAP_ECHO_RSP
+                    L2CAP_CMD_REJECT | L2CAP_ECHO_RSP
                 ) =>
             {
-                // The parser also preserves known but unsupported standard
-                // commands as Unknown. C handles Command Reject and Echo
-                // separately; Information commands reach its default case.
+                // Information and other unsupported commands reach C's default
+                // case; Command Reject and Echo Response need no reply.
                 if let Ok(len) = build_l2cap_command_reject(
                     &mut response,
                     handle,
@@ -3007,6 +3013,33 @@ mod tests {
                 assert!(host.acl.is_empty());
                 assert_eq!(host.next_event(), None);
             }
+        }
+    }
+
+    #[test]
+    fn echo_request_returns_empty_response_and_keeps_channels() {
+        let mut host = configured(ControllerFamily::Generic);
+        host.acl.clear();
+        host.hci.clear();
+        while host.next_event().is_some() {}
+        let channels = host.links[0].as_ref().unwrap().channels;
+        for (id, payload) in [(0x2a, &[][..]), (0x2b, &[1, 2, 3][..])] {
+            let mut signal = alloc::vec![L2CAP_ECHO_REQ, id, payload.len() as u8, 0];
+            signal.extend_from_slice(payload);
+            let mut packet = [0; 64];
+            let len = build_l2cap_data(&mut packet, 1, L2CAP_CID_SIGNALING, &signal).unwrap();
+            host.receive_acl(&packet[..len]);
+            let reply = host.acl.pop_front().expect("echo response queued");
+            assert_eq!(
+                reply,
+                [1, 0x20, 8, 0, 4, 0, 1, 0, L2CAP_ECHO_RSP, id, 0, 0]
+            );
+            assert!(host.acl.is_empty());
+            assert!(host.hci.is_empty());
+            let link = host.links[0].as_ref().unwrap();
+            assert_eq!(link.channels, channels);
+            assert!(link.ready);
+            assert_eq!(host.next_event(), None);
         }
     }
 

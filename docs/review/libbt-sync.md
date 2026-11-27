@@ -152,3 +152,32 @@ nightly `28221559263a3976766cf305940e80e30cf9ba8a`:
 No new Dolphin controller transport or physical Wii run was performed.
 Independent re-review, full-queue behavior and other L2CAP response paths
 remain open. Keep the package `review_incomplete`.
+
+## 2026-11-27 Echo Request and adapter lifecycle follow-up
+
+Reference: libogc `7d4b8b3e7b845516f0cc2a85274879ddd8cbf142`,
+`lwbt/l2cap.c`, `l2cap_process_sig`, Echo Request branch (721–724).
+The preceding source audit covers the shared HCI, L2CAP, and IOS transport
+modules; the Rust-only HID policy is not required to duplicate generic C
+profiles. Its historical peer disconnect and configuration findings have
+bounded corrections recorded above and in `libwpad-sys.md`. The Echo Request
+exclusion from the default reject path previously also prevented an Echo
+Response. The new branch returns the reference's empty response with the
+received ID via the existing signal builder and live ACL handle, without
+assuming a channel PCB exists. Echo Response and Command Reject remain
+non-replied-to messages. This preserves Rust's checked packet and ownership
+model. The regression feeds empty and nonempty requests through the actual
+ACL parser and checks exact wire bytes, no extra output, and unchanged
+channel state. It failed before the correction; all 113 host tests now pass.
+PowerPC compilation passes. The stock Dolphin 2609b WPAD probe separately
+passes 110/110 checks and nine valid captures with the restored private NAND.
+It exercises actual emulated adapter startup, search and close, not a live
+peer Echo Request. Periodic inquiry duration remains skipped because Dolphin
+rejects that command. See `evidence/bt-echo-20261127/` for scoped evidence.
+
+The existing full-module source audit and subsequent bounded corrections
+are consolidated here. Move the shared implementation to `needs_re_review`
+for an independent current-source audit of command ordering, timeout/retry,
+queue pressure and controller interoperability. No claim of generic lwBT
+profile equivalence, BLE support, or full physical controller acceptance is
+made; physical verification remains pending. This is not reviewed status.

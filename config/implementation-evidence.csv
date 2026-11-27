@@ -407,7 +407,7 @@ ogc-gx,src/lib.rs,get_fifo_size,1814,compatibility-forwarder,hardware-probe,prob
 ogc-gx,src/lib.rs,get_fifo_wrap,1824,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_fifo_pointers
 ogc-gx,src/lib.rs,get_cpu_fifo,1788,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_canvas_dimensions,ogc_gx::get_cpu_fifo
 ogc-gx,src/lib.rs,get_gp_fifo,1799,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_canvas_dimensions,ogc_gx::get_gp_fifo
-ogc-bt-sync,src/protocol.rs,parse_event,813,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_hci_events
+ogc-bt-sync,src/protocol.rs,parse_event,817,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_hci_events
 ogc-bt-sync,src/protocol.rs,parse_acl_packet,508,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_parsers
 ogc-bt-sync,src/protocol.rs,parse_l2cap_packet,525,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_parsers
 ogc-bt-sync,src/protocol.rs,parse_l2cap_signal,542,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_l2cap_parsers

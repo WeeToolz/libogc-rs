@@ -1,0 +1,13 @@
+{
+  "status": "pass",
+  "passes": 110,
+  "fails": 0,
+  "page_capture_count": 9,
+  "pages_valid": true,
+  "dol_sha256": "d03bed5026c45f70297661e75435b7c43a0b1c8e3f79a798039beacec062e725",
+  "summary_line": "PASS summary passes=110 fails=0",
+  "failure_lines": [],
+  "raw_result_sha256": "1452eccf6dc4207f07c1312a0b9399f33138ee30b0111112d256f35122c07f60",
+  "dolphin_version": "2609b",
+  "scope": "WPAD real emulated adapter lifecycle; no peer Echo Request injected"
+}

@@ -786,6 +786,10 @@ pub fn build_l2cap_invalid_cid_reject(
     build_l2cap_signal(buf, handle, id, L2CAP_CMD_REJECT, &payload)
 }
 
+pub(crate) fn build_l2cap_echo_response(buf: &mut [u8], handle: u16, id: u8) -> Result<usize> {
+    build_l2cap_signal(buf, handle, id, L2CAP_ECHO_RSP, &[])
+}
+
 fn build_l2cap_signal(
     buf: &mut [u8],
     handle: u16,

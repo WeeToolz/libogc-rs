@@ -1,0 +1,127 @@
+   Compiling ogc-bt-sync v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/services/ogc-bt-sync)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.04s
+     Running unittests src/lib.rs (target/debug/build/ogc-bt-sync/262fc55f95d7a8cf/out/ogc_bt_sync-262fc55f95d7a8cf)
+
+running 113 tests
+test hid_host::tests::acl_connection_failure_preserves_all_events_when_queue_has_one_slot ... ok
+test hid_host::tests::adapter_patch_command_failure_stops_host_initialization ... ok
+test hid_host::tests::adapter_patch_requires_command_complete_not_command_status ... ok
+test hid_host::tests::authentication_request_failure_and_completion_failure_remove_only_that_link ... ok
+test hid_host::tests::configuration_error_preserves_opcode_status_and_failed_stage ... ok
+test hid_host::tests::configuration_reply_queue_failure_does_not_access_removed_link ... ok
+test hid_host::tests::connected_event_can_be_stale_when_disconnect_is_processed_first ... ok
+test hid_host::tests::connected_event_keeps_calibration_after_later_disconnect ... ok
+test hid_host::tests::connection_reply_queue_failure_does_not_access_removed_link ... ok
+test hid_host::tests::continued_configuration_request_accumulates_unknown_options ... ok
+test hid_host::tests::continued_configuration_response_sends_empty_request ... ok
+test hid_host::tests::continued_non_success_configuration_response_does_not_disconnect ... ok
+test hid_host::tests::controller_allocator_uses_all_six_wpad_slots ... ok
+test hid_host::tests::controller_family_requires_complete_known_names ... ok
+test hid_host::tests::credits_prevent_unbounded_acl_writes ... ok
+test hid_host::tests::disconnect_clears_only_the_matching_slot ... ok
+test hid_host::tests::disconnect_ignores_out_of_range_slots ... ok
+test hid_host::tests::disconnect_request_waits_for_adapter_completion ... ok
+test hid_host::tests::echo_request_returns_empty_response_and_keeps_channels ... ok
+test hid_host::tests::event_backpressure_retains_events_until_the_consumer_makes_space ... ok
+test hid_host::tests::foreign_command_status_does_not_fail_startup ... ok
+test hid_host::tests::foreign_or_duplicate_completions_do_not_create_acl_credits ... ok
+test hid_host::tests::fragmented_acl_reassembles_before_report_decode ... ok
+test hid_host::tests::full_outgoing_queue_still_closes_peer_disconnection_channel ... ok
+test hid_host::tests::general_search_keeps_giac_and_normal_pin_and_finishes_after_one_cycle ... ok
+test hid_host::tests::general_search_still_expires_after_fifteen_seconds ... ok
+test hid_host::tests::guest_periodic_search_does_not_expire_after_fifteen_seconds ... ok
+test hid_host::tests::guest_search_clears_guest_key_cache_and_preserves_registered_keys ... ok
+test hid_host::tests::guest_search_disconnects_wii_remotes_before_periodic_inquiry ... ok
+test hid_host::tests::guest_search_preserves_other_hid_links_and_fails_without_partial_queueing ... ok
+test hid_host::tests::guest_search_uses_liac_and_peer_pin_even_after_search_ends ... ok
+test hid_host::tests::host_reset_keeps_guest_keys_in_volatile_cache ... ok
+test hid_host::tests::inactive_reserved_peer_cid_gets_invalid_cid_reject ... ok
+test hid_host::tests::inbound_guest_remote_authenticates_and_exposes_key_only_when_ready ... ok
+test hid_host::tests::inbound_hid_channel_gets_a_connection_and_config_response ... ok
+test hid_host::tests::incoming_request_during_guest_search_cannot_replace_outgoing_link ... ok
+test hid_host::tests::invalid_configuration_cid_rejects_before_flags_or_options ... ok
+test hid_host::tests::joycon_left_ignores_malformed_calibration_for_unused_right_stick ... ok
+test hid_host::tests::link_key_notification_updates_the_cached_key ... ok
+test hid_host::tests::malformed_discovery_completion_reports_failure_without_host_timeout ... ok
+test hid_host::tests::malformed_packets_and_foreign_handles_do_not_change_buttons ... ok
+test hid_host::tests::malformed_stored_key_completion_does_not_start_adapter_patch ... ok
+test hid_host::tests::normal_pairing_writes_registered_key_without_guest_config_event ... ok
+test hid_host::tests::outbound_interrupt_waits_for_complete_control_configuration ... ok
+test hid_host::tests::output_data_uses_interrupt_channel_for_switch_and_xbox ... ok
+test hid_host::tests::output_queue_failure_is_not_submission_success ... ok
+test hid_host::tests::paired_remote_reconnects_with_non_peripheral_class ... ok
+test hid_host::tests::peek_event_preserves_event_until_processing_succeeds ... ok
+test hid_host::tests::peer_channel_disconnect_queues_response_and_keeps_acl_link ... ok
+test hid_host::tests::rejected_disconnect_request_preserves_the_live_link ... ok
+test hid_host::tests::required_unknown_configuration_option_gets_unknown_response ... ok
+test hid_host::tests::response_identifiers_match_live_requests_and_consume_final_responses ... ok
+test hid_host::tests::retains_all_registered_and_guest_keys_for_later_wii_remote_reconnects ... ok
+test hid_host::tests::signalling_identifier_wrap_skips_outstanding_requests ... ok
+test hid_host::tests::simple_pairing_is_enabled_only_when_adapter_supports_it ... ok
+test hid_host::tests::six_byte_scan_completion_is_valid ... ok
+test hid_host::tests::ssp_confirmation_rejects_unknown_addresses ... ok
+test hid_host::tests::startup_timeout_is_terminal_and_idempotent_start_does_not_duplicate_reset ... ok
+test hid_host::tests::stored_key_event_rejects_zero_record_count ... ok
+test hid_host::tests::stored_key_read_counts_return_event_without_using_its_zeroed_keys ... ok
+test hid_host::tests::stored_key_read_rejects_count_above_capacity ... ok
+test hid_host::tests::stored_key_read_times_out_if_return_events_are_missing ... ok
+test hid_host::tests::stored_key_read_uses_legacy_adapter_key_bytes_when_present ... ok
+test hid_host::tests::stored_key_records_may_arrive_before_command_complete ... ok
+test hid_host::tests::switch_bad_spi_echo_and_invalid_present_user_data_fail_protocol ... ok
+test hid_host::tests::switch_calibration_getter_waits_for_the_applicable_single_joycon_stick ... ok
+test hid_host::tests::switch_nack_and_setup_timeout_retry_then_fail_without_ready ... ok
+test hid_host::tests::switch_reads_factory_data_only_when_user_magic_is_absent ... ok
+test hid_host::tests::switch_ready_waits_for_calibration_and_exposes_user_axes ... ok
+test hid_host::tests::unallocated_incoming_remote_during_guest_search_uses_guest_pin ... ok
+test hid_host::tests::unknown_l2cap_signal_gets_not_understood_command_reject ... ok
+test hid_host::tests::unknown_non_peripheral_peer_is_still_rejected ... ok
+test hid_host::tests::unmatched_peer_channel_disconnect_gets_invalid_cid_reject ... ok
+test hid_host::tests::unsolicited_configuration_responses_leave_channel_unchanged ... ok
+test hid_host::tests::wii_pin_uses_adapter_address_and_cached_keys_reply ... ok
+test protocol::tests::builds_and_parses_l2cap_connection_request ... ok
+test protocol::tests::builds_and_parses_l2cap_hid_data ... ok
+test protocol::tests::builds_l2cap_configuration_request_with_hid_mtu ... ok
+test protocol::tests::class_of_device_extracts_major_bits ... ok
+test protocol::tests::disconnection_response_preserves_request_cid_order ... ok
+test protocol::tests::hci_endpoint_addresses_validate_direction_and_address_bits ... ok
+test protocol::tests::hid_l2cap_state_tracks_control_and_interrupt_readiness ... ok
+test protocol::tests::internal_path_is_short_enough_for_ipc ... ok
+test protocol::tests::opcode_encoding_matches_bluetooth_spec_examples ... ok
+test protocol::tests::parses_command_status_event ... ok
+test protocol::tests::parses_connection_complete_event ... ok
+test protocol::tests::parses_connection_request_event ... ok
+test protocol::tests::parses_inquiry_event ... ok
+test protocol::tests::parses_link_key_events ... ok
+test protocol::tests::parses_multiple_inquiry_results_from_field_arrays ... ok
+test protocol::tests::parses_multiple_inquiry_results_with_rssi_field_arrays ... ok
+test protocol::tests::parses_multiple_signals_from_one_l2cap_payload ... ok
+test protocol::tests::parses_pin_request_event ... ok
+test report_queue::tests::connection_event_preserves_switch_calibration ... ok
+test report_queue::tests::full_queue_backpressures_without_changing_connection_state ... ok
+test report_queue::tests::generations_are_independent_per_slot_and_duplicate_connect_is_rejected ... ok
+test report_queue::tests::generations_fence_reports_after_disconnect_and_reconnect ... ok
+test report_queue::tests::preserves_paired_controller_report_order_between_scans ... ok
+test report_queue::tests::rejects_reports_without_a_live_connection ... ok
+test report_queue::tests::report_length_limit_is_transactional ... ok
+test request::tests::detached_timeout_keeps_ios_owner_alive ... ok
+test request::tests::errors_and_oversized_results_are_not_reports ... ok
+test request::tests::pending_and_immediate_completion_preserve_owned_data ... ok
+test switch::tests::absent_user_magic_is_distinct_from_malformed_calibration ... ok
+test switch::tests::ack_and_nack_are_distinct_and_short_replies_are_rejected ... ok
+test switch::tests::hidp_input_and_standard_report_check_headers_lengths_and_values ... ok
+test switch::tests::hidp_output_writes_fixed_packet_and_preserves_short_buffer ... ok
+test switch::tests::initialization_and_rumble_have_independent_expected_bytes ... ok
+test switch::tests::shared_setup_ignores_wrong_ack_and_rejects_nack_or_bad_spi_echo ... ok
+test switch::tests::shared_setup_retry_is_bounded_and_keeps_the_pending_step ... ok
+test switch::tests::shared_setup_waits_for_ack_and_valid_factory_calibration ... ok
+test switch::tests::spi_calibration_read_packet_has_fixed_little_endian_fixture ... ok
+test switch::tests::user_and_factory_calibration_fixtures_decode_without_defaults ... ok
+
+test result: ok. 113 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests ogc_bt_sync
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
