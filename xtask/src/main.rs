@@ -1845,7 +1845,11 @@ fn clippy() -> Result<(), String> {
     check_runtime_packages(&root, &packages, "all-runtime", "clippy")?;
 
     let probes = workspace::packages_for_group(&root, "probes")?;
-    for features in [None, Some("ogc-system-probe/dolphin-automation")] {
+    for features in [
+        None,
+        Some("ogc-system-probe/dolphin-automation"),
+        Some("ogc-system-probe/dolphin-automation,ogc-system-probe/ios-reload-probe"),
+    ] {
         let mut check = runtime_check_command(&root, "all-runtime", "clippy")?;
         for probe in probes
             .iter()

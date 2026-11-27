@@ -110,6 +110,22 @@ fn release_hook() -> bool {
     let close = ipc::IOS_Close(fd);
     result == 0 && close == 0
 }
+
+fn ios_ticket_view_error(version: i32) -> Option<(i32, i32)> {
+    let title_id = 0x0000_0001_0000_0000u64 | version as u64;
+    let mut view_count = 0;
+    // SAFETY: The output points to a writable u32.
+    let result = unsafe { ogc_es_sys::get_num_ticket_views(title_id, &mut view_count) };
+    (result < 0).then_some((version, result))
+}
+
+fn unavailable_ios_ticket_error(current_version: i32) -> Option<(i32, i32)> {
+    ios_ticket_view_error(current_version).or_else(|| {
+        (3..=255)
+            .filter(|version| *version != current_version)
+            .find_map(ios_ticket_view_error)
+    })
+}
 // Measure capacity without submitting any request to IOS. Release every
 // record and reservation acquired by this diagnostic before returning.
 fn measure_capacity(logger: &mut ProbeLogger, phase: &str) -> (usize, usize) {
@@ -242,7 +258,7 @@ pub(super) fn run(logger: &mut ProbeLogger, version: i32) {
     for iteration in 1..=3 {
         logger.section("Outstanding application IPC across IOS replacement");
         logger.note_u32("pending reload iteration", iteration);
-        if !run_once(logger, version, heap, iteration == 3) {
+        if !run_once(logger, version, heap, iteration == 1, iteration == 3) {
             break;
         }
     }
@@ -252,6 +268,7 @@ fn run_once(
     logger: &mut ProbeLogger,
     version: i32,
     heap: i32,
+    probe_prelaunch_failure: bool,
     inject_handshake_failure: bool,
 ) -> bool {
     OLD_COUNT.store(0, Ordering::Release);
@@ -388,6 +405,86 @@ fn run_once(
         before.0.checked_sub(2) == Some(in_flight.0)
             && before.1.checked_sub(2) == Some(in_flight.1),
     );
+    if probe_prelaunch_failure {
+        let Some((unavailable_version, ticket_error)) = unavailable_ios_ticket_error(version)
+        else {
+            let released = release_hook();
+            let start = ogc_system::time();
+            while (OLD_COUNT.load(Ordering::Acquire) == 0
+                || FORMAT_COUNT.load(Ordering::Acquire) == 0)
+                && ogc_system::time().wrapping_sub(start) < TIMER_HZ * 2
+            {
+                ipc::poll();
+                ogc_lwp::sys::yield_thread();
+            }
+            let callbacks_completed =
+                OLD_COUNT.load(Ordering::Acquire) == 1 && FORMAT_COUNT.load(Ordering::Acquire) == 1;
+            let closed = ipc::IOS_Close(old_fd) == 0;
+            let stm_reinitialized = ogc_stm::init() == 0;
+            logger.record(
+                "pending reload finds an IOS title without ticket views",
+                false,
+            );
+            logger.record(
+                "pending reload missing-ticket search releases requests and restores STM",
+                released && callbacks_completed && closed && stm_reinitialized,
+            );
+            return false;
+        };
+        logger.note_i32(
+            "pending reload unavailable IOS version",
+            unavailable_version,
+        );
+        logger.note_i32("pending reload unavailable IOS ticket error", ticket_error);
+        logger.record(
+            "pending reload finds an IOS title without ticket views",
+            true,
+        );
+        let reload_result = ogc_ios::reload_ios(unavailable_version);
+        logger.note_i32(
+            "pending reload unavailable IOS preflight result",
+            reload_result,
+        );
+        logger.record(
+            "pending reload ES ticket error prevents the IOS launch",
+            reload_result < 0 && ogc_ios::get_version() == version,
+        );
+        let ipc_usable =
+            ipc::open_file(c"/dev/fs", ipc::IPC_OPEN_NONE).is_ok_and(|fd| fd.close().is_ok());
+        let old_request_still_pending = control(old_fd, EVENT_HOOK) == IPC_EEXIST
+            && OLD_COUNT.load(Ordering::Acquire) == 0
+            && FORMAT_COUNT.load(Ordering::Acquire) == 0
+            && ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire) > format_before;
+        logger.record(
+            "pending reload old IPC stays live after the ES ticket error",
+            ipc_usable && old_request_still_pending,
+        );
+        let stm_closed = ogc_stm::close() == 0;
+        let mut after_preflight_error = [ipc::AsyncRequestSnapshot::default(); 64];
+        let after_preflight_count =
+            ipc::snapshot_in_flight_async_requests_for_probe(&mut after_preflight_error);
+        let old_requests_preserved = after_preflight_count == pending_address_count
+            && pending_addresses[..pending_address_count]
+                .iter()
+                .all(|pending| {
+                    after_preflight_error[..after_preflight_count]
+                        .iter()
+                        .any(|current| current.address == pending.address)
+                });
+        logger.record(
+            "pending reload clears new STM hook and keeps old request trackers",
+            stm_closed && old_requests_preserved,
+        );
+        if reload_result >= 0
+            || ogc_ios::get_version() != version
+            || !ipc_usable
+            || !old_request_still_pending
+            || !stm_closed
+            || !old_requests_preserved
+        {
+            return false;
+        }
+    }
     // Leave the request pending. Same-version reload constructs a new IOS in Dolphin.
     if inject_handshake_failure {
         ipc::fail_next_replacement_handshake_for_probe();
