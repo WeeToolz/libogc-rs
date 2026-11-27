@@ -685,8 +685,12 @@ requests with `IPC_ENOENT` before clearing the queue. It preserves sent requests
 and their replies. This is a justified safety difference from C, which clears
 the queue without completing those requests. The probe verifies exact-once
 callbacks in FIFO order across ring wrap, formatter userdata, and no staged
-output copyback. Actual failed IOS launch, failed fresh ES handshake, and
-independent concurrency review remain open.
+output copyback. The follow-up now adds a raw `IOS_IoctlvAsync` vector-pointer
+assertion to the same probe, but Dolphin stopped at startup with SIGABRT, so
+that assertion has only been compiled and remains unverified at runtime. See
+the [pointer restoration build record](../dolphin-runs/2026-11-27-ipc-unsent-ioctlv-pointer-restore/README.md).
+Actual failed IOS launch, failed fresh ES handshake, and independent
+concurrency review remain open.
 
 The fresh-handshake gate in `IosReplacement::finish` uses shared logic with
 host tests for both outcomes. A failed handshake preserves three modeled
