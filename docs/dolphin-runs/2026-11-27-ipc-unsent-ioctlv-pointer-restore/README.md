@@ -9,9 +9,11 @@ callback, and an unchanged output buffer. The request uses the existing ES
 fixture and does not reach IOS.
 
 Production cleanup now uses the same cancellation preparation path for unsent
-requests as for requests retired after IOS replacement. The path restores
-non-empty vector pointers to cached K0 form. It does not invalidate or write
-unsent DMA buffers. The C implementation clears queued requests without
+requests as for requests retired after IOS replacement. The cancellation path
+restores non-empty vector pointers to cached K0 form. It does not invalidate or
+write unsent DMA buffers. Normal IOS replies use a separate conversion helper
+that matches C and translates every non-null vector pointer, including
+zero-length entries. The C implementation clears queued requests without
 completing them; this Rust behavior remains a safety difference.
 
 Build command:
@@ -23,10 +25,12 @@ CARGO_NET_OFFLINE=true cargo xtask build-dol ogc-system-probe --bin ipc_async_pr
 The PowerPC DOL build passed. Artifact:
 `target/xtask/custom-dols/ogc_system_probe-ipc_async_probe.dol`
 
-SHA-256: `a3559a59752c82002eb8e32ac604001e81e83cca82aa0d50c1edeabfac08f920`
+SHA-256: `f0e9a7c72e35079ab64396094a3d09976cca75ee6b57f308d161f721bce192e4`
 
-The build manifest records source revision `e6dc75111566381b84c163655bdadd5f2b962abe`
-and both changed source files.
+The build manifest records source revision `f7777b9680323101e70afedd975f0dec48f4b8ea`,
+the target tuple, feature, byte count, DOL hash, and dirty source files. A host
+contract test calls the same address conversion helpers used by production and
+checks the normal reply and cancelled zero-length cases.
 
 Runtime attempt:
 

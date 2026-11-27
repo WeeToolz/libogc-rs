@@ -1911,8 +1911,10 @@ unsafe fn prepare_cancelled_request_completion(req: *mut IpcRequest) {
                     for entry in core::slice::from_raw_parts_mut(argv, count) {
                         // Zero-length vector addresses are protocol data, not DMA.
                         if !entry.data.is_null() && entry.len != 0 {
-                            entry.data =
-                                mem_physical_to_k0(entry.data as usize as u32) as *mut c_void;
+                            entry.data = raw_contract::cancellation_vector_address(
+                                entry.data as usize,
+                                entry.len as usize,
+                            ) as *mut c_void;
                             if sent {
                                 dc_invalidate_range(entry.data.cast_const(), entry.len as usize);
                             }
@@ -2023,7 +2025,8 @@ unsafe fn reply_handler() {
                 let raw = core::slice::from_raw_parts_mut(argv_ptr, total);
                 for (idx, entry) in raw.iter_mut().enumerate() {
                     if !entry.data.is_null() {
-                        entry.data = mem_physical_to_k0(entry.data as usize as u32) as *mut c_void;
+                        entry.data =
+                            raw_contract::completion_address(entry.data as usize) as *mut c_void;
                         if entry.len > 0 {
                             dc_invalidate_range(entry.data.cast_const(), entry.len as usize);
                         }

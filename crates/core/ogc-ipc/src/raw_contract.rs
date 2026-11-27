@@ -89,6 +89,20 @@ pub(crate) fn request_address(pointer: usize, length: usize) -> usize {
     }
 }
 
+/// Restore an IOS vector address to cached K0 form after a reply.
+pub(crate) fn completion_address(pointer: usize) -> usize {
+    (pointer as u32).wrapping_add(0x8000_0000) as usize
+}
+
+/// Preserve zero-length addresses when a request is cancelled before reply.
+pub(crate) fn cancellation_vector_address(pointer: usize, length: usize) -> usize {
+    if length == 0 {
+        pointer
+    } else {
+        completion_address(pointer)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -164,6 +178,13 @@ mod tests {
         assert_eq!(request_address(0xdead_beef, 0), 0xdead_beef);
         assert_eq!(request_address(0xc000_1000, 32), 0x0000_1000);
         assert_eq!(request_address(0x8000_1000, 32), 0x0000_1000);
+    }
+
+    #[test]
+    fn vector_addresses_restore_replies_and_preserve_cancelled_empty_values() {
+        assert_eq!(completion_address(0x0000_1000), 0x8000_1000);
+        assert_eq!(cancellation_vector_address(0xdead_beef, 0), 0xdead_beef);
+        assert_eq!(cancellation_vector_address(0x0000_1000, 32), 0x8000_1000);
     }
 }
 /// Submission failure is distinct from a completed IOS request with an error.
