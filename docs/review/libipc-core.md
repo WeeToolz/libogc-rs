@@ -695,6 +695,12 @@ a successful handshake permits retirement. Dolphin 2609a passed the existing
 replacement and cancellation, but it does not force the fresh `/dev/es`
 handshake to fail. See the [run record](../dolphin-runs/2026-11-27-ipc-replacement-handshake-gate/README.md).
 
+### Zero-vector request retirement guard (2026-11-27)
+
+`IOS_IoctlvAsync` accepts a zero-vector request with a null array. If IOS replacement retires that request before a reply, the cancellation path must not create a Rust slice from the absent array. It now checks vector-count addition, byte-length multiplication, pointer alignment, and address-range overflow. A zero-vector request skips array access. Host contract tests cover the empty case, a valid range, null and misaligned nonempty arrays, count overflow, and address wrap. The cancellation path validates the layout before it accesses a nonempty vector array.
+
+Async requests with no user callback do not enter this path as callback-less allocations: the shared file-request path installs an internal no-op callback, while nonempty raw IOCTLV rejects a missing callback. This allows the deferred worker to retire request storage. Host tests and strict Clippy pass. Dolphin replacement behavior for an actual zero-vector request is not recorded, so this guard has host contract evidence only.
+
 ## External IRQ dispatch context — 2026-11-26
 
 The external IRQ dispatcher now exposes a scoped runtime context flag for

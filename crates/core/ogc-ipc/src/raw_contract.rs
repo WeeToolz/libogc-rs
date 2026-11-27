@@ -55,6 +55,27 @@ pub(crate) fn vector_layout(
         Some((total, length))
     }
 }
+
+/// Return the checked range for a vector array that may be absent when empty.
+pub(crate) fn cancellation_vector_layout(
+    input: u32,
+    output: u32,
+    entry_size: usize,
+    pointer: usize,
+) -> Option<(usize, usize)> {
+    let count = input.checked_add(output)? as usize;
+    if count == 0 {
+        return Some((0, 0));
+    }
+    vector_layout(
+        input as usize,
+        output as usize,
+        count,
+        entry_size,
+        pointer,
+    )
+}
+
 pub(crate) fn buffer_valid(pointer: usize, length: usize) -> bool {
     length == 0
         || (pointer != 0
@@ -122,6 +143,19 @@ mod tests {
         assert_eq!(vector_layout(usize::MAX, 1, 4, 8, 0x1000), None);
         assert_eq!(vector_layout(1, 0, 1, 8, 0x1004), None);
         assert_eq!(vector_layout(0, 0, 4, 8, 0x1000), None);
+    }
+
+    #[test]
+    fn cancellation_vector_layout_allows_empty_null_array_and_checks_ranges() {
+        assert_eq!(cancellation_vector_layout(0, 0, 8, 0), Some((0, 0)));
+        assert_eq!(cancellation_vector_layout(1, 1, 8, 0x1000), Some((2, 16)));
+        assert_eq!(cancellation_vector_layout(1, 0, 8, 0), None);
+        assert_eq!(cancellation_vector_layout(1, 0, 8, 0x1004), None);
+        assert_eq!(cancellation_vector_layout(u32::MAX, 1, 8, 0x1000), None);
+        assert_eq!(
+            cancellation_vector_layout(1, 0, 32, usize::MAX - 31),
+            None
+        );
     }
 
     #[test]

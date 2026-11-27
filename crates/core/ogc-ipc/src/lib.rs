@@ -1875,22 +1875,31 @@ unsafe fn cancel_abandoned_request(req: *mut IpcRequest) {
             }
         } else if command == IOS_IOCTLV {
             let data = (*req).data.ioctlv;
-            let count = (data.argcin + data.argcio) as usize;
-            let argv = mem_physical_to_k0(data.argv as usize as u32) as *mut Ioctlv;
-            if sent {
-                dc_invalidate_range(
-                    argv.cast_const().cast(),
-                    count * core::mem::size_of::<Ioctlv>(),
-                );
-            }
-            for entry in core::slice::from_raw_parts_mut(argv, count) {
-                // Zero-length vector addresses are protocol data, not DMA.
-                if !entry.data.is_null() && entry.len != 0 {
-                    entry.data = mem_physical_to_k0(entry.data as usize as u32) as *mut c_void;
+            let array = data.argv as usize as u32;
+            if let Some((count, length)) = raw_contract::cancellation_vector_layout(
+                data.argcin,
+                data.argcio,
+                core::mem::size_of::<Ioctlv>(),
+                array as usize,
+            ) {
+                if count != 0 {
+                    let argv = mem_physical_to_k0(array) as *mut Ioctlv;
                     if sent {
-                        dc_invalidate_range(entry.data.cast_const(), entry.len as usize);
+                        dc_invalidate_range(argv.cast_const().cast(), length);
+                    }
+                    for entry in core::slice::from_raw_parts_mut(argv, count) {
+                        // Zero-length vector addresses are protocol data, not DMA.
+                        if !entry.data.is_null() && entry.len != 0 {
+                            entry.data =
+                                mem_physical_to_k0(entry.data as usize as u32) as *mut c_void;
+                            if sent {
+                                dc_invalidate_range(entry.data.cast_const(), entry.len as usize);
+                            }
+                        }
                     }
                 }
+            } else {
+                debug_mark(67, data.argcin, data.argcio, array);
             }
         }
         complete_cancelled_async_request(req, mem_virtual_to_physical(req as usize));
