@@ -808,3 +808,33 @@ open. The static ledger now marks the crate `needs_re_review`: this pass found
 and fixed the recorded timeout mismatch, and the earlier confirmed WPAD
 findings in this note have bounded fixes. This does not mark the full crate
 parity review complete.
+
+## 2026-11-27 outstanding L2CAP responses
+
+Reference: libogc `7d4b8b3e7b845516f0cc2a85274879ddd8cbf142`,
+`lwbt/l2cap.c`, `l2cap_process_sig`, response lookup and CONN_RSP/CFG_RSP
+branches. C discards a response when no outstanding signal matches its ID.
+Rust previously used the response CID/result without a pending-ID check.
+An unsolicited successful configuration response marked the channel configured.
+The new host regression reproduces this on the previous production source.
+
+The HID host now tracks accepted connection and configuration requests for
+each link/channel. Pending connection responses keep the request; terminal
+responses consume it. A continued configuration response or retry gets a new
+ID. Wrong-ID, wrong-CID, wrong-class and duplicate responses do not consume
+requests or change channel state. IDs skip outstanding requests on wrap.
+The existing peer CID convention and continuation result policy are retained.
+The channel state and inbound option accumulation reset on close/reopen.
+Request state is only published when queueing succeeds. Two reply paths now
+return after queue failure removes the links instead of dereferencing a
+removed link. This is a Rust safety correction, not a change to C wire bytes.
+
+Evidence: [before](evidence/bt-response-20261127/before.log),
+[112 host tests](evidence/bt-response-20261127/host.log),
+[PowerPC check](evidence/bt-response-20261127/powerpc.log).
+The tests use production `receive_acl` with controlled peer packets; the
+PowerPC check compiles, but does not execute these paths. The reference
+uses PCB lookup and may accept responses with inconsistent CIDs; the Rust
+additional link/CID match deliberately prevents unrelated channel mutation.
+No new Dolphin or physical controller evidence. Broader HCI, HID and L2CAP
+option handling, retries and runtime transport review remain incomplete.

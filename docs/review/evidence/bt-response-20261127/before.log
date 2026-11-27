@@ -1,0 +1,22 @@
+   Compiling ogc-bt-sync v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/services/ogc-bt-sync)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.58s
+     Running unittests src/lib.rs (target/debug/build/ogc-bt-sync/262fc55f95d7a8cf/out/ogc_bt_sync-262fc55f95d7a8cf)
+
+running 1 test
+test hid_host::tests::unsolicited_configuration_responses_leave_channel_unchanged ... FAILED
+
+failures:
+
+---- hid_host::tests::unsolicited_configuration_responses_leave_channel_unchanged stdout ----
+
+thread 'hid_host::tests::unsolicited_configuration_responses_leave_channel_unchanged' (12125) panicked at crates/services/ogc-bt-sync/src/hid_host.rs:3046:13:
+assertion `left == right` failed
+  left: Some(HidL2capState { control: L2capHidChannelState { psm: 17, local_cid: 64, remote_cid: 80, active: true, connected: true, local_configured: true, remote_configured: true }, interrupt: L2capHidChannelState { psm: 19, local_cid: 65, remote_cid: 81, active: true, connected: true, local_configured: true, remote_configured: true } })
+ right: Some(HidL2capState { control: L2capHidChannelState { psm: 17, local_cid: 64, remote_cid: 80, active: true, connected: true, local_configured: false, remote_configured: true }, interrupt: L2capHidChannelState { psm: 19, local_cid: 65, remote_cid: 81, active: true, connected: true, local_configured: true, remote_configured: true } })
+
+failures:
+    hid_host::tests::unsolicited_configuration_responses_leave_channel_unchanged
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 107 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p ogc-bt-sync --lib`

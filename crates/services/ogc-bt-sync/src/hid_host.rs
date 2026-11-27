@@ -168,6 +168,8 @@ pub enum HidEvent {
 struct PendingConfig {
     options: Vec<u8>,
     has_unknown: bool,
+    connection_request: Option<u8>,
+    configuration_request: Option<u8>,
 }
 
 #[derive(Clone)]
@@ -211,17 +213,37 @@ impl Link {
         }
     }
 
-    fn pending_config_mut(&mut self, local_cid: u16) -> Option<(&mut PendingConfig, u16)> {
+    fn channel_signals_mut(
+        &mut self,
+        local_cid: u16,
+    ) -> Option<(&mut L2capHidChannelState, &mut PendingConfig)> {
         if self.channels.control.local_cid == local_cid {
-            Some((&mut self.control_config, self.channels.control.remote_cid))
+            Some((&mut self.channels.control, &mut self.control_config))
         } else if self.channels.interrupt.local_cid == local_cid {
-            Some((
-                &mut self.interrupt_config,
-                self.channels.interrupt.remote_cid,
-            ))
+            Some((&mut self.channels.interrupt, &mut self.interrupt_config))
         } else {
             None
         }
+    }
+
+    fn pending_config_mut(&mut self, local_cid: u16) -> Option<(&mut PendingConfig, u16)> {
+        let (channel, pending) = self.channel_signals_mut(local_cid)?;
+        Some((pending, channel.remote_cid))
+    }
+
+    fn configuration_response_channel(&self, remote_cid: u16, id: u8) -> Option<u16> {
+        [
+            (&self.channels.control, &self.control_config),
+            (&self.channels.interrupt, &self.interrupt_config),
+        ]
+        .into_iter()
+        .find_map(|(channel, pending)| {
+            (channel.active
+                && channel.connected
+                && channel.remote_cid == remote_cid
+                && pending.configuration_request == Some(id))
+            .then_some(channel.local_cid)
+        })
     }
 }
 struct PendingCommand {
@@ -1296,27 +1318,78 @@ impl HidHost {
         }
     }
     fn next_id(&mut self) -> u8 {
-        self.signal_id = self.signal_id.wrapping_add(1).max(1);
-        self.signal_id
+        // At most two channels per link have a request pending. Do not reuse
+        // one of their identifiers when the eight-bit counter wraps.
+        loop {
+            self.signal_id = self.signal_id.wrapping_add(1).max(1);
+            let used = self.links.iter().flatten().any(|link| {
+                [&link.control_config, &link.interrupt_config]
+                    .into_iter()
+                    .any(|pending| {
+                        pending.connection_request == Some(self.signal_id)
+                            || pending.configuration_request == Some(self.signal_id)
+                    })
+            });
+            if !used {
+                return self.signal_id;
+            }
+        }
     }
     fn connect_channel(&mut self, slot: usize, psm: u16, cid: u16) {
-        let Some(handle) = self.links[slot].as_ref().and_then(|l| l.handle) else {
+        let Some(link) = self.links[slot].as_mut() else {
             return;
         };
+        let Some(handle) = link.handle else {
+            return;
+        };
+        if link.channel_signals_mut(cid).is_none() {
+            return;
+        }
         let mut packet = [0; 64];
         let id = self.next_id();
         if let Ok(len) = build_l2cap_connection_request(&mut packet, handle, id, psm, cid) {
-            if let Some(link) = self.links[slot].as_mut() {
-                let channel = if cid == L2CAP_HID_CTRL_LOCAL_CID {
-                    &mut link.channels.control
-                } else if cid == L2CAP_HID_INTR_LOCAL_CID {
-                    &mut link.channels.interrupt
-                } else {
-                    return;
-                };
-                channel.active = true;
+            if let Err(failure) = self.try_queue_acl(&packet[..len]) {
+                self.fail(failure);
+                return;
             }
-            self.queue_acl(&packet[..len]);
+            if let Some((channel, pending)) = self.links[slot]
+                .as_mut()
+                .and_then(|link| link.channel_signals_mut(cid))
+            {
+                channel.active = true;
+                *pending = PendingConfig::default();
+                pending.connection_request = Some(id);
+            }
+        }
+    }
+
+    fn request_configuration(&mut self, slot: usize, local_cid: u16) {
+        let Some(link) = self.links[slot].as_mut() else {
+            return;
+        };
+        let Some(handle) = link.handle else {
+            return;
+        };
+        let Some((channel, _)) = link.channel_signals_mut(local_cid) else {
+            return;
+        };
+        if !channel.active || !channel.connected {
+            return;
+        }
+        let remote_cid = channel.remote_cid;
+        let id = self.next_id();
+        let mut packet = [0; 64];
+        if let Ok(len) = build_l2cap_configuration_request(&mut packet, handle, id, remote_cid) {
+            if let Err(failure) = self.try_queue_acl(&packet[..len]) {
+                self.fail(failure);
+                return;
+            }
+            if let Some((_, pending)) = self.links[slot]
+                .as_mut()
+                .and_then(|link| link.channel_signals_mut(local_cid))
+            {
+                pending.configuration_request = Some(id);
+            }
         }
     }
     fn queue_acl(&mut self, packet: &[u8]) {
@@ -1588,25 +1661,24 @@ impl HidHost {
                     source_cid,
                     result,
                 ) {
-                    self.queue_acl(&response[..len]);
+                    if let Err(failure) = self.try_queue_acl(&response[..len]) {
+                        self.fail(failure);
+                        return;
+                    }
                 }
                 if local == 0 {
                     return;
                 }
-                let channel = if local == L2CAP_HID_CTRL_LOCAL_CID {
-                    &mut self.links[slot].as_mut().unwrap().channels.control
-                } else {
-                    &mut self.links[slot].as_mut().unwrap().channels.interrupt
-                };
+                let (channel, pending) = self.links[slot]
+                    .as_mut()
+                    .unwrap()
+                    .channel_signals_mut(local)
+                    .unwrap();
                 channel.active = true;
                 channel.connected = true;
                 channel.remote_cid = source_cid;
-                let id = self.next_id();
-                if let Ok(len) =
-                    build_l2cap_configuration_request(&mut response, handle, id, source_cid)
-                {
-                    self.queue_acl(&response[..len]);
-                }
+                *pending = PendingConfig::default();
+                self.request_configuration(slot, local);
             }
             L2capSignalPayload::ConnectionResponse {
                 dest_cid,
@@ -1614,10 +1686,23 @@ impl HidHost {
                 result,
                 ..
             } => {
+                // C matches responses to outstanding requests before using
+                // the result. Also validate the local CID on this link.
+                let Some((channel, pending)) = self.links[slot]
+                    .as_mut()
+                    .unwrap()
+                    .channel_signals_mut(source_cid)
+                else {
+                    return;
+                };
+                if !channel.active || pending.connection_request != Some(signal.identifier) {
+                    return;
+                }
                 if result == L2CAP_CONN_PENDING {
                     return;
                 }
-                if result != 0 {
+                pending.connection_request = None;
+                if result != L2CAP_CONN_SUCCESS {
                     self.disconnect(slot);
                     self.emit(HidEvent::Failed {
                         slot: Some(slot),
@@ -1625,22 +1710,9 @@ impl HidHost {
                     });
                     return;
                 }
-                if source_cid != L2CAP_HID_CTRL_LOCAL_CID && source_cid != L2CAP_HID_INTR_LOCAL_CID
-                {
-                    self.diagnostic.malformed += 1;
-                    return;
-                }
-                let _ = self.links[slot]
-                    .as_mut()
-                    .unwrap()
-                    .channels
-                    .observe_signal(signal);
-                let id = self.next_id();
-                if let Ok(len) =
-                    build_l2cap_configuration_request(&mut response, handle, id, dest_cid)
-                {
-                    self.queue_acl(&response[..len]);
-                }
+                channel.remote_cid = dest_cid;
+                channel.connected = true;
+                self.request_configuration(slot, source_cid);
             }
             L2capSignalPayload::ConfigurationRequest {
                 dest_cid,
@@ -1722,7 +1794,10 @@ impl HidHost {
                     result,
                     &accumulated,
                 ) {
-                    self.queue_acl(&response[..len]);
+                    if let Err(failure) = self.try_queue_acl(&response[..len]) {
+                        self.fail(failure);
+                        return;
+                    }
                 }
                 if flags & 1 == 0 && result == L2CAP_CFG_SUCCESS {
                     let _ = self.links[slot]
@@ -1738,6 +1813,19 @@ impl HidHost {
                 flags,
                 ..
             } => {
+                let Some(local_cid) = self.links[slot]
+                    .as_ref()
+                    .unwrap()
+                    .configuration_response_channel(source_cid, signal.identifier)
+                else {
+                    return;
+                };
+                let (channel, pending) = self.links[slot]
+                    .as_mut()
+                    .unwrap()
+                    .channel_signals_mut(local_cid)
+                    .unwrap();
+                pending.configuration_request = None;
                 if flags & !1 != 0 {
                     self.disconnect(slot);
                     self.emit(HidEvent::Failed {
@@ -1748,11 +1836,7 @@ impl HidHost {
                 }
 
                 if result == L2CAP_CFG_SUCCESS {
-                    let _ = self.links[slot]
-                        .as_mut()
-                        .unwrap()
-                        .channels
-                        .observe_signal(signal);
+                    channel.local_configured = true;
                 } else if flags & 1 == 0 && result != L2CAP_CFG_UNACCEPT {
                     self.disconnect(slot);
                     self.emit(HidEvent::Failed {
@@ -1765,12 +1849,7 @@ impl HidHost {
                 if flags & 1 != 0 || result == L2CAP_CFG_UNACCEPT {
                     // C continues non-success responses while the continuation
                     // bit is set, and retries an unacceptable final response.
-                    let id = self.next_id();
-                    if let Ok(len) =
-                        build_l2cap_configuration_request(&mut response, handle, id, source_cid)
-                    {
-                        self.queue_acl(&response[..len]);
-                    }
+                    self.request_configuration(slot, local_cid);
                 }
             }
             L2capSignalPayload::DisconnectionRequest {
@@ -1806,6 +1885,9 @@ impl HidHost {
                                 let link = self.links[slot].as_mut().unwrap();
                                 if link.channels.close_local_channel(dest_cid) {
                                     link.ready = false;
+                                    if let Some((_, pending)) = link.channel_signals_mut(dest_cid) {
+                                        *pending = PendingConfig::default();
+                                    }
                                 }
                                 self.emit(HidEvent::ChannelDisconnected { slot, channel });
                             }
@@ -2346,18 +2428,24 @@ mod tests {
         let mut packet = [0; 128];
         let used = build_l2cap_connection_request(&mut packet, 1, 1, psm, remote).unwrap();
         host.receive_acl(&packet[..used]);
+        let mut config_id = 0;
         for code in [3, 4] {
             let Some(Outgoing::Acl(packet)) = host.next_outgoing(0) else {
                 panic!("missing channel reply")
             };
             let acl = parse_acl_packet(&packet).unwrap();
             let l2cap = parse_l2cap_packet(acl.payload).unwrap();
-            assert_eq!(parse_l2cap_signal(l2cap.payload).unwrap().code, code);
+            let signal = parse_l2cap_signal(l2cap.payload).unwrap();
+            assert_eq!(signal.code, code);
+            if code == L2CAP_CFG_REQ {
+                config_id = signal.identifier;
+            }
         }
         let used = build_l2cap_configuration_request(&mut packet, 1, 2, local).unwrap();
         host.receive_acl(&packet[..used]);
         assert!(matches!(host.next_outgoing(0), Some(Outgoing::Acl(_))));
-        let used = build_l2cap_configuration_response(&mut packet, 1, 3, remote, 0).unwrap();
+        let used =
+            build_l2cap_configuration_response(&mut packet, 1, config_id, remote, 0).unwrap();
         host.receive_acl(&packet[..used]);
     }
 
@@ -3029,6 +3117,204 @@ mod tests {
     }
 
     #[test]
+    fn unsolicited_configuration_responses_leave_channel_unchanged() {
+        for (flags, result) in [(0u16, 0u16), (2, 0), (0, L2CAP_CFG_UNKNOWN), (1, 0)] {
+            let mut host = configured(ControllerFamily::Generic);
+            host.acl.clear();
+            host.events.clear();
+            let link = host.links[0].as_mut().unwrap();
+            link.channels.control.local_configured = false;
+            let before = link.channels;
+            let mut signal = [L2CAP_CFG_RSP, 0x7f, 6, 0, 0x50, 0, 0, 0, 0, 0];
+            signal[6..8].copy_from_slice(&flags.to_le_bytes());
+            signal[8..10].copy_from_slice(&result.to_le_bytes());
+            let mut packet = [0; 64];
+            let len = build_l2cap_data(&mut packet, 1, L2CAP_CID_SIGNALING, &signal).unwrap();
+            host.receive_acl(&packet[..len]);
+            assert_eq!(
+                host.links[0].as_ref().map(|link| link.channels),
+                Some(before)
+            );
+            assert!(host.acl.is_empty());
+            assert!(host.events.is_empty());
+        }
+    }
+
+    #[test]
+    fn response_identifiers_match_live_requests_and_consume_final_responses() {
+        let mut host = ready();
+        let slot = host.allocate(BluetoothAddress::new([1; 6]), 0).unwrap();
+        host.links[slot].as_mut().unwrap().handle = Some(1);
+        host.connect_channel(slot, L2CAP_PSM_HID_CTRL, 0x40);
+        let Some(Outgoing::Acl(request)) = host.next_outgoing(0) else {
+            panic!()
+        };
+        let id = request[9];
+        let mut packet = [0; 64];
+        // Wrong ID, wrong CID and wrong response class must not consume the request.
+        for (response_id, cid, result) in [(id + 1, 0x40, 2), (id, 0x41, 0)] {
+            let n = build_l2cap_connection_response(&mut packet, 1, response_id, 0x50, cid, result)
+                .unwrap();
+            host.receive_acl(&packet[..n]);
+            assert!(
+                !host.links[slot]
+                    .as_ref()
+                    .unwrap()
+                    .channels
+                    .control
+                    .connected
+            );
+            assert_eq!(
+                host.links[slot]
+                    .as_ref()
+                    .unwrap()
+                    .control_config
+                    .connection_request,
+                Some(id)
+            );
+            assert!(host.acl.is_empty());
+        }
+        let n = build_l2cap_configuration_response(&mut packet, 1, id, 0x50, 0).unwrap();
+        host.receive_acl(&packet[..n]);
+        assert_eq!(
+            host.links[slot]
+                .as_ref()
+                .unwrap()
+                .control_config
+                .connection_request,
+            Some(id)
+        );
+        // Pending is nonterminal. Success consumes the connection request.
+        let n = build_l2cap_connection_response(&mut packet, 1, id, 0, 0x40, L2CAP_CONN_PENDING)
+            .unwrap();
+        host.receive_acl(&packet[..n]);
+        assert_eq!(
+            host.links[slot]
+                .as_ref()
+                .unwrap()
+                .control_config
+                .connection_request,
+            Some(id)
+        );
+        let n = build_l2cap_connection_response(&mut packet, 1, id, 0x50, 0x40, 0).unwrap();
+        host.receive_acl(&packet[..n]);
+        let Some(Outgoing::Acl(config)) = host.next_outgoing(0) else {
+            panic!()
+        };
+        let config_id = config[9];
+        assert_eq!(
+            host.links[slot]
+                .as_ref()
+                .unwrap()
+                .control_config
+                .connection_request,
+            None
+        );
+        assert_eq!(
+            host.links[slot]
+                .as_ref()
+                .unwrap()
+                .control_config
+                .configuration_request,
+            Some(config_id)
+        );
+        // Duplicate connection response must not generate a second request.
+        host.receive_acl(&packet[..n]);
+        assert!(host.acl.is_empty());
+        for (response_id, cid, result) in [(id, 0x50, 0), (config_id, 0x51, L2CAP_CFG_UNKNOWN)] {
+            let n = build_l2cap_configuration_response(&mut packet, 1, response_id, cid, result)
+                .unwrap();
+            host.receive_acl(&packet[..n]);
+            assert!(
+                !host.links[slot]
+                    .as_ref()
+                    .unwrap()
+                    .channels
+                    .control
+                    .local_configured
+            );
+            assert_eq!(
+                host.links[slot]
+                    .as_ref()
+                    .unwrap()
+                    .control_config
+                    .configuration_request,
+                Some(config_id)
+            );
+            assert!(host.acl.is_empty());
+        }
+        let n = build_l2cap_configuration_response(&mut packet, 1, config_id, 0x50, 0).unwrap();
+        host.receive_acl(&packet[..n]);
+        assert!(
+            host.links[slot]
+                .as_ref()
+                .unwrap()
+                .channels
+                .control
+                .local_configured
+        );
+        assert_eq!(
+            host.links[slot]
+                .as_ref()
+                .unwrap()
+                .control_config
+                .configuration_request,
+            None
+        );
+        let n =
+            build_l2cap_configuration_response(&mut packet, 1, config_id, 0x50, L2CAP_CFG_UNKNOWN)
+                .unwrap();
+        host.receive_acl(&packet[..n]);
+        assert!(
+            host.links[slot]
+                .as_ref()
+                .unwrap()
+                .channels
+                .control
+                .local_configured
+        );
+        assert!(host.acl.is_empty());
+        assert!(host.events.is_empty());
+    }
+
+    #[test]
+    fn signalling_identifier_wrap_skips_outstanding_requests() {
+        let mut host = configured(ControllerFamily::Generic);
+        let link = host.links[0].as_mut().unwrap();
+        link.control_config.connection_request = Some(255);
+        link.interrupt_config.configuration_request = Some(1);
+        host.signal_id = 254;
+        assert_eq!(host.next_id(), 2);
+        assert_eq!(host.next_id(), 3);
+    }
+
+    #[test]
+    fn configuration_reply_queue_failure_does_not_access_removed_link() {
+        let mut host = configured(ControllerFamily::Generic);
+        host.events.clear();
+        host.acl.resize(QUEUE_LIMIT, alloc::vec![1, 0, 0, 0]);
+        let mut packet = [0; 64];
+        let n = build_l2cap_configuration_request(&mut packet, 1, 4, 0x40).unwrap();
+        host.receive_acl(&packet[..n]);
+        assert!(host.links[0].is_none());
+        assert_eq!(host.diagnostics().failure, Some(Failure::QueueFull));
+    }
+
+    #[test]
+    fn connection_reply_queue_failure_does_not_access_removed_link() {
+        let mut host = ready();
+        let slot = host.allocate(BluetoothAddress::new([1; 6]), 0).unwrap();
+        host.links[slot].as_mut().unwrap().handle = Some(1);
+        host.acl.resize(QUEUE_LIMIT, alloc::vec![1, 0, 0, 0]);
+        let mut packet = [0; 64];
+        let n =
+            build_l2cap_connection_request(&mut packet, 1, 4, L2CAP_PSM_HID_CTRL, 0x50).unwrap();
+        host.receive_acl(&packet[..n]);
+        assert!(host.links[slot].is_none());
+        assert_eq!(host.diagnostics().failure, Some(Failure::QueueFull));
+    }
+
+    #[test]
     fn continued_configuration_response_sends_empty_request() {
         let mut host = configured(ControllerFamily::WiiRemote);
         host.acl.clear();
@@ -3039,7 +3325,15 @@ mod tests {
             .control
             .local_configured = false;
 
-        let response = [L2CAP_CFG_RSP, 9, 6, 0, 0x50, 0, 1, 0, 0, 0];
+        host.request_configuration(0, 0x40);
+        let id = host.links[0]
+            .as_ref()
+            .unwrap()
+            .control_config
+            .configuration_request
+            .unwrap();
+        assert!(matches!(host.next_outgoing(0), Some(Outgoing::Acl(_))));
+        let response = [L2CAP_CFG_RSP, id, 6, 0, 0x50, 0, 1, 0, 0, 0];
         host.signal(0, parse_l2cap_signal(&response).unwrap());
 
         assert!(
@@ -3316,9 +3610,16 @@ mod tests {
             });
         }
 
+        host.connect_channel(0, L2CAP_PSM_HID_CTRL, L2CAP_HID_CTRL_LOCAL_CID);
+        let id = host.links[0]
+            .as_ref()
+            .unwrap()
+            .control_config
+            .connection_request
+            .unwrap();
         let mut packet = [0; 64];
         let used =
-            build_l2cap_connection_response(&mut packet, 1, 1, L2CAP_HID_CTRL_LOCAL_CID, 0x0050, 2)
+            build_l2cap_connection_response(&mut packet, 1, id, 0, L2CAP_HID_CTRL_LOCAL_CID, 2)
                 .unwrap();
         host.receive_acl(&packet[..used]);
 
@@ -3951,9 +4252,17 @@ mod tests {
             })
         ));
         while host.next_outgoing(0).is_some() {}
+        host.request_configuration(0, 0x40);
+        let id = host.links[0]
+            .as_ref()
+            .unwrap()
+            .control_config
+            .configuration_request
+            .unwrap();
+        assert!(matches!(host.next_outgoing(0), Some(Outgoing::Acl(_))));
         let signal = [
             L2CAP_CFG_RSP,
-            10,
+            id,
             6,
             0,
             0x50,
