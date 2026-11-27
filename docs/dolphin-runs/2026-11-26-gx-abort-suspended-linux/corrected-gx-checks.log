@@ -1,0 +1,11 @@
+INFO STEP 5 GX abort while producer is suspended; vi_frame=252 frame_increment=9 passes=49 fails=0
+PASS GX pressure FIFO drains after producer joins
+INFO GX pressure breakpoint callback count=1
+INFO GX live overflow counter=1
+INFO GX live held CP control=27
+INFO GX live held CP status=25
+INFO GX live recovered CP control=21
+PASS GX pressure breakpoint callback delivered once
+PASS GX high watermark suspends producing LWP
+PASS GX abort resumes suspended producing LWP without manual resume
+PASS summary passes=55 fails=0

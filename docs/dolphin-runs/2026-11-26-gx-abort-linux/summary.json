@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "local_rust_baseline": "8e471178",
+  "c_reference": "7d4b8b3e7b845516f0cc2a85274879ddd8cbf142",
+  "dolphin_version": "2609b stock graphical OpenGL",
+  "private_archive_sha256": "ed72fc615cee5bda504b1911e2855cb3f3ebfec8438f7770e883874d68c6c449",
+  "runs": [
+    {
+      "probe": "gx_api_probe",
+      "status": "probe_fail",
+      "passes": 48,
+      "fails": 2,
+      "page_capture_count": 6,
+      "pages_valid": true,
+      "dol_sha256": "b13c730cd25b85751ace866a342bf94ad92216bab64f5d21420e57361671009a",
+      "duration_milliseconds": 12296,
+      "run": "baseline",
+      "failure_lines": [
+        "FAIL GX abort emits Wii VAT revision commands",
+        "FAIL GX abort emits Wii XF and BP revision commands"
+      ]
+    },
+    {
+      "probe": "gx_api_probe",
+      "status": "pass",
+      "passes": 50,
+      "fails": 0,
+      "page_capture_count": 5,
+      "pages_valid": true,
+      "dol_sha256": "f912dd02d59a24554417ee2ea1719c5be53c870e0d6ec49bd6bbb24cdc1c16a3",
+      "duration_milliseconds": 10260,
+      "run": "corrected",
+      "failure_lines": []
+    },
+    {
+      "probe": "gx_api_probe",
+      "status": "pass",
+      "passes": 51,
+      "fails": 0,
+      "page_capture_count": 5,
+      "pages_valid": true,
+      "dol_sha256": "7f82433eac6789ce5b4be7b5f598a079d931da28c5f381f9755cc436fd760134",
+      "duration_milliseconds": 10460,
+      "run": "final",
+      "failure_lines": []
+    },
+    {
+      "probe": "gx_api_probe",
+      "status": "pass",
+      "passes": 51,
+      "fails": 0,
+      "page_capture_count": 5,
+      "pages_valid": true,
+      "dol_sha256": "cb3b9e17d5a4f4df0ce1d0d164d8f13675348531754722ae0ede01ff9072e5fe",
+      "duration_milliseconds": 10146,
+      "run": "final-suite",
+      "failure_lines": []
+    },
+    {
+      "probe": "video_probe",
+      "status": "pass",
+      "passes": 405,
+      "fails": 0,
+      "page_capture_count": 32,
+      "pages_valid": true,
+      "dol_sha256": "33145a405fa1b2850e96a1b838953e74cf063bc6a8ec67130b71b25543c324f8",
+      "duration_milliseconds": 57543,
+      "run": "final-suite",
+      "failure_lines": []
+    },
+    {
+      "probe": "video_probe",
+      "status": "probe_fail",
+      "passes": 404,
+      "fails": 1,
+      "page_capture_count": 33,
+      "pages_valid": true,
+      "dol_sha256": "b31e3087f96fec87e48a4eb1d8c58c57269fe76ec97fbd8eb98b4f2bd4a5b529",
+      "duration_milliseconds": 61732,
+      "run": "video-repeat",
+      "failure_lines": [
+        "FAIL GX vertex format flushes exact CP words and honors terminator"
+      ]
+    }
+  ],
+  "host_xtask": {
+    "passed": 164,
+    "failed": 0
+  },
+  "host_gx": {
+    "passed": 5,
+    "failed": 0
+  },
+  "hardware_group_exit": 0,
+  "inventory_check_exit": 0,
+  "interrupted_video_attempt": "final/video_probe had no completed report; stopped orphaned process; repeated separately"
+}

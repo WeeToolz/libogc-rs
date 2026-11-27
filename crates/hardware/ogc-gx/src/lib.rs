@@ -1285,6 +1285,7 @@ static GX_DL_SAVED_CPU_FIFO: FifoAtomicState = FifoAtomicState::new();
 static GX_DL_SAVED_CPU_READY: AtomicBool = AtomicBool::new(false);
 static GX_OVERFLOW_COUNT: AtomicU32 = AtomicU32::new(0);
 static GX_OVERFLOW_SUSPENDED: AtomicBool = AtomicBool::new(false);
+static GX_OVERFLOW_THREAD: AtomicU32 = AtomicU32::new(0);
 static GX_CURRENT_THREAD: AtomicU32 = AtomicU32::new(0);
 static GX_PERF0_MODE: AtomicU32 = AtomicU32::new(GX_PERF0_NONE);
 static GX_PERF1_MODE: AtomicU32 = AtomicU32::new(GX_PERF1_NONE);
@@ -1439,20 +1440,28 @@ fn handle_fifo_overflow() {
     GX_OVERFLOW_COUNT.fetch_add(1, Ordering::AcqRel);
     set_fifo_interrupt_enable(false, true);
     let thread = GX_CURRENT_THREAD.load(Ordering::Acquire);
-    if thread != 0 {
-        let _ = ogc_lwp_sys::suspend_thread(thread);
+    if thread != 0 && ogc_lwp_sys::suspend_thread(thread) == ogc_lwp_sys::LWP_SUCCESSFUL {
+        GX_OVERFLOW_THREAD.store(thread, Ordering::Release);
     }
 }
 
-fn handle_fifo_underflow() {
+// Release only the suspension acquired by the overflow handler, even if
+// the current GX producer designation has changed. Call with IRQs masked.
+fn release_fifo_suspension() -> bool {
     if !GX_OVERFLOW_SUSPENDED.swap(false, Ordering::AcqRel) {
-        return;
+        return false;
     }
-    let thread = GX_CURRENT_THREAD.load(Ordering::Acquire);
+    let thread = GX_OVERFLOW_THREAD.swap(0, Ordering::AcqRel);
     if thread != 0 {
         let _ = ogc_lwp_sys::resume_thread(thread);
     }
-    set_fifo_interrupt_enable(true, false);
+    true
+}
+
+fn handle_fifo_underflow() {
+    if release_fifo_suspension() {
+        set_fifo_interrupt_enable(true, false);
+    }
 }
 
 unsafe extern "C" fn cp_interrupt(id: ogc_irq::KIrqId, _user: *mut c_void) {
@@ -2046,7 +2055,54 @@ fn wait_abort_ticks(delay: u64) {
     }
 }
 
+#[cfg(not(gamecube))]
+fn read_abort_mem_counter() -> u32 {
+    let counter = (0xcc00_4000usize + 39 * 2) as *const u16;
+    loop {
+        let high = unsafe { ptr::read_volatile(counter) };
+        let low = unsafe { ptr::read_volatile(counter.add(1)) };
+        if high == unsafe { ptr::read_volatile(counter) } {
+            return (u32::from(high) << 16) | u32::from(low);
+        }
+    }
+}
+
+#[cfg(not(gamecube))]
+fn wait_abort_pixel_engine() {
+    let mut count = read_abort_mem_counter();
+    loop {
+        wait_abort_ticks(8);
+        let next = read_abort_mem_counter();
+        if next == count {
+            return;
+        }
+        count = next;
+    }
+}
+
+// GX_AbortFrame discards deferred state updates rather than replaying them
+// when it flushes the revision commands for Wii.
+#[cfg(not(gamecube))]
+fn discard_pending_gx_state() {
+    GX_AUTO_TEX_DIRTY.store(false, Ordering::Relaxed);
+    GX_TEX_DIRTY.store(false, Ordering::Relaxed);
+    GX_GEN_MODE_DIRTY.store(false, Ordering::Relaxed);
+    GX_TEV_IND_MASK_DIRTY.store(false, Ordering::Relaxed);
+    GX_VCD_DIRTY.store(false, Ordering::Relaxed);
+    GX_VAT_DIRTY.store(0, Ordering::Relaxed);
+    GX_CHAN_COLOR_DIRTY.store(0, Ordering::Relaxed);
+    GX_CHAN_CONTROL_DIRTY.store(0, Ordering::Relaxed);
+    GX_CHAN_COUNT_DIRTY.store(false, Ordering::Relaxed);
+    GX_TEXGEN_DIRTY_MASK.store(0, Ordering::Relaxed);
+    GX_TEXGEN_COUNT_DIRTY.store(false, Ordering::Relaxed);
+    GX_MTX_IDX_DIRTY.store(false, Ordering::Relaxed);
+}
+
 pub fn abort_frame() {
+    #[cfg(not(gamecube))]
+    if GX_FIFO_ACTIVE.load(Ordering::Acquire) && GX_GP_FIFO_READY.load(Ordering::Acquire) {
+        wait_abort_pixel_engine();
+    }
     let pi = GX_PI_FIFO_BASE as *mut u32;
     unsafe {
         ptr::write_volatile(pi.add(6), 1);
@@ -2059,22 +2115,60 @@ pub fn abort_frame() {
     }
     wait_abort_ticks(5);
     if GX_GP_FIFO_READY.load(Ordering::Acquire) {
+        let irq_state = ogc_irq::irq_disable();
+        let suspended = GX_OVERFLOW_SUSPENDED.load(Ordering::Acquire);
+        let control = GX_CP_CONTROL.load(Ordering::Relaxed) as u16 & !GX_CP_READ_ENABLE;
+        GX_CP_CONTROL.store(u32::from(control), Ordering::Release);
+        unsafe { ptr::write_volatile(cp_reg(1), control) };
+        set_fifo_interrupt_enable(false, false);
         let mut gp = GX_GP_FIFO_STATE.load();
         gp.rd_ptr = gp.wt_ptr;
         gp.rdwt_dst = 0;
         GX_GP_FIFO_STATE.store(gp);
+        // Preserve Rust's explicit FIFO configuration restoration: Dolphin's
+        // PI reset also resets CP watermarks, unlike C's cleanup assumptions.
         program_gp_fifo(gp);
+        unsafe { core::arch::asm!("sync", options(nostack, preserves_flags)) };
         if GX_CP_GP_LINKED.load(Ordering::Acquire) {
             let mut cpu = GX_CPU_FIFO_STATE.load();
             cpu.rd_ptr = gp.rd_ptr;
             cpu.wt_ptr = gp.wt_ptr;
             cpu.rdwt_dst = 0;
             GX_CPU_FIFO_STATE.store(cpu);
-            program_cpu_fifo(cpu);
+            unsafe { ptr::write_volatile(pi.add(5), fifo_physical(cpu.wt_ptr) & 0x1fff_ffe0) };
+            if !suspended {
+                set_fifo_interrupt_enable(true, false);
+            }
+            update_fifo_link_state();
         }
-        disable_break_pt();
+        // Keep reads disabled until the breakpoint and interrupt status are reset.
+        let control = GX_CP_CONTROL.load(Ordering::Relaxed) as u16 & !0x22;
+        GX_CP_CONTROL.store(u32::from(control), Ordering::Release);
+        unsafe { ptr::write_volatile(cp_reg(1), control) };
+        GX_BREAK_POINT.store(0, Ordering::Release);
         GX_BREAK_PT_CALLBACK.store(0, Ordering::Release);
         unsafe { ptr::write_volatile(cp_reg(2), 0x0003) };
+        let control = control | GX_CP_READ_ENABLE;
+        GX_CP_CONTROL.store(u32::from(control), Ordering::Release);
+        unsafe { ptr::write_volatile(cp_reg(1), control) };
+        if !suspended {
+            ogc_irq::irq_restore(irq_state);
+        }
+        #[cfg(not(gamecube))]
+        {
+            initialize_gx_revision_bits();
+            discard_pending_gx_state();
+            unsafe { flush() };
+        }
+        if suspended {
+            // Abort discards the FIFO work that would normally trigger the
+            // low-watermark interrupt. Keep both masks disabled until the
+            // revision commands are submitted, then balance GX's suspension.
+            unsafe { ptr::write_volatile(cp_reg(2), 0x0003) };
+            set_fifo_interrupt_enable(GX_CP_GP_LINKED.load(Ordering::Acquire), false);
+            release_fifo_suspension();
+            ogc_irq::irq_restore(irq_state);
+        }
     }
 }
 
@@ -3540,18 +3634,24 @@ unsafe fn initialize_gx_default_state() {
     clear_gp_metric();
 }
 
+fn initialize_gx_revision_bits() {
+    for index in 0..8 {
+        GX_VAT0[index].store(0x4000_0000, Ordering::Relaxed);
+        GX_VAT1[index].store(0x8000_0000, Ordering::Relaxed);
+        load_cp_reg(GX_CP_VAT1 + index as u8, 0x8000_0000);
+    }
+    load_xf_regs(0x1000, &[0x3f]);
+    load_xf_regs(0x1012, &[1]);
+    load_bp_reg(0x58, 0x0f);
+}
+
 unsafe fn initialize_gx_registers() {
     GX_SAVE_DL_CTX.store(1, Ordering::Relaxed);
     // Port the hardware defaults GX_Init establishes before __GX_InitGX.
     unsafe {
         load_cp_reg(0x20, 0);
         load_xf_regs(0x1006, &[0]);
-        for register in 0x80..0x88 {
-            load_cp_reg(register, 0x8000_0000);
-        }
-        load_xf_regs(0x1000, &[0x3f]);
-        load_xf_regs(0x1012, &[1]);
-        load_bp_reg(0x58, 0x0f);
+        initialize_gx_revision_bits();
         load_bp_reg(0x23, 0);
         load_bp_reg(0x24, 0);
         load_bp_reg(0x67, 0);

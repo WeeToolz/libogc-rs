@@ -424,3 +424,27 @@ handler. Stock graphical Dolphin delivers the required events. Its CP
 clear-register effect is still not emulated; physical Wii timing and
 sticky-status clearing, Wii abort-frame recovery, and the full API review
 remain pending.
+
+## Wii frame abort and linked FIFO recovery — 2026-11-26
+
+[Scoped evidence](../dolphin-runs/2026-11-26-gx-abort-linux/README.md)
+compares the C Wii memory-counter wait, FIFO cleanup and revision reload
+with the original Rust abort path. A live breakpoint holds 96 bytes of
+commands in a separate FIFO. The old code passes 48/50 (missing revision
+commands); the correction passes the same 50/50 and an extended 51/51
+with pending VAT state. The corrected shared initializer also preserves
+C's VAT1 bit 31 in later vertex format updates. Physical counter timing
+and CP status clearing, detached FIFO and suspended-producer abort cases,
+and full independent review remain open. No Dolphin patch was used.
+
+## Wii abort with an overflow-suspended producer — 2026-11-26
+
+[Scoped evidence](../dolphin-runs/2026-11-26-gx-abort-suspended-linux/README.md)
+compares C's FIFO cleanup and suspension handlers. C does not balance a
+pending overflow suspension when it discards the FIFO and restores the
+high-only watermark mask. Rust now records the acquired suspension's LWP
+and balances it after abort cleanup and Wii revision submission. This is
+an intentional resource-management improvement. The same Dolphin probe
+passes 54/55 before (producer remains suspended) and 55/55 after; the
+extended final run passes 59/59, including a later real overflow and
+underflow cycle. Physical Wii timing and other abort cases remain open.

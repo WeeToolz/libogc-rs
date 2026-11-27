@@ -254,3 +254,26 @@ branch. With the correction, GX passes 45/45, LWP 282/282, and bus 78/78
 with all 35 capture pages valid. Host ogc-sys tests pass 10/10 and xtask
 passes 164/164. Physical CP status clearing, exact timing, other exception
 context paths and Wii abort recovery remain pending.
+
+### Wii GX abort and linked FIFO recovery (2026-11-26)
+
+[Scoped evidence](dolphin-runs/2026-11-26-gx-abort-linux/README.md):
+96 bytes of live pending FIFO work, 48/50 baseline (missing revision
+commands), 50/50 corrected, and 51/51 extended with dirty VAT state.
+The final video suite passes 405/405 after correcting the C-derived
+VAT1 revision-bit expectation; GX passes 51/51. All 37 final capture
+pages are valid. Host GX and xtask tests pass, and Wii hardware group
+compilation and inventory checks pass. No Dolphin source change used.
+Physical counter timing and CP sticky status clearing, detached FIFO
+and suspended-producer abort cases, and independent review remain open.
+
+### Wii GX abort with an overflow-suspended producer (2026-11-26)
+
+[Scoped evidence](dolphin-runs/2026-11-26-gx-abort-suspended-linux/README.md):
+stock graphical Dolphin 2609b, 54/55 baseline, 55/55 corrected, and 59/59
+extended with a subsequent ordinary overflow/underflow cycle. All six
+final captures are valid. GX releases its acquired LWP suspension after
+abort discards the pending commands and submits Wii revision commands.
+Host GX 5/5 and xtask 164/164, Wii hardware group and inventory pass.
+Detached FIFOs, wraparound, outstanding PE callbacks, GameCube runtime and
+physical Wii counter timing and sticky CP status remain pending.

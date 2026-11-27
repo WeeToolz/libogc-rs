@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "local_rust_baseline": "89a8e0de686ba993db12c6a9722d085b466195cb",
+  "c_reference": "7d4b8b3e7b845516f0cc2a85274879ddd8cbf142",
+  "dolphin_version": "2609b stock graphical OpenGL",
+  "private_archive_sha256": "b59051d4b9d72e642b485d011df953feba53be9b511a881a982dc31b0aa00cb7",
+  "runs": [
+    {
+      "run": "baseline-repeat",
+      "probe": "gx_api_probe",
+      "status": "probe_fail",
+      "passes": 54,
+      "fails": 1,
+      "page_capture_count": 7,
+      "pages_valid": true,
+      "dol_sha256": "53538cd8cbec9032e7ae7748f60b6859700f169e1e377777a2076b0d4241c612",
+      "duration_milliseconds": 17602,
+      "failure_lines": [
+        "FAIL GX abort resumes suspended producing LWP without manual resume",
+        "FAIL GX abort resumes suspended producing LWP without manual resume"
+      ]
+    },
+    {
+      "run": "corrected",
+      "probe": "gx_api_probe",
+      "status": "pass",
+      "passes": 55,
+      "fails": 0,
+      "page_capture_count": 6,
+      "pages_valid": true,
+      "dol_sha256": "49096755a352df09d03288d86d5d7ec03d6a25f1c0f967adf3c3c5273d2bdfb2",
+      "duration_milliseconds": 11882,
+      "failure_lines": []
+    },
+    {
+      "run": "final",
+      "probe": "gx_api_probe",
+      "status": "pass",
+      "passes": 59,
+      "fails": 0,
+      "page_capture_count": 6,
+      "pages_valid": true,
+      "dol_sha256": "e6defbe55f4141c8c777d602c2493476d57f0e86c7d70ea5e4d7ebc0ec80e30f",
+      "duration_milliseconds": 12864,
+      "failure_lines": []
+    }
+  ],
+  "host_xtask": {
+    "passed": 164,
+    "failed": 0
+  },
+  "host_gx": {
+    "passed": 5,
+    "failed": 0
+  },
+  "hardware_group_exit": 0,
+  "inventory_check_exit": 0,
+  "interrupted_baseline_attempt": "Initial runner invocation interrupted during capture; no final report; repeated with same DOL."
+}

@@ -1,0 +1,11 @@
+PASS GX abort frame empties pending GP FIFO work
+INFO GX abort pending FIFO bytes=96
+INFO GX abort CP control=21
+PASS GX abort starts with real pending FIFO work
+PASS GX abort clears breakpoint and restores linked read control
+FAIL GX abort emits Wii VAT revision commands
+FAIL GX abort emits Wii XF and BP revision commands
+PASS GX abort accepts new PE work and drains FIFO
+FAIL GX abort emits Wii VAT revision commands
+FAIL GX abort emits Wii XF and BP revision commands
+FAIL summary passes=48 fails=2

@@ -215,9 +215,109 @@ pub fn run_gx_api_probe(logger: &mut ProbeLogger) {
     }
     logger.record("GX API probe FIFO initialization", true);
     probe_gx_interrupt_delivery(logger);
-    probe_gx_watermark_delivery(logger);
+    probe_gx_watermark_delivery(logger, false);
     probe_gx_unverified_apis(logger);
+    probe_gx_abort_recovery(logger);
+    probe_gx_watermark_delivery(logger, true);
+    // A later overflow must still suspend and resume a new producer.
+    probe_gx_watermark_delivery(logger, false);
     logger.summary();
+}
+
+// Keep the abort experiment separate from the normal rendering FIFO.
+static mut GX_ABORT_FIFO_STORAGE: ProbeFifoStorage = ProbeFifoStorage([0; 65536]);
+
+fn probe_gx_abort_recovery(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    use ogc_lwp::sys as lwp;
+    logger.report_step("GX abort with live pending FIFO commands");
+    if !unsafe { gx::finish_frame_and_wait() } {
+        logger.record("GX abort initial FIFO drain", false);
+        return;
+    }
+    let mut cpu = gx::GxFifoObj::default();
+    let mut gp = gx::GxFifoObj::default();
+    let mut abort_fifo = gx::GxFifoObj::default();
+    let base = core::ptr::addr_of_mut!(GX_ABORT_FIFO_STORAGE).cast::<c_void>();
+    unsafe {
+        gx::get_cpu_fifo(&mut cpu);
+        gx::get_gp_fifo(&mut gp);
+        gx::init_fifo_base(&mut abort_fifo, base, 65536);
+        gx::set_gp_fifo(null_mut());
+        gx::set_cpu_fifo(&mut abort_fifo);
+        gx::set_gp_fifo(&mut abort_fifo);
+    }
+    let previous_callback = gx::set_break_pt_callback(Some(probe_gx_break_interrupt));
+    GX_IRQ_BREAK_COUNT.store(0, Ordering::Release);
+    gx::enable_break_pt(base);
+    // Submit a bounded command stream, stopped before execution by the breakpoint.
+    for _ in 0..3 {
+        unsafe { gx::flush() };
+    }
+    let start = lwp::now_ticks();
+    while GX_IRQ_BREAK_COUNT.load(Ordering::Acquire) == 0
+        && lwp::now_ticks().wrapping_sub(start) < 60_750_000
+    {
+        core::hint::spin_loop();
+    }
+    let cp = 0xcc00_0000usize as *const u16;
+    let pending = unsafe {
+        u32::from(core::ptr::read_volatile(cp.add(24)))
+            | (u32::from(core::ptr::read_volatile(cp.add(25))) << 16)
+    };
+    let breakpoint = GX_IRQ_BREAK_COUNT.load(Ordering::Acquire);
+    // A pending VAT update must not be sent by the abort's final flush.
+    gx::set_vtx_attr_fmt(7, u32::from(gx::GX_VA_POS), gx::GX_POS_XYZ, gx::GX_F32, 0);
+    gx::abort_frame();
+    let control = unsafe { core::ptr::read_volatile(cp.add(1)) };
+    let callback_cleared = gx::set_break_pt_callback(None).is_none();
+    // C's Wii __GX_InitRevBits sends eight VAT1 loads, two XF loads and one BP load.
+    // The FIFO starts at the saved write pointer, which is the base in this experiment.
+    let bytes = mem_k0_to_k1(base as usize) as *const u8;
+    let mut revision = [0u8; 96];
+    for (index, byte) in revision.iter_mut().enumerate() {
+        *byte = unsafe { core::ptr::read_volatile(bytes.add(index)) };
+    }
+    let vat = revision[..48]
+        .chunks_exact(6)
+        .enumerate()
+        .all(|(index, command)| command == [0x08, 0x80 + index as u8, 0x80, 0, 0, 0]);
+    let xf = revision[48..66]
+        == [
+            0x10, 0, 0, 0x10, 0, 0, 0, 0, 0x3f, 0x10, 0, 0, 0x10, 0x12, 0, 0, 0, 1,
+        ];
+    let bp = revision[66..71] == [0x61, 0x58, 0, 0, 0x0f];
+    let padding_only = revision[71..].iter().all(|byte| *byte == 0);
+    let recovered = unsafe { gx::finish_frame_and_wait() };
+    let mut after = gx::GxFifoObj::default();
+    unsafe { gx::get_gp_fifo(&mut after) };
+    let empty = unsafe { gx::get_fifo_count(&after) } == 0;
+    unsafe {
+        gx::set_gp_fifo(null_mut());
+        gx::set_cpu_fifo(&mut cpu);
+        gx::set_gp_fifo(&mut gp);
+    }
+    gx::set_break_pt_callback(previous_callback);
+    logger.note_u32("GX abort pending FIFO bytes", pending);
+    logger.note_u32("GX abort CP control", u32::from(control));
+    logger.record(
+        "GX abort starts with real pending FIFO work",
+        breakpoint == 1 && pending >= 96,
+    );
+    logger.record(
+        "GX abort clears breakpoint and restores linked read control",
+        control & 0x3f == 0x15 && callback_cleared,
+    );
+    logger.record("GX abort emits Wii VAT revision commands", vat);
+    logger.record("GX abort emits Wii XF and BP revision commands", xf && bp);
+    logger.record(
+        "GX abort flush discards pending VAT state",
+        vat && xf && bp && padding_only,
+    );
+    logger.record(
+        "GX abort accepts new PE work and drains FIFO",
+        recovered && empty,
+    );
 }
 
 static GX_IRQ_BREAK_COUNT: AtomicU32 = AtomicU32::new(0);
@@ -295,10 +395,14 @@ unsafe extern "C" fn probe_gx_irq_producer(_arg: *mut c_void) -> *mut c_void {
     null_mut()
 }
 
-fn probe_gx_watermark_delivery(logger: &mut ProbeLogger) {
+fn probe_gx_watermark_delivery(logger: &mut ProbeLogger, abort: bool) {
     use ogc_gx as gx;
     use ogc_lwp::sys as lwp;
-    logger.report_step("GX live CP breakpoint and watermark interrupts");
+    logger.report_step(if abort {
+        "GX abort while producer is suspended"
+    } else {
+        "GX live CP breakpoint and watermark interrupts"
+    });
     if !unsafe { gx::finish_frame_and_wait() } {
         logger.record("GX pressure test initial FIFO drain", false);
         return;
@@ -348,7 +452,11 @@ fn probe_gx_watermark_delivery(logger: &mut ProbeLogger) {
     let control_held = unsafe { core::ptr::read_volatile(cp.add(1)) };
     let status_held = unsafe { core::ptr::read_volatile(cp) };
     let done_held = GX_IRQ_PRODUCER_DONE.load(Ordering::Acquire);
-    gx::disable_break_pt();
+    if abort {
+        gx::abort_frame();
+    } else {
+        gx::disable_break_pt();
+    }
     let start = lwp::now_ticks();
     while created
         && GX_IRQ_PRODUCER_DONE.load(Ordering::Acquire) == 0
@@ -390,7 +498,11 @@ fn probe_gx_watermark_delivery(logger: &mut ProbeLogger) {
             && control_held & 0x0c == 0x08,
     );
     logger.record(
-        "GX low watermark resumes producing LWP",
+        if abort {
+            "GX abort resumes suspended producing LWP without manual resume"
+        } else {
+            "GX low watermark resumes producing LWP"
+        },
         suspended && recovered && joined && control_recovered & 0x0c == 0x04,
     );
 }
@@ -1548,12 +1660,14 @@ fn probe_gx_unverified_apis(logger: &mut ProbeLogger) {
     );
 
     gx::abort_frame();
+    // Wii abort submits revision commands. Wait for them before checking occupancy.
+    let abort_drained = unsafe { gx::finish_frame_and_wait() };
     let mut after_abort = gx::GxFifoObj::default();
     // SAFETY: `after_abort` is a writable FIFO snapshot.
     unsafe { gx::get_gp_fifo(&mut after_abort) };
     logger.record(
         "GX abort frame empties pending GP FIFO work",
-        fifo_ready && unsafe { gx::get_fifo_count(&after_abort) == 0 },
+        fifo_ready && abort_drained && unsafe { gx::get_fifo_count(&after_abort) == 0 },
     );
 }
 
@@ -2205,8 +2319,9 @@ fn probe_vertex_format_commands(logger: &mut ProbeLogger) {
             frac: 9,
         },
     ];
+    // C __GX_InitRevBits sets VAT1 bit 31, and the TEX4 update preserves it.
     let expected = [
-        0x08, 0x77, 0x40, 0, 0, 0x57, 0x08, 0x87, 0x38, 0, 0, 0, 0x08, 0x97, 0, 0, 0, 7, 0x97, 0, 0,
+        0x08, 0x77, 0x40, 0, 0, 0x57, 0x08, 0x87, 0xb8, 0, 0, 0, 0x08, 0x97, 0, 0, 0, 7, 0x97, 0, 0,
     ];
     // SAFETY: The list terminates at GX_VA_NULL. The primitive header is
     // captured in a display list and is not executed.
