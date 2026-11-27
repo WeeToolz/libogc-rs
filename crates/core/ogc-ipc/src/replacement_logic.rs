@@ -13,16 +13,26 @@ mod tests {
     use super::retire_after_fresh_handshake;
 
     #[test]
-    fn failed_handshake_keeps_requests_unretired() {
-        let retired = core::cell::Cell::new(false);
-        retire_after_fresh_handshake(|| false, || retired.set(true));
-        assert!(!retired.get());
+    fn failed_handshake_preserves_requests_and_delivers_no_callbacks() {
+        let in_flight = core::cell::Cell::new(3usize);
+        let callbacks = core::cell::Cell::new(0usize);
+        retire_after_fresh_handshake(|| false, || {
+            let completed = in_flight.replace(0);
+            callbacks.set(completed);
+        });
+        assert_eq!(in_flight.get(), 3);
+        assert_eq!(callbacks.get(), 0);
     }
 
     #[test]
-    fn successful_handshake_retires_requests() {
-        let retired = core::cell::Cell::new(false);
-        retire_after_fresh_handshake(|| true, || retired.set(true));
-        assert!(retired.get());
+    fn successful_handshake_retires_each_request_once() {
+        let in_flight = core::cell::Cell::new(3usize);
+        let callbacks = core::cell::Cell::new(0usize);
+        retire_after_fresh_handshake(|| true, || {
+            let completed = in_flight.replace(0);
+            callbacks.set(completed);
+        });
+        assert_eq!(in_flight.get(), 0);
+        assert_eq!(callbacks.get(), 3);
     }
 }
