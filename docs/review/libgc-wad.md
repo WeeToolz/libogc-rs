@@ -34,3 +34,13 @@ Host tests cover NIST AES-CBC and independent SHA-1 vectors, WAD serialization a
 - EC metadata verification is not implemented. It reports `Unsupported`; packing rejects EC metadata. The reference EC signing path is also unimplemented.
 - Certificate root trust and certificate-chain signatures are not checked. `ValidRsa` means the metadata signature matches the supplied certificate. It does not mean the supplied certificate is trusted. Add caller-supplied trust anchors and chain validation.
 - Physical channel boot, Priiloader-to-stub dispatch, and the physical return failure remain unverified. Do not treat the prepared WAD as a confirmed hardware fix.
+
+
+## 2026-11-27 follow-up
+
+The restored upstream workspace passed all eight existing host tests. The
+exact Reborn reference checkout, input template and reference signing fixtures
+are not present in the restored local C libogc archive. Do not promote WAD
+reference or signing coverage from these host results. Private-key signing,
+EC verification and trust-chain validation remain open. The package remains
+`review_incomplete`.

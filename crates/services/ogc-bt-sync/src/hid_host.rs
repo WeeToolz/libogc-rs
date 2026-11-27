@@ -1647,6 +1647,24 @@ impl HidHost {
                 flags,
                 options,
             } => {
+                // C looks up the active channel before processing flags or
+                // options. Reserved but inactive local CIDs are not PCBs.
+                if !self.links[slot]
+                    .as_ref()
+                    .unwrap()
+                    .channels
+                    .local_channel_is_active(dest_cid)
+                {
+                    if let Ok(len) = build_l2cap_invalid_cid_reject(
+                        &mut response,
+                        handle,
+                        signal.identifier,
+                        dest_cid,
+                    ) {
+                        self.queue_acl(&response[..len]);
+                    }
+                    return;
+                }
                 if flags & !1 != 0 {
                     self.disconnect(slot);
                     self.emit(HidEvent::Failed {
@@ -2852,6 +2870,56 @@ mod tests {
         assert!(!host.links[0].as_ref().unwrap().channels.control.active);
         assert!(host.links[0].as_ref().unwrap().channels.interrupt.active);
         assert_eq!(host.next_event(), None);
+    }
+
+    #[test]
+    fn invalid_configuration_cid_rejects_before_flags_or_options() {
+        // Feed the production ACL receive path, not the private signal handler.
+        for (local, inactive) in [(0x0042u16, false), (L2CAP_HID_CTRL_LOCAL_CID, true)] {
+            for (flags, options) in [(0u16, &[][..]), (2, &[0xff][..]), (0, &[0xff][..])] {
+                let mut host = configured(ControllerFamily::Generic);
+                host.acl.clear();
+                host.hci.clear();
+                let _ = host.next_event();
+                if inactive {
+                    let link = host.links[0].as_mut().unwrap();
+                    assert!(link.channels.close_local_channel(local));
+                    link.ready = false;
+                }
+                let channels = host.links[0].as_ref().unwrap().channels;
+                let ready = host.links[0].as_ref().unwrap().ready;
+                let mut signal = alloc::vec![L2CAP_CFG_REQ, 0x2d];
+                signal.extend_from_slice(&((4 + options.len()) as u16).to_le_bytes());
+                signal.extend_from_slice(&local.to_le_bytes());
+                signal.extend_from_slice(&flags.to_le_bytes());
+                signal.extend_from_slice(options);
+                let mut packet = [0; 64];
+                let len = build_l2cap_data(&mut packet, 1, L2CAP_CID_SIGNALING, &signal).unwrap();
+                host.receive_acl(&packet[..len]);
+                let packet = match host.next_outgoing(0) {
+                    Some(Outgoing::Acl(packet)) => packet,
+                    other => panic!("expected configuration Invalid CID reject, got {other:?}"),
+                };
+                let acl = parse_acl_packet(&packet).unwrap();
+                assert_eq!(acl.handle, 1);
+                let l2cap = parse_l2cap_packet(acl.payload).unwrap();
+                assert_eq!(l2cap.channel_id, L2CAP_CID_SIGNALING);
+                let reject = parse_l2cap_signal(l2cap.payload).unwrap();
+                assert_eq!(reject.code, L2CAP_CMD_REJECT);
+                assert_eq!(reject.identifier, 0x2d);
+                let [lo, hi] = local.to_le_bytes();
+                assert_eq!(reject.payload, &[2, 0, lo, hi, 0, 0]);
+                let link = host.links[0].as_ref().unwrap();
+                assert_eq!(link.handle, Some(1));
+                assert_eq!(link.channels, channels);
+                assert_eq!(link.ready, ready);
+                assert!(link.control_config.options.is_empty());
+                assert!(link.interrupt_config.options.is_empty());
+                assert!(host.hci.is_empty());
+                assert!(host.acl.is_empty());
+                assert_eq!(host.next_event(), None);
+            }
+        }
     }
 
     #[test]

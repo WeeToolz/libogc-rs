@@ -114,3 +114,41 @@ Validation: `cargo test -p ogc-bt-sync` passed all 47 tests. `cargo check -p ogc
 `HciEndpointAddresses` is a portable, tested contract used by the production OH1 transport constructors. It validates nonzero endpoint numbers, reserved address bits, transfer direction roles, and distinct event/ACL IN addresses. `open_with_endpoints` validates before opening the IOS path. `from_file_descriptor` validates before it stores the descriptor and closes the consumed descriptor on invalid input; a close error is returned as an IPC error.
 
 Validation: `cargo test -p ogc-bt-sync` passed 87 tests. `cargo check -p ogc-bt-sync --target powerpc-unknown-linux-gnu` passed. `cargo fmt --check` and `git diff --check` passed. No Wii hardware or external USB HCI device was available, so the IOS transport behavior remains hardware-unverified. This change does not implement USB descriptor discovery, arbitrary external USB HCI support, Bluetooth LE, or GATT.
+
+
+## 2026-11-27 configuration request destination validation
+
+C revision `7d4b8b3e7b845516f0cc2a85274879ddd8cbf142`:
+`lwbt/l2cap.c:412-445` searches active PCBs before interpreting configuration
+options. If no local CID matches, it sends Command Reject with reason
+Invalid CID (`0x0002`), the requested local CID, and a null remote CID.
+The response retains the request identifier.
+
+The Rust `HidHost::signal` configuration request path previously checked flags
+and parsed options before finding a channel. An unknown CID could receive no
+response, while an inactive reserved CID could enter the configuration path.
+The production path now uses the same active-channel check and Invalid CID
+response builder as the disconnection request path. It returns before changing
+configuration state or requesting ACL disconnection. The existing validation
+of flags and options for active channels is unchanged. This correction is
+limited to CID lookup and rejection with available outgoing queue capacity.
+
+`invalid_configuration_cid_rejects_before_flags_or_options` feeds complete
+ACL packets through `HidHost::receive_acl`. It covers an unassigned CID and
+an inactive reserved control CID, each with empty options, invalid flags,
+and a truncated option. It checks the command, identifier, exact six-byte
+reject payload, handle, both channels, ready state, empty configuration
+buffers, absence of extra outgoing packets and absence of events.
+
+Validation at Rust base `30738f51` (upstream `273c2874` plus MAD review),
+nightly `28221559263a3976766cf305940e80e30cf9ba8a`:
+
+- Before correction: focused regression failed, with no response to the
+  unknown CID.
+- After correction: `cargo test -p ogc-bt-sync --offline` passed 107/107.
+- `cargo check --offline -p ogc-bt-sync -Z build-std=core,alloc -Z build-std-features=compiler-builtins-mem -Z json-target-spec --target targets/powerpc-nintendo-none.json` passed.
+- Scoped Rust formatting and Git whitespace checks passed.
+
+No new Dolphin controller transport or physical Wii run was performed.
+Independent re-review, full-queue behavior and other L2CAP response paths
+remain open. Keep the package `review_incomplete`.
