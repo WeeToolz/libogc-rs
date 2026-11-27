@@ -13,6 +13,19 @@ use ogc_ipc::{
 use ogc_system as system;
 use ogc_video as video;
 
+#[cfg(target_arch = "powerpc")]
+unsafe extern "C" {
+    fn IOS_IoctlvFormatAsync(
+        heap: i32,
+        fd: i32,
+        ioctl: i32,
+        callback: ogc_ipc::Ipccallback,
+        userdata: *mut c_void,
+        format: *const u8,
+        ...
+    ) -> i32;
+}
+
 use crate::probe_support::ProbeLogger;
 
 const IPC_ASYNC_PENDING: i32 = -20000;
@@ -39,6 +52,30 @@ static DEBUG_C: AtomicU32 = AtomicU32::new(0);
 static DEBUG_COUNT: AtomicU32 = AtomicU32::new(0);
 #[cfg(target_arch = "powerpc")]
 static REINIT_MSR: AtomicU32 = AtomicU32::new(u32::MAX);
+#[cfg(target_arch = "powerpc")]
+static SENT_DEBUG_COUNT: AtomicU32 = AtomicU32::new(0);
+#[cfg(target_arch = "powerpc")]
+static RESET_QUEUE_RESULTS: [AtomicI32; 3] = [const { AtomicI32::new(IPC_ASYNC_UNSET) }; 3];
+#[cfg(target_arch = "powerpc")]
+static RESET_QUEUE_CALLS: [AtomicU32; 3] = [const { AtomicU32::new(0) }; 3];
+#[cfg(target_arch = "powerpc")]
+static RESET_QUEUE_CALLBACK_ORDER: [AtomicU32; 3] = [const { AtomicU32::new(0) }; 3];
+#[cfg(target_arch = "powerpc")]
+static RESET_QUEUE_CALLBACK_SEQUENCE: AtomicU32 = AtomicU32::new(0);
+#[cfg(target_arch = "powerpc")]
+static RESET_FORMAT_RESULT: AtomicI32 = AtomicI32::new(IPC_ASYNC_UNSET);
+#[cfg(target_arch = "powerpc")]
+static RESET_FORMAT_CALLS: AtomicU32 = AtomicU32::new(0);
+#[cfg(target_arch = "powerpc")]
+static RESET_FORMAT_CALLBACK_ORDER: AtomicU32 = AtomicU32::new(0);
+#[cfg(target_arch = "powerpc")]
+static RESET_FORMAT_USERDATA: AtomicU32 = AtomicU32::new(0);
+#[cfg(target_arch = "powerpc")]
+static RESET_FORMAT_OUTPUT: core::sync::atomic::AtomicUsize =
+    core::sync::atomic::AtomicUsize::new(0);
+#[cfg(target_arch = "powerpc")]
+static RESET_FORMAT_OUTPUT_UNTOUCHED: core::sync::atomic::AtomicBool =
+    core::sync::atomic::AtomicBool::new(false);
 
 pub fn monitor(logger: &mut ProbeLogger) -> ! {
     logger.section("IPC ASYNC FS PROBE START");
@@ -111,6 +148,7 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
         );
         probe_loader_ipc_bounds(logger);
         probe_pending_reply_reinitialize(logger);
+        probe_unsent_queue_reinitialize(logger);
         probe_ioctlv_reply(logger);
     }
 
@@ -223,6 +261,163 @@ fn probe_pending_reply_reinitialize(logger: &mut ProbeLogger) {
         "IPC reinitialize closes held descriptor and accepts new requests",
         closed && recovered && CALLS.load(Ordering::Acquire) == 1,
     );
+}
+
+#[cfg(target_arch = "powerpc")]
+fn probe_unsent_queue_reinitialize(logger: &mut ProbeLogger) {
+    use ogc_ipc as ipc;
+
+    unsafe extern "C" fn complete(result: i32, userdata: *mut c_void) -> i32 {
+        let index = (userdata as usize).wrapping_sub(1);
+        if let Some(result_slot) = RESET_QUEUE_RESULTS.get(index) {
+            result_slot.store(result, Ordering::Release);
+            RESET_QUEUE_CALLS[index].fetch_add(1, Ordering::AcqRel);
+            RESET_QUEUE_CALLBACK_ORDER[index].store(
+                RESET_QUEUE_CALLBACK_SEQUENCE.fetch_add(1, Ordering::AcqRel) + 1,
+                Ordering::Release,
+            );
+        }
+        result
+    }
+
+    unsafe extern "C" fn format_complete(result: i32, userdata: *mut c_void) -> i32 {
+        RESET_FORMAT_RESULT.store(result, Ordering::Release);
+        RESET_FORMAT_USERDATA.store(userdata as usize as u32, Ordering::Release);
+        RESET_FORMAT_CALLBACK_ORDER.store(
+            RESET_QUEUE_CALLBACK_SEQUENCE.fetch_add(1, Ordering::AcqRel) + 1,
+            Ordering::Release,
+        );
+        let output = RESET_FORMAT_OUTPUT.load(Ordering::Acquire) as *const u8;
+        let untouched = !output.is_null()
+            // SAFETY: The probe keeps the four-byte output alive until this
+            // callback returns and uses it only for this formatter request.
+            && unsafe { core::slice::from_raw_parts(output, 4) == [0xa5; 4] };
+        RESET_FORMAT_OUTPUT_UNTOUCHED.store(untouched, Ordering::Release);
+        RESET_FORMAT_CALLS.fetch_add(1, Ordering::AcqRel);
+        result
+    }
+
+    ipc::reinitialize();
+    let mut queue_wrap_ready = true;
+    for _ in 0..7 {
+        queue_wrap_ready &=
+            ipc::open_file(c"/dev/fs", IPC_OPEN_NONE).is_ok_and(|fd| fd.close().is_ok());
+    }
+    let fd = match ipc::open_file(c"/dev/es", IPC_OPEN_NONE) {
+        Ok(fd) => fd,
+        Err(error) => {
+            logger.record("IPC reset formatter fixture opens ES", false);
+            logger.note_i32("IPC reset formatter ES open result", error);
+            return;
+        }
+    };
+    for result in &RESET_QUEUE_RESULTS {
+        result.store(IPC_ASYNC_UNSET, Ordering::Release);
+    }
+    for calls in &RESET_QUEUE_CALLS {
+        calls.store(0, Ordering::Release);
+    }
+    for order in &RESET_QUEUE_CALLBACK_ORDER {
+        order.store(0, Ordering::Release);
+    }
+    RESET_QUEUE_CALLBACK_SEQUENCE.store(0, Ordering::Release);
+    RESET_FORMAT_RESULT.store(IPC_ASYNC_UNSET, Ordering::Release);
+    RESET_FORMAT_CALLS.store(0, Ordering::Release);
+    RESET_FORMAT_CALLBACK_ORDER.store(0, Ordering::Release);
+    RESET_FORMAT_USERDATA.store(0, Ordering::Release);
+    RESET_FORMAT_OUTPUT_UNTOUCHED.store(false, Ordering::Release);
+    let mut output = [0xa5u8; 4];
+    let title_id = 0x0000_0001_0000_0002u64.to_be_bytes();
+    RESET_FORMAT_OUTPUT.store(output.as_mut_ptr() as usize, Ordering::Release);
+    let userdata = 0x1357usize as *mut c_void;
+    let sent_before = SENT_DEBUG_COUNT.load(Ordering::Acquire);
+    let irq = ogc_irq::irq_disable();
+    let mut submissions = [IPC_ASYNC_UNSET; 3];
+    for (index, submitted) in submissions.iter_mut().enumerate() {
+        *submitted = unsafe {
+            ipc::IOS_OpenAsync(
+                c"/dev/fs".as_ptr(),
+                IPC_OPEN_NONE,
+                Some(complete),
+                (index + 1) as *mut c_void,
+            )
+        };
+    }
+    let formatted_submission = unsafe {
+        IOS_IoctlvFormatAsync(
+            ipc::IPC_HEAP,
+            fd.raw(),
+            0x10,
+            Some(format_complete),
+            userdata,
+            c"d:d".as_ptr(),
+            title_id.as_ptr(),
+            title_id.len() as u32,
+            output.as_mut_ptr(),
+            output.len() as u32,
+        )
+    };
+    let sent_before_reset = SENT_DEBUG_COUNT
+        .load(Ordering::Acquire)
+        .wrapping_sub(sent_before);
+    ipc::reinitialize();
+    ogc_irq::irq_restore(irq);
+
+    let accepted = submissions.iter().all(|result| *result == 0) && formatted_submission == 0;
+    let start = system::time();
+    while accepted
+        && RESET_QUEUE_CALLS
+            .iter()
+            .any(|calls| calls.load(Ordering::Acquire) == 0)
+        && system::time().wrapping_sub(start) < WII_TIMER_CLOCK_HZ * 2
+    {
+        ipc_poll();
+        ogc_lwp::sys::yield_thread();
+    }
+
+    let results: [i32; 3] =
+        core::array::from_fn(|index| RESET_QUEUE_RESULTS[index].load(Ordering::Acquire));
+    let calls: [u32; 3] =
+        core::array::from_fn(|index| RESET_QUEUE_CALLS[index].load(Ordering::Acquire));
+    let callback_order: [u32; 3] =
+        core::array::from_fn(|index| RESET_QUEUE_CALLBACK_ORDER[index].load(Ordering::Acquire));
+    let format_callback_order = RESET_FORMAT_CALLBACK_ORDER.load(Ordering::Acquire);
+    let first_closed = results[0] >= 0 && ipc::IOS_Close(results[0]) == 0;
+    let exact_outcomes =
+        results[0] >= 0 && results[1] == ipc::IPC_ENOENT && results[2] == ipc::IPC_ENOENT;
+    for (index, result) in results.iter().enumerate() {
+        logger.note_i32("IPC reset queued callback result", *result);
+        logger.note_u32("IPC reset queued callback count", calls[index]);
+    }
+    logger.record(
+        "IPC reset fixture accepts one sent request and queued requests",
+        accepted && sent_before_reset == 1,
+    );
+    logger.record(
+        "IPC reset fixture places queued requests across ring wrap",
+        queue_wrap_ready,
+    );
+    logger.record(
+        "IPC reset completes sent request and cancels unsent open once",
+        exact_outcomes && calls == [1, 1, 1],
+    );
+    logger.record(
+        "IPC reset cancels queued formatter once without output copyback",
+        RESET_FORMAT_CALLS.load(Ordering::Acquire) == 1
+            && RESET_FORMAT_RESULT.load(Ordering::Acquire) == ipc::IPC_ENOENT
+            && RESET_FORMAT_USERDATA.load(Ordering::Acquire) == userdata as usize as u32
+            && RESET_FORMAT_OUTPUT_UNTOUCHED.load(Ordering::Acquire)
+            && output == [0xa5; 4],
+    );
+    logger.record(
+        "IPC reset cancellation callbacks preserve queue order",
+        callback_order[1] != 0
+            && callback_order[1] < callback_order[2]
+            && callback_order[2] < format_callback_order,
+    );
+    logger.record("IPC reset closes the sent request descriptor", first_closed);
+    logger.record("IPC reset formatter fixture closes ES", fd.close().is_ok());
+    RESET_FORMAT_OUTPUT.store(0, Ordering::Release);
 }
 
 #[cfg(target_arch = "powerpc")]
@@ -504,6 +699,9 @@ unsafe extern "C" fn ipc_async_open_cb(result: i32, _userdata: *mut c_void) -> i
 
 #[cfg(target_arch = "powerpc")]
 unsafe fn ipc_debug_hook(stage: u32, a: u32, b: u32, c: u32) {
+    if stage == 5 {
+        SENT_DEBUG_COUNT.fetch_add(1, Ordering::AcqRel);
+    }
     if stage == 70 {
         REINIT_MSR.store(read_msr(), Ordering::Release);
     }

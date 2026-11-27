@@ -679,9 +679,14 @@ A failed actual IOS launch and failed fresh ES handshake remain untested.
 reinitialization, as C does. Accepted requests still in the software queue
 have not reached IOS; clearing the slots can leave asynchronous ownership
 tracked without a corresponding reply, or strand a synchronous waiter.
-This is a source-level concern, not a reproduced runtime defect. Distinguish
-unsent requests from transmitted requests before changing cancellation or
-mailbox-credit behavior. Keep independent concurrency review open.
+The [unsent queue reset probe](../dolphin-runs/2026-11-27-ipc-unsent-queue-reset/README.md)
+reproduced the async ownership leak. Rust now completes accepted unsent
+requests with `IPC_ENOENT` before clearing the queue. It preserves sent requests
+and their replies. This is a justified safety difference from C, which clears
+the queue without completing those requests. The probe verifies exact-once
+callbacks in FIFO order across ring wrap, formatter userdata, and no staged
+output copyback. Actual failed IOS launch, failed fresh ES handshake, and
+independent concurrency review remain open.
 
 ## External IRQ dispatch context — 2026-11-26
 

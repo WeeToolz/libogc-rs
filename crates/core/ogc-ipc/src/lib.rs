@@ -1507,6 +1507,47 @@ fn reset_request_queue() {
     RELAUNCH_REQ.store(0, Ordering::Release);
 }
 
+unsafe fn cancel_unsent_queue_requests() {
+    let write = IPC_QUEUE_COUNT.load(Ordering::Acquire);
+    let sent = IPC_SENT_COUNT.load(Ordering::Relaxed);
+    let pending_count = write.wrapping_sub(sent);
+    if pending_count > IPC_QUEUE_CAPACITY as u32 {
+        debug_mark(66, pending_count, write, sent);
+    }
+    let pending = pending_count.min(IPC_QUEUE_CAPACITY as u32) as usize;
+    let send = IPC_QUEUE_SEND.load(Ordering::Relaxed);
+    for offset in 0..pending {
+        let slot_index = send.wrapping_add(offset as u32) as usize & (IPC_QUEUE_CAPACITY - 1);
+        let slot = &IPC_QUEUE[slot_index];
+        let address = slot.swap(0, Ordering::AcqRel);
+        if address == 0 {
+            debug_mark(65, slot_index as u32, write, sent);
+            continue;
+        }
+
+        let req = address as *mut IpcRequest;
+        unsafe {
+            if (*req).cb.is_some() {
+                // Unsent requests cannot receive a later IOS reply. Remove
+                // their tracker entry and return their reserved callback.
+                if !take_async_request(address) {
+                    debug_mark(64, address as u32, (*req).cmd, (*req).magic);
+                }
+                complete_cancelled_async_request(req, mem_virtual_to_physical(address));
+            } else if SYNC_WAIT_REQ.load(Ordering::Acquire) == address {
+                (*req).result = IPC_ENOENT;
+                SYNC_WAIT_DONE.store(true, Ordering::Release);
+                lwp_sys::note_ipc_wake((*req).syncqueue);
+                lwp_sys::thread_signal((*req).syncqueue);
+            } else {
+                // Keep an unknown request allocated. A pointer without a
+                // waiter or callback has no safe completion owner.
+                debug_mark(63, address as u32, (*req).cmd, (*req).magic);
+            }
+        }
+    }
+}
+
 #[cfg(not(gamecube))]
 unsafe extern "C" fn interrupt_handler(_irq: u32, _ctx: *mut c_void) {
     unsafe {
@@ -1594,8 +1635,10 @@ pub fn poll() -> bool {
 
 /// Reinitializes the PPC-side IPC client state after IOS has been relaunched.
 ///
-/// This keeps the installed IRQ handler and mailbox setup in sync with the new
-/// IOS instance before new requests are submitted.
+/// It preserves sent requests for their IOS replies and completes accepted
+/// requests that were still in the PPC software queue with `IPC_ENOENT`.
+/// Reinitializing must not change the meaning of an IOS reply already posted
+/// to shared memory.
 pub fn reinitialize() {
     poll_guard::protected_poll(
         || unsafe { lock_by_msr() },
@@ -1603,6 +1646,9 @@ pub fn reinitialize() {
         || {
             #[cfg(feature = "format-probe-hooks")]
             debug_mark(70, 0, 0, 0);
+            // The request slots still hold only work that has not reached
+            // IOS. Complete that work locally before clearing the queue.
+            unsafe { cancel_unsent_queue_requests() };
             IPC_MAILBOX_ACK.store(1, Ordering::Release);
             reset_request_queue();
             IPC_INITIALIZED.store(false, Ordering::Release);
@@ -1844,11 +1890,17 @@ unsafe fn cancel_abandoned_request(req: *mut IpcRequest) {
                 }
             }
         }
+        complete_cancelled_async_request(req, mem_virtual_to_physical(req as usize));
+    }
+}
+
+unsafe fn complete_cancelled_async_request(req: *mut IpcRequest, physical: u32) {
+    unsafe {
         (*req).result = IPC_ENOENT;
         if (*req).cancel_cb.is_some() {
             (*req).cb = (*req).cancel_cb;
         }
-        enqueue_async_completion(req, mem_virtual_to_physical(req as usize));
+        enqueue_async_completion(req, physical);
     }
 }
 
