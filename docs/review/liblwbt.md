@@ -32,6 +32,8 @@ Pinned C `BTE_Close` only clears the HCI command-completion callback and leaves 
 
 The Dolphin runtime probe now allocates a PCB, calls public `close()`, and verifies that the PCB is still live before it frees it. This checks the Rust state behavior. It does not test a pending HCI callback or a physical Bluetooth adapter. Keep hardware callback behavior open.
 
+The same probe now calls the void `init()` and `shutdown()` entry points after setting a known error status. It checks that each public wrapper runs the shared implementation and updates `last_status()` to the successful result. The check covers these wrapper paths under Dolphin; it does not qualify Bluetooth controller behavior or shutdown failure handling on hardware.
+
 ## Confirmed mismatch
 
 ### `sendmessage` and `sendmessageasync` use the interrupt data path instead of the HID control report queue

@@ -10733,11 +10733,25 @@ fn probe_lwbt_closed_adapter(logger: &mut ProbeLogger) {
         "lwBT last status reports public init result",
         bte::last_status() == init,
     );
+    let init_sentinel = bte::set_evt_filter(0xff, 0, null_mut(), Some(complete));
+    bte::init();
+    logger.record(
+        "lwBT void init forwards the successful initialization result",
+        init_sentinel == bte::ERR_VAL && init == bte::ERR_OK && bte::last_status() == init,
+    );
     let shutdown = bte::try_shutdown();
     logger.note_i32("lwBT public shutdown result", shutdown);
     logger.record(
         "lwBT last status reports public shutdown result",
         shutdown == bte::ERR_OK && bte::last_status() == shutdown,
+    );
+    let shutdown_sentinel = bte::set_evt_filter(0xff, 0, null_mut(), Some(complete));
+    bte::shutdown();
+    logger.record(
+        "lwBT void shutdown forwards the successful shutdown result",
+        shutdown_sentinel == bte::ERR_VAL
+            && shutdown == bte::ERR_OK
+            && bte::last_status() == shutdown,
     );
 }
 

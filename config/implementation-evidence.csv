@@ -3336,3 +3336,5 @@ ogc-wiilaunch,src/lib.rs,try_launch_title_with_args,394,ios,hardware-probe,probe
 ogc,src/cast.rs,init,119,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_cast_gqr,ogc::cast::init,dolphin-partial
 lwbt-sys,src/lib.rs,last_status,360,pure,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_closed_adapter,bte::last_status,dolphin-partial
 lwbt-sys,src/lib.rs,close,364,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_closed_adapter,bte::close,dolphin-partial
+lwbt-sys,src/lib.rs,init,327,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_closed_adapter,bte::init,dolphin-partial
+lwbt-sys,src/lib.rs,shutdown,356,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_closed_adapter,bte::shutdown,dolphin-partial
