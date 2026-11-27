@@ -95,6 +95,7 @@ enum EvidenceScope {
     DolphinHostCallback,
     DolphinMouseLifecycle,
     IpcPartialDolphin,
+    DolphinPartial,
     IpcRebootGuard,
     IosLifecycleDolphin,
     EsBootImportArguments,
@@ -129,6 +130,7 @@ impl EvidenceScope {
             "dolphin-host-callback" => Self::DolphinHostCallback,
             "dolphin-mouse-lifecycle" => Self::DolphinMouseLifecycle,
             "ipc-partial-dolphin" => Self::IpcPartialDolphin,
+            "dolphin-partial" => Self::DolphinPartial,
             "ipc-reboot-guard" => Self::IpcRebootGuard,
             "ios-lifecycle-dolphin" => Self::IosLifecycleDolphin,
             "es-boot-import-arguments" => Self::EsBootImportArguments,
@@ -195,6 +197,9 @@ impl EvidenceScope {
             Self::IpcPartialDolphin => {
                 "Selected ioctl and formatter cases pass in Dolphin. Physical Wii cache behavior remains unverified."
             }
+            Self::DolphinPartial => {
+                "Selected behavior passes in Dolphin. Physical Wii behavior remains unverified."
+            }
             Self::IpcRebootGuard => {
                 "Invalid argument guards and the OHBC test title handoff pass in Dolphin. The System Menu handoff remains unverified."
             }
@@ -251,6 +256,7 @@ impl EvidenceScope {
             | Self::ScalarOutput => "unverified",
             Self::ScalarAndBuffer
             | Self::IpcPartialDolphin
+            | Self::DolphinPartial
             | Self::IpcRebootGuard
             | Self::IosLifecycleDolphin
             | Self::LaunchHandoff
@@ -2554,6 +2560,10 @@ mod tests {
             "hardware"
         );
         for (name, limitation) in [
+            (
+                "dolphin-partial",
+                "Selected behavior passes in Dolphin. Physical Wii behavior remains unverified.",
+            ),
             (
                 "ipc-partial-dolphin",
                 "Physical Wii cache behavior remains unverified",

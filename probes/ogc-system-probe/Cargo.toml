@@ -34,6 +34,7 @@ ogc-controller = { path = "../../crates/services/ogc-controller" }
 libmad-rs = { path = "../../vendor/libmad-rs" }
 ogc-core = { path = "../../crates/core/ogc-core" }
 ogc-alloc = { path = "../../crates/core/ogc-alloc" }
+ogc = { path = "../../crates/compatibility/ogc" }
 
 # sys
 ogc-aes-sys = { path = "../../crates/core/ogc-aes-sys" }

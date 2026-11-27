@@ -454,6 +454,7 @@ fn probe_inet_addr(logger: &mut ProbeLogger) {
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("RUNTIME PROBE");
 
+    probe_cast_gqr(logger);
     probe_socket_address_layout(logger);
     probe_network_error_conversion(logger);
     probe_inet_addr(logger);
@@ -667,6 +668,105 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_raw_video_setup(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_sysbase_default_device(logger);
+}
+
+fn probe_cast_gqr(logger: &mut ProbeLogger) {
+    macro_rules! read_gqr {
+        ($register:literal) => {{
+            let value: u32;
+            unsafe {
+                core::arch::asm!(
+                    concat!("mfspr {value}, ", stringify!($register)),
+                    value = out(reg) value,
+                    options(nomem, nostack, preserves_flags)
+                );
+            }
+            value
+        }};
+    }
+    macro_rules! write_gqr {
+        ($register:literal, $value:expr) => {{
+            let value: u32 = $value;
+            unsafe {
+                core::arch::asm!(
+                    concat!("mtspr ", stringify!($register), ", {value}"),
+                    value = in(reg) value,
+                    options(nomem, nostack, preserves_flags)
+                );
+            }
+        }};
+    }
+
+    let original = [
+        read_gqr!(914),
+        read_gqr!(915),
+        read_gqr!(916),
+        read_gqr!(917),
+        read_gqr!(918),
+        read_gqr!(919),
+    ];
+    ogc::cast::init();
+    let initialized = [
+        read_gqr!(914),
+        read_gqr!(915),
+        read_gqr!(916),
+        read_gqr!(917),
+    ];
+    logger.record(
+        "CAST init sets GQR2 through GQR5 to libogc defaults",
+        initialized == [0x0004_0004, 0x0005_0005, 0x0006_0006, 0x0007_0007],
+    );
+
+    ogc::cast::set_gqr6(ogc::cast::GQR_TYPE_U16, -1);
+    ogc::cast::set_gqr7(ogc::cast::GQR_TYPE_S8, 65);
+    logger.record(
+        "CAST GQR setters mask signed scale to six bits",
+        read_gqr!(918) == 0x3f05_3f05 && read_gqr!(919) == 0x0106_0106,
+    );
+
+    ogc::cast::set_gqr2(ogc::cast::GQR_TYPE_U8, 0);
+    ogc::cast::set_gqr3(ogc::cast::GQR_TYPE_U16, 0);
+    ogc::cast::set_gqr4(ogc::cast::GQR_TYPE_S8, 0);
+    ogc::cast::set_gqr5(ogc::cast::GQR_TYPE_S16, 0);
+    let (source_u8, source_u16, source_s8, source_s16) = (128u8, 1024u16, -32i8, -512i16);
+    let mut float_u8 = 0.0f32;
+    let mut float_u16 = 0.0f32;
+    let mut float_s8 = 0.0f32;
+    let mut float_s16 = 0.0f32;
+    unsafe {
+        ogc::cast::castu8f32(&source_u8, &mut float_u8);
+        ogc::cast::castu16f32(&source_u16, &mut float_u16);
+        ogc::cast::casts8f32(&source_s8, &mut float_s8);
+        ogc::cast::casts16f32(&source_s16, &mut float_s16);
+    }
+    logger.record(
+        "CAST integer loads use unsigned and signed widths",
+        [float_u8, float_u16, float_s8, float_s16] == [128.0, 1024.0, -32.0, -512.0],
+    );
+
+    let (source_float_u8, source_float_u16, source_float_s8, source_float_s16) =
+        (200.0f32, 2000.0f32, -12.0f32, -1200.0f32);
+    let mut output_u8 = 0u8;
+    let mut output_u16 = 0u16;
+    let mut output_s8 = 0i8;
+    let mut output_s16 = 0i16;
+    unsafe {
+        ogc::cast::castf32u8(&source_float_u8, &mut output_u8);
+        ogc::cast::castf32u16(&source_float_u16, &mut output_u16);
+        ogc::cast::castf32s8(&source_float_s8, &mut output_s8);
+        ogc::cast::castf32s16(&source_float_s16, &mut output_s16);
+    }
+    logger.record(
+        "CAST integer stores use unsigned and signed widths",
+        output_u8 == 200 && output_u16 == 2000 && output_s8 == -12 && output_s16 == -1200,
+    );
+
+    write_gqr!(914, original[0]);
+    write_gqr!(915, original[1]);
+    write_gqr!(916, original[2]);
+    write_gqr!(917, original[3]);
+    write_gqr!(918, original[4]);
+    write_gqr!(919, original[5]);
 }
 
 fn probe_ipc_path_limits(logger: &mut ProbeLogger) {
