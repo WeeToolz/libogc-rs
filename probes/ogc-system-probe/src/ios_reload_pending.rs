@@ -356,7 +356,7 @@ fn run_once(
     }
     let pending_tracker_count = ipc::in_flight_async_request_count_for_probe();
     let pending_callback_reservations = ipc::async_callback_reservations_for_probe();
-    let mut pending_addresses = [0usize; 64];
+    let mut pending_addresses = [ipc::AsyncRequestSnapshot::default(); 64];
     let pending_address_count =
         ipc::snapshot_in_flight_async_requests_for_probe(&mut pending_addresses);
     logger.note_u32(
@@ -404,7 +404,7 @@ fn run_once(
     if inject_handshake_failure {
         let failed_tracker_count = ipc::in_flight_async_request_count_for_probe();
         let failed_callback_reservations = ipc::async_callback_reservations_for_probe();
-        let mut failed_addresses = [0usize; 64];
+        let mut failed_addresses = [ipc::AsyncRequestSnapshot::default(); 64];
         let failed_address_count =
             ipc::snapshot_in_flight_async_requests_for_probe(&mut failed_addresses);
         logger.note_u32(
@@ -431,10 +431,55 @@ fn run_once(
             && failed_address_count <= failed_addresses.len()
             && pending_addresses[..pending_address_count]
                 .iter()
-                .all(|address| failed_addresses[..failed_address_count].contains(address));
+                .all(|pending| {
+                    failed_addresses[..failed_address_count]
+                        .iter()
+                        .any(|failed| failed.address == pending.address)
+                });
+        let mut extra_tracker_count = 0;
+        let mut extra_stm_event_hook = false;
+        for (index, request) in failed_addresses[..failed_address_count].iter().enumerate() {
+            if !pending_addresses[..pending_address_count]
+                .iter()
+                .any(|pending| pending.address == request.address)
+            {
+                extra_tracker_count += 1;
+                extra_stm_event_hook |= request.command == 6
+                    && request.descriptor >= 0
+                    && request.callback != 0
+                    && request.user_data == 0;
+                logger.note_u32_index(
+                    "pending reload extra tracker address",
+                    index as i32,
+                    request.address as u32,
+                );
+                logger.note_u32_index(
+                    "pending reload extra tracker command",
+                    index as i32,
+                    request.command,
+                );
+                logger.note_i32_index(
+                    "pending reload extra tracker descriptor",
+                    index as i32,
+                    request.descriptor,
+                );
+                logger.note_u32_index(
+                    "pending reload extra tracker callback",
+                    index as i32,
+                    request.callback as u32,
+                );
+                logger.note_u32_index(
+                    "pending reload extra tracker userdata",
+                    index as i32,
+                    request.user_data as u32,
+                );
+            }
+        }
         let failed_handshake_preserved = pending_addresses_preserved
             && failed_tracker_count >= pending_tracker_count
             && failed_callback_reservations >= pending_callback_reservations
+            && extra_tracker_count == 1
+            && extra_stm_event_hook
             && OLD_COUNT.load(Ordering::Acquire) == 0
             && FORMAT_COUNT.load(Ordering::Acquire) == 0
             && ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire) > format_before;
@@ -442,6 +487,25 @@ fn run_once(
             "pending reload failed fresh handshake preserves requests without callbacks",
             failed_handshake_preserved,
         );
+        let stm_closed_before_retry = ogc_stm::close() == 0;
+        let mut remaining_addresses = [ipc::AsyncRequestSnapshot::default(); 64];
+        let remaining_address_count =
+            ipc::snapshot_in_flight_async_requests_for_probe(&mut remaining_addresses);
+        let old_requests_remain_after_stm_close = remaining_address_count == pending_address_count
+            && pending_addresses[..pending_address_count]
+                .iter()
+                .all(|pending| {
+                    remaining_addresses[..remaining_address_count]
+                        .iter()
+                        .any(|remaining| remaining.address == pending.address)
+                });
+        logger.record(
+            "pending reload closes the new IOS STM event hook before retry",
+            stm_closed_before_retry && old_requests_remain_after_stm_close,
+        );
+        if !stm_closed_before_retry || !old_requests_remain_after_stm_close {
+            return false;
+        }
         let retry_retirement = if let Ok(scope) = ipc::IosReplacement::begin() {
             // SAFETY: The IOS replacement and mailbox reinitialization have
             // completed. `finish` performs a fresh `/dev/es` round trip before
@@ -466,7 +530,11 @@ fn run_once(
         }
     }
     // The old numeric descriptor may refer to a different device now.
-    let closed = ogc_stm::close();
+    let closed = if inject_handshake_failure {
+        0
+    } else {
+        ogc_stm::close()
+    };
     logger.record("pending reload new library STM hook closes", closed == 0);
     if closed != 0 {
         return false;
@@ -534,24 +602,6 @@ fn run_once(
         "pending reload formatted cancellation does not copy staged output",
         format_output_untouched,
     );
-    if inject_handshake_failure {
-        let callbacks_once = OLD_COUNT.load(Ordering::Acquire) == 1
-            && OLD_RESULT.load(Ordering::Acquire) == ipc::IPC_ENOENT
-            && FORMAT_COUNT.load(Ordering::Acquire) == 1
-            && FORMAT_RESULT.load(Ordering::Acquire) == ipc::IPC_ENOENT;
-        logger.record(
-            "pending reload failed-handshake retry completes each old callback once",
-            callbacks_once,
-        );
-        let initialized = ogc_stm::init();
-        logger.record(
-            "pending reload failed-handshake retry restores STM and accepts fresh IPC",
-            initialized >= 0
-                && ipc::open_file(c"/dev/fs", ipc::IPC_OPEN_NONE)
-                    .is_ok_and(|fd| fd.close().is_ok()),
-        );
-        return format_clean && format_output_untouched && callbacks_once && initialized >= 0;
-    }
     let new_fd = open_hook();
     logger.record("pending reload opens new IOS hook", new_fd >= 0);
     if new_fd < 0 {

@@ -23,8 +23,9 @@ release case.
 
 This verifies the failed-handshake gate and retry behavior in Dolphin. It
 does not simulate an actual `/dev/es` open failure, prove that IOS stopped DMA
-to old buffers, or establish physical Wii cache behavior. The unexpected
-third aggregate tracker after reload needs source-level concurrency review.
+to old buffers, or establish physical Wii cache behavior. The third aggregate
+tracker is identified as the new IOS STM event hook in the later
+[tracker-origin follow-up](../2026-11-27-ipc-replacement-tracker-origin/README.md).
 Physical Wii cache and DMA checks remain open.
 
 Evidence: `suite.json` records the command, runner result, Dolphin version,

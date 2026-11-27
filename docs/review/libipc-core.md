@@ -703,11 +703,15 @@ handshake injection. Dolphin passed 113/113 checks. It retained both captured
 request identities and callback reservations after the failure, then retired
 them on a later real `/dev/es` round trip. Both callbacks ran once with
 `IPC_ENOENT`, and formatter storage was freed without output copyback. The
-aggregate tracker count rose from two to three across reload, although the two
-captured requests remained present; the additional tracker is not yet
-identified and keeps the independent concurrency review open. Injection of a
-failed handshake is not an actual IOS `/dev/es` failure. It does not prove
-physical DMA retirement or cache behavior. See the
+aggregate tracker count rose from two to three across reload. The
+[tracker-origin follow-up](../dolphin-runs/2026-11-27-ipc-replacement-tracker-origin/README.md)
+identifies the third request as the new IOS STM event hook created by
+`_ios_initialize_subsystems` after the launch path returns. The probe closes
+that new hook before its manual retry, then verifies that both old requests
+remain and are retired by a real `/dev/es` round trip. Dolphin passed 121/121
+checks, including normal hook release afterward. Injection does not simulate
+an actual IOS `/dev/es` failure. Physical DMA retirement, cache behavior, and
+the independent concurrency review remain open. See the
 [failed-handshake run record](../dolphin-runs/2026-11-27-ipc-replacement-handshake-failure/README.md).
 
 ### Zero-vector request retirement guard (2026-11-27)

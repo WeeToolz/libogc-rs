@@ -25,8 +25,9 @@ mod replacement_probe;
 
 #[cfg(feature = "format-probe-hooks")]
 pub use replacement_probe::{
-    async_callback_reservations_for_probe, fail_next_replacement_handshake_for_probe,
-    in_flight_async_request_count_for_probe, snapshot_in_flight_async_requests_for_probe,
+    AsyncRequestSnapshot, async_callback_reservations_for_probe,
+    fail_next_replacement_handshake_for_probe, in_flight_async_request_count_for_probe,
+    snapshot_in_flight_async_requests_for_probe,
 };
 
 #[cfg(target_arch = "powerpc")]
