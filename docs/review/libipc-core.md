@@ -710,8 +710,12 @@ identifies the third request as the new IOS STM event hook created by
 that new hook before its manual retry, then verifies that both old requests
 remain and are retired by a real `/dev/es` round trip. Dolphin passed 121/121
 checks, including normal hook release afterward. Injection does not simulate
-an actual IOS `/dev/es` failure. Physical DMA retirement, cache behavior, and
-the independent concurrency review remain open. See the
+an actual IOS `/dev/es` failure. Two attempts to force an ES launch error by
+corrupting returned ticket-view metadata were accepted by Dolphin and
+performed the reload; they do not cover the failed-launch branch. Physical
+DMA retirement, cache behavior, and the independent concurrency review remain
+open. See the [negative injection evidence](../dolphin-runs/2026-11-27-ios-launch-invalid-ticket-attempts/README.md)
+and the
 [failed-handshake run record](../dolphin-runs/2026-11-27-ipc-replacement-handshake-failure/README.md).
 
 ### Zero-vector request retirement guard (2026-11-27)
