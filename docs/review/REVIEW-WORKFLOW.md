@@ -6,7 +6,7 @@ The source trees used for the recorded reviews are:
 - C: `../../C-sources/libogc` in the original development workspace;
   [upstream libogc](https://github.com/devkitPro/libogc) is not included in
   this repository. The recorded reference commit is
-  `ff53c4a7b7ba5587d82305e710ca65bce1092e1c`.
+  `7d4b8b3e7b845516f0cc2a85274879ddd8cbf142`.
 - Rust: this repository
 
 The C path is an example of the original local layout. A reviewer may use a
