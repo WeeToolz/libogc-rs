@@ -81,6 +81,8 @@ mod tests {
         assert_eq!(update_error(0, -10), -10);
         assert_eq!(update_error(-10, 0), -10);
         assert_eq!(update_error(-10, -20), -20);
+        // C keeps the launch failure when closing ES also fails during cleanup.
+        assert_eq!(update_error(-30, -20), -20);
     }
 
     #[test]

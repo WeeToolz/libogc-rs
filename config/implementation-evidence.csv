@@ -2579,6 +2579,11 @@ ogc-ios-sys,src/lib.rs,get_revision,429,ios,hardware-probe,probes/ogc-system-pro
 ogc-ios-sys,src/lib.rs,get_revision_major,442,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ios_version_queries,raw_ios::get_revision_major
 ogc-ios-sys,src/lib.rs,get_revision_minor,450,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ios_version_queries,raw_ios::get_revision_minor
 ogc-ios-sys,src/lib.rs,get_preferred_version,362,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ios_version_queries,raw_ios::get_preferred_version
+ogc-ios-sys,src/lib.rs,_ios_initialize_subsystems,291,ios,hardware-probe,probes/ogc-system-probe/src/lib.rs,run_ios_reload_probe_bin,ogc_ios::initialize_subsystems,ios-lifecycle-dolphin
+ogc-ios-sys,src/lib.rs,_ios_launch_new_ios,344,ios,hardware-probe,probes/ogc-system-probe/src/lib.rs,run_ios_reload_probe_bin,ogc_ios::launch_new_ios,ios-lifecycle-dolphin
+ogc-ios-sys,src/lib.rs,_ios_load_startup_ios,336,ios,hardware-probe,probes/ogc-system-probe/src/lib.rs,run_ios_reload_probe_bin,ogc_ios::load_startup_ios,ios-lifecycle-dolphin
+ogc-ios-sys,src/lib.rs,_ios_shutdown_subsystems,308,ios,hardware-probe,probes/ogc-system-probe/src/lib.rs,run_ios_reload_probe_bin,ogc_ios::shutdown_subsystems,ios-lifecycle-dolphin
+ogc-ios-sys,src/lib.rs,reload_ios,370,ios,hardware-probe,probes/ogc-system-probe/src/lib.rs,run_ios_reload_probe_bin,ogc_ios::reload_ios,ios-lifecycle-dolphin
 ogc-si,src/lib.rs,set_xy,33,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_registers,si::set_xy
 ogc-si,src/lib.rs,enable_polling,37,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_registers,si::enable_polling
 ogc-si,src/lib.rs,disable_polling,41,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_si_polling_registers,si::disable_polling

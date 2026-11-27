@@ -96,6 +96,7 @@ enum EvidenceScope {
     DolphinMouseLifecycle,
     IpcPartialDolphin,
     IpcRebootGuard,
+    IosLifecycleDolphin,
 }
 
 impl EvidenceScope {
@@ -125,6 +126,7 @@ impl EvidenceScope {
             "dolphin-mouse-lifecycle" => Self::DolphinMouseLifecycle,
             "ipc-partial-dolphin" => Self::IpcPartialDolphin,
             "ipc-reboot-guard" => Self::IpcRebootGuard,
+            "ios-lifecycle-dolphin" => Self::IosLifecycleDolphin,
             _ => return None,
         })
     }
@@ -188,6 +190,9 @@ impl EvidenceScope {
             Self::IpcRebootGuard => {
                 "Invalid argument guards and the OHBC test title handoff pass in Dolphin. The System Menu handoff remains unverified."
             }
+            Self::IosLifecycleDolphin => {
+                "IOS lifecycle API checks pass in Dolphin. Physical Wii reload behavior remains unverified; the startup loader contract is a no-op in pinned C."
+            }
             Self::DolphinCacheRegister => {
                 "Dolphin HID0 transitions and restoration only. Physical cache state and timing are unverified."
             }
@@ -224,9 +229,10 @@ impl EvidenceScope {
             | Self::NoEventHook
             | Self::SynchronousScalarOutput
             | Self::ScalarOutput => "unverified",
-            Self::ScalarAndBuffer | Self::IpcPartialDolphin | Self::IpcRebootGuard => {
-                "dolphin-partial"
-            }
+            Self::ScalarAndBuffer
+            | Self::IpcPartialDolphin
+            | Self::IpcRebootGuard
+            | Self::IosLifecycleDolphin => "dolphin-partial",
             Self::NoControllerAndInvalidArguments => "unverified",
             _ => declared,
         }
@@ -2527,9 +2533,10 @@ mod tests {
                 "ipc-partial-dolphin",
                 "Physical Wii cache behavior remains unverified",
             ),
+            ("ipc-reboot-guard", "System Menu handoff remains unverified"),
             (
-                "ipc-reboot-guard",
-                "System Menu handoff remains unverified",
+                "ios-lifecycle-dolphin",
+                "Physical Wii reload behavior remains unverified",
             ),
         ] {
             let scope = EvidenceScope::parse(name).unwrap();
@@ -2538,7 +2545,11 @@ mod tests {
         }
         let scalar_scope = EvidenceScope::parse("scalar-and-buffer").unwrap();
         assert_eq!(scalar_scope.classification("ios"), "dolphin-partial");
-        assert!(scalar_scope.limitation().contains("physical cache behavior"));
+        assert!(
+            scalar_scope
+                .limitation()
+                .contains("physical cache behavior")
+        );
         let zero_tag_scope = EvidenceScope::parse("zero-tag-count").unwrap();
         assert_eq!(zero_tag_scope.classification("hardware"), "unverified");
         assert!(zero_tag_scope.limitation().contains("non-zero tag counts"));

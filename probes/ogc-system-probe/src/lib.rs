@@ -1287,6 +1287,32 @@ pub fn run_ios_reload_probe_bin() -> i32 {
         return finish_probe();
     }
     logger.record("current IOS version is valid", true);
+    let shutdown = ogc_ios::shutdown_subsystems();
+    logger.note_i32("IOS subsystem shutdown result", shutdown);
+    logger.record("IOS subsystem shutdown succeeds", shutdown >= 0);
+    if shutdown < 0 {
+        logger.summary();
+        return finish_probe();
+    }
+    let initialized = ogc_ios::initialize_subsystems();
+    logger.note_i32("IOS subsystem initialization result", initialized);
+    logger.record("IOS subsystem initialization succeeds", initialized >= 0);
+    if initialized < 0 {
+        logger.summary();
+        return finish_probe();
+    }
+    let startup_ios = ogc_ios::load_startup_ios();
+    logger.note_i32("IOS startup loader result", startup_ios);
+    logger.record(
+        "disabled C startup loader returns success without launching IOS",
+        startup_ios == 0,
+    );
+    let invalid_launch = ogc_ios::launch_new_ios(2);
+    logger.note_i32("invalid IOS launch result", invalid_launch);
+    logger.record(
+        "IOS launch rejects version below supported range",
+        invalid_launch == ogc_ios::IOS_EBADVERSION,
+    );
     let closed = ogc_es_sys::close();
     logger.record("ES closes before argument checks", closed == 0);
     if closed != 0 {

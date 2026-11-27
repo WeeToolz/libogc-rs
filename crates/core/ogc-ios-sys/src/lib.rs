@@ -380,9 +380,9 @@ pub fn reload_ios(version: i32) -> i32 {
         if es_init >= 0 {
             let launch = _ios_launch_new_ios(version);
             if launch < 0 {
-                ret = update_error(ret, launch);
                 // C closes ES here but preserves the launch result if close fails.
-                let _ = es::close();
+                let close = es::close();
+                ret = update_error(close, launch);
             }
         }
 

@@ -102,3 +102,24 @@ wrapper. Dolphin 2609a reloaded IOS 58 and passed all 12 checks with this
 change; see `../dolphin-runs/2026-11-26-ios-ticket-alignment/`. This does not
 prove a failure occurred with the previous stack placement. Independent source
 review and physical Wii validation remain pending.
+
+## IOS lifecycle API evidence — 2026-11-27
+
+The `ios_reload_probe` now calls the public Rust subsystem shutdown and
+initialization APIs, the startup loader, invalid-version launch, and same-version
+reload. Dolphin 2609a passed 112 checks. The startup loader returns `0`, which
+matches the pinned C weak default because its IOS launch body is disabled with
+`#if 0`; this result does not prove a startup IOS launch. The invalid launch
+returns `IOS_EBADVERSION`. The reload returns `0`, leaves IOS 58 active, and
+allows a fresh `/dev/fs` open and close. See
+`../dolphin-runs/2026-11-27-ios-lifecycle-parity/README.md`.
+
+The Rust STM wrapper continues to return required STM open and event-hook
+errors. Pinned C maps STM device-open failures to `0`, which can report
+subsystem initialization success when the required devices did not open. Rust
+also cleans up a partially opened device instead of retaining it until a later
+shutdown. These are deliberate safety differences: Rust preserves the actual
+failure and avoids keeping incomplete STM state. The public subsystem return
+code can therefore differ from C when STM setup fails. The normal Dolphin run
+checks the success path; injected STM open failures and physical Wii behavior
+remain unverified.
