@@ -9,7 +9,7 @@ Scope: independent source audit of the remaining timing, cache, and STM question
 
 The launch-polling timing mismatch below is historical and is fixed in the current source. C's Wii timebase is `PPC_BUS_CLOCK / 4 = 60,750,000` ticks per second; `udelay(1000)` waits for 60,750 ticks. Rust reads the same PowerPC timebase and waits for that tick interval after the same unsuccessful version read and before each IPC readiness check (`crates/core/ogc-ios-sys/src/lib.rs:40-43,87-106,150-159`; C `gc/tuxedo/ppc/clock.h:5-13,85-88`, `tuxedo/tick.c:135-143`, and `libogc/ios.c:290-312`). Target-gated regression coverage checks the interval boundary and counter wraparound. This is a source and helper-test result; elapsed timing and the full reload remain unverified on physical Wii.
 
-The ACR restore order and the shared STM event-hook lifecycle also match the recorded fixes below. The 2026-11-27 source reconciliation below corrects the earlier cache note: launch polling reads the uncached alias in both C and Rust. The outer STM return-precedence difference is fixed below. The IOS wrapper's event-hook lifecycle and partial-open cleanup differences, replacement failure and other IPC concurrency paths, independent review, and physical Wii behavior remain open.
+The ACR restore order and the shared STM event-hook lifecycle also match the recorded fixes below. The 2026-11-27 source reconciliation below corrects the earlier cache note: launch polling reads the uncached alias in both C and Rust. Rust intentionally returns required STM initialization errors under the Real Implementation Policy, while pinned C can return success when STM setup fails. STM failure cleanup, replacement failure and other IPC concurrency paths, independent review, and physical Wii behavior remain open.
 
 - **Historical launch polling delay finding; fixed in current source.** C waits for the version word with `udelay(1000)` after each unsuccessful read (`../../C-sources/libogc/libogc/ios.c:290-291`). Its IPC readiness loop also calls `udelay(1000)` before each register check (`ios.c:307-312`). `udelay` measures elapsed time from `gettime()` until at least the requested microseconds have passed (`../../C-sources/libogc/libogc/timesupp.c:66-77`). The earlier Rust implementation used fixed `spin_loop` counts. Rust now waits for the same 60,750 timebase ticks per millisecond before each unsuccessful version poll and each IPC readiness check (`crates/core/ogc-ios-sys/src/lib.rs:40-43,100-106,150-170`). Target-gated helper tests cover interval boundaries and counter wraparound; elapsed timing on Wii remains unverified.
 - **STM initialization failure behavior:** C `__STM_Init` returns `0` when either `IOS_Open` fails, regardless of the negative open error (`../../C-sources/libogc/libogc/stm.c:87-92`). The caller treats only negative results as errors (`../../C-sources/libogc/libogc/ios.c:81-87`), so this STM failure does not replace the subsystem return value. Rust `stm_init_powerpc` returns the negative `open_file` error when opening either STM device fails (`crates/core/ogc-ios-sys/src/lib.rs:166-191`); `_ios_initialize_subsystems` then treats it as an error and lets it replace an earlier ES error (`lib.rs:302-309`). This changes both the returned result and error precedence.
@@ -38,26 +38,22 @@ Reviewer: `/root/reviewer_d`. Implementer: the Rust implementation under review 
 
 ### Re-verified confirmed mismatches
 
-### 2026-11-27 correction — IOS initializer result
+### 2026-11-27 correction — retain required STM initialization errors
 
-The STM return-precedence finding is fixed in the current source. The shared
-initializer now returns the ES result and ignores a negative Rust STM result,
-matching the result visible from pinned C: `__STM_Init` returns zero when
-either STM device open fails, and it does not propagate the event-hook
-submission result. The regression helper test covers ES failure, STM-only
-failure, both failures, and success. The target test code compiled but did not
-run on this host. The initial host-suite attempt lacked
-`LIBOGC_MAD_REFERENCE_MP3`; I found the exact fixture by its documented
-SHA-256 and reran the full suite with loopback permission. Strict Clippy passed
-with both documented fixture variables set. This fixes only the outer return
-value. A temporary host wrapper also ran the exact `ios_logic.rs` unit tests:
-9 passed. The wrapper and test binary were removed after the run. The IOS
-wrapper's event-hook lifecycle and partial-open cleanup differences remain
-open.
+An earlier change ignored negative STM initialization results so the outer
+return matched pinned C. A source-review finding rejects that behavior under
+the Real Implementation Policy: it reports successful subsystem
+initialization after a required STM device open or event-hook operation fails.
+The current `initialization_result` preserves the last negative subsystem
+result, so a real STM failure remains visible. This is an intentional safety
+deviation from C's outer error behavior. The review of STM partial-open
+cleanup and close-error handling remains open. Current evidence: the target
+test code compiles; all 9 `ios_logic.rs` tests pass in a host wrapper; the full
+host suite and strict Clippy pass with the documented external fixtures.
 
-- **Launch polling is iteration based in Rust and time based in C.** C checks the IOS version word at `ios.c:290` and calls `udelay(1000)` after each failed read (`ios.c:290-291`). `udelay` waits until `diff_usec(start, end) >= us` using `gettime()` (`timesupp.c:66-77`). C also delays 1000 microseconds before every IPC control check (`ios.c:307-312`). Rust checks `ios_read_version_word()` and then runs 1024 `spin_loop()` iterations (`crates/core/ogc-ios-sys/src/lib.rs:93-99,138-140`); before each IPC check it runs 4096 iterations (`lib.rs:142-147`). These loops do not enforce the C elapsed-time minimum or cadence. The IPC retry count and check-after-delay order otherwise correspond.
-- **Fixed STM open-error return behavior.** The original difference is recorded in the correction above. Current `initialization_result` ignores the STM result and returns the ES result, matching the result visible from pinned C. This does not fix the separate event-hook or partial-open cleanup differences below.
-- **The IOS STM path omits event-hook registration and release.** C calls `__STM_SetEventHook` after setting initialized (`stm.c:98-100`); the registration issues `IOS_IoctlAsync` with `IOCTL_STM_EVENTHOOK` (`stm.c:123-138`). Shutdown calls `__STM_ReleaseEventHook` before closing descriptors (`stm.c:103-120`); release sends `IOCTL_STM_RELEASE_EH` on the immediate descriptor when a handler is registered (`stm.c:141-153`). Rust `stm_init_powerpc` only opens and stores the two file descriptors (`crates/core/ogc-ios-sys/src/lib.rs:166-191`), and `stm_close_powerpc` only closes them (`lib.rs:195-218`). The separate `ogc-stm` crate does not get invoked by these IOS wrapper functions. This is a confirmed difference in the `ogc-ios` subsystem lifecycle.
+- **Historical launch polling cadence finding; fixed in current source.** The fixed `spin_loop` counts described in the older re-review were replaced by the timebase wait documented above. Physical elapsed timing remains unverified.
+- **STM init failure behavior differs by policy.** Rust routes IOS startup through `ogc_stm::init` and attempts both required device opens and event-hook registration. It returns a negative failure when setup fails. Pinned C returns zero for failed device opens and ignores the event-hook submission result (`stm.c:87-100`). Rust retains the error because reporting successful setup after required operations fail is unsafe under the repository policy. The public result and STM state can therefore differ on failure; verify both error and cleanup paths.
+- **The IOS STM success path includes event-hook registration and release.** `stm_init_powerpc` calls `ogc_stm::init`, which opens both descriptors, sets initialized state, and submits `IOCTL_STM_EVENTHOOK`; `stm_close_powerpc` calls `ogc_stm::close`, which releases a registered hook before descriptor close. This matches the successful C lifecycle. Remaining failure-path differences are listed next.
 - **Failed second-open cleanup occurs at a different time and has different state.** When C opens the immediate descriptor but event-hook open fails, `__STM_Init` returns zero and leaves the immediate descriptor stored (`stm.c:87-92`); later `__STM_Close` attempts release first, then closes and clears the stored descriptors (`stm.c:103-120`). Rust explicitly closes the immediate descriptor as soon as the event-hook open fails, returns the event-hook error, and retains the immediate fd only if that close fails (`crates/core/ogc-ios-sys/src/lib.rs:177-186`). The descriptor lifetime, return value, and eventual close/release flow differ. On ordinary close, Rust also preserves a descriptor after close failure for a later retry (`lib.rs:198-215`), while C clears the stored fd after each close attempt (`stm.c:109-117`); this is a deliberate retry/safety behavior but is not C state parity.
 
 ### Additional launch ordering difference
@@ -66,7 +62,7 @@ C reinstalls and unmasks the ACR interrupt before `__IPC_Reinitialize` and the p
 
 ### Cache behavior and validation
 
-The existing cache conclusion remains: C invalidates the eight-byte version range through `PPCDCacheInvalidate` (`ios.c:185-204`; cache helper rounds to the containing line in `../../C-sources/libogc/tuxedo/cache.c:8-23,29`), while Rust invalidates the aligned version address with `dcbi` and `sync` before the volatile read (`crates/core/ogc-ios-sys/src/lib.rs:60-75`). The launch loop consequently adds invalidation on each Rust poll where C only performs `read32` (`ios.c:290`). I still classify the effect of that extra invalidation as uncertain from source alone.
+For `get_version` and `get_revision`, C invalidates the eight-byte version range through `PPCDCacheInvalidate` and Rust issues `dcbi` for the aligned version address (`ios.c:185-204`; cache helper `../../C-sources/libogc/tuxedo/cache.c:8-30`; Rust `crates/core/ogc-ios-sys/src/lib.rs:58-75`). Both invalidate the same cache line. Launch polling uses the uncached alias in both implementations, as recorded in the source reconciliation above. Source comparison found no cache-operation mismatch; physical cache behavior remains unverified.
 
 `cargo check -p ogc-ios -p ogc-ios-sys --tests --target powerpc-unknown-linux-gnu` passed, which confirms the target test code compiled; tests did not run. No hardware verification was performed. The confirmed timing and STM differences above remain open for implementation review.
 
@@ -102,7 +98,7 @@ Added PowerPC regression coverage for immediate-open short-circuit, returned ope
 
 ## 2026-10-06 source-status reconciliation
 
-The named non-safety IOS blocker is closed in the current source. The independent review above records that commit `088d798` matches C's ACR handler restore/unmask ordering before IPC reinitialization and the version query. IOS startup now uses the shared `ogc-stm` lifecycle, so the duplicate descriptor/event-hook implementation is also gone. The remaining extra cache invalidation during version polling is classified in this audit as behaviorally uncertain. The deliberate propagation of required STM open failures is retained by repository policy rather than treated as a parity blocker. `ogc-ios` and `ogc-ios-sys` therefore move to `needs_re_review`.
+The named non-safety IOS blocker is closed in the current source. The independent review above records that commit `088d798` matches C's ACR handler restore/unmask ordering before IPC reinitialization and the version query. IOS startup uses the shared `ogc-stm` lifecycle. Source comparison found no version-word cache-operation mismatch; physical cache behavior remains unverified. The deliberate propagation of required STM open and event-hook failures is retained by repository policy. `ogc-ios` and `ogc-ios-sys` therefore remain `needs_re_review`.
 
 ## Independent re-review — IOS cache invalidation sequence (2026-10-07)
 
