@@ -942,6 +942,7 @@ ogc-ipc,src/lib.rs,new,205,ios,hardware-probe,probes/lwp-probe/src/main.rs,async
 ogc-ipc,src/lib.rs,new,281,ios,hardware-probe,probes/lwp-probe/src/main.rs,async_ipc_callback
 ogc-ipc,src/ioctl_buffers.rs,empty,37,pure,host-test,crates/core/ogc-ipc/src/ioctl_buffers.rs,absent_and_empty_buffers_both_encode_null_and_zero
 ogc-ipc,src/ioctl_buffers.rs,from_slices,47,pure,host-test,crates/core/ogc-ipc/src/ioctl_buffers.rs,real_buffers_keep_their_exact_addresses_and_lengths
+ogc-ipc,src/ioctl_buffers.rs,from_raw_parts,22,pure,host-test,crates/core/ogc-ipc/src/ioctl_buffers.rs,raw_buffers_keep_c_addresses_and_lengths,IoctlBuffers::from_raw_parts
 ogc-ipc,src/ioctl_buffers.rs,len_in,65,pure,host-test,crates/core/ogc-ipc/src/ioctl_buffers.rs,absent_and_empty_buffers_both_encode_null_and_zero
 ogc-ipc,src/ioctl_buffers.rs,len_io,69,pure,host-test,crates/core/ogc-ipc/src/ioctl_buffers.rs,absent_and_empty_buffers_both_encode_null_and_zero
 ogc-ipc,src/ioctl_buffers.rs,buffer_in,73,pure,host-test,crates/core/ogc-ipc/src/ioctl_buffers.rs,real_buffers_keep_their_exact_addresses_and_lengths
@@ -3311,6 +3312,11 @@ ogc-ipc,src/lib.rs,IOS_Ioctlv,3562,ios,hardware-probe,probes/ogc-system-probe/sr
 ogc-ipc,src/lib.rs,IOS_IoctlvAsync,3579,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctlv_mac,ipc::IOS_IoctlvAsync,scalar-and-buffer
 ogc-ipc,src/lib.rs,IOS_IoctlvReboot,3633,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctlv_mac,ipc::IOS_IoctlvReboot,invalid-arguments
 ogc-ipc,src/lib.rs,IOS_IoctlvRebootBackground,3649,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctlv_mac,ipc::IOS_IoctlvRebootBackground,invalid-arguments
+ogc-ipc,src/lib.rs,ioctlv_reboot,777,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctlv_mac,fd.ioctlv_reboot,invalid-arguments
+ogc-ipc,src/lib.rs,ioctlv_reboot_background,793,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctlv_mac,fd.ioctlv_reboot_background,invalid-arguments
+ogc-ipc,src/lib.rs,begin,1290,ios,hardware-probe,probes/ogc-system-probe/src/ios_reload_pending.rs,run_once,ipc::IosReplacement::begin
+ogc-ipc,src/lib.rs,finish,1323,ios,hardware-probe,probes/ogc-system-probe/src/ios_reload_pending.rs,run_once,ogc_ios::reload_ios
+ogc-ipc,src/lib.rs,reinitialize,1599,ios,hardware-probe,probes/ogc-system-probe/src/ipc_async_probe.rs,probe_pending_reply_reinitialize,ipc::reinitialize
 ogc-usbstorage-lifecycle,src/transport.rs,decode_csw,50,protocol,host-test,crates/services/ogc-usbstorage-lifecycle/src/transport.rs,csw_validates_signature_before_copying_and_tag_after_copying,decode_csw
 wiiuse-rs,src/balance_board.rs,center_offsets,87,protocol,host-test,crates/services/wiiuse-rs/src/balance_board.rs,valid_calibration_extrapolates_on_both_sides
 ogc-ipc,src/isfs_service.rs,initialize,28,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_successful_file_cycle,filesystem::initialize

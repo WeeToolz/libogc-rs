@@ -11059,6 +11059,15 @@ fn probe_ipc_ioctlv_mac(logger: &mut ProbeLogger) {
         }
         return;
     };
+    let rust_reboot_invalid = fd.ioctlv_reboot(8, 2, [ipc::IoctlvEntry::OutNull])
+        == ipc::IPC_EINVAL
+        && unsafe {
+            fd.ioctlv_reboot_background(8, 2, [ipc::IoctlvEntry::OutNull]) == ipc::IPC_EINVAL
+        };
+    logger.record(
+        "IPC Rust reboot vector methods reject excessive input counts",
+        rust_reboot_invalid,
+    );
     let mut status = AlignedIsfsBytes([0xa5; 32]);
     let mut mac = AlignedIsfsBytes([0xa5; 32]);
     let valid = |status: &[u8; 32], mac: &[u8; 32]| {

@@ -24,6 +24,7 @@ const EXTRA_HOST_TEST_PACKAGES: &[(&str, &str)] = &[
 ];
 
 const STANDALONE_RUST_TESTS: &[&str] = &[
+    "tests/ogc-ipc-ioctl-buffers.rs",
     "tests/wii-std-errors/mappings.rs",
     "tests/wii-std-identity/settings.rs",
     "tests/wii-std-ntlm/vectors.rs",
