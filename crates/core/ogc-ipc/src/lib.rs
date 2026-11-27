@@ -4048,3 +4048,5 @@ pub use format_probe::{
 use format_probe::parse_or_capture as parse_call_for_bridge;
 #[cfg(not(feature = "format-probe-hooks"))]
 use parse_format_call as parse_call_for_bridge;
+
+pub mod isfs_service;

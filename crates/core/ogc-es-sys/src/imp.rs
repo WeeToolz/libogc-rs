@@ -489,7 +489,11 @@ pub fn set_uid(uid: u64) -> i32 {
 
         let rc = fd.ioctlv(IOCTL_ES_SETUID, 1, [IoctlvEntry::In(bytes_of(&uid))]);
         // Match the C condition, including the non-success deinit branch.
-        completion::finish_set_uid(rc, ogc_filesystem::deinitialize, ogc_filesystem::initialize)
+        completion::finish_set_uid(
+            rc,
+            ogc_ipc::isfs_service::deinitialize,
+            ogc_ipc::isfs_service::initialize,
+        )
     })
 }
 

@@ -258,3 +258,17 @@ condition. Successful privileged IOS operations require separate suitable
 fixtures or emulator support. The package status remains `needs_re_review`;
 this change does not promote all APIs to verified. Physical Wii evidence
 remains explicitly pending and is separate from emulator completion.
+
+### Shared IOS filesystem descriptor
+
+The IOS IPC crate owns the `/dev/fs` descriptor and its open and close
+operations. The ISFS API and the ES UID completion path use the same state.
+This removes the ES ABI crate's dependency on the filesystem service crate
+and retains the UID result and cleanup order described above.
+
+On Dolphin 2609a, `runtime_probe` passed 889 checks with zero failures and
+50 valid pages. The checks cover ISFS deinitialization and reinitialization,
+closed-service errors, live file operations, and ES UID rejection when ES
+is closed. The host UID completion test covers callback order for simulated
+IOS success and failure. Successful privileged UID changes were outside
+this run.

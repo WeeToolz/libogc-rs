@@ -6,11 +6,10 @@ compile_error!(
 );
 
 use core::ffi::{CStr, c_char, c_void};
-use core::sync::atomic::{AtomicBool, AtomicI32, Ordering};
 
 use iso9660 as iso9660_rs;
 use ogc_ipc::{
-    FileDescriptor, HeapId, IPC_OPEN_NONE, IoctlBuffers, Ioctlv, IoctlvEntry, Ipccallback,
+    FileDescriptor, HeapId, IoctlBuffers, Ioctlv, IoctlvEntry, Ipccallback, isfs_service,
     open_file, open_file_async,
 };
 
@@ -37,7 +36,7 @@ pub const ISFS_OPEN_RW: u8 = ISFS_OPEN_READ | ISFS_OPEN_WRITE;
 
 pub const ISFS_OK: i32 = 0;
 pub const ISFS_ENOMEM: i32 = -22;
-pub const ISFS_EINVAL: i32 = -101;
+pub const ISFS_EINVAL: i32 = isfs_service::ISFS_EINVAL;
 /// `/dev/fs` result for a path that does not exist.
 ///
 /// This is distinct from `ogc_ipc::IPC_ENOENT` (`-6`), which belongs to the
@@ -47,11 +46,6 @@ pub const ISFS_ENOENT: i32 = -106;
 fn close_if_valid(fd: i32, close: impl FnOnce() -> i32) -> i32 {
     if fd < 0 { ISFS_OK } else { close() }
 }
-
-const DEV_FS: &CStr = c"/dev/fs";
-
-static ISFS_INITIALIZED: AtomicBool = AtomicBool::new(false);
-static FS_SERVICE_FD: AtomicI32 = AtomicI32::new(-1);
 
 #[repr(C)]
 #[derive(Copy, Clone, Default, Debug, Eq, PartialEq)]
@@ -320,59 +314,26 @@ impl IsfsFile {
     }
 }
 
-fn open_fs_service() -> Result<FileDescriptor, i32> {
-    let fd = FS_SERVICE_FD.load(Ordering::Acquire);
-    if !ISFS_INITIALIZED.load(Ordering::Acquire) || fd < 0 {
-        return Err(ISFS_EINVAL);
-    }
-    Ok(FileDescriptor::new(fd))
-}
-
 fn run_fs_ioctl(ioctl: i32, buffers: IoctlBuffers<'_>) -> i32 {
-    let Ok(fd) = open_fs_service() else {
+    let Ok(fd) = isfs_service::descriptor() else {
         return ISFS_EINVAL;
     };
     fd.ioctl(ioctl, buffers)
 }
 
 fn run_fs_ioctlv<'a, const N: usize>(ioctl: i32, cnt_in: usize, argv: [IoctlvEntry<'a>; N]) -> i32 {
-    let Ok(fd) = open_fs_service() else {
+    let Ok(fd) = isfs_service::descriptor() else {
         return ISFS_EINVAL;
     };
     fd.ioctlv(ioctl, cnt_in, argv)
 }
 
 pub fn initialize() -> i32 {
-    if ISFS_INITIALIZED.load(Ordering::Acquire) && FS_SERVICE_FD.load(Ordering::Acquire) >= 0 {
-        return ISFS_OK;
-    }
-
-    match open_file(DEV_FS, IPC_OPEN_NONE) {
-        Ok(fd) => {
-            FS_SERVICE_FD.store(fd.raw(), Ordering::Release);
-            ISFS_INITIALIZED.store(true, Ordering::Release);
-            ISFS_OK
-        }
-        Err(rc) => {
-            FS_SERVICE_FD.store(-1, Ordering::Release);
-            rc
-        }
-    }
+    isfs_service::initialize()
 }
 
 pub fn deinitialize() -> i32 {
-    if ISFS_INITIALIZED.swap(false, Ordering::AcqRel) {
-        let fd = FS_SERVICE_FD.swap(-1, Ordering::AcqRel);
-        if fd >= 0 {
-            FileDescriptor::new(fd)
-                .close()
-                .map_or_else(|rc| rc, |_| ISFS_OK)
-        } else {
-            ISFS_OK
-        }
-    } else {
-        ISFS_EINVAL
-    }
+    isfs_service::deinitialize()
 }
 
 pub fn format() -> i32 {
@@ -385,7 +346,7 @@ pub fn format() -> i32 {
 ///
 /// The callback and `userdata` must remain valid until the callback returns.
 pub unsafe fn format_async(callback: Ipccallback, userdata: *mut c_void) -> i32 {
-    let Ok(fd) = open_fs_service() else {
+    let Ok(fd) = isfs_service::descriptor() else {
         return ISFS_EINVAL;
     };
     unsafe {
@@ -537,10 +498,9 @@ pub unsafe fn read_dir_async(
             (0, core::ptr::null_mut(), 0, 1usize, 1usize)
         };
 
-    let fd_raw = FS_SERVICE_FD.load(Ordering::Acquire);
-    if fd_raw < 0 || !ISFS_INITIALIZED.load(Ordering::Acquire) {
+    let Ok(fd) = isfs_service::descriptor() else {
         return ISFS_EINVAL;
-    }
+    };
 
     let Ok(heap) = HeapId::default_heap() else {
         return ISFS_ENOMEM;
@@ -587,7 +547,6 @@ pub unsafe fn read_dir_async(
         }
     }
 
-    let fd = FileDescriptor::new(fd_raw);
     let result = unsafe {
         fd.ioctlv_async_raw(
             ISFS_IOCTL_READDIR,
@@ -633,7 +592,7 @@ pub unsafe fn get_stats_async(
     callback: Ipccallback,
     userdata: *mut c_void,
 ) -> i32 {
-    let Ok(fd) = open_fs_service() else {
+    let Ok(fd) = isfs_service::descriptor() else {
         return ISFS_EINVAL;
     };
     unsafe {
@@ -822,7 +781,7 @@ pub unsafe fn get_attr_async(
     let Ok(path_buf) = AlignedPath::from_cstr(path) else {
         return ISFS_EINVAL;
     };
-    let Ok(fd) = open_fs_service() else {
+    let Ok(fd) = isfs_service::descriptor() else {
         return ISFS_EINVAL;
     };
     let Ok(heap) = HeapId::default_heap() else {
@@ -976,10 +935,9 @@ pub unsafe fn get_usage_async(
     let Ok(path_buf) = AlignedPath::from_cstr(path) else {
         return ISFS_EINVAL;
     };
-    let fd_raw = FS_SERVICE_FD.load(Ordering::Acquire);
-    if fd_raw < 0 || !ISFS_INITIALIZED.load(Ordering::Acquire) {
+    let Ok(fd) = isfs_service::descriptor() else {
         return ISFS_EINVAL;
-    }
+    };
     let Ok(heap) = HeapId::default_heap() else {
         return ISFS_ENOMEM;
     };
@@ -1016,7 +974,6 @@ pub unsafe fn get_usage_async(
             len: core::mem::size_of::<u32>() as u32,
         };
     }
-    let fd = FileDescriptor::new(fd_raw);
     let result = unsafe {
         fd.ioctlv_async_raw(
             ISFS_IOCTL_GETUSAGE,
@@ -1096,7 +1053,7 @@ pub unsafe fn rename_async(
 }
 
 pub fn open(path: &CStr, mode: u8) -> Result<IsfsFile, i32> {
-    if !ISFS_INITIALIZED.load(Ordering::Acquire) {
+    if !isfs_service::is_initialized() {
         return Err(ISFS_EINVAL);
     }
     validate_isfs_path(path)?;
@@ -1115,7 +1072,7 @@ pub unsafe fn open_async(
     callback: Ipccallback,
     userdata: *mut c_void,
 ) -> i32 {
-    if !ISFS_INITIALIZED.load(Ordering::Acquire) {
+    if !isfs_service::is_initialized() {
         return ISFS_EINVAL;
     }
     if let Err(rc) = validate_isfs_path(path) {
@@ -1324,7 +1281,7 @@ unsafe fn submit_async_input_ioctl(
     if payload.len() > ISFS_ASYNC_PAYLOAD_SIZE {
         return ISFS_EINVAL;
     }
-    let Ok(fd) = open_fs_service() else {
+    let Ok(fd) = isfs_service::descriptor() else {
         return ISFS_EINVAL;
     };
     let Ok(heap) = HeapId::default_heap() else {
