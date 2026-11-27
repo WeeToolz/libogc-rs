@@ -65,12 +65,23 @@ impl Fixture {
         let start = if sector.0[3..11] == *b"EXFAT   " {
             0
         } else {
-            if sector.0[450] != 7 || sector.0[510..] != [0x55, 0xaa] {
+            if sector.0[510..] != [0x55, 0xaa] {
                 return None;
             }
-            let start = word(&sector.0, 454);
-            read_sector(start, &mut sector)?;
-            start
+            let entries: [u8; 64] = sector.0[446..510].try_into().ok()?;
+            let mut selected = None;
+            for entry in entries.chunks_exact(16) {
+                if entry[4] != 7 {
+                    continue;
+                }
+                let start = u32::from_le_bytes(entry[8..12].try_into().ok()?);
+                read_sector(start, &mut sector)?;
+                if sector.0[3..11] == *b"EXFAT   " {
+                    selected = Some(start);
+                    break;
+                }
+            }
+            selected?
         };
         let boot = &sector.0;
         if boot[3..11] != *b"EXFAT   " || boot[108] != 9 {

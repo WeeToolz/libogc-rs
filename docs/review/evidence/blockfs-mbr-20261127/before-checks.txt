@@ -1,0 +1,5 @@
+test tests::partition_geometry_and_read_errors_are_not_fat_fallback ... ok
+test tests::sector_zero_and_fat_fallback_keep_existing_behavior ... ok
+test tests::candidate_boot_bytes_are_not_treated_as_partition_entries ... FAILED
+test tests::later_exfat_partition_is_found_after_non_exfat_candidate ... FAILED
+test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s

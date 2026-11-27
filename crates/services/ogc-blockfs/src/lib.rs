@@ -9,6 +9,8 @@ compile_error!(
 
 extern crate alloc;
 
+mod extent;
+
 use alloc::string::String;
 use core::cell::UnsafeCell;
 use core::ffi::{CStr, c_char, c_void};
@@ -191,19 +193,6 @@ fn next_generation() -> u32 {
     }
 }
 
-#[repr(C, align(32))]
-struct Sector([u8; 512]);
-
-fn read_sector(disc: &'static DiscInterface, sector: u32, out: &mut Sector) -> Result<(), Error> {
-    let read = disc.read_sectors.ok_or(Error::Io)?;
-    // SAFETY: the output buffer is aligned and holds one Wii SD sector.
-    if unsafe { read(sector, 1, out.0.as_mut_ptr().cast()) } {
-        Ok(())
-    } else {
-        Err(Error::Io)
-    }
-}
-
 fn stop_started_device(disc: &DiscInterface, started: bool) -> Result<(), Error> {
     if !started {
         return Ok(());
@@ -218,46 +207,19 @@ fn stop_started_device(disc: &DiscInterface, started: bool) -> Result<(), Error>
 }
 
 fn exfat_extent(disc: &'static DiscInterface) -> Result<Option<u64>, Error> {
-    let mut boot = Sector([0; 512]);
-    read_sector(disc, 0, &mut boot)?;
-    if boot.0[3..11] == *b"EXFAT   " {
-        let sectors = u64::from_le_bytes(boot.0[72..80].try_into().expect("8-byte field"));
-        if sectors == 0 || sectors > u64::from(u32::MAX) + 1 {
-            return Err(Error::InvalidGeometry);
+    let read = disc.read_sectors.ok_or(Error::Io)?;
+    extent::exfat_extent(|lba, out| {
+        // SAFETY: The output sector is aligned and holds one Wii SD sector.
+        if unsafe { read(lba, 1, out.0.as_mut_ptr().cast()) } {
+            Ok(())
+        } else {
+            Err(extent::ExtentError::Io)
         }
-        return Ok(Some(sectors));
-    }
-    if boot.0[510..512] != [0x55, 0xaa] {
-        return Ok(None);
-    }
-    for index in 0..4 {
-        let offset = 446 + index * 16;
-        let entry = &boot.0[offset..offset + 16];
-        if entry[4] != 0x07 {
-            continue;
-        }
-        let start = u64::from(u32::from_le_bytes(
-            entry[8..12].try_into().expect("4-byte LBA"),
-        ));
-        let length = u64::from(u32::from_le_bytes(
-            entry[12..16].try_into().expect("4-byte size"),
-        ));
-        let end = start.checked_add(length).ok_or(Error::InvalidGeometry)?;
-        if start == 0 || length == 0 || end > u64::from(u32::MAX) + 1 {
-            return Err(Error::InvalidGeometry);
-        }
-        let start_lba = u32::try_from(start).map_err(|_| Error::InvalidGeometry)?;
-        read_sector(disc, start_lba, &mut boot)?;
-        if boot.0[3..11] == *b"EXFAT   " {
-            let volume_length =
-                u64::from_le_bytes(boot.0[72..80].try_into().expect("8-byte field"));
-            if volume_length == 0 || volume_length > length {
-                return Err(Error::InvalidGeometry);
-            }
-            return Ok(Some(end));
-        }
-    }
-    Ok(None)
+    })
+    .map_err(|error| match error {
+        extent::ExtentError::Io => Error::Io,
+        extent::ExtentError::InvalidGeometry => Error::InvalidGeometry,
+    })
 }
 
 /// Start Wii SD and mount either the existing FAT backend or the exFAT backend.

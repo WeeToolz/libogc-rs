@@ -1,0 +1,4 @@
+    Checking ogc-exfat v0.1.0 ($REPO/crates/services/ogc-exfat)
+    Checking ogc-fat v0.1.0 ($REPO/crates/services/ogc-fat)
+    Checking ogc-blockfs v0.1.0 ($REPO/crates/services/ogc-blockfs)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.06s

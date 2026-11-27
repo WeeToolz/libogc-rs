@@ -1,0 +1,59 @@
+PASS SYS_Init completed
+PASS Video console_init_framebuffer initializes the buffered console
+PASS pre-main progress callback reports stages in order
+PASS system pre-main completes without a failed stage
+PASS display initialized
+PASS power button callback installed
+== FAT SD API PROBE ==
+== GAMECUBE SD INVALID DRIVE API CHECKS ==
+PASS Rust SD Gecko getters reject negative and out-of-range drives
+PASS Rust SD Gecko setters reject negative and out-of-range drives
+PASS C SD Gecko lifecycle and metadata APIs reject negative and out-of-range drives
+PASS C SD Gecko sector APIs reject invalid drives and preserve buffers
+PASS Rust SD Gecko speed setter changes drive state
+PASS C SD Gecko invalid callbacks and speed setters preserve drive state
+PASS C SD Gecko default initialization restores the original speed
+PASS C SD Gecko getters and setters handle invalid drive bounds
+PASS C SD Gecko buffer pool ignores null free and allocates, exhausts, frees, and reuses buffers
+== GAMECUBE SD BACKEND WITHOUT AN ADAPTER ==
+PASS SD Gecko init and metadata APIs report no card in slot A
+PASS slot A interface callbacks report no card and clean up
+PASS SD Gecko unmount succeeds when slot A has no card
+PASS SD Gecko backend getters return slot A state
+PASS SD Gecko page-size setter restores slot state after no-card errors
+PASS C SD Gecko page-size setter reports no card and restores slot state
+PASS C SD Gecko speed setter updates and restores slot state
+PASS C SD Gecko getters expose valid slot configuration
+PASS SD Gecko sector result APIs preserve no-card errors
+PASS FAT SD presence reports inserted media
+PASS FAT SD mount
+PASS FAT SD insertion query
+PASS FAT volume statistics report valid total and available bytes
+PASS FAT mounted media generation is available
+PASS C and Rust FAT volume labels match
+PASS C FAT attribute exports reject null paths
+PASS FAT seek updates the file cursor
+PASS FAT truncate persists the requested length
+PASS C FAT attribute exports set read back and restore the hidden bit
+PASS FAT read-only reopen preserves bytes and rejects writes
+PASS FAT truncated file persists across unmount and remount
+PASS FAT temporary file closes and is removed
+PASS FAT create writes a new file and cleanup removes it
+PASS FAT init exports retain the mounted SD volume
+PASS C FAT simple mount registers and unregisters an alias
+PASS C FAT configured mount registers and unregisters an alias
+PASS FAT directory repair rejects duplicate and missing paths without changes
+PASS FAT media generation stays stable during mounted access
+PASS FAT GameCube SD A reports unavailable without an EXI adapter
+PASS FAT GameCube SD B reports unavailable without an EXI adapter
+PASS FAT SD cleanup unmounts the volume
+PASS FAT read-only mount rejects file creation and preserves absence
+PASS FAT configured read-only mount registers and cleans up
+== BLOCKFS FAT ROUTING ==
+PASS BlockFS selects the FAT backend from unmounted FAT media
+PASS BlockFS repeat FAT mount keeps the registered media generation
+PASS BlockFS FAT mount supports file I/O through the selected backend
+PASS BlockFS unmount releases the FAT mount and registry entry
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+PASS summary passes=53 fails=0

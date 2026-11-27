@@ -557,4 +557,51 @@ pub fn run(logger: &mut ProbeLogger) {
         let cleanup_unmount = cleanup_mount && fat::unmount(MOUNT).is_ok();
         logger.record("FAT unexpected file cleanup", removed && cleanup_unmount);
     }
+    probe_blockfs_fat_route(logger);
+}
+
+fn probe_blockfs_fat_route(logger: &mut ProbeLogger) {
+    use ogc_blockfs::{Format, exfat_is_mounted, mount_sd, unmount_sd};
+
+    logger.section("BLOCKFS FAT ROUTING");
+    let initially_unmounted = !fat::is_mounted(MOUNT) && !exfat_is_mounted();
+    let mounted = initially_unmounted && mount_sd() == Ok(Format::Fat);
+    logger.record(
+        "BlockFS selects the FAT backend from unmounted FAT media",
+        mounted && fat::is_mounted(MOUNT) && !exfat_is_mounted(),
+    );
+    if !mounted {
+        return;
+    }
+    let generation = fat::media_generation(MOUNT);
+    logger.record(
+        "BlockFS repeat FAT mount keeps the registered media generation",
+        generation.is_some()
+            && mount_sd() == Ok(Format::Fat)
+            && fat::media_generation(MOUNT) == generation,
+    );
+    let created = match fat::FatFile::create_new(PROBE_FILE) {
+        Ok(mut file) => {
+            let write = file.write(b"blockfs-fat");
+            let closed = file.close();
+            write == Ok(11) && closed.is_ok()
+        }
+        Err(_) => false,
+    };
+    let readback = created
+        && fat::FatFile::open(PROBE_FILE).is_ok_and(|mut file| {
+            let mut bytes = [0; 11];
+            let read = file.read(&mut bytes);
+            let closed = file.close();
+            read == Ok(11) && bytes == *b"blockfs-fat" && closed.is_ok()
+        });
+    let removed = created && fat::remove_file(PROBE_FILE).is_ok();
+    logger.record(
+        "BlockFS FAT mount supports file I/O through the selected backend",
+        readback && removed,
+    );
+    logger.record(
+        "BlockFS unmount releases the FAT mount and registry entry",
+        unmount_sd().is_ok() && !fat::is_mounted(MOUNT) && !exfat_is_mounted(),
+    );
 }

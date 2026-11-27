@@ -1,0 +1,48 @@
+{
+  "baseline": "b4b2b9caeb935896b002669eba64087bcc4cc4ae",
+  "dirty_worktree": true,
+  "c_reference": "7d4b8b3e7b845516f0cc2a85274879ddd8cbf142",
+  "dolphin": "2609b Linux x86_64 stock AppImage",
+  "compiler_commit": "28221559263a3976766cf305940e80e30cf9ba8a",
+  "fixture_sha256": "67b44aa19c39433cdbee9d665668038a94c6062e4a9d9174f199033cdfa82bb9",
+  "fixture_size": 67108864,
+  "fixture_matches_pre_run_sha256": true,
+  "runs": [
+    {
+      "probe": "exfat_sd_probe",
+      "status": "pass",
+      "passes": 62,
+      "fails": 0,
+      "page_capture_count": 5,
+      "pages_valid": true,
+      "frames_valid": true,
+      "duration_milliseconds": 9857,
+      "dol_sha256": "f6c887c170f640619e9560e7fc390db97f8e4e50c91a8d10428ff21902a70e98",
+      "summary_line": "PASS summary passes=62 fails=0",
+      "failure_lines": [],
+      "raw_report_sha256": "cfa1fdaa376514139c9df43494fc8d4b67751388cb80f5cfd04019082db0dc07",
+      "raw_suite_sha256": "f3d86fd6daee03ed0ff801878efe05fab8534230f32d0e51a332c1e637897025",
+      "sd_image": {
+        "bytes": 67108864,
+        "sha256_before": "67b44aa19c39433cdbee9d665668038a94c6062e4a9d9174f199033cdfa82bb9",
+        "sha256_after": "53aa1a9e84afdb8b3e00b2ef42905ab9d6e44c107f98848e3bb6c1142aa95c08",
+        "writes_allowed": true
+      }
+    },
+    {
+      "probe": "fat_sd_probe",
+      "status": "pass",
+      "passes": 53,
+      "fails": 0,
+      "page_capture_count": 5,
+      "pages_valid": true,
+      "frames_valid": true,
+      "duration_milliseconds": 37436,
+      "dol_sha256": "98602f9cd5bf66e1e48afb3d6c8cadf8ba1bcc2098270f6984493fcb1fa41161",
+      "summary_line": "PASS summary passes=53 fails=0",
+      "failure_lines": [],
+      "raw_report_sha256": "47de9f98fb2d207a51bbd022fdbc828de172f4e2b5e16fa4bc9503ccb7ec7c3e",
+      "raw_suite_sha256": "e760804fe42ed58b69398cd429568d2dabba7daada3d02583ce82251550d4e0f"
+    }
+  ]
+}

@@ -10,6 +10,9 @@ use std::process::Command;
 mod aesnd_output_evidence_tests;
 mod audit;
 #[cfg(test)]
+#[path = "../../crates/services/ogc-blockfs/src/extent.rs"]
+mod blockfs_extent_tests;
+#[cfg(test)]
 #[path = "../../crates/compatibility/ogc-card/src/metadata_submit_error.rs"]
 mod card_metadata_submit_error_tests;
 mod dol_mode;

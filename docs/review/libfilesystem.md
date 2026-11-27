@@ -354,3 +354,14 @@ with the rest of the filesystem suite. See the
 [current run report](../dolphin-runs/2026-11-03-wii-std-fs-storage/README.md).
 This does not establish physical Wii media behavior or source parity with the
 unavailable libfat revision.
+
+## 2026-11-27 FAT SD routing regression
+
+The [SD reports](evidence/blockfs-mbr-20261127/summary.json) record a
+53/53 passing Dolphin 2609b FAT probe, with five valid capture pages.
+Four new assertions exercise the Rust BlockFS FAT route: unmounted
+media selection, repeat-mount generation stability, file I/O, and
+unmount/registry removal. Existing FAT checks also pass. The imported
+NAND and original backup are not included in the repository. No FAT
+production algorithm was changed by this review. The exact libfat
+revision is still not pinned, so `ogc-fat` remains `review_incomplete`.

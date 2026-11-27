@@ -1,0 +1,10 @@
+{
+  "source_sha256": "2ba68ae819038d3f7190cd99deb2d3d4c356c872364fa5eab1257ab601981d0e",
+  "dol_sha256": "73d4dd90808a1803a2d34ad9a50d885da6f75b2a5d2ebce945dbc795f7669a3d",
+  "completion_stop": "T0540:80004010;01:816fffe0;",
+  "checks": 5,
+  "passed_mask": 31,
+  "expected_mask": 31,
+  "passed": 5,
+  "failed": 0
+}

@@ -1,0 +1,66 @@
+PASS SYS_Init completed
+PASS Video console_init_framebuffer initializes the buffered console
+PASS pre-main progress callback reports stages in order
+PASS system pre-main completes without a failed stage
+PASS display initialized
+PASS power button callback installed
+== EXFAT SD ACCESS ==
+PASS Wii SD started for exFAT
+PASS exFAT SD fixture geometry recognized
+PASS Wii SD CSD capacity is valid or unavailable in Dolphin
+INFO fixture start=2048 sectors=131072 cluster-bytes=4096
+PASS exFAT mounted from Wii SD
+PASS exFAT root lists the expected file
+PASS exFAT lists a nested directory
+PASS exFAT stat preserves name and size with case-insensitive lookup
+PASS exFAT stat rejects a missing path
+PASS exFAT rejects an invalid path component
+PASS exFAT rejects listing a file
+PASS exFAT rejects opening a directory as a file
+PASS exFAT opens two independent file handles
+PASS exFAT reads both open handles with independent cursors
+PASS exFAT detached handle seeks across fragmented clusters
+PASS exFAT opens independent directory handles
+PASS exFAT rejects a file handle from another volume
+PASS exFAT opened the expected file
+PASS exFAT rejects writes through a read-only mount
+PASS exFAT read matches the independent payload
+PASS exFAT seek and read use the requested offset
+PASS exFAT end-of-file read preserves the output buffer
+PASS exFAT stat reports both clusters of the fragmented file
+PASS exFAT opens a fragmented file
+PASS exFAT follows a nonadjacent FAT link and zero fills the uninitialized tail
+PASS exFAT can seek backward after following a FAT link
+PASS exFAT writable mount uses the Wii SD writer
+PASS exFAT reports the stored read-only attribute on a handle
+PASS exFAT writes and syncs through a file handle
+PASS exFAT truncates, grows and zero-fills a file
+PASS exFAT refreshes stale file length across open handles
+PASS exFAT borrowed file writes through the writable volume
+PASS exFAT write and truncate data survive volume remount
+PASS blockfs selects and registers the exFAT SD volume
+PASS blockfs reports the mounted exFAT volume
+PASS blockfs file open, metadata, seek and read APIs work
+PASS blockfs directory APIs return a root entry
+PASS blockfs create, write, truncate, flush and busy unmount APIs work
+PASS blockfs append and read APIs work
+PASS blockfs access flags, errno and write-open APIs work
+PASS Newlib enforces the exFAT handle access mode
+PASS Newlib refuses to truncate a read-only exFAT file
+PASS Newlib truncates, writes and syncs an exFAT file
+PASS Newlib appends to an exFAT file
+PASS Newlib creates and writes an exFAT file
+PASS Newlib create-new rejects an existing exFAT file
+PASS Newlib opens a file on the exFAT SD mount
+PASS Newlib reads bytes persisted by truncate, write and append
+PASS Newlib open handle keeps exFAT mounted
+PASS Newlib closes the exFAT file handle
+PASS Newlib file creation and data survive exFAT unmount and remount
+PASS exFAT rejects a corrupted boot checksum
+PASS exFAT rejects a corrupted directory entry checksum
+PASS exFAT propagates a failed device read
+PASS exFAT read-only test mount never requested a device write
+PASS Wii SD shut down after exFAT
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+PASS summary passes=62 fails=0
