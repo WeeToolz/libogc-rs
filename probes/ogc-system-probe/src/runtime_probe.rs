@@ -14252,6 +14252,8 @@ fn probe_es_closed_service(logger: &mut ProbeLogger) {
     if !closed {
         return;
     }
+    let mut word = 0u32;
+    let signed = &word as *const u32 as *const raw_es::SignedBlob;
     logger.record(
         "ES add_content_start rejects a closed service",
         raw_es::add_content_start(0, 0) == raw_es::ES_ENOTINIT,
@@ -14265,12 +14267,37 @@ fn probe_es_closed_service(logger: &mut ProbeLogger) {
         raw_es::add_title_cancel() == raw_es::ES_ENOTINIT,
     );
     logger.record(
+        "ES add_title_start checks closed service before TMD",
+        unsafe { raw_es::add_title_start(signed, 0, signed, 0, core::ptr::null(), 0) }
+            == raw_es::ES_ENOTINIT,
+    );
+    logger.record(
         "ES add_title_finish rejects a closed service",
         raw_es::add_title_finish() == raw_es::ES_ENOTINIT,
     );
     logger.record(
+        "ES add_content_data checks closed service before data",
+        unsafe { raw_es::add_content_data(0, &word as *const u32 as *const u8, 0) }
+            == raw_es::ES_ENOTINIT,
+    );
+    logger.record(
+        "ES add_ticket checks closed service before ticket",
+        unsafe { raw_es::add_ticket(signed, 0, signed, 0, core::ptr::null(), 0) }
+            == raw_es::ES_ENOTINIT,
+    );
+    logger.record(
         "ES export_content_begin rejects a closed service",
         raw_es::export_content_begin(0, 0) == raw_es::ES_ENOTINIT,
+    );
+    logger.record(
+        "ES export_title_init checks closed service before output",
+        unsafe { raw_es::export_title_init(0, &mut word as *mut u32 as *mut _, 0) }
+            == raw_es::ES_ENOTINIT,
+    );
+    logger.record(
+        "ES export_content_data checks closed service before output",
+        unsafe { raw_es::export_content_data(0, &mut word as *mut u32 as *mut u8, 0) }
+            == raw_es::ES_ENOTINIT,
     );
     logger.record(
         "ES export_content_end rejects a closed service",
@@ -14281,12 +14308,21 @@ fn probe_es_closed_service(logger: &mut ProbeLogger) {
         raw_es::export_title_done() == raw_es::ES_ENOTINIT,
     );
     logger.record(
+        "ES reimport_title_init checks closed service before TMD",
+        unsafe { raw_es::reimport_title_init(signed, 0) } == raw_es::ES_ENOTINIT,
+    );
+    logger.record(
         "ES delete_title rejects a closed service",
         raw_es::delete_title(0) == raw_es::ES_ENOTINIT,
     );
     logger.record(
         "ES delete_title_content rejects a closed service",
         raw_es::delete_title_content(0) == raw_es::ES_ENOTINIT,
+    );
+    let ticket_view = raw_es::Tikview::default();
+    logger.record(
+        "ES delete_ticket checks closed service before ticket view",
+        unsafe { raw_es::delete_ticket(&ticket_view) } == raw_es::ES_ENOTINIT,
     );
     logger.record(
         "ES set_uid rejects a closed service",

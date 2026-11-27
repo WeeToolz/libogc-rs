@@ -275,17 +275,24 @@ this run.
 
 ## Safety-limited ES operations — 2026-11-27
 
+The current-tree `runtime_probe` passed 908 checks with zero failures. Seven
+new closed-service checks cover `add_title_start`, `add_content_data`,
+`add_ticket`, `export_title_init`, `export_content_data`,
+`reimport_title_init`, and `delete_ticket`. Each returns `ES_ENOTINIT` before
+it checks or reads valid but incomplete arguments while ES is closed. The
+checks issue no IOS request. See the [run record](../dolphin-runs/2026-11-27-es-closed-service-guards/README.md).
+
 The `ios_reload_probe` checks `import_boot` with null, zero-length inputs while
 ES is closed and after it is open. The calls return the expected service-state
 or argument errors before they submit an IOS request. The inventory records
 this narrow guard evidence as `invalid-arguments`; valid boot import remains
 unverified.
 
-The remaining unverified ES APIs include title/content installation and
-deletion, export-session state, UID changes, `ES_Reset`, and the Rust-only
-`patch_ahbprot_reset`. Do not test successful boot import, title mutation, or
-UID changes until the probe has a disposable, known-good title fixture and a
-qualified recovery path. The AHBPROT helper writes the MEM2 protection register
-and may patch ES code, so its runtime check needs an environment with an
-explicit reset path. These APIs remain open; this note does not mark them
-verified.
+These checks establish closed-service error precedence only. The successful
+and IOS-error behavior of title/content installation and deletion,
+export-session state, UID changes, `ES_Reset`, and the Rust-only
+`patch_ahbprot_reset` remains unverified. Do not test successful boot import,
+title mutation, or UID changes until the probe has a disposable, known-good
+title fixture and a qualified recovery path. The AHBPROT helper writes the
+MEM2 protection register and may patch ES code, so its runtime check needs an
+environment with an explicit reset path. These APIs remain open.

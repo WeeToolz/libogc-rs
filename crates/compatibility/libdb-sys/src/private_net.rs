@@ -974,11 +974,11 @@ fn is_local_destination(config: Ipv4Config, address: [u8; 4]) -> bool {
     }
     let mut same_network = true;
     let mut host_bits_all_ones = true;
-    for index in 0..4 {
-        if address[index] & config.netmask[index] != config.local[index] & config.netmask[index] {
+    for (index, address_byte) in address.into_iter().enumerate() {
+        if address_byte & config.netmask[index] != config.local[index] & config.netmask[index] {
             same_network = false;
         }
-        if address[index] & !config.netmask[index] != !config.netmask[index] {
+        if address_byte & !config.netmask[index] != !config.netmask[index] {
             host_bits_all_ones = false;
         }
     }

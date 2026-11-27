@@ -7928,7 +7928,10 @@ pub unsafe fn init_light_dist_attn(
     ref_brite: f32,
     mut dist_fn: u8,
 ) {
-    if ref_dist < 0.0 || ref_brite < 0.0 || ref_brite >= 1.0 {
+    if ref_dist < 0.0
+        || ref_brite.partial_cmp(&0.0) == Some(core::cmp::Ordering::Less)
+        || ref_brite >= 1.0
+    {
         dist_fn = GX_DA_OFF;
     }
 
@@ -8743,7 +8746,7 @@ mod tests {
     fn texture_region_invalidation_words_match_libogc() {
         let region = GxTexRegion {
             val: [
-                0x0000_0000 | (4 << 15) | (4 << 18),
+                (4 << 15) | (4 << 18),
                 0x0000_0400 | (3 << 15) | (3 << 18),
                 0,
                 u32::from_ne_bytes([GX_TRUE, 1, 0, 0]),
