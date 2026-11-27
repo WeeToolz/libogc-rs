@@ -383,3 +383,31 @@ pointer leaves the prior object unchanged. DOL SHA-256
 reported 28 passes and no failures. Its report is
 `[external tools]/reports/evidence/libogc-gx-review-video-final-v5-2026-10-28/suite.json`.
 This supersedes the earlier 27-check Dolphin run for this probe revision.
+
+## 2026-11-26 scoped FIFO read-enable review
+
+C `GX_SetCPUFifo` preserves CP read-enable; `GX_SetGPFifo` stops reads
+before programming the GP registers and restarts reads only for an installed
+FIFO. The Rust shared link helper unconditionally enabled reads. Remove
+that side effect, stop reads during GP programming, and mask interrupts
+while updating both FIFO setters. Stock Dolphin CP register regression:
+27/28 before, 28/28 after. See
+[scoped evidence](../dolphin-runs/2026-11-26-gx-fifo-read-linux/README.md).
+C also changes watermark interrupt enables and resets at FIFO link changes;
+Rust does not yet reproduce that complete sequence. Review interrupt status
+sampling, overflow/underflow thread suspension and initialization separately.
+Keep the crate at `needs_re_review`.
+
+## FIFO watermark interrupt setters — 2026-11-26
+
+The C `GX_SetCPUFifo` and `GX_SetGPFifo` paths configure the high/low
+watermark interrupt enable bits according to CPU/GP link state and clear
+pending watermark status. Rust previously changed the FIFO link and read
+enable state without configuring the watermark interrupt mask. The setter
+correction masks interrupts during GP register programming, enables only
+the high-watermark interrupt for linked FIFO assignments, masks both for
+unlinked assignments, and writes the watermark reset and required sync
+operations in the C sequence. [Dolphin regression evidence](../dolphin-runs/2026-11-26-gx-watermark-linux/README.md)
+records 30/32 before and 32/32 after. This is limited to setter register
+behavior; MEM2 initialization, write-gather redirect/restore, interrupt
+handler behavior, and actual overflow/underflow delivery still need review.

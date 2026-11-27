@@ -1200,6 +1200,64 @@ fn probe_gx_unverified_apis(logger: &mut ProbeLogger) {
             && unsafe { gx::get_fifo_size(&gp_fifo) == gx::get_fifo_size(&gp_after) },
     );
 
+    // Drain the active FIFO before temporarily detaching its GP side.
+    if fifo_ready {
+        gx::draw_done();
+        unsafe {
+            gx::get_cpu_fifo(&mut cpu_after);
+            gx::get_gp_fifo(&mut gp_after);
+        }
+    }
+    let (detached, cpu_only, attached, linked_cpu, detached_again) = if fifo_ready {
+        // SAFETY: The saved snapshots identify the drained live FIFO.
+        // No rendering or logging occurs until both FIFOs are restored.
+        unsafe {
+            let cp_control = 0xcc00_0002usize as *const u16;
+            gx::set_gp_fifo(null_mut());
+            let detached = core::ptr::read_volatile(cp_control);
+            gx::set_cpu_fifo(&mut cpu_after);
+            let cpu_only = core::ptr::read_volatile(cp_control);
+            gx::set_gp_fifo(&mut gp_after);
+            let attached = core::ptr::read_volatile(cp_control);
+            gx::set_cpu_fifo(&mut cpu_after);
+            let linked_cpu = core::ptr::read_volatile(cp_control);
+            gx::set_gp_fifo(null_mut());
+            let detached_again = core::ptr::read_volatile(cp_control);
+            gx::set_gp_fifo(&mut gp_after);
+            (detached, cpu_only, attached, linked_cpu, detached_again)
+        }
+    } else {
+        (u16::MAX, u16::MAX, 0, 0, u16::MAX)
+    };
+    logger.record(
+        "GX detached GP FIFO disables reads and link",
+        fifo_ready && detached & 0x11 == 0,
+    );
+    logger.record(
+        "GX CPU-only FIFO keeps GP reads disabled",
+        fifo_ready && cpu_only & 0x11 == 0,
+    );
+    logger.record(
+        "GX attached GP FIFO restores reads and link",
+        fifo_ready && attached & 0x11 == 0x11,
+    );
+    logger.record(
+        "GX detached and CPU-only FIFO mask watermark interrupts",
+        fifo_ready && detached & 0x0c == 0 && cpu_only & 0x0c == 0,
+    );
+    logger.record(
+        "GX linked GP FIFO enables only the high watermark interrupt",
+        fifo_ready && attached & 0x0c == 0x04,
+    );
+    logger.record(
+        "GX linked CPU FIFO enables only the high watermark interrupt",
+        fifo_ready && linked_cpu & 0x0c == 0x04,
+    );
+    logger.record(
+        "GX GP detach clears the watermark interrupt enable bits",
+        fifo_ready && detached_again & 0x0c == 0,
+    );
+
     let draw_buffer = unsafe { DRAW_FRAMEBUFFER };
     let redirect_result = if !draw_buffer.is_null() && draw_buffer as usize & 31 == 0 {
         // SAFETY: The probe owns this aligned framebuffer, which is DMA-visible memory.

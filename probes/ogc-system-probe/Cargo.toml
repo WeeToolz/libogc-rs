@@ -86,6 +86,7 @@ ogc-sysbase = { path = "../../crates/core/ogc-sysbase" }
 ogc-usb = { path = "../../crates/services/ogc-usb" }
 ogc-usbgecko = { path = "../../crates/services/ogc-usbgecko" }
 ogc-usbstorage-sys = { path = "../../crates/services/ogc-usbstorage-sys" }
+ogc-usbstorage-lifecycle = { path = "../../crates/services/ogc-usbstorage-lifecycle" }
 ogc-usbstorage = { path = "../../crates/services/ogc-usbstorage" }
 ogc-ui = { path = "../../crates/services/ogc-ui", optional = true }
 ogc-video = { path = "../../crates/hardware/ogc-video" }

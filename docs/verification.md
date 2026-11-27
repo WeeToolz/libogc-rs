@@ -195,3 +195,52 @@ Keep these results separate when you report work:
 Use [evidence and open work](evidence-summary.md) to find current reports and
 their limits. Use the [hardware API register](hardware-api-validation.csv) to
 check which physical tests still need results.
+
+### 2026-11-26 USB StartStop and IPC replacement scope (Linux)
+
+The [scoped evidence](dolphin-runs/2026-11-26-usbstorage-startstop-ipc-scope-linux/README.md)
+records the USB StartStop invalid-LUN error-order baseline (59 passed, 3
+failed) and corrected run (62 passed, 0 failed), plus the extended IOS reload
+scope run (105 passed, 0 failed). All completed capture pages are valid.
+Host xtask tests passed 163/163, USB lifecycle tests passed 21/21, and the
+PowerPC storage group passed. No new full runtime suite result or live USB
+transport result is claimed. Physical Wii evidence remains pending.
+
+### USB BOT buffer and CSW follow-up (2026-11-26)
+
+[Scoped Dolphin results](dolphin-runs/2026-11-26-usbstorage-bot-buffer-linux/README.md):
+64/65 before the pending-buffer correction, 65/65 after, 68/68 with CSW validation
+checks, six valid final captures. Host lifecycle tests: 22/22. Controlled
+fixtures do not establish live USB device transfer or physical DMA behavior.
+
+### IPC aborted replacement scope (2026-11-26)
+
+[Scoped reload evidence](dolphin-runs/2026-11-26-ipc-aborted-scope-linux/README.md):
+108/108 in stock Dolphin, including three aborted scopes with a real pending
+STM request, followed by actual successful replacements. Actual failed IOS
+launch and unsent request handling remain unverified.
+
+### GX FIFO read enable (2026-11-26)
+
+[Scoped GX probe](dolphin-runs/2026-11-26-gx-fifo-read-linux/README.md):
+27/28 before correction, 28/28 after. CP control is checked during a drained
+FIFO detach, CPU-only assignment and GP restoration. Watermark interrupt
+behavior remains pending.
+
+### Linux Dolphin network options (2026-11-26)
+
+[Scoped network results](dolphin-runs/2026-11-26-network-headless-linux/README.md):
+84/84 with the patched NoGUI Null backend and independently measured native
+Linux socket expectations, versus 79/84 on stock Dolphin using the same DOL.
+Seven and eight valid guest framebuffer captures respectively. The default
+patched run had 82/84, with host buffer-size and timeout differences.
+This does not establish graphics behavior, physical Wii readback semantics,
+or a clean full runtime suite. Host xtask tests passed 164/164.
+
+### GX FIFO watermark interrupt masks (2026-11-26)
+
+[Scoped GX evidence](dolphin-runs/2026-11-26-gx-watermark-linux/README.md):
+30/32 before correction and 32/32 afterward, on stock graphical Dolphin.
+Five and four valid capture pages respectively. The probe reads CP control
+bits for detached, CPU-only, linked GP and linked CPU assignments. Actual
+watermark interrupt delivery and physical Wii behavior remain pending.

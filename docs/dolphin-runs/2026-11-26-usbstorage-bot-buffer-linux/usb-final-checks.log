@@ -1,0 +1,7 @@
+PASS pending USB bulk rejects new StartStop
+PASS pending USB bulk preserves transfer buffer and tag
+PASS pending USB bulk fixture mutex released
+PASS USB invalid CSW signature preserves status and residue
+PASS USB wrong CSW tag publishes validated status and residue
+PASS USB matching CSW decodes little-endian fields
+PASS summary passes=68 fails=0

@@ -1,0 +1,9 @@
+PASS GX detached GP FIFO disables reads and link
+PASS GX CPU-only FIFO keeps GP reads disabled
+PASS GX attached GP FIFO restores reads and link
+PASS GX detached and CPU-only FIFO mask watermark interrupts
+PASS GX linked GP FIFO enables only the high watermark interrupt
+PASS GX linked CPU FIFO enables only the high watermark interrupt
+PASS GX GP detach clears the watermark interrupt enable bits
+INFO summary_candidate passes=32 fails=0
+PASS summary passes=32 fails=0

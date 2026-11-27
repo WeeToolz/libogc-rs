@@ -1,0 +1,50 @@
+{
+  "results": {
+    "default": {
+      "dolphin_version": "Dolphin 2609b-dirty",
+      "repository_revision": "c57a689c92a2d16b1bee28ca5dc6efff74fc60bf",
+      "dirty_worktree": true,
+      "status": "probe_fail",
+      "dol_sha256": "0f3f1758922a2d297347e41af83e1edabc2ce12665805ee077acd33377c607a8",
+      "passes": 82,
+      "fails": 2,
+      "page_capture_count": 8,
+      "pages_valid": true,
+      "duration_milliseconds": 20562
+    },
+    "stock": {
+      "dolphin_version": "Dolphin 2609b",
+      "repository_revision": "c57a689c92a2d16b1bee28ca5dc6efff74fc60bf",
+      "dirty_worktree": true,
+      "status": "probe_fail",
+      "dol_sha256": "ea351c2f4a5b37efa85605f8490222fb1e778f168e4d0c58a215d84ad210e4b4",
+      "passes": 79,
+      "fails": 5,
+      "page_capture_count": 8,
+      "pages_valid": true,
+      "duration_milliseconds": 15608
+    },
+    "patched": {
+      "dolphin_version": "Dolphin 2609b-dirty",
+      "repository_revision": "c57a689c92a2d16b1bee28ca5dc6efff74fc60bf",
+      "dirty_worktree": true,
+      "status": "pass",
+      "dol_sha256": "ea351c2f4a5b37efa85605f8490222fb1e778f168e4d0c58a215d84ad210e4b4",
+      "passes": 84,
+      "fails": 0,
+      "page_capture_count": 7,
+      "pages_valid": true,
+      "duration_milliseconds": 15045
+    }
+  },
+  "private_evidence_sha256": "7748b2b4632f55e3b5bd2f10c494a6b68243266055e16930efa66fd8d808ad8e",
+  "native_linux_readback": {
+    "requested_receive_buffer": 16384,
+    "observed_receive_buffer": 32768,
+    "requested_timeout_us": 2025000,
+    "observed_timeout_us": 2028000
+  },
+  "patched_dolphin_source": "3a5b3743b18da3e8f04cbc44f20dc50fbd3a9ef3",
+  "patched_dolphin_sha256": "38321526246e966862e59600e13d5bdf429487364b07447658bc9c93a7d3148f",
+  "stock_dolphin_sha256": "916d4c9984795c9ddadc7d27d45ed3ad51aac4015b7d5271b872f97c1d0c87df"
+}

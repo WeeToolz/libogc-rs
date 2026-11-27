@@ -1,0 +1,10 @@
+{
+  "status": "pass",
+  "passes": 108,
+  "fails": 0,
+  "page_capture_count": 10,
+  "dol_sha256": "15782ea9c0324f4dd6ad095b7b0d18523a8f067bb42b2e0461f52e2c9fcf72c7",
+  "duration_milliseconds": 36346,
+  "summary_line": "PASS summary passes=108 fails=0",
+  "suite_sha256": "292783a216e72e820debee06d3c1d304b9c001fdf4cb868eb20d27ab035b3d51"
+}

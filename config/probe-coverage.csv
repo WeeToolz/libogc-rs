@@ -17,7 +17,7 @@ input-probe,probes/ogc-system-probe/src/input_probe.rs,
 keyboard-probe,probes/ogc-system-probe/src/keyboard_probe.rs,
 lwp-probe,probes/lwp-probe/src/main.rs,
 ipc-format-probe,probes/ogc-system-probe/src/runtime_probe.rs,runtime_probe
-network-probe,probes/ogc-system-probe/src/network_probe.rs,
+network-probe,probes/ogc-system-probe/src/network_probe.rs,network_probe
 smb-probe,probes/ogc-system-probe/src/network_probe.rs,
 storage-probe,probes/ogc-system-probe/src/storage_probe.rs,
 system-probe,probes/ogc-system-probe/src/main.rs,

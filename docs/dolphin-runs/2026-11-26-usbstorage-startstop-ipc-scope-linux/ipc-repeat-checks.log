@@ -1,0 +1,143 @@
+INFO replacement scope initial request records=38
+PASS pending reload request capacity measurement releases all records
+INFO pending reload available deferred slots=31
+PASS pending reload deferred capacity measurement releases all slots
+PASS replacement scope acquired
+PASS replacement scope rejects nested launch
+PASS replacement scope rejects asynchronous submission
+PASS replacement scope permits owner synchronous IPC
+PASS replacement scope rejects competing thread sync async and nested replacement
+PASS replacement scope drop permits fresh request
+INFO replacement scope final request records=38
+PASS pending reload request capacity measurement releases all records
+INFO pending reload available deferred slots=31
+PASS pending reload deferred capacity measurement releases all slots
+PASS replacement scope rejection releases resources without callback
+PASS pending reload creates formatter heap
+INFO pending reload iteration=1
+PASS pending reload closes library STM hook
+INFO pending reload initial available request records=39
+PASS pending reload request capacity measurement releases all records
+INFO pending reload available deferred slots=32
+PASS pending reload deferred capacity measurement releases all slots
+PASS pending reload opens independent STM hook
+INFO pending reload old submit=0
+INFO pending reload duplicate IOS reply=-2
+PASS pending reload old IOS holds real application request
+PASS pending reload old IOS holds formatted Bluetooth ACL receive
+INFO pending reload in-flight available request records=37
+PASS pending reload request capacity measurement releases all records
+INFO pending reload available deferred slots=30
+PASS pending reload deferred capacity measurement releases all slots
+PASS pending reload old requests occupy two records and two deferred slots
+INFO pending reload result=0
+PASS pending reload replaces IOS successfully
+PASS pending reload new library STM hook closes
+INFO pending reload post-replacement available request records=39
+PASS pending reload request capacity measurement releases all records
+INFO pending reload available deferred slots=32
+PASS pending reload deferred capacity measurement releases all slots
+PASS pending reload cancellation restores request and callback capacity
+INFO pending reload formatted callback count=1
+INFO pending reload formatted callback result=-6
+INFO pending reload formatted live allocations before=0
+INFO pending reload formatted live allocations after=0
+PASS pending reload formatted cancellation frees all owned buffers
+PASS pending reload formatted cancellation does not copy staged output
+PASS pending reload opens new IOS hook
+PASS pending reload new IOS holds new request
+INFO pending reload recovered available request records=39
+PASS pending reload request capacity measurement releases all records
+INFO pending reload available deferred slots=32
+PASS pending reload deferred capacity measurement releases all slots
+PASS pending reload fresh request releases its record and deferred slot
+INFO pending reload old callback count=1
+INFO pending reload new callback count=1
+PASS pending reload new hook releases exactly once
+PASS pending reload old callback receives cancellation exactly once
+PASS pending reload restores STM and accepts fresh IPC
+INFO pending reload iteration=2
+PASS pending reload closes library STM hook
+INFO pending reload initial available request records=39
+PASS pending reload request capacity measurement releases all records
+INFO pending reload available deferred slots=32
+PASS pending reload deferred capacity measurement releases all slots
+PASS pending reload opens independent STM hook
+INFO pending reload old submit=0
+INFO pending reload duplicate IOS reply=-2
+PASS pending reload old IOS holds real application request
+PASS pending reload old IOS holds formatted Bluetooth ACL receive
+INFO pending reload in-flight available request records=37
+PASS pending reload request capacity measurement releases all records
+INFO pending reload available deferred slots=30
+PASS pending reload deferred capacity measurement releases all slots
+PASS pending reload old requests occupy two records and two deferred slots
+INFO pending reload result=0
+PASS pending reload replaces IOS successfully
+PASS pending reload new library STM hook closes
+INFO pending reload post-replacement available request records=39
+PASS pending reload request capacity measurement releases all records
+INFO pending reload available deferred slots=32
+PASS pending reload deferred capacity measurement releases all slots
+PASS pending reload cancellation restores request and callback capacity
+INFO pending reload formatted callback count=1
+INFO pending reload formatted callback result=-6
+INFO pending reload formatted live allocations before=0
+INFO pending reload formatted live allocations after=0
+PASS pending reload formatted cancellation frees all owned buffers
+PASS pending reload formatted cancellation does not copy staged output
+PASS pending reload opens new IOS hook
+PASS pending reload new IOS holds new request
+INFO pending reload recovered available request records=39
+PASS pending reload request capacity measurement releases all records
+INFO pending reload available deferred slots=32
+PASS pending reload deferred capacity measurement releases all slots
+PASS pending reload fresh request releases its record and deferred slot
+INFO pending reload old callback count=1
+INFO pending reload new callback count=1
+PASS pending reload new hook releases exactly once
+PASS pending reload old callback receives cancellation exactly once
+PASS pending reload restores STM and accepts fresh IPC
+INFO pending reload iteration=3
+PASS pending reload closes library STM hook
+INFO pending reload initial available request records=39
+PASS pending reload request capacity measurement releases all records
+INFO pending reload available deferred slots=32
+PASS pending reload deferred capacity measurement releases all slots
+PASS pending reload opens independent STM hook
+INFO pending reload old submit=0
+INFO pending reload duplicate IOS reply=-2
+PASS pending reload old IOS holds real application request
+PASS pending reload old IOS holds formatted Bluetooth ACL receive
+INFO pending reload in-flight available request records=37
+PASS pending reload request capacity measurement releases all records
+INFO pending reload available deferred slots=30
+PASS pending reload deferred capacity measurement releases all slots
+PASS pending reload old requests occupy two records and two deferred slots
+INFO pending reload result=0
+PASS pending reload replaces IOS successfully
+PASS pending reload new library STM hook closes
+INFO pending reload post-replacement available request records=39
+PASS pending reload request capacity measurement releases all records
+INFO pending reload available deferred slots=32
+PASS pending reload deferred capacity measurement releases all slots
+PASS pending reload cancellation restores request and callback capacity
+INFO pending reload formatted callback count=1
+INFO pending reload formatted callback result=-6
+INFO pending reload formatted live allocations before=0
+INFO pending reload formatted live allocations after=0
+PASS pending reload formatted cancellation frees all owned buffers
+PASS pending reload formatted cancellation does not copy staged output
+PASS pending reload opens new IOS hook
+PASS pending reload new IOS holds new request
+INFO pending reload recovered available request records=39
+PASS pending reload request capacity measurement releases all records
+INFO pending reload available deferred slots=32
+PASS pending reload deferred capacity measurement releases all slots
+PASS pending reload fresh request releases its record and deferred slot
+INFO pending reload old callback count=1
+INFO pending reload new callback count=1
+PASS pending reload new hook releases exactly once
+PASS pending reload old callback receives cancellation exactly once
+PASS pending reload restores STM and accepts fresh IPC
+PASS summary passes=105 fails=0

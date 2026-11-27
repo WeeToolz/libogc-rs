@@ -639,3 +639,46 @@ resolved in these Dolphin cases. The new Rust-only cancellation design
 requires independent re-review of concurrent and failed replacement paths;
 physical Wii cache/DMA and loader evidence remain pending. Move the package
 to needs_re_review, not reviewed.
+
+## 2026-11-26 cancellation re-review — competing thread and scope release
+
+The submission gate is checked under the interrupt-protected queue path.
+The async tracker claims a slot before queue acceptance and removes it on
+rejection; the reply handler removes it before transferring ownership to
+the deferred worker. Cancellation scans only outstanding tracker entries
+with interrupts disabled, not already deferred completions. Formatter
+cancellation uses the separate no-copyback completion callback. `finish`
+requires a successful fresh synchronous ES open/close before retirement;
+ordinary PPC reset does not scan or cancel the tracker. A failed round trip
+intentionally leaves old records allocated because freeing memory without
+retirement confirmation is unsafe. This preserves safety at the cost of
+capacity until a later confirmed replacement; recovery on that failure path
+is not tested. The existing reset clears the software send queue, so a test
+of an already posted reply does not establish behavior of unsent queued
+requests. The replacement scope is limited to the IOS launch path, not the
+entire surrounding subsystem shutdown/initialization sequence.
+
+A new competing-LWP test checks actual synchronous/asynchronous rejection
+and nested replacement rejection, followed by owner release and fresh IPC.
+The repeat reload run passes 105/105, with ten valid captures, and preserves
+all three existing cancellation iterations. The first extended run was
+interrupted at capture page 9 and has no complete summary. See
+[scoped evidence](../dolphin-runs/2026-11-26-usbstorage-startstop-ipc-scope-linux/README.md).
+No IPC production change is made in this review. Retain `needs_re_review`
+for the remaining failure, queued-request and concurrency cases; physical
+Wii cache/DMA evidence remains pending.
+
+### Aborted replacement scope and queued-request review (2026-11-26)
+
+A real pending STM event-hook request survives a failed owner IPC request and
+release of the replacement scope without `finish`. The extended Dolphin reload
+probe passes 108/108 over three iterations (see
+[scoped evidence](../dolphin-runs/2026-11-26-ipc-aborted-scope-linux/README.md)).
+A failed actual IOS launch and failed fresh ES handshake remain untested.
+`reset_request_queue` clears software queue slots and counters on PPC-only
+reinitialization, as C does. Accepted requests still in the software queue
+have not reached IOS; clearing the slots can leave asynchronous ownership
+tracked without a corresponding reply, or strand a synchronous waiter.
+This is a source-level concern, not a reproduced runtime defect. Distinguish
+unsent requests from transmitted requests before changing cancellation or
+mailbox-credit behavior. Keep independent concurrency review open.

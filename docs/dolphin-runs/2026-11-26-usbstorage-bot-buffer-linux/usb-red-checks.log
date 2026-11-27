@@ -1,0 +1,5 @@
+PASS pending USB bulk rejects new StartStop
+FAIL pending USB bulk preserves transfer buffer and tag
+PASS pending USB bulk fixture mutex released
+FAIL pending USB bulk preserves transfer buffer and tag
+FAIL summary passes=64 fails=1

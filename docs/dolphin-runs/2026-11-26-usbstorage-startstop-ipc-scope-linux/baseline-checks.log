@@ -1,0 +1,8 @@
+INFO closed USB start-stop status=-10009
+FAIL USB start-stop checks invalid LUN before missing mutex
+FAIL closed USB handle rejects flush reset suspend and start-stop
+FAIL C USB ABI rejects closed-handle control and media calls
+FAIL USB start-stop checks invalid LUN before missing mutex
+FAIL closed USB handle rejects flush reset suspend and start-stop
+FAIL C USB ABI rejects closed-handle control and media calls
+FAIL summary passes=59 fails=3

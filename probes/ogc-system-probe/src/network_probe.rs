@@ -551,38 +551,54 @@ fn probe_socket_edges(logger: &mut ProbeLogger) {
             && local.sin_family == network::AF_INET as u8,
     );
 
-    logger.record(
-        "network SO_REUSEADDR roundtrip",
-        roundtrip_i32_sockopt(socket, network::SOL_SOCKET, network::SO_REUSEADDR, 1),
-    );
-    logger.record(
-        "network SO_RCVBUF roundtrip",
-        roundtrip_i32_sockopt(socket, network::SOL_SOCKET, network::SO_RCVBUF, 16 * 1024),
-    );
-    logger.record(
-        "network SO_RCVTIMEO roundtrip",
-        roundtrip_timeval_sockopt(
-            socket,
+    let requested_timeout = network::Timeval {
+        tv_sec: 2,
+        tv_usec: 25_000,
+    };
+    let (expected_buffer, expected_timeout) = socket_option_expectations(requested_timeout);
+    logger.note(&alloc::format!(
+        "socket readback expectation: RCVBUF={expected_buffer}, RCVTIMEO={expected_timeout:?}"
+    ));
+    for (label, level, name, requested, expected) in [
+        (
+            "network SO_REUSEADDR roundtrip",
             network::SOL_SOCKET,
-            network::SO_RCVTIMEO,
-            network::Timeval {
-                tv_sec: 2,
-                tv_usec: 25_000,
-            },
+            network::SO_REUSEADDR,
+            1,
+            1,
         ),
-    );
-    logger.record(
-        "network IP_TTL roundtrip",
-        roundtrip_i32_sockopt(socket, network::IPPROTO_IP, network::sys::IP_TTL, 64),
-    );
-    logger.record(
-        "network TCP_NODELAY roundtrip",
-        roundtrip_i32_sockopt(socket, network::IPPROTO_TCP, network::TCP_NODELAY, 1),
-    );
-    logger.record(
-        "network TCP_KEEPALIVE roundtrip",
-        roundtrip_i32_sockopt(socket, network::IPPROTO_TCP, network::TCP_KEEPALIVE, 30),
-    );
+        (
+            "network SO_RCVBUF roundtrip",
+            network::SOL_SOCKET,
+            network::SO_RCVBUF,
+            16 * 1024,
+            expected_buffer,
+        ),
+        (
+            "network IP_TTL roundtrip",
+            network::IPPROTO_IP,
+            network::sys::IP_TTL,
+            64,
+            64,
+        ),
+        (
+            "network TCP_NODELAY roundtrip",
+            network::IPPROTO_TCP,
+            network::TCP_NODELAY,
+            1,
+            1,
+        ),
+        (
+            "network TCP_KEEPALIVE roundtrip",
+            network::IPPROTO_TCP,
+            network::TCP_KEEPALIVE,
+            30,
+            30,
+        ),
+    ] {
+        check_i32_sockopt(logger, label, socket, level, name, requested, expected);
+    }
+    check_timeval_sockopt(logger, socket, requested_timeout, expected_timeout);
 
     let mut pollfd = [network::PollFd {
         fd: socket,
@@ -853,57 +869,116 @@ fn probe_cleanup_cycle(logger: &mut ProbeLogger) {
     }
 }
 
-fn roundtrip_i32_sockopt(socket: i32, level: u32, optname: u32, value: i32) -> bool {
-    let mut out = i32::MIN;
-    let mut out_len = size_of::<i32>() as network::SockLenT;
-    unsafe {
-        network::setsockopt(
-            socket,
-            level,
-            optname,
-            (&value as *const i32).cast::<c_void>(),
-            size_of::<i32>() as network::SockLenT,
-        ) == 0
-            && network::getsockopt(
-                socket,
-                level,
-                optname,
-                (&mut out as *mut i32).cast::<c_void>(),
-                &mut out_len,
-            ) == 0
-            // BSD Boolean socket options return zero or nonzero, not a required 1.
-            && if (level == network::SOL_SOCKET && optname == network::SO_REUSEADDR)
-                || (level == network::IPPROTO_TCP && optname == network::TCP_NODELAY) {
-                (out != 0) == (value != 0)
-            } else { out == value }
-            && out_len == size_of::<i32>() as network::SockLenT
+// Default to the original exact readback checks. A Dolphin-only build may
+// supply independently measured native Linux values for the two host-dependent
+// options. Never accept an arbitrary value observed from the guest itself.
+fn socket_option_expectations(requested: network::Timeval) -> (i32, network::Timeval) {
+    #[cfg(feature = "dolphin-automation")]
+    match (
+        option_env!("LIBOGC_DOLPHIN_EXPECT_RCVBUF"),
+        option_env!("LIBOGC_DOLPHIN_EXPECT_RCVTIMEO_USEC"),
+    ) {
+        (Some(buffer), Some(usec)) => {
+            let buffer = buffer.parse::<i32>().expect("native RCVBUF expectation");
+            let usec = usec.parse::<i32>().expect("native RCVTIMEO expectation");
+            assert!(buffer > 0 && (0..1_000_000).contains(&usec));
+            return (
+                buffer,
+                network::Timeval {
+                    tv_sec: requested.tv_sec,
+                    tv_usec: usec,
+                },
+            );
+        }
+        (None, None) => {}
+        _ => panic!("both native socket readback expectations are required"),
     }
+    (16 * 1024, requested)
 }
 
-fn roundtrip_timeval_sockopt(
+fn check_i32_sockopt(
+    logger: &mut ProbeLogger,
+    label: &str,
     socket: i32,
     level: u32,
     optname: u32,
-    value: network::Timeval,
-) -> bool {
-    let mut out = network::Timeval::default();
-    let mut out_len = size_of::<network::Timeval>() as network::SockLenT;
-    unsafe {
+    value: i32,
+    expected: i32,
+) {
+    let mut out = i32::MIN;
+    let mut out_len = size_of::<i32>() as network::SockLenT;
+    let set = unsafe {
         network::setsockopt(
             socket,
             level,
             optname,
-            (&value as *const network::Timeval).cast::<c_void>(),
-            size_of::<network::Timeval>() as network::SockLenT,
-        ) == 0
-            && network::getsockopt(
+            (&value as *const i32).cast(),
+            size_of::<i32>() as network::SockLenT,
+        )
+    };
+    let get = if set == 0 {
+        Some(unsafe {
+            network::getsockopt(
                 socket,
                 level,
                 optname,
-                (&mut out as *mut network::Timeval).cast::<c_void>(),
+                (&mut out as *mut i32).cast(),
                 &mut out_len,
-            ) == 0
-            && out == value
-            && out_len == size_of::<network::Timeval>() as network::SockLenT
-    }
+            )
+        })
+    } else {
+        None
+    };
+    // BSD Boolean options return zero or nonzero, not a required 1.
+    let value_matches = if (level == network::SOL_SOCKET && optname == network::SO_REUSEADDR)
+        || (level == network::IPPROTO_TCP && optname == network::TCP_NODELAY)
+    {
+        (out != 0) == (expected != 0)
+    } else {
+        out == expected
+    };
+    logger.record_with_detail(
+        label,
+        set == 0
+            && get == Some(0)
+            && value_matches
+            && out_len == size_of::<i32>() as network::SockLenT,
+        &alloc::format!(
+            "set={set} get={get:?} requested={value} expected={expected} actual={out} len={out_len}"
+        ),
+    );
+}
+
+fn check_timeval_sockopt(
+    logger: &mut ProbeLogger,
+    socket: i32,
+    value: network::Timeval,
+    expected: network::Timeval,
+) {
+    let mut out = network::Timeval::default();
+    let mut out_len = size_of::<network::Timeval>() as network::SockLenT;
+    let set = unsafe {
+        network::setsockopt(
+            socket,
+            network::SOL_SOCKET,
+            network::SO_RCVTIMEO,
+            (&value as *const network::Timeval).cast(),
+            size_of::<network::Timeval>() as network::SockLenT,
+        )
+    };
+    let get = if set == 0 {
+        Some(unsafe {
+            network::getsockopt(
+                socket,
+                network::SOL_SOCKET,
+                network::SO_RCVTIMEO,
+                (&mut out as *mut network::Timeval).cast(),
+                &mut out_len,
+            )
+        })
+    } else {
+        None
+    };
+    logger.record_with_detail("network SO_RCVTIMEO roundtrip", set == 0 && get == Some(0) && out == expected && out_len == size_of::<network::Timeval>() as network::SockLenT,
+        &alloc::format!("set={set} get={get:?} requested={value:?} expected={expected:?} actual={out:?} len={out_len}"));
 }

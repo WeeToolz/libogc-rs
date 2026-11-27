@@ -439,3 +439,14 @@ The pinned std source check passes. Host tests pass for the production packet,
 DNS parser, error-domain, nonblocking retry, and absolute-deadline engine. The
 std network probe DOL builds and links; it exercises concurrent DNS, TCP, clone
 ownership, and a timed UDP receive on hardware. No Wii execution is claimed.
+
+## Linux Dolphin socket-option follow-up (2026-11-26)
+
+[Scoped Linux evidence](../dolphin-runs/2026-11-26-network-headless-linux/README.md)
+records 84/84 on patched NoGUI Dolphin versus 79/84 on stock graphical
+Dolphin using the same calibrated DOL. Receive buffer and timeout readback
+use independently measured native Linux expectations; default exact
+requested-value assertions remain intact. The C Wii `net_getsockopt`
+implementation returns -EINVAL without issuing an IOS request, so the
+working Rust readback is additional functionality. No production network
+code changed. Full graphical runtime and physical Wii evidence remain open.

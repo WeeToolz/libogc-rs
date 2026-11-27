@@ -1624,13 +1624,17 @@ fn program_gp_fifo(snapshot: FifoSnapshot) {
     }
 }
 
-fn update_fifo_link_state() {
-    let linked = GX_CPU_FIFO_READY.load(Ordering::Acquire)
+fn fifo_pair_linkable() -> bool {
+    GX_CPU_FIFO_READY.load(Ordering::Acquire)
         && GX_GP_FIFO_READY.load(Ordering::Acquire)
-        && fifo_states_linkable(GX_CPU_FIFO_STATE.load(), GX_GP_FIFO_STATE.load());
+        && fifo_states_linkable(GX_CPU_FIFO_STATE.load(), GX_GP_FIFO_STATE.load())
+}
+
+fn update_fifo_link_state() {
+    let linked = fifo_pair_linkable();
     GX_CP_GP_LINKED.store(linked, Ordering::Release);
     let mut control = GX_CP_CONTROL.load(Ordering::Relaxed) as u16;
-    control |= GX_CP_READ_ENABLE;
+    // Linking the CPU FIFO does not enable GP reads.
     if linked {
         control |= GX_CP_FIFO_LINK;
     } else {
@@ -1714,35 +1718,60 @@ pub unsafe fn get_fifo_ptrs(
 /// # Safety
 /// A non-null FIFO must contain a valid initialized `GxFifoObj`.
 pub unsafe fn set_cpu_fifo(fifo: *mut GxFifoObj) {
+    let irq_state = ogc_irq::irq_disable();
     let Some(mut s) = fifo_snapshot(fifo) else {
         GX_CPU_FIFO_READY.store(false, Ordering::Release);
         GX_CP_GP_LINKED.store(false, Ordering::Release);
+        ogc_irq::irq_restore(irq_state);
         return;
     };
     s.cpufifo_ready = 1;
     GX_CPU_FIFO_STATE.store(s);
     GX_CPU_FIFO_READY.store(true, Ordering::Release);
-    program_cpu_fifo(s);
-    update_fifo_link_state();
+    if fifo_pair_linkable() {
+        program_cpu_fifo(s);
+        unsafe { ptr::write_volatile(cp_reg(2), 0x0003) };
+        set_fifo_interrupt_enable(true, false);
+        update_fifo_link_state();
+    } else {
+        update_fifo_link_state();
+        set_fifo_interrupt_enable(false, false);
+        program_cpu_fifo(s);
+        unsafe { core::arch::asm!("sync", options(nostack, preserves_flags)) };
+    }
+    ogc_irq::irq_restore(irq_state);
 }
 
 /// # Safety
 /// A non-null FIFO must contain a valid initialized `GxFifoObj`.
 pub unsafe fn set_gp_fifo(fifo: *mut GxFifoObj) {
+    let irq_state = ogc_irq::irq_disable();
+    // Stop CP reads and mask watermark interrupts before changing the GP FIFO.
+    let control = GX_CP_CONTROL.load(Ordering::Relaxed) as u16
+        & !(GX_CP_READ_ENABLE | GX_CP_FIFO_INT_HI_ENABLE | GX_CP_FIFO_INT_LO_ENABLE);
+    GX_CP_CONTROL.store(u32::from(control), Ordering::Release);
+    unsafe { ptr::write_volatile(cp_reg(1), control) };
     let Some(mut s) = fifo_snapshot(fifo) else {
         GX_GP_FIFO_READY.store(false, Ordering::Release);
         GX_CP_GP_LINKED.store(false, Ordering::Release);
-        let mut c = GX_CP_CONTROL.load(Ordering::Relaxed) as u16;
-        c &= !(GX_CP_READ_ENABLE | GX_CP_FIFO_LINK);
+        let c = control & !GX_CP_FIFO_LINK;
         GX_CP_CONTROL.store(u32::from(c), Ordering::Release);
         unsafe { ptr::write_volatile(cp_reg(1), c) };
+        ogc_irq::irq_restore(irq_state);
         return;
     };
     s.gpfifo_ready = 1;
     GX_GP_FIFO_STATE.store(s);
     GX_GP_FIFO_READY.store(true, Ordering::Release);
     program_gp_fifo(s);
+    unsafe { core::arch::asm!("sync", options(nostack, preserves_flags)) };
+    set_fifo_interrupt_enable(fifo_pair_linkable(), false);
     update_fifo_link_state();
+    unsafe { ptr::write_volatile(cp_reg(2), 0x0003) };
+    let c = GX_CP_CONTROL.load(Ordering::Relaxed) as u16 | GX_CP_READ_ENABLE;
+    GX_CP_CONTROL.store(u32::from(c), Ordering::Release);
+    unsafe { ptr::write_volatile(cp_reg(1), c) };
+    ogc_irq::irq_restore(irq_state);
 }
 
 /// # Safety

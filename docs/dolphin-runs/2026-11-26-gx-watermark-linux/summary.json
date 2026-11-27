@@ -1,0 +1,29 @@
+{
+  "results": {
+    "red": {
+      "dolphin_version": "Dolphin 2609b",
+      "repository_revision": "c57a689c92a2d16b1bee28ca5dc6efff74fc60bf",
+      "dirty_worktree": true,
+      "status": "probe_fail",
+      "dol_sha256": "46d0fb9c75e7a716faa67304f9c2c0e914c051e3c82e06244f2558b89d02c663",
+      "passes": 30,
+      "fails": 2,
+      "page_capture_count": 5,
+      "pages_valid": true,
+      "duration_milliseconds": 9792
+    },
+    "green": {
+      "dolphin_version": "Dolphin 2609b",
+      "repository_revision": "c57a689c92a2d16b1bee28ca5dc6efff74fc60bf",
+      "dirty_worktree": true,
+      "status": "pass",
+      "dol_sha256": "d0475caa286d9e0e80369dfce0157260ef002ba5c4cd26fd084d7f4cae4a479c",
+      "passes": 32,
+      "fails": 0,
+      "page_capture_count": 4,
+      "pages_valid": true,
+      "duration_milliseconds": 7860
+    }
+  },
+  "private_evidence_sha256": "62e453e03814ce5e5ed8ffac5aecdb216f4be46d177c406fd4c4a671ada7f84a"
+}

@@ -1,0 +1,9 @@
+INFO socket readback expectation: RCVBUF=32768, RCVTIMEO=Timeval { tv_sec: 2, tv_usec: 28000 }
+PASS network SO_REUSEADDR roundtrip
+PASS network SO_RCVBUF roundtrip
+PASS network IP_TTL roundtrip
+PASS network TCP_NODELAY roundtrip
+PASS network TCP_KEEPALIVE roundtrip
+PASS network SO_RCVTIMEO roundtrip
+INFO summary_candidate passes=84 fails=0
+PASS summary passes=84 fails=0

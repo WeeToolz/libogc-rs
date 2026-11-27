@@ -23,7 +23,6 @@ const CBW_SIGNATURE: u32 = 0x4342_5355;
 const CBW_IN: u8 = 1 << 7;
 const CBW_OUT: u8 = 0;
 const CSW_SIZE: usize = 13;
-const CSW_SIGNATURE: u32 = 0x5342_5355;
 
 const SCSI_TEST_UNIT_READY: u8 = 0x00;
 const SCSI_REQUEST_SENSE: u8 = 0x03;
@@ -1332,6 +1331,14 @@ unsafe extern "C" fn start_stop_csw_complete(result: i32, userdata: *mut c_void)
     0
 }
 
+fn decode_csw_result(csw: &[u8; CSW_SIZE], tag: u32, status: &mut u8, residue: &mut u32) -> i32 {
+    match transport::decode_csw(csw, tag, status, residue) {
+        Ok(()) => USBSTORAGE_OK,
+        Err(transport::CswError::Signature) => USBSTORAGE_ESIGNATURE,
+        Err(transport::CswError::Tag) => USBSTORAGE_ETAG,
+    }
+}
+
 unsafe fn read_start_stop_csw(
     dev: &mut UsbStorageHandle,
     status: &mut u8,
@@ -1377,16 +1384,8 @@ unsafe fn read_start_stop_csw(
         return if clear_result < 0 { clear_result } else { rc };
     }
 
-    let signature = u32::from_le_bytes(csw[0..4].try_into().unwrap());
-    let tag = u32::from_le_bytes(csw[4..8].try_into().unwrap());
-    *status = csw[12];
-    if signature != CSW_SIGNATURE {
-        return USBSTORAGE_ESIGNATURE;
-    }
-    if tag != dev.tag {
-        return USBSTORAGE_ETAG;
-    }
-    USBSTORAGE_OK
+    let mut ignored_residue = 0;
+    decode_csw_result(&csw, dev.tag, status, &mut ignored_residue)
 }
 
 unsafe fn bot_reset_control_with_timeout(dev: &UsbStorageHandle, timeout_ticks: u64) -> i32 {
@@ -1604,6 +1603,11 @@ unsafe fn send_cbw(
         if dev.buffer.is_null() {
             return USBSTORAGE_EINIT;
         }
+        // A timed-out request can still own the transfer buffer. Reject
+        // reuse before modifying the CBW, tag, or device state.
+        if let Some(error) = pending_bulk_error(handle_retval_atomic(dev)) {
+            return error;
+        }
         let cbw = { core::slice::from_raw_parts_mut(dev.buffer, CBW_SIZE) };
         cbw.fill(0);
         cbw[0..4].copy_from_slice(&CBW_SIGNATURE.to_le_bytes());
@@ -1647,6 +1651,9 @@ unsafe fn read_csw(
     if dev.buffer.is_null() {
         return USBSTORAGE_EINIT;
     }
+    if let Some(error) = unsafe { pending_bulk_error(handle_retval_atomic(dev)) } {
+        return error;
+    }
     unsafe { ptr::write_bytes(dev.buffer, 0, CSW_SIZE) };
     let rc = unsafe {
         bulk_message_with_timeout(
@@ -1665,19 +1672,8 @@ unsafe fn read_csw(
         return rc;
     }
 
-    let csw = unsafe { core::slice::from_raw_parts(dev.buffer, CSW_SIZE) };
-    let signature = u32::from_le_bytes(csw[0..4].try_into().unwrap());
-    let tag = u32::from_le_bytes(csw[4..8].try_into().unwrap());
-    *residue = u32::from_le_bytes(csw[8..12].try_into().unwrap());
-    *status = csw[12];
-
-    if signature != CSW_SIGNATURE {
-        return USBSTORAGE_ESIGNATURE;
-    }
-    if tag != dev.tag {
-        return USBSTORAGE_ETAG;
-    }
-    USBSTORAGE_OK
+    let csw = unsafe { &*dev.buffer.cast::<[u8; CSW_SIZE]>() };
+    decode_csw_result(csw, dev.tag, status, residue)
 }
 
 unsafe fn transfer_data(
@@ -1691,6 +1687,9 @@ unsafe fn transfer_data(
     unsafe {
         if len == 0 {
             return USBSTORAGE_OK;
+        }
+        if let Some(error) = pending_bulk_error(handle_retval_atomic(dev)) {
+            return error;
         }
         let mut offset = 0usize;
         let bounce = dev.buffer;
@@ -2735,14 +2734,15 @@ pub fn start_stop(dev: *mut UsbStorageHandle, lun: u8, lo_ej: u8, start: u8, imm
         return USBSTORAGE_ENOINTERFACE;
     }
     unsafe {
+        // C rejects an invalid LUN before attempting to acquire the mutex.
+        if lun >= (*dev).max_lun {
+            return USBSTORAGE_EINVAL;
+        }
         let _transfer_guard = match TransferGuard::acquire((*dev).lock) {
             Ok(guard) => guard,
             Err(error) => return error,
         };
         let dev_ref = &mut *dev;
-        if dev_ref.max_lun == 0 || lun >= dev_ref.max_lun {
-            return USBSTORAGE_EINVAL;
-        }
         let cmd = [
             SCSI_START_STOP,
             (lun << 5) | (imm & 1),

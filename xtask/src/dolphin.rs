@@ -542,7 +542,7 @@ pub fn validate(root: &Path, args: &[String]) -> Result<(), String> {
     check_dolphin(&dolphin)?;
     let dolphin_version = command_output(&dolphin, &["--version"])?;
     let help = command_output(&dolphin, &["--help"])?;
-    for required in ["--user", "--exec", "--batch", "--video_backend", "--config"] {
+    for required in ["--user", "--exec", "--video_backend", "--config"] {
         if !help.contains(required) {
             return Err(format!(
                 "Dolphin {} does not advertise required option {required}",
@@ -551,7 +551,15 @@ pub fn validate(root: &Path, args: &[String]) -> Result<(), String> {
         }
     }
 
+    let headless = !help.contains("--batch") && help.contains("--platform");
+    if !help.contains("--batch") && !headless {
+        return Err("Dolphin must support --batch or the NoGUI --platform option".into());
+    }
+
     let selected = select_probes(&options.probes)?;
+    if headless && selected.iter().any(|spec| spec.name != "network_probe") {
+        return Err("The NoGUI Null backend is currently qualified only for network_probe; use the graphical Dolphin frontend for other probes".into());
+    }
     if !options.no_build {
         if options.probes.is_empty() {
             super::build_dolphin_probes()?;
@@ -609,6 +617,7 @@ pub fn validate(root: &Path, args: &[String]) -> Result<(), String> {
             &artifact_dir,
             &dolphin,
             &nand_source,
+            headless,
             spec,
             timeout,
             ProbeMedia {
@@ -941,6 +950,16 @@ mod wpad_probe_selection_tests {
     }
 
     #[test]
+    fn headless_frontend_uses_null_backend_without_batch() {
+        let mut args = vec!["--batch".to_string(), "--video_backend=OGL".to_string()];
+        let original = args.clone();
+        super::configure_headless_backend(&mut args, false);
+        assert_eq!(args, original);
+        super::configure_headless_backend(&mut args, true);
+        assert_eq!(args, ["--video_backend=Null", "--platform=headless"]);
+    }
+
+    #[test]
     fn relaunch_backend_override_does_not_change_other_probes() {
         let mut args = vec!["--video_backend=OGL".to_string()];
         super::configure_relaunch_backend(&mut args, "ipc_relaunch_probe", true);
@@ -1117,6 +1136,7 @@ fn run_probe(
     artifact_dir: &Path,
     dolphin: &Path,
     nand_source: &Path,
+    headless: bool,
     spec: ProbeSpec,
     timeout_seconds: u64,
     media: ProbeMedia<'_>,
@@ -1207,6 +1227,7 @@ fn run_probe(
         private_sd.as_ref().map(|(path, _, _)| path.as_path()),
         media.allow_sd_image_writes,
     );
+    configure_headless_backend(&mut arguments, headless);
     configure_relaunch_panic_diagnostic(
         &mut arguments,
         spec.name,
@@ -1910,6 +1931,20 @@ fn configure_relaunch_backend(arguments: &mut [String], probe: &str, enabled: bo
     }
 }
 
+fn configure_headless_backend(arguments: &mut Vec<String>, headless: bool) {
+    if !headless {
+        return;
+    }
+    arguments.retain(|argument| argument != "--batch");
+    for argument in arguments.iter_mut() {
+        if argument == "--video_backend=OGL" {
+            // Null is suitable for the selected network probe, not rendering tests.
+            *argument = "--video_backend=Null".to_string();
+        }
+    }
+    arguments.push("--platform=headless".to_string());
+}
+
 fn configure_relaunch_panic_diagnostic(arguments: &mut [String], probe: &str, enabled: bool) {
     if enabled && probe == "ipc_relaunch_probe" {
         for argument in arguments {
@@ -2296,7 +2331,12 @@ impl GdbClient {
                 return Ok(None);
             }
             Ok(Some(RelaunchHandoff {
-                mode: if background { "background" } else { "foreground" }.to_string(),
+                mode: if background {
+                    "background"
+                } else {
+                    "foreground"
+                }
+                .to_string(),
                 title: "0000000100000002".to_string(),
                 boot_content: destination.content.clone(),
                 boot_content_sha256: destination.content_sha256.clone(),
@@ -3241,8 +3281,13 @@ mod tests {
             &Completion::Exited(exit_status.clone()),
             30,
             CompletionEvidence {
-                parsed: None, frames_valid: false, pages_valid: false,
-                page_capture_error: None, page_frames: 0, page_markers: 0, summary_count: 0,
+                parsed: None,
+                frames_valid: false,
+                pages_valid: false,
+                page_capture_error: None,
+                page_frames: 0,
+                page_markers: 0,
+                summary_count: 0,
             },
         );
         assert_eq!(status, "crash");

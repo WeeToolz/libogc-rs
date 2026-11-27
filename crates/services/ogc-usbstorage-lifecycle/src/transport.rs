@@ -39,6 +39,35 @@ pub fn suspend(suspended: &mut u8, fd: i32, suspend_device: impl FnOnce(i32) -> 
     0
 }
 
+/// A malformed Bulk-Only Transport command status wrapper.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum CswError {
+    Signature,
+    Tag,
+}
+
+/// Decode the 13-byte little-endian command status wrapper.
+pub fn decode_csw(
+    csw: &[u8; 13],
+    expected_tag: u32,
+    status: &mut u8,
+    residue: &mut u32,
+) -> Result<(), CswError> {
+    let signature = u32::from_le_bytes(csw[0..4].try_into().unwrap());
+    let tag = u32::from_le_bytes(csw[4..8].try_into().unwrap());
+    // C publishes the response only after validating the signature, but
+    // before validating the tag. Keep the previous outputs on bad signature.
+    if signature != 0x5342_5355 {
+        return Err(CswError::Signature);
+    }
+    *residue = u32::from_le_bytes(csw[8..12].try_into().unwrap());
+    *status = csw[12];
+    if tag != expected_tag {
+        return Err(CswError::Tag);
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     extern crate std;
@@ -53,6 +82,32 @@ mod tests {
         BotResetStep::ClearOutHalt,
         BotResetStep::DelayMs(10),
     ];
+
+    #[test]
+    fn csw_validates_signature_before_copying_and_tag_after_copying() {
+        let mut csw = [0u8; 13];
+        csw[0..4].copy_from_slice(&0x5342_5354u32.to_le_bytes());
+        csw[4..8].copy_from_slice(&0x1234_5678u32.to_le_bytes());
+        csw[8..12].copy_from_slice(&0x1122_3344u32.to_le_bytes());
+        csw[12] = 1;
+        let mut status = 0xa5;
+        let mut residue = 0xa5a5_a5a5;
+        assert_eq!(
+            decode_csw(&csw, 0, &mut status, &mut residue),
+            Err(CswError::Signature)
+        );
+        assert_eq!((status, residue), (0xa5, 0xa5a5_a5a5));
+        csw[0..4].copy_from_slice(&0x5342_5355u32.to_le_bytes());
+        assert_eq!(
+            decode_csw(&csw, 0, &mut status, &mut residue),
+            Err(CswError::Tag)
+        );
+        assert_eq!((status, residue), (1, 0x1122_3344));
+        assert_eq!(
+            decode_csw(&csw, 0x1234_5678, &mut status, &mut residue),
+            Ok(())
+        );
+    }
 
     #[test]
     fn reset_reports_each_failure_and_completes_recovery_in_order() {

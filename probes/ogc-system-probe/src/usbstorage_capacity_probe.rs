@@ -67,6 +67,19 @@ fn probe_public_facade(logger: &mut ProbeLogger) {
     let closed_reset = unsafe { storage::try_reset(&mut handle) };
     let closed_suspend = unsafe { storage::try_suspend(&mut handle) };
     let closed_start_stop = unsafe { storage::try_start_stop(&mut handle, 0, 0, 0, 0) };
+    // C checks the LUN before acquiring the transport mutex. An invalid LUN
+    // must return EINVAL even when the handle has no initialized mutex.
+    logger.note_i32(
+        "closed USB start-stop status",
+        closed_start_stop
+            .as_ref()
+            .err()
+            .map_or(0, |error| error.raw()),
+    );
+    logger.record(
+        "USB start-stop checks invalid LUN before missing mutex",
+        has_error(closed_start_stop, storage::USBSTORAGE_EINVAL),
+    );
     let rejects_closed_handle = |result: storage::Result<()>| {
         has_error(result, storage::USBSTORAGE_ENOINTERFACE)
             || has_error(result, storage::USBSTORAGE_EINIT)
@@ -76,7 +89,7 @@ fn probe_public_facade(logger: &mut ProbeLogger) {
         has_error(closed_flush, storage::USBSTORAGE_ENOINTERFACE)
             && rejects_closed_handle(closed_reset)
             && rejects_closed_handle(closed_suspend)
-            && rejects_closed_handle(closed_start_stop)
+            && has_error(closed_start_stop, storage::USBSTORAGE_EINVAL)
             && handle.usb_fd < 0
             && handle.buffer.is_null()
             && handle.sector_size.is_null(),
@@ -303,7 +316,7 @@ fn probe_c_abi_without_device(logger: &mut ProbeLogger) {
             && closed_error(c_closed_mount)
             && closed_error(c_closed_reset)
             && closed_error(c_closed_suspend)
-            && closed_error(c_closed_start_stop)
+            && c_closed_start_stop == storage::USBSTORAGE_EINVAL
             && closed_error(c_closed_capacity)
             && closed_sector_size == 0x1234_5678
             && closed_sector_count == 0x8765_4321
@@ -450,10 +463,82 @@ fn probe_c_abi_without_device(logger: &mut ProbeLogger) {
     );
 }
 
+// Exercise the production entry point with a controlled lifecycle state. No
+// USB request or callback owns this synthetic handle or buffer.
+fn probe_pending_bulk_buffer(logger: &mut ProbeLogger) {
+    use core::sync::atomic::{AtomicI32, Ordering};
+    use ogc_lwp::sys as lwp;
+    use ogc_usbstorage_lifecycle::bulk;
+
+    let mut buffer = AlignedSector([0xa5; 512]);
+    let pending = AtomicI32::new(bulk::PROCESSING);
+    bulk::timeout(&pending);
+    let mut mutex = lwp::LWP_MUTEX_NULL;
+    if unsafe { lwp::mutex_init(&mut mutex, 0) } != lwp::LWP_SUCCESSFUL {
+        logger.record("pending USB bulk fixture mutex initialized", false);
+        return;
+    }
+    let mut handle = sys::UsbStorageHandle {
+        usb_fd: -1,
+        max_lun: 1,
+        lock: mutex,
+        retval: pending.load(Ordering::Acquire),
+        tag: 0x1234_5678,
+        buffer: buffer.0.as_mut_ptr(),
+        ..Default::default()
+    };
+    // SAFETY: The synthetic handle and its aligned buffer are exclusively
+    // borrowed. The pending state prevents any new device submission.
+    let result = unsafe { sys::start_stop(&mut handle, 0, 0, 1, 0) };
+    logger.record(
+        "pending USB bulk rejects new StartStop",
+        result == sys::USBSTORAGE_ETIMEDOUT,
+    );
+    logger.record(
+        "pending USB bulk preserves transfer buffer and tag",
+        buffer.0 == [0xa5; 512] && handle.tag == 0x1234_5678,
+    );
+    logger.record(
+        "pending USB bulk fixture mutex released",
+        lwp::mutex_destroy(mutex) == lwp::LWP_SUCCESSFUL,
+    );
+}
+
+fn probe_csw_validation(logger: &mut ProbeLogger) {
+    use ogc_usbstorage_lifecycle::transport::{CswError, decode_csw};
+    let mut csw = [0u8; 13];
+    csw[0..4].copy_from_slice(&0x5342_5354u32.to_le_bytes());
+    csw[4..8].copy_from_slice(&0x1234_5678u32.to_le_bytes());
+    csw[8..12].copy_from_slice(&0x1122_3344u32.to_le_bytes());
+    csw[12] = 1;
+    let mut status = 0xa5;
+    let mut residue = 0xa5a5_a5a5;
+    logger.record(
+        "USB invalid CSW signature preserves status and residue",
+        decode_csw(&csw, 0, &mut status, &mut residue) == Err(CswError::Signature)
+            && (status, residue) == (0xa5, 0xa5a5_a5a5),
+    );
+    csw[0..4].copy_from_slice(&0x5342_5355u32.to_le_bytes());
+    logger.record(
+        "USB wrong CSW tag publishes validated status and residue",
+        decode_csw(&csw, 0, &mut status, &mut residue) == Err(CswError::Tag)
+            && (status, residue) == (1, 0x1122_3344),
+    );
+    status = 0;
+    residue = 0;
+    logger.record(
+        "USB matching CSW decodes little-endian fields",
+        decode_csw(&csw, 0x1234_5678, &mut status, &mut residue).is_ok()
+            && (status, residue) == (1, 0x1122_3344),
+    );
+}
+
 pub fn run(logger: &mut ProbeLogger) {
     logger.section("USB STORAGE OPEN AND READ CAPACITY POLICY");
     probe_public_facade(logger);
     probe_c_abi_without_device(logger);
+    probe_pending_bulk_buffer(logger);
+    probe_csw_validation(logger);
 
     logger.record(
         "open reset decision matches the C USB mode predicate",

@@ -1,0 +1,24 @@
+{
+  "gx-red": {
+    "status": "probe_fail",
+    "passes": 27,
+    "fails": 1,
+    "page_capture_count": 5,
+    "pages_valid": true,
+    "dol_sha256": "74122e18e855e31196e2ed74d94ca27c8507493052a3d5f0f2345b9930886089",
+    "duration_milliseconds": 28788,
+    "summary_line": "FAIL summary passes=27 fails=1",
+    "suite_sha256": "ec03de7037a62d242886135103d718cd736bc9051906f35daa339a36b7387e9c"
+  },
+  "gx-green": {
+    "status": "pass",
+    "passes": 28,
+    "fails": 0,
+    "page_capture_count": 4,
+    "pages_valid": true,
+    "dol_sha256": "ce96390059b4007e7943f53821e644ea09355a0b740b5c2ce360561b84ced477",
+    "duration_milliseconds": 11007,
+    "summary_line": "PASS summary passes=28 fails=0",
+    "suite_sha256": "d57d55bdf383db6a4e2beeb34a0dfb15496afcaf87ecbd8b8bc413f99da1d874"
+  }
+}

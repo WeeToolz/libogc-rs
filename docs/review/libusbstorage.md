@@ -682,3 +682,33 @@ status accessor source path. The new C export still needs target linkage and
 runtime evidence. Physical USB validation is pending, and broader USB storage
 findings remain open. Keep both crate-level ledger entries at
 `needs_re_review`.
+
+## 2026-11-26 independent source re-review — StartStop precedence
+
+C `USBStorage_StartStop` (`libogc/usbstorage.c:691-720`) rejects an invalid
+LUN before locking. The Rust backend previously tried to acquire the mutex
+first, returning `USBSTORAGE_EINIT` for a closed handle with zero LUNs.
+Move the LUN check ahead of `TransferGuard::acquire`, retaining existing
+null-handle, platform and valid-LUN mutex checks. The stricter production
+Dolphin probe fails 3 of 62 checks before the correction, then passes 62/62.
+The direct observed result changes from -10009 to -4. Both the Rust facade
+and C ABI exercise the corrected path. Host xtask tests (163/163), USB
+lifecycle tests (21/21), and PowerPC storage-group compilation pass. See
+[scoped evidence](../dolphin-runs/2026-11-26-usbstorage-startstop-ipc-scope-linux/README.md).
+Keep both USB storage package entries at `needs_re_review`: full current
+transport comparison and successful live-device coverage are not complete.
+
+## 2026-11-26 scoped BOT buffer and CSW review
+
+The timeout state can retain IOS ownership of the shared transfer buffer. The
+Rust command builder previously wrote the CBW and advanced the tag before the
+pending-bulk submission guard returned its error. The CSW and data paths had
+similar pre-submission writes. Check pending ownership before each path writes
+the buffer; retain the existing submission guard. C `__read_csw` validates the
+signature before publishing status and residue, then checks the tag. Use a
+shared decoder in both Rust production paths. Host lifecycle tests pass 22/22;
+stock Dolphin capacity probe passes 68/68 (red baseline 64/65, first fix 65/65).
+See [scoped evidence](../dolphin-runs/2026-11-26-usbstorage-bot-buffer-linux/README.md).
+Controlled pending state and CSW bytes do not replace real USB transport tests.
+No USB passthrough device is exposed in this environment. Full review, live
+BOT/SCSI transfer and physical DMA/callback validation remain pending.

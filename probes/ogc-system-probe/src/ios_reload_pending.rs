@@ -144,6 +144,28 @@ fn measure_capacity(logger: &mut ProbeLogger, phase: &str) -> (usize, usize) {
     (records, count)
 }
 
+// Run real submissions from an LWP other than the replacement owner.
+// Return a bit mask so the parent can inspect the results after joining.
+unsafe extern "C" fn competing_scope_worker(_: *mut c_void) -> *mut c_void {
+    let sync_rejected = match ipc::open_file(c"/dev/fs", ipc::IPC_OPEN_NONE) {
+        Err(error) => error == ipc::IPC_EQUEUEFULL,
+        Ok(fd) => {
+            let _ = fd.close();
+            false
+        }
+    };
+    let async_rejected = ipc::open_file_async(
+        c"/dev/fs",
+        ipc::IPC_OPEN_NONE,
+        Some(new_callback),
+        core::ptr::null_mut(),
+    ) == ipc::IPC_EQUEUEFULL;
+    let replacement_rejected = matches!(ipc::IosReplacement::begin(), Err(ipc::IPC_EQUEUEFULL));
+    (usize::from(sync_rejected)
+        | (usize::from(async_rejected) << 1)
+        | (usize::from(replacement_rejected) << 2)) as *mut c_void
+}
+
 // Exercise the reservation gate without claiming that an IOS launch occurred.
 // Dropping the scope on this path must not cancel any accepted request.
 fn verify_submission_scope(logger: &mut ProbeLogger) -> bool {
@@ -170,14 +192,39 @@ fn verify_submission_scope(logger: &mut ProbeLogger) -> bool {
     );
     let sync_ok = ipc::open_file(c"/dev/fs", ipc::IPC_OPEN_NONE).is_ok_and(|fd| fd.close().is_ok());
     logger.record("replacement scope permits owner synchronous IPC", sync_ok);
+    let mut thread = ogc_lwp::sys::LWP_THREAD_NULL;
+    // SAFETY: the worker takes no input pointer and uses a workspace stack.
+    // Join it before releasing the replacement scope.
+    let created = unsafe {
+        ogc_lwp::sys::create_thread(
+            &mut thread,
+            Some(competing_scope_worker),
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            40 * 1024,
+            64,
+        )
+    };
+    let mut worker_result = core::ptr::null_mut();
+    let joined = created == ogc_lwp::sys::LWP_SUCCESSFUL
+        && unsafe { ogc_lwp::sys::join_thread(thread, &mut worker_result) }
+            == ogc_lwp::sys::LWP_SUCCESSFUL;
+    let competing = joined && worker_result as usize == 7;
+    logger.record(
+        "replacement scope rejects competing thread sync async and nested replacement",
+        competing,
+    );
     drop(scope);
+    let recovered =
+        ipc::open_file(c"/dev/fs", ipc::IPC_OPEN_NONE).is_ok_and(|fd| fd.close().is_ok());
+    logger.record("replacement scope drop permits fresh request", recovered);
     let after = measure_capacity(logger, "replacement scope final request records");
     let clean = before == after && NEW_COUNT.load(Ordering::Acquire) == 0;
     logger.record(
         "replacement scope rejection releases resources without callback",
         clean,
     );
-    nested && rejected && sync_ok && clean
+    nested && rejected && sync_ok && competing && recovered && clean
 }
 
 pub(super) fn run(logger: &mut ProbeLogger, version: i32) {
@@ -255,6 +302,25 @@ fn run_once(logger: &mut ProbeLogger, version: i32, heap: i32) -> bool {
         let _ = ogc_stm::init();
         return false;
     }
+    // A failed owner request is not proof that IOS was replaced. Dropping
+    // the scope without finish must leave the old IOS request alone.
+    let aborted_scope = if let Ok(scope) = ipc::IosReplacement::begin() {
+        let rejected =
+            unsafe { ipc::IOS_Open(c"/dev/libogc-nonexistent".as_ptr(), ipc::IPC_OPEN_NONE) };
+        if rejected >= 0 {
+            let _ = ipc::IOS_Close(rejected);
+        }
+        drop(scope);
+        rejected < 0
+            && control(old_fd, EVENT_HOOK) == IPC_EEXIST
+            && OLD_COUNT.load(Ordering::Acquire) == 0
+    } else {
+        false
+    };
+    logger.record(
+        "aborted IOS replacement scope preserves pending request",
+        aborted_scope,
+    );
     let format_before = ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire);
     ipc::reset_format_heap_ledger();
     let formatted = submit_pending_format(heap);

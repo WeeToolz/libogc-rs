@@ -1,0 +1,5 @@
+INFO closed USB start-stop status=-4
+PASS USB start-stop checks invalid LUN before missing mutex
+PASS closed USB handle rejects flush reset suspend and start-stop
+PASS C USB ABI rejects closed-handle control and media calls
+PASS summary passes=62 fails=0

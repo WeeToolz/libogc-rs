@@ -1,0 +1,5 @@
+PASS GX detached GP FIFO disables reads and link
+FAIL GX CPU-only FIFO keeps GP reads disabled
+PASS GX attached GP FIFO restores reads and link
+FAIL GX CPU-only FIFO keeps GP reads disabled
+FAIL summary passes=27 fails=1

@@ -1,0 +1,35 @@
+{
+  "usb-red": {
+    "status": "probe_fail",
+    "passes": 64,
+    "fails": 1,
+    "page_capture_count": 6,
+    "pages_valid": true,
+    "dol_sha256": "6bdce792fee866929e6c635952d63c14d8cb29612d90d90fe10b81d78d8d7115",
+    "duration_milliseconds": 17477,
+    "summary_line": "FAIL summary passes=64 fails=1",
+    "suite_sha256": "4dd5c03fb594262178f1cfad31dd201e9515f6c1537892f87dca29b8e04005da"
+  },
+  "usb-green": {
+    "status": "pass",
+    "passes": 65,
+    "fails": 0,
+    "page_capture_count": 5,
+    "pages_valid": true,
+    "dol_sha256": "79c3e2d2731719c4fd0614237595e96bb3e9fa5e8d20c35a4695f55c3845d09f",
+    "duration_milliseconds": 11560,
+    "summary_line": "PASS summary passes=65 fails=0",
+    "suite_sha256": "1fdc2feb276593dfae017486e1a8486b53656b4447d93b112fe9b8532e62d3d3"
+  },
+  "usb-final": {
+    "status": "pass",
+    "passes": 68,
+    "fails": 0,
+    "page_capture_count": 6,
+    "pages_valid": true,
+    "dol_sha256": "57b4e5b71d97362045d3fec4076776e3716b25578ab355134604b8ef62e65508",
+    "duration_milliseconds": 19555,
+    "summary_line": "PASS summary passes=68 fails=0",
+    "suite_sha256": "7f62d880fbe666afae5d4b00c9b4ef13752b34b1e9cfe1752dee9d30069c5eec"
+  }
+}
