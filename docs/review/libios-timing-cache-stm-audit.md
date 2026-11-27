@@ -9,12 +9,20 @@ Scope: independent source audit of the remaining timing, cache, and STM question
 
 The launch-polling timing mismatch below is historical and is fixed in the current source. C's Wii timebase is `PPC_BUS_CLOCK / 4 = 60,750,000` ticks per second; `udelay(1000)` waits for 60,750 ticks. Rust reads the same PowerPC timebase and waits for that tick interval after the same unsuccessful version read and before each IPC readiness check (`crates/core/ogc-ios-sys/src/lib.rs:40-43,87-106,150-159`; C `gc/tuxedo/ppc/clock.h:5-13,85-88`, `tuxedo/tick.c:135-143`, and `libogc/ios.c:290-312`). Target-gated regression coverage checks the interval boundary and counter wraparound. This is a source and helper-test result; elapsed timing and the full reload remain unverified on physical Wii.
 
-The ACR restore order and the shared STM event-hook lifecycle also match the recorded fixes below. The 2026-11-27 source reconciliation below corrects the earlier cache note: launch polling reads the uncached alias in both C and Rust. Rust intentionally returns required STM initialization errors under the Real Implementation Policy, while pinned C can return success when STM setup fails. STM failure cleanup, replacement failure and other IPC concurrency paths, independent review, and physical Wii behavior remain open.
+The ACR restore order and the shared STM event-hook lifecycle also match the recorded fixes below. The 2026-11-27 source reconciliation below corrects the earlier cache note: launch polling reads the uncached alias in both C and Rust. Rust intentionally returns required STM initialization errors under the Real Implementation Policy, while pinned C can return success when STM setup fails. STM injected failure cleanup, real IOS replacement failures, the full-reload concurrency gap, and physical Wii behavior remain open.
 
 - **Historical launch polling delay finding; fixed in current source.** C waits for the version word with `udelay(1000)` after each unsuccessful read (`../../C-sources/libogc/libogc/ios.c:290-291`). Its IPC readiness loop also calls `udelay(1000)` before each register check (`ios.c:307-312`). `udelay` measures elapsed time from `gettime()` until at least the requested microseconds have passed (`../../C-sources/libogc/libogc/timesupp.c:66-77`). The earlier Rust implementation used fixed `spin_loop` counts. Rust now waits for the same 60,750 timebase ticks per millisecond before each unsuccessful version poll and each IPC readiness check (`crates/core/ogc-ios-sys/src/lib.rs:40-43,100-106,150-170`). Target-gated helper tests cover interval boundaries and counter wraparound; elapsed timing on Wii remains unverified.
-- **STM initialization failure behavior:** C `__STM_Init` returns `0` when either `IOS_Open` fails, regardless of the negative open error (`../../C-sources/libogc/libogc/stm.c:87-92`). The caller treats only negative results as errors (`../../C-sources/libogc/libogc/ios.c:81-87`), so this STM failure does not replace the subsystem return value. Rust `stm_init_powerpc` returns the negative `open_file` error when opening either STM device fails (`crates/core/ogc-ios-sys/src/lib.rs:166-191`); `_ios_initialize_subsystems` then treats it as an error and lets it replace an earlier ES error (`lib.rs:302-309`). This changes both the returned result and error precedence.
-- **Event-hook lifecycle omitted by the IOS wrapper:** C `__STM_Init` calls `__STM_SetEventHook` after setting STM initialized (`../../C-sources/libogc/libogc/stm.c:98-100`); that function sends `IOCTL_STM_EVENTHOOK` on the eventhook descriptor (`stm.c:123-138`). C shutdown calls `__STM_ReleaseEventHook` before closing either descriptor (`stm.c:103-108`), which sends `IOCTL_STM_RELEASE_EH` when registered (`stm.c:141-153`). Rust's IOS wrapper only opens and stores the two descriptors (`crates/core/ogc-ios-sys/src/lib.rs:166-191`) and then closes them in `stm_close_powerpc` (`lib.rs:195-218`); it does not install or release the event hook. Although the separate `ogc-stm` crate implements these operations, the IOS wrapper path does not call its `init` or `close` functions.
-- **Partial-open cleanup/order:** If C opens `/dev/stm/immediate` but fails to open `/dev/stm/eventhook`, it returns without closing or clearing the immediate descriptor (`stm.c:87-92`). `__STM_Close` later attempts to close that stored descriptor (`stm.c:103-120`). Rust closes the immediate descriptor immediately after the eventhook open fails, and returns the eventhook error; it retains the immediate descriptor only if that close itself fails (`crates/core/ogc-ios-sys/src/lib.rs:173-185`). The observable close timing and failure handling differ. C's eventual `__STM_Close` also always calls `__STM_ReleaseEventHook` before closing descriptors, including after an unsuccessful initialization (`stm.c:103-108`); Rust's `stm_close_powerpc` only closes descriptors and does not issue a release ioctl (`crates/core/ogc-ios-sys/src/lib.rs:195-218`).
+### Historical STM wrapper findings — shared lifecycle now used
+
+The earlier claims that `ogc-ios-sys` omitted event-hook setup/release and
+closed STM descriptors directly are superseded by the 2026-10-05 shared
+lifecycle change. Current IOS startup calls `ogc_stm::init`; shutdown calls
+`ogc_stm::close` (`crates/core/ogc-ios-sys/src/lib.rs:227,239`). The shared
+implementation registers and releases the event hook
+(`crates/core/ogc-stm/src/lib.rs:214,244`).
+
+- **STM initialization failure behavior:** C `__STM_Init` returns `0` when either `IOS_Open` fails (`../../C-sources/libogc/libogc/stm.c:87-92`). Rust propagates the STM open error through subsystem initialization, where it can replace an earlier ES error. This is a deliberate safety difference: Rust reports that required STM setup failed instead of returning success.
+- **Partial-open cleanup/order:** If C opens `/dev/stm/immediate` but fails to open `/dev/stm/eventhook`, it keeps the immediate descriptor until later shutdown (`stm.c:87-92,103-120`). Rust closes it at once and retains it only if that close fails (`crates/core/ogc-stm/src/lib.rs:347`). This changes close timing and preserves cleanup failure state for retry. C also sends `__STM_ReleaseEventHook` during close after unsuccessful initialization; Rust sends release only when its shared lifecycle records a registered hook. Injected cleanup failure and physical behavior remain unverified.
 
 ## Cache behavior compared
 
@@ -188,3 +196,16 @@ version mismatch. The PowerPC Dolphin probe build also compiles this helper.
 `cargo xtask clippy` passed with the repository MP3 fixtures. Dolphin
 `ios_reload_probe` passed on the normal IOS 58 path; it does not force an
 unexpected IOS version. Physical Wii and failed-handshake tests remain open.
+
+
+## Independent IOS/IPC/ES lifecycle review — 2026-11-27
+
+The independent review confirmed that IOS startup and shutdown use the shared
+`ogc-stm` lifecycle and identified the earlier wrapper-omission findings as
+stale. It confirmed the intentional STM initialization error difference and
+found no request-retirement or deferred callback ownership mismatch. The review
+also found a cross-crate safety gap: `IosReplacement` rejects IPC calls during
+its launch window, but does not serialize the full `reload_ios` lifecycle or
+protect ES descriptor state mutations that happen before a rejected IPC call.
+See [`libipc-core.md`](libipc-core.md#independent-ipcioses-lifecycle-review--2026-11-27).
+The concurrent path remains unverified at runtime.

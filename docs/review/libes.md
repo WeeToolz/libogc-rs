@@ -303,3 +303,16 @@ title mutation, or UID changes until the probe has a disposable, known-good
 title fixture and a qualified recovery path. The AHBPROT helper writes the
 MEM2 protection register and may patch ES code, so its runtime check needs an
 environment with an explicit reset path. These APIs remain open.
+
+
+## IOS replacement gate and ES state — 2026-11-27
+
+Independent source review found that ES per-call state locking does not
+coordinate `close_state` or `reopen_after_verify` with the IOS replacement
+gate. `close_state` removes the descriptor and filesystem registration before
+submitting `fd.close()` (`crates/core/ogc-es-sys/src/imp.rs:430`). If the
+replacement gate rejects that request, a concurrent reload may have removed
+the ES descriptor needed by the active title launch. Pinned C also lacks a
+whole-reload lock, so this is a safety gap rather than a C/Rust parity
+mismatch. Full details and the planned fix are tracked in
+[`libipc-core.md`](libipc-core.md#independent-ipcioses-lifecycle-review--2026-11-27).

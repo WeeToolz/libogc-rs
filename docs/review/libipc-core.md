@@ -1,6 +1,6 @@
 # IPC and system core parity review
 
-Status: static source review remains open for IOS cancellation failure and concurrency paths. Current runtime behavior for raw ioctl, ioctlv, and formatter calls has Dolphin evidence. Physical cache, DMA, loader, and Wii behavior remain open where stated below.
+Status: the 2026-11-27 independent source review found no request-retirement or deferred-callback ownership mismatch. A confirmed concurrency safety gap remains between the IOS replacement gate and ES descriptor state. Actual IOS launch and `/dev/es` failure behavior, physical cache/DMA, loader, and Wii behavior remain open.
 
 ## Scope and source map
 
@@ -674,13 +674,15 @@ A real pending STM event-hook request survives a failed owner IPC request and
 release of the replacement scope without `finish`. The extended Dolphin reload
 probe passes 108/108 over three iterations (see
 [scoped evidence](../dolphin-runs/2026-11-26-ipc-aborted-scope-linux/README.md)).
-A failed actual IOS launch and failed fresh ES handshake remain untested.
+An actual IOS launch failure and a real `/dev/es` reply failure remain
+unverified. The later failed-handshake injection exercises the replacement
+gate without making IOS return an error.
 `reset_request_queue` clears software queue slots and counters on PPC-only
 reinitialization, as C does. Accepted requests still in the software queue
 have not reached IOS; clearing the slots can leave asynchronous ownership
 tracked without a corresponding reply, or strand a synchronous waiter.
 The [unsent queue reset probe](../dolphin-runs/2026-11-27-ipc-unsent-queue-reset/README.md)
-reproduced the async ownership leak. Rust now completes accepted unsent
+reproduced the pre-fix async ownership leak. Rust now completes accepted unsent
 requests with `IPC_ENOENT` before clearing the queue. It preserves sent requests
 and their replies. This is a justified safety difference from C, which clears
 the queue without completing those requests. The probe verifies exact-once
@@ -833,3 +835,38 @@ returned no data for VI MMIO at `0xCC002000`; no returned-screen capture was
 saved. This does not qualify automatic recovery for a physical Wii. Keep the
 physical cache and DMA checks open too. See the
 [recovery run report](../dolphin-runs/2026-11-27-hbc-recovery-stub-entry-v5/README.md).
+
+
+## Independent IPC/IOS/ES lifecycle review — 2026-11-27
+
+Reviewer: `/root/ipc_ios_reviewer`. The review used pinned C libogc revision
+`7d4b8b3e7b845516f0cc2a85274879ddd8cbf142`.
+
+The review found no source bug in request retirement, already-deferred callback
+ownership, callback userdata, or the normal STM success path. The reply handler
+removes a completed request from `ASYNC_IN_FLIGHT` before it queues the deferred
+callback; the worker owns the callback data until delivery and then frees the
+request (`crates/core/ogc-ipc/src/lib.rs:1156,1342,2055`). The failed-handshake
+injection preserves tracked requests for retry; it does not make IOS return a
+real `/dev/es` error.
+
+The review found a safety gap in concurrent full reloads. Rust's
+`IosReplacement` owner gate starts after ticket-count and ticket-fetch requests
+(`crates/core/ogc-ios-sys/src/lib.rs:141,158`;
+`crates/core/ogc-ipc/src/lib.rs:1286,1306`). It does not serialize the full
+`reload_ios` sequence (`ogc-ios-sys/src/lib.rs:398`). During that gate, another
+reload can call ES shutdown. `ogc-es-sys::close_state` removes the descriptor
+and filesystem registration before it submits `fd.close()`
+(`crates/core/ogc-es-sys/src/imp.rs:430`). If the replacement gate rejects
+that IPC request, the ES state has already lost its descriptor. The first
+reload can then fail when it calls `launch_title_background`
+(`ogc-es-sys/src/imp.rs:1310`). `reopen_after_verify` also changes ES state
+without coordinating with the replacement owner (`imp.rs:216,1436`).
+
+Pinned C `IOS_ReloadIOS` has no whole-reload lock (`ios.c:361`), and C ES close
+and launch use shared descriptor state without a lock (`es.c:154,249`). This
+is therefore not a newly introduced C parity mismatch. Rust's narrower IPC
+rejection gate can leave local ES state changed before the close request is
+accepted. Runtime behavior for these concurrent sequences has not been tested.
+The four related crates remain open while the safety gap is addressed and
+independently reviewed.
