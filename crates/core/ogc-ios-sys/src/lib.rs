@@ -98,19 +98,6 @@ fn restore_irq_before_reinitialize_and_query(
     query_version()
 }
 
-fn finish_ios_replacement(
-    new_version: i32,
-    requested_version: i32,
-    finish: impl FnOnce(),
-) -> i32 {
-    finish();
-    if new_version == requested_version {
-        new_version
-    } else {
-        IOS_EMISMATCH
-    }
-}
-
 #[cfg(target_arch = "powerpc")]
 #[inline(always)]
 fn wait_one_millisecond() {
@@ -199,9 +186,10 @@ fn launch_ios_from_es(version: i32) -> i32 {
     // republished, and the mailbox was reinitialized. finish verifies a fresh
     // IOS reply before it cancels old requests. It keeps their records if that
     // check fails. Retire safe requests even if IOS started at another version.
-    let result = finish_ios_replacement(new_version, version, || unsafe {
-        replacement.finish();
-    });
+    let result =
+        ios_logic::finish_ios_replacement(new_version, version, IOS_EMISMATCH, || unsafe {
+            replacement.finish();
+        });
     if result < 0 {
         return result;
     }
@@ -490,22 +478,6 @@ mod tests {
         );
         assert_eq!(version, 58);
         assert_eq!(step.get(), 3);
-    }
-
-    #[test]
-    fn launch_finishes_replacement_before_reporting_version_mismatch() {
-        let finished = core::cell::Cell::new(false);
-        let result = finish_ios_replacement(59, 58, || finished.set(true));
-        assert!(finished.get());
-        assert_eq!(result, IOS_EMISMATCH);
-    }
-
-    #[test]
-    fn launch_finishes_replacement_before_returning_matching_version() {
-        let finished = core::cell::Cell::new(false);
-        let result = finish_ios_replacement(58, 58, || finished.set(true));
-        assert!(finished.get());
-        assert_eq!(result, 58);
     }
 
     #[test]

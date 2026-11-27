@@ -135,9 +135,10 @@ it retains the old request records because IOS may still access them. This
 preserves buffer ownership and callback rules while avoiding stale requests
 after a successful restart into an unexpected version.
 
-PowerPC target test code covers matching and mismatching version results and
-confirms that cleanup runs before either result. `cargo check -p ogc-ios-sys
---target powerpc-unknown-linux-gnu --tests` passed; target tests did not run.
+Host tests run the shared helper called by production and confirm cleanup runs
+before matching and mismatching version results. The focused helper tests pass
+2/2. These tests cover result ordering; they do not simulate an actual IOS
+version mismatch. The PowerPC Dolphin probe build also compiles this helper.
 `cargo xtask clippy` passed with the repository MP3 fixtures. Dolphin
 `ios_reload_probe` passed on the normal IOS 58 path; it does not force an
 unexpected IOS version. Physical Wii and failed-handshake tests remain open.

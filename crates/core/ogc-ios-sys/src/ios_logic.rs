@@ -43,12 +43,26 @@ pub(super) const fn ticket_view_count_is_supported(count: u32) -> bool {
     (count as usize) <= MAX_TICKET_VIEWS
 }
 
+pub(super) fn finish_ios_replacement(
+    new_version: i32,
+    requested_version: i32,
+    mismatch_result: i32,
+    finish: impl FnOnce(),
+) -> i32 {
+    finish();
+    if new_version == requested_version {
+        new_version
+    } else {
+        mismatch_result
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{
         IOS_MAX_VERSION, IOS_MIN_VERSION, MAX_STORED_TMD_SIZE, MAX_TICKET_VIEWS,
-        initialization_result, preferred_version_from_title, stored_tmd_size_is_supported,
-        ticket_view_count_is_supported, update_error,
+        finish_ios_replacement, initialization_result, preferred_version_from_title,
+        stored_tmd_size_is_supported, ticket_view_count_is_supported, update_error,
     };
 
     #[test]
@@ -115,6 +129,23 @@ mod tests {
         assert!(ticket_view_count_is_supported(0));
         assert!(ticket_view_count_is_supported(MAX_TICKET_VIEWS as u32));
         assert!(!ticket_view_count_is_supported(MAX_TICKET_VIEWS as u32 + 1));
+    }
+
+    #[test]
+    fn replacement_finishes_before_reporting_version_mismatch() {
+        let finished = core::cell::Cell::new(false);
+        let mismatch = -0x3102;
+        let result = finish_ios_replacement(59, 58, mismatch, || finished.set(true));
+        assert!(finished.get());
+        assert_eq!(result, mismatch);
+    }
+
+    #[test]
+    fn replacement_finishes_before_returning_matching_version() {
+        let finished = core::cell::Cell::new(false);
+        let result = finish_ios_replacement(58, 58, -0x3102, || finished.set(true));
+        assert!(finished.get());
+        assert_eq!(result, 58);
     }
 
     #[test]
