@@ -305,3 +305,8 @@ no host-only GX mapping remains. The file-backed TPL fixture exercises
 production DeviceFile reads with a controlled device, not a physical disk.
 Independent approval of the current implementation and physical Wii
 behavior remain open. Full runtime was not repeated.
+
+The [2026-11-27 System Menu relaunch run](dolphin-runs/2026-11-27-stock-menu-relaunch/README.md)
+passes all four foreground/background C and Rust reboot API handoffs with a
+TMD-matched System Menu fixture. Physical Wii IPC cache and DMA checks remain
+open.

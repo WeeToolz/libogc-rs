@@ -720,9 +720,12 @@ Set `LIBOGC_DOLPHIN_RELAUNCH_API=rust` for the Rust API and
 `LIBOGC_DOLPHIN_RELAUNCH_BACKGROUND=1` for background mode.
 The run IDs identify the local Dolphin reports and logs.
 
-The System Menu handoff remains open. The local System Menu content SHA-1
-matched the TMD, but the content was 837,400 bytes and the TMD declared
-3,867,904 bytes. Physical Wii cache and DMA checks remain open separately.
+At this stage, the System Menu handoff remained open because the default
+fixture paired a 837,400-byte modified boot image with a TMD that declared
+3,867,904 bytes. The later
+[2026-11-27 run](../dolphin-runs/2026-11-27-stock-menu-relaunch/README.md)
+uses the matching original boot image and TMD and passes all four API/mode
+handoffs. Physical Wii cache and DMA checks remain open separately.
 
 ### Dolphin formatter contracts
 

@@ -1,0 +1,77 @@
+{
+  "fixture": {
+    "title": "0000000100000002",
+    "content": "00000098.app",
+    "size": 3867904,
+    "sha1": "26116613f624061ba99c8d1a299aaa6efa85670d",
+    "sha256": "47b9c1bb0ba1890256fb368b1b3272e33ea2467feadf39d20ce469d6de6e6c43",
+    "tmd_sha1": "e8f9657d591b305e300c109b5641630aa4e2318b",
+    "tmd_sha256": "9dbaf2e13d4cb76debacd3778bce33d9bc29172c2c9530692ef1a746f6034586"
+  },
+  "runs": [
+    {
+      "case": "c-foreground",
+      "suite_sha256": "cff0e29774d86c41b095a7cb0b5a5803753a63a717034ee4c35fe4e7809946c5",
+      "dolphin_version": "Dolphin 2609a",
+      "source_revision": "21624b42b826ab44c2f4b1a4db4be09898ee99f6",
+      "status": "pass",
+      "dol_sha256": "08948a63408accfb28e7cfac14acb0bedeb259d6576b77d9c7b87c99121bec50",
+      "source_osreport": "IPC_RELAUNCH source api=c mode=foreground title=0000000100000002",
+      "title": "0000000100000002",
+      "boot_content": "00000098.app",
+      "boot_content_sha256": "47b9c1bb0ba1890256fb368b1b3272e33ea2467feadf39d20ce469d6de6e6c43",
+      "destination_pc": "0x81534418",
+      "destination_signature_sha256": "ec98e69acf4414edf0381d178ce26bdfa1d42264c235da28964d32e702c3270d",
+      "dolphin_boot_log": "50:17:062 Core/IOS/IOS.cpp:445 I[IOS]: BootstrapPPC: /title/00000001/00000002/content/00000098.app",
+      "returned_zero": false
+    },
+    {
+      "case": "c-background",
+      "suite_sha256": "dcdbd150dc6d910166df338e206ee2fdd161feae110c20e4317bd6233e96bba6",
+      "dolphin_version": "Dolphin 2609a",
+      "source_revision": "21624b42b826ab44c2f4b1a4db4be09898ee99f6",
+      "status": "pass",
+      "dol_sha256": "a0a9b14c188b20d34a98a3c995f56d68a247c41333e6de1b7bee1f525cb02438",
+      "source_osreport": "IPC_RELAUNCH source api=c mode=background title=0000000100000002",
+      "title": "0000000100000002",
+      "boot_content": "00000098.app",
+      "boot_content_sha256": "47b9c1bb0ba1890256fb368b1b3272e33ea2467feadf39d20ce469d6de6e6c43",
+      "destination_pc": "0x81534418",
+      "destination_signature_sha256": "ec98e69acf4414edf0381d178ce26bdfa1d42264c235da28964d32e702c3270d",
+      "dolphin_boot_log": "50:44:617 Core/IOS/IOS.cpp:445 I[IOS]: BootstrapPPC: /title/00000001/00000002/content/00000098.app",
+      "returned_zero": true
+    },
+    {
+      "case": "rust-foreground",
+      "suite_sha256": "cb4c8ac8723204d8a7af4ebebe61a3ab7ecdee5da237d090fad626bc53890cb8",
+      "dolphin_version": "Dolphin 2609a",
+      "source_revision": "21624b42b826ab44c2f4b1a4db4be09898ee99f6",
+      "status": "pass",
+      "dol_sha256": "bf2d636cf99541f2319505477323bd2cc6f986ae27266f876763d2045e8485bf",
+      "source_osreport": "IPC_RELAUNCH source api=rust mode=foreground title=0000000100000002",
+      "title": "0000000100000002",
+      "boot_content": "00000098.app",
+      "boot_content_sha256": "47b9c1bb0ba1890256fb368b1b3272e33ea2467feadf39d20ce469d6de6e6c43",
+      "destination_pc": "0x81534418",
+      "destination_signature_sha256": "ec98e69acf4414edf0381d178ce26bdfa1d42264c235da28964d32e702c3270d",
+      "dolphin_boot_log": "51:05:250 Core/IOS/IOS.cpp:445 I[IOS]: BootstrapPPC: /title/00000001/00000002/content/00000098.app",
+      "returned_zero": false
+    },
+    {
+      "case": "rust-background",
+      "suite_sha256": "7c1f566c713013c2744542861871b4e6c02e7ee3ee7a06a57c84ea5456eb2ad6",
+      "dolphin_version": "Dolphin 2609a",
+      "source_revision": "21624b42b826ab44c2f4b1a4db4be09898ee99f6",
+      "status": "pass",
+      "dol_sha256": "3d1e8b862ee2b0c0960b0a7425d792b3e8121ecdf53fe9f244123e22b8d03ee4",
+      "source_osreport": "IPC_RELAUNCH source api=rust mode=background title=0000000100000002",
+      "title": "0000000100000002",
+      "boot_content": "00000098.app",
+      "boot_content_sha256": "47b9c1bb0ba1890256fb368b1b3272e33ea2467feadf39d20ce469d6de6e6c43",
+      "destination_pc": "0x81534418",
+      "destination_signature_sha256": "ec98e69acf4414edf0381d178ce26bdfa1d42264c235da28964d32e702c3270d",
+      "dolphin_boot_log": "51:26:351 Core/IOS/IOS.cpp:445 I[IOS]: BootstrapPPC: /title/00000001/00000002/content/00000098.app",
+      "returned_zero": true
+    }
+  ]
+}

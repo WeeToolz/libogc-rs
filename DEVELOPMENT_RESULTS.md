@@ -2384,3 +2384,13 @@ See the [network report](docs/dolphin-runs/2026-11-17-network-ipv4-fdset/README.
 
 Dolphin passed 260 checks. Six network APIs gained direct evidence.
 See the [TCP report](docs/dolphin-runs/2026-11-17-tcp-socket-readiness-final/README.md).
+
+## 2026-11-27 System Menu relaunch handoff
+
+The [Dolphin report](docs/dolphin-runs/2026-11-27-stock-menu-relaunch/README.md)
+records successful foreground and background handoffs through all four C and
+Rust IPC reboot APIs. The temporary System Menu fixture was checked against its
+TMD before use: boot content index 8, size 3,867,904, matching SHA-1
+`26116613f624061ba99c8d1a299aaa6efa85670d`. The runner confirmed the selected
+API and mode, IOS title launch, and execution at the destination in each fresh
+Dolphin profile. Physical Wii IPC cache and DMA checks remain open.
