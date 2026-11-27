@@ -1,0 +1,1 @@
+{"checks":[{"detail":"can bind 192.168.1.52:4298","name":"report_listener","passed":true},{"detail":"TCP endpoint 192.168.1.52:4299 accepted a connection and a complete zero-length rejection request","name":"wii_upload_endpoint","passed":true}],"error":null,"host_ip":"192.168.1.52","report_port":4298,"schema_version":1,"status":"ready","wii_ip":"192.168.1.52"}

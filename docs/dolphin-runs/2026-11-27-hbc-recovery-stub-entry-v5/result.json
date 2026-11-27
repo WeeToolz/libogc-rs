@@ -1,0 +1,255 @@
+{
+  "dol": "/Volumes/SSD/WiiDev/tmp/libogc-dev-wrapper-probe-current-20261127.dol",
+  "sha256": "63dab41e6eae7dd8646d90c81e9e14fda05778d22b09115d26ec7716f5566cbf",
+  "deadline_ms": 10000,
+  "profile": "/Volumes/SSD/WiiDev/tmp/hbc-network-dev-recovery-vg886ncy",
+  "success": false,
+  "stub_identity": {
+    "sha256": "04e983c708c0b972692f82b08fc5c24c73d7a2cdcff058ef8432486644e0ddf5",
+    "size": 5216,
+    "elf_sha256": "0b311c50a2bd72b84983e88bbea77974101650ab1b86a4ade2bfd215c814703a",
+    "symbols": {
+      "_start": 2147489792,
+      "startup": 2147489808,
+      "real": 2147489864,
+      "virtual": 2147490184,
+      "_main": 2147493648,
+      "__sbss_start": 2147504128,
+      "__bss_end": 2147537984
+    },
+    "real_destination": 6216
+  },
+  "stub_execution_verified": true,
+  "hbc_return_verified": false,
+  "validation_scope": "caller-stub-startup-through-main",
+  "stub_publication_instruction_paths": {
+    "ogc_system_sys::dev::finish": 2
+  },
+  "installed_title": {
+    "title": "000100014f484243",
+    "entry": 2147500032,
+    "entry_bytes": "480000245f617267000000000000000000000000000000000000000000000000",
+    "boot_sha256": "5d3f61d8e7e4304461d361b269b93777de4fb08c03683413cc85b8310fd4f610"
+  },
+  "armed_before_main": true,
+  "entry_stage": 6,
+  "entry_result": 0,
+  "caller_stub_saved": true,
+  "deadline_stop": "T0540:800077b0;01:8046dd58;",
+  "exit_status": -124,
+  "state_at_deadline": 2,
+  "report_result": -68,
+  "reset_events": [
+    {
+      "sequence": 2,
+      "stage": 13,
+      "priority": 0,
+      "result": -124
+    },
+    {
+      "sequence": 3,
+      "stage": 14,
+      "priority": 0,
+      "result": -124
+    },
+    {
+      "sequence": 4,
+      "stage": 15,
+      "priority": 2,
+      "result": 1
+    },
+    {
+      "sequence": 5,
+      "stage": 26,
+      "priority": 2,
+      "result": 0
+    },
+    {
+      "sequence": 6,
+      "stage": 7,
+      "priority": 1,
+      "result": 2052
+    },
+    {
+      "sequence": 7,
+      "stage": 7,
+      "priority": 2,
+      "result": 2052
+    },
+    {
+      "sequence": 8,
+      "stage": 12,
+      "priority": 2,
+      "result": 0
+    },
+    {
+      "sequence": 9,
+      "stage": 7,
+      "priority": 3,
+      "result": 2052
+    },
+    {
+      "sequence": 10,
+      "stage": 7,
+      "priority": 4,
+      "result": 2052
+    },
+    {
+      "sequence": 11,
+      "stage": 27,
+      "priority": 2,
+      "result": 0
+    },
+    {
+      "sequence": 12,
+      "stage": 3,
+      "priority": 127,
+      "result": 0
+    },
+    {
+      "sequence": 13,
+      "stage": 4,
+      "priority": 127,
+      "result": 1
+    },
+    {
+      "sequence": 14,
+      "stage": 5,
+      "priority": 0,
+      "result": 1
+    },
+    {
+      "sequence": 15,
+      "stage": 28,
+      "priority": 2,
+      "result": 1
+    },
+    {
+      "sequence": 16,
+      "stage": 6,
+      "priority": 2,
+      "result": 0
+    },
+    {
+      "sequence": 17,
+      "stage": 10,
+      "priority": 2,
+      "result": 0
+    },
+    {
+      "sequence": 18,
+      "stage": 11,
+      "priority": 2,
+      "result": 0
+    },
+    {
+      "sequence": 19,
+      "stage": 16,
+      "priority": 2,
+      "result": 0
+    },
+    {
+      "sequence": 20,
+      "stage": 17,
+      "priority": 2,
+      "result": 0
+    },
+    {
+      "sequence": 21,
+      "stage": 18,
+      "priority": 2,
+      "result": 0
+    },
+    {
+      "sequence": 22,
+      "stage": 3,
+      "priority": 127,
+      "result": 1
+    },
+    {
+      "sequence": 23,
+      "stage": 4,
+      "priority": 127,
+      "result": 1
+    },
+    {
+      "sequence": 24,
+      "stage": 5,
+      "priority": 0,
+      "result": 1
+    },
+    {
+      "sequence": 25,
+      "stage": 19,
+      "priority": 2,
+      "result": 1
+    },
+    {
+      "sequence": 26,
+      "stage": 20,
+      "priority": 2,
+      "result": 0
+    },
+    {
+      "sequence": 27,
+      "stage": 21,
+      "priority": 2,
+      "result": 0
+    },
+    {
+      "sequence": 28,
+      "stage": 22,
+      "priority": 2,
+      "result": 0
+    },
+    {
+      "sequence": 29,
+      "stage": 23,
+      "priority": 2,
+      "result": 0
+    },
+    {
+      "sequence": 30,
+      "stage": 24,
+      "priority": 2,
+      "result": 0
+    },
+    {
+      "sequence": 31,
+      "stage": 25,
+      "priority": 2,
+      "result": 0
+    }
+  ],
+  "screen_changed_before_final_callbacks": true,
+  "interrupts_disabled_before_final_callbacks": true,
+  "stub_comparison_at_handoff": 0,
+  "stub_stop": "T0540:80001800;01:8046dd48;",
+  "restored_stub_stop": "T0540:80001800;01:8046dd48;",
+  "stub_entry_observed": true,
+  "stub_entry_restore_result": 0,
+  "original_stub_body_stop": "T0540:80001810;01:8046dd48;",
+  "reset_screen_result": 0,
+  "screen_changed_after_irq_shutdown": true,
+  "large_text_pixels_verified": true,
+  "recovery_state_after_finish": 3,
+  "caller_stub_restored": true,
+  "caller_stub_entry_word": "0x48000010",
+  "caller_stub_sha1": "00e8629aaaecde1e9bc0eed092244d068f4f28e3",
+  "caller_stub_real_destination": "0x00001848",
+  "caller_stub_real_address_words": [
+    "0x3c608000",
+    "0x60631848"
+  ],
+  "stub_real_stop": "T0540:00001848;01:8046dd48;",
+  "stub_virtual_stop": "T0540:80001988;01:8046dd48;",
+  "stub__main_stop": "T0540:80002710;01:8000cfcc;",
+  "installed_title_entry_stop": "T0540:80004000;01:00000000;",
+  "installed_title_readiness_passed": true,
+  "installed_title_readiness_stderr": "",
+  "returned_screen_stop": "T0540:8011f68c;01:804af058;",
+  "error": "Truncated emulator memory read at 0xcc002000: expected 80 bytes, received 0",
+  "failure_stop": "T0540:8011e890;01:804af078;",
+  "failure_registers": "",
+  "cleanup": "terminated"
+}

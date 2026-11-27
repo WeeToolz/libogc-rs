@@ -741,3 +741,17 @@ All 90 formatter rows matched again. The four raw ioctl APIs passed their
 original file stats or MAC checks, mixed input and output, IOS errors, and
 local argument rejection. The async checks confirmed callback count and
 userdata. Both vector APIs restored cached buffer pointers on reply.
+
+### HBC recovery gate check (2026-11-27)
+
+The current `dev_wrapper_probe` reached the installed OHBC boot entry in
+Dolphin. The 10-second deadline expired, the wrapper restored and executed the
+caller stub, and a Wiiload readiness check passed. The installed title boot
+content matched its TMD. Dolphin logs report the HBC first scene rendered and
+Wiiload listening.
+
+The run remains partial. The test script exited 1 because Dolphin's debugger
+returned no data for VI MMIO at `0xCC002000`; no returned-screen capture was
+saved. This does not qualify automatic recovery for a physical Wii. Keep the
+physical cache and DMA checks open too. See the
+[recovery run report](../dolphin-runs/2026-11-27-hbc-recovery-stub-entry-v5/README.md).
