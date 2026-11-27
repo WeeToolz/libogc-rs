@@ -23,3 +23,13 @@ The runner saved the probe and Dolphin logs here. The corresponding `suite.json`
 files recorded `probe_fail` with 48 passes and one failed assertion. No
 System Menu fixture was used. The private NAND copies were removed by the
 runner. These attempts are negative evidence about this injection method only.
+
+A separate safe preflight searched the installed Dolphin NAND for an IOS title
+whose `ES_GetNumTicketViews` call returned an error. No candidate appeared in
+the version range 3 through 255, so the probe stopped before it attempted a
+reload. Its summary was 48 passes and one failed fixture-availability check;
+the DOL SHA-256 was
+`54d424af0a025781d651ceb2c740258ef06280e498f9b47512599479833b0af5`. The
+probe log and Dolphin log are `probe-unavailable-title-scan.log` and
+`dolphin-unavailable-title-scan.log`. This does not show that all real IOS
+titles have ticket views; it records only the result from this Dolphin NAND.
