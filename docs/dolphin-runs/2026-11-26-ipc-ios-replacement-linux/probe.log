@@ -1,0 +1,136 @@
+
+
+BOOT 1/3: system and video initialized
+INFO Wiiload arguments source=entry count=0
+PASS SYS_Init completed
+INFO startup stage=0 completed_mask=0x7ff failed_stage=0
+BOOT watchdog arm starting
+INFO recovery reset watchdog not armed
+BOOT watchdog arm complete
+BOOT Wiiload report argument check
+INFO Wiiload report check disabled for this probe build
+BOOT before first vsync
+BOOT 2/3: entering IOS pre-main
+PRE 0/7: closing inherited IOS descriptors
+IPC: sync state ready
+IPC: command=0x00000002 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000002 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x135e0fc0
+PRE 1/7: IOS startup
+PRE 2/7: IOS subsystems
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x135e0fc0
+PRE 3/7: STM handler
+PRE 4/7: STM devices
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x135e0f40
+PRE 5/7: configuration
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x135e0f40
+IPC: IOS reply ready
+PRE 6/7: Wii launch state
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x135e0f40
+PRE 7/7: complete
+-- page 2 --
+BOOT 3/3: IOS pre-main completed
+PASS Video console_init_framebuffer initializes the buffered console
+PASS pre-main progress callback reports stages in order
+PASS system pre-main completes without a failed stage
+PASS display initialized
+INFO boot stage: system/video initialized
+INFO boot stage: IOS pre-main completed
+INFO log backend disabled
+INFO argv0 unavailable
+INFO argv raw magic=0x00000000 len=0 argc=0 cmd=0x00000000 argv=0x00000000 end=0x00000000
+PASS power button callback installed
+INFO power-button STM actions deferred until shutdown
+INFO fat mount sd=not-selected usb=not-selected
+INFO previous stm handler chained=0
+INFO previous power callback replaced
+INFO IOS version before reload=58
+PASS current IOS version is valid
+PASS ES closes before argument checks
+PASS closed ES reports not initialized before invalid arguments
+PASS closed ES inventory calls report not initialized first
+PASS closed ES operation calls report not initialized first
+PASS ES reopens after argument checks
+-- page 3 --
+PASS open ES rejects invalid arguments
+PASS open ES inventory calls reject invalid arguments
+PASS open ES operation calls reject invalid arguments
+INFO ES consumption result=0
+INFO ES consumption output=0
+PASS ES consumption query returns a count
+INFO IOS reload begins
+INFO IOS reload result=0
+PASS IOS reload succeeds
+INFO IOS reload IPC reset MSR=50
+PASS IOS reload masks interrupts during IPC reset
+PASS IOS version is preserved
+PASS IPC opens and closes FS after reload
+
+== Outstanding application IPC across IOS replacement ==
+PASS pending reload closes library STM hook
+INFO pending reload initial available request records=39
+PASS pending reload request capacity measurement releases all records
+INFO pending reload available deferred slots=32
+PASS pending reload deferred capacity measurement releases all slots
+PASS pending reload opens independent STM hook
+INFO pending reload old submit=0
+INFO pending reload duplicate IOS reply=-2
+-- page 4 --
+PASS pending reload old IOS holds real application request
+INFO pending reload in-flight available request records=38
+PASS pending reload request capacity measurement releases all records
+INFO pending reload available deferred slots=31
+PASS pending reload deferred capacity measurement releases all slots
+PASS pending reload old request occupies one record and one deferred slot
+INFO pending reload result=0
+PASS pending reload replaces IOS successfully
+PASS pending reload new library STM hook closes
+INFO pending reload post-replacement available request records=38
+PASS pending reload request capacity measurement releases all records
+INFO pending reload available deferred slots=31
+PASS pending reload deferred capacity measurement releases all slots
+PASS pending reload old request resources remain allocated after replacement
+PASS pending reload opens new IOS hook
+PASS pending reload new IOS holds new request
+INFO pending reload recovered available request records=38
+PASS pending reload request capacity measurement releases all records
+INFO pending reload available deferred slots=31
+PASS pending reload deferred capacity measurement releases all slots
+PASS pending reload fresh request releases its record and deferred slot
+-- page 5 --
+INFO pending reload old callback count=0
+INFO pending reload new callback count=1
+PASS pending reload new hook releases exactly once
+PASS pending reload old callback not delivered by new IOS
+PASS pending reload restores STM and accepts fresh IPC
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+INFO summary_candidate passes=42 fails=0
+PASS summary passes=42 fails=0

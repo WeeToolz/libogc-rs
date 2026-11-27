@@ -1053,7 +1053,8 @@ struct IpcRequest {
     syncqueue: u32,
     magic: u32,
     completion_reservation: u32,
-    pad1: [u8; 8],
+    cancel_cb: Ipccallback,
+    submission_cmd: u32,
 }
 
 const _: () = {
@@ -1063,6 +1064,8 @@ const _: () = {
     assert!(core::mem::offset_of!(IpcRequest, fd) == 8);
     assert!(core::mem::offset_of!(IpcRequest, data) == 12);
     assert!(core::mem::offset_of!(IpcRequest, completion_reservation) == 52);
+    assert!(core::mem::offset_of!(IpcRequest, cancel_cb) == 56);
+    assert!(core::mem::offset_of!(IpcRequest, submission_cmd) == 60);
 };
 
 impl IpcRequest {
@@ -1222,6 +1225,113 @@ static IPC_SENT_COUNT: AtomicU32 = AtomicU32::new(0);
 static SYNC_WAIT_REQ: AtomicUsize = AtomicUsize::new(0);
 static SYNC_WAIT_DONE: AtomicBool = AtomicBool::new(false);
 static ASYNC_CALLBACKS_PENDING: AtomicU32 = AtomicU32::new(0);
+// Only requests still owned by the IOS mailbox/queue belong here. Replies
+// handed to the deferred worker have a different owner.
+static ASYNC_IN_FLIGHT: [AtomicUsize; IPC_DEFERRED_CALLBACK_CAPACITY as usize] =
+    [const { AtomicUsize::new(0) }; IPC_DEFERRED_CALLBACK_CAPACITY as usize];
+static IOS_REPLACEMENT_OWNER: AtomicU32 = AtomicU32::new(lwp_sys::LWP_THREAD_NULL);
+const SUBMISSION_SENT: u32 = 1 << 31;
+
+fn track_async_request(req: &mut IpcRequest) -> bool {
+    req.submission_cmd = req.cmd;
+    let address = req as *mut IpcRequest as usize;
+    ASYNC_IN_FLIGHT.iter().any(|slot| {
+        slot.compare_exchange(0, address, Ordering::AcqRel, Ordering::Acquire)
+            .is_ok()
+    })
+}
+
+fn take_async_request(address: usize) -> bool {
+    ASYNC_IN_FLIGHT.iter().any(|slot| {
+        slot.compare_exchange(address, 0, Ordering::AcqRel, Ordering::Acquire)
+            .is_ok()
+    })
+}
+
+fn submission_allowed(caller: u32, asynchronous: bool) -> bool {
+    let owner = IOS_REPLACEMENT_OWNER.load(Ordering::Acquire);
+    owner == lwp_sys::LWP_THREAD_NULL || (!asynchronous && owner == caller)
+}
+
+/// Exclusive IPC submission scope for the thread that launches a new IOS.
+/// Other threads and all asynchronous submissions receive `IPC_EQUEUEFULL`
+/// instead of submitting to an IOS whose descriptors are about to become invalid.
+#[must_use]
+pub struct IosReplacement {
+    owner: u32,
+    _thread_bound: core::marker::PhantomData<*mut ()>,
+}
+
+impl Drop for IosReplacement {
+    fn drop(&mut self) {
+        IOS_REPLACEMENT_OWNER.store(lwp_sys::LWP_THREAD_NULL, Ordering::Release);
+    }
+}
+
+impl IosReplacement {
+    /// Reserve the replacement scope before submitting the launch request.
+    /// A concurrent synchronous request or replacement causes rejection.
+    pub fn begin() -> Result<Self, i32> {
+        let owner = lwp_sys::get_self();
+        let _guard = IPC_LOCK.lock_irq();
+        if owner == lwp_sys::LWP_THREAD_NULL
+            || SYNC_WAIT_REQ.load(Ordering::Acquire) != 0
+            || IOS_REPLACEMENT_OWNER
+                .compare_exchange(
+                    lwp_sys::LWP_THREAD_NULL,
+                    owner,
+                    Ordering::AcqRel,
+                    Ordering::Acquire,
+                )
+                .is_err()
+        {
+            return Err(IPC_EQUEUEFULL);
+        }
+        Ok(Self {
+            owner,
+            _thread_bound: core::marker::PhantomData,
+        })
+    }
+
+    /// Complete abandoned asynchronous requests with `IPC_ENOENT` after an
+    /// actual IOS replacement. Already deferred replies keep their result.
+    /// If the new IPC service cannot answer a fresh request, preserve the old
+    /// records rather than free memory that IOS might still access. Cancellation
+    /// callbacks do not imply that old IOS descriptors are still valid.
+    ///
+    /// # Safety
+    /// The caller must have completed the IOS launch and observed the new
+    /// version handshake, then reinitialized the mailbox. A fresh IPC reply
+    /// must mean that the old IOS can no longer access the request memory.
+    /// This must never be called after an ordinary PPC-only mailbox reset.
+    pub unsafe fn finish(self) {
+        debug_assert_eq!(self.owner, lwp_sys::get_self());
+        if !ASYNC_IN_FLIGHT
+            .iter()
+            .any(|slot| slot.load(Ordering::Acquire) != 0)
+        {
+            return;
+        }
+        // The version word can be published before the new IPC service is
+        // ready on hardware. Require a complete fresh synchronous round trip
+        // while competing submissions are still excluded. Do not infer DMA
+        // retirement from the version word or the advisory ready-bit wait alone.
+        if !open_file(c"/dev/es", IPC_OPEN_NONE).is_ok_and(|fd| fd.close().is_ok()) {
+            return;
+        }
+        let irq_state = unsafe { lock_by_msr() };
+        for slot in &ASYNC_IN_FLIGHT {
+            let address = slot.swap(0, Ordering::AcqRel);
+            if address != 0 {
+                unsafe { cancel_abandoned_request(address as *mut IpcRequest) };
+            }
+        }
+        // Release the submission scope before enabling the deferred worker.
+        drop(self);
+        unsafe { unlock_by_msr(irq_state) };
+    }
+}
+
 static REQUEST_MAGIC: AtomicU32 = AtomicU32::new(0);
 static IPC_LOCK: SpinLock = SpinLock::new();
 static SYNC_WAIT_MUTEX: AtomicU32 = AtomicU32::new(lwp_sys::LWP_MUTEX_NULL);
@@ -1577,6 +1687,9 @@ unsafe fn ppc_mtmsr(_value: u32) {}
 
 unsafe fn write_request(req: &mut IpcRequest) {
     req.magic = request_magic();
+    if req.cb.is_some() {
+        req.submission_cmd |= SUBMISSION_SENT;
+    }
     if req.relnch & RELNCH_RELAUNCH != 0 {
         RELAUNCH_REQ.store(req as *mut IpcRequest as usize, Ordering::Release);
     }
@@ -1591,7 +1704,10 @@ unsafe fn write_request(req: &mut IpcRequest) {
     debug_mark(5, req.cmd, req.fd as u32, req.magic);
 }
 
-fn queue_request(req: &mut IpcRequest) -> i32 {
+fn queue_request(req: &mut IpcRequest, caller: u32) -> i32 {
+    if !submission_allowed(caller, req.cb.is_some()) {
+        return IPC_EQUEUEFULL;
+    }
     let queued = IPC_QUEUE_COUNT.load(Ordering::Relaxed);
     let sent = IPC_SENT_COUNT.load(Ordering::Relaxed);
     if queued.wrapping_sub(sent) >= IPC_QUEUE_CAPACITY as u32 {
@@ -1633,6 +1749,86 @@ unsafe fn send_next_request() {
     }
 }
 
+// Transfer ownership to the same deferred worker used by normal IOS replies.
+unsafe fn enqueue_async_completion(req: *mut IpcRequest, physical: u32) {
+    unsafe {
+        let deferred = async_completion::enqueue_reply(
+            (*req).completion_reservation,
+            deferred_request_callback,
+            req.cast(),
+            |reservation, callback, argument| {
+                lwp_sys::deferred_call_reserved_from_interrupt(
+                    reservation,
+                    Some(callback),
+                    argument,
+                )
+            },
+            lwp_sys::LWP_SUCCESSFUL,
+        );
+        if let Err(deferred) = deferred {
+            // Preserve the request if the reservation invariant is broken.
+            debug_mark(60, physical, deferred as u32, (*req).completion_reservation);
+        }
+    }
+}
+
+// Only called after confirmed IOS replacement, with interrupts disabled.
+unsafe fn cancel_abandoned_request(req: *mut IpcRequest) {
+    unsafe {
+        let submission = (*req).submission_cmd;
+        let sent = submission & SUBMISSION_SENT != 0;
+        let command = submission & !SUBMISSION_SENT;
+        if sent {
+            // The retired IOS may have written data before replacement.
+            dc_invalidate_range(req.cast_const().cast(), 32);
+        }
+        if command == IOS_READ && sent {
+            dc_invalidate_range(
+                mem_physical_to_k0((*req).data.read.data as usize as u32) as *const c_void,
+                (*req).data.read.len as usize,
+            );
+        } else if command == IOS_IOCTL && sent {
+            let data = (*req).data.ioctl;
+            if !data.buffer_in.is_null() {
+                dc_invalidate_range(
+                    mem_physical_to_k0(data.buffer_in as usize as u32) as *const c_void,
+                    data.len_in as usize,
+                );
+            }
+            if !data.buffer_io.is_null() {
+                dc_invalidate_range(
+                    mem_physical_to_k0(data.buffer_io as usize as u32) as *const c_void,
+                    data.len_io as usize,
+                );
+            }
+        } else if command == IOS_IOCTLV {
+            let data = (*req).data.ioctlv;
+            let count = (data.argcin + data.argcio) as usize;
+            let argv = mem_physical_to_k0(data.argv as usize as u32) as *mut Ioctlv;
+            if sent {
+                dc_invalidate_range(
+                    argv.cast_const().cast(),
+                    count * core::mem::size_of::<Ioctlv>(),
+                );
+            }
+            for entry in core::slice::from_raw_parts_mut(argv, count) {
+                // Zero-length vector addresses are protocol data, not DMA.
+                if !entry.data.is_null() && entry.len != 0 {
+                    entry.data = mem_physical_to_k0(entry.data as usize as u32) as *mut c_void;
+                    if sent {
+                        dc_invalidate_range(entry.data.cast_const(), entry.len as usize);
+                    }
+                }
+            }
+        }
+        (*req).result = IPC_ENOENT;
+        if (*req).cancel_cb.is_some() {
+            (*req).cb = (*req).cancel_cb;
+        }
+        enqueue_async_completion(req, mem_virtual_to_physical(req as usize));
+    }
+}
+
 unsafe fn reply_handler() {
     unsafe {
         let req_ptr = read_reg(2);
@@ -1649,6 +1845,15 @@ unsafe fn reply_handler() {
             return;
         }
 
+        if SYNC_WAIT_REQ.load(Ordering::Acquire) != req as usize
+            && !ASYNC_IN_FLIGHT
+                .iter()
+                .any(|slot| slot.load(Ordering::Acquire) == req as usize)
+        {
+            let ipc_ack = (read_reg(1) & 0x30) | IPC_ACK_INTERRUPT_COMPLETE;
+            write_reg(1, ipc_ack);
+            return;
+        }
         dc_invalidate_range(req.cast_const().cast(), 32);
         // 47: reply header snapshot after the initial 32-byte invalidate.
         debug_mark(47, req_ptr, (*req).cmd, (*req).result as u32);
@@ -1741,24 +1946,8 @@ unsafe fn reply_handler() {
                 // The LWP deferred worker owns callback execution and request release.
                 // SAFETY: the deferred worker owns this request until the callback
                 // completes and releases it.
-                let deferred = async_completion::enqueue_reply(
-                    (*req).completion_reservation,
-                    deferred_request_callback,
-                    req.cast(),
-                    |reservation, callback, argument| {
-                        lwp_sys::deferred_call_reserved_from_interrupt(
-                            reservation,
-                            Some(callback),
-                            argument,
-                        )
-                    },
-                    lwp_sys::LWP_SUCCESSFUL,
-                );
-                if let Err(deferred) = deferred {
-                    // Keep the completed request allocated if the reservation
-                    // invariant is broken. Freeing it would create a dangling
-                    // callback context and lose the accepted operation result.
-                    debug_mark(60, req_ptr, deferred as u32, (*req).completion_reservation);
+                if take_async_request(req as usize) {
+                    enqueue_async_completion(req, req_ptr);
                 }
             } else {
                 if SYNC_WAIT_REQ.load(Ordering::Acquire) == req as usize {
@@ -2225,6 +2414,7 @@ where
     F: FnOnce(),
 {
     unsafe {
+        let caller = lwp_sys::get_self();
         let _sync_guard = lock_sync_wait()?;
         {
             let _guard = IPC_LOCK.lock_irq();
@@ -2242,7 +2432,7 @@ where
         req.syncqueue = syncqueue;
         SYNC_WAIT_REQ.store(req as *mut IpcRequest as usize, Ordering::Release);
         SYNC_WAIT_DONE.store(false, Ordering::Release);
-        let queued = queue_request(req);
+        let queued = queue_request(req, caller);
         if queued == IPC_OK {
             send_next_request();
             unlock_by_msr(irq_state);
@@ -2275,7 +2465,7 @@ unsafe fn submit_async_request(req: &mut IpcRequest) -> i32 {
     unsafe {
         // Initialize LWP in caller context before an IOS interrupt can enqueue the
         // completion onto the deferred worker.
-        let _ = lwp_sys::get_self();
+        let caller = lwp_sys::get_self();
 
         let reserves_callback = req.cb.is_some();
         if reserves_callback {
@@ -2299,10 +2489,18 @@ unsafe fn submit_async_request(req: &mut IpcRequest) -> i32 {
 
         debug_mark(10, req.cmd, req.fd as u32, req.magic);
         let irq_state = lock_by_msr();
-        let result = queue_request(req);
+        let tracked = reserves_callback && track_async_request(req);
+        let result = if reserves_callback && !tracked {
+            IPC_EQUEUEFULL
+        } else {
+            queue_request(req, caller)
+        };
         if result == IPC_OK {
             send_next_request();
         } else if reserves_callback {
+            if tracked {
+                take_async_request(req as *mut IpcRequest as usize);
+            }
             let cancelled = lwp_sys::deferred_cancel_interrupt_slot(req.completion_reservation);
             if cancelled != lwp_sys::LWP_SUCCESSFUL {
                 debug_mark(62, req.completion_reservation, cancelled as u32, req.magic);
@@ -2675,6 +2873,12 @@ unsafe extern "C" fn ioctlv_format_callback(result: i32, userdata: *mut c_void) 
     unsafe { format_release(result, userdata.cast::<FormatState>(), true, true) }
 }
 
+// An abandoned request has no IOS reply. Release staging without copying
+// its unconfirmed output, and still notify the user of cancellation.
+unsafe extern "C" fn ioctlv_format_cancel(result: i32, userdata: *mut c_void) -> i32 {
+    unsafe { format_release(result, userdata.cast::<FormatState>(), false, true) }
+}
+
 unsafe fn format_heap_alloc(
     state: &mut FormatState,
     size: usize,
@@ -2800,6 +3004,7 @@ unsafe fn submit_format_request(
         req.cmd = IOS_IOCTLV;
         req.fd = fd;
         req.cb = Some(ioctlv_format_callback);
+        req.cancel_cb = Some(ioctlv_format_cancel);
         req.usrdata = state.cast();
         req.data.ioctlv.ioctl = ioctl as u32;
         req.data.ioctlv.argcin = cnt_in as u32;

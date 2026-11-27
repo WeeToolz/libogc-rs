@@ -612,3 +612,30 @@ remain unchanged. Physical cache coherency and physical loader behavior
 remain pending. Keep the package parity-blocked for the combined actual IOS
 reload/outstanding request coverage gap. No IPC production changes in this
 follow-up were needed.
+
+## 2026-11-26 follow-up — outstanding request during IOS replacement
+
+The [replacement probe](../dolphin-runs/2026-11-26-ipc-ios-replacement-linux/README.md)
+passes 42 checks. A real pending STM event hook is discarded by the replaced
+IOS 58; the old callback does not run and a fresh request completes once.
+The old request record and deferred reservation remain allocated: available
+records decrease from 39 to 38 and available slots from 32 to 31. C
+`__IPC_Reinitialize` does not reclaim old requests; the bounded deferred
+reservation is Rust-specific. Generic PPC reset must still preserve posted
+replies. A distinct cancellation design is required before claiming cleanup;
+keep the package parity-blocked. No production IPC change was made. Physical
+Wii evidence remains pending.
+
+## 2026-11-26 follow-up — replacement-specific cancellation
+
+The [cancellation review](../dolphin-runs/2026-11-26-ipc-ios-cancellation-linux/README.md)
+records 103 passing IOS reload checks across three replacements, including
+exact-once raw and formatted cancellation, full capacity recovery and no
+staged-output copyback. A new IPC request completes after each replacement.
+The separate ordinary PPC reset probe passes 29/29; the broad runtime probe
+retains exactly the two existing stock Linux socket-option failures (887
+passed). The resource-lifetime gap measured in the 42-check baseline is
+resolved in these Dolphin cases. The new Rust-only cancellation design
+requires independent re-review of concurrent and failed replacement paths;
+physical Wii cache/DMA and loader evidence remain pending. Move the package
+to needs_re_review, not reviewed.

@@ -1,0 +1,77 @@
+{
+  "repository_revision": "3258d37b3e4a4a6b9b401a1f55f42b6bd6a52369",
+  "dirty_worktree": true,
+  "compiler_commit": "28221559263a3976766cf305940e80e30cf9ba8a",
+  "c_reference": "7d4b8b3e7b845516f0cc2a85274879ddd8cbf142",
+  "dolphin_version": "Dolphin 2609b stock Linux x86_64",
+  "runs": [
+    {
+      "probe": "ios_reload_probe",
+      "status": "pass",
+      "dol_sha256": "db1fd54f8cf9ceddda4ce8a9123a3422de4773f67c860252d99efececcf58144",
+      "duration_milliseconds": 32490,
+      "passes": 103,
+      "fails": 0,
+      "summary_line": "PASS summary passes=103 fails=0",
+      "failure_lines": [],
+      "page_capture_count": 10,
+      "pages_valid": true,
+      "frames_valid": true,
+      "detail": "probe summary reported completed checks and zero failures",
+      "raw_result_sha256": "3a92d46ad93cc4d985e9a902431c964b53194bc2eff3d7379767d620b90965d4",
+      "raw_suite_sha256": "bd6261c957aeafa24e7c2de928f79a7f7d7c0bd61f78e21c5b36013ba0e40834",
+      "raw_probe_log_sha256": "d7ced29045da0326de67148c198f2b9a5623bcedba81dae1003c8cf8e5c6e4ad",
+      "request_records": [
+        39,
+        37,
+        39
+      ],
+      "available_deferred_slots": [
+        32,
+        30,
+        32
+      ],
+      "iterations": 3
+    },
+    {
+      "probe": "ipc_async_probe",
+      "status": "pass",
+      "dol_sha256": "86e1be9f97088b0761d1718a6df723f31270e811388fab6e34d7271c9ba9cbf3",
+      "duration_milliseconds": 15616,
+      "passes": 29,
+      "fails": 0,
+      "summary_line": "PASS summary passes=29 fails=0",
+      "failure_lines": [],
+      "page_capture_count": 4,
+      "pages_valid": true,
+      "frames_valid": true,
+      "detail": "probe summary reported completed checks and zero failures",
+      "raw_result_sha256": "bc35aa5fbff59094302e4fe7d82f68ae5499b2ac6b1675a864f61946c86e372e",
+      "raw_suite_sha256": "e2cdc027e9745ceb1620f6902623270a1f54162d947aaeeb90a63539dc1364ea",
+      "raw_probe_log_sha256": "8adb4ff196b49986dc05c044994eeebcf138bc6c2979c8e34ed48e49c8485ce8"
+    },
+    {
+      "probe": "runtime_probe",
+      "status": "probe_fail",
+      "dol_sha256": "0f4e358207118c52f26c4784c3b8667526cb469d659f2253b535d866ce93f789",
+      "duration_milliseconds": 104875,
+      "passes": 887,
+      "fails": 2,
+      "summary_line": "FAIL summary passes=887 fails=2",
+      "failure_lines": [
+        "FAIL lwIP reuse option set and read",
+        "FAIL Raw TCP reuse option is enabled",
+        "FAIL lwIP reuse option set and read",
+        "FAIL Raw TCP reuse option is enabled"
+      ],
+      "page_capture_count": 51,
+      "pages_valid": true,
+      "frames_valid": true,
+      "detail": "probe summary is failing or inconsistent: FAIL summary passes=887 fails=2",
+      "raw_result_sha256": "0f4d063856e815ca02b868c5f62f9507150f867762dbe5319794adfbdca0fc1d",
+      "raw_suite_sha256": "f6689e5b743b879f5b8e607b46b9a72b4ded72433feae821ceb2caad88aac0eb",
+      "raw_probe_log_sha256": "6129a13c1a2fd84f03913fc55958bdff65256e2461f61c9515bace0d3a063ce1"
+    }
+  ],
+  "private_archive_sha256": "b14557d3a313d19ed5b6fccfcd5d8c0ee5a92ad90bd6691d7c39169a4436c293"
+}

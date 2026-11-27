@@ -11,15 +11,71 @@ const UNSET: i32 = i32::MIN;
 const TIMER_HZ: u64 = 60_750_000;
 #[repr(C, align(32))]
 struct Buffer([u8; 32]);
-// Keep storage valid for the entire probe, including an abandoned request.
+// Keep storage valid until cancellation or normal completion.
 static mut OLD_IN: Buffer = Buffer([0; 32]);
 static mut OLD_OUT: Buffer = Buffer([0xa5; 32]);
 static mut NEW_IN: Buffer = Buffer([0; 32]);
 static mut NEW_OUT: Buffer = Buffer([0xa5; 32]);
 static OLD_COUNT: AtomicU32 = AtomicU32::new(0);
+static OLD_RESULT: AtomicI32 = AtomicI32::new(UNSET);
 static NEW_COUNT: AtomicU32 = AtomicU32::new(0);
 static NEW_RESULT: AtomicI32 = AtomicI32::new(UNSET);
+static FORMAT_COUNT: AtomicU32 = AtomicU32::new(0);
+static FORMAT_RESULT: AtomicI32 = AtomicI32::new(UNSET);
+static mut FORMAT_OUT: Buffer = Buffer([0xa5; 32]);
+
+unsafe extern "C" {
+    fn IOS_IoctlvFormatAsync(
+        heap: i32,
+        fd: i32,
+        ioctl: i32,
+        callback: Option<unsafe extern "C" fn(i32, *mut c_void) -> i32>,
+        user_data: *mut c_void,
+        format: *const core::ffi::c_char,
+        ...
+    ) -> i32;
+}
+
+unsafe extern "C" fn format_callback(result: i32, _: *mut c_void) -> i32 {
+    FORMAT_RESULT.store(result, Ordering::Relaxed);
+    FORMAT_COUNT.fetch_add(1, Ordering::Release);
+    result
+}
+
+// Idle Bluetooth ACL input is held by Dolphin's old USB controller.
+// No HCI commands or ACL output are submitted, so there is no packet to return.
+// Use a separate formatter heap to measure ownership independently of ES.
+fn submit_pending_format(heap: i32) -> bool {
+    unsafe {
+        let fd = ipc::IOS_Open(c"/dev/usb/oh1/57e/305".as_ptr(), ipc::IPC_OPEN_NONE);
+        if fd < 0 {
+            return false;
+        }
+        core::ptr::addr_of_mut!(FORMAT_OUT).write(Buffer([0xa5; 32]));
+        let result = IOS_IoctlvFormatAsync(
+            heap,
+            fd,
+            1,
+            Some(format_callback),
+            core::ptr::null_mut(),
+            c"bh:d".as_ptr(),
+            0x82i32,
+            13i32,
+            core::ptr::addr_of_mut!(FORMAT_OUT).cast::<u8>().add(1),
+            13u32,
+        );
+        // A fresh response proves the mailbox has processed the submission.
+        let barrier = ipc::IOS_Open(c"/dev/fs".as_ptr(), ipc::IPC_OPEN_NONE);
+        let barrier_ok = barrier >= 0 && ipc::IOS_Close(barrier) == 0;
+        if result != 0 || !barrier_ok {
+            let _ = ipc::IOS_Close(fd);
+            return false;
+        }
+        true
+    }
+}
 unsafe extern "C" fn old_callback(result: i32, _: *mut c_void) -> i32 {
+    OLD_RESULT.store(result, Ordering::Relaxed);
     OLD_COUNT.fetch_add(1, Ordering::Release);
     result
 }
@@ -54,19 +110,116 @@ fn release_hook() -> bool {
     let close = ipc::IOS_Close(fd);
     result == 0 && close == 0
 }
+// Measure capacity without submitting any request to IOS. Release every
+// record and reservation acquired by this diagnostic before returning.
+fn measure_capacity(logger: &mut ProbeLogger, phase: &str) -> (usize, usize) {
+    ipc::poll();
+    ogc_lwp::sys::yield_thread();
+    let (records, error) = ipc::hold_request_records_until_exhausted();
+    let released = ipc::release_held_request_records();
+    logger.note_u32(phase, records as u32);
+    logger.record(
+        "pending reload request capacity measurement releases all records",
+        error == ipc::IPC_ENOMEM && records == released,
+    );
+    let mut slots = [0; 64];
+    let mut count = 0;
+    while count < slots.len() {
+        let Some(token) = ogc_lwp::sys::deferred_reserve_interrupt_slot() else {
+            break;
+        };
+        slots[count] = token;
+        count += 1;
+    }
+    let mut cancelled = true;
+    for token in slots[..count].iter().copied() {
+        cancelled &=
+            ogc_lwp::sys::deferred_cancel_interrupt_slot(token) == ogc_lwp::sys::LWP_SUCCESSFUL;
+    }
+    logger.note_u32("pending reload available deferred slots", count as u32);
+    logger.record(
+        "pending reload deferred capacity measurement releases all slots",
+        count < slots.len() && cancelled,
+    );
+    (records, count)
+}
+
+// Exercise the reservation gate without claiming that an IOS launch occurred.
+// Dropping the scope on this path must not cancel any accepted request.
+fn verify_submission_scope(logger: &mut ProbeLogger) -> bool {
+    logger.section("IOS replacement submission scope");
+    let before = measure_capacity(logger, "replacement scope initial request records");
+    let scope = ipc::IosReplacement::begin();
+    logger.record("replacement scope acquired", scope.is_ok());
+    let Ok(scope) = scope else {
+        return false;
+    };
+    let nested = matches!(ipc::IosReplacement::begin(), Err(ipc::IPC_EQUEUEFULL));
+    logger.record("replacement scope rejects nested launch", nested);
+    NEW_COUNT.store(0, Ordering::Release);
+    NEW_RESULT.store(UNSET, Ordering::Release);
+    let rejected = ipc::open_file_async(
+        c"/dev/fs",
+        ipc::IPC_OPEN_NONE,
+        Some(new_callback),
+        core::ptr::null_mut(),
+    ) == ipc::IPC_EQUEUEFULL;
+    logger.record(
+        "replacement scope rejects asynchronous submission",
+        rejected,
+    );
+    let sync_ok = ipc::open_file(c"/dev/fs", ipc::IPC_OPEN_NONE).is_ok_and(|fd| fd.close().is_ok());
+    logger.record("replacement scope permits owner synchronous IPC", sync_ok);
+    drop(scope);
+    let after = measure_capacity(logger, "replacement scope final request records");
+    let clean = before == after && NEW_COUNT.load(Ordering::Acquire) == 0;
+    logger.record(
+        "replacement scope rejection releases resources without callback",
+        clean,
+    );
+    nested && rejected && sync_ok && clean
+}
+
 pub(super) fn run(logger: &mut ProbeLogger, version: i32) {
-    logger.section("Outstanding application IPC across IOS replacement");
+    if !verify_submission_scope(logger) {
+        return;
+    }
+    let heap = match ipc::HeapId::create(1024) {
+        Ok(heap) => heap.raw(),
+        Err(_) => {
+            logger.record("pending reload creates formatter heap", false);
+            return;
+        }
+    };
+    logger.record("pending reload creates formatter heap", true);
+    for iteration in 1..=3 {
+        logger.section("Outstanding application IPC across IOS replacement");
+        logger.note_u32("pending reload iteration", iteration);
+        if !run_once(logger, version, heap) {
+            break;
+        }
+    }
+}
+
+fn run_once(logger: &mut ProbeLogger, version: i32, heap: i32) -> bool {
+    OLD_COUNT.store(0, Ordering::Release);
+    OLD_RESULT.store(UNSET, Ordering::Release);
+    NEW_COUNT.store(0, Ordering::Release);
+    NEW_RESULT.store(UNSET, Ordering::Release);
+    FORMAT_COUNT.store(0, Ordering::Release);
+    FORMAT_RESULT.store(UNSET, Ordering::Release);
     // Remove the library hook so reload shutdown cannot release our hook.
     let closed = ogc_stm::close();
     logger.record("pending reload closes library STM hook", closed == 0);
     if closed != 0 {
-        return;
+        return false;
     }
+    let before = measure_capacity(logger, "pending reload initial available request records");
     let old_fd = open_hook();
     logger.record("pending reload opens independent STM hook", old_fd >= 0);
     if old_fd < 0 {
         let _ = ogc_stm::init();
-        return;
+        return false;
     }
     // SAFETY: Each request has separate, aligned, static buffers.
     let submitted = unsafe {
@@ -100,8 +253,32 @@ pub(super) fn run(logger: &mut ProbeLogger, version: i32) {
         let _ = release_hook();
         let _ = ipc::IOS_Close(old_fd);
         let _ = ogc_stm::init();
-        return;
+        return false;
     }
+    let format_before = ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire);
+    ipc::reset_format_heap_ledger();
+    let formatted = submit_pending_format(heap);
+    let format_pending = formatted
+        && FORMAT_COUNT.load(Ordering::Acquire) == 0
+        && ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire) > format_before;
+    logger.record(
+        "pending reload old IOS holds formatted Bluetooth ACL receive",
+        format_pending,
+    );
+    if !format_pending {
+        let _ = release_hook();
+        let _ = ipc::IOS_Close(old_fd);
+        let _ = ogc_stm::init();
+        return false;
+    }
+    let mut events = [ipc::AllocationEvent::default(); ipc::FORMAT_PROBE_LEDGER_CAPACITY];
+    let submitted_events = ipc::read_format_heap_ledger(&mut events);
+    let in_flight = measure_capacity(logger, "pending reload in-flight available request records");
+    logger.record(
+        "pending reload old requests occupy two records and two deferred slots",
+        before.0.checked_sub(2) == Some(in_flight.0)
+            && before.1.checked_sub(2) == Some(in_flight.1),
+    );
     // Leave the request pending. Same-version reload constructs a new IOS in Dolphin.
     let result = ogc_ios::reload_ios(version);
     logger.note_i32("pending reload result", result);
@@ -110,19 +287,82 @@ pub(super) fn run(logger: &mut ProbeLogger, version: i32) {
         result == 0 && ogc_ios::get_version() == version,
     );
     if result != 0 {
-        return;
+        return false;
     }
     // The old numeric descriptor may refer to a different device now.
     let closed = ogc_stm::close();
     logger.record("pending reload new library STM hook closes", closed == 0);
     if closed != 0 {
-        return;
+        return false;
     }
+    let start = ogc_system::time();
+    while (OLD_COUNT.load(Ordering::Acquire) == 0 || FORMAT_COUNT.load(Ordering::Acquire) == 0)
+        && ogc_system::time().wrapping_sub(start) < TIMER_HZ * 2
+    {
+        ipc::poll();
+        ogc_lwp::sys::yield_thread();
+    }
+    let after = measure_capacity(
+        logger,
+        "pending reload post-replacement available request records",
+    );
+    logger.record(
+        "pending reload cancellation restores request and callback capacity",
+        after == before,
+    );
+    let count = ipc::read_format_heap_ledger(&mut events);
+    // Later ES calls may reuse their own heap allocations. Check only the
+    // records created by this submission in the separate formatter heap.
+    let heap_balanced = submitted_events > 0
+        && submitted_events < count
+        && count <= events.len()
+        && events[..submitted_events].iter().all(|allocation| {
+            let mut pair = [*allocation, ipc::AllocationEvent::default()];
+            let mut matches = 0;
+            for event in &events[submitted_events..count] {
+                if event.pointer == allocation.pointer && event.size == allocation.size {
+                    pair[1] = *event;
+                    matches += 1;
+                }
+            }
+            matches == 1 && ipc::allocation_ledger_balanced(&pair)
+        });
+    let completed = FORMAT_COUNT.load(Ordering::Acquire) == 1
+        && FORMAT_RESULT.load(Ordering::Acquire) == ipc::IPC_ENOENT;
+    let format_after = ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire);
+    logger.note_u32(
+        "pending reload formatted callback count",
+        FORMAT_COUNT.load(Ordering::Acquire),
+    );
+    logger.note_i32(
+        "pending reload formatted callback result",
+        FORMAT_RESULT.load(Ordering::Acquire),
+    );
+    logger.note_u32(
+        "pending reload formatted live allocations before",
+        format_before as u32,
+    );
+    logger.note_u32(
+        "pending reload formatted live allocations after",
+        format_after as u32,
+    );
+    let format_clean = completed && format_after == format_before && heap_balanced;
+    logger.record(
+        "pending reload formatted cancellation frees all owned buffers",
+        format_clean,
+    );
+    // SAFETY: cancellation callback completed; IOS no longer owns these buffers.
+    let format_output_untouched =
+        completed && unsafe { core::ptr::addr_of!(FORMAT_OUT).read().0 == [0xa5; 32] };
+    logger.record(
+        "pending reload formatted cancellation does not copy staged output",
+        format_output_untouched,
+    );
     let new_fd = open_hook();
     logger.record("pending reload opens new IOS hook", new_fd >= 0);
     if new_fd < 0 {
         let _ = ogc_stm::init();
-        return;
+        return false;
     }
     let submitted = unsafe {
         ipc::IOS_IoctlAsync(
@@ -154,6 +394,11 @@ pub(super) fn run(logger: &mut ProbeLogger, version: i32) {
         ogc_lwp::sys::yield_thread();
     }
     let closed = ipc::IOS_Close(new_fd);
+    let recovered = measure_capacity(logger, "pending reload recovered available request records");
+    logger.record(
+        "pending reload fresh request releases its record and deferred slot",
+        recovered == after,
+    );
     let initialized = ogc_stm::init();
     logger.note_u32(
         "pending reload old callback count",
@@ -170,8 +415,9 @@ pub(super) fn run(logger: &mut ProbeLogger, version: i32) {
             && NEW_RESULT.load(Ordering::Acquire) == 0,
     );
     logger.record(
-        "pending reload old callback not delivered by new IOS",
-        OLD_COUNT.load(Ordering::Acquire) == 0,
+        "pending reload old callback receives cancellation exactly once",
+        OLD_COUNT.load(Ordering::Acquire) == 1
+            && OLD_RESULT.load(Ordering::Acquire) == ipc::IPC_ENOENT,
     );
     logger.record(
         "pending reload restores STM and accepts fresh IPC",
@@ -179,4 +425,13 @@ pub(super) fn run(logger: &mut ProbeLogger, version: i32) {
             && initialized >= 0
             && ipc::open_file(c"/dev/fs", ipc::IPC_OPEN_NONE).is_ok_and(|fd| fd.close().is_ok()),
     );
+    format_clean
+        && format_output_untouched
+        && after == before
+        && recovered == before
+        && OLD_COUNT.load(Ordering::Acquire) == 1
+        && OLD_RESULT.load(Ordering::Acquire) == ipc::IPC_ENOENT
+        && NEW_COUNT.load(Ordering::Acquire) == 1
+        && NEW_RESULT.load(Ordering::Acquire) == 0
+        && initialized >= 0
 }

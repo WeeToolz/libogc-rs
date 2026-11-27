@@ -1,0 +1,31 @@
+{
+  "probe": "ios_reload_probe",
+  "status": "pass",
+  "dol_sha256": "e28e26b29428b5b6d8f6acdea8913732c8b3f4acdd899e2a304997b590f5339b",
+  "duration_milliseconds": 17681,
+  "passes": 42,
+  "fails": 0,
+  "summary_line": "PASS summary passes=42 fails=0",
+  "failure_lines": [],
+  "page_capture_count": 5,
+  "pages_valid": true,
+  "frames_valid": true,
+  "detail": "probe summary reported completed checks and zero failures",
+  "repository_revision": "8de576690b226d027487e52297a54960e0d7dfc1",
+  "dirty_worktree": true,
+  "dolphin_version": "Dolphin 2609b",
+  "request_records": [
+    39,
+    38,
+    38,
+    38
+  ],
+  "available_deferred_slots": [
+    32,
+    31,
+    31,
+    31
+  ],
+  "raw_result_sha256": "44dc2d933b8a94a7f95b3b0f852185751ba006e86a7aca5c6f996cf9c6710125",
+  "raw_suite_sha256": "1f35f62cbfbada4446ede313f5890ffbcb250734f9cb58d7f38d457b8cf9b625"
+}

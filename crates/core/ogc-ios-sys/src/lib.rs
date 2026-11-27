@@ -130,8 +130,17 @@ fn launch_ios_from_es(version: i32) -> i32 {
         return rc;
     }
 
+    // Reject competing submissions across the actual IOS launch. Normal PPC
+    // mailbox resets never cancel outstanding requests.
+    let replacement = match ogc_ipc::IosReplacement::begin() {
+        Ok(scope) => scope,
+        Err(error) => return error,
+    };
     unsafe {
-        core::ptr::write_volatile(IOS_VERSION_WORD_ADDR as *mut u32, 0);
+        // C write32 uses the uncached alias. Make zero visible to IOS before
+        // launch, rather than allowing a cache invalidate to discard it.
+        core::ptr::write_volatile((IOS_VERSION_WORD_ADDR | 0x4000_0000) as *mut u32, 0);
+        core::arch::asm!("eieio", options(nostack));
     }
 
     let rc = unsafe { es::launch_title_background(title_id, views.0.as_ptr()) };
@@ -144,10 +153,19 @@ fn launch_ios_from_es(version: i32) -> i32 {
     irq::mask(irq::IM_PI_ACR);
     let irq_handler = irq::free(irq::IRQ_PI_ACR);
 
-    while (ios_read_version_word() >> 16) == 0 {
+    // C read32 also uses the uncached alias. Wait for the IOS boot protocol
+    // to publish a nonzero version after the cleared word.
+    while unsafe {
+        let word = core::ptr::read_volatile((IOS_VERSION_WORD_ADDR | 0x4000_0000) as *const u32);
+        core::arch::asm!("sync", options(nostack));
+        word >> 16 == 0
+    } {
         wait_one_millisecond();
     }
 
+    // C's mailbox-ready polling is advisory. Dolphin can consume the boot
+    // ACK before this loop, and hardware may publish its version before IPC
+    // is ready. Cancellation separately requires a fresh IPC round trip.
     for _ in 0..=MAX_IPC_RETRIES {
         wait_one_millisecond();
         if ipc_control_ready() {
@@ -168,6 +186,10 @@ fn launch_ios_from_es(version: i32) -> i32 {
         return IOS_EMISMATCH;
     }
 
+    // SAFETY: launch succeeded, the uncached version word was cleared and
+    // republished, the mailbox was reset, and the version matches. finish
+    // additionally requires a fresh IOS reply before cancelling old requests.
+    unsafe { replacement.finish() };
     IOS_CURRENT_VERSION.store(new_version, Ordering::Release);
     IOS_CURRENT_REVISION.store(get_revision(), Ordering::Release);
     version

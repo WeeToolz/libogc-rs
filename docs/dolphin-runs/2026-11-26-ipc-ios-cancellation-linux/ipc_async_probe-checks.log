@@ -1,0 +1,31 @@
+PASS SYS_Init completed
+PASS Video console_init_framebuffer initializes the buffered console
+PASS pre-main progress callback reports stages in order
+PASS system pre-main completes without a failed stage
+PASS display initialized
+PASS power button callback installed
+PASS IPC reinitialize masks and restores interrupts
+PASS IPC reinitialize preserves disabled interrupts
+PASS zero-sized IPC heap returns no-memory
+PASS negative IPC heap size is rejected
+PASS C IPC heap creation returns no-memory for zero size
+PASS C IPC heap allocation round trips bytes
+PASS C IPC heap rejects invalid heap IDs
+PASS IPC loader lower bound selected
+PASS IPC loader upper bound selected
+PASS IPC loader allocated watermarks restored
+PASS IPC reinitialize fixture held a real IOS reply
+PASS IPC reinitialize delivers the held reply exactly once
+PASS IPC reinitialize closes held descriptor and accepts new requests
+PASS IPC async reply reference title count
+PASS IPC async reply submits ES title count
+PASS IPC async reply restores vector address before callback
+PASS IPC async reply output and canaries visible before callback
+PASS IPC async reply closes ES
+PASS async open submission accepted
+PASS async callback completed once
+PASS async open returned a descriptor
+PASS automatic IRQ or manual poll delivered completion
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+PASS summary passes=29 fails=0

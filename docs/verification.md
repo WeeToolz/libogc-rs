@@ -139,7 +139,15 @@ destination evidence and remaining limits.
 The [IPC follow-up](dolphin-runs/2026-11-26-ipc-followup-linux/README.md)
 adds automatic foreground/background handoff results, nonzero loader-bound
 cases, and delivery of a posted IOS reply across PPC client reinitialization.
-The real IOS replacement with an outstanding request is not established.
+The [IOS replacement follow-up](dolphin-runs/2026-11-26-ipc-ios-replacement-linux/README.md)
+adds 42 passing checks for a real outstanding STM event hook across IOS 58
+replacement. The old callback is not delivered and fresh IPC works, but one
+request record and one deferred reservation remain allocated. The subsequent
+[replacement-specific cancellation review](dolphin-runs/2026-11-26-ipc-ios-cancellation-linux/README.md)
+passes 103/103 checks across three IOS replacements and restores all request
+and callback capacity. It also passes the 29-check ordinary PPC reset test.
+New cancellation paths require independent re-review; physical Wii behavior
+remains pending.
 The follow-up runtime fixture corrects eleven video checks; both known NAND
 variants complete 887 checks successfully with two stock Linux Dolphin socket
 option failures. The existing Linux Dolphin network patch still needs a

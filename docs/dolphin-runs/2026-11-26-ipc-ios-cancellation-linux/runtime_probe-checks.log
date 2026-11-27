@@ -1,0 +1,5 @@
+FAIL lwIP reuse option set and read
+FAIL Raw TCP reuse option is enabled
+FAIL lwIP reuse option set and read
+FAIL Raw TCP reuse option is enabled
+FAIL summary passes=887 fails=2
