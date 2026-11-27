@@ -1,0 +1,26 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running unittests src/lib.rs (target/debug/build/ogc-report-protocol/efcc26f8fbcf2714/out/ogc_report_protocol-efcc26f8fbcf2714)
+
+running 14 tests
+test tests::application_progress_preserves_stage_and_truncation ... ok
+test tests::complete_log_and_maximum_loss_counters_have_exact_wire_lengths ... ok
+test tests::deadline_boundaries_are_checked ... ok
+test tests::endpoints_preserve_caller_address_policy_and_reject_malformed_input ... ok
+test tests::final_report_marks_success_only_for_zero_status_without_log_loss ... ok
+test tests::final_report_returns_failure_from_each_transport_write ... ok
+test tests::final_report_writes_exact_sections_and_preserves_application_failure ... ok
+test tests::full_width_wire_fields_do_not_overlap ... ok
+test tests::identity_field_boundaries_and_missing_fields ... ok
+test tests::identity_rejects_invalid_and_duplicate_fields ... ok
+test tests::log_preserves_real_bytes_and_counts_capacity_loss ... ok
+test tests::log_zero_capacity_utf8_and_saturating_loss_are_byte_based ... ok
+test tests::validates_identity_and_requires_an_enabled_deadline ... ok
+test tests::wire_headers_match_independent_protocol_bytes ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests ogc_report_protocol
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

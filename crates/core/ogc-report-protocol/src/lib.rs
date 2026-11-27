@@ -7,6 +7,8 @@ use core::fmt;
 
 pub const LOG_CAPACITY: usize = 16 * 1024;
 
+/// Report identity validated by [`parse`]. Direct construction must preserve
+/// its run length, ASCII identity fields, endpoint and deadline invariants.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Identity {
     pub host: [u8; 4],
@@ -131,6 +133,8 @@ impl ProgressHeader {
     }
 }
 
+/// Encode a development progress record. Use a validated identity and a
+/// payload length that fits in `u32`.
 pub fn progress_header(identity: &Identity, sequence: u32, length: usize) -> [u8; 24] {
     ProgressHeader {
         sequence,
@@ -143,6 +147,8 @@ pub fn progress_header(identity: &Identity, sequence: u32, length: usize) -> [u8
     .encode()
 }
 
+/// Encode a development final report without a framebuffer. Use a validated
+/// identity and a payload length that fits in `u32`.
 pub fn final_header(identity: &Identity, length: usize, truncated: bool) -> [u8; 156] {
     let mut out = [0; 156];
     out[..4].copy_from_slice(b"WIR2");
@@ -156,7 +162,9 @@ pub fn final_header(identity: &Identity, length: usize, truncated: bool) -> [u8;
 }
 
 /// Write the complete final report through the same ordered path used by the
-/// development runtime. The callback must return its real transport error.
+/// development runtime. The callback must write each complete slice or return
+/// its real transport error. Use a validated identity and a log whose length
+/// plus the generated text fits in `u32`.
 pub fn write_final_report<E>(
     identity: &Identity,
     log: &[u8],
@@ -210,6 +218,8 @@ fn append_decimal<const N: usize>(buffer: &mut LogBuffer<N>, mut value: usize) {
     append(buffer, &digits[start..]);
 }
 
+/// Bounded byte log. Keep `len <= N` when accessing the public fields directly.
+/// Truncation is measured in bytes and can split a UTF-8 character.
 pub struct LogBuffer<const N: usize = LOG_CAPACITY> {
     pub bytes: [u8; N],
     pub len: usize,
@@ -469,5 +479,125 @@ mod tests {
         log.write_str(&text).unwrap();
         assert_eq!(log.len, LOG_CAPACITY);
         assert_eq!(log.lost, 23);
+    }
+
+    #[test]
+    fn identity_field_boundaries_and_missing_fields() {
+        let endpoint = "--report=223.255.255.255:65535";
+        let build = "--build-id=ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789";
+        let deadline = "--recovery-reset-ms=2147483647";
+        let longest = std::format!("--run-id={}", "a".repeat(64));
+        let id = parse(&[deadline, "--unrelated", &longest, build, endpoint]).unwrap();
+        assert_eq!(id.host, [223, 255, 255, 255]);
+        assert_eq!(id.port, u16::MAX);
+        assert_eq!(id.run, [b'a'; 64]);
+        assert_eq!(id.run_len, 64);
+        assert_eq!(id.deadline_ms, i32::MAX as u32);
+        assert_eq!(&id.build, build[11..].as_bytes());
+        let short = parse(&[endpoint, "--run-id=A-_.9", build, deadline]).unwrap();
+        assert_eq!(&short.run[..5], b"A-_.9");
+        assert_eq!(short.run[5..], [0; 59]);
+        assert_eq!(
+            parse(&[endpoint, build, deadline]),
+            Err("missing run identity")
+        );
+        assert_eq!(
+            parse(&[endpoint, "--run-id=x", deadline]),
+            Err("missing build identity")
+        );
+        for value in ["0.1.2.3:1", "224.1.2.3:1", "255.255.255.255:1"] {
+            let arg = std::format!("--report={value}");
+            assert_eq!(
+                parse(&[&arg, "--run-id=x", build, deadline]),
+                Err("invalid report address")
+            );
+        }
+        for value in ["a b", "a/b", "é", "a\n", "a\0"] {
+            let arg = std::format!("--run-id={value}");
+            assert_eq!(
+                parse(&[endpoint, &arg, build, deadline]),
+                Err("invalid run identity")
+            );
+        }
+        let too_long = std::format!("--run-id={}", "a".repeat(65));
+        assert_eq!(
+            parse(&[endpoint, &too_long, build, deadline]),
+            Err("invalid run identity")
+        );
+        for value in ["a".repeat(63), "a".repeat(65), "g".repeat(64)] {
+            let arg = std::format!("--build-id={value}");
+            assert_eq!(
+                parse(&[endpoint, "--run-id=x", &arg, deadline]),
+                Err("invalid build identity")
+            );
+        }
+    }
+
+    #[test]
+    fn full_width_wire_fields_do_not_overlap() {
+        let mut id = identity();
+        id.run = [b'R'; 64];
+        id.run_len = 64;
+        id.build = [b'B'; 64];
+        let progress = progress_header(&id, u32::MAX, u32::MAX as usize);
+        assert_eq!(
+            &progress,
+            b"WIP1\0\x01\0\0\xff\xff\xff\xff\0\0\0\0\0\x40\0\x40\xff\xff\xff\xff"
+        );
+        let final_bytes = final_header(&id, u32::MAX as usize, true);
+        assert_eq!(&final_bytes[..12], b"WIR2\0\x02\0\x01\xff\xff\xff\xff");
+        assert_eq!(final_bytes[12..24], [0; 12]);
+        assert_eq!(&final_bytes[24..28], b"\0\0\0\x24");
+        assert_eq!(final_bytes[28..92], [b'R'; 64]);
+        assert_eq!(final_bytes[92..156], [b'B'; 64]);
+    }
+
+    #[test]
+    fn complete_log_and_maximum_loss_counters_have_exact_wire_lengths() {
+        let id = identity();
+        let log = [b'x'; LOG_CAPACITY];
+        let mut wire = std::vec::Vec::new();
+        write_final_report(&id, &log, usize::MAX, usize::MAX, i32::MIN, |part| {
+            wire.extend_from_slice(part);
+            Ok::<_, ()>(())
+        })
+        .unwrap();
+        let text_len = u32::from_be_bytes(wire[8..12].try_into().unwrap()) as usize;
+        let tail = std::format!(
+            "INFO dev log_lost_bytes={} log_contention={}\nFAIL application return or development log loss\nFAIL summary passes=0 fails=1\n",
+            usize::MAX,
+            usize::MAX
+        );
+        assert_eq!(text_len, LOG_CAPACITY + tail.len());
+        assert_eq!(wire.len(), 156 + text_len + 36);
+        assert_eq!(&wire[156..156 + LOG_CAPACITY], &log);
+        assert_eq!(&wire[156 + LOG_CAPACITY..156 + text_len], tail.as_bytes());
+        assert_eq!(wire[156 + text_len..], [0; 36]);
+        assert_eq!(&wire[6..8], b"\0\x01");
+        for (lost, contention, flag) in [(0, 1, 0), (1, 0, 1)] {
+            write_final_report(&id, b"", lost, contention, 0, |part| {
+                if part.starts_with(b"WIR2") {
+                    assert_eq!(part[6..8], [0, flag]);
+                }
+                Ok::<_, ()>(())
+            })
+            .unwrap();
+        }
+    }
+
+    #[test]
+    fn log_zero_capacity_utf8_and_saturating_loss_are_byte_based() {
+        let mut empty = LogBuffer::<0>::default();
+        empty.write_str("").unwrap();
+        empty.write_str("é").unwrap();
+        assert_eq!((empty.len, empty.lost), (0, 2));
+        let mut short = LogBuffer::<1>::default();
+        short.write_str("é").unwrap();
+        assert_eq!(short.bytes, [0xc3]);
+        assert_eq!((short.len, short.lost), (1, 1));
+        short.lost = usize::MAX - 1;
+        short.write_str("more").unwrap();
+        assert_eq!(short.bytes, [0xc3]);
+        assert_eq!((short.len, short.lost), (1, usize::MAX));
     }
 }
