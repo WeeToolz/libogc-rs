@@ -242,13 +242,18 @@ pub(super) fn run(logger: &mut ProbeLogger, version: i32) {
     for iteration in 1..=3 {
         logger.section("Outstanding application IPC across IOS replacement");
         logger.note_u32("pending reload iteration", iteration);
-        if !run_once(logger, version, heap) {
+        if !run_once(logger, version, heap, iteration == 3) {
             break;
         }
     }
 }
 
-fn run_once(logger: &mut ProbeLogger, version: i32, heap: i32) -> bool {
+fn run_once(
+    logger: &mut ProbeLogger,
+    version: i32,
+    heap: i32,
+    inject_handshake_failure: bool,
+) -> bool {
     OLD_COUNT.store(0, Ordering::Release);
     OLD_RESULT.store(UNSET, Ordering::Release);
     NEW_COUNT.store(0, Ordering::Release);
@@ -262,6 +267,18 @@ fn run_once(logger: &mut ProbeLogger, version: i32, heap: i32) -> bool {
         return false;
     }
     let before = measure_capacity(logger, "pending reload initial available request records");
+    // The capacity check processes earlier deferred replies. Use its settled
+    // point as the baseline for the two requests under test.
+    let async_baseline = ipc::in_flight_async_request_count_for_probe();
+    let callback_baseline = ipc::async_callback_reservations_for_probe();
+    logger.note_u32(
+        "pending reload baseline in-flight trackers",
+        async_baseline as u32,
+    );
+    logger.note_u32(
+        "pending reload baseline callback reservations",
+        callback_baseline,
+    );
     let old_fd = open_hook();
     logger.record("pending reload opens independent STM hook", old_fd >= 0);
     if old_fd < 0 {
@@ -337,6 +354,32 @@ fn run_once(logger: &mut ProbeLogger, version: i32, heap: i32) -> bool {
         let _ = ogc_stm::init();
         return false;
     }
+    let pending_tracker_count = ipc::in_flight_async_request_count_for_probe();
+    let pending_callback_reservations = ipc::async_callback_reservations_for_probe();
+    let mut pending_addresses = [0usize; 64];
+    let pending_address_count =
+        ipc::snapshot_in_flight_async_requests_for_probe(&mut pending_addresses);
+    logger.note_u32(
+        "pending reload pending in-flight trackers",
+        pending_tracker_count as u32,
+    );
+    logger.note_u32(
+        "pending reload pending callback reservations",
+        pending_callback_reservations,
+    );
+    logger.note_u32(
+        "pending reload pending raw callback count",
+        OLD_COUNT.load(Ordering::Acquire),
+    );
+    logger.note_u32(
+        "pending reload pending formatter callback count",
+        FORMAT_COUNT.load(Ordering::Acquire),
+    );
+    logger.record(
+        "pending reload raw and formatted requests occupy two owned tracker entries",
+        pending_tracker_count == async_baseline + 2
+            && pending_callback_reservations == callback_baseline + 2,
+    );
     let mut events = [ipc::AllocationEvent::default(); ipc::FORMAT_PROBE_LEDGER_CAPACITY];
     let submitted_events = ipc::read_format_heap_ledger(&mut events);
     let in_flight = measure_capacity(logger, "pending reload in-flight available request records");
@@ -346,6 +389,9 @@ fn run_once(logger: &mut ProbeLogger, version: i32, heap: i32) -> bool {
             && before.1.checked_sub(2) == Some(in_flight.1),
     );
     // Leave the request pending. Same-version reload constructs a new IOS in Dolphin.
+    if inject_handshake_failure {
+        ipc::fail_next_replacement_handshake_for_probe();
+    }
     let result = ogc_ios::reload_ios(version);
     logger.note_i32("pending reload result", result);
     logger.record(
@@ -354,6 +400,70 @@ fn run_once(logger: &mut ProbeLogger, version: i32, heap: i32) -> bool {
     );
     if result != 0 {
         return false;
+    }
+    if inject_handshake_failure {
+        let failed_tracker_count = ipc::in_flight_async_request_count_for_probe();
+        let failed_callback_reservations = ipc::async_callback_reservations_for_probe();
+        let mut failed_addresses = [0usize; 64];
+        let failed_address_count =
+            ipc::snapshot_in_flight_async_requests_for_probe(&mut failed_addresses);
+        logger.note_u32(
+            "pending reload failed-handshake in-flight trackers",
+            failed_tracker_count as u32,
+        );
+        logger.note_u32(
+            "pending reload failed-handshake callback reservations",
+            failed_callback_reservations,
+        );
+        logger.note_u32(
+            "pending reload failed-handshake raw callback count",
+            OLD_COUNT.load(Ordering::Acquire),
+        );
+        logger.note_u32(
+            "pending reload failed-handshake formatter callback count",
+            FORMAT_COUNT.load(Ordering::Acquire),
+        );
+        logger.note_u32(
+            "pending reload failed-handshake formatter live allocations",
+            ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire) as u32,
+        );
+        let pending_addresses_preserved = pending_address_count <= pending_addresses.len()
+            && failed_address_count <= failed_addresses.len()
+            && pending_addresses[..pending_address_count]
+                .iter()
+                .all(|address| failed_addresses[..failed_address_count].contains(address));
+        let failed_handshake_preserved = pending_addresses_preserved
+            && failed_tracker_count >= pending_tracker_count
+            && failed_callback_reservations >= pending_callback_reservations
+            && OLD_COUNT.load(Ordering::Acquire) == 0
+            && FORMAT_COUNT.load(Ordering::Acquire) == 0
+            && ipc::FORMAT_PROBE_LIVE_ALLOCATIONS.load(Ordering::Acquire) > format_before;
+        logger.record(
+            "pending reload failed fresh handshake preserves requests without callbacks",
+            failed_handshake_preserved,
+        );
+        let retry_retirement = if let Ok(scope) = ipc::IosReplacement::begin() {
+            // SAFETY: The IOS replacement and mailbox reinitialization have
+            // completed. `finish` performs a fresh `/dev/es` round trip before
+            // it releases the outstanding request storage.
+            unsafe { scope.finish() };
+            true
+        } else {
+            false
+        };
+        let retry_tracker_count = ipc::in_flight_async_request_count_for_probe();
+        logger.note_u32(
+            "pending reload successful retry in-flight trackers",
+            retry_tracker_count as u32,
+        );
+        logger.record(
+            "pending reload successful handshake retry retires preserved requests",
+            retry_retirement && retry_tracker_count == async_baseline,
+        );
+        if !failed_handshake_preserved || !retry_retirement || retry_tracker_count != async_baseline
+        {
+            return false;
+        }
     }
     // The old numeric descriptor may refer to a different device now.
     let closed = ogc_stm::close();
@@ -424,6 +534,24 @@ fn run_once(logger: &mut ProbeLogger, version: i32, heap: i32) -> bool {
         "pending reload formatted cancellation does not copy staged output",
         format_output_untouched,
     );
+    if inject_handshake_failure {
+        let callbacks_once = OLD_COUNT.load(Ordering::Acquire) == 1
+            && OLD_RESULT.load(Ordering::Acquire) == ipc::IPC_ENOENT
+            && FORMAT_COUNT.load(Ordering::Acquire) == 1
+            && FORMAT_RESULT.load(Ordering::Acquire) == ipc::IPC_ENOENT;
+        logger.record(
+            "pending reload failed-handshake retry completes each old callback once",
+            callbacks_once,
+        );
+        let initialized = ogc_stm::init();
+        logger.record(
+            "pending reload failed-handshake retry restores STM and accepts fresh IPC",
+            initialized >= 0
+                && ipc::open_file(c"/dev/fs", ipc::IPC_OPEN_NONE)
+                    .is_ok_and(|fd| fd.close().is_ok()),
+        );
+        return format_clean && format_output_untouched && callbacks_once && initialized >= 0;
+    }
     let new_fd = open_hook();
     logger.record("pending reload opens new IOS hook", new_fd >= 0);
     if new_fd < 0 {
@@ -447,11 +575,14 @@ fn run_once(logger: &mut ProbeLogger, version: i32, heap: i32) -> bool {
     } else {
         UNSET
     };
+    logger.note_i32("pending reload new IOS submit result", submitted);
+    logger.note_i32("pending reload new IOS duplicate result", duplicate);
     logger.record(
         "pending reload new IOS holds new request",
         submitted == 0 && duplicate == IPC_EEXIST,
     );
     let released = release_hook();
+    logger.record("pending reload new IOS release command succeeds", released);
     let start = ogc_system::time();
     while NEW_COUNT.load(Ordering::Acquire) == 0
         && ogc_system::time().wrapping_sub(start) < TIMER_HZ * 2
@@ -473,6 +604,10 @@ fn run_once(logger: &mut ProbeLogger, version: i32, heap: i32) -> bool {
     logger.note_u32(
         "pending reload new callback count",
         NEW_COUNT.load(Ordering::Acquire),
+    );
+    logger.note_i32(
+        "pending reload new callback result",
+        NEW_RESULT.load(Ordering::Acquire),
     );
     logger.record(
         "pending reload new hook releases exactly once",

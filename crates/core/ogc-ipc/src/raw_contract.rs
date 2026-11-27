@@ -67,13 +67,7 @@ pub(crate) fn cancellation_vector_layout(
     if count == 0 {
         return Some((0, 0));
     }
-    vector_layout(
-        input as usize,
-        output as usize,
-        count,
-        entry_size,
-        pointer,
-    )
+    vector_layout(input as usize, output as usize, count, entry_size, pointer)
 }
 
 pub(crate) fn buffer_valid(pointer: usize, length: usize) -> bool {
@@ -152,10 +146,7 @@ mod tests {
         assert_eq!(cancellation_vector_layout(1, 0, 8, 0), None);
         assert_eq!(cancellation_vector_layout(1, 0, 8, 0x1004), None);
         assert_eq!(cancellation_vector_layout(u32::MAX, 1, 8, 0x1000), None);
-        assert_eq!(
-            cancellation_vector_layout(1, 0, 32, usize::MAX - 31),
-            None
-        );
+        assert_eq!(cancellation_vector_layout(1, 0, 32, usize::MAX - 31), None);
     }
 
     #[test]

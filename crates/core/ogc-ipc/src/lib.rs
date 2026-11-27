@@ -20,6 +20,14 @@ mod dma_buffer;
 mod poll_guard;
 mod raw_contract;
 mod replacement_logic;
+#[cfg(feature = "format-probe-hooks")]
+mod replacement_probe;
+
+#[cfg(feature = "format-probe-hooks")]
+pub use replacement_probe::{
+    async_callback_reservations_for_probe, fail_next_replacement_handshake_for_probe,
+    in_flight_async_request_count_for_probe, snapshot_in_flight_async_requests_for_probe,
+};
 
 #[cfg(target_arch = "powerpc")]
 core::arch::global_asm!(
@@ -1249,6 +1257,15 @@ static ASYNC_IN_FLIGHT: [AtomicUsize; IPC_DEFERRED_CALLBACK_CAPACITY as usize] =
 static IOS_REPLACEMENT_OWNER: AtomicU32 = AtomicU32::new(lwp_sys::LWP_THREAD_NULL);
 const SUBMISSION_SENT: u32 = 1 << 31;
 
+fn fresh_replacement_handshake() -> bool {
+    #[cfg(feature = "format-probe-hooks")]
+    if replacement_probe::take_handshake_failure() {
+        return false;
+    }
+
+    open_file(c"/dev/es", IPC_OPEN_NONE).is_ok_and(|fd| fd.close().is_ok())
+}
+
 fn track_async_request(req: &mut IpcRequest) -> bool {
     req.submission_cmd = req.cmd;
     let address = req as *mut IpcRequest as usize;
@@ -1333,21 +1350,18 @@ impl IosReplacement {
         // ready on hardware. Require a complete fresh synchronous round trip
         // while competing submissions are still excluded. Do not infer DMA
         // retirement from the version word or the advisory ready-bit wait alone.
-        replacement_logic::retire_after_fresh_handshake(
-            || open_file(c"/dev/es", IPC_OPEN_NONE).is_ok_and(|fd| fd.close().is_ok()),
-            move || {
-                let irq_state = unsafe { lock_by_msr() };
-                for slot in &ASYNC_IN_FLIGHT {
-                    let address = slot.swap(0, Ordering::AcqRel);
-                    if address != 0 {
-                        unsafe { cancel_abandoned_request(address as *mut IpcRequest) };
-                    }
+        replacement_logic::retire_after_fresh_handshake(fresh_replacement_handshake, move || {
+            let irq_state = unsafe { lock_by_msr() };
+            for slot in &ASYNC_IN_FLIGHT {
+                let address = slot.swap(0, Ordering::AcqRel);
+                if address != 0 {
+                    unsafe { cancel_abandoned_request(address as *mut IpcRequest) };
                 }
-                // Release the submission scope before enabling the deferred worker.
-                drop(self);
-                unsafe { unlock_by_msr(irq_state) };
-            },
-        );
+            }
+            // Release the submission scope before enabling the deferred worker.
+            drop(self);
+            unsafe { unlock_by_msr(irq_state) };
+        });
     }
 }
 

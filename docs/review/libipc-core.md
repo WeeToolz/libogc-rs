@@ -698,6 +698,18 @@ handshake to fail. The host test verifies the retirement gate, not IOS DMA
 retirement or the full `finish` path. See the
 [run record](../dolphin-runs/2026-11-27-ipc-replacement-handshake-gate/README.md).
 
+The 2026-11-27 follow-up extends the same probe with a feature-gated failed
+handshake injection. Dolphin passed 113/113 checks. It retained both captured
+request identities and callback reservations after the failure, then retired
+them on a later real `/dev/es` round trip. Both callbacks ran once with
+`IPC_ENOENT`, and formatter storage was freed without output copyback. The
+aggregate tracker count rose from two to three across reload, although the two
+captured requests remained present; the additional tracker is not yet
+identified and keeps the independent concurrency review open. Injection of a
+failed handshake is not an actual IOS `/dev/es` failure. It does not prove
+physical DMA retirement or cache behavior. See the
+[failed-handshake run record](../dolphin-runs/2026-11-27-ipc-replacement-handshake-failure/README.md).
+
 ### Zero-vector request retirement guard (2026-11-27)
 
 `IOS_IoctlvAsync` accepts a zero-vector request with a null array. If IOS replacement retires that request before a reply, the cancellation path must not create a Rust slice from the absent array. It now checks vector-count addition, byte-length multiplication, pointer alignment, and address-range overflow. A zero-vector request skips array access. Host contract tests cover the empty case, a valid range, null and misaligned nonempty arrays, count overflow, and address wrap. The cancellation path validates the layout before it accesses a nonempty vector array.
