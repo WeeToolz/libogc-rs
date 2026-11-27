@@ -2974,9 +2974,9 @@ ogc-gx,src/lib.rs,set_misc,1915,compatibility-forwarder,hardware-probe,probes/og
 ogc-gx,src/lib.rs,set_v_cache_metric,7665,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_unverified_apis,gx::set_v_cache_metric
 ogc-gx,src/lib.rs,tpl_open_tpl_from_file,9532,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tpl_file_backing,gx::tpl_open_tpl_from_file
 ogc-stm,src/lib.rs,init_without_event_hook,286,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::init_without_event_hook
-ogc-stm,src/lib.rs,register_event_handler,468,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::register_event_handler
-ogc-stm,src/lib.rs,set_led_mode,521,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::set_led_mode
-ogc-stm,src/lib.rs,try_set_led_mode,537,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::try_set_led_mode
+ogc-stm,src/lib.rs,register_event_handler,472,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::register_event_handler
+ogc-stm,src/lib.rs,set_led_mode,525,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::set_led_mode
+ogc-stm,src/lib.rs,try_set_led_mode,541,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::try_set_led_mode
 ogc-runtime,src/scheduler.rs,get,24,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,run,thread.get
 ogc-runtime,src/scheduler.rs,now,56,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,run,clock.now
 ogc-runtime,src/scheduler.rs,ticks_per_second,57,pure,hardware-probe,probes/lwp-probe/src/runtime_contract_probe.rs,run,clock.ticks_per_second
@@ -3284,7 +3284,7 @@ ogc-network,src/lib.rs,attach_active,72,compatibility-forwarder,hardware-probe,p
 ogc-stm,src/lib.rs,init,276,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::init
 ogc-stm,src/lib.rs,try_init,296,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_init
 ogc-stm,src/lib.rs,close,427,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::close
-ogc-stm,src/lib.rs,try_close,464,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_close
+ogc-stm,src/lib.rs,try_close,468,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_close
 ogc-ipc,src/lib.rs,validate_path,3394,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_path_limits,ipc::validate_path
 ogc-network-sys,src/lib.rs,net_wc24cleanup,1060,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_wc24_cleanup,raw_network::net_wc24cleanup
 ogc-network-sys,src/lib.rs,net_wc24cleanup,1970,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_wc24_cleanup,raw_network::net_wc24cleanup

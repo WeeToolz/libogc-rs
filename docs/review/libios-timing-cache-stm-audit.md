@@ -136,6 +136,27 @@ code can therefore differ from C when STM setup fails. The normal Dolphin run
 checks the success path; injected STM open failures and physical Wii behavior
 remain unverified.
 
+## STM close callback lock wait — 2026-11-27
+
+The saved `stm_api_probe` run from 2026-11-20 timed out while its deferred
+event-hook callback was in `event_hook_handler` waiting for `STM_LOCK`
+(`docs/dolphin-runs/2026-11-20-ogc-stm-lifecycle-apis/stm_api_probe/timeout-diagnostic.json`).
+`close_with_operations` previously took that lock before setting
+`STM_HOOK_RELEASING`. Shutdown now sets the release flag first, so a deferred
+callback that preempts the lock owner can exit instead of spinning while the
+owner waits to resume. A target regression test covers the callback path with
+the lock held and release flag set.
+
+The updated `stm_api_probe` DOL built with SHA-256
+`d28a11020097ef6f31e83f5a5f34f1574b4b91ad1e4e25ea9abe004d1c6750cc`.
+`cargo xtask clippy` passed. PowerPC test code compiled with
+`RUSTFLAGS='-Aunsafe-op-in-unsafe-fn -Astatic-mut-refs'`; this only checks the
+test code and does not run it. Dolphin could not run the updated probe: the
+installed `/Applications/Dolphin.app/Contents/MacOS/Dolphin` exited with
+`SIGABRT` on `--version`. The saved timeout is evidence of the old behavior;
+the fix remains unverified at runtime. Keep the STM close probe and physical
+Wii behavior open until Dolphin can run it.
+
 ## Replacement cleanup on an unexpected IOS version
 
 `launch_ios_from_es` now finishes the active IOS replacement after the new

@@ -432,6 +432,10 @@ fn close_with_operations(
     release_event_hook: fn(&mut StmState) -> i32,
     close_fd: fn(FileDescriptor) -> core::result::Result<(), i32>,
 ) -> i32 {
+    // The deferred event callback may preempt this thread while it owns the
+    // STM lock. Tell it to exit before waiting for the lock, so it cannot spin
+    // at higher priority while preventing the lock owner from resuming.
+    STM_HOOK_RELEASING.store(true, Ordering::Release);
     let _guard = STM_LOCK.lock();
     let state = unsafe { &mut *state_ptr() };
 
@@ -894,6 +898,19 @@ mod tests {
 
         assert_eq!(close_with_operations(event_hook_fails, record_close), 0);
         assert_eq!(CLOSED_FDS.load(Ordering::Acquire), (1 << 1) | (1 << 2));
+    }
+
+    #[test]
+    fn event_callback_exits_when_close_starts_before_locking_state() {
+        reset_test_state();
+        let _guard = STM_LOCK.lock();
+        STM_HOOK_RELEASING.store(true, Ordering::Release);
+
+        // The deferred callback must not spin on STM_LOCK while close waits
+        // for that lock. A positive IOS reply is acknowledged as success.
+        let result = unsafe { event_hook_handler(1, core::ptr::null_mut()) };
+        assert_eq!(result, 0);
+        assert!(STM_HOOK_RELEASING.load(Ordering::Acquire));
     }
 
     #[test]
