@@ -123,3 +123,21 @@ failure and avoids keeping incomplete STM state. The public subsystem return
 code can therefore differ from C when STM setup fails. The normal Dolphin run
 checks the success path; injected STM open failures and physical Wii behavior
 remain unverified.
+
+## Replacement cleanup on an unexpected IOS version
+
+`launch_ios_from_es` now finishes the active IOS replacement after the new
+version word is published and IPC is reinitialized, before it returns
+`IOS_EMISMATCH` for a version that differs from the request
+(`crates/core/ogc-ios-sys/src/lib.rs`). `IosReplacement::finish` still requires
+a fresh IOS reply before it cancels abandoned requests. If that reply fails,
+it retains the old request records because IOS may still access them. This
+preserves buffer ownership and callback rules while avoiding stale requests
+after a successful restart into an unexpected version.
+
+PowerPC target test code covers matching and mismatching version results and
+confirms that cleanup runs before either result. `cargo check -p ogc-ios-sys
+--target powerpc-unknown-linux-gnu --tests` passed; target tests did not run.
+`cargo xtask clippy` passed with the repository MP3 fixtures. Dolphin
+`ios_reload_probe` passed on the normal IOS 58 path; it does not force an
+unexpected IOS version. Physical Wii and failed-handshake tests remain open.
