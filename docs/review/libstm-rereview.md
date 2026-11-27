@@ -21,3 +21,13 @@ The repeated-init finding passes independent source review for the committed fix
 ## Later implementation follow-up
 
 After this audit, the repository added a separate GameCube target profile (`targets/powerpc-nintendo-gamecube.json`) with a registered `cfg(gamecube)` switch. `ogc-stm` now compiles as an empty crate for that target and the compatibility facade omits its STM re-export there. This is intended to resolve the `HW_RVL` availability mismatch identified above. It is newer than this independent review and therefore still requires a separate re-review.
+
+## 2026-11-27 target-availability re-review
+
+The current source closes the recorded target-availability finding. The full
+`ogc-stm` crate has a crate-level `cfg(not(gamecube))`, and `ogc` gates the
+facade re-export the same way. Pinned C places the STM API and implementation
+under `HW_RVL`. `cargo xtask clippy` passed after the GameCube Clippy command
+was extended to include both `ogc-stm` and `ogc` directly. This verifies the
+GameCube target compiles and passes Clippy with the STM API excluded. It does
+not cover runtime behavior or the separate IOS/IPC open findings.

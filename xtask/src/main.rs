@@ -1880,6 +1880,10 @@ fn clippy() -> Result<(), String> {
     let mut gamecube = powerpc_check_command(&root, "all-runtime", "clippy", true)?;
     gamecube.args([
         "-p",
+        "ogc-stm",
+        "-p",
+        "ogc",
+        "-p",
         "ogc-system-probe",
         "--features",
         "dolphin-automation,gamecube-card-probe",

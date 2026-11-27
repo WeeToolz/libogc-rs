@@ -24,3 +24,22 @@ The existing HW_RVL availability finding is upheld and applies to every public `
 ## Implementation follow-up
 
 A subsequent implementation adds `targets/powerpc-nintendo-gamecube.json` with a registered `cfg(gamecube)` switch. `ogc-stm` has no public implementation on that target, and the compatibility `ogc` facade does not re-export STM under that cfg. The existing Wii/current target continues to expose STM. This addresses the target-availability finding above; independent re-review and target compilation are still required.
+
+## 2026-11-27 independent re-review
+
+The target-availability finding is resolved for the repository's supported
+GameCube build path. Pinned C places the STM declarations and implementation
+under `HW_RVL` (`C-sources/libogc/gc/ogc/stm.h:34-64` and
+`C-sources/libogc/libogc/stm.c:31-281`). Rust gates the full `ogc-stm` crate
+with `#![cfg(not(gamecube))]` (`crates/core/ogc-stm/src/lib.rs:1-2`), and the
+compatibility facade gates its `ogc_stm` re-export with the same cfg
+(`crates/compatibility/ogc/src/lib.rs:45-46`). The GameCube target therefore
+exposes neither the STM API nor an STM re-export; the Wii target retains both.
+
+Fresh `cargo xtask clippy` passed. The GameCube Clippy command now names
+`ogc-stm` and `ogc` directly, as well as the GameCube probe package, so the
+target gate compiles in both affected public crates. This verifies target
+compilation and linting, not runtime behavior. No Dolphin or physical Wii
+check applies to this target-availability result. STM failure behavior, IOS
+reload failure handling, IPC concurrency review, and physical Wii behavior
+remain separate open items.
