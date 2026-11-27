@@ -122,8 +122,10 @@ runs every 10 ms while the worker is idle. Failure to create the worker leaves
 the watchdog unarmed.
 
 The agent system probe built for the Wii target. Strict `cargo xtask clippy`,
-`cargo xtask test-host`, formatting, and inventory checks passed. A Dolphin run
-has not yet verified worker scheduling, the timeout, or the return behavior.
+`cargo xtask test-host`, formatting, and inventory checks passed. The Dolphin
+attempt did not verify worker scheduling, timeout, or return behavior because
+the selected runner expected a different DOL and report transport; see
+[`agent-recovery-runner-mismatch`](../dolphin-runs/2026-11-27-agent-recovery-runner-mismatch/README.md).
 The physical Wii recovery path is not qualified. Do not use it for a physical
 diagnostic until the required recovery procedure passes.
 
