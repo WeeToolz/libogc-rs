@@ -1,6 +1,6 @@
 # IPC and system core parity review
 
-Status: static source review complete for the recorded scope. No build, test, or hardware run was done.
+Status: static source review remains open for IOS cancellation failure and concurrency paths. Current runtime behavior for raw ioctl, ioctlv, and formatter calls has Dolphin evidence. Physical cache, DMA, loader, and Wii behavior remain open where stated below.
 
 ## Scope and source map
 
@@ -741,6 +741,27 @@ All 90 formatter rows matched again. The four raw ioctl APIs passed their
 original file stats or MAC checks, mixed input and output, IOS errors, and
 local argument rejection. The async checks confirmed callback count and
 userdata. Both vector APIs restored cached buffer pointers on reply.
+
+### Current ioctl and formatter run (2026-11-27)
+
+The current-tree `runtime_probe` passed 901 checks and failed zero. Its DOL
+SHA-256 is `9771e5380ab5a3bae12474f74ea215046257d3f41db9e20c8e9b191d118bbf87`.
+The [run record](../dolphin-runs/2026-11-27-ogc-ipc-runtime-parity/README.md)
+includes the probe output and fixture hashes.
+
+The C `IOS_Ioctl` and `IOS_IoctlAsync` checks passed exact output, canary,
+success, error, argument rejection, callback count, and userdata assertions.
+The mixed IOS request preserved its input path and returned the expected IOS
+error for a missing file. The C `IOS_Ioctlv` and `IOS_IoctlvAsync` checks passed
+mixed input/output, exact reply and output checks, vector-pointer preservation,
+async callback and userdata checks, and rejected-submission no-callback
+behavior.
+
+All 82 formatter contract rows marked `verified` in
+`config/ipc-format-contracts.csv` match passing labels in the raw transport log
+from this run. The other 8 rows remain blocked on physical Wii cache and DMA
+checks. This runtime evidence does not close the separate cancellation
+failure/concurrency source review or any physical Wii requirement.
 
 ### HBC recovery gate check (2026-11-27)
 
