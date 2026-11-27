@@ -4,7 +4,7 @@ Generated from `config/ipc-format-contracts.csv` by `cargo xtask inventory`. Sta
 
 ## Status counts
 
-verified: 80 | partial: 0 | blocked: 8 | unverified: 0
+verified: 82 | partial: 0 | blocked: 8 | unverified: 0
 
 `unverified` is the actionable count. `blocked` records requirements that need unavailable prerequisites.
 
@@ -71,6 +71,8 @@ verified: 80 | partial: 0 | blocked: 8 | unverified: 0
 | `ipc-format.sync.heap-failure-paths` | `IOS_IoctlvFormat` | `verified` | Role-based fault and real allocator exhaustion both leave the independent formatter heap ledger empty. |
 | `ipc-format.sync.heap-failure-paths` | `IOS_IoctlvFormat` | `verified` | Role-based fault and real allocator exhaustion both release the first Scalar exactly once. |
 | `ipc-format.sync.heap-failure-paths` | `IOS_IoctlvFormat` | `verified` | Injected and real workspace exhaustion preserve exact Argv cleanup and balance workspace and formatter heap ledgers. |
+| `ipc-format.sync.heap-real-exhaustion` | `IOS_IoctlvFormat` | `verified` | Dolphin verifies natural Argv and Scalar allocator failure, exact frees, a zero formatter heap ledger, and recovery on the same heap. |
+| `ipc-format.sync.heap-real-exhaustion` | `IOS_IoctlvFormat` | `verified` | Dolphin verifies natural Argv and Scalar allocator failure, exact frees, a zero formatter heap ledger, and recovery on the same heap. |
 | `ipc-format.sync.heap-real-exhaustion` | `IOS_IoctlvFormat` | `verified` | Dolphin verifies natural Argv and Scalar allocator failure, exact frees, a zero formatter heap ledger, and recovery on the same heap. |
 | `ipc-format.sync.input-buffer` | `IOS_IoctlvFormat` | `verified` | One 4-byte input buffer is staged in a mixed request |
 | `ipc-format.sync.input-scalars` | `IOS_IoctlvFormat` | `verified` | The named formatter forms and cases in this contract pass in Dolphin; other forms have separate contracts. |

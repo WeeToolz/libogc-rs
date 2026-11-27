@@ -577,6 +577,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_ipc_file_reads(logger);
     #[cfg(feature = "dolphin-automation")]
     probe_ipc_ioctl_file_stats(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_ipc_ioctlv_mac(logger);
     probe_device_registry(logger);
     probe_sysbase_device_helpers(logger);
     probe_sysbase_errno(logger);
@@ -7890,9 +7892,40 @@ fn probe_ipc_ioctl_file_stats(logger: &mut ProbeLogger) {
     };
     logger.record(
         "IPC C ioctl returns file stats",
-        positioned && c_result == 0 && c_stats.0[..8] == expected,
+        positioned && c_result == 0 && c_stats.0[..8] == expected && c_stats.0[8..] == [0xa5; 24],
     );
     c_stats.0.fill(0xa5);
+    let userdata = core::ptr::from_mut(&mut c_stats).cast();
+    reset_isfs_callback();
+    let rejected_sync = unsafe {
+        ipc::IOS_Ioctl(
+            file.raw(),
+            11,
+            core::ptr::null_mut(),
+            1,
+            core::ptr::null_mut(),
+            0,
+        )
+    };
+    let rejected_async = unsafe {
+        ipc::IOS_IoctlAsync(
+            file.raw(),
+            11,
+            core::ptr::null_mut(),
+            1,
+            core::ptr::null_mut(),
+            0,
+            Some(isfs_probe_callback),
+            userdata,
+        )
+    };
+    lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 60).max(1));
+    logger.record(
+        "IPC C ioctl rejects invalid arguments without a callback",
+        rejected_sync == ipc::IPC_EINVAL
+            && rejected_async == ipc::IPC_EINVAL
+            && ISFS_CALLBACK_COUNT.load(Ordering::Acquire) == 0,
+    );
     let (c_submit, c_reply) = run_isfs_async_and_wait(|| unsafe {
         ipc::IOS_IoctlAsync(
             file.raw(),
@@ -7902,12 +7935,18 @@ fn probe_ipc_ioctl_file_stats(logger: &mut ProbeLogger) {
             c_stats.0.as_mut_ptr().cast(),
             8,
             Some(isfs_probe_callback),
-            core::ptr::null_mut(),
+            userdata,
         )
     });
     logger.record(
         "IPC C ioctl async returns file stats",
-        positioned && c_submit == 0 && c_reply == 0 && c_stats.0[..8] == expected,
+        ISFS_CALLBACK_COUNT.load(Ordering::Acquire) == 1
+            && ISFS_CALLBACK_USERDATA.load(Ordering::Acquire) == userdata as usize
+            && positioned
+            && c_submit == 0
+            && c_reply == 0
+            && c_stats.0[..8] == expected
+            && c_stats.0[8..] == [0xa5; 24],
     );
     let mut first = AlignedIsfsBytes([0xa5; 32]);
     let result = file.ioctl(
@@ -7950,6 +7989,66 @@ fn probe_ipc_ioctl_file_stats(logger: &mut ProbeLogger) {
             && asynchronous.0[..8] == expected
             && asynchronous.0[8..] == [0xa5; 24]
             && closed,
+    );
+    let Ok(fs) = ipc::open_file(c"/dev/fs", ipc::IPC_OPEN_NONE) else {
+        logger.record("IPC C mixed file attribute fixture opens", false);
+        return;
+    };
+    #[repr(align(32))]
+    struct AttrBuffer([u8; 96]);
+    let mut input = AlignedIsfsBytes([0; 32]);
+    let path = b"/title/00000001/00000002/data/setting.txt\0";
+    let mut path_buffer = AttrBuffer([0; 96]);
+    path_buffer.0[..path.len()].copy_from_slice(path);
+    for (valid_path, expected_result) in [(true, 0), (false, filesystem::ISFS_ENOENT)] {
+        if !valid_path {
+            path_buffer.0.fill(0);
+            let missing = b"/tmp/libogc-no-attr-fixture\0";
+            path_buffer.0[..missing.len()].copy_from_slice(missing);
+        }
+        let original = path_buffer.0;
+        let mut output = AttrBuffer([0xa5; 96]);
+        let mut async_output = AttrBuffer([0xa5; 96]);
+        let userdata = input.0.as_mut_ptr().cast();
+        let path = path_buffer.0.as_mut_ptr().cast();
+        let sync =
+            unsafe { ipc::IOS_Ioctl(fs.raw(), 6, path, 64, output.0.as_mut_ptr().cast(), 76) };
+        let (submitted, reply) = run_isfs_async_and_wait(|| unsafe {
+            ipc::IOS_IoctlAsync(
+                fs.raw(),
+                6,
+                path,
+                64,
+                async_output.0.as_mut_ptr().cast(),
+                76,
+                Some(isfs_probe_callback),
+                userdata,
+            )
+        });
+        logger.record(
+            if valid_path {
+                "IPC C mixed ioctl returns matching file attributes"
+            } else {
+                "IPC C mixed ioctl preserves buffers on missing file"
+            },
+            sync == expected_result
+                && submitted == 0
+                && reply == expected_result
+                && path_buffer.0 == original
+                && output.0 == async_output.0
+                && output.0[76..] == [0xa5; 20]
+                && if valid_path {
+                    output.0[..76] != [0xa5; 76]
+                } else {
+                    output.0 == [0xa5; 96]
+                }
+                && ISFS_CALLBACK_COUNT.load(Ordering::Acquire) == 1
+                && ISFS_CALLBACK_USERDATA.load(Ordering::Acquire) == userdata as usize,
+        );
+    }
+    logger.record(
+        "IPC C mixed file attribute fixture closes",
+        fs.close().is_ok(),
     );
 }
 
@@ -10735,7 +10834,6 @@ fn probe_raw_udp(logger: &mut ProbeLogger) {
     }
     probe_network_mac_address(logger);
     #[cfg(feature = "dolphin-automation")]
-    probe_ipc_ioctlv_mac(logger);
     probe_network_interface_addresses(logger);
     probe_network_numeric_resolver(logger);
     let sender = net::net_socket(net::PF_INET, net::SOCK_DGRAM, net::IPPROTO_IP);
@@ -11157,6 +11255,27 @@ fn probe_ipc_ioctlv_mac(logger: &mut ProbeLogger) {
     );
     status.0.fill(0xa5);
     mac.0.fill(0xa5);
+    let userdata = core::ptr::from_mut(&mut mac).cast();
+    reset_isfs_callback();
+    let rejected_sync = unsafe { ipc::IOS_Ioctlv(fd.raw(), 8, -1, 0, core::ptr::null_mut()) };
+    let rejected_async = unsafe {
+        ipc::IOS_IoctlvAsync(
+            fd.raw(),
+            8,
+            -1,
+            0,
+            core::ptr::null_mut(),
+            Some(isfs_probe_callback),
+            userdata,
+        )
+    };
+    lwp::sleep_ticks((lwp::TICKS_PER_SECOND / 60).max(1));
+    logger.record(
+        "IPC C ioctlv rejects invalid arguments without a callback",
+        rejected_sync == ipc::IPC_EINVAL
+            && rejected_async == ipc::IPC_EINVAL
+            && ISFS_CALLBACK_COUNT.load(Ordering::Acquire) == 0,
+    );
     let (c_submit, c_reply) = run_isfs_async_and_wait(|| unsafe {
         ipc::IOS_IoctlvAsync(
             fd.raw(),
@@ -11165,7 +11284,7 @@ fn probe_ipc_ioctlv_mac(logger: &mut ProbeLogger) {
             2,
             vectors.0.as_mut_ptr(),
             Some(isfs_probe_callback),
-            core::ptr::null_mut(),
+            userdata,
         )
     });
     unsafe {
@@ -11174,7 +11293,12 @@ fn probe_ipc_ioctlv_mac(logger: &mut ProbeLogger) {
     }
     logger.record(
         "IPC C ioctlv async returns MAC",
-        reference && c_submit == 0 && c_reply == 0 && valid(&status.0, &mac.0),
+        ISFS_CALLBACK_COUNT.load(Ordering::Acquire) == 1
+            && ISFS_CALLBACK_USERDATA.load(Ordering::Acquire) == userdata as usize
+            && reference
+            && c_submit == 0
+            && c_reply == 0
+            && valid(&status.0, &mac.0),
     );
     status.0.fill(0xa5);
     mac.0.fill(0xa5);
@@ -11208,6 +11332,73 @@ fn probe_ipc_ioctlv_mac(logger: &mut ProbeLogger) {
         "IPC ioctlv_async_raw returns MAC",
         reference && submit >= 0 && reply == 0 && valid(&status.0, &mac.0) && closed,
     );
+    let Ok(es) = ipc::open_file(c"/dev/es", ipc::IPC_OPEN_NONE) else {
+        logger.record("IPC C mixed vector fixture opens ES", false);
+        return;
+    };
+    for (command, expected_result) in [(0x1d, 0), (-1, ipc::IPC_EINVAL)] {
+        let mut title = AlignedIsfsBytes([0; 32]);
+        title.0[..8].copy_from_slice(&0x0000_0001_0000_0002u64.to_be_bytes());
+        let original = title.0;
+        let mut path = AlignedIsfsBytes([0xa5; 32]);
+        let input = title.0.as_mut_ptr().cast();
+        let output = path.0.as_mut_ptr().cast();
+        let entries = [
+            ipc::Ioctlv {
+                data: input,
+                len: 8,
+            },
+            ipc::Ioctlv {
+                data: output,
+                len: 30,
+            },
+        ];
+        let mut vectors = Vectors(entries);
+        let sync = unsafe { ipc::IOS_Ioctlv(es.raw(), command, 1, 1, vectors.0.as_mut_ptr()) };
+        let sync_ok = vectors.0 == entries;
+        let sync_bytes = path.0;
+        path.0.fill(0xa5);
+        let userdata = output;
+        let (submitted, reply) = run_isfs_async_and_wait(|| unsafe {
+            ipc::IOS_IoctlvAsync(
+                es.raw(),
+                command,
+                1,
+                1,
+                vectors.0.as_mut_ptr(),
+                Some(isfs_probe_callback),
+                userdata,
+            )
+        });
+        unsafe { ogc_cache::dc_invalidate_range(path.0.as_ptr().cast(), 32) };
+        let async_pointers = vectors.0 == entries;
+        logger.note_i32("IPC C mixed ioctlv sync reply", sync);
+        logger.note_i32("IPC C mixed ioctlv async reply", reply);
+        logger.record(
+            if command == 0x1d {
+                "IPC C mixed ioctlv returns the ES title directory"
+            } else {
+                "IPC C mixed ioctlv preserves buffers on IOS error"
+            },
+            sync == expected_result
+                && submitted == 0
+                && reply == expected_result
+                && sync_ok
+                && async_pointers
+                && title.0 == original
+                && sync_bytes == path.0
+                && path.0[30..] == [0xa5; 2]
+                && if command == 0x1d {
+                    // Dolphin writes the path bytes and leaves the final byte intact.
+                    path.0[..29] == *b"/title/00000001/00000002/data" && path.0[29] == 0xa5
+                } else {
+                    path.0 == [0xa5; 32]
+                }
+                && ISFS_CALLBACK_COUNT.load(Ordering::Acquire) == 1
+                && ISFS_CALLBACK_USERDATA.load(Ordering::Acquire) == userdata as usize,
+        );
+    }
+    logger.record("IPC C mixed vector fixture closes ES", es.close().is_ok());
 }
 
 #[cfg(feature = "dolphin-automation")]
@@ -14425,13 +14616,21 @@ static ISO_CASE: core::sync::atomic::AtomicU8 = core::sync::atomic::AtomicU8::ne
 static ISFS_CALLBACK_DONE: AtomicBool = AtomicBool::new(false);
 static ISFS_CALLBACK_RESULT: AtomicI32 = AtomicI32::new(i32::MIN);
 
-unsafe extern "C" fn isfs_probe_callback(result: i32, _userdata: *mut core::ffi::c_void) -> i32 {
+static ISFS_CALLBACK_COUNT: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+static ISFS_CALLBACK_USERDATA: core::sync::atomic::AtomicUsize =
+    core::sync::atomic::AtomicUsize::new(0);
+
+unsafe extern "C" fn isfs_probe_callback(result: i32, userdata: *mut core::ffi::c_void) -> i32 {
+    ISFS_CALLBACK_USERDATA.store(userdata as usize, Ordering::Relaxed);
+    ISFS_CALLBACK_COUNT.fetch_add(1, Ordering::Relaxed);
     ISFS_CALLBACK_RESULT.store(result, Ordering::Release);
     ISFS_CALLBACK_DONE.store(true, Ordering::Release);
     filesystem::ISFS_OK
 }
 
 fn reset_isfs_callback() {
+    ISFS_CALLBACK_COUNT.store(0, Ordering::Relaxed);
+    ISFS_CALLBACK_USERDATA.store(0, Ordering::Relaxed);
     ISFS_CALLBACK_RESULT.store(i32::MIN, Ordering::Release);
     ISFS_CALLBACK_DONE.store(false, Ordering::Release);
 }

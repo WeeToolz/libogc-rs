@@ -1,4 +1,5 @@
 use serde::Serialize;
+use sha1::Sha1;
 use sha2::{Digest, Sha256};
 use std::collections::HashSet;
 use std::ffi::CString;
@@ -417,16 +418,19 @@ struct ProbeResult {
 #[derive(Serialize)]
 struct RelaunchHandoff {
     mode: String,
+    startup_marker: Option<String>,
     title: String,
     boot_content: String,
     boot_content_sha256: String,
-    signature_address: u32,
-    signature_sha256: String,
-    program_counter: u32,
-    stop_reply: String,
+    signature_address: Option<u32>,
+    signature_sha256: Option<String>,
+    program_counter: Option<u32>,
+    stop_reply: Option<String>,
 }
 
 struct RelaunchDestination {
+    title: u64,
+    nand_title_path: String,
     content: String,
     content_sha256: String,
     signature_address: u32,
@@ -911,7 +915,7 @@ mod wpad_probe_selection_tests {
 
     #[test]
     fn relaunch_requires_guest_handoff_without_failure() {
-        let good = "PASS IPC relaunch system menu ticket view\nINFO IPC relaunch mode=foreground\nINFO IPC relaunch handoff begins\n";
+        let good = "PASS IPC relaunch destination ticket view\nINFO IPC relaunch mode=foreground\nINFO IPC relaunch handoff begins\n";
         assert!(super::relaunch_source_ready(good, false));
         assert!(super::relaunch_source_ready(
             &format!("{good}INFO IPC relaunch returned=0\n"),
@@ -1188,7 +1192,11 @@ fn run_probe(
     let destination = if spec.name == "ipc_relaunch_probe"
         && std::env::var_os("LIBOGC_DOLPHIN_RELAUNCH_PANIC_DIAGNOSTIC").is_none()
     {
-        Some(relaunch_destination(&nand_copy.path, &dol_path)?)
+        let title = match std::env::var("LIBOGC_DOLPHIN_RELAUNCH_TITLE") {
+            Ok(id) => u64::from_str_radix(&id, 16).map_err(|err| err.to_string())?,
+            Err(_) => 0x0000_0001_0000_0002,
+        };
+        Some(relaunch_destination(&nand_copy.path, &dol_path, title)?)
     } else {
         None
     };
@@ -1446,6 +1454,59 @@ fn run_probe(
             completion = Completion::Exited(status.to_string());
             break;
         }
+        if let Some(destination) = destination.as_ref()
+            && destination.title == 0x0001_0001_4f48_4243
+        {
+            let log = fs::read_to_string(user_dir.join("Logs/dolphin.log")).unwrap_or_default();
+            let mode = if background_relaunch {
+                "background"
+            } else {
+                "foreground"
+            };
+            let api = if std::env::var("LIBOGC_DOLPHIN_RELAUNCH_API").as_deref() == Ok("rust") {
+                "rust"
+            } else {
+                "c"
+            };
+            let source = format!(
+                "IPC_RELAUNCH source api={api} mode={mode} title={:016x}",
+                destination.title
+            );
+            let launch = format!(
+                "Re-launching title {:016x} after IOS reload.",
+                destination.title
+            );
+            let boot = format!(
+                "BootstrapPPC: /title/{}/content/{}",
+                destination.nand_title_path, destination.content
+            );
+            let marker = "HBC: startup complete; entering render loop";
+            if let Some((_, after_source)) = log.split_once(&source)
+                && let Some((_, after_launch)) = after_source.split_once(&launch)
+                && let Some((_, after_boot)) = after_launch.split_once(&boot)
+                && after_boot
+                    .lines()
+                    .any(|line| line.contains("[OSREPORT]") && line.trim_end().ends_with(marker))
+                && after_source.lines().all(|line| {
+                    line.split_once("IPC_RELAUNCH returned=")
+                        .is_none_or(|(_, result)| result.trim() == "0")
+                })
+            {
+                relaunch_handoff = Some(RelaunchHandoff {
+                    mode: mode.to_string(),
+                    startup_marker: Some(marker.to_string()),
+                    title: format!("{:016x}", destination.title),
+                    boot_content: destination.content.clone(),
+                    boot_content_sha256: destination.content_sha256.clone(),
+                    signature_address: None,
+                    signature_sha256: None,
+                    program_counter: None,
+                    stop_reply: None,
+                });
+                completion = Completion::Handoff;
+                break;
+            }
+        }
         // A successful title handoff replaces the guest, so it cannot emit a
         // normal final summary. Require the explicit source marker, IOS title
         // boot evidence, and live destination code instead of treating a timeout
@@ -1457,11 +1518,13 @@ fn run_probe(
         {
             let log = fs::read_to_string(user_dir.join("Logs/dolphin.log")).unwrap_or_default();
             let boot_line = format!(
-                "BootstrapPPC: /title/00000001/00000002/content/{}",
-                destination.content
+                "BootstrapPPC: /title/{}/content/{}",
+                destination.nand_title_path, destination.content
             );
-            if log.contains("Re-launching title 0000000100000002 after IOS reload.")
-                && log.contains(&boot_line)
+            if log.contains(&format!(
+                "Re-launching title {:016x} after IOS reload.",
+                destination.title
+            )) && log.contains(&boot_line)
             {
                 let seen = *destination_seen.get_or_insert_with(Instant::now);
                 if seen.elapsed() >= Duration::from_secs(3) {
@@ -1595,13 +1658,22 @@ fn run_probe(
             summary_count: summaries.len(),
         },
     );
-    if matches!(completion, Completion::Handoff)
-        && (relaunch_handoff.is_none()
+    if matches!(completion, Completion::Handoff) {
+        if relaunch_handoff
+            .as_ref()
+            .is_some_and(|e| e.startup_marker.is_some())
+            && failure_lines.is_empty()
+            && page_capture_error.is_none()
+        {
+            status = "pass";
+            detail = "test title emitted its startup marker after the IOS launch".to_string();
+        } else if relaunch_handoff.is_none()
             || !failure_lines.is_empty()
-            || !relaunch_source_ready(&probe_log, background_relaunch))
-    {
-        status = "fail";
-        detail = "relaunch handoff evidence incomplete or guest reported failure".to_string();
+            || !relaunch_source_ready(&probe_log, background_relaunch)
+        {
+            status = "fail";
+            detail = "relaunch handoff evidence incomplete or guest reported failure".to_string();
+        }
     }
     if std::env::var_os("LIBOGC_DOLPHIN_IPC_BOUNDS").is_some()
         && ![
@@ -1824,7 +1896,7 @@ fn relaunch_source_ready(log: &str, background: bool) -> bool {
         "INFO IPC relaunch mode=foreground"
     };
     let mut lines = log.lines();
-    let ticket = lines.any(|line| line == "PASS IPC relaunch system menu ticket view");
+    let ticket = lines.any(|line| line == "PASS IPC relaunch destination ticket view");
     let mode_ok = lines.any(|line| line == mode);
     let handoff = lines.any(|line| line == "INFO IPC relaunch handoff begins");
     let returned: Vec<_> = log
@@ -1869,26 +1941,39 @@ fn dol_text_sections(bytes: &[u8]) -> Result<Vec<(std::ops::Range<u32>, usize)>,
     Ok(sections)
 }
 
-fn relaunch_destination(nand: &Path, source: &Path) -> Result<RelaunchDestination, String> {
-    let dir = nand.join("title/00000001/00000002/content");
+fn relaunch_destination(
+    nand: &Path,
+    source: &Path,
+    title: u64,
+) -> Result<RelaunchDestination, String> {
+    let nand_title_path = format!("{:08x}/{:08x}", title >> 32, title as u32);
+    let dir = nand.join("title").join(&nand_title_path).join("content");
     let tmd = fs::read(dir.join("title.tmd")).map_err(|err| err.to_string())?;
-    // Wii System Menu TMD uses an RSA-2048 signature and 36-byte records.
-    if elf_u32(&tmd, 0)? != 0x0001_0001
-        || checked_elf_slice(&tmd, 0x18c, 8)? != 0x0000_0001_0000_0002u64.to_be_bytes()
+    // Wii destination title TMD uses an RSA-2048 signature and 36-byte records.
+    if elf_u32(&tmd, 0)? != 0x0001_0001 || checked_elf_slice(&tmd, 0x18c, 8)? != title.to_be_bytes()
     {
-        return Err("not an RSA-2048 System Menu TMD".into());
+        return Err("not an RSA-2048 destination title TMD".into());
     }
     let count = elf_u16(&tmd, 0x1de)? as usize;
     let index = elf_u16(&tmd, 0x1e0)?;
     let record = (0..count)
         .map(|i| 0x1e4 + i * 36)
         .find(|&at| elf_u16(&tmd, at + 4) == Ok(index))
-        .ok_or("System Menu boot content not found")?;
+        .ok_or("destination title boot content not found")?;
     let content = format!("{:08x}.app", elf_u32(&tmd, record)?);
     let image = fs::read(dir.join(&content)).map_err(|err| err.to_string())?;
     let size = u64::from_be_bytes(checked_elf_slice(&tmd, record + 8, 8)?.try_into().unwrap());
-    if size != image.len() as u64 {
-        return Err("System Menu boot content size mismatch".into());
+    let expected_hash = checked_elf_slice(&tmd, record + 16, 20)?;
+    let hash = Sha1::digest(&image);
+    if size != image.len() as u64 || hash[..] != *expected_hash {
+        return Err(format!(
+            "destination title boot content mismatch: size {} expected {size}, SHA-1 {hash:x} expected {}",
+            image.len(),
+            expected_hash
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect::<String>()
+        ));
     }
     let sections = dol_text_sections(&image)?;
     // The Wii menu bootstrap DOL may use a physical entry address.
@@ -1896,10 +1981,10 @@ fn relaunch_destination(nand: &Path, source: &Path) -> Result<RelaunchDestinatio
     let (range, offset) = sections
         .iter()
         .find(|(range, _)| range.contains(&entry))
-        .ok_or("System Menu entry is outside its text sections")?;
+        .ok_or("destination title entry is outside its text sections")?;
     let length = (range.end - entry).min(64) as usize;
     if length < 32 {
-        return Err("System Menu entry signature is too short".into());
+        return Err("destination title entry signature is too short".into());
     }
     let signature =
         checked_elf_slice(&image, offset + (entry - range.start) as usize, length)?.to_vec();
@@ -1909,6 +1994,8 @@ fn relaunch_destination(nand: &Path, source: &Path) -> Result<RelaunchDestinatio
         .map(|(range, _)| range)
         .collect();
     Ok(RelaunchDestination {
+        title,
+        nand_title_path,
         content,
         content_sha256: format!("{:x}", Sha256::digest(&image)),
         signature_address: entry,
@@ -2360,13 +2447,14 @@ impl GdbClient {
                     "foreground"
                 }
                 .to_string(),
-                title: "0000000100000002".to_string(),
+                title: format!("{:016x}", destination.title),
                 boot_content: destination.content.clone(),
                 boot_content_sha256: destination.content_sha256.clone(),
-                signature_address: destination.signature_address,
-                signature_sha256: format!("{:x}", Sha256::digest(&code)),
-                program_counter: pc,
-                stop_reply: stop,
+                startup_marker: None,
+                signature_address: Some(destination.signature_address),
+                signature_sha256: Some(format!("{:x}", Sha256::digest(&code))),
+                program_counter: Some(pc),
+                stop_reply: Some(stop),
             }))
         })();
         self.continue_execution()?;

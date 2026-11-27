@@ -1080,18 +1080,20 @@ pub fn run_ipc_relaunch_probe_bin() -> i32 {
     #[repr(align(32))]
     struct Aligned<T>(T);
 
-    const MENU: u64 = 0x0000_0001_0000_0002;
+    let title_id = option_env!("LIBOGC_DOLPHIN_RELAUNCH_TITLE")
+        .map_or(Ok(0x0000_0001_0000_0002), |id| u64::from_str_radix(id, 16))
+        .expect("invalid Dolphin relaunch title ID");
     configure_probe_app_dir("ipc-relaunch-probe");
     let mut logger = init_probe_logger();
     let initialized = es::init();
     let mut view = Aligned(es::Tikview::default());
     let view_result = if initialized >= 0 {
-        unsafe { es::get_ticket_views(MENU, &mut view.0, 1) }
+        unsafe { es::get_ticket_views(title_id, &mut view.0, 1) }
     } else {
         initialized
     };
-    let valid = view_result == 0 && view.0.titleid == MENU;
-    logger.record("IPC relaunch system menu ticket view", valid);
+    let valid = view_result == 0 && view.0.titleid == title_id;
+    logger.record("IPC relaunch destination ticket view", valid);
     if !valid {
         logger.summary();
         return finish_probe();
@@ -1105,7 +1107,9 @@ pub fn run_ipc_relaunch_probe_bin() -> i32 {
             return finish_probe();
         }
     };
-    let mut title = Aligned(MENU);
+    #[cfg(not(feature = "ipc-relaunch-rust"))]
+    let mut title = Aligned(title_id);
+    #[cfg(not(feature = "ipc-relaunch-rust"))]
     let mut vectors = Aligned([
         ipc::Ioctlv {
             data: (&mut title.0 as *mut u64).cast(),
@@ -1120,12 +1124,49 @@ pub fn run_ipc_relaunch_probe_bin() -> i32 {
     logger.note("IPC relaunch mode=background");
     #[cfg(not(feature = "ipc-relaunch-background"))]
     logger.note("IPC relaunch mode=foreground");
+    let api = if cfg!(feature = "ipc-relaunch-rust") {
+        "rust"
+    } else {
+        "c"
+    };
+    let mode = if cfg!(feature = "ipc-relaunch-background") {
+        "background"
+    } else {
+        "foreground"
+    };
+    ogc_system::report(format_args!(
+        "IPC_RELAUNCH source api={api} mode={mode} title={title_id:016x}\n"
+    ));
     logger.note("IPC relaunch handoff begins");
-    #[cfg(not(feature = "ipc-relaunch-background"))]
+    #[cfg(feature = "ipc-relaunch-rust")]
+    let result = {
+        let title = Aligned(title_id.to_be_bytes());
+        // The ticket view is initialized and remains live through submission.
+        let ticket = unsafe {
+            core::slice::from_raw_parts(
+                core::ptr::from_ref(&view.0).cast::<u8>(),
+                core::mem::size_of::<es::Tikview>(),
+            )
+        };
+        let entries = [ipc::IoctlvEntry::In(&title.0), ipc::IoctlvEntry::In(ticket)];
+        if cfg!(feature = "ipc-relaunch-background") {
+            unsafe { fd.ioctlv_reboot_background(8, 2, entries) }
+        } else {
+            fd.ioctlv_reboot(8, 2, entries)
+        }
+    };
+    #[cfg(all(
+        not(feature = "ipc-relaunch-rust"),
+        not(feature = "ipc-relaunch-background")
+    ))]
     let result = unsafe { ipc::IOS_IoctlvReboot(fd.raw(), 8, 2, 0, vectors.0.as_mut_ptr()) };
-    #[cfg(feature = "ipc-relaunch-background")]
+    #[cfg(all(
+        not(feature = "ipc-relaunch-rust"),
+        feature = "ipc-relaunch-background"
+    ))]
     let result =
         unsafe { ipc::IOS_IoctlvRebootBackground(fd.raw(), 8, 2, 0, vectors.0.as_mut_ptr()) };
+    ogc_system::report(format_args!("IPC_RELAUNCH returned={result}\n"));
     logger.note_i32("IPC relaunch returned", result);
     logger.record("IPC relaunch request accepted", result == 0);
     if result == 0 {

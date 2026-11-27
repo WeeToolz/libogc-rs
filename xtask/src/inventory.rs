@@ -186,7 +186,7 @@ impl EvidenceScope {
                 "Selected ioctl and formatter cases pass in Dolphin. Physical Wii cache behavior remains unverified."
             }
             Self::IpcRebootGuard => {
-                "Invalid argument guards pass in Dolphin. Successful IOS relaunch remains unverified."
+                "Invalid argument guards and the OHBC test title handoff pass in Dolphin. The System Menu handoff remains unverified."
             }
             Self::DolphinCacheRegister => {
                 "Dolphin HID0 transitions and restoration only. Physical cache state and timing are unverified."
@@ -2529,7 +2529,7 @@ mod tests {
             ),
             (
                 "ipc-reboot-guard",
-                "Successful IOS relaunch remains unverified",
+                "System Menu handoff remains unverified",
             ),
         ] {
             let scope = EvidenceScope::parse(name).unwrap();

@@ -693,3 +693,48 @@ checks the flag inside the callback and its restoration on return. The
 [GX live interrupt evidence](../dolphin-runs/2026-11-26-gx-live-cp-irq-linux/README.md)
 verifies real suspension and resumption; independent review is required.
 This is not a blanket change to exception handling or other blocking APIs.
+
+### Dolphin reboot API handoffs
+
+Dolphin 2609a launched the installed OHBC homebrew test title
+(`000100014f484243`) from a fresh private NAND copy for each variant.
+The boot content `00000001.app` was 2,454,528 bytes.
+Its SHA-1 `8636c3acb85f20080a0baa18c324ac0feb7ea717` matched the TMD.
+Its SHA-256 was `5d3f61d8e7e4304461d361b269b93777de4fb08c03683413cc85b8310fd4f610`.
+
+| API | Mode | Dolphin run | Result |
+| --- | --- | --- | --- |
+| `IOS_IoctlvReboot` | Foreground | `1795784008-a2355468ad9e` | Pass |
+| `IOS_IoctlvRebootBackground` | Background | `1795784020-a2355468ad9e` | Pass |
+| `FileDescriptor::ioctlv_reboot` | Foreground | `1795784032-a2355468ad9e` | Pass |
+| `FileDescriptor::ioctlv_reboot_background` | Background | `1795784044-a2355468ad9e` | Pass |
+
+In each run, the source reported its API family, mode, and title ID.
+Dolphin then logged the IOS title launch and the expected boot content path.
+The destination emitted `HBC: startup complete; entering render loop` after
+the boot log. The runner used these events in order to confirm handoff.
+
+Select OHBC with `LIBOGC_DOLPHIN_RELAUNCH_TITLE=000100014f484243` and use
+`cargo xtask dolphin-validate --probe ipc_relaunch_probe --dolphin PATH`.
+Set `LIBOGC_DOLPHIN_RELAUNCH_API=rust` for the Rust API and
+`LIBOGC_DOLPHIN_RELAUNCH_BACKGROUND=1` for background mode.
+The run IDs identify the local Dolphin reports and logs.
+
+The System Menu handoff remains open. The local System Menu content SHA-1
+matched the TMD, but the content was 837,400 bytes and the TMD declared
+3,867,904 bytes. Physical Wii cache and DMA checks remain open separately.
+
+### Dolphin formatter contracts
+
+All 90 contract rows match named passing checks in the 890 check report
+(`1795770694-ac3843e4fb24`) and its 892 check repeat
+(`1795783878-a2355468ad9e`). The heap exhaustion contract lists its three
+separate assertions for Argv failure, Scalar failure, and recovery.
+Eight rows still require a physical Wii for cache and DMA verification.
+
+The expanded runtime run (`1795784435-a2355468ad9e`) passed 898 checks.
+The probe DOL SHA-256 was `88eac13127b1206d1831765ea63a52b9bf87f11ee78de4fad8ef3d1ffe1949af`.
+All 90 formatter rows matched again. The four raw ioctl APIs passed their
+original file stats or MAC checks, mixed input and output, IOS errors, and
+local argument rejection. The async checks confirmed callback count and
+userdata. Both vector APIs restored cached buffer pointers on reply.
