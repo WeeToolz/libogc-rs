@@ -53,13 +53,13 @@ pub struct BalanceBoardReport {
     pub raw_top_left: u16,
     /// Bottom-left raw sensor value.
     pub raw_bottom_left: u16,
-    /// Top-right load on Wiiuse's 0 to 34 scale.
+    /// Top-right load on Wiiuse's calibration scale (not clamped).
     pub top_right: f32,
-    /// Bottom-right load on Wiiuse's 0 to 34 scale.
+    /// Bottom-right load on Wiiuse's calibration scale (not clamped).
     pub bottom_right: f32,
-    /// Top-left load on Wiiuse's 0 to 34 scale.
+    /// Top-left load on Wiiuse's calibration scale (not clamped).
     pub top_left: f32,
-    /// Bottom-left load on Wiiuse's 0 to 34 scale.
+    /// Bottom-left load on Wiiuse's calibration scale (not clamped).
     pub bottom_left: f32,
 }
 
@@ -82,20 +82,29 @@ impl BalanceBoardReport {
             bottom_left: interpolate(raw_bottom_left, calibration.bottom_left),
         })
     }
+
+    /// Return Wiiuse's right-minus-left and bottom-minus-top offsets.
+    pub fn center_offsets(&self) -> [f32; 2] {
+        [
+            ((self.top_right + self.bottom_right) - (self.top_left + self.bottom_left)) / 2.0,
+            ((self.bottom_left + self.bottom_right) - (self.top_left + self.top_right)) / 2.0,
+        ]
+    }
 }
 
 fn interpolate(raw: u16, calibration: [u16; 3]) -> f32 {
-    const MIDDLE_CALIBRATION: f32 = 17.0;
-    let [zero, middle, full] = calibration;
-    if raw < zero {
-        0.0
-    } else if raw < middle {
-        (f32::from(raw - zero) * MIDDLE_CALIBRATION) / f32::from(middle - zero)
-    } else if raw < full {
-        (f32::from(raw - middle) * MIDDLE_CALIBRATION) / f32::from(full - middle)
-            + MIDDLE_CALIBRATION
+    // C wii_board_t stores the raw readings and calibration in signed shorts.
+    // Widen before subtracting, just as C integer promotion does.
+    let raw = i32::from(raw as i16);
+    let [zero, middle, full] = calibration.map(|value| i32::from(value as i16));
+    if zero >= middle || middle >= full {
+        // Malformed calibration must not produce infinity or NaN.
+        return 0.0;
+    }
+    if raw < middle {
+        17.0 * (raw - zero) as f32 / (middle - zero) as f32
     } else {
-        MIDDLE_CALIBRATION * 2.0
+        17.0 * (raw - middle) as f32 / (full - middle) as f32 + 17.0
     }
 }
 
@@ -140,7 +149,40 @@ mod tests {
         assert_eq!(report.top_right, 8.5);
         assert_eq!(report.bottom_right, 25.5);
         assert_eq!(report.top_left, 17.0);
-        assert_eq!(report.bottom_left, 34.0);
+        assert_eq!(report.bottom_left, 37.4);
+    }
+
+    #[test]
+    fn valid_calibration_extrapolates_on_both_sides() {
+        // Independent values from libogc calc_balanceboard_state, using a
+        // 100-unit distance between the three calibration points.
+        let calibration = BalanceBoardCalibration {
+            top_right: [100, 200, 300],
+            bottom_right: [100, 200, 300],
+            top_left: [100, 200, 300],
+            bottom_left: [100, 200, 300],
+        };
+        let report =
+            BalanceBoardReport::decode(&[0, 50, 1, 94, 0, 100, 1, 44], &calibration).unwrap();
+        assert_eq!(
+            [
+                report.top_right,
+                report.bottom_right,
+                report.top_left,
+                report.bottom_left
+            ],
+            [-8.5, 42.5, 0.0, 34.0]
+        );
+        assert_eq!(report.center_offsets(), [0.0, 42.5]);
+    }
+
+    #[test]
+    fn signed_sensor_values_match_c_and_invalid_calibration_is_finite() {
+        assert_eq!(interpolate(0xffff, [0, 10, 20]), -1.7);
+        assert_eq!(interpolate(20, [1, 1, 20]), 0.0);
+        assert_eq!(interpolate(20, [1, 20, 20]), 0.0);
+        assert_eq!(interpolate(20, [20, 10, 30]), 0.0);
+        assert_eq!(interpolate(20, [0; 3]), 0.0);
     }
 
     #[test]

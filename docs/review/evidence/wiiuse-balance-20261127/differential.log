@@ -1,0 +1,5 @@
+wiiuse/dynamics.c sha256=50f09ad2cc181c6cedcc0df208133d9b86c9e69c55b2caf732cfe7b279a27b86
+gc/wiiuse/wiiuse.h sha256=fc596f5fd3f7ecdf2d2c586e9dfc570ad9833ed0319209cfb69df42592c2ed62
+C revision: 7d4b8b3e7b845516f0cc2a85274879ddd8cbf142
+4097 synthetic reports, 24582 float bit patterns, zero mismatches
+Output SHA-256: 94005deee0d4a9cc0039cb498917f48571f7d92a222481525b009528c91dadb5

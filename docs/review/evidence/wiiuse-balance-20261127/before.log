@@ -1,0 +1,22 @@
+   Compiling wiiuse-rs v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/services/wiiuse-rs)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.91s
+     Running unittests src/lib.rs (target/debug/build/wiiuse-rs/16a2ac8bf258c0a4/out/wiiuse_rs-16a2ac8bf258c0a4)
+
+running 1 test
+test balance_board::tests::valid_calibration_extrapolates_on_both_sides ... FAILED
+
+failures:
+
+---- balance_board::tests::valid_calibration_extrapolates_on_both_sides stdout ----
+
+thread 'balance_board::tests::valid_calibration_extrapolates_on_both_sides' (13570) panicked at crates/services/wiiuse-rs/src/balance_board.rs:157:9:
+assertion `left == right` failed
+  left: [0.0, 34.0, 0.0, 34.0]
+ right: [-8.5, 42.5, 0.0, 34.0]
+
+failures:
+    balance_board::tests::valid_calibration_extrapolates_on_both_sides
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 53 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p wiiuse-rs --lib`

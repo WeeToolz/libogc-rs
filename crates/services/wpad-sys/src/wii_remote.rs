@@ -718,6 +718,7 @@ fn update_wiiboard_state(current: &mut WpadData, report: &[u8]) -> u32 {
             wb.br = board_report.bottom_right;
             wb.tl = board_report.top_left;
             wb.bl = board_report.bottom_left;
+            [wb.x, wb.y] = board_report.center_offsets();
         }
         current.exp.type_ = WPAD_EXP_WIIBOARD as i32;
     }
@@ -1286,8 +1287,10 @@ mod tests {
         );
         assert_eq!(
             [board.tr, board.br, board.tl, board.bl],
-            [8.5, 25.5, 17.0, 34.0]
+            [8.5, 25.5, 17.0, 37.4]
         );
+        assert_eq!(board.x, ((8.5f32 + 25.5) - (17.0 + 37.4)) / 2.0);
+        assert_eq!(board.y, ((37.4f32 + 25.5) - (17.0 + 8.5)) / 2.0);
     }
 
     #[test]

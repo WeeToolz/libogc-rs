@@ -1,0 +1,4 @@
+    Checking wiiuse-rs v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/services/wiiuse-rs)
+    Checking ogc-bt-sync v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/services/ogc-bt-sync)
+    Checking wpad-sys v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/services/wpad-sys)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.67s

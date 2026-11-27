@@ -1,0 +1,42 @@
+   Compiling compiler_builtins v0.1.160 (/mnt/data/setup/rust/lib/rustlib/src/rust/library/compiler-builtins/compiler-builtins)
+   Compiling core v0.0.0 (/mnt/data/setup/rust/lib/rustlib/src/rust/library/core)
+   Compiling libc v0.2.189
+   Compiling object v0.39.1
+   Compiling std v0.0.0 (/mnt/data/setup/rust/lib/rustlib/src/rust/library/std)
+   Compiling test v0.0.0 (/mnt/data/setup/rust/lib/rustlib/src/rust/library/test)
+   Compiling libm v0.2.16
+   Compiling rustc-std-workspace-core v1.99.0 (/mnt/data/setup/rust/lib/rustlib/src/rust/library/rustc-std-workspace-core)
+   Compiling alloc v0.0.0 (/mnt/data/setup/rust/lib/rustlib/src/rust/library/alloc)
+   Compiling adler2 v2.0.1
+   Compiling memchr v2.8.3
+   Compiling rustc-demangle v0.1.28
+   Compiling cfg-if v1.0.4
+   Compiling rustc-literal-escaper v0.0.8
+   Compiling unwind v0.0.0 (/mnt/data/setup/rust/lib/rustlib/src/rust/library/unwind)
+   Compiling rustc-std-workspace-alloc v1.99.0 (/mnt/data/setup/rust/lib/rustlib/src/rust/library/rustc-std-workspace-alloc)
+   Compiling panic_unwind v0.0.0 (/mnt/data/setup/rust/lib/rustlib/src/rust/library/panic_unwind)
+   Compiling panic_abort v0.0.0 (/mnt/data/setup/rust/lib/rustlib/src/rust/library/panic_abort)
+   Compiling gimli v0.34.0
+   Compiling miniz_oxide v0.9.1
+   Compiling hashbrown v0.17.1
+   Compiling std_detect v0.1.5 (/mnt/data/setup/rust/lib/rustlib/src/rust/library/std_detect)
+   Compiling addr2line v0.27.1
+   Compiling rustc-std-workspace-std v1.99.0 (/mnt/data/setup/rust/lib/rustlib/src/rust/library/rustc-std-workspace-std)
+   Compiling proc_macro v0.0.0 (/mnt/data/setup/rust/lib/rustlib/src/rust/library/proc_macro)
+   Compiling getopts v0.2.24
+    Checking ogc-sys v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/abi/ogc-sys)
+    Checking ogc-runtime v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/core/ogc-runtime)
+    Checking wiiuse-rs v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/services/wiiuse-rs)
+    Checking ogc-conf-sys v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/core/ogc-conf-sys)
+    Checking ogc-core v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/core/ogc-core)
+    Checking ogc-irq-sys v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/core/ogc-irq-sys)
+    Checking ogc-irq v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/core/ogc-irq)
+    Checking ogc-cache v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/core/ogc-cache)
+    Checking ogc-lwp-driver v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/core/ogc-lwp-driver)
+    Checking ogc-lwp-sys v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/core/ogc-lwp-sys)
+    Checking ogc-lwp v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/core/ogc-lwp)
+    Checking ogc-ipc v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/core/ogc-ipc)
+    Checking ogc-bt-sync v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/services/ogc-bt-sync)
+    Checking ogc-conf v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/core/ogc-conf)
+    Checking wpad-sys v0.1.0 (/mnt/data/setup/libogc-rs-273c2874/crates/services/wpad-sys)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 20.22s

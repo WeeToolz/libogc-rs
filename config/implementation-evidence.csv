@@ -3311,3 +3311,4 @@ ogc-ipc,src/lib.rs,IOS_IoctlvAsync,3508,ios,hardware-probe,probes/ogc-system-pro
 ogc-ipc,src/lib.rs,IOS_IoctlvReboot,3558,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctlv_mac,ipc::IOS_IoctlvReboot,invalid-arguments
 ogc-ipc,src/lib.rs,IOS_IoctlvRebootBackground,3570,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctlv_mac,ipc::IOS_IoctlvRebootBackground,invalid-arguments
 ogc-usbstorage-lifecycle,src/transport.rs,decode_csw,50,protocol,host-test,crates/services/ogc-usbstorage-lifecycle/src/transport.rs,csw_validates_signature_before_copying_and_tag_after_copying,decode_csw
+wiiuse-rs,src/balance_board.rs,center_offsets,87,protocol,host-test,crates/services/wiiuse-rs/src/balance_board.rs,valid_calibration_extrapolates_on_both_sides

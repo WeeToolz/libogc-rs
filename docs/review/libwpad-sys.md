@@ -838,3 +838,55 @@ uses PCB lookup and may accept responses with inconsistent CIDs; the Rust
 additional link/CID match deliberately prevents unrelated channel mutation.
 No new Dolphin or physical controller evidence. Broader HCI, HID and L2CAP
 option handling, retries and runtime transport review remain incomplete.
+
+## 2026-11-27 portable Wiiuse source coverage and Balance Board correction
+
+Reference: libogc `7d4b8b3e7b845516f0cc2a85274879ddd8cbf142`. The scope
+is the portable `wiiuse-rs` implementation, not all WPAD, lwBT or Wiiuse C
+functions. Transport, report dispatch, IR, speaker, orientation, connection
+management and ABI publication belong to other packages. The prior scoped
+reviews above remain evidence; this pass checked the following module map
+against the restored reference and inspected its main consumers.
+
+| Portable module | C reference and result |
+| --- | --- |
+| `adapter_patch` | `lwbt/bte.c` apply-patch and patch-complete paths: both blocks (184 and 92 bytes) match exactly. Start/continue/end/reset order matches. Explicit invalid-state/opcode errors and readiness after host setup are Rust safety/architecture differences. |
+| `buttons` | `wiiuse/events.c`, `nunchuk.c`, `classic.c`, `guitar_hero_3.c`, `gc/wiiuse/wiiuse.h`: endian conversion, active-low masks and previous/held/released formulas match. Rust adds pressed bits and masks invalid prior bits. |
+| `calibration` | `wiiuse/io.c` initial handshake: packed 10-bit fields and one-g subtraction match for valid data. Eight-byte read avoids C's seven-byte read followed by byte-7 access; fallback and saturating subtraction are intentional safety changes. |
+| `initial_handshake` | `wiiuse/io.c`: status, six-byte expansion ID, Wii U Pro bypass, calibration and final status; transport performs actual reads. Explicit invalid order and retry are Rust state safety. |
+| `read_assembly` | `wiiuse/events.c` data-read branch: offsets and size/error nibble match. Rust covers 224 bytes, checks ranges, handles identical duplicates and out-of-order fragments, rejects conflicting overlap, and returns explicit errors instead of C unchecked copies. Cross-low-16-bit-wrap reads are outside the supported consumer requests. |
+| `status` | `wiiuse/events.c` status: flags and battery byte match after report-ID offset adjustment; WPAD owns transition policy. |
+| `command_queue` | `wiiuse/wiiuse.c`, `io_wii.c`, `events.c`, `io.c`: read/write sizes and ACK/status/read completion ordering, recovery and expansion initialization. Rust bounds writes to 16 bytes, retains the existing C low-nibble size convention, uses 32 rather than C's 256 command slots, and reuses the completed slot for error recovery when full. These are documented implementation choices. |
+| `classic` | `wiiuse/classic.c`: calibration offsets, fallback, analog/trigger layouts, Pro fields and inverted button masks match. Rust requires complete payloads. |
+| `nunchuk` | `wiiuse/nunchuk.c`: packed acceleration, defaults, stick offsets and calibration retry match; explicit retry rejection prevents publishing bad data. Existing unsigned subtraction on malformed one-g values is preserved and tested; it is not a guarantee of meaningful calibration. |
+| `guitar_hero_3` | `wiiuse/guitar_hero_3.c`, `wpad.c`, header masks: stick/analog extraction, touch thresholds and unclamped whammy math match. |
+| `motion_plus` | `wiiuse/motion_plus.c`: all three packed axes, extension and status flags match. Short packets rejected. |
+| `balance_board` | `wiiuse/wiiboard.c`, `dynamics.c`, `wpad.c`: calibration ordering/retry and raw fields match; corrected interpolation and center offsets below. |
+| `lib` | Portable exports and module scope inspected; no direct C transport linked. |
+
+### Confirmed correction
+
+`calc_balanceboard_state` extrapolates below the first and above the last
+calibration points and calculates X/Y differences. Rust previously clamped
+loads to 0..34 and did not publish the center offsets in WPAD. The regression
+failed on the original implementation. Rust now applies the same signed
+short arithmetic (with integer promotion) and floating-point operation order
+for monotonic calibration, and shares the offset calculation with the WPAD
+consumer. Non-increasing calibration returns a finite zero per affected
+sensor instead of dividing by zero or reporting a reversed calibration;
+this is an intentional malformed-input policy, not C numerical parity.
+
+Run `python scripts/wiiuse-balance-differential.py PATH_TO_LIBOGC`. The script
+extracts the real pinned C function and ABI declaration and compares all
+six float bit patterns with production Rust on 4,097 synthetic reports.
+All 24,582 patterns match. See [differential log](evidence/wiiuse-balance-20261127/differential.log),
+[original failure](evidence/wiiuse-balance-20261127/before.log),
+[host tests](evidence/wiiuse-balance-20261127/host.log),
+[PowerPC compilation](evidence/wiiuse-balance-20261127/ppc.log), and
+[PowerPC test compilation](evidence/wiiuse-balance-20261127/ppc-tests.log).
+The host run passes 55 Wiiuse and 112 Bluetooth tests. The target-gated
+WPAD report regression checks extrapolation and both published offsets;
+it compiled but did not execute. No real controller or new Dolphin run
+was performed. Portable source coverage is now recorded; move Wiiuse to
+`needs_re_review` for independent review of these changes and consumer
+integration. Hardware evidence remains pending, not a completion gate.
