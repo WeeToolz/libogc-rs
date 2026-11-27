@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "local_rust_baseline": "649f18f11237b4893cd9a3cb5c8cd953e22cfa17",
+  "dolphin_version": "2609b stock graphical OpenGL",
+  "runs": [
+    {
+      "run": "focused",
+      "status": "probe_fail",
+      "passes": 77,
+      "fails": 1,
+      "page_capture_count": 9,
+      "pages_valid": true,
+      "dol_sha256": "68ba99ddbd02d6dee67713fa95d913105f3a8d363163c635dc5687e8616f560c",
+      "duration_milliseconds": 16021,
+      "failure_lines": [
+        "FAIL GX display copy scale above 256 retains scale-enable bit",
+        "FAIL GX display copy scale above 256 retains scale-enable bit"
+      ]
+    },
+    {
+      "run": "focused-final",
+      "status": "pass",
+      "passes": 78,
+      "fails": 0,
+      "page_capture_count": 8,
+      "pages_valid": true,
+      "dol_sha256": "8fe3fbc1bfb3e7b8873c3f217089ee2afec215da107b109b25a2ac11163372ff",
+      "duration_milliseconds": 15151,
+      "failure_lines": []
+    }
+  ],
+  "video_repeat": "Interrupted at page 17; no final report; not a pass.",
+  "inventory_entries": 3419,
+  "private_archive_sha256": "55fb391ee99989ed2fbef5ecca0bc43cc3a63a5c70dfda8362e9cc0c62c5e602"
+}

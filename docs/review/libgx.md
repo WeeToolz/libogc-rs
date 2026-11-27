@@ -448,3 +448,13 @@ an intentional resource-management improvement. The same Dolphin probe
 passes 54/55 before (producer remains suspended) and 55/55 after; the
 extended final run passes 59/59, including a later real overflow and
 underflow cycle. Physical Wii timing and other abort cases remain open.
+
+### GX target copy-scale and FIFO arithmetic vectors (2026-11-26)
+
+The standalone GX host helper cases are supplemental. The production GX
+crate requires PowerPC; use `cargo xtask dolphin-validate --probe gx_api_probe`
+for target runtime evidence. The extended focused probe passed 78/78 with
+eight valid captures on stock Dolphin 2609b. See
+[the target-vector report](../dolphin-runs/2026-11-26-gx-target-vectors-linux/README.md).
+The full video repeat did not complete. No production code or package
+parity status changed.

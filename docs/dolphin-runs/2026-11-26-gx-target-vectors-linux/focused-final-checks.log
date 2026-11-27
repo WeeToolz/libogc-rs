@@ -1,0 +1,20 @@
+PASS GX FIFO base size and initial count
+PASS GX FIFO watermarks and adjacent fields
+PASS GX FIFO short initialization preserves object
+PASS GX FIFO wrap flag readback
+PASS GX wrapped FIFO keeps real pointer addresses and distance
+PASS GX invalid FIFO pointer leaves prior metadata unchanged
+PASS GX nonwrapped FIFO keeps real pointer addresses and distance
+PASS GX frame configuration validates input
+PASS GX frame configuration rejects copy sizes that exceed the XFB
+PASS GX frame filter and field settings retained
+PASS GX copy-scale invalid dimensions use the safety fallback
+PASS GX copy-scale reference ratios encode the expected register values
+PASS GX copy-scale unity produces 480 lines
+PASS GX copy-scale odd divisor produces 481 lines
+PASS GX copy-scale 127 divisor produces 482 lines
+PASS GX copy-scale reduction produces 360 lines
+PASS GX display copy encodes first configuration
+PASS GX display copy encodes second configuration
+PASS GX display copy scale above 256 retains scale-enable bit
+PASS summary passes=78 fails=0

@@ -221,6 +221,12 @@ pub fn run_gx_api_probe(logger: &mut ProbeLogger) {
     probe_gx_watermark_delivery(logger, true);
     // A later overflow must still suspend and resume a new producer.
     probe_gx_watermark_delivery(logger, false);
+    // Exercise the production APIs for the copy-scale and FIFO arithmetic
+    // vectors on the target, not only the isolated host helper modules.
+    probe_fifo_pointers(logger);
+    probe_frame_config(logger);
+    probe_copy_scale_vectors(logger);
+    probe_display_copy_commands(logger);
     logger.summary();
 }
 
@@ -743,6 +749,14 @@ fn probe_frame_config(logger: &mut ProbeLogger) {
                     && !c.field_rendering
                     && !c.half_aspect_ratio
             }),
+    );
+    logger.record(
+        "GX frame configuration rejects copy sizes that exceed the XFB",
+        gx::FrameConfig::new(framebuffer, 640, 240, 480).is_none()
+            && gx::FrameConfig::new(framebuffer, 640, 480, 240).is_none()
+            && gx::FrameConfig::new(framebuffer, 640, 1025, 480).is_none()
+            && gx::FrameConfig::new(framebuffer, 640, 480, 1025).is_none()
+            && gx::FrameConfig::new(framebuffer, 640, 480, 360).is_some(),
     );
     if let Some(config) = initial {
         let filter = gx::GxCopyFilter {
@@ -1336,6 +1350,7 @@ fn probe_gx_canvas_dimensions(logger: &mut ProbeLogger, rmode: *mut video::GxrMo
     probe_clip_mode_commands(logger);
     probe_copy_clear_commands(logger);
     probe_display_copy_commands(logger);
+    probe_copy_scale_vectors(logger);
     probe_copy_filter_commands(logger);
     probe_field_mask_commands(logger);
     probe_bounding_box_commands(logger);
@@ -3718,6 +3733,61 @@ fn check_gx_bp_words(words: &[u32], emit: impl FnOnce()) -> bool {
     check_gx_command_bytes(&expected[..size], emit)
 }
 
+fn probe_copy_scale_vectors(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+
+    logger.report_step("GX copy-scale target arithmetic vectors");
+    logger.record(
+        "GX copy-scale invalid dimensions use the safety fallback",
+        [(0, 480), (480, 0), (1025, 480), (480, 1025), (480, 240)]
+            .into_iter()
+            .all(|(efb, xfb)| gx::get_y_scale_factor(efb, xfb) == 1.0),
+    );
+    logger.record(
+        "GX copy-scale reference ratios encode the expected register values",
+        [(480, 480, 256), (240, 480, 127), (480, 360, 341)]
+            .into_iter()
+            .all(|(efb, xfb, expected)| {
+                let factor = gx::get_y_scale_factor(efb, xfb);
+                ((256.0 / factor) as u32) & 0x1ff == expected
+            })
+            && gx::get_y_scale_factor(480, 360) == 0.75,
+    );
+    // The display list captures actual production BP writes without executing
+    // a framebuffer copy. Set the height before each scale calculation.
+    for (label, height, factor, scale, expected_lines) in [
+        ("GX copy-scale unity produces 480 lines", 480, 1.0, 256, 480),
+        (
+            "GX copy-scale odd divisor produces 481 lines",
+            480,
+            1.00390625,
+            255,
+            481,
+        ),
+        (
+            "GX copy-scale 127 divisor produces 482 lines",
+            240,
+            2.01,
+            127,
+            482,
+        ),
+        (
+            "GX copy-scale reduction produces 360 lines",
+            480,
+            0.75,
+            341,
+            360,
+        ),
+    ] {
+        let mut lines = 0;
+        let command = check_gx_bp_words(&[0x4e00_0000 | scale], || unsafe {
+            gx::set_disp_copy_src(0, 0, 640, height);
+            lines = gx::set_disp_copy_y_scale(factor);
+        });
+        logger.record(label, command && lines == expected_lines);
+    }
+}
+
 fn probe_display_copy_commands(logger: &mut ProbeLogger) {
     use ogc_gx as gx;
 
@@ -3770,6 +3840,31 @@ fn probe_display_copy_commands(logger: &mut ProbeLogger) {
     logger.record(
         "GX display copy encodes second configuration",
         second && lines == 479,
+    );
+    // The scale-enable bit is also set above 256, not only below it.
+    // Each display list restores its saved state. Set the other fields again.
+    let third = check_gx_bp_words(
+        &[
+            0x4e00_0155,
+            0x4900_2411,
+            0x4a07_7d3f,
+            0x4d00_0014,
+            0x4b09_1a2b,
+            0x5200_7503,
+        ],
+        || unsafe {
+            gx::set_disp_copy_src(17, 9, 320, 480);
+            gx::set_disp_copy_dst(320, 480);
+            gx::set_copy_clamp(3);
+            gx::set_disp_copy_gamma(2);
+            gx::set_disp_copy_frame2_field(3);
+            lines = gx::set_disp_copy_y_scale(0.75);
+            gx::copy_disp(dest, 0);
+        },
+    );
+    logger.record(
+        "GX display copy scale above 256 retains scale-enable bit",
+        third && lines == 360,
     );
 }
 
@@ -5721,6 +5816,16 @@ fn probe_fifo_pointers(logger: &mut ProbeLogger) {
         read == unsafe { base.add(0xf000).cast() }
             && write == unsafe { base.add(0x1000).cast() }
             && unsafe { gx::get_fifo_count(&fifo) } == 0x2000,
+    );
+    unsafe {
+        gx::init_fifo_ptrs(&mut fifo, base.add(0x1000).cast(), base.add(0xf000).cast());
+        gx::get_fifo_ptrs(&fifo, &mut read, &mut write);
+    }
+    logger.record(
+        "GX nonwrapped FIFO keeps real pointer addresses and distance",
+        read == unsafe { base.add(0x1000).cast() }
+            && write == unsafe { base.add(0xf000).cast() }
+            && unsafe { gx::get_fifo_count(&fifo) } == 0xe000,
     );
 }
 
