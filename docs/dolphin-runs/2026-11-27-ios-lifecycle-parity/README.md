@@ -24,6 +24,11 @@ The probe called all five public IOS lifecycle APIs:
 | `launch_new_ios(2)` | `-12544`, equal to `IOS_EBADVERSION`; pass |
 | `reload_ios(58)` | `0`; IOS 58 remained active, and `/dev/fs` opened and closed after reload; pass |
 
+The same probe also checked all 24 ES operation argument guards with ES closed
+and open. That set includes `import_boot` with null pointers and zero lengths.
+The closed call returned `ES_ENOTINIT`; the open call returned `ES_EINVAL`
+before any IOS submission. It does not test a successful boot import.
+
 The Dolphin IOS log records an IOS 58 start during the reload. The run used
 the runner's private Dolphin profile. It does not prove a real Wii reload,
 System Menu handoff, cache behavior, or DMA behavior.

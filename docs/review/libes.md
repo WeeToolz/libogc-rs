@@ -272,3 +272,20 @@ closed-service errors, live file operations, and ES UID rejection when ES
 is closed. The host UID completion test covers callback order for simulated
 IOS success and failure. Successful privileged UID changes were outside
 this run.
+
+## Safety-limited ES operations — 2026-11-27
+
+The `ios_reload_probe` checks `import_boot` with null, zero-length inputs while
+ES is closed and after it is open. The calls return the expected service-state
+or argument errors before they submit an IOS request. The inventory records
+this narrow guard evidence as `invalid-arguments`; valid boot import remains
+unverified.
+
+The remaining unverified ES APIs include title/content installation and
+deletion, export-session state, UID changes, `ES_Reset`, and the Rust-only
+`patch_ahbprot_reset`. Do not test successful boot import, title mutation, or
+UID changes until the probe has a disposable, known-good title fixture and a
+qualified recovery path. The AHBPROT helper writes the MEM2 protection register
+and may patch ES code, so its runtime check needs an environment with an
+explicit reset path. These APIs remain open; this note does not mark them
+verified.

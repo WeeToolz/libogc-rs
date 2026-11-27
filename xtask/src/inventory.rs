@@ -97,6 +97,7 @@ enum EvidenceScope {
     IpcPartialDolphin,
     IpcRebootGuard,
     IosLifecycleDolphin,
+    EsBootImportArguments,
 }
 
 impl EvidenceScope {
@@ -127,6 +128,7 @@ impl EvidenceScope {
             "ipc-partial-dolphin" => Self::IpcPartialDolphin,
             "ipc-reboot-guard" => Self::IpcRebootGuard,
             "ios-lifecycle-dolphin" => Self::IosLifecycleDolphin,
+            "es-boot-import-arguments" => Self::EsBootImportArguments,
             _ => return None,
         })
     }
@@ -193,6 +195,9 @@ impl EvidenceScope {
             Self::IosLifecycleDolphin => {
                 "IOS lifecycle API checks pass in Dolphin. Physical Wii reload behavior remains unverified; the startup loader contract is a no-op in pinned C."
             }
+            Self::EsBootImportArguments => {
+                "Null and zero-length boot-import rejection only in Dolphin. Successful persistent boot import remains unverified until a disposable fixture and recovery path are qualified."
+            }
             Self::DolphinCacheRegister => {
                 "Dolphin HID0 transitions and restoration only. Physical cache state and timing are unverified."
             }
@@ -233,6 +238,7 @@ impl EvidenceScope {
             | Self::IpcPartialDolphin
             | Self::IpcRebootGuard
             | Self::IosLifecycleDolphin => "dolphin-partial",
+            Self::EsBootImportArguments => "unverified",
             Self::NoControllerAndInvalidArguments => "unverified",
             _ => declared,
         }
@@ -2518,6 +2524,7 @@ mod tests {
             "no-event-hook",
             "synchronous-scalar-output",
             "scalar-output",
+            "es-boot-import-arguments",
             "zero-tag-count",
         ] {
             let scope = EvidenceScope::parse(scope).unwrap();
