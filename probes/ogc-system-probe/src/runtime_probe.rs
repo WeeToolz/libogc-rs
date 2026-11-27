@@ -10617,6 +10617,27 @@ fn probe_lwbt_closed_adapter(logger: &mut ProbeLogger) {
     }
 
     logger.section("LWBT CLOSED ADAPTER");
+    // C BTE_Close clears only a pending command callback. It does not release
+    // caller-owned PCBs or shut down the transport as BTE_Shutdown does.
+    // SAFETY: `new` returns an owned PCB, which is freed below.
+    let close_pcb = unsafe { bte::new() };
+    bte::close();
+    let close_disconnect = if close_pcb.is_null() {
+        bte::ERR_ARG
+    } else {
+        // SAFETY: `close` must preserve this live PCB. A fresh PCB without a
+        // connection can be disconnected safely and then freed below.
+        unsafe { bte::disconnect(close_pcb) }
+    };
+    logger.record(
+        "lwBT close preserves the live PCB instead of shutting down",
+        !close_pcb.is_null() && close_disconnect != bte::ERR_ARG,
+    );
+    if !close_pcb.is_null() {
+        // SAFETY: This probe owns the PCB returned by `new`.
+        unsafe { bte::free(close_pcb) };
+    }
+
     // SAFETY: `new` gives the probe a live PCB until shutdown releases it.
     let pcb = unsafe { bte::new() };
     let shutdown = bte::try_shutdown();

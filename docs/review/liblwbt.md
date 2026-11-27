@@ -26,6 +26,12 @@ C advertises `L2CAP_MTU = HIDD_N + 1 = 673` in HID L2CAP configuration requests.
 
 The crate remains `parity_blocked` because the two-stage control/data connect/listen behavior still differs from C. The `senddata` framing mismatch is fixed.
 
+## 2026-11-27 `close` versus `shutdown`
+
+Pinned C `BTE_Close` only clears the HCI command-completion callback and leaves the adapter and PCB pool active (`../../C-sources/libogc/lwbt/bte.c:394-402`). `BTE_Shutdown` removes the alarm, sends HCI reset, closes the physical bus, and releases the command queue (`bte.c:405-423`). Rust had mapped `close()` to `shutdown()`, which closed the transport and freed every PCB. Rust HCI operations complete synchronously and retain no command-completion callback after return, so the matching `close()` operation has no callback state to clear. It now leaves the transport and PCB pool in place; `shutdown()` remains the full cleanup entry point.
+
+The Dolphin runtime probe now allocates a PCB, calls public `close()`, and verifies that the PCB is still live before it frees it. This checks the Rust state behavior. It does not test a pending HCI callback or a physical Bluetooth adapter. Keep hardware callback behavior open.
+
 ## Confirmed mismatch
 
 ### `sendmessage` and `sendmessageasync` use the interrupt data path instead of the HID control report queue

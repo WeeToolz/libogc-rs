@@ -362,7 +362,10 @@ pub fn last_status() -> i32 {
 }
 
 pub fn close() {
-    shutdown();
+    // Pinned C `BTE_Close` only clears its pending HCI command-completion
+    // callback. Rust HCI commands complete before their public call returns,
+    // so there is no retained callback to clear here. Keep the transport and
+    // PCB pool alive; callers use `shutdown` for full cleanup.
 }
 
 fn run_init_callback(cb: BteCallback) -> i32 {
