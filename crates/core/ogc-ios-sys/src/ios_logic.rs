@@ -14,15 +14,11 @@ pub(super) const fn stored_tmd_size_is_supported(size: u32) -> bool {
     size <= MAX_STORED_TMD_SIZE
 }
 
-pub(super) const fn initialization_result(es_result: i32, stm_result: i32) -> i32 {
-    let mut result = 0;
-    if es_result < 0 {
-        result = es_result;
-    }
-    if stm_result < 0 {
-        result = stm_result;
-    }
-    result
+pub(super) const fn initialization_result(es_result: i32, _stm_result: i32) -> i32 {
+    // The pinned C __STM_Init returns zero when either IOS_Open fails and
+    // does not propagate __STM_SetEventHook's result. Therefore STM cannot
+    // replace the ES result observed by __IOS_InitializeSubsystems.
+    if es_result < 0 { es_result } else { 0 }
 }
 
 pub(super) const fn update_error(previous: i32, result: i32) -> i32 {
@@ -83,10 +79,10 @@ mod tests {
     }
 
     #[test]
-    fn initialization_attempts_both_subsystems_and_returns_last_error() {
+    fn initialization_keeps_es_error_and_ignores_stm_error() {
         assert_eq!(initialization_result(-10, 0), -10);
-        assert_eq!(initialization_result(0, -20), -20);
-        assert_eq!(initialization_result(-10, -20), -20);
+        assert_eq!(initialization_result(0, -20), 0);
+        assert_eq!(initialization_result(-10, -20), -10);
         assert_eq!(initialization_result(0, 0), 0);
     }
 
