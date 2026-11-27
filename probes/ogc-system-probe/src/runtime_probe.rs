@@ -5531,13 +5531,11 @@ fn probe_lwp_workspace_thread_lifecycle(logger: &mut ProbeLogger) {
     LWP_PROBE_FAILURE.store(false, Ordering::Release);
     LWP_PROBE_ALLOC_CALLS.store(0, Ordering::Release);
     LWP_PROBE_FREE_CALLS.store(0, Ordering::Release);
-    // SAFETY: The wrapper delegates all live allocations to the original pair.
-    unsafe {
-        driver::swap_workspace_allocator_for_probe(
-            Some(probe_lwp_workspace_alloc),
-            Some(probe_lwp_workspace_free),
-        )
-    };
+    // Both public setters install and restore the same production allocator pair.
+    driver::set_workspace_allocator(
+        Some(probe_lwp_workspace_alloc),
+        Some(probe_lwp_workspace_free),
+    );
     ogc_irq::irq_restore(irq);
 
     let mut thread = driver::LWP_THREAD_NULL;
@@ -5597,7 +5595,7 @@ fn probe_lwp_workspace_thread_lifecycle(logger: &mut ProbeLogger) {
     let recovered_pointer = LWP_PROBE_POINTER.load(Ordering::Acquire);
     let recovered_freed = LWP_PROBE_FREED.load(Ordering::Acquire);
     // SAFETY: Both successfully created threads have been joined before restore.
-    unsafe { driver::swap_workspace_allocator_for_probe(previous.0, previous.1) };
+    lwp::set_workspace_allocator(previous.0, previous.1);
     logger.record(
         "LWP tracked workspace frees the joined thread stack",
         allocated != 0 && joined && result == marker && freed == allocated,

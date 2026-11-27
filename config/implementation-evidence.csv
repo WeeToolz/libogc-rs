@@ -975,6 +975,7 @@ ogc-lwp,src/lib.rs,wait,280,compatibility-forwarder,hardware-probe,probes/lwp-pr
 ogc-lwp-driver,src/runtime.rs,cond_signal,3065,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,sync_worker
 ogc-lwp-driver,src/runtime.rs,cond_wait,3020,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,run_synchronization
 ogc-lwp-driver,src/runtime.rs,create_thread,1814,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,create_with_stack
+ogc-lwp-driver,src/runtime.rs,set_workspace_allocator,679,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_workspace_thread_lifecycle,driver::set_workspace_allocator
 ogc-lwp-driver,src/runtime.rs,swap_workspace_allocator_for_probe,4344,scheduler,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_workspace_thread_lifecycle,driver::swap_workspace_allocator_for_probe
 ogc-lwp-driver,src/runtime.rs,debug_counters,3951,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,run_switch_and_join
 ogc-lwp-driver,src/runtime.rs,debug_drain,3957,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,dump_debug
@@ -1008,6 +1009,7 @@ ogc-lwp-sys,src/lib.rs,sem_destroy,253,compatibility-forwarder,hardware-probe,pr
 ogc-lwp-sys,src/lib.rs,sem_init,249,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_synchronization
 ogc-lwp-sys,src/lib.rs,sem_post,267,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_synchronization
 ogc-lwp-sys,src/lib.rs,sem_wait,257,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_synchronization
+ogc-lwp-sys,src/lib.rs,set_workspace_allocator,37,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwp_workspace_thread_lifecycle,lwp::set_workspace_allocator
 ogc-lwp-sys,src/lib.rs,set_debug_hook,351,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run
 ogc-lwp-sys,src/lib.rs,timer_cancel,164,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_tuxedo_compatibility
 ogc-lwp-sys,src/lib.rs,timer_start_with_key,154,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_tuxedo_compatibility

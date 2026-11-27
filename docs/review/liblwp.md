@@ -419,3 +419,16 @@ an IRQ keeps the existing cooperative path. The corrected GX probe passes
 [run evidence](../dolphin-runs/2026-11-26-gx-live-cp-irq-linux/README.md).
 This scope covers external IRQ self-suspension; other exception-context
 scheduler and blocking paths and independent review remain open.
+
+## Workspace allocator public setters — 2026-11-27
+
+The `runtime_probe` now calls both public allocator setters. It installs the
+wrapping pair through `ogc_lwp_driver::set_workspace_allocator` and restores
+the original pair through `ogc_lwp::sys::set_workspace_allocator`. Dolphin
+2609a passed 917 checks with zero failures. The named checks verify that a
+thread stack is allocated and freed through the pair, that an allocation
+failure rejects thread creation, and that a later thread can still be created
+and joined. The [run record](../dolphin-runs/2026-11-27-lwp-workspace-public-setter/README.md)
+contains the DOL hash and logs. The failed allocation happens before the
+allocator returns a stack, so later thread-creation cleanup remains open.
+Physical Wii behavior remains open.
