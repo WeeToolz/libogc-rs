@@ -1,12 +1,15 @@
 //! Sector transfer accounting shared by FAT read and write operations.
 //!
 //! A failure before any transfer is returned. A failure after a completed
-//! prefix returns that prefix's byte count, as required for partial file I/O.
+//! prefix returns that prefix's byte count and preserves the terminal error
+//! for raw devoptab callbacks. Typed callers can use the completed byte count.
 pub fn transfer<E>(
     length: usize,
     invalid: E,
+    partial_error: &mut Option<E>,
     mut step: impl FnMut(usize) -> Result<usize, E>,
 ) -> Result<usize, E> {
+    *partial_error = None;
     let mut completed = 0;
     while completed < length {
         let count = match step(completed) {
@@ -15,6 +18,7 @@ pub fn transfer<E>(
                 return if completed == 0 {
                     Err(error)
                 } else {
+                    *partial_error = Some(error);
                     Ok(completed)
                 };
             }
@@ -77,7 +81,8 @@ mod tests {
         let persisted = [10, 20, 30, 40, 50, 60];
         let mut output = [0xcc; 6];
         let mut cursor = 0;
-        let result = transfer(6, "invalid", |done| {
+        let mut partial = None;
+        let result = transfer(6, "invalid", &mut partial, |done| {
             if done == 4 {
                 return Err("media removed");
             }
@@ -86,10 +91,11 @@ mod tests {
             Ok(2)
         });
         assert_eq!(result, Ok(4));
+        assert_eq!(partial, Some("media removed"));
         assert_eq!(cursor, 4);
         assert_eq!(output, [10, 20, 30, 40, 0xcc, 0xcc]);
         assert_eq!(
-            transfer(2, "invalid", |_| Err("media removed")),
+            transfer(2, "invalid", &mut None, |_| Err("media removed")),
             Err("media removed")
         );
     }
@@ -98,7 +104,8 @@ mod tests {
         let input = [1, 2, 3, 4, 5, 6];
         let mut persisted = [0; 6];
         let mut cursor = 0;
-        let result = transfer(6, "invalid", |done| {
+        let mut partial = None;
+        let result = transfer(6, "invalid", &mut partial, |done| {
             if done == 4 {
                 return Err("write failed");
             }
@@ -107,6 +114,7 @@ mod tests {
             Ok(2)
         });
         assert_eq!(result, Ok(4));
+        assert_eq!(partial, Some("write failed"));
         assert_eq!(cursor, 4);
         let reopened_medium = persisted;
         assert_eq!(reopened_medium, [1, 2, 3, 4, 0, 0]);
@@ -114,21 +122,34 @@ mod tests {
     #[test]
     fn first_failure_does_not_become_success() {
         assert_eq!(
-            transfer(4, "invalid", |_| Err("transport error")),
+            transfer(4, "invalid", &mut None, |_| Err("transport error")),
             Err("transport error")
         );
     }
     #[test]
     fn rejects_zero_and_excessive_transfer_counts() {
-        assert_eq!(transfer(4, "invalid", |_| Ok(0)), Err("invalid"));
-        assert_eq!(transfer(4, "invalid", |_| Ok(5)), Err("invalid"));
+        assert_eq!(transfer(4, "invalid", &mut None, |_| Ok(0)), Err("invalid"));
+        assert_eq!(transfer(4, "invalid", &mut None, |_| Ok(5)), Err("invalid"));
     }
     #[test]
     fn empty_io_does_not_use_the_transport() {
         assert_eq!(
-            transfer(0, "invalid", |_| panic!("unexpected transfer")),
+            transfer(0, "invalid", &mut None, |_| panic!("unexpected transfer")),
             Ok(0)
         );
+    }
+
+    #[test]
+    fn successful_and_first_failed_transfers_clear_prior_partial_error() {
+        let mut partial = Some("stale");
+        assert_eq!(transfer(4, "invalid", &mut partial, |_| Ok(4)), Ok(4));
+        assert_eq!(partial, None);
+        partial = Some("stale");
+        assert_eq!(
+            transfer(4, "invalid", &mut partial, |_| Err("first")),
+            Err("first")
+        );
+        assert_eq!(partial, None);
     }
 
     #[test]

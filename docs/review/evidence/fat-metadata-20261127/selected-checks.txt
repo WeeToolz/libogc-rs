@@ -1,0 +1,9 @@
+before: PASS FAT path, descriptor and directory stat agree on size, blocks and mode
+before: FAIL FAT all registered stat paths report stored access and modification dates
+before: PASS BlockFS FAT mount supports file I/O through the selected backend
+after: PASS FAT path, descriptor and directory stat agree on size, blocks and mode
+after: PASS FAT all registered stat paths report stored access and modification dates
+after: PASS BlockFS FAT mount supports file I/O through the selected backend
+final: PASS FAT path, descriptor and directory stat agree on size, blocks and mode
+final: PASS FAT all registered stat paths report stored access and modification dates
+final: PASS BlockFS FAT mount supports file I/O through the selected backend

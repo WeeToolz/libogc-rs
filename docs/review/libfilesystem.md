@@ -385,3 +385,35 @@ The test does not verify the additional offline and non-directory error
 paths independently. The exact legacy libfat reference revision remains
 unidentified, so retain `review_incomplete`. Physical media evidence remains
 pending and is not the source-review gate.
+
+## 2026-11-27 FAT metadata and partial transfer
+
+The registered path stat, descriptor stat and directory enumeration previously
+built different metadata and discarded stored access/modification timestamps.
+The shared builder retains the existing logical-sector count and read-only mount
+policy, decodes FAT dates with the existing UTC conversion, and reports the
+live open-file length when available. FAT has no POSIX status-change timestamp;
+that field remains unspecified. Invalid calendar fields do not prevent raw
+stat, but the typed explicit timestamp API remains strict. The sector-count
+policy is a Rust consistency choice, not a claim of exact libfat allocation
+accounting parity.
+
+Public libfat [v1.2.0 fatfile.c](https://github.com/devkitPro/libfat/blob/v1.2.0/source/fatfile.c)
+sets errno for several failures after a completed transfer prefix and returns
+that prefix length. Rust now retains the terminal transfer error in its common
+engine, publishes it from registered callbacks and returns the completed count
+from typed callers. A terminal error takes precedence over EOF. Gap fill and
+truncate stop on partial error rather than silently retrying; the completed
+prefix remains committed. Rust deliberately checks more failure paths and
+retains its existing first-error contract. Host tests verify error retention and
+clearing stale errors. This is a bounded source comparison, not a full
+differential against a pinned historical dependency.
+
+See [selected evidence](evidence/fat-metadata-20261127/README.md). The new raw
+metadata timestamp assertion fails on baseline. Metadata-only corrected Dolphin
+run passes 58/58, five valid pages. The combined final source builds for PowerPC,
+passes the new guest assertions and file I/O, but capture times out before the
+final summary. Host tests pass 170/170; inventory is current at 3,420 entries.
+Target partial-failure injection, multi-sector cluster/read-only metadata cases,
+and exact reference identification remain open. Keep `review_incomplete`.
+Physical media verification is pending separately.

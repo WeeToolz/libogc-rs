@@ -873,34 +873,6 @@ struct DirEntry {
     short_offset: u16,
 }
 
-impl DirEntry {
-    fn cluster_blocks(&self, mount: &mut FatMount) -> u32 {
-        cluster_blocks(mount, self.start_cluster)
-    }
-}
-
-fn cluster_blocks(mount: &mut FatMount, start_cluster: u32) -> u32 {
-    if start_cluster < 2 || start_cluster > mount.cluster_count + 1 {
-        return 0;
-    }
-    let mut count = 0u32;
-    let mut cluster = start_cluster;
-    for _ in 0..=mount.cluster_count {
-        let Ok(next) = mount.read_fat_entry(cluster) else {
-            break;
-        };
-        count = count.saturating_add(mount.sectors_per_cluster as u32);
-        if mount.is_eoc(next) || next == 0 || mount.is_bad_cluster(next) {
-            break;
-        }
-        if next < 2 || next > mount.cluster_count + 1 {
-            break;
-        }
-        cluster = next;
-    }
-    count
-}
-
 #[derive(Clone)]
 struct EntryPos {
     sector: u32,
@@ -1007,7 +979,7 @@ impl FatFile {
         let lock = unsafe { self.state.mount.as_ref() }.ok_or(FatError::Io)?;
         let mut mount = lock.lock();
         mount.ensure_online()?;
-        read_file_bytes(&mut mount, &mut self.state, output)
+        read_file_bytes(&mut mount, &mut self.state, output, &mut None)
     }
 
     /// Set the current file position. The position may be past the file end.
@@ -1092,7 +1064,7 @@ impl FatFile {
         if len == 0 {
             return Err(FatError::FileTooLarge);
         }
-        write_file_bytes(&mut mount, &mut self.state, &bytes[..len])
+        write_file_bytes(&mut mount, &mut self.state, &bytes[..len], &mut None)
     }
 
     /// Set the file size in bytes.
@@ -1320,7 +1292,10 @@ pub struct FatTimestamps {
 fn read_timestamps(mount: &FatMount, sector: u32, offset: u16) -> Result<FatTimestamps, FatError> {
     let mut bytes = [0u8; MAX_SECTOR_BYTES];
     mount.read_sector(sector, &mut bytes)?;
-    let entry = &bytes[offset as usize..offset as usize + 32];
+    decode_entry_timestamps(&bytes[offset as usize..offset as usize + 32])
+}
+
+fn decode_entry_timestamps(entry: &[u8]) -> Result<FatTimestamps, FatError> {
     let field = |index| u16::from_le_bytes([entry[index], entry[index + 1]]);
     let decode = |date, time| {
         if date == 0 {
@@ -2865,8 +2840,14 @@ unsafe extern "C" fn fat_write_r(
             return -1;
         }
         let bytes = { core::slice::from_raw_parts(ptr.cast::<u8>(), len) };
-        match write_file_bytes(&mut mount, file_state, bytes) {
-            Ok(written) => written as isize,
+        let mut partial_error = None;
+        match write_file_bytes(&mut mount, file_state, bytes, &mut partial_error) {
+            Ok(written) => {
+                if let Some(error) = partial_error {
+                    set_fat_errno(r, error);
+                }
+                written as isize
+            }
             Err(error) => {
                 set_fat_errno(r, error);
                 -1
@@ -2879,6 +2860,7 @@ fn write_file_bytes(
     mount: &mut FatMount,
     file_state: &mut FatFileState,
     bytes: &[u8],
+    partial_error: &mut Option<FatError>,
 ) -> Result<usize, FatError> {
     if file_state.position > file_state.size {
         let mut remaining = file_state.position - file_state.size;
@@ -2886,13 +2868,19 @@ fn write_file_bytes(
         let zeroes = [0u8; MAX_SECTOR_BYTES];
         while remaining != 0 {
             let chunk = min(remaining as usize, zeroes.len());
-            let written = write_file_bytes(mount, file_state, &zeroes[..chunk])?;
+            let mut gap_error = None;
+            let written = write_file_bytes(mount, file_state, &zeroes[..chunk], &mut gap_error)?;
             remaining -= written as u32;
+            if let Some(error) = gap_error {
+                // No caller data has been written. Retain the committed zero
+                // prefix, but stop on the actual medium error.
+                return Err(error);
+            }
         }
     }
 
     let cluster_size = mount.cluster_size();
-    file_transfer::transfer(bytes.len(), FatError::Io, |written| {
+    file_transfer::transfer(bytes.len(), FatError::Io, partial_error, |written| {
         let offset = file_state.position;
         let cluster_index = offset / cluster_size;
         let within_cluster = offset % cluster_size;
@@ -2959,9 +2947,12 @@ unsafe extern "C" fn fat_read_r(
         let truncated_at_eof = len > remaining;
         let mut mount = mount_lock.lock();
         let bytes = { core::slice::from_raw_parts_mut(ptr.cast::<u8>(), len) };
-        match read_file_bytes(&mut mount, file_state, bytes) {
+        let mut partial_error = None;
+        match read_file_bytes(&mut mount, file_state, bytes, &mut partial_error) {
             Ok(read) => {
-                if at_or_past_eof || truncated_at_eof {
+                if let Some(error) = partial_error {
+                    set_fat_errno(r, error);
+                } else if at_or_past_eof || truncated_at_eof {
                     // libfat returns the bytes read while reporting that the request crossed EOF.
                     sysbase::set_reent_errno(r, sysbase::EOVERFLOW);
                 }
@@ -2979,14 +2970,16 @@ fn read_file_bytes(
     mount: &mut FatMount,
     file_state: &mut FatFileState,
     out: &mut [u8],
+    partial_error: &mut Option<FatError>,
 ) -> Result<usize, FatError> {
+    *partial_error = None;
     if file_state.position >= file_state.size {
         return Ok(0);
     }
 
     let cluster_size = mount.cluster_size();
     let total = min(out.len(), (file_state.size - file_state.position) as usize);
-    file_transfer::transfer(total, FatError::Io, |copied| {
+    file_transfer::transfer(total, FatError::Io, partial_error, |copied| {
         let offset = file_state.position;
         let cluster_index = offset / cluster_size;
         let within_cluster = offset % cluster_size;
@@ -3071,23 +3064,14 @@ unsafe extern "C" fn fat_fstat_r(
             sysbase::set_reent_errno(r, sysbase::EBADF);
             return -1;
         };
-        let mut mount = mount_lock.lock();
+        let mount = mount_lock.lock();
         let mut sector = [0u8; MAX_SECTOR_BYTES];
         if let Err(error) = mount.read_sector(file_state.dir_sector, &mut sector) {
             set_fat_errno(r, error);
             return -1;
         }
-        let attr = sector[file_state.dir_offset as usize + 11];
-        let mut mode = S_IFREG | S_IRUSR | S_IRGRP | S_IROTH;
-        if attr & ATTR_READONLY == 0 {
-            mode |= S_IWUSR | S_IWGRP | S_IWOTH;
-        }
-        *stat = build_stat(
-            mode,
-            file_state.size as i64,
-            cluster_blocks(&mut mount, file_state.start_cluster) as i64,
-            mount.bytes_per_sector,
-        );
+        let entry = &sector[file_state.dir_offset as usize..file_state.dir_offset as usize + 32];
+        *stat = build_entry_stat(&mount, entry[11], file_state.size, Some(entry));
         0
     }
 }
@@ -3782,6 +3766,36 @@ fn build_stat(mode: u32, size: i64, blocks: i64, block_size: u16) -> Stat {
     }
 }
 
+// Keep the existing path-stat logical-sector count and read-only policy for
+// all devoptab metadata. Do not walk the allocation chain just to report size.
+fn build_entry_stat(mount: &FatMount, attr: u8, size: u32, entry: Option<&[u8]>) -> Stat {
+    let mut mode = if attr & FAT_ATTR_DIRECTORY != 0 {
+        S_IFDIR
+    } else {
+        S_IFREG
+    };
+    mode |= S_IRUSR | S_IRGRP | S_IROTH;
+    if attr & ATTR_READONLY == 0 && !mount.read_only {
+        mode |= S_IWUSR | S_IWGRP | S_IWOTH;
+    }
+    let blocks = size.div_ceil(mount.bytes_per_sector as u32);
+    let mut stat = build_stat(
+        mode,
+        i64::from(size),
+        i64::from(blocks),
+        mount.bytes_per_sector,
+    );
+    // Preserve stat access to files with malformed optional calendar fields.
+    // The explicit timestamp API still reports such data as an error.
+    if let Some(times) = entry.and_then(|entry| decode_entry_timestamps(entry).ok()) {
+        stat.st_atim.tv_sec = times.accessed.unwrap_or(0) as i64;
+        stat.st_mtim.tv_sec = times.modified.unwrap_or(0) as i64;
+        // FAT has a creation timestamp but no POSIX status-change timestamp.
+        // Do not claim a status-change time that the disk does not store.
+    }
+    stat
+}
+
 fn stat_path(path: &CStr, stat: &mut Stat) -> Result<(), FatError> {
     let (mut mount, relative) = mount_and_relative_from_path(path)?;
     mount.ensure_online()?;
@@ -3809,25 +3823,14 @@ fn stat_path(path: &CStr, stat: &mut Stat) -> Result<(), FatError> {
     {
         entry.size = open.size;
     }
-    let mut mode = if entry.attr & FAT_ATTR_DIRECTORY != 0 {
-        S_IFDIR | S_IRUSR | S_IRGRP | S_IROTH
+    let mut sector = [0u8; MAX_SECTOR_BYTES];
+    let raw = if entry.entry_span.is_empty() {
+        None
     } else {
-        S_IFREG | S_IRUSR | S_IRGRP | S_IROTH
+        mount.read_sector(entry.short_sector, &mut sector)?;
+        Some(&sector[entry.short_offset as usize..entry.short_offset as usize + 32])
     };
-    if entry.attr & ATTR_READONLY == 0 && !mount.read_only {
-        mode |= S_IWUSR | S_IWGRP | S_IWOTH;
-    }
-    let blocks = if entry.size == 0 {
-        0
-    } else {
-        entry.size.div_ceil(mount.bytes_per_sector as u32)
-    };
-    *stat = build_stat(
-        mode,
-        entry.size as i64,
-        blocks as i64,
-        mount.bytes_per_sector,
-    );
+    *stat = build_entry_stat(&mount, entry.attr, entry.size, raw);
     Ok(())
 }
 
@@ -4296,20 +4299,11 @@ fn dirnext_entry(
                 let built =
                     build_dir_entry(mount.fat_type, entry, name, sector, offset as u16, &[]);
                 if let Some(stat) = stat.as_deref_mut() {
-                    let mut mode = if built.attr & FAT_ATTR_DIRECTORY != 0 {
-                        S_IFDIR | S_IRUSR | S_IRGRP | S_IROTH
-                    } else {
-                        S_IFREG | S_IRUSR | S_IRGRP | S_IROTH
-                    };
-                    if built.attr & ATTR_READONLY == 0 {
-                        mode |= S_IWUSR | S_IWGRP | S_IWOTH;
-                    }
-                    *stat = build_stat(
-                        mode,
-                        built.size as i64,
-                        built.cluster_blocks(mount) as i64,
-                        mount.bytes_per_sector,
-                    );
+                    let size = mount
+                        .open_files
+                        .get(&(built.short_sector, built.short_offset))
+                        .map_or(built.size, |open| open.size);
+                    *stat = build_entry_stat(mount, built.attr, size, Some(entry));
                 }
                 state.cluster = cluster;
                 state.sector_index = sector_index;
@@ -4408,8 +4402,15 @@ fn truncate_file_inner(
         let mut remaining = new_len - file_state.size;
         while remaining != 0 {
             let chunk = min(remaining as usize, zeroes.len());
-            match write_file_bytes(mount, file_state, &zeroes[..chunk]) {
-                Ok(written) => remaining -= written as u32,
+            let mut partial_error = None;
+            match write_file_bytes(mount, file_state, &zeroes[..chunk], &mut partial_error) {
+                Ok(written) => {
+                    remaining -= written as u32;
+                    if let Some(error) = partial_error {
+                        file_state.position = original_position;
+                        return Err(error);
+                    }
+                }
                 Err(error) => {
                     file_state.position = original_position;
                     return Err(error);

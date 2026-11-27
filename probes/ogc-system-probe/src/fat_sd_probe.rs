@@ -597,6 +597,7 @@ fn probe_blockfs_fat_route(logger: &mut ProbeLogger) {
         });
     if created {
         probe_devoptab_root(logger);
+        probe_devoptab_metadata(logger);
     }
     let removed = created && fat::remove_file(PROBE_FILE).is_ok();
     logger.record(
@@ -665,4 +666,88 @@ fn probe_devoptab_root(logger: &mut ProbeLogger) {
         })() == Some(true);
         logger.record(path.to_str().unwrap_or("FAT root"), typed && raw);
     }
+}
+
+/// Compare registered metadata paths for the same owned file.
+fn probe_devoptab_metadata(logger: &mut ProbeLogger) {
+    use core::ptr::{from_mut, null_mut};
+    use ogc_sysbase::{DirIter, O_RDONLY, Stat, device_op_tab, find_device};
+    // The file belongs to this probe. Use dates independent of the clock.
+    let times = fat::set_times(PROBE_FILE, Some(946684800), Some(946730096));
+    let checked = (|| {
+        let ops = unsafe { device_op_tab(PROBE_FILE)?.as_ref()? };
+        let (open, close, fstat, stat) = (ops.open_r?, ops.close_r?, ops.fstat_r?, ops.stat_r?);
+        let mut file_storage = [0u64; 16];
+        if ops.struct_size > core::mem::size_of_val(&file_storage) {
+            return None;
+        }
+        let mut path_stat = Stat::default();
+        let mut file_stat = Stat::default();
+        let handle = file_storage.as_mut_ptr().cast();
+        // The callbacks have live, aligned storage of sufficient size.
+        let (path_ok, file_ok) = unsafe {
+            let path_ok = stat(
+                null_mut(),
+                PROBE_FILE.as_ptr(),
+                from_mut(&mut path_stat).cast(),
+            ) == 0;
+            if open(null_mut(), handle, PROBE_FILE.as_ptr(), O_RDONLY, 0) < 0 {
+                return None;
+            }
+            let ok = fstat(null_mut(), handle, from_mut(&mut file_stat).cast()) == 0;
+            (path_ok, close(null_mut(), handle) == 0 && ok)
+        };
+        let mut storage = [0u64; 16];
+        if ops.dir_state_size > core::mem::size_of_val(&storage) {
+            return None;
+        }
+        let mut iter = DirIter {
+            device: find_device(c"sd:/"),
+            dir_struct: storage.as_mut_ptr().cast(),
+        };
+        let mut name = [0u8; 1024];
+        let mut dir_stat = Stat::default();
+        let dir_ok = unsafe {
+            let (open, next, close) = (ops.diropen_r?, ops.dirnext_r?, ops.dirclose_r?);
+            if open(null_mut(), &mut iter, c"sd:/".as_ptr()) != &mut iter {
+                return None;
+            }
+            let mut found = false;
+            for _ in 0..128 {
+                if next(
+                    null_mut(),
+                    &mut iter,
+                    name.as_mut_ptr().cast(),
+                    from_mut(&mut dir_stat).cast(),
+                ) != 0
+                {
+                    break;
+                }
+                if name.starts_with(b"libogc-fat-api-probe.tmp\0") {
+                    found = true;
+                    break;
+                }
+            }
+            close(null_mut(), &mut iter) == 0 && found
+        };
+        let fields = |s: &Stat| (s.st_size, s.st_blocks, s.st_blksize, s.st_mode);
+        let time_fields = |s: &Stat| (s.st_atim.tv_sec, s.st_mtim.tv_sec);
+        Some((
+            path_ok && file_ok && dir_ok,
+            fields(&path_stat) == fields(&file_stat)
+                && fields(&path_stat) == fields(&dir_stat)
+                && path_stat.st_size == 11,
+            time_fields(&path_stat) == (946684800, 946730096)
+                && time_fields(&path_stat) == time_fields(&file_stat)
+                && time_fields(&path_stat) == time_fields(&dir_stat),
+        ))
+    })();
+    logger.record(
+        "FAT path, descriptor and directory stat agree on size, blocks and mode",
+        checked.is_some_and(|v| v.0 && v.1),
+    );
+    logger.record(
+        "FAT all registered stat paths report stored access and modification dates",
+        times.is_ok() && checked.is_some_and(|v| v.0 && v.2),
+    );
 }

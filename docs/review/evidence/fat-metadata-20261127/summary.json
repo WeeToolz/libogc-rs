@@ -1,0 +1,58 @@
+{
+  "baseline": "96549a2e",
+  "reference": {
+    "url": "https://github.com/devkitPro/libfat/blob/v1.2.0/source/fatfile.c",
+    "tag": "v1.2.0",
+    "scope": "public source comparison; exact historical dependency revision unconfirmed"
+  },
+  "phases": {
+    "before": {
+      "transport_sha256": "6136e893eab88272933b1c870ac153cb714c986e5449d7f9b8d95a7d517e109c",
+      "selected_checks": [
+        "PASS FAT path, descriptor and directory stat agree on size, blocks and mode",
+        "FAIL FAT all registered stat paths report stored access and modification dates",
+        "PASS BlockFS FAT mount supports file I/O through the selected backend"
+      ],
+      "complete_report": false,
+      "status": "incomplete_timeout"
+    },
+    "after": {
+      "transport_sha256": "c6b23c7af36e585163707a7515ccff29e5de8abb98c998b778cf64c021c42d5e",
+      "selected_checks": [
+        "PASS FAT path, descriptor and directory stat agree on size, blocks and mode",
+        "PASS FAT all registered stat paths report stored access and modification dates",
+        "PASS BlockFS FAT mount supports file I/O through the selected backend"
+      ],
+      "complete_report": true,
+      "status": "pass",
+      "passes": 58,
+      "fails": 0,
+      "dol_sha256": "a3d9d336abb1609333e62224c98334e13f178105aa110f8239b6cb10f8508b4b",
+      "page_capture_count": 5,
+      "pages_valid": true,
+      "report_sha256": "d5ee647f079e0506bdc51d62339df8f1ccbac3782eccf11f2d4c4f28924c6e98"
+    },
+    "final": {
+      "transport_sha256": "cd33d6bcefba9efbb0c30d87a0112b3d47b12f3a8d7721b774831cc6b1e3c237",
+      "selected_checks": [
+        "PASS FAT path, descriptor and directory stat agree on size, blocks and mode",
+        "PASS FAT all registered stat paths report stored access and modification dates",
+        "PASS BlockFS FAT mount supports file I/O through the selected backend"
+      ],
+      "complete_report": false,
+      "status": "incomplete_timeout"
+    }
+  },
+  "host": {
+    "passes": 170,
+    "fails": 0,
+    "log_sha256": "ebbb169c1c1b71e115f583116954af6606e745c595b1fffe0a9123cef8e13d53"
+  },
+  "inventory_entries": 3420,
+  "limitations": [
+    "Complete Dolphin run covers metadata-only production correction.",
+    "Final combined run reached new metadata checks and file I/O but timed out before final report.",
+    "Partial-transfer error injection tested at host transfer-engine level, not on target.",
+    "No physical Wii test."
+  ]
+}
