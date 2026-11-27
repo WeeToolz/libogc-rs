@@ -26,8 +26,11 @@ impl Upcase {
 
         let mut map = Vec::with_capacity(MAPPING_COUNT);
         let mut words = bytes
-            .chunks_exact(2)
-            .map(|word| u16::from_le_bytes([word[0], word[1]]));
+            .as_chunks::<2>()
+            .0
+            .iter()
+            .copied()
+            .map(u16::from_le_bytes);
         while let Some(word) = words.next() {
             let index = map.len();
             if index >= MAPPING_COUNT {

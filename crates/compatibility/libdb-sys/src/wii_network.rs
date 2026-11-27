@@ -84,11 +84,13 @@ impl SocketBackend for WiiSocketBackend {
             return Err(close_after_failure(listener, error));
         }
 
-        let mut address = network::SockaddrIn::default();
-        address.sin_len = core::mem::size_of::<network::SockaddrIn>() as u8;
-        address.sin_family = network::AF_INET as u8;
-        address.sin_port = port.to_be();
-        address.sin_addr.s_addr = local_ip;
+        let address = network::SockaddrIn {
+            sin_len: core::mem::size_of::<network::SockaddrIn>() as u8,
+            sin_family: network::AF_INET as u8,
+            sin_port: port.to_be(),
+            sin_addr: network::InAddr { s_addr: local_ip },
+            sin_zero: [0; 8],
+        };
         let bind_result = network::bind_addr(listener, &address);
         if bind_result < 0 {
             return Err(close_after_failure(

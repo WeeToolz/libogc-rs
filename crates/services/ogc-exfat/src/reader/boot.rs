@@ -59,8 +59,10 @@ pub(crate) fn read_boot<E: From<Error>>(
 
     read(start + 11, scratch)?;
     if !scratch
-        .chunks_exact(4)
-        .all(|word| word == checksum.to_le_bytes())
+        .as_chunks::<4>()
+        .0
+        .iter()
+        .all(|word| *word == checksum.to_le_bytes())
     {
         return Err(Error::InvalidBoot.into());
     }

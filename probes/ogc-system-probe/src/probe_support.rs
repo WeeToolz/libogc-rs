@@ -1027,7 +1027,7 @@ pub fn framebuffer_regions() -> Option<[core::ops::Range<usize>; 2]> {
 /// Return the mode actually used to allocate and configure the probe display.
 /// A later CONF initialization can change VIDEO_GetPreferredMode.
 pub fn framebuffer_mode() -> Option<video::GxrModeObj> {
-    unsafe { (PROBE_FRAMEBUFFER_BYTES != 0).then(|| PROBE_FRAMEBUFFER_MODE) }
+    unsafe { (PROBE_FRAMEBUFFER_BYTES != 0).then_some(PROBE_FRAMEBUFFER_MODE) }
 }
 
 /// The mode address passed to both original framebuffer allocation calls.
@@ -1376,11 +1376,11 @@ impl ProbeLogger {
         );
         self.write_line_raw(line.as_str());
         if !ok {
-            if self.file_policy == LogFilePolicy::SdRunLog {
-                if let Some(detail) = detail {
-                    self.note(detail);
-                    self.sync_sd_run_log();
-                }
+            if self.file_policy == LogFilePolicy::SdRunLog
+                && let Some(detail) = detail
+            {
+                self.note(detail);
+                self.sync_sd_run_log();
             }
             #[cfg(feature = "agent-report")]
             if self.file_policy == LogFilePolicy::SdRunLog
@@ -2327,7 +2327,7 @@ fn deinit_agent_report_network() -> Result<(), i32> {
 #[cfg(feature = "agent-report")]
 fn report_write_all_result(socket: i32, bytes: &[u8], started: u64) -> Result<(), i32> {
     use ogc_network as network;
-    let timeout_ticks = u64::from(video::timer_clock_hz()) * 60;
+    let timeout_ticks = video::timer_clock_hz() * 60;
     report_send::write_all(
         bytes,
         || system::time().wrapping_sub(started) >= timeout_ticks,

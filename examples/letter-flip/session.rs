@@ -198,20 +198,20 @@ impl Session {
                     self.pause(&mut events);
                 } else if keys & REPEAT != 0 {
                     events.speak = Some(self.game.current.symbol);
-                } else if let Some(answer) = answer_from_buttons(keys & A != 0, keys & B != 0) {
-                    if let Some(result) = self.game.answer(answer) {
-                        self.feedback = result;
-                        self.feedback_elapsed = 0;
-                        self.screen = Screen::Feedback;
-                        events.cancel_voice = true;
-                        events.effect = Some(result == ResultKind::Correct);
-                        events.narration = Narration::review(
-                            result == ResultKind::Correct,
-                            self.game.current.is_mirrored(),
-                            self.game.answered,
-                        );
-                        self.dirty |= self.data.record(self.game.settings, self.game.score);
-                    }
+                } else if let Some(answer) = answer_from_buttons(keys & A != 0, keys & B != 0)
+                    && let Some(result) = self.game.answer(answer)
+                {
+                    self.feedback = result;
+                    self.feedback_elapsed = 0;
+                    self.screen = Screen::Feedback;
+                    events.cancel_voice = true;
+                    events.effect = Some(result == ResultKind::Correct);
+                    events.narration = Narration::review(
+                        result == ResultKind::Correct,
+                        self.game.current.is_mirrored(),
+                        self.game.answered,
+                    );
+                    self.dirty |= self.data.record(self.game.settings, self.game.score);
                 }
             }
             Screen::Feedback => {

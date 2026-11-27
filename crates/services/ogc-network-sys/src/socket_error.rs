@@ -1,10 +1,12 @@
 //! IOS socket error translation. Values are from devkitPPC newlib errno.h.
 
+#[cfg(any(not(gamecube), test))]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct NetError {
     pub domain: u32,
     pub code: i32,
 }
+#[cfg(any(not(gamecube), test))]
 impl NetError {
     pub const fn local(code: i32) -> Self {
         Self { domain: 3, code }

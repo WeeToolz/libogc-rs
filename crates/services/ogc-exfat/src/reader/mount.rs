@@ -211,11 +211,7 @@ where
         {
             return Err(Error::Corrupt);
         }
-        let mut slots = bytes.chunks_exact(32).map(|chunk| {
-            let mut slot = [0; 32];
-            slot.copy_from_slice(chunk);
-            slot
-        });
+        let mut slots = bytes.as_chunks::<32>().0.iter().copied();
         let Some(Record::File(current)) = next_record(&mut || Ok(slots.next()))? else {
             return Err(Error::InvalidHandle);
         };
@@ -777,28 +773,26 @@ mod tests {
         Rc::new(RefCell::new(image))
     }
 
-    fn callbacks(
+    fn read_fixture(
+        image: Rc<RefCell<Vec<[u8; 512]>>>,
+    ) -> impl FnMut(u64, &mut [u8]) -> Result<(), Error> {
+        move |lba, out| {
+            out.copy_from_slice(&image.borrow()[lba as usize]);
+            Ok(())
+        }
+    }
+
+    fn write_fixture(
         image: Rc<RefCell<Vec<[u8; 512]>>>,
         fail_sector: Option<u64>,
-    ) -> (
-        impl FnMut(u64, &mut [u8]) -> Result<(), Error>,
-        impl FnMut(u64, &[u8]) -> Result<(), Error>,
-    ) {
-        let read_image = image.clone();
-        let write_image = image;
-        (
-            move |lba, out: &mut [u8]| {
-                out.copy_from_slice(&read_image.borrow()[lba as usize]);
-                Ok(())
-            },
-            move |lba, data: &[u8]| {
-                if fail_sector == Some(lba) {
-                    return Err(Error::Io);
-                }
-                write_image.borrow_mut()[lba as usize].copy_from_slice(data);
-                Ok(())
-            },
-        )
+    ) -> impl FnMut(u64, &[u8]) -> Result<(), Error> {
+        move |lba, data| {
+            if fail_sector == Some(lba) {
+                return Err(Error::Io);
+            }
+            image.borrow_mut()[lba as usize].copy_from_slice(data);
+            Ok(())
+        }
     }
 
     #[test]
@@ -856,7 +850,8 @@ mod tests {
     fn test_writable_mount_ignores_stale_backup_dirty_flag() {
         let image = writable_image();
         image.borrow_mut()[12][106] |= 2;
-        let (read, write) = callbacks(image.clone(), None);
+        let read = read_fixture(image.clone());
+        let write = write_fixture(image.clone(), None);
         let mut mounted = Mounted::open_writable(4096, 512, read, write).unwrap();
         let mut file = mounted.lookup("a.txt").unwrap();
         mounted
@@ -870,7 +865,8 @@ mod tests {
         let image = writable_image();
         image.borrow_mut()[57].fill(0xff);
         image.borrow_mut()[57][1] &= !1;
-        let (read, write) = callbacks(image.clone(), None);
+        let read = read_fixture(image.clone());
+        let write = write_fixture(image.clone(), None);
         let mut mounted = Mounted::open_writable(4096, 512, read, write).unwrap();
         let mut file = mounted.lookup("a.txt").unwrap();
         let before = image.borrow().clone();
@@ -896,7 +892,8 @@ mod tests {
             record[4] |= 1;
             super::super::directory::update_file_set(record, Stream::new(5, 16, 12, true)).unwrap();
         }
-        let (read, write) = callbacks(image.clone(), None);
+        let read = read_fixture(image.clone());
+        let write = write_fixture(image.clone(), None);
         let mut mounted = Mounted::open_writable(4096, 512, read, write).unwrap();
         let mut file = mounted.lookup("a.txt").unwrap();
         let before = image.borrow().clone();
@@ -912,7 +909,8 @@ mod tests {
     fn test_fat_cursor_follows_reallocated_chain() {
         let image = writable_image();
         image.borrow_mut()[57][0] |= 1 << 4;
-        let (read, write) = callbacks(image, None);
+        let read = read_fixture(image.clone());
+        let write = write_fixture(image, None);
         let mut mounted = Mounted::open_writable(4096, 512, read, write).unwrap();
         let mut file = mounted.lookup("a.txt").unwrap();
         let mut stale = mounted.lookup("a.txt").unwrap();
@@ -946,7 +944,8 @@ mod tests {
     #[test]
     fn test_write_grows_contiguous_file_and_survives_remount() {
         let image = writable_image();
-        let (read, write) = callbacks(image.clone(), None);
+        let read = read_fixture(image.clone());
+        let write = write_fixture(image.clone(), None);
         let mut mounted = Mounted::open_writable(4096, 512, read, write).unwrap();
         let mut entry = mounted.lookup("/a.txt").unwrap();
         let mut second_handle_entry = mounted.lookup("/a.txt").unwrap();
@@ -968,7 +967,7 @@ mod tests {
         );
         drop(mounted);
 
-        let (read, _) = callbacks(image.clone(), None);
+        let read = read_fixture(image.clone());
         let mut reopened = Mounted::open(4096, 512, read).unwrap();
         let entry = reopened.lookup("/a.txt").unwrap();
         assert_eq!(entry.stream, Stream::new(5, 518, 518, true));
@@ -987,7 +986,8 @@ mod tests {
     #[test]
     fn test_write_failure_leaves_volume_dirty_and_blocks_more_writes() {
         let image = writable_image();
-        let (read, write) = callbacks(image.clone(), Some(60));
+        let read = read_fixture(image.clone());
+        let write = write_fixture(image.clone(), Some(60));
         let mut mounted = Mounted::open_writable(4096, 512, read, write).unwrap();
         let mut entry = mounted.lookup("/a.txt").unwrap();
         assert_eq!(
@@ -1003,7 +1003,8 @@ mod tests {
             Err(Error::Dirty)
         );
         drop(mounted);
-        let (read, write) = callbacks(image, None);
+        let read = read_fixture(image.clone());
+        let write = write_fixture(image, None);
         assert!(matches!(
             Mounted::open_writable(4096, 512, read, write),
             Err(Error::Dirty)
@@ -1014,7 +1015,8 @@ mod tests {
     fn test_write_growth_converts_contiguous_file_to_fragmented_chain() {
         let image = writable_image();
         image.borrow_mut()[57][0] |= 1 << 4;
-        let (read, write) = callbacks(image.clone(), None);
+        let read = read_fixture(image.clone());
+        let write = write_fixture(image.clone(), None);
         let mut mounted = Mounted::open_writable(4096, 512, read, write).unwrap();
         let mut entry = mounted.lookup("/a.txt").unwrap();
         assert_eq!(
@@ -1032,7 +1034,7 @@ mod tests {
         );
         drop(mounted);
 
-        let (read, _) = callbacks(image, None);
+        let read = read_fixture(image);
         let mut reopened = Mounted::open(4096, 512, read).unwrap();
         let entry = reopened.lookup("/a.txt").unwrap();
         assert_eq!(entry.stream, Stream::new(5, 517, 517, false));
@@ -1051,7 +1053,8 @@ mod tests {
     #[test]
     fn test_create_write_and_remount_new_file() {
         let image = writable_image();
-        let (read, write) = callbacks(image.clone(), None);
+        let read = read_fixture(image.clone());
+        let write = write_fixture(image.clone(), None);
         let mut mounted = Mounted::open_writable(4096, 512, read, write).unwrap();
         let mut entry = mounted.create_file("/new.txt").unwrap();
         assert_eq!(entry.entry_offset, 160);
@@ -1062,7 +1065,7 @@ mod tests {
         assert_eq!(mounted.create_file("new.txt"), Err(Error::AlreadyExists));
         drop(mounted);
 
-        let (read, _) = callbacks(image, None);
+        let read = read_fixture(image);
         let mut reopened = Mounted::open(4096, 512, read).unwrap();
         let entry = reopened.lookup("/new.txt").unwrap();
         assert_eq!(entry.stream.length, 8);
@@ -1079,7 +1082,8 @@ mod tests {
     #[test]
     fn test_truncate_frees_clusters_and_persists_empty_file() {
         let image = writable_image();
-        let (read, write) = callbacks(image.clone(), None);
+        let read = read_fixture(image.clone());
+        let write = write_fixture(image.clone(), None);
         let mut mounted = Mounted::open_writable(4096, 512, read, write).unwrap();
         let mut entry = mounted.lookup("/a.txt").unwrap();
         mounted.truncate_file(&mut entry, 0).unwrap();
@@ -1087,7 +1091,7 @@ mod tests {
         assert_eq!(image.borrow()[57][0] & 0b0000_1000, 0);
         drop(mounted);
 
-        let (read, _) = callbacks(image, None);
+        let read = read_fixture(image);
         let mut reopened = Mounted::open(4096, 512, read).unwrap();
         assert_eq!(
             reopened.lookup("/a.txt").unwrap().stream,

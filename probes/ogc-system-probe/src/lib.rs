@@ -249,6 +249,7 @@ fn init_probe_logger_with_page_reports_and_sync(
     }
 
     unsafe fn pre_main_progress(stage: u32) {
+        #[cfg(feature = "dolphin-automation")]
         use core::sync::atomic::Ordering;
 
         #[cfg(feature = "dolphin-automation")]
@@ -582,7 +583,7 @@ pub fn run_system_probe() -> i32 {
     logger.summary();
     #[cfg(any(feature = "agent-report", ogc_dev))]
     {
-        return finish_probe();
+        finish_probe()
     }
     #[cfg(all(not(feature = "agent-report"), not(ogc_dev)))]
     input_probe::monitor(&mut logger);
@@ -1106,8 +1107,14 @@ pub fn run_ipc_relaunch_probe_bin() -> i32 {
     };
     let mut title = Aligned(MENU);
     let mut vectors = Aligned([
-        ipc::Ioctlv { data: (&mut title.0 as *mut u64).cast(), len: 8 },
-        ipc::Ioctlv { data: (&mut view.0 as *mut es::Tikview).cast(), len: core::mem::size_of::<es::Tikview>() as u32 },
+        ipc::Ioctlv {
+            data: (&mut title.0 as *mut u64).cast(),
+            len: 8,
+        },
+        ipc::Ioctlv {
+            data: (&mut view.0 as *mut es::Tikview).cast(),
+            len: core::mem::size_of::<es::Tikview>() as u32,
+        },
     ]);
     #[cfg(feature = "ipc-relaunch-background")]
     logger.note("IPC relaunch mode=background");
@@ -1117,9 +1124,8 @@ pub fn run_ipc_relaunch_probe_bin() -> i32 {
     #[cfg(not(feature = "ipc-relaunch-background"))]
     let result = unsafe { ipc::IOS_IoctlvReboot(fd.raw(), 8, 2, 0, vectors.0.as_mut_ptr()) };
     #[cfg(feature = "ipc-relaunch-background")]
-    let result = unsafe {
-        ipc::IOS_IoctlvRebootBackground(fd.raw(), 8, 2, 0, vectors.0.as_mut_ptr())
-    };
+    let result =
+        unsafe { ipc::IOS_IoctlvRebootBackground(fd.raw(), 8, 2, 0, vectors.0.as_mut_ptr()) };
     logger.note_i32("IPC relaunch returned", result);
     logger.record("IPC relaunch request accepted", result == 0);
     if result == 0 {
@@ -1220,7 +1226,11 @@ fn es_operations_invalid_results() -> [i32; 24] {
     }
 }
 
-#[cfg(all(target_arch = "powerpc", feature = "ios-reload-probe", feature = "dolphin-automation"))]
+#[cfg(all(
+    target_arch = "powerpc",
+    feature = "ios-reload-probe",
+    feature = "dolphin-automation"
+))]
 mod ios_reload_pending;
 
 #[cfg(all(target_arch = "powerpc", feature = "ios-reload-probe"))]
@@ -1253,7 +1263,9 @@ pub fn run_ios_reload_probe_bin() -> i32 {
     };
     logger.record(
         "closed ES reports not initialized before invalid arguments",
-        closed_results.iter().all(|&rc| rc == ogc_es_sys::ES_ENOTINIT),
+        closed_results
+            .iter()
+            .all(|&rc| rc == ogc_es_sys::ES_ENOTINIT),
     );
     logger.record(
         "closed ES inventory calls report not initialized first",
@@ -1316,8 +1328,14 @@ pub fn run_ios_reload_probe_bin() -> i32 {
     logger.record("IOS reload succeeds", result == 0);
     let reset_msr = IOS_RELOAD_RESET_MSR.load(core::sync::atomic::Ordering::Acquire);
     logger.note_u32("IOS reload IPC reset MSR", reset_msr);
-    logger.record("IOS reload masks interrupts during IPC reset", reset_msr & 0x8000 == 0);
-    logger.record("IOS version is preserved", ogc_ios::get_version() == version);
+    logger.record(
+        "IOS reload masks interrupts during IPC reset",
+        reset_msr & 0x8000 == 0,
+    );
+    logger.record(
+        "IOS version is preserved",
+        ogc_ios::get_version() == version,
+    );
     let ipc_ok = match ogc_ipc::open_file(c"/dev/fs", ogc_ipc::IPC_OPEN_NONE) {
         Ok(fd) => fd.close().is_ok(),
         Err(_) => false,

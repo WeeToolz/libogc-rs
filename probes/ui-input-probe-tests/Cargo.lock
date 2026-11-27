@@ -3,6 +3,14 @@
 version = 4
 
 [[package]]
+name = "iso9660"
+version = "0.1.0"
+dependencies = [
+ "ogc-filesystem-sys",
+ "ogc-sysbase",
+]
+
+[[package]]
 name = "itoa"
 version = "1.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -110,6 +118,7 @@ name = "ogc-es-sys"
 version = "0.1.0"
 dependencies = [
  "ogc-cache",
+ "ogc-filesystem",
  "ogc-ipc",
  "ogc-lwp-sys",
  "ogc-sys",
@@ -128,7 +137,25 @@ dependencies = [
 name = "ogc-exi-sys"
 version = "0.1.0"
 dependencies = [
+ "ogc-cache",
  "ogc-irq",
+ "ogc-lwp-driver",
+ "ogc-sys",
+]
+
+[[package]]
+name = "ogc-filesystem"
+version = "0.1.0"
+dependencies = [
+ "iso9660",
+ "ogc-filesystem-sys",
+ "ogc-ipc",
+]
+
+[[package]]
+name = "ogc-filesystem-sys"
+version = "0.1.0"
+dependencies = [
  "ogc-sys",
 ]
 

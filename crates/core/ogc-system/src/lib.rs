@@ -10,7 +10,7 @@ extern crate std;
 
 use core::ffi::c_void;
 use core::fmt;
-use core::ptr::{addr_of, addr_of_mut, read_unaligned, read_volatile, write_unaligned};
+use core::ptr::{addr_of, addr_of_mut, read_unaligned, write_unaligned};
 use core::sync::atomic::{
     AtomicBool, AtomicI32, AtomicU8, AtomicU16, AtomicU32, AtomicUsize, Ordering,
 };
@@ -970,7 +970,9 @@ pub fn has_ahbprot() -> bool {
     #[cfg(all(target_arch = "powerpc", not(gamecube)))]
     {
         // SAFETY: This is the documented Wii IPC AHBPROT status register.
-        unsafe { ahbprot_register_grants_access(read_volatile(0x0D80_0064 as *const u32)) }
+        unsafe {
+            ahbprot_register_grants_access(core::ptr::read_volatile(0x0D80_0064 as *const u32))
+        }
     }
     #[cfg(any(not(target_arch = "powerpc"), gamecube))]
     {
@@ -978,6 +980,7 @@ pub fn has_ahbprot() -> bool {
     }
 }
 
+#[cfg(any(all(target_arch = "powerpc", not(gamecube)), test))]
 const fn ahbprot_register_grants_access(value: u32) -> bool {
     value == u32::MAX
 }

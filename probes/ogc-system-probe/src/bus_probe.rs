@@ -11,6 +11,7 @@ use ogc_exi as exi;
 use ogc_irq as irq;
 use ogc_lwp as lwp;
 use ogc_si as si;
+#[cfg(feature = "dolphin-automation")]
 use ogc_system as system;
 use ogc_usb as usb;
 use ogc_usbgecko as usbgecko;
@@ -22,6 +23,7 @@ mod dsp_tasks;
 #[repr(align(32))]
 struct Align32<const N: usize>([u8; N]);
 
+#[cfg(feature = "dolphin-automation")]
 #[repr(align(32))]
 struct ExiTransferBuffer([u8; 96]);
 

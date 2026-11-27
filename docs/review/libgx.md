@@ -509,3 +509,26 @@ mapping. Host xtask passed 165/165; hardware target group and inventory
 passed. Source structure audit passed, but the workspace-wide runtime
 completeness audit reports 157 disallowed entries outside GX. Do not
 represent that audit as a pass.
+
+### Breakpoint interrupt preserves the CP read bit
+
+In Dolphin 2609a on macOS, revision `e16ea9f9` failed 12 checks in
+`gx_api_probe` on two runs. The breakpoint callback ran once with CP control
+`0x12`. The CP read bit was clear, so disabling the breakpoint left the
+FIFO stopped and the subsequent PE completion failed. The later pressure
+checks saw no overflow.
+
+Breakpoint setup now stops reads only while it writes the address. It
+stores and writes the same final control value, with the original read
+state preserved. Both breakpoint operations mask interrupts during the
+update. When the interrupt handler masks the breakpoint interrupt, its
+write preserves the CP read bit.
+
+The rebuilt Wii GX DOL
+(`e5d9b2d5e7cf1b248b869557a977c56a7cf46e7a9f35da5aaca62b617e31d789`)
+passed 119 checks with zero failures. The callback ran once with CP
+control `0x13`. PE completion succeeded after release, and the pressure
+cases each recorded one overflow. GameCube GX abort passed 12 checks and
+LWP passed 282, both with zero failures. The suite captured 32 valid
+report pages. This run used the registered Dolphin runner with its private
+profile and OpenGL. No physical console test ran.

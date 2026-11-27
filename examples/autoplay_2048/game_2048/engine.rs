@@ -182,12 +182,13 @@ pub fn calculate_move(board: &[u32; CELLS], direction: Direction) -> Option<Move
         while input < count {
             let mut value = values[input];
             let mut consumed = 1;
-            if input + 1 < count && values[input] == values[input + 1] {
-                if let Some(merged) = value.checked_mul(2) {
-                    value = merged;
-                    consumed = 2;
-                    result.score_delta = result.score_delta.saturating_add(merged as u64);
-                }
+            if input + 1 < count
+                && values[input] == values[input + 1]
+                && let Some(merged) = value.checked_mul(2)
+            {
+                value = merged;
+                consumed = 2;
+                result.score_delta = result.score_delta.saturating_add(merged as u64);
             }
             let to = direction.index(line, output);
             result.board[to] = value;

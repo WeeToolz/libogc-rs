@@ -120,9 +120,8 @@ impl Game {
             } else {
                 0
             };
-        for i in 0..count {
-            self.orientations[i] = i < mirrored_count;
-        }
+        self.orientations[..mirrored_count].fill(true);
+        self.orientations[mirrored_count..count].fill(false);
         for i in (1..count).rev() {
             let j = self.random() as usize % (i + 1);
             self.orientations.swap(i, j);

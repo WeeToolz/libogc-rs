@@ -438,10 +438,9 @@ unsafe fn capture_format_probe(call: &FormatCall, snapshot: *mut FormatProbeSnap
     snapshot_ref.output_count = cnt_io as u32;
     snapshot_ref.asynchronous = u32::from(call.asynchronous != 0);
     snapshot_ref.vector_count = total as u32;
-    for index in 0..total {
+    for (index, record) in snapshot_ref.vectors[..total].iter_mut().enumerate() {
         let entry = unsafe { &*argv.add(index) };
         let sample_len = (entry.len as usize).min(8);
-        let record = &mut snapshot_ref.vectors[index];
         record.data_address = entry.data as usize;
         record.length = entry.len;
         record.allocation_length = state_ref.owned[..state_ref.num_owned]
@@ -517,11 +516,13 @@ unsafe fn capture_format_probe(call: &FormatCall, snapshot: *mut FormatProbeSnap
         .load(Ordering::Acquire)
         .min(FORMAT_PROBE_MAX_WORKSPACE_EVENTS);
     snapshot_ref.workspace_event_count = event_count as u32;
-    for index in 0..event_count {
-        let slot = &super::lwp_sys::WORKSPACE_PROBE_EVENTS[index];
+    for (event, slot) in snapshot_ref.workspace_events[..event_count]
+        .iter_mut()
+        .zip(&super::lwp_sys::WORKSPACE_PROBE_EVENTS[..event_count])
+    {
         let kind = slot.kind.load(Ordering::Acquire);
         if kind != 0 {
-            snapshot_ref.workspace_events[index] = FormatProbeWorkspaceEvent {
+            *event = FormatProbeWorkspaceEvent {
                 kind,
                 pointer: slot.pointer.load(Ordering::Relaxed),
                 size: slot.size.load(Ordering::Relaxed),

@@ -422,7 +422,7 @@ mod tests {
     fn change_callbacks_are_one_shot_and_can_register_again() {
         let mut state = ready_state();
         state
-            .register_change(Some(record), 1usize as *mut c_void)
+            .register_change(Some(record), core::ptr::dangling_mut::<c_void>())
             .unwrap();
         let mut callbacks = CallbackBatch::new();
         state.finish_change(7, &mut callbacks).unwrap();
@@ -479,7 +479,7 @@ mod tests {
     fn change_callbacks_run_in_reverse_registration_order() {
         let mut state = ready_state();
         state
-            .register_change(Some(record), 1usize as *mut c_void)
+            .register_change(Some(record), core::ptr::dangling_mut::<c_void>())
             .unwrap();
         state
             .register_change(Some(record), 2usize as *mut c_void)
@@ -497,7 +497,7 @@ mod tests {
     fn silent_stop_discards_registered_callbacks() {
         let mut state = ready_state();
         state
-            .register_removal(10, Some(record), 1usize as *mut c_void)
+            .register_removal(10, Some(record), core::ptr::dangling_mut::<c_void>())
             .unwrap();
         state
             .register_change(Some(record), 2usize as *mut c_void)

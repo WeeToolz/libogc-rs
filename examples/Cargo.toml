@@ -13,7 +13,6 @@ ogc-system = { path = "../crates/core/ogc-system" }
 # sys
 asnd-sys = { path = "../crates/media/asnd-sys" }
 libdb-sys = { path = "../crates/compatibility/libdb-sys" }
-lwbt-sys = { path = "../crates/compatibility/lwbt-sys" }
 lwip-sys = { path = "../crates/services/lwip-sys" }
 mad-sys = { path = "../crates/media/mad-sys" }
 mp3player-sys = { path = "../crates/media/mp3player-sys", features = ["sndlib"] }

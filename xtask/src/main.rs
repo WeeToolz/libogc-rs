@@ -18,17 +18,14 @@ mod card_metadata_submit_error_tests;
 mod dol_mode;
 mod dolphin;
 #[cfg(test)]
+#[path = "../../crates/hardware/ogc-dsp-sys/src/mailbox.rs"]
+mod dsp_mailbox_tests;
+#[cfg(test)]
 #[path = "../../crates/core/ogc-es-sys/src/imp/completion.rs"]
 mod es_completion_tests;
 #[cfg(test)]
 #[path = "../../crates/core/ogc-es-sys/src/imp/consumption.rs"]
 mod es_consumption_tests;
-#[cfg(test)]
-#[path = "../../crates/core/ogc-ios-sys/src/ios_logic.rs"]
-mod ios_reload_logic_tests;
-#[cfg(test)]
-#[path = "../../crates/hardware/ogc-dsp-sys/src/mailbox.rs"]
-mod dsp_mailbox_tests;
 #[cfg(test)]
 #[path = "../../crates/services/ogc-fat/src/file_transfer.rs"]
 mod fat_file_transfer_tests;
@@ -47,6 +44,9 @@ mod fat_timestamps_tests;
 mod hardware_register;
 mod host_tests;
 mod inventory;
+#[cfg(test)]
+#[path = "../../crates/core/ogc-ios-sys/src/ios_logic.rs"]
+mod ios_reload_logic_tests;
 #[cfg(test)]
 #[path = "../../crates/services/ogc-network-sys/src/startup_ip.rs"]
 mod network_startup_tests;
@@ -138,6 +138,7 @@ fn main() -> Result<(), String> {
         "wad-parity-refresh" => wad_parity::run(&repo_root()?, true),
         "check-roles" => check_roles(),
         "check-dependencies" => check_dependencies(),
+        "clippy" => clippy(),
         "test-host" => host_tests::run(&repo_root()?),
         "audit-source" => audit_source(),
         "audit-stubs" => audit_stubs(args),
@@ -191,6 +192,7 @@ fn print_usage() {
     eprintln!("  cargo xtask wad-parity | wad-parity-refresh");
     eprintln!("  cargo xtask check-roles");
     eprintln!("  cargo xtask check-dependencies");
+    eprintln!("  cargo xtask clippy");
     eprintln!("  cargo xtask test-host");
     eprintln!("  cargo xtask audit-source");
     eprintln!("  cargo xtask audit-stubs [--refresh-inventory] [--json PATH]");
@@ -619,7 +621,10 @@ mod probe_artifact_tests {
         use super::ProbeBuildMode;
         assert_eq!(
             ProbeBuildMode::Dolphin.features_for(Some(&["ipc_relaunch_probe"])),
-            Some("ogc-system-probe/dolphin-automation,ogc-system-probe/ipc-relaunch-probe".to_string()),
+            Some(
+                "ogc-system-probe/dolphin-automation,ogc-system-probe/ipc-relaunch-probe"
+                    .to_string()
+            ),
         );
         assert_eq!(
             ProbeBuildMode::Dolphin.features_for(None),
@@ -632,7 +637,9 @@ mod probe_artifact_tests {
         use super::ProbeBuildMode;
         assert_eq!(
             ProbeBuildMode::Dolphin.features_for(Some(&["ios_reload_probe"])),
-            Some("ogc-system-probe/dolphin-automation,ogc-system-probe/ios-reload-probe".to_string()),
+            Some(
+                "ogc-system-probe/dolphin-automation,ogc-system-probe/ios-reload-probe".to_string()
+            ),
         );
         assert_eq!(
             ProbeBuildMode::Dolphin.features_for(None),
@@ -1583,7 +1590,9 @@ fn build_probe_selection(
                 && env::var_os("LIBOGC_DOLPHIN_RELAUNCH_BACKGROUND").as_deref()
                     == Some(std::ffi::OsStr::new("1"))
             {
-                command.arg("--features").arg("ogc-system-probe/ipc-relaunch-background");
+                command
+                    .arg("--features")
+                    .arg("ogc-system-probe/ipc-relaunch-background");
             }
             run_command(&mut command)?;
         }
@@ -1775,31 +1784,119 @@ fn toolchain_lib_dir(nightly_rustc: &str) -> Option<String> {
 fn check_group(group: &str) -> Result<(), String> {
     let root = repo_root()?;
     let packages = workspace::packages_for_group(&root, group)?;
-    check_runtime_packages(&root, &packages, &format!("group-{group}"))
+    check_runtime_packages(&root, &packages, &format!("group-{group}"), "check")
 }
 
 fn check_all_runtime() -> Result<(), String> {
     let root = repo_root()?;
     let packages = workspace::all_runtime_packages(&root)?;
-    check_runtime_packages(&root, &packages, "all-runtime")
+    check_runtime_packages(&root, &packages, "all-runtime", "check")
 }
 
-fn check_runtime_packages(root: &Path, packages: &[String], label: &str) -> Result<(), String> {
+fn clippy() -> Result<(), String> {
+    let root = repo_root()?;
+    host_tests::run_cargo(&root, "clippy")?;
+    let packages = workspace::all_runtime_packages(&root)?;
+    check_runtime_packages(&root, &packages, "all-runtime", "clippy")?;
+
+    let probes = workspace::packages_for_group(&root, "probes")?;
+    for features in [None, Some("ogc-system-probe/dolphin-automation")] {
+        let mut check = runtime_check_command(&root, "all-runtime", "clippy")?;
+        for probe in probes
+            .iter()
+            .filter(|name| !matches!(name.as_str(), "easycap-patterns" | "examples"))
+        {
+            check.args(["-p", probe]);
+        }
+        if let Some(features) = features {
+            check.args(["--features", features]);
+        }
+        run_command(&mut check)?;
+    }
+    run_command(
+        runtime_check_command(&root, "all-runtime", "clippy")?
+            .args(["--manifest-path", "probes/easycap-patterns/Cargo.toml"]),
+    )?;
+    run_command(
+        runtime_check_command(&root, "all-runtime", "clippy")?.args([
+            "-p",
+            "examples",
+            "--lib",
+            "--examples",
+            "--features",
+            "letter-flip-hardware-probe,action-trace",
+        ]),
+    )?;
+
+    let mut gamecube = powerpc_check_command(&root, "all-runtime", "clippy", true)?;
+    gamecube.args([
+        "-p",
+        "ogc-system-probe",
+        "--features",
+        "dolphin-automation,gamecube-card-probe",
+    ]);
+    for probe in GAMECUBE_PROBE_BINARIES {
+        gamecube.args(["--bin", probe]);
+    }
+    run_command(&mut gamecube)
+}
+
+fn check_runtime_packages(
+    root: &Path,
+    packages: &[String],
+    label: &str,
+    subcommand: &str,
+) -> Result<(), String> {
+    let mut command = runtime_check_command(root, label, subcommand)?;
+    for package in packages {
+        command.arg("-p").arg(package);
+    }
+
+    println!(
+        "checking {} Wii runtime package(s) for {label}",
+        packages.len()
+    );
+    run_command(&mut command)
+}
+
+fn runtime_check_command(root: &Path, label: &str, subcommand: &str) -> Result<Command, String> {
+    powerpc_check_command(root, label, subcommand, false)
+}
+
+fn powerpc_check_command(
+    root: &Path,
+    label: &str,
+    subcommand: &str,
+    gamecube: bool,
+) -> Result<Command, String> {
     let rustup = env::var("RUSTUP").unwrap_or_else(|_| "rustup".to_string());
     let nightly_rustc = rustup_which(&rustup, "rustc")?;
-    let target_spec = root.join("targets/powerpc-nintendo-none.json");
+    let target_spec = root.join(if gamecube {
+        "targets/powerpc-nintendo-gamecube.json"
+    } else {
+        "targets/powerpc-nintendo-none.json"
+    });
     let target_dir = root.join("target/xtask/runtime-checks").join(label);
     let mut rustflags = encoded_powerpc_wii_rustflags(root);
+    if gamecube {
+        rustflags.push_str("\x1f--cfg=gamecube");
+    }
     rustflags.push_str("\x1f-D\x1fwarnings");
 
     fs::create_dir_all(&target_dir).map_err(|err| format!("{}: {err}", target_dir.display()))?;
 
-    let mut command = Command::new(&rustup);
+    let mut command = if subcommand == "clippy" {
+        let mut command = Command::new(rustup_which(&rustup, "cargo-clippy")?);
+        command
+            .args(["clippy", "--keep-going"])
+            .env("CARGO", rustup_which(&rustup, "cargo")?);
+        command
+    } else {
+        let mut command = Command::new(&rustup);
+        command.args(["run", "nightly", "cargo", "check"]);
+        command
+    };
     command
-        .arg("run")
-        .arg("nightly")
-        .arg("cargo")
-        .arg("check")
         .arg("-Z")
         .arg("build-std=core,alloc")
         .arg("-Z")
@@ -1815,15 +1912,7 @@ fn check_runtime_packages(root: &Path, packages: &[String], label: &str) -> Resu
         .env_remove("RUSTFLAGS")
         .current_dir(root);
 
-    for package in packages {
-        command.arg("-p").arg(package);
-    }
-
-    println!(
-        "checking {} Wii runtime package(s) for {label}",
-        packages.len()
-    );
-    run_command(&mut command)
+    Ok(command)
 }
 
 fn phase0_readiness() -> Result<(), String> {
@@ -1987,6 +2076,7 @@ fn verify_complete() -> Result<(), String> {
     phase0_readiness()?;
     workspace::check_role_manifest(&root)?;
     workspace::check_dependency_direction(&root)?;
+    clippy()?;
     host_tests::run(&root)?;
     check_abi()?;
     check_abi_rust_target()?;

@@ -114,9 +114,7 @@ mod tests {
         let mut output = [2u8; 32];
         let input_ptr = input.as_mut_ptr().cast();
         let output_ptr = output.as_mut_ptr().cast();
-        let buffers = unsafe {
-            IoctlBuffers::from_raw_parts(input_ptr, 32, output_ptr, 8)
-        };
+        let buffers = unsafe { IoctlBuffers::from_raw_parts(input_ptr, 32, output_ptr, 8) };
         assert_eq!(buffers.buffer_in(), input_ptr);
         assert_eq!(buffers.buffer_io(), output_ptr);
         assert_eq!((buffers.len_in(), buffers.len_io()), (32, 8));

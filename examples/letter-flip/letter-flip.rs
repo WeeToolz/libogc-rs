@@ -132,10 +132,10 @@ mod wii {
                     Err(error) => report_voice(error, &mut voice_error),
                 }
             }
-            if let Some(correct) = events.effect {
-                if let Err(error) = sound::play(correct, options.effects, options.effects_volume) {
-                    report_sound(error, &mut game);
-                }
+            if let Some(correct) = events.effect
+                && let Err(error) = sound::play(correct, options.effects, options.effects_volume)
+            {
+                report_sound(error, &mut game);
             }
             if events.preview {
                 match voice.narrate(crate::narration::Narration::single("preview"), now) {

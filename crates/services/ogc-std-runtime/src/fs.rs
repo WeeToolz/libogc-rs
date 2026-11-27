@@ -135,7 +135,7 @@ impl FsDirectory {
                 })
                 .map_err(fat_errno),
             Self::Exfat(directory) => directory
-                .next()
+                .next_entry()
                 .map(|entry| {
                     entry.map(|entry| FsDirEntry {
                         name: entry.name.into_bytes(),

@@ -314,9 +314,11 @@ fn probe_gx_abort_recovery(logger: &mut ProbeLogger, wrap: bool) {
         *byte = unsafe { core::ptr::read_volatile(bytes.add((start_offset + index) % 65536)) };
     }
     let vat = revision[..48]
-        .chunks_exact(6)
+        .as_chunks::<6>()
+        .0
+        .iter()
         .enumerate()
-        .all(|(index, command)| command == [0x08, 0x80 + index as u8, 0x80, 0, 0, 0]);
+        .all(|(index, command)| *command == [0x08, 0x80 + index as u8, 0x80, 0, 0, 0]);
     let xf = revision[48..66]
         == [
             0x10, 0, 0, 0x10, 0, 0, 0, 0, 0x3f, 0x10, 0, 0, 0x10, 0x12, 0, 0, 0, 1,
@@ -2511,11 +2513,15 @@ fn probe_gx_metric_registers(logger: &mut ProbeLogger) {
     ];
     logger.record(
         "GX XF raster metric initialization commands",
-        check_gx_command_bytes(&init_commands, || gx::init_xf_ras_metric()),
+        check_gx_command_bytes(&init_commands, || {
+            gx::init_xf_ras_metric();
+        }),
     );
     logger.record(
         "GX vertex cache metric clear command",
-        check_gx_command_bytes(&[0x08, 0x00, 0, 0, 0, 0], || gx::clear_v_cache_metric()),
+        check_gx_command_bytes(&[0x08, 0x00, 0, 0, 0, 0], || {
+            gx::clear_v_cache_metric();
+        }),
     );
 
     // Reset the metric selectors before recording the transition from NONE.
@@ -2631,7 +2637,12 @@ fn probe_gx_light_and_pixel_state(logger: &mut ProbeLogger) {
     ];
     let mut expected = [0u8; 69];
     expected[..5].copy_from_slice(&[0x10, 0x00, 0x0f, 0x06, 0x30]);
-    for (bytes, word) in expected[5..].chunks_exact_mut(4).zip(expected_words) {
+    for (bytes, word) in expected[5..]
+        .as_chunks_mut::<4>()
+        .0
+        .iter_mut()
+        .zip(expected_words)
+    {
         bytes.copy_from_slice(&word.to_be_bytes());
     }
     // SAFETY: The complete light object remains live during command capture.
@@ -3138,7 +3149,7 @@ fn probe_texture_preload_commands(logger: &mut ProbeLogger) {
             )
         };
         let mut expected = [0u8; 70];
-        for (bytes, word) in expected.chunks_exact_mut(5).zip(words) {
+        for (bytes, word) in expected.as_chunks_mut::<5>().0.iter_mut().zip(words) {
             bytes[0] = 0x61;
             bytes[1..].copy_from_slice(&u32::to_be_bytes(*word));
         }
@@ -3272,7 +3283,7 @@ fn probe_tev_order_scale(logger: &mut ProbeLogger) {
         gx::end_disp_list()
     };
     logger.note_u32("GX TEV order trace size", trace_size);
-    for chunk in trace.0[..16].chunks_exact(4) {
+    for chunk in trace.0[..16].as_chunks::<4>().0 {
         logger.note_u32(
             "GX TEV order trace bytes",
             u32::from_be_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]),
@@ -3816,7 +3827,12 @@ fn check_gx_matrix_command(header: [u8; 5], words: &[u32], emit: impl FnOnce()) 
     }
     let size = 5 + words.len() * 4;
     expected[..5].copy_from_slice(&header);
-    for (bytes, word) in expected[5..size].chunks_exact_mut(4).zip(words) {
+    for (bytes, word) in expected[5..size]
+        .as_chunks_mut::<4>()
+        .0
+        .iter_mut()
+        .zip(words)
+    {
         bytes.copy_from_slice(&word.to_be_bytes());
     }
     check_gx_command_bytes(&expected[..size], emit)
@@ -4103,12 +4119,14 @@ fn probe_vertex_color_commands(logger: &mut ProbeLogger) {
     }
 }
 
+type IndexWriter<T> = (&'static str, fn(T));
+
 fn probe_vertex_indices_8(logger: &mut ProbeLogger) {
     use ogc_gx as gx;
 
     logger.report_step("GX eight-bit vertex index capture");
     // SAFETY: These writers run only inside capture; no array read is submitted.
-    let writers: [(&str, fn(u8)); 5] = [
+    let writers: [IndexWriter<u8>; 5] = [
         ("GX position1x8 exact index bytes", |index| unsafe {
             gx::position1x8(index)
         }),
@@ -4137,7 +4155,7 @@ fn probe_vertex_indices_16(logger: &mut ProbeLogger) {
 
     logger.report_step("GX sixteen-bit vertex index capture");
     // SAFETY: These writers run only inside capture; no array read is submitted.
-    let writers: [(&str, fn(u16)); 4] = [
+    let writers: [IndexWriter<u16>; 4] = [
         ("GX position1x16 exact big-endian index", |index| unsafe {
             gx::position1x16(index)
         }),
@@ -4312,7 +4330,12 @@ fn check_gx_bp_words(words: &[u32], emit: impl FnOnce()) -> bool {
         return false;
     }
     let size = words.len() * 5;
-    for (bytes, word) in expected[..size].chunks_exact_mut(5).zip(words) {
+    for (bytes, word) in expected[..size]
+        .as_chunks_mut::<5>()
+        .0
+        .iter_mut()
+        .zip(words)
+    {
         bytes[0] = 0x61;
         bytes[1..].copy_from_slice(&word.to_be_bytes());
     }
@@ -4346,7 +4369,7 @@ fn probe_copy_scale_vectors(logger: &mut ProbeLogger) {
         (
             "GX copy-scale odd divisor produces 481 lines",
             480,
-            1.00390625,
+            1.003_906_3,
             255,
             481,
         ),
@@ -5285,7 +5308,9 @@ fn probe_vertex_cache_commands(logger: &mut ProbeLogger) {
     for _ in 0..2 {
         logger.record(
             "GX vertex cache invalidation emits opcode each time",
-            check_gx_command_bytes(&[0x48], || ogc_gx::inv_vtx_cache()),
+            check_gx_command_bytes(&[0x48], || {
+                ogc_gx::inv_vtx_cache();
+            }),
         );
     }
 }
@@ -5356,7 +5381,7 @@ fn probe_texture_cache_commands(logger: &mut ProbeLogger) {
     let trace_size = gx::end_disp_list();
     logger.note_u32("GX cache trace size", trace_size);
     if trace_size >= 20 {
-        for (index, command) in trace.0[..20].chunks_exact(5).enumerate() {
+        for (index, command) in trace.0[..20].as_chunks::<5>().0.iter().enumerate() {
             logger.note_hex32_index(
                 "GX cache trace word",
                 index as i32,
@@ -5474,7 +5499,7 @@ fn probe_line_point_field_commands(logger: &mut ProbeLogger) {
     let size = gx::end_disp_list();
     logger.note_u32("GX field trace size", size);
     if size >= 20 {
-        for (index, command) in trace.0[..20].chunks_exact(5).enumerate() {
+        for (index, command) in trace.0[..20].as_chunks::<5>().0.iter().enumerate() {
             logger.note_hex32_index(
                 "GX field trace word",
                 index as i32,

@@ -86,31 +86,31 @@ fn last_ack_closes_after_the_peer_ack() {
 
 #[test]
 fn close_state_expiry_uses_c_timeout_boundaries() {
-    assert!(!tcp_state::close_state_expired(
+    assert!(!tcp_state::state_timeout_expired(
         tcp_state::TcpState::FinWait2,
         20_000,
         0,
         1000
     ));
-    assert!(tcp_state::close_state_expired(
+    assert!(tcp_state::state_timeout_expired(
         tcp_state::TcpState::FinWait2,
         20_001,
         0,
         1000
     ));
-    assert!(!tcp_state::close_state_expired(
+    assert!(!tcp_state::state_timeout_expired(
         tcp_state::TcpState::TimeWait,
         120_000,
         0,
         1000
     ));
-    assert!(tcp_state::close_state_expired(
+    assert!(tcp_state::state_timeout_expired(
         tcp_state::TcpState::TimeWait,
         120_001,
         0,
         1000
     ));
-    assert!(tcp_state::close_state_expired(
+    assert!(tcp_state::state_timeout_expired(
         tcp_state::TcpState::TimeWait,
         60_001,
         u64::MAX - 60_000,

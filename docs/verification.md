@@ -9,7 +9,7 @@ run does not prove behavior on a real Wii or GameCube.
 Run the main host checks with:
 
 ```sh
-cargo check -p xtask
+cargo xtask clippy
 cargo xtask check-roles
 cargo xtask check-dependencies
 cargo xtask test-host
@@ -17,6 +17,11 @@ cargo xtask check-inventory
 cargo xtask audit-source
 cargo fmt --all --check
 ```
+
+`cargo xtask clippy` treats warnings as errors for the host Cargo packages, Wii runtime,
+probes, examples, and the two registered GameCube probes. Install Clippy on
+the host and nightly toolchains and set both MP3 fixture variables described in [dependency notes](dependencies.md).
+`cargo xtask verify-complete` runs the same lint check.
 
 `test-host` runs the selected Cargo tests, standalone Rust tests, and Python
 tests registered in `xtask/src/host_tests.rs`. External MP3 fixtures are

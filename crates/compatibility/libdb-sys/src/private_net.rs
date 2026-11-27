@@ -122,10 +122,7 @@ impl TcpConnection {
         remote_ip: [u8; 4],
         remote_mac: [u8; 6],
         local_port: u16,
-        remote_port: u16,
-        remote_seq: u32,
-        peer_window: u16,
-        peer_mss: usize,
+        packet: TcpPacket<'_>,
     ) -> Self {
         Self {
             id,
@@ -135,12 +132,12 @@ impl TcpConnection {
             remote_ip,
             remote_mac,
             local_port,
-            remote_port,
+            remote_port: packet.source_port,
             snd_una: TCP_INITIAL_SEQUENCE,
             snd_nxt: TCP_INITIAL_SEQUENCE.wrapping_add(1),
-            rcv_nxt: remote_seq.wrapping_add(1),
-            peer_window,
-            peer_mss: peer_mss.clamp(1, TCP_MSS),
+            rcv_nxt: packet.seq.wrapping_add(1),
+            peer_window: packet.window,
+            peer_mss: packet.peer_mss.clamp(1, TCP_MSS),
             receive: VecDeque::new(),
             pending: Some(PendingSegment {
                 seq: TCP_INITIAL_SEQUENCE,
@@ -598,16 +595,8 @@ impl PrivateNet {
 
         let id = self.next_connection_id;
         self.next_connection_id = self.next_connection_id.wrapping_add(1).max(1);
-        let connection = TcpConnection::new_syn_received(
-            id,
-            source_ip,
-            source_mac,
-            listen_port,
-            packet.source_port,
-            packet.seq,
-            packet.window,
-            packet.peer_mss,
-        );
+        let connection =
+            TcpConnection::new_syn_received(id, source_ip, source_mac, listen_port, packet);
         self.tcp_clock.start(now_ticks());
         let mut connection = connection;
         let connection_started_at = self.tcp_clock.elapsed(now_ticks());

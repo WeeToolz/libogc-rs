@@ -616,7 +616,10 @@ pub fn validate(root: &Path, args: &[String]) -> Result<(), String> {
     let default_suite = options.probes.is_empty();
     for spec in selected {
         println!("Dolphin probe: {}", spec.name);
-        let timeout = options.timeout_seconds.unwrap_or(spec.timeout_seconds);
+        let spec = ProbeSpec {
+            timeout_seconds: options.timeout_seconds.unwrap_or(spec.timeout_seconds),
+            ..spec
+        };
         let result = run_probe(
             root,
             &artifact_dir,
@@ -624,7 +627,6 @@ pub fn validate(root: &Path, args: &[String]) -> Result<(), String> {
             &nand_source,
             headless,
             spec,
-            timeout,
             ProbeMedia {
                 wii_sd_card_enabled: !options.disable_wii_sd_card,
                 disc_image: disc_image.as_deref(),
@@ -1143,9 +1145,9 @@ fn run_probe(
     nand_source: &Path,
     headless: bool,
     spec: ProbeSpec,
-    timeout_seconds: u64,
     media: ProbeMedia<'_>,
 ) -> Result<ProbeResult, String> {
+    let timeout_seconds = spec.timeout_seconds;
     let probe_dir = artifact_dir.join(spec.name);
     let user_dir = probe_dir.join("user");
     fs::create_dir_all(&user_dir).map_err(|err| format!("{}: {err}", user_dir.display()))?;
@@ -1227,10 +1229,12 @@ fn run_probe(
         &dol_path,
         gdb_port,
         memory_card_path.as_deref(),
-        media.wii_sd_card_enabled,
         media.disc_image,
-        private_sd.as_ref().map(|(path, _, _)| path.as_path()),
-        media.allow_sd_image_writes,
+        SdLaunch {
+            enabled: media.wii_sd_card_enabled,
+            image: private_sd.as_ref().map(|(path, _, _)| path.as_path()),
+            allow_writes: media.allow_sd_image_writes,
+        },
     );
     configure_headless_backend(&mut arguments, headless);
     configure_relaunch_panic_diagnostic(
@@ -1915,7 +1919,7 @@ fn relaunch_destination(nand: &Path, source: &Path) -> Result<RelaunchDestinatio
 
 fn ipc_test_loader_bounds(mode: &str, lo: u32, hi: u32) -> Result<(u32, u32), String> {
     // Preserve at least 120 KiB of the 128 KiB Wii IPC arena. Never expand it.
-    if lo & 31 != 0 || hi & 31 != 0 || hi.checked_sub(lo).unwrap_or(0) < 0x20000 {
+    if lo & 31 != 0 || hi & 31 != 0 || hi.saturating_sub(lo) < 0x20000 {
         return Err("IPC test requires a complete aligned linker arena".to_string());
     }
     match mode {
@@ -1960,15 +1964,29 @@ fn configure_relaunch_panic_diagnostic(arguments: &mut [String], probe: &str, en
     }
 }
 
+struct SdLaunch<'a> {
+    enabled: bool,
+    image: Option<&'a Path>,
+    allow_writes: bool,
+}
+
+impl Default for SdLaunch<'_> {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            image: None,
+            allow_writes: false,
+        }
+    }
+}
+
 fn dolphin_arguments(
     user_dir: &Path,
     dol_path: &Path,
     gdb_port: u16,
     memory_card_path: Option<&Path>,
-    wii_sd_card_enabled: bool,
     disc_image: Option<&Path>,
-    sd_image: Option<&Path>,
-    allow_sd_image_writes: bool,
+    sd: SdLaunch<'_>,
 ) -> Vec<String> {
     let speed = "1.0";
     let mut arguments = [
@@ -2030,11 +2048,11 @@ fn dolphin_arguments(
         "-C".to_string(),
         "Dolphin.Core.SlotB=7".to_string(),
         "-C".to_string(),
-        format!("Dolphin.Core.WiiSDCard={wii_sd_card_enabled}"),
+        format!("Dolphin.Core.WiiSDCard={}", sd.enabled),
         "-C".to_string(),
         format!(
             "Dolphin.Core.WiiSDCardAllowWrites={}",
-            wii_sd_card_enabled && (sd_image.is_none() || allow_sd_image_writes)
+            sd.enabled && (sd.image.is_none() || sd.allow_writes)
         ),
     ]
     .into_iter()
@@ -2047,7 +2065,7 @@ fn dolphin_arguments(
             format!("Dolphin.Core.MemcardAPath={}", path.display()),
         ]);
     }
-    if let Some(path) = sd_image {
+    if let Some(path) = sd.image {
         arguments.extend([
             "-C".to_string(),
             format!("Dolphin.General.WiiSDCardPath={}", path.display()),
@@ -3003,10 +3021,11 @@ mod tests {
             std::path::Path::new("probe.dol"),
             1234,
             None,
-            true,
             None,
-            Some(std::path::Path::new("private-user/Wii/libogc-probe-sd.raw")),
-            false,
+            super::SdLaunch {
+                image: Some(std::path::Path::new("private-user/Wii/libogc-probe-sd.raw")),
+                ..Default::default()
+            },
         );
         assert!(
             arguments
@@ -3483,10 +3502,8 @@ mod tests {
             Path::new("/run/dvd_probe.dol"),
             1234,
             None,
-            true,
             Some(image),
-            None,
-            false,
+            super::SdLaunch::default(),
         );
         assert!(args.windows(2).any(|pair| {
             pair[0] == "-C" && pair[1] == format!("Dolphin.Core.DefaultISO={}", image.display())
@@ -3498,10 +3515,8 @@ mod tests {
             Path::new("/run/dvd_probe.dol"),
             1234,
             None,
-            true,
             None,
-            None,
-            false,
+            super::SdLaunch::default(),
         );
         assert!(
             !without_disc
@@ -3537,10 +3552,8 @@ mod tests {
             Path::new("/run/storage_probe.dol"),
             1234,
             Some(&card_path),
-            true,
             None,
-            None,
-            false,
+            super::SdLaunch::default(),
         );
 
         assert!(
@@ -3557,10 +3570,8 @@ mod tests {
             Path::new("/run/storage_probe.dol"),
             1234,
             None,
-            true,
             None,
-            None,
-            false,
+            super::SdLaunch::default(),
         );
         assert!(
             !args_without_card
@@ -3581,10 +3592,8 @@ mod tests {
             Path::new("video_probe.dol"),
             1234,
             None,
-            true,
             None,
-            None,
-            false,
+            super::SdLaunch::default(),
         );
         assert!(
             args.windows(2).any(|pair| {
@@ -3600,10 +3609,8 @@ mod tests {
             Path::new("video_probe.dol"),
             1234,
             None,
-            true,
             None,
-            None,
-            false,
+            super::SdLaunch::default(),
         );
         assert!(args.windows(2).any(|pair| {
             pair[0] == "-C" && pair[1] == "Graphics.Hacks.EFBToTextureEnable=False"
@@ -3617,8 +3624,18 @@ mod tests {
     fn dolphin_args_disable_virtual_sd_only_when_requested() {
         let profile = Path::new("/run/profile");
         let dol = Path::new("/run/wiisd_probe.dol");
-        let enabled = dolphin_arguments(profile, dol, 1234, None, true, None, None, false);
-        let disabled = dolphin_arguments(profile, dol, 1234, None, false, None, None, false);
+        let enabled = dolphin_arguments(profile, dol, 1234, None, None, super::SdLaunch::default());
+        let disabled = dolphin_arguments(
+            profile,
+            dol,
+            1234,
+            None,
+            None,
+            super::SdLaunch {
+                enabled: false,
+                ..Default::default()
+            },
+        );
         assert!(
             enabled
                 .windows(2)

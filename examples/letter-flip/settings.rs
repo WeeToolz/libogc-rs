@@ -85,9 +85,9 @@ impl Settings {
     pub fn valid(self) -> bool {
         (1..=20).contains(&self.chances)
             && (10..=100).contains(&self.cards)
-            && self.cards % 10 == 0
+            && self.cards.is_multiple_of(10)
             && (500..=5000).contains(&self.feedback_ms)
-            && self.feedback_ms % 500 == 0
+            && self.feedback_ms.is_multiple_of(500)
             && self.voice_volume <= 100
             && self.effects_volume <= 100
     }

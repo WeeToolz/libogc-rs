@@ -1660,11 +1660,10 @@ impl HidHost {
                     local,
                     source_cid,
                     result,
-                ) {
-                    if let Err(failure) = self.try_queue_acl(&response[..len]) {
-                        self.fail(failure);
-                        return;
-                    }
+                ) && let Err(failure) = self.try_queue_acl(&response[..len])
+                {
+                    self.fail(failure);
+                    return;
                 }
                 if local == 0 {
                     return;
@@ -1793,11 +1792,10 @@ impl HidHost {
                     remote,
                     result,
                     &accumulated,
-                ) {
-                    if let Err(failure) = self.try_queue_acl(&response[..len]) {
-                        self.fail(failure);
-                        return;
-                    }
+                ) && let Err(failure) = self.try_queue_acl(&response[..len])
+                {
+                    self.fail(failure);
+                    return;
                 }
                 if flags & 1 == 0 && result == L2CAP_CFG_SUCCESS {
                     let _ = self.links[slot]
@@ -1906,15 +1904,13 @@ impl HidHost {
             L2capSignalPayload::Unknown { .. } if signal.code == L2CAP_ECHO_REQ => {
                 // lwBT returns an empty Echo Response with the request ID.
                 // Use the live ACL handle, not a possibly absent channel PCB.
-                if let Ok(len) = build_l2cap_echo_response(&mut response, handle, signal.identifier) {
+                if let Ok(len) = build_l2cap_echo_response(&mut response, handle, signal.identifier)
+                {
                     self.queue_acl(&response[..len]);
                 }
             }
             L2capSignalPayload::Unknown { .. }
-                if !matches!(
-                    signal.code,
-                    L2CAP_CMD_REJECT | L2CAP_ECHO_RSP
-                ) =>
+                if !matches!(signal.code, L2CAP_CMD_REJECT | L2CAP_ECHO_RSP) =>
             {
                 // Information and other unsupported commands reach C's default
                 // case; Command Reject and Echo Response need no reply.
@@ -3030,10 +3026,7 @@ mod tests {
             let len = build_l2cap_data(&mut packet, 1, L2CAP_CID_SIGNALING, &signal).unwrap();
             host.receive_acl(&packet[..len]);
             let reply = host.acl.pop_front().expect("echo response queued");
-            assert_eq!(
-                reply,
-                [1, 0x20, 8, 0, 4, 0, 1, 0, L2CAP_ECHO_RSP, id, 0, 0]
-            );
+            assert_eq!(reply, [1, 0x20, 8, 0, 4, 0, 1, 0, L2CAP_ECHO_RSP, id, 0, 0]);
             assert!(host.acl.is_empty());
             assert!(host.hci.is_empty());
             let link = host.links[0].as_ref().unwrap();

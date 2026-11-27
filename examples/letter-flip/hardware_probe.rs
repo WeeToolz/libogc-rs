@@ -142,7 +142,7 @@ fn run() -> Result<(), i32> {
         report(format_args!("Letter Flip probe: voice settings {e:?}\n"));
         -1
     })?;
-    for symbol in [b'A', b'z', b'0', b'9'] {
+    for symbol in *b"Az09" {
         voice.queue(symbol, time()).map_err(|e| {
             report(format_args!("Letter Flip probe: voice start {e:?}\n"));
             -1

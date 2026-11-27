@@ -6,10 +6,10 @@ pub(crate) fn poll_frames_before_timers<C, F, E>(
 ) -> Result<(), E> {
     let mut frame_error = None;
     while let Some(frame) = poll_frame(context)? {
-        if let Err(error) = process_frame(context, frame) {
-            if frame_error.is_none() {
-                frame_error = Some(error);
-            }
+        if let Err(error) = process_frame(context, frame)
+            && frame_error.is_none()
+        {
+            frame_error = Some(error);
         }
     }
     poll_timers(context)?;

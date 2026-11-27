@@ -612,8 +612,7 @@ impl FileDescriptor {
                 cnt_io,
                 vectors,
                 &mut originals,
-                0,
-                0,
+                (0, 0),
             )
         }
     }
@@ -662,9 +661,16 @@ impl FileDescriptor {
             let Some(total) = cnt_in.checked_add(cnt_io) else {
                 return IPC_EINVAL;
             };
-            if ipc_cb.is_none() || raw_contract::vector_layout(
-                cnt_in, cnt_io, total, core::mem::size_of::<Ioctlv>(), argv as usize,
-            ).is_none() {
+            if ipc_cb.is_none()
+                || raw_contract::vector_layout(
+                    cnt_in,
+                    cnt_io,
+                    total,
+                    core::mem::size_of::<Ioctlv>(),
+                    argv as usize,
+                )
+                .is_none()
+            {
                 return IPC_EINVAL;
             }
             if core::slice::from_raw_parts(argv, total)
@@ -699,7 +705,9 @@ impl FileDescriptor {
                     if !entry.data.is_null() && entry.len > 0 {
                         dc_flush_range(entry.data.cast_const(), entry.len as usize);
                     }
-                    entry.data = raw_contract::request_address(entry.data as usize, entry.len as usize) as *mut _;
+                    entry.data =
+                        raw_contract::request_address(entry.data as usize, entry.len as usize)
+                            as *mut _;
                     if idx < debug_original.len() {
                         debug_original[idx] = original;
                         debug_physical[idx] = entry.data as usize as u32;
@@ -753,7 +761,10 @@ impl FileDescriptor {
             #[cfg(not(feature = "format-probe-hooks"))]
             let rc = submit_async_request(req);
             if rc < 0 {
-                for (index, entry) in core::slice::from_raw_parts_mut(argv, total).iter_mut().enumerate() {
+                for (index, entry) in core::slice::from_raw_parts_mut(argv, total)
+                    .iter_mut()
+                    .enumerate()
+                {
                     entry.data = backup.add(index).read();
                 }
                 free_request(req_ptr);
@@ -807,8 +818,7 @@ unsafe fn ioctlv_raw_slice_with_options(
     cnt_io: usize,
     vectors: &mut [Ioctlv],
     originals: &mut [*mut c_void],
-    relnch: u32,
-    result: i32,
+    (relnch, result): (u32, i32),
 ) -> i32 {
     let argv = vectors.as_mut_ptr();
     let Some((total, raw_len)) = raw_contract::vector_layout(
@@ -833,8 +843,8 @@ unsafe fn ioctlv_raw_slice_with_options(
     }
     for entry in vectors.iter_mut().take(total) {
         unsafe { dc_flush_range(entry.data.cast_const(), entry.len as usize) };
-        entry.data = raw_contract::request_address(entry.data as usize, entry.len as usize)
-            as *mut c_void;
+        entry.data =
+            raw_contract::request_address(entry.data as usize, entry.len as usize) as *mut c_void;
     }
     let result = with_request(|req| {
         req.cmd = IOS_IOCTLV;
@@ -919,7 +929,13 @@ unsafe fn ioctlv_raw_c(
     let originals = unsafe { core::slice::from_raw_parts_mut(backup_ptr.as_ptr(), total) };
     let code = unsafe {
         ioctlv_raw_slice_with_options(
-            fd, ioctl, cnt_in, cnt_io, vectors, originals, relnch, result,
+            fd,
+            ioctl,
+            cnt_in,
+            cnt_io,
+            vectors,
+            originals,
+            (relnch, result),
         )
     };
     unsafe { lwp_sys::release_workspace(backup_ptr.as_ptr().cast(), backup_len) };
@@ -1744,7 +1760,14 @@ unsafe fn send_next_request() {
         IPC_QUEUE_SEND.store(send.wrapping_add(1), Ordering::Relaxed);
         IPC_SENT_COUNT.store(sent.wrapping_add(1), Ordering::Release);
         let count = IPC_MAILBOX_ACK.load(Ordering::Relaxed);
-        IPC_MAILBOX_ACK.store(raw_contract::mailbox_after_send(count, (*req).relnch & RELNCH_RELAUNCH != 0, (*req).relnch & RELNCH_BACKGROUND != 0), Ordering::Release);
+        IPC_MAILBOX_ACK.store(
+            raw_contract::mailbox_after_send(
+                count,
+                (*req).relnch & RELNCH_RELAUNCH != 0,
+                (*req).relnch & RELNCH_BACKGROUND != 0,
+            ),
+            Ordering::Release,
+        );
         write_request(&mut *req);
     }
 }
@@ -1958,7 +1981,6 @@ unsafe fn reply_handler() {
                     lwp_sys::thread_signal((*req).syncqueue);
                 };
             }
-
         }
 
         let ipc_ack = (read_reg(1) & 0x30) | IPC_ACK_INTERRUPT_COMPLETE;
@@ -2704,7 +2726,7 @@ impl FormatOwned {
 fn format_allocation_allowed(role: FormatAllocationRole) -> bool {
     #[cfg(feature = "format-probe-hooks")]
     {
-        return format_probe::allow_allocation(role as u8);
+        format_probe::allow_allocation(role as u8)
     }
     #[cfg(not(feature = "format-probe-hooks"))]
     {
@@ -3306,6 +3328,10 @@ unsafe fn c_path<'a>(path: *const c_char) -> Result<&'a CStr, i32> {
 }
 
 /// Open a device or file through the IOS C ABI.
+///
+/// # Safety
+/// A non-null `filepath` must be readable through its NUL terminator or for
+/// `IPC_MAXPATH_LEN` bytes, whichever comes first.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn IOS_Open(filepath: *const c_char, mode: u32) -> i32 {
     let path = match unsafe { c_path(filepath) } {
@@ -3316,6 +3342,11 @@ pub unsafe extern "C" fn IOS_Open(filepath: *const c_char, mode: u32) -> i32 {
 }
 
 /// Queue an IOS open through the C ABI.
+///
+/// # Safety
+/// A non-null `filepath` must be readable through its NUL terminator or for
+/// `IPC_MAXPATH_LEN` bytes, whichever comes first.
+/// The caller must keep `usrdata` valid for the callback until it runs.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn IOS_OpenAsync(
     filepath: *const c_char,
@@ -3339,6 +3370,9 @@ pub extern "C" fn IOS_Close(fd: i32) -> i32 {
 }
 
 /// Queue a descriptor close through the IOS C ABI.
+///
+/// # Safety
+/// The caller must keep `usrdata` valid for the callback until it runs.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn IOS_CloseAsync(fd: i32, ipc_cb: Ipccallback, usrdata: *mut c_void) -> i32 {
     submit_file_async(fd, IOS_CLOSE, ipc_cb, usrdata, |_| {})
@@ -3353,6 +3387,9 @@ pub extern "C" fn IOS_Seek(fd: i32, where_: i32, whence: i32) -> i32 {
 }
 
 /// Queue an IOS seek through the C ABI.
+///
+/// # Safety
+/// The caller must keep `usrdata` valid for the callback until it runs.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn IOS_SeekAsync(
     fd: i32,
@@ -3365,6 +3402,9 @@ pub unsafe extern "C" fn IOS_SeekAsync(
 }
 
 /// Read through the IOS C ABI.
+///
+/// # Safety
+/// For positive `len`, a non-null `buf` must point to `len` writable bytes.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn IOS_Read(fd: i32, buf: *mut c_void, len: i32) -> i32 {
     if len < 0 || (len > 0 && buf.is_null()) {
@@ -3387,6 +3427,11 @@ pub unsafe extern "C" fn IOS_Read(fd: i32, buf: *mut c_void, len: i32) -> i32 {
 }
 
 /// Queue an IOS read through the C ABI.
+///
+/// # Safety
+/// For positive `len`, a non-null `buf` must point to `len` writable bytes.
+/// Keep the buffer allocated and exclusively available to IOS until completion.
+/// The caller must keep `usrdata` valid for the callback until it runs.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn IOS_ReadAsync(
     fd: i32,
@@ -3409,6 +3454,9 @@ pub unsafe extern "C" fn IOS_ReadAsync(
 }
 
 /// Write through the IOS C ABI.
+///
+/// # Safety
+/// For positive `len`, a non-null `buf` must point to `len` readable bytes.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn IOS_Write(fd: i32, buf: *const c_void, len: i32) -> i32 {
     if len < 0 || (len > 0 && buf.is_null()) {
@@ -3431,6 +3479,11 @@ pub unsafe extern "C" fn IOS_Write(fd: i32, buf: *const c_void, len: i32) -> i32
 }
 
 /// Queue an IOS write through the C ABI.
+///
+/// # Safety
+/// For positive `len`, a non-null `buf` must point to `len` readable bytes.
+/// Keep the buffer allocated and unchanged until completion.
+/// The caller must keep `usrdata` valid for the callback until it runs.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn IOS_WriteAsync(
     fd: i32,
@@ -3453,6 +3506,10 @@ pub unsafe extern "C" fn IOS_WriteAsync(
 }
 
 /// Submit an IOS ioctl through the C ABI and wait for its reply.
+///
+/// # Safety
+/// Non-empty buffers must be valid for their lengths and for the IOS command.
+/// The input must be readable and the I/O buffer must be readable and writable.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn IOS_Ioctl(
     fd: i32,
@@ -3476,6 +3533,11 @@ pub unsafe extern "C" fn IOS_Ioctl(
 }
 
 /// Queue an IOS ioctl through the C ABI.
+///
+/// # Safety
+/// Non-empty buffers must be valid for their lengths and for the IOS command.
+/// The input must be readable and the I/O buffer must be readable and writable.
+/// Keep the buffers valid for IOS until completion. The caller must keep `usrdata` valid for the callback until it runs.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn IOS_IoctlAsync(
     fd: i32,
@@ -3492,6 +3554,10 @@ pub unsafe extern "C" fn IOS_IoctlAsync(
 }
 
 /// Submit raw IOS vectors through the C ABI and wait for the reply.
+///
+/// # Safety
+/// When the vector count is nonzero, `argv` must point to a writable array of
+/// `cnt_in + cnt_io` entries with buffers valid for the IOS command.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn IOS_Ioctlv(
     fd: i32,
@@ -3504,6 +3570,11 @@ pub unsafe extern "C" fn IOS_Ioctlv(
 }
 
 /// Queue raw IOS vectors through the C ABI.
+///
+/// # Safety
+/// When the vector count is nonzero, `argv` must point to a writable array of
+/// `cnt_in + cnt_io` entries with buffers valid for the IOS command.
+/// Keep the array and buffers valid for IOS until completion. The caller must keep `usrdata` valid for the callback until it runs.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn IOS_IoctlvAsync(
     fd: i32,
@@ -3554,6 +3625,10 @@ pub unsafe extern "C" fn IOS_IoctlvAsync(
 }
 
 /// Submit an IOS ioctlv with the C relaunch flag.
+///
+/// # Safety
+/// When the vector count is nonzero, `argv` must point to a writable array of
+/// `cnt_in + cnt_io` entries with buffers valid for the IOS command.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn IOS_IoctlvReboot(
     fd: i32,
@@ -3566,6 +3641,10 @@ pub unsafe extern "C" fn IOS_IoctlvReboot(
 }
 
 /// Submit an IOS ioctlv with the C background relaunch flags.
+///
+/// # Safety
+/// When the vector count is nonzero, `argv` must point to a writable array of
+/// `cnt_in + cnt_io` entries with buffers valid for the IOS command.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn IOS_IoctlvRebootBackground(
     fd: i32,

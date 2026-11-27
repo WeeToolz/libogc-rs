@@ -170,14 +170,14 @@ impl CardStore {
             return Err(card::sys::CARD_ERROR_FATAL_ERROR);
         }
         let (journal, mut data) = Journal::select(records).map_err(invalid)?;
-        if let Some(legacy) = self.legacy.filter(|_| journal.active.is_none()) {
-            if let Some(score) = with_file(slot, legacy, false, 512, |file| {
+        if let Some(legacy) = self.legacy.filter(|_| journal.active.is_none())
+            && let Some(score) = with_file(slot, legacy, false, 512, |file| {
                 let mut bytes = [0; 512];
                 checked(card::read_slice(file, &mut bytes, 0))?;
                 save::decode_legacy(&bytes).map_err(invalid)
-            })? {
-                data.legacy_best = data.legacy_best.max(score);
-            }
+            })?
+        {
+            data.legacy_best = data.legacy_best.max(score);
         }
         self.journal = journal;
         self.data = data;
@@ -228,10 +228,10 @@ impl Medium for CardStore {
             checked(card::read_slice(file, &mut b, 0))?;
             save::decode(&b).map_err(invalid)
         })?;
-        if let Some(record) = previous {
-            if record.sequence > self.journal.sequence {
-                return Err(card::sys::CARD_ERROR_FATAL_ERROR);
-            }
+        if let Some(record) = previous
+            && record.sequence > self.journal.sequence
+        {
+            return Err(card::sys::CARD_ERROR_FATAL_ERROR);
         }
         let sector = card::sector_size(slot)?;
         let result = with_file(slot, name, true, RECORD_LEN, |file| {

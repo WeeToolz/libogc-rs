@@ -41,7 +41,7 @@ ogc-es-sys,crates/core/ogc-es-sys,core,es-abi-driver,core,true,reject,ios,system
 ogc-exi,crates/hardware/ogc-exi,hardware,exi-wrapper,hardware,true,reject,compatibility-forwarder,bus-probe
 ogc-exi-sys,crates/hardware/ogc-exi-sys,hardware,exi-driver,hardware,true,reject,hardware,bus-probe
 ogc-exfat,crates/services/ogc-exfat,services,exfat-reader,storage,true,abi-only,protocol,exfat-probe
-ogc-blockfs,crates/services/ogc-blockfs,services,block-filesystem-mounts,storage,true,abi-only,protocol,exfat-probe
+ogc-blockfs,crates/services/ogc-blockfs,services,block-filesystem-mounts,storage,true,reject,protocol,exfat-probe
 ogc-fat,crates/services/ogc-fat,services,fat-service,storage,true,reject,protocol,fat-probe
 ogc-filesystem,crates/services/ogc-filesystem,services,filesystem-wrapper,storage,true,reject,compatibility-forwarder,fat-probe
 ogc-filesystem-sys,crates/services/ogc-filesystem-sys,services,filesystem-abi,storage,true,reject,protocol,fat-probe

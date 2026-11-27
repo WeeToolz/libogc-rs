@@ -34,20 +34,7 @@ const STANDALONE_RUST_TESTS: &[&str] = &[
 const PYTHON_TEST_DIRS: &[&str] = &["scripts/tests", "tests/modplay-target-table"];
 
 pub fn run(root: &Path) -> Result<(), String> {
-    let packages = host_test_packages(root)?;
-    println!("testing {} host-capable package(s)", packages.len());
-
-    for (package, manifest) in packages {
-        println!("testing {package}");
-        let mut command = Command::new("cargo");
-        command
-            .arg("test")
-            .arg("--manifest-path")
-            .arg(root.join(manifest))
-            .env("RUSTFLAGS", "--check-cfg=cfg(gamecube) -D warnings")
-            .current_dir(root);
-        super::run_command(&mut command)?;
-    }
+    run_cargo(root, "test")?;
     let output_dir = root.join("target/xtask/standalone-host-tests");
     std::fs::create_dir_all(&output_dir).map_err(|e| e.to_string())?;
     for source in STANDALONE_RUST_TESTS {
@@ -82,6 +69,26 @@ pub fn run(root: &Path) -> Result<(), String> {
                 ])
                 .current_dir(root),
         )?;
+    }
+    Ok(())
+}
+
+pub fn run_cargo(root: &Path, subcommand: &str) -> Result<(), String> {
+    let packages = host_test_packages(root)?;
+    for (package, manifest) in packages {
+        println!("cargo {subcommand}: {package}");
+        let mut command = Command::new("cargo");
+        command
+            .arg(subcommand)
+            .arg("--manifest-path")
+            .arg(root.join(manifest))
+            .env("RUSTFLAGS", "--check-cfg=cfg(gamecube) -D warnings")
+            .env_remove("CARGO_ENCODED_RUSTFLAGS")
+            .current_dir(root);
+        if subcommand == "clippy" {
+            command.arg("--all-targets");
+        }
+        super::run_command(&mut command)?;
     }
     Ok(())
 }

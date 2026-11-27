@@ -873,6 +873,8 @@ const GX_CP_BASE: usize = 0xCC00_0000;
 const GX_PI_FIFO_BASE: usize = 0xCC00_3000;
 const GX_PI_WPAR: u32 = 0x0C00_8000;
 const GX_CP_READ_ENABLE: u16 = 1;
+const GX_CP_BREAKPOINT_ENABLE: u16 = 1 << 1;
+const GX_CP_BREAKPOINT_IRQ_ENABLE: u16 = 1 << 5;
 const GX_CP_FIFO_INT_HI_ENABLE: u16 = 1 << 2;
 const GX_CP_FIFO_INT_LO_ENABLE: u16 = 1 << 3;
 const GX_CP_FIFO_LINK: u16 = 1 << 4;
@@ -1476,8 +1478,8 @@ unsafe extern "C" fn cp_interrupt(id: ogc_irq::KIrqId, _user: *mut c_void) {
         handle_fifo_overflow();
     }
     let control = GX_CP_CONTROL.load(Ordering::Acquire) as u16;
-    if status & 0x10 != 0 && control & 0x20 != 0 {
-        let new_control = control & !0x20;
+    if status & 0x10 != 0 && control & GX_CP_BREAKPOINT_IRQ_ENABLE != 0 {
+        let new_control = control & !GX_CP_BREAKPOINT_IRQ_ENABLE;
         GX_CP_CONTROL.store(u32::from(new_control), Ordering::Release);
         unsafe { ptr::write_volatile(cp_reg(1), new_control) };
         if let Some(cb) =
@@ -1927,25 +1929,31 @@ pub fn enable_break_pt(break_pt: *mut c_void) {
     if break_pt.is_null() {
         return;
     }
+    let irq_state = ogc_irq::irq_disable();
     let physical = fifo_physical(break_pt as usize as u32);
-    let mut control = GX_CP_CONTROL.load(Ordering::Relaxed) as u16;
-    control &= !GX_CP_READ_ENABLE;
+    let enabled = GX_CP_CONTROL.load(Ordering::Relaxed) as u16;
+    let paused = enabled & !GX_CP_READ_ENABLE;
     unsafe {
-        ptr::write_volatile(cp_reg(1), control);
+        ptr::write_volatile(cp_reg(1), paused);
         ptr::write_volatile(cp_reg(30), physical as u16);
         ptr::write_volatile(cp_reg(31), (physical >> 16) as u16);
     }
-    control = (control & !0x22) | 0x22;
+    // The IRQ handler writes back this shadow when it masks the breakpoint IRQ.
+    let control = enabled | GX_CP_BREAKPOINT_ENABLE | GX_CP_BREAKPOINT_IRQ_ENABLE;
     GX_CP_CONTROL.store(u32::from(control), Ordering::Release);
     GX_BREAK_POINT.store(break_pt as usize as u32, Ordering::Release);
-    unsafe { ptr::write_volatile(cp_reg(1), control | GX_CP_READ_ENABLE) };
+    unsafe { ptr::write_volatile(cp_reg(1), control) };
+    ogc_irq::irq_restore(irq_state);
 }
 
 pub fn disable_break_pt() {
-    let control = (GX_CP_CONTROL.load(Ordering::Relaxed) as u16) & !0x22;
+    let irq_state = ogc_irq::irq_disable();
+    let control = (GX_CP_CONTROL.load(Ordering::Relaxed) as u16)
+        & !(GX_CP_BREAKPOINT_ENABLE | GX_CP_BREAKPOINT_IRQ_ENABLE);
     GX_CP_CONTROL.store(u32::from(control), Ordering::Release);
     GX_BREAK_POINT.store(0, Ordering::Release);
     unsafe { ptr::write_volatile(cp_reg(1), control) };
+    ogc_irq::irq_restore(irq_state);
 }
 
 fn send_flush_primitive() {

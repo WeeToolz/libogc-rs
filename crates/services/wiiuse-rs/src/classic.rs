@@ -292,8 +292,8 @@ mod tests {
         assert_eq!(report.right_stick, [31, 7]);
         assert_eq!(report.left_trigger, 15);
         assert_eq!(report.right_trigger, 3);
-        assert_eq!(report.charging, false);
-        assert_eq!(report.wired, false);
+        assert!(!report.charging);
+        assert!(!report.wired);
         assert_eq!(report.battery, 0);
         assert_eq!(report.buttons, 0x0c80);
         assert_eq!(report.wpad_buttons(false), report.buttons << 16);
@@ -310,8 +310,8 @@ mod tests {
         let report = ClassicReport::decode(&data, true, 0).unwrap();
         assert_eq!(report.left_stick, [0x41, 0xc9]);
         assert_eq!(report.right_stick, [0x85, 0x0d]);
-        assert_eq!(report.charging, true);
-        assert_eq!(report.wired, true);
+        assert!(report.charging);
+        assert!(report.wired);
         assert_eq!(report.battery, 5);
         assert_eq!(report.buttons & 0x0003_0000, 0x0003_0000);
         assert_eq!(report.wpad_buttons(true) & 3, 3);

@@ -2,6 +2,7 @@ use core::sync::atomic::{AtomicBool, AtomicI32, Ordering};
 use ogc_aes_sys as aes;
 use ogc_conf as conf;
 use ogc_es as es;
+#[cfg(feature = "dolphin-automation")]
 use ogc_es_sys as raw_es;
 use ogc_filesystem as filesystem;
 use ogc_ios as ios;
@@ -115,6 +116,7 @@ static FORMAT_ASYNC_SLOT_SCALAR: FormatAsyncProbeSlot = FormatAsyncProbeSlot::ne
 #[cfg(feature = "dolphin-automation")]
 static FORMAT_ASYNC_SLOT_BUFFER: FormatAsyncProbeSlot = FormatAsyncProbeSlot::new(true);
 
+#[cfg(feature = "dolphin-automation")]
 struct FormatAesAsyncSlot {
     completions: core::sync::atomic::AtomicU32,
     userdata: core::sync::atomic::AtomicUsize,
@@ -163,6 +165,7 @@ unsafe extern "C" fn format_controlled_completed(
     0
 }
 
+#[cfg(feature = "dolphin-automation")]
 impl FormatAesAsyncSlot {
     const fn new() -> Self {
         Self {
@@ -200,6 +203,7 @@ impl FormatAesAsyncSlot {
     }
 }
 
+#[cfg(feature = "dolphin-automation")]
 unsafe extern "C" fn format_aes_completed(result: i32, userdata: *mut core::ffi::c_void) -> i32 {
     let Some(slot) = (unsafe { userdata.cast::<FormatAesAsyncSlot>().as_ref() }) else {
         return 0;
@@ -6403,7 +6407,7 @@ fn probe_owned_tcp_service(logger: &mut ProbeLogger) {
 fn owned_network_clock() -> Result<core::time::Duration, raw_network::std_net::NetError> {
     let ticks = ogc_core::powerpc::read_timebase();
     Ok(core::time::Duration::from_millis(
-        ticks.saturating_mul(1000) / u64::from(lwp::TICKS_PER_SECOND),
+        ticks.saturating_mul(1000) / lwp::TICKS_PER_SECOND,
     ))
 }
 
@@ -6740,7 +6744,7 @@ fn probe_si_sampling_rates(logger: &mut ProbeLogger) {
     } else {
         1
     };
-    let xy = |line: u32, count: u32| (line * multiplier << 16) | (count << 8);
+    let xy = |line: u32, count: u32| ((line * multiplier) << 16) | (count << 8);
     let original_xy = if pal { xy(0x128, 2) } else { xy(0xf6, 2) };
     if original & 0x03ff_ff00 != original_xy {
         ogc_irq::irq_restore(saved_irq);
@@ -7292,6 +7296,7 @@ fn probe_exi_selection(logger: &mut ProbeLogger) {
     }
 }
 
+#[cfg(feature = "dolphin-automation")]
 fn probe_exi_invalid_channels(logger: &mut ProbeLogger) {
     use ogc_exi as exi;
     use ogc_exi::sys as raw_exi;
@@ -7874,14 +7879,36 @@ fn probe_ipc_ioctl_file_stats(logger: &mut ProbeLogger) {
     let expected = [0, 0, 1, 0, 0, 0, 0, 64];
     let mut c_stats = AlignedIsfsBytes([0xa5; 32]);
     let c_result = unsafe {
-        ipc::IOS_Ioctl(file.raw(), 11, core::ptr::null_mut(), 0, c_stats.0.as_mut_ptr().cast(), 8)
+        ipc::IOS_Ioctl(
+            file.raw(),
+            11,
+            core::ptr::null_mut(),
+            0,
+            c_stats.0.as_mut_ptr().cast(),
+            8,
+        )
     };
-    logger.record("IPC C ioctl returns file stats", positioned && c_result == 0 && c_stats.0[..8] == expected);
+    logger.record(
+        "IPC C ioctl returns file stats",
+        positioned && c_result == 0 && c_stats.0[..8] == expected,
+    );
     c_stats.0.fill(0xa5);
     let (c_submit, c_reply) = run_isfs_async_and_wait(|| unsafe {
-        ipc::IOS_IoctlAsync(file.raw(), 11, core::ptr::null_mut(), 0, c_stats.0.as_mut_ptr().cast(), 8, Some(isfs_probe_callback), core::ptr::null_mut())
+        ipc::IOS_IoctlAsync(
+            file.raw(),
+            11,
+            core::ptr::null_mut(),
+            0,
+            c_stats.0.as_mut_ptr().cast(),
+            8,
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
     });
-    logger.record("IPC C ioctl async returns file stats", positioned && c_submit == 0 && c_reply == 0 && c_stats.0[..8] == expected);
+    logger.record(
+        "IPC C ioctl async returns file stats",
+        positioned && c_submit == 0 && c_reply == 0 && c_stats.0[..8] == expected,
+    );
     let mut first = AlignedIsfsBytes([0xa5; 32]);
     let result = file.ioctl(
         11,
@@ -7933,7 +7960,7 @@ fn probe_ipc_buffer_bounds(logger: &mut ProbeLogger) {
     let saved_irq = ogc_irq::irq_disable();
     let lo = ipc::get_buffer_lo();
     let hi = ipc::get_buffer_hi();
-    let extent = (hi as usize).checked_sub(lo as usize).unwrap_or(0);
+    let extent = (hi as usize).saturating_sub(lo as usize);
     if extent < 160 {
         ogc_irq::irq_restore(saved_irq);
         logger.record("IPC buffer fixture has room for bounds checks", false);
@@ -8012,7 +8039,7 @@ fn probe_ipc_heap_handles(logger: &mut ProbeLogger) {
             };
             logger.record(
                 "IPC allocations are aligned and distinct",
-                intact && (a as usize) % 32 == 0 && (b as usize) % 32 == 0,
+                intact && (a as usize).is_multiple_of(32) && (b as usize).is_multiple_of(32),
             );
             // SAFETY: These allocations belong to this heap and are freed once.
             unsafe {
@@ -8161,7 +8188,7 @@ fn probe_video_console_state(logger: &mut ProbeLogger) {
     let default_ok = !default.is_null() && unsafe { (*default).font.num_chars == 256 };
     logger.record(
         "Video console selection exposes metrics and position",
-        selected == &mut console as *mut _ && cols == 80 && rows == 30 && col == 9 && row == 6,
+        core::ptr::eq(selected, &console) && cols == 80 && rows == 30 && col == 9 && row == 6,
     );
     logger.record(
         "Video console window clips and font copies",
@@ -8408,9 +8435,9 @@ fn probe_video_framebuffer_updates(logger: &mut ProbeLogger) {
     };
     let expected_progressive = conf::get_progressive_scan() > 0 && cable != 0;
     let mode_ok = !preferred.is_null()
-        && copied_ptr == &mut copied as *mut _
+        && core::ptr::eq(copied_ptr, &copied)
         && copied.vi_tv_mode == current.vi_tv_mode
-        && copied.vi_tv_mode == ((expected_format << 2) | u32::from(expected_progressive) * 2)
+        && copied.vi_tv_mode == ((expected_format << 2) | (u32::from(expected_progressive) * 2))
         && copied.fb_width == current.fb_width
         && copied.xfb_height == current.xfb_height
         && copied.vi_height == current.vi_height
@@ -10291,7 +10318,7 @@ fn probe_lwbt_invalid_key_pointers(logger: &mut ProbeLogger) {
         "Bluetooth key reply rejects null address",
         reply == bte::ERR_ARG,
     );
-    let negative = unsafe { bte::link_key_request_negative_reply(core::ptr::null_mut()) };
+    let negative = bte::link_key_request_negative_reply(core::ptr::null_mut());
     logger.record(
         "Bluetooth negative key reply rejects null address",
         negative == bte::ERR_ARG,
@@ -10617,7 +10644,7 @@ fn probe_bt_input_queue(logger: &mut ProbeLogger) {
     let mut queue = BluetoothInputQueue::new();
     let initial = queue.is_empty()
         && !queue.is_full()
-        && queue.len() == 0
+        && queue.is_empty()
         && queue.active_generation(0).is_none()
         && queue.pop().is_none();
     let address = BluetoothAddress::new([1, 2, 3, 4, 5, 6]);
@@ -11011,9 +11038,13 @@ fn probe_ipc_ioctlv_mac(logger: &mut ProbeLogger) {
     logger.report_step("IPC vector MAC queries");
     let invalid_reboot = unsafe {
         ipc::IOS_IoctlvReboot(-1, 0, -1, 0, core::ptr::null_mut()) == ipc::IPC_EINVAL
-            && ipc::IOS_IoctlvRebootBackground(-1, 0, 0, -1, core::ptr::null_mut()) == ipc::IPC_EINVAL
+            && ipc::IOS_IoctlvRebootBackground(-1, 0, 0, -1, core::ptr::null_mut())
+                == ipc::IPC_EINVAL
     };
-    logger.record("IPC C reboot vector calls reject negative counts", invalid_reboot);
+    logger.record(
+        "IPC C reboot vector calls reject negative counts",
+        invalid_reboot,
+    );
     let mut expected = [0; 6];
     let reference = unsafe { raw_network::net_get_mac_address(expected.as_mut_ptr().cast()) } == 0
         && expected != [0; 6];
@@ -11077,9 +11108,22 @@ fn probe_ipc_ioctlv_mac(logger: &mut ProbeLogger) {
     {
         ipc::FORMAT_PROBE_FAIL_ASYNC_SUBMISSION.store(true, Ordering::Release);
         let failed = unsafe {
-            ipc::IOS_IoctlvAsync(fd.raw(), 8, 0, 2, vectors.0.as_mut_ptr(), Some(isfs_probe_callback), core::ptr::null_mut())
+            ipc::IOS_IoctlvAsync(
+                fd.raw(),
+                8,
+                0,
+                2,
+                vectors.0.as_mut_ptr(),
+                Some(isfs_probe_callback),
+                core::ptr::null_mut(),
+            )
         };
-        logger.record("IPC C ioctlv async submission failure restores vectors", failed == ipc::IPC_EQUEUEFULL && vectors.0[0].data == status_ptr && vectors.0[1].data == mac_ptr);
+        logger.record(
+            "IPC C ioctlv async submission failure restores vectors",
+            failed == ipc::IPC_EQUEUEFULL
+                && vectors.0[0].data == status_ptr
+                && vectors.0[1].data == mac_ptr,
+        );
     }
     // SAFETY: Both DMA buffers and the vector list own complete aligned cache lines.
     let rc = unsafe { fd.ioctlv_raw(8, 0, 2, &mut vectors.0) };
@@ -11094,17 +11138,35 @@ fn probe_ipc_ioctlv_mac(logger: &mut ProbeLogger) {
     status.0.fill(0xa5);
     mac.0.fill(0xa5);
     let c_rc = unsafe { ipc::IOS_Ioctlv(fd.raw(), 8, 0, 2, vectors.0.as_mut_ptr()) };
-    logger.record("IPC C ioctlv returns MAC", reference && c_rc == 0 && vectors.0[0].data == status_ptr && vectors.0[1].data == mac_ptr && valid(&status.0, &mac.0));
+    logger.record(
+        "IPC C ioctlv returns MAC",
+        reference
+            && c_rc == 0
+            && vectors.0[0].data == status_ptr
+            && vectors.0[1].data == mac_ptr
+            && valid(&status.0, &mac.0),
+    );
     status.0.fill(0xa5);
     mac.0.fill(0xa5);
     let (c_submit, c_reply) = run_isfs_async_and_wait(|| unsafe {
-        ipc::IOS_IoctlvAsync(fd.raw(), 8, 0, 2, vectors.0.as_mut_ptr(), Some(isfs_probe_callback), core::ptr::null_mut())
+        ipc::IOS_IoctlvAsync(
+            fd.raw(),
+            8,
+            0,
+            2,
+            vectors.0.as_mut_ptr(),
+            Some(isfs_probe_callback),
+            core::ptr::null_mut(),
+        )
     });
     unsafe {
         ogc_cache::dc_invalidate_range(status.0.as_ptr().cast(), 32);
         ogc_cache::dc_invalidate_range(mac.0.as_ptr().cast(), 32);
     }
-    logger.record("IPC C ioctlv async returns MAC", reference && c_submit == 0 && c_reply == 0 && valid(&status.0, &mac.0));
+    logger.record(
+        "IPC C ioctlv async returns MAC",
+        reference && c_submit == 0 && c_reply == 0 && valid(&status.0, &mac.0),
+    );
     status.0.fill(0xa5);
     mac.0.fill(0xa5);
     let mut vectors = Vectors([
@@ -13781,8 +13843,10 @@ fn probe_conf_pad_records(logger: &mut ProbeLogger) {
         return;
     }
 
-    let mut pads = conf::ConfPads::default();
-    pads.num_registered = conf::CONF_PAD_MAX_REGISTERED as u8;
+    let mut pads = conf::ConfPads {
+        num_registered: conf::CONF_PAD_MAX_REGISTERED as u8,
+        ..Default::default()
+    };
     pads.registered[0].bdaddr = [1, 2, 3, 4, 5, 6];
     pads.registered[0].name[0..4].copy_from_slice(b"TEST");
     pads.active[3].bdaddr = [9, 8, 7, 6, 5, 4];
@@ -13809,8 +13873,10 @@ fn probe_conf_pad_records(logger: &mut ProbeLogger) {
         && actual == original;
     logger.record("CONF registered controller record is restored", restored);
 
-    let mut guests = conf::ConfPadGuests::default();
-    guests.num_guests = conf::CONF_PAD_MAX_ACTIVE as u8;
+    let mut guests = conf::ConfPadGuests {
+        num_guests: conf::CONF_PAD_MAX_ACTIVE as u8,
+        ..Default::default()
+    };
     guests.guests[0].bdaddr = [6, 5, 4, 3, 2, 1];
     guests.guests[0].name[0..4].copy_from_slice(b"GUES");
     guests.guests[0].link_key = [0x5a; 16];
@@ -14052,7 +14118,7 @@ fn probe_raw_es_catalog(logger: &mut ProbeLogger) {
     let mut path = [0xa5u8; 32];
     let dir = unsafe { sys::get_data_dir(MENU, path.as_mut_ptr()) };
     logger.note_i32("Raw ES data path result", dir);
-    for chunk in path.chunks_exact(4) {
+    for chunk in path.as_chunks::<4>().0 {
         logger.note_hex32(
             "Raw ES data path bytes",
             u32::from_be_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]),
@@ -14218,8 +14284,8 @@ fn probe_raw_es_catalog(logger: &mut ProbeLogger) {
         logger.record(
             "Raw ES TMD view identifies menu and content count",
             rc == 0
-                && &view.0[12..20] == &MENU.to_be_bytes()
-                && &view.0[90..92] == &[0, 9]
+                && view.0[12..20] == MENU.to_be_bytes()
+                && view.0[90..92] == [0, 9]
                 && view.0[236..].iter().all(|b| *b == 0xa5),
         );
     }

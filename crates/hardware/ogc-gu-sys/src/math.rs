@@ -78,7 +78,7 @@ mod tests {
     fn scalar_helpers_match_c_macros() {
         assert_eq!(max(3.0, 5.0), 5.0);
         assert_eq!(min(3.0, 5.0), 3.0);
-        assert_eq!(deg_to_rad(180.0), 180.0 * 0.017_453_292_52_f32);
+        assert_eq!(deg_to_rad(180.0), 180.0 * 0.017_453_292_f32);
         assert_eq!(rad_to_deg(core::f32::consts::PI), 180.0);
         assert_eq!(ftofix32(1.5), 98_304);
         assert_eq!(fix32tof(98_304), 1.5);

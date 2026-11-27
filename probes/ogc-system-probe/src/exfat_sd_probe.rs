@@ -70,7 +70,7 @@ impl Fixture {
             }
             let entries: [u8; 64] = sector.0[446..510].try_into().ok()?;
             let mut selected = None;
-            for entry in entries.chunks_exact(16) {
+            for entry in entries.as_chunks::<16>().0 {
                 if entry[4] != 7 {
                     continue;
                 }
@@ -370,6 +370,7 @@ fn probe_blockfs_public_apis(logger: &mut ProbeLogger) {
     let file_apis = ogc_blockfs::open("ReadMe.txt").is_ok_and(|mut file| {
         let metadata = file.metadata();
         let initial = file.len() == Ok(PAYLOAD.len() as u64)
+            && file.is_empty() == Ok(false)
             && metadata == Ok((PAYLOAD.len() as u64, false))
             && file.position() == 0;
         let seek = file.seek(0).is_ok();
@@ -382,11 +383,12 @@ fn probe_blockfs_public_apis(logger: &mut ProbeLogger) {
     );
 
     let directory_api = ogc_blockfs::open_dir("/")
-        .is_ok_and(|mut directory| directory.next().is_ok_and(|entry| entry.is_some()));
+        .is_ok_and(|mut directory| directory.next_entry().is_ok_and(|entry| entry.is_some()));
     logger.record("blockfs directory APIs return a root entry", directory_api);
 
     let created_file = ogc_blockfs::create_file("blockfs-api.txt").is_ok_and(|mut file| {
-        let created = file.write(b"blockfs") == Ok(7)
+        let created = file.is_empty() == Ok(true)
+            && file.write(b"blockfs") == Ok(7)
             && file.position() == 7
             && file.flush().is_ok()
             && file.truncate(4).is_ok()
@@ -655,8 +657,13 @@ fn probe_mount_errors(logger: &mut ProbeLogger, fixture: &Fixture) {
         inject(fixture.start + 2, 16, Error::InvalidBoot),
     );
     let mut root = Sector([0; 512]);
-    let entry = read_sector(fixture.root, &mut root)
-        .and_then(|()| root.0.chunks_exact(32).position(|slot| slot[0] == 0x85));
+    let entry = read_sector(fixture.root, &mut root).and_then(|()| {
+        root.0
+            .as_chunks::<32>()
+            .0
+            .iter()
+            .position(|slot| slot[0] == 0x85)
+    });
     logger.record(
         "exFAT rejects a corrupted directory entry checksum",
         entry.is_some_and(|entry| inject(fixture.root, (entry * 32 + 2) as u32, Error::Corrupt)),

@@ -1140,22 +1140,22 @@ impl ControllerManager {
                     return;
                 }
                 // Deliver the raw bytes before the report decoder consumes them.
-                if let Some(observer) = self.input_trace_observer {
-                    if let Err(error) = crate::model::notify_bluetooth_raw_report(
+                if let Some(observer) = self.input_trace_observer
+                    && let Err(error) = crate::model::notify_bluetooth_raw_report(
                         observer,
                         slot as u8,
                         generation,
                         self.input_trace_ticks,
                         &bytes[..used],
-                    ) {
-                        self.record_bluetooth_failure(
-                            slot,
-                            current.kind,
-                            &[],
-                            InputFailure::Trace(error),
-                            false,
-                        );
-                    }
+                    )
+                {
+                    self.record_bluetooth_failure(
+                        slot,
+                        current.kind,
+                        &[],
+                        InputFailure::Trace(error),
+                        false,
+                    );
                 }
                 if self
                     .set_bluetooth_report_checked(slot, current.kind, &bytes[..used])

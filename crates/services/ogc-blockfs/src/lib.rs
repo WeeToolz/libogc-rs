@@ -332,16 +332,15 @@ pub fn unmount_sd() -> Result<(), Error> {
     let mount = slot.take().ok_or(Error::NotMounted)?;
     if mount.started_device
         && let Some(shutdown) = ogc_wiisd::WII_SD_INTERFACE.shutdown
+        && !unsafe { shutdown() }
     {
-        if !unsafe { shutdown() } {
-            let mut mount = mount;
-            // SAFETY: the boxed Devoptab remains alive in this mount.
-            if unsafe { ogc_sysbase::add_device(&*mount.devoptab) } >= 0 {
-                mount.registered = true;
-            }
-            *slot = Some(mount);
-            return Err(Error::Io);
+        let mut mount = mount;
+        // SAFETY: the boxed Devoptab remains alive in this mount.
+        if unsafe { ogc_sysbase::add_device(&*mount.devoptab) } >= 0 {
+            mount.registered = true;
         }
+        *slot = Some(mount);
+        return Err(Error::Io);
     }
     Ok(())
 }
@@ -474,6 +473,11 @@ impl File {
     /// Return the file size in bytes.
     pub fn len(&mut self) -> Result<u64, Error> {
         self.metadata().map(|(size, _)| size)
+    }
+
+    /// Check whether the file has zero bytes.
+    pub fn is_empty(&mut self) -> Result<bool, Error> {
+        self.len().map(|size| size == 0)
     }
 
     /// Return the current file size and read-only attribute.
@@ -610,7 +614,7 @@ pub struct Directory {
 
 impl Directory {
     /// Return the next entry or `None` at end of directory.
-    pub fn next(&mut self) -> Result<Option<FileInfo>, Error> {
+    pub fn next_entry(&mut self) -> Result<Option<FileInfo>, Error> {
         let mut slot = MOUNT.lock();
         let mount = slot.as_mut().ok_or(Error::MediaRemoved)?;
         if mount.generation != self.generation {
@@ -1122,7 +1126,7 @@ unsafe extern "C" fn dirnext_r(
         .directory
         .as_mut()
         .expect("validated directory state")
-        .next()
+        .next_entry()
     {
         Ok(Some(entry)) => entry,
         Ok(None) => return -1,

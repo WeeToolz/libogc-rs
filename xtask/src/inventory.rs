@@ -195,7 +195,7 @@ impl EvidenceScope {
         }
     }
 
-    fn classification<'a>(self, declared: &'a str) -> &'a str {
+    fn classification(self, declared: &str) -> &str {
         match self {
             Self::MockDispatch
             | Self::ClosedService

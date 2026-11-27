@@ -66,7 +66,7 @@ impl BlockDevice for BlockDeviceContract {
     fn read_blocks(&mut self, lba: u64, output: &mut [u8]) -> Result<(), WiiError> {
         let start = lba as usize * self.block_size() as usize;
         let end = start.saturating_add(output.len());
-        if output.len() % self.block_size() as usize != 0 || end > self.bytes.len() {
+        if !output.len().is_multiple_of(self.block_size() as usize) || end > self.bytes.len() {
             return Err(WiiError::InvalidArgument);
         }
         output.copy_from_slice(&self.bytes[start..end]);
@@ -76,7 +76,7 @@ impl BlockDevice for BlockDeviceContract {
     fn write_blocks(&mut self, lba: u64, input: &[u8]) -> Result<(), WiiError> {
         let start = lba as usize * self.block_size() as usize;
         let end = start.saturating_add(input.len());
-        if input.len() % self.block_size() as usize != 0 || end > self.bytes.len() {
+        if !input.len().is_multiple_of(self.block_size() as usize) || end > self.bytes.len() {
             return Err(WiiError::InvalidArgument);
         }
         self.bytes[start..end].copy_from_slice(input);

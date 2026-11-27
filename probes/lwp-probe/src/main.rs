@@ -572,7 +572,10 @@ mod wii {
         DRIVER_TIMER_IRQ.store(0, Ordering::Release);
         // SAFETY: Callbacks use fixed integer arguments and static state.
         let queued = unsafe {
-            driver::deferred_enqueue(Some(driver_deferred_callback), 1usize as *mut c_void)
+            driver::deferred_enqueue(
+                Some(driver_deferred_callback),
+                core::ptr::dangling_mut::<c_void>(),
+            )
         };
         let rejected = unsafe { driver::deferred_enqueue(None, ptr::null_mut()) };
         let invalid_timer =
@@ -1019,7 +1022,7 @@ mod wii {
             let a_rc = create_with_stack(
                 &mut a,
                 Some(rotation_worker),
-                1usize as *mut c_void,
+                core::ptr::dangling_mut::<c_void>(),
                 core::ptr::addr_of_mut!(STACK_A),
                 20,
             );
@@ -1059,7 +1062,7 @@ mod wii {
             let a_rc = create_with_stack(
                 &mut a,
                 Some(priority_worker),
-                1usize as *mut c_void,
+                core::ptr::dangling_mut::<c_void>(),
                 core::ptr::addr_of_mut!(STACK_A),
                 if abi { 30 } else { 20 },
             );
@@ -1829,7 +1832,7 @@ mod wii {
             let millis = tuxedo::k_cond_var_wait_ms(&mut cv, &mut mutex, 1);
             let millis_elapsed = driver::now_ticks().wrapping_sub(started);
             let timed = |elapsed| {
-                elapsed >= driver::TICKS_PER_SECOND / 2000 && elapsed < driver::TICKS_PER_SECOND
+                (driver::TICKS_PER_SECOND / 2000..driver::TICKS_PER_SECOND).contains(&elapsed)
             };
             logger.record(
                 "Tuxedo condition timeouts reacquire mutex",

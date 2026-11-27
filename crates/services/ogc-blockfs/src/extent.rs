@@ -28,7 +28,7 @@ pub(crate) fn exfat_extent(
     // overwrites the aligned scratch buffer.
     let mut entries = [0; 64];
     entries.copy_from_slice(&boot.0[446..510]);
-    for entry in entries.chunks_exact(16) {
+    for entry in entries.as_chunks::<16>().0 {
         if entry[4] != 0x07 {
             continue;
         }

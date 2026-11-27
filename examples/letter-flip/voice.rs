@@ -90,3 +90,9 @@ impl VoicePlayer {
         self.player.tick(now)
     }
 }
+
+impl Default for VoicePlayer {
+    fn default() -> Self {
+        Self::new()
+    }
+}

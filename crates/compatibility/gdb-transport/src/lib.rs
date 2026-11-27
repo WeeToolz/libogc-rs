@@ -195,20 +195,20 @@ impl CooperativeControl {
         let generation = self.generation.load(Ordering::Acquire) & GENERATION_MASK;
         let authorized_generation = self.authorized_generation.load(Ordering::Acquire);
         let state = load_cooperative_state(self.state.load(Ordering::Acquire));
-        if !connected || generation != authorized_generation {
-            if matches!(
+        if (!connected || generation != authorized_generation)
+            && matches!(
                 state,
                 CooperativeState::Authorized
                     | CooperativeState::PauseRequested
                     | CooperativeState::Paused
                     | CooperativeState::ResumeRequested
-            ) {
-                return if self.is_available() {
-                    CooperativeState::Running
-                } else {
-                    CooperativeState::Disabled
-                };
-            }
+            )
+        {
+            return if self.is_available() {
+                CooperativeState::Running
+            } else {
+                CooperativeState::Disabled
+            };
         }
         state
     }

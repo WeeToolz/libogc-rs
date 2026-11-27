@@ -3404,7 +3404,7 @@ fn probe_card_save_data(logger: &mut ProbeLogger) {
         wrapper_freeblocks_status == card::CARD_ERROR_READY && wrapper_freeblocks == raw_freeblocks,
     );
     logger.note_u32("card free block count before create", freeblocks as u32);
-    if let Some(freeblocks) = freeblocks_result.ok() {
+    if let Ok(freeblocks) = freeblocks_result {
         if !probe_card_allocation_boundary(logger, slot, sector_size, freeblocks) {
             record_card_unmount(
                 logger,

@@ -596,35 +596,36 @@ mod wii {
                     if input.connected && pressed.contains(Buttons::START) {
                         screen = Screen::Pause;
                         menu_cursor = 0;
-                    } else if input.connected && animation_frame >= MOVE_FRAMES {
-                        if let Some(dir) = direction_pressed {
-                            let before = game.board;
-                            if let Some(movement) = game.apply(dir) {
-                                #[cfg(feature = "action-trace")]
-                                controller_input::record_action(
-                                    "autoplay_2048",
-                                    "playing",
-                                    "board_move",
-                                    frame_counter,
-                                    input,
-                                );
-                                animation_before = before;
-                                movement_animation = Some(movement);
-                                animation_frame = 0;
-                                if game.won && !won_screen_seen {
-                                    screen = Screen::Won;
-                                    won_screen_seen = true;
-                                    menu_cursor = 0;
-                                    sfx_win();
-                                } else if !game.can_move() {
-                                    screen = Screen::GameOver;
-                                    menu_cursor = 0;
-                                    sfx_game_over();
-                                } else if movement.merge_len > 0 {
-                                    sfx_merge(movement.score_delta);
-                                } else {
-                                    sfx_move();
-                                }
+                    } else if input.connected
+                        && animation_frame >= MOVE_FRAMES
+                        && let Some(dir) = direction_pressed
+                    {
+                        let before = game.board;
+                        if let Some(movement) = game.apply(dir) {
+                            #[cfg(feature = "action-trace")]
+                            controller_input::record_action(
+                                "autoplay_2048",
+                                "playing",
+                                "board_move",
+                                frame_counter,
+                                input,
+                            );
+                            animation_before = before;
+                            movement_animation = Some(movement);
+                            animation_frame = 0;
+                            if game.won && !won_screen_seen {
+                                screen = Screen::Won;
+                                won_screen_seen = true;
+                                menu_cursor = 0;
+                                sfx_win();
+                            } else if !game.can_move() {
+                                screen = Screen::GameOver;
+                                menu_cursor = 0;
+                                sfx_game_over();
+                            } else if movement.merge_len > 0 {
+                                sfx_merge(movement.score_delta);
+                            } else {
+                                sfx_move();
                             }
                         }
                     }

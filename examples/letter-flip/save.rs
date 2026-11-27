@@ -221,10 +221,11 @@ pub struct Journal {
 }
 impl Journal {
     pub fn select(records: [Option<Record>; 2]) -> Result<(Self, Data), SaveError> {
-        if let [Some(a), Some(b)] = &records {
-            if a.sequence == b.sequence && a.data != b.data {
-                return Err(SaveError::Sequence);
-            }
+        if let [Some(a), Some(b)] = &records
+            && a.sequence == b.sequence
+            && a.data != b.data
+        {
+            return Err(SaveError::Sequence);
         }
         let active = match (&records[0], &records[1]) {
             (Some(a), Some(b)) => Some(if b.sequence > a.sequence { 1 } else { 0 }),
