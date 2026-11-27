@@ -1492,15 +1492,7 @@ impl FatDirectory {
     /// Open a directory by its mounted path, for example `sd:/apps`.
     pub fn open(path: &CStr) -> Result<Self, FatError> {
         let (mut mount, relative) = mount_and_relative_from_path(path)?;
-        let cluster = if path_is_root(relative) {
-            mount.root_cluster
-        } else {
-            let entry = resolve_path(&mut mount, relative)?.ok_or(FatError::NotFound)?;
-            if entry.attr & FAT_ATTR_DIRECTORY == 0 {
-                return Err(FatError::NotDirectory);
-            }
-            entry.start_cluster
-        };
+        let cluster = resolve_directory_cluster(&mut mount, relative)?;
         mount.acquire_dir(cluster)?;
         Ok(Self {
             state: DirState {
@@ -4208,20 +4200,25 @@ fn build_dot_entry(name: &[u8; 11], cluster: u32) -> [u8; 32] {
     entry
 }
 
+/// Resolve directories identically for typed and devoptab handles.
+fn resolve_directory_cluster(mount: &mut FatMount, relative: &[u8]) -> Result<u32, FatError> {
+    mount.ensure_online()?;
+    if path_is_root(relative) {
+        return Ok(mount.root_cluster);
+    }
+    let entry = resolve_path(mount, relative)?.ok_or(FatError::NotFound)?;
+    if entry.attr & FAT_ATTR_DIRECTORY == 0 {
+        return Err(FatError::NotDirectory);
+    }
+    Ok(entry.start_cluster)
+}
+
 fn diropen_path(
     dir_state: *mut sysbase::DirIter,
     path: &CStr,
 ) -> Result<*mut sysbase::DirIter, FatError> {
     let (mut mount, relative) = mount_and_relative_from_path(path)?;
-    let cluster = if relative.is_empty() {
-        mount.root_cluster
-    } else {
-        let entry = resolve_path(&mut mount, relative)?.ok_or(FatError::NotFound)?;
-        if entry.attr & FAT_ATTR_DIRECTORY == 0 {
-            return Err(FatError::PathError);
-        }
-        entry.start_cluster
-    };
+    let cluster = resolve_directory_cluster(&mut mount, relative)?;
     let iter = unsafe { dir_state.as_mut() }.ok_or(FatError::Io)?;
     let state = unsafe { iter.dir_struct.cast::<DirState>().as_mut() }.ok_or(FatError::Io)?;
     mount.acquire_dir(cluster)?;

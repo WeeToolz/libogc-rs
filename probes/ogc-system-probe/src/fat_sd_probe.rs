@@ -595,6 +595,9 @@ fn probe_blockfs_fat_route(logger: &mut ProbeLogger) {
             let closed = file.close();
             read == Ok(11) && bytes == *b"blockfs-fat" && closed.is_ok()
         });
+    if created {
+        probe_devoptab_root(logger);
+    }
     let removed = created && fat::remove_file(PROBE_FILE).is_ok();
     logger.record(
         "BlockFS FAT mount supports file I/O through the selected backend",
@@ -604,4 +607,62 @@ fn probe_blockfs_fat_route(logger: &mut ProbeLogger) {
         "BlockFS unmount releases the FAT mount and registry entry",
         unmount_sd().is_ok() && !fat::is_mounted(MOUNT) && !exfat_is_mounted(),
     );
+}
+
+/// Exercise registered C callbacks as well as the typed directory API.
+fn probe_devoptab_root(logger: &mut ProbeLogger) {
+    use core::ptr::null_mut;
+    use ogc_sysbase::{DirIter, Stat, device_op_tab, find_device};
+
+    for path in [c"sd:", c"sd:/", c"sd:///"] {
+        let typed = fat::FatDirectory::open(path).is_ok_and(|mut dir| {
+            (0..128).any(|_| match dir.next_entry() {
+                Ok(Some(entry)) => entry.name == b"libogc-fat-api-probe.tmp",
+                _ => false,
+            })
+        });
+        let raw = (|| {
+            let device = device_op_tab(path)?;
+            // The table is registered and remains live until unmount below.
+            let ops = unsafe { device.as_ref()? };
+            let open = ops.diropen_r?;
+            let next = ops.dirnext_r?;
+            let close = ops.dirclose_r?;
+            let mut storage = [0u64; 16];
+            if ops.dir_state_size > core::mem::size_of_val(&storage) {
+                return Some(false);
+            }
+            let mut iter = DirIter {
+                device: find_device(path),
+                dir_struct: storage.as_mut_ptr().cast(),
+            };
+            let mut filename = [0u8; 1024];
+            let mut stat = Stat::default();
+            // The storage is aligned and has at least dir_state_size bytes.
+            // The name buffer exceeds the FAT name limit; Stat is writable.
+            unsafe {
+                if open(null_mut(), &mut iter, path.as_ptr()) != &mut iter {
+                    return Some(false);
+                }
+                let mut found = false;
+                for _ in 0..128 {
+                    if next(
+                        null_mut(),
+                        &mut iter,
+                        filename.as_mut_ptr().cast(),
+                        core::ptr::from_mut(&mut stat).cast(),
+                    ) != 0
+                    {
+                        break;
+                    }
+                    if filename.starts_with(b"libogc-fat-api-probe.tmp\0") {
+                        found = stat.st_size == 11;
+                        break;
+                    }
+                }
+                Some(close(null_mut(), &mut iter) == 0 && found)
+            }
+        })() == Some(true);
+        logger.record(path.to_str().unwrap_or("FAT root"), typed && raw);
+    }
 }

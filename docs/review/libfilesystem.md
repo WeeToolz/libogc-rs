@@ -365,3 +365,23 @@ unmount/registry removal. Existing FAT checks also pass. The imported
 NAND and original backup are not included in the repository. No FAT
 production algorithm was changed by this review. The exact libfat
 revision is still not pinned, so `ogc-fat` remains `review_incomplete`.
+
+## 2026-11-27 FAT directory-open consistency
+
+The typed directory path used `path_is_root` but the registered devoptab
+callback only accepted an empty relative path as the root. `resolve_path`
+returns no physical directory entry for a volume root; therefore `sd:/`
+and `sd:///` failed through the raw callback. The new probe opens `sd:`,
+`sd:/` and `sd:///` through the actual registered callbacks and the typed
+API, enumerates a uniquely owned 11-byte file, checks its raw stat size,
+and closes the handle before cleanup. Before correction: 54 pass and two
+fail (the two slash forms). After: 56/56 pass under Dolphin 2609b using the
+private imported NAND and writable emulated SD fixture. The common resolver
+also checks media presence before publishing directory ownership and reports
+NotDirectory for a non-directory path through both APIs. This DRY correction
+uses the existing typed behavior; it is not proof of a specific C revision.
+See `evidence/fat-root-20261127/` for selected checks and raw report digests.
+The test does not verify the additional offline and non-directory error
+paths independently. The exact legacy libfat reference revision remains
+unidentified, so retain `review_incomplete`. Physical media evidence remains
+pending and is not the source-review gate.

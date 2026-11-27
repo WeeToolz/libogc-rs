@@ -1,0 +1,36 @@
+{
+  "dolphin_version": "2609b",
+  "base": "d9d7d9302e999ebaa6725a79f156a750cc8173c0",
+  "dirty_worktree": true,
+  "runs": [
+    {
+      "status": "probe_fail",
+      "passes": 54,
+      "fails": 2,
+      "page_capture_count": 6,
+      "pages_valid": true,
+      "dol_sha256": "0a9695ad53ba121f31e35797a9d7ec8d9911cfd421a23207e74eaf022005b4ca",
+      "summary_line": "FAIL summary passes=54 fails=2",
+      "failure_lines": [
+        "FAIL sd:/",
+        "FAIL sd:///",
+        "FAIL sd:/",
+        "FAIL sd:///"
+      ],
+      "phase": "before",
+      "raw_result_sha256": "51481da0f485f137df2062c28e4f2a3c08a8a378b54f95bc45f26255f26a941f"
+    },
+    {
+      "status": "pass",
+      "passes": 56,
+      "fails": 0,
+      "page_capture_count": 5,
+      "pages_valid": true,
+      "dol_sha256": "933427d952b1eaef79713e0f00b38aa8252bf5fde8dd77b70303c9bd3054e103",
+      "summary_line": "PASS summary passes=56 fails=0",
+      "failure_lines": [],
+      "phase": "after",
+      "raw_result_sha256": "600c26830d7b3c5f23e0bf1af4517811e326c65a6161675e52100c55c1d7cc10"
+    }
+  ]
+}
