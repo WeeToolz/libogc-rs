@@ -21,14 +21,16 @@ an error returned by IOS.
 
 ## Runtime result
 
-The probe did not run. The existing runner command was:
+This first attempt did not run. The existing runner command was:
 
 ```sh
 CARGO_NET_OFFLINE=true cargo xtask dolphin-validate --probe ios_reload_probe --dolphin /Applications/Dolphin.app/Contents/MacOS/Dolphin --artifact-dir docs/dolphin-runs/2026-11-27-ios-injected-launch-failure --timeout-seconds 120
 ```
 
-The runner stopped before boot because Dolphin exited with `SIGABRT` on
-`--version`. No NAND fixture was used, and this run provides no behavior
-evidence. Keep the injected case open until Dolphin can run the probe. Keep a
-real `ES_LaunchTitleBackground` failure and physical Wii behavior open as
+The sandboxed runner stopped before boot because Dolphin exited with `SIGABRT`
+on `--version`. A direct arm64 version check outside the sandbox reported
+Dolphin 2609a, and the runner later passed the injected probe. See the
+[follow-up report](../2026-11-27-ios-injected-launch-failure-retry/README.md).
+This first attempt provides no behavior evidence. A real
+`ES_LaunchTitleBackground` failure and physical Wii behavior remain open as
 separate cases.

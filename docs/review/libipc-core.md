@@ -722,16 +722,17 @@ open. See the [negative injection evidence](../dolphin-runs/2026-11-27-ios-launc
 and the
 [failed-handshake run record](../dolphin-runs/2026-11-27-ipc-replacement-handshake-failure/README.md).
 
-The current tree adds a separate one-shot ES launch-result injection to the
-`ios_reload_probe`. It calls the public `launch_new_ios` entry point and checks
-the injected error, the C-matching invalid version word after failure, IPC
-recovery, and retention of pending raw and formatted requests. The
-feature-enabled PowerPC target builds, but Dolphin could not start because
-its `--version` command exits with
-`SIGABRT`. The DOL and failed runner invocation are recorded in the
-[injected launch report](../dolphin-runs/2026-11-27-ios-injected-launch-failure/README.md).
-This is not evidence of an actual IOS launch failure. Keep the injected
-runtime case and a real ES launch error open until they run.
+The one-shot ES launch-result injection in `ios_reload_probe` calls the public
+`launch_new_ios` entry point. Dolphin 2609a passed 125/125 checks in the
+[follow-up run](../dolphin-runs/2026-11-27-ios-injected-launch-failure-retry/README.md),
+including the injected error, invalid version word, replacement-scope cleanup,
+retention of pending raw and formatted requests, and later successful
+replacement. The DOL SHA-256 was
+`1fd7cd8191bbd30e308d073b251088d8e46a4fd2b56f8a0ee9e253e6dede1354`. This
+injection does not establish behavior for a real ES launch failure. Keep that
+case and physical Wii cache/DMA evidence open. The earlier failed runner
+attempt is retained in the
+[first-run report](../dolphin-runs/2026-11-27-ios-injected-launch-failure/README.md).
 
 ### Zero-vector request retirement guard (2026-11-27)
 
