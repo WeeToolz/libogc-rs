@@ -1,0 +1,53 @@
+{
+  "probe": "bus_probe",
+  "cases": [
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "lc_load_blocks",
+      "line": 446,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_locked_cache_dma",
+      "api_path": "cache::lc_load_blocks",
+      "checks": [
+        "lc_load_blocks transfers one cache line into locked cache"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "lc_store_blocks",
+      "line": 474,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_locked_cache_dma",
+      "api_path": "cache::lc_store_blocks",
+      "checks": [
+        "lc_store_blocks transfers one cache line and preserves guard bytes"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "lc_load_data",
+      "line": 501,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_locked_cache_dma",
+      "api_path": "cache::lc_load_data",
+      "checks": [
+        "lc_load_data transfers rounded nonzero data into locked cache"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "lc_store_data",
+      "line": 531,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_locked_cache_dma",
+      "api_path": "cache::lc_store_data",
+      "checks": [
+        "lc_store_data copies rounded nonzero data and preserves guard bytes"
+      ]
+    }
+  ]
+}

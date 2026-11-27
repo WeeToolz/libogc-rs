@@ -1,0 +1,83 @@
+{
+  "source_revision": "13d9d4f3934b0b727e7fc51c7aeb49afcb52a24b",
+  "source_fingerprint": "20ce6f20c90a4930101e5c72fdbdfbfe134ddfad18230926857d8d8454578cb4",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "35994958e9577dc2b13e7f165530fb66c71b68830b1654939e78428fa1d09ec5",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "31155a6ce8453c5cb486594046936241e0c67fd317ed50a3ecb2fed053e67b14",
+  "suite_sha256": "e845196d4c4626a8945b45a50fd66c339f19d30498c2a0f723ee0e7d9d69eb81",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/probe.log": "d9d633847cb2aabfde33216c402f1b226556711fa01b4ef3e3127c2646331f81",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/stderr.log": "dc73343c89de77ba4dcc93aeea5d1c469e1f0467583bc7285a3cc72b90106adf",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/probe-transport.bin": "dbd038dd1cbea0b0f949647f8d2bdbb6de72e867fd682c6673e50c400d80f4d0",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-002.png": "5f947b9212cb392fb29390d46cc90c8f0127f278f75518e47898f43c3891c8e1",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-003.png": "1daa2287195337d699bf42676d44a87a04a5b89a949fd18ea8ab8a70f353ffbf",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-004.png": "32f622b17cd00bcd89f33cf96d1bbbb81cee0cbb15e710ca575a55953188a2b0",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-005.png": "5f89c76e2178c53255b4ac3948d5f48edb3a91895f2ef7d197c1e9d1d9ddd125",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-006.png": "d836389ed6a61327e7811d8ff6ecdb7b00934ce5a05f734cea950e98e1c9ab53",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-007.png": "b505ce793be7e32cfd3499fde6b612a6c9a43faa45bd928a753c085df2472dd0",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-008.png": "670e2ef93754971029f2cd075d879f02bbeb923ce7bbe5234b4f973299fd6bf5",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-009.png": "54cf1f2d41835fe22abde95fdb5b7a38f14dabcb3e9782c0964ad4aceed65aaa",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-010.png": "6f579ec5852d87d7e3903c133d3aaa2dda99286de5b58e5ec4b21b225818d77c",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-011.png": "ad1c2b1efce7a725bf64dc112e5df2e1e4c7f1fa8f2bfc5de8fd52bf0a746e1b",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-012.png": "083295693d1dd7c9a040ec04e9d13d489789636e06c30a1858f77daca7cbe8ae",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-013.png": "d4b4c533a1b290e9e8fa4f7ce853ab8b271067564d7b36cb12d717404eeb5924",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-014.png": "f009857973bbf83c70f08b32b29c876e422e0adb6841aa44d1052d2a4c8d6286",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-015.png": "cde208c469d3a52ffe765d2d11d63f77043a30745ae62865487d6f4b37c74e55",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-016.png": "d84ebec2353f342aff061707df61eecb4eac1542c9ec4853d578c698104fdf0d",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-017.png": "d7fc2dbce0b6fe7e00eed8d97feab17cdb7bcfe4e134d36cb7b8645e8e34f981",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-018.png": "f90a933f6180f7035541eacc6b2ff44ae11320b551022afdd5e970e111f4a4eb",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-019.png": "ce036916b55666c0c251da2ab3fcece7f1ceb0febf416fe91729cab7855034d6",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-020.png": "4e9872b9ef96e42030e125ac32b7859398632dd2b2fe5a22c40a012eb69d1061",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-021.png": "3b46bdc2d5fbf24f74596020bbdcc9c84ca30a165ad249e2bce630b598400400",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-022.png": "79eb4f96ac297da990cd7f4d77467d48def8b94389242841f4eb2fb5daf2692f",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-023.png": "070ff644a02c45256e250584e97652b6248e75683eb851cdf9a5a0eb03f4ac17",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-024.png": "1bf04aadd6aa961de9b98f8fb19af3434e728526f0d628913a20e292602e8989",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-025.png": "8f5912bebed557cb88bad3f6a26fc780f61e5dd402272e92673cf7f82a145a99",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-026.png": "b664a3231dbb221465cf79abc5d9488cd8c308226c3c990d418b8b862d9815b2",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-027.png": "d505bab61fbb4f5b08958f5735016db83329f1be0a5da2153058a6abcec13950",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-028.png": "50c34f874d934f891422a390fd477bad4c2b16a370043ed91d66541df0a00231",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-029.png": "b0205c4935e54264b438d6c87d6492700e056ba4bc89a7530dad96dc70afb7ab",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-030.png": "fd6774e0d582b2f0d674ca928bfec72676851d70098d657d6fdc6d12bb7ee42a",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-031.png": "24dd516db2c386c70fda0458e6dbec028746bd735af327d6e5c2a22dfc4c0d49",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-032.png": "39b16c8dbf5da0be7c4d1b0df18f7feb9bafd835798e39330a08e176f96fc87f",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-033.png": "77891e4612636de6c0c5ccecc6996bce4e540e54507f2aae1f4ee66a62555ffa",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-034.png": "f7f9f551f1e3d0a30c63a5ce1e9547477ebc4e9b0f0c9764a601e8427eb88543",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-035.png": "8c7c4a835a9c090555ade4053c511c980550628fcf44f09e125f710693178d2d",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-036.png": "5f6b323f288e176b79eb69d09149d7969d85c2165a96717b11d23da62769e5c2",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-037.png": "045a6436a37efded38719e1059558c95d969b2d6cc76f28c1cc3007c247ed322",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-038.png": "ad4bad91775711aae5d18fdaeac3a7f505d5c9ee3c77e2e6931458909e84f763",
+    "docs/dolphin-runs/2026-11-20-bt-transport-error-paths-final/runtime_probe/pages/page-039.png": "a3cbe94b1e063a318a8c4aa30eb12ddf1e03894e3f6f21ad5b5589a1b7735c6c"
+  },
+  "exit_code": 1
+}

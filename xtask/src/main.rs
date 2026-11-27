@@ -15,6 +15,12 @@ mod card_metadata_submit_error_tests;
 mod dol_mode;
 mod dolphin;
 #[cfg(test)]
+#[path = "../../crates/core/ogc-es-sys/src/imp/completion.rs"]
+mod es_completion_tests;
+#[cfg(test)]
+#[path = "../../crates/core/ogc-es-sys/src/imp/consumption.rs"]
+mod es_consumption_tests;
+#[cfg(test)]
 #[path = "../../crates/core/ogc-ios-sys/src/ios_logic.rs"]
 mod ios_reload_logic_tests;
 #[cfg(test)]
@@ -1555,6 +1561,13 @@ fn build_probe_selection(
                 .current_dir(&root);
             if let Some(features) = mode.features_for(selected) {
                 command.arg("--features").arg(features);
+            }
+            if mode == ProbeBuildMode::Dolphin
+                && selected.is_some_and(|names| names == ["ipc_relaunch_probe"])
+                && env::var_os("LIBOGC_DOLPHIN_RELAUNCH_BACKGROUND").as_deref()
+                    == Some(std::ffi::OsStr::new("1"))
+            {
+                command.arg("--features").arg("ogc-system-probe/ipc-relaunch-background");
             }
             run_command(&mut command)?;
         }

@@ -1,0 +1,19 @@
+{
+  "boot_stage_address": 2150216468,
+  "boot_stage": 3,
+  "program_counter": 2147919864,
+  "program_counter_symbol": "_RNvNtNtCs1iDTAbbju2Z_17compiler_builtins3int19specialized_div_rem11u64_div_rem+0x84",
+  "program_counter_reply": "8006A7F8",
+  "debugger_stop": "T0540:8006a7f8;01:817fc980;",
+  "stack_trace": [
+    "sp=817fc980 lr=00000000 compiler_builtins.f266b4b7ea4a36b-cgu.7+0x0",
+    "sp=817fc990 lr=00000000 compiler_builtins.f266b4b7ea4a36b-cgu.7+0x0",
+    "sp=817fc9b0 lr=80046a80 _RNvCsgkhdhAtxtoI_13ogc_video_sys22wait_v_sync_timeout_us+0x120",
+    "sp=817fc9f0 lr=80044f64 _RNvCsiR6cxmuvZMc_9ogc_video21wait_vsync_timeout_us+0x10",
+    "sp=817fca00 lr=800083bc _RNvCsalhk9MLtpWu_16ogc_system_probe12idle_forever+0x70",
+    "sp=817fca30 lr=80008478 _RNvCsalhk9MLtpWu_16ogc_system_probe35init_probe_logger_with_page_reports+0x0",
+    "sp=817fffc0 lr=80004078 main+0x10",
+    "sp=817fffd0 lr=800643b8 _start_rust+0x2a8"
+  ],
+  "error": null
+}

@@ -1,0 +1,71 @@
+PASS IPC format internal bridge null-call guard
+PASS IPC format public sync b/h/i/q decodes register and aligned overflow words
+PASS IPC format public sync iq skips one GPR before aligned q
+PASS IPC format public sync iqq advances from aligned GPR q to stack q
+PASS IPC format public async b/h/i/q decodes register and aligned overflow words
+PASS IPC format public sync :b/:h/:i/:q constructs exact scalar widths
+PASS IPC format public async :b/:h/:i/:q constructs exact scalar widths
+PASS IPC format public sync scalar output copyback preserves width canaries
+PASS IPC format public async entry scalar cleanup preserves width canaries
+PASS IPC format public sync ds constructs input buffer and string vectors
+PASS IPC format public async ds decodes input buffer and stack string
+PASS IPC format public sync :d stages an 8-byte output buffer
+PASS IPC format public sync output copyback preserves DMA boundary canaries
+PASS IPC format public async entry staging cleanup preserves DMA boundary canaries
+PASS IPC format public sync input staging reads selected DMA boundary lengths
+PASS IPC format public async entry reads selected DMA boundary lengths
+PASS IPC format public sync d vectors reserve full cache lines and keep logical lengths
+PASS IPC format public async d vectors reserve full cache lines and keep logical lengths
+PASS IPC format public sync d:d separates input and output vectors
+PASS IPC format public async d:d separates input and overflow output arguments
+PASS IPC format public sync preserves null d pointers and lengths
+PASS IPC format public sync accepts empty normal and maximum length strings
+PASS IPC format public sync rejects a null format pointer
+PASS IPC format public sync accepts empty and colon-only formats
+PASS IPC format public sync accepts the maximum valid format length
+PASS IPC format maximum 31-parameter staged d ownership balances all 64 workspace events
+PASS IPC format async maximum 31 staged d inputs remain intact through callback with 64 workspace events
+PASS IPC format public async parser matches sync null empty colon maximum and null-buffer boundaries
+PASS IPC format public sync rejects unknown malformed overlong and unterminated input
+PASS IPC format public sync rejects a null scalar output pointer
+PASS IPC format public sync rejects an unavailable heap
+PASS IPC format internal bridge copies ES title count to output vector
+PASS IPC format public ABI sync :i returns the ES title count
+PASS IPC format public ABI async :i preserves output and callback
+PASS IPC format internal bridge transfers title input and directory output
+PASS IPC format public ABI sync q:d formats title directory
+PASS IPC format public sync ES output respects DMA boundary lengths and canaries
+PASS IPC format public async ES output copyback preserves DMA boundary canaries
+PASS IPC format public sync d input reaches ES with the complete title ID
+PASS IPC format ES rejects oversized d inputs after full cache-line tail staging
+PASS IPC format AES matches NIST CBC known-answer ciphertext and consumes staged tail bytes
+PASS IPC format public async d input survives IOS completion
+PASS IPC format public async d input completes without a user callback
+PASS IPC format public ABI sync qi:d decodes the overflow length
+PASS IPC format public ABI async q:d spills and copies back before callback
+PASS IPC format public async concurrent scalar and buffer requests keep callbacks separate
+PASS IPC format async callback re-entry submits a separate second request exactly once
+PASS IPC format re-entry submission failure completes without a second callback
+PASS IPC format formatter construction enters concurrently on two LWPs with separate IOS state
+PASS IPC format public async invalid descriptor completes once with error and releases state
+PASS IPC format successful parse balances independent argv and scalar heap events
+PASS IPC format State allocation failure leaves formatter heap ledger empty
+PASS IPC format Argv allocation failure leaves formatter heap ledger empty
+PASS IPC format second Scalar allocation failure balances prior heap records
+PASS IPC format StagingBuffer failure balances formatter argv ownership
+PASS IPC formatter real heap exhaustion rejects Argv allocation without leaks
+PASS IPC formatter real heap exhaustion frees Argv and the first Scalar exactly once
+PASS IPC formatter async real heap exhaustion rejects Argv
+PASS IPC formatter async real heap exhaustion releases the first Scalar and Argv
+PASS IPC formatter real heap exhaustion recovers on the same heap
+PASS IPC formatter FormatState real workspace exhaustion balances all reservations
+PASS IPC formatter staged-buffer real workspace exhaustion releases state and argv
+PASS IPC format public sync allocation failures release partial formatter state
+PASS IPC format public async request allocation failure releases state without callback
+PASS IPC format async request allocation fault balances formatter heap records
+PASS IPC format public async submission failure releases request and formatter state
+PASS IPC format submission failure frees its one allocated request record exactly once
+PASS IPC format submission failure balances formatter argv and scalar heap records
+PASS IPC format async request allocator exhaustion returns ENOMEM and balances held records
+PASS IPC format formatter recovers after injected allocation failures
+FAIL summary passes=876 fails=13

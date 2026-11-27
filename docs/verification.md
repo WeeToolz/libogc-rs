@@ -116,8 +116,9 @@ FormatState, and first staged-buffer exhaustion case. It releases the workspace
 reservations before the workspace recovery requests. The controlled output
 boundary fixture reports the length and offset for each failed case.
 
-The two partial DMA output copyback rows record the formatter interception
-checks. The sync check verifies software copyback and canary bytes. The async
+The two DMA output copyback rows previously recorded only the formatter
+interception checks. The fresh Linux run described below verifies both live
+ES copyback contracts in Dolphin; physical cache coherency remains blocked. The sync check verifies software copyback and canary bytes. The async
 controlled completion also checks the callback after copyback. The earlier run
 also submits real ES requests through the emulated IOS paths. Both paths test
 31, 32, 33, 63, 64, and 65 byte output buffers at offsets zero and one from a
@@ -126,6 +127,24 @@ surrounding bytes. The async check also verifies one callback, its result and
 userdata, and the output visible in that callback. See the
 [live ES results](dolphin-runs/2026-11-22-ipc-format-workspace-oom-v1/runtime_probe/probe.log#L492).
 Physical Wii testing must establish cache and DMA coherency for these paths.
+
+The [2026-11-26 IPC reply and relaunch review](dolphin-runs/2026-11-26-ipc-reply-relaunch-linux/README.md)
+records the reply decoder red/green test, a runtime baseline and repeat with
+the same 13 unrelated failures, and a passing IOS reload probe. A private
+System Menu fixture restored from the original boot content and TMD reaches
+the destination after both relaunch operations. The runner still reports
+timeout for a successful title handoff because the original probe cannot
+emit a completion summary after replacement. See that report for the
+destination evidence and remaining limits.
+The [IPC follow-up](dolphin-runs/2026-11-26-ipc-followup-linux/README.md)
+adds automatic foreground/background handoff results, nonzero loader-bound
+cases, and delivery of a posted IOS reply across PPC client reinitialization.
+The real IOS replacement with an outstanding request is not established.
+The follow-up runtime fixture corrects eleven video checks; both known NAND
+variants complete 887 checks successfully with two stock Linux Dolphin socket
+option failures. The existing Linux Dolphin network patch still needs a
+rebuilt executable and runtime verification.
+
 
 The [probe guide](../probes/README.md) lists focused build commands, probe
 coverage, Dolphin limits, and physical USB and AESND procedures. The

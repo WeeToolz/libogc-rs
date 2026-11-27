@@ -1,0 +1,17 @@
+{
+  "probe": "wpad_probe",
+  "cases": [
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_idle_thresholds",
+      "line": 1530,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_valid_channel_empty_queries",
+      "api_path": "wpad::set_idle_thresholds",
+      "checks": [
+        "WPAD empty channel idle thresholds update succeeds"
+      ]
+    }
+  ]
+}

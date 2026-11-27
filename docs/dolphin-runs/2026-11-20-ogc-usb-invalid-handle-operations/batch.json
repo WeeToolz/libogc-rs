@@ -1,0 +1,65 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "try_suspend_device",
+      "line": 239,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_invalid_handle_operations",
+      "api_path": "usb::try_suspend_device",
+      "checks": [
+        "USB suspend rejects invalid handle"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "try_resume_device",
+      "line": 247,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_invalid_handle_operations",
+      "api_path": "usb::try_resume_device",
+      "checks": [
+        "USB resume rejects invalid handle"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "try_set_configuration",
+      "line": 500,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_invalid_handle_operations",
+      "api_path": "usb::try_set_configuration",
+      "checks": [
+        "USB set configuration rejects invalid handle"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "try_set_alternative_interface",
+      "line": 508,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_invalid_handle_operations",
+      "api_path": "usb::try_set_alternative_interface",
+      "checks": [
+        "USB set alternate interface rejects invalid handle"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "try_clear_halt",
+      "line": 516,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_invalid_handle_operations",
+      "api_path": "usb::try_clear_halt",
+      "checks": [
+        "USB clear halt rejects invalid handle"
+      ]
+    }
+  ]
+}

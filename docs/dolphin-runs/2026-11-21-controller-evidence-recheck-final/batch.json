@@ -1,0 +1,164 @@
+{
+  "probe": "input_probe",
+  "cases": [
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "init",
+      "line": 943,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "monitor",
+      "api_path": "controllers.init",
+      "checks": [
+        "controller manager init produces a clean first scan",
+        "controller discovered",
+        "A transition observed"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "enable_bluetooth_hid",
+      "line": 956,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "monitor",
+      "api_path": "controllers.enable_bluetooth_hid",
+      "checks": [
+        "controller Bluetooth HID startup request accepted",
+        "direct Bluetooth HID startup reaches Ready before the WPAD alias runs"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "set_bluetooth_startup_hook",
+      "line": 967,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "monitor",
+      "api_path": "controllers.set_bluetooth_startup_hook",
+      "checks": [
+        "Bluetooth startup hook reports initialization before Ready",
+        "Bluetooth startup hook stays silent during restart after removal"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "set_input_trace_observer",
+      "line": 1438,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "monitor",
+      "api_path": "controllers.set_input_trace_observer",
+      "checks": [
+        "input trace observer receives the scripted GameCube A press with identity and time",
+        "USB and trace observers stop receiving callbacks after removal"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "set_usb_startup_hook",
+      "line": 1432,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "monitor",
+      "api_path": "controllers.set_usb_startup_hook",
+      "checks": [
+        "USB startup hook reports initialization and enumeration in order",
+        "USB and trace observers stop receiving callbacks after removal"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "enable_wpad",
+      "line": 963,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "monitor",
+      "api_path": "controllers.enable_wpad",
+      "checks": [
+        "WPAD alias restarts the stopped Bluetooth service"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "shutdown_bluetooth",
+      "line": 986,
+      "evidence_path": "probes/ogc-system-probe/src/controller_cleanup.rs",
+      "function": "shutdown_controller_manager",
+      "api_path": "manager.shutdown_bluetooth",
+      "checks": [
+        "Bluetooth shutdown starts with an active adapter",
+        "Bluetooth shutdown request accepted",
+        "Bluetooth diagnostics retain the closed adapter state"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "bluetooth_shutdown_complete",
+      "line": 989,
+      "evidence_path": "probes/ogc-system-probe/src/controller_cleanup.rs",
+      "function": "shutdown_controller_manager",
+      "api_path": "manager.bluetooth_shutdown_complete",
+      "checks": [
+        "Bluetooth shutdown starts with an active adapter",
+        "Bluetooth shutdown completed"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "bluetooth_diagnostics",
+      "line": 982,
+      "evidence_path": "probes/ogc-system-probe/src/controller_cleanup.rs",
+      "function": "shutdown_controller_manager",
+      "api_path": "manager.bluetooth_diagnostics",
+      "checks": [
+        "Bluetooth diagnostics retain the closed adapter state",
+        "Bluetooth transport has no terminal failure"
+      ]
+    },
+    {
+      "crate": "ogc-input",
+      "path": "src/lib.rs",
+      "symbol": "init",
+      "line": 24,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_ogc_input_public_wrappers",
+      "api_path": "ogc_input::init",
+      "checks": [
+        "PAD repeated initialization reports debug stages"
+      ]
+    },
+    {
+      "crate": "ogc-si",
+      "path": "src/lib.rs",
+      "symbol": "init",
+      "line": 17,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_low_level_state",
+      "api_path": "ogc_si::init",
+      "checks": [
+        "SI wrapper repeat init preserves the active GameCube channel"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "init",
+      "line": 1464,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "probe_pad_low_level_state",
+      "api_path": "ogc_si::sys::init",
+      "checks": [
+        "SI driver repeat init preserves the active GameCube channel"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin supplies scripted GameCube input and emulated Bluetooth transport. The trace check covers decoded GameCube events. USB enumeration can be empty. Physical input, real USB reads, physical Bluetooth pairing and the event and diagnostics hooks require separate evidence.",
+    "The runtime starts SI before the input probe. The explicit SI assertions cover repeat initialization on an active channel. They do not exercise either entry point in isolation from a cold boot.",
+    "Bluetooth shutdown requires a ready host before submission and a closed adapter afterward. The report records whether the first completion poll saw a pending close."
+  ]
+}

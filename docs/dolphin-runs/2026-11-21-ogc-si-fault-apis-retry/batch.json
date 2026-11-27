@@ -1,0 +1,53 @@
+{
+  "probe": "pad_state_probe",
+  "cases": [
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "si_fault_install",
+      "line": 481,
+      "evidence_path": "probes/ogc-system-probe/src/pad_diagnostics_probe.rs",
+      "function": "probe_si_fault_raw_api_paths",
+      "api_path": "ogc_si::sys::si_fault_install",
+      "checks": [
+        "SI raw fault install accepted one step"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "si_fault_clear",
+      "line": 513,
+      "evidence_path": "probes/ogc-system-probe/src/pad_diagnostics_probe.rs",
+      "function": "probe_si_fault_raw_api_paths",
+      "api_path": "ogc_si::sys::si_fault_clear",
+      "checks": [
+        "SI raw fault clear resets installed count"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "si_fault_release",
+      "line": 525,
+      "evidence_path": "probes/ogc-system-probe/src/pad_diagnostics_probe.rs",
+      "function": "probe_si_fault_raw_api_paths",
+      "api_path": "ogc_si::sys::si_fault_release",
+      "checks": [
+        "SI raw fault release finds no held operation"
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "path": "src/lib.rs",
+      "symbol": "si_fault_report",
+      "line": 557,
+      "evidence_path": "probes/ogc-system-probe/src/pad_diagnostics_probe.rs",
+      "function": "probe_si_fault_raw_api_paths",
+      "api_path": "ogc_si::sys::si_fault_report",
+      "checks": [
+        "SI raw fault report returns installed count"
+      ]
+    }
+  ]
+}

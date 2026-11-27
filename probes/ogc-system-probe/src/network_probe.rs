@@ -10,7 +10,9 @@ use tinysmb_sys as smb;
 #[cfg(feature = "dolphin-automation")]
 pub fn probe_smb_fixture(logger: &mut ProbeLogger) {
     if option_env!("LIBOGC_DOLPHIN_SMB_FIXTURE") != Some("1") {
-        logger.note("UNTESTED TinySMB connected operations: SMB fixture was not selected at build time");
+        logger.note(
+            "UNTESTED TinySMB connected operations: SMB fixture was not selected at build time",
+        );
         return;
     }
     logger.section("TINYSMB CONNECTED FIXTURE");
@@ -19,23 +21,50 @@ pub fn probe_smb_fixture(logger: &mut ProbeLogger) {
     if network_status < 0 {
         return;
     }
-    let socket = lwip_sys::socket(lwip_sys::AF_INET, lwip_sys::SOCK_STREAM, lwip_sys::IPPROTO_IP);
+    let socket = lwip_sys::socket(
+        lwip_sys::AF_INET,
+        lwip_sys::SOCK_STREAM,
+        lwip_sys::IPPROTO_IP,
+    );
     if socket >= 0 {
         let mut nonblock = 1u32;
-        let ioctl = unsafe { lwip_sys::ioctl(socket, lwip_sys::FIONBIO, (&mut nonblock as *mut u32).cast()) };
+        let ioctl = unsafe {
+            lwip_sys::ioctl(
+                socket,
+                lwip_sys::FIONBIO,
+                (&mut nonblock as *mut u32).cast(),
+            )
+        };
         let mut address = lwip_sys::SockAddrIn {
             sin_len: core::mem::size_of::<lwip_sys::SockAddrIn>() as u8,
             sin_family: lwip_sys::AF_INET as u8,
             sin_port: 14445u16.to_be(),
-            sin_addr: lwip_sys::InAddr { s_addr: u32::from_ne_bytes([127, 0, 0, 1]) },
+            sin_addr: lwip_sys::InAddr {
+                s_addr: u32::from_ne_bytes([127, 0, 0, 1]),
+            },
             sin_zero: [0; 8],
         };
-        let first = unsafe { lwip_sys::connect(socket, (&mut address as *mut lwip_sys::SockAddrIn).cast(), core::mem::size_of::<lwip_sys::SockAddrIn>() as _) };
-        let second = unsafe { lwip_sys::connect(socket, (&mut address as *mut lwip_sys::SockAddrIn).cast(), core::mem::size_of::<lwip_sys::SockAddrIn>() as _) };
+        let first = unsafe {
+            lwip_sys::connect(
+                socket,
+                (&mut address as *mut lwip_sys::SockAddrIn).cast(),
+                core::mem::size_of::<lwip_sys::SockAddrIn>() as _,
+            )
+        };
+        let second = unsafe {
+            lwip_sys::connect(
+                socket,
+                (&mut address as *mut lwip_sys::SockAddrIn).cast(),
+                core::mem::size_of::<lwip_sys::SockAddrIn>() as _,
+            )
+        };
         logger.note_i32("TinySMB fixture direct nonblocking ioctl", ioctl);
         logger.note_i32("TinySMB fixture direct connect first", first);
         logger.note_i32("TinySMB fixture direct connect second", second);
-        logger.record("TinySMB fixture diagnostic socket closes", lwip_sys::close(socket) == 0);
+        logger.record(
+            "TinySMB fixture diagnostic socket closes",
+            lwip_sys::close(socket) == 0,
+        );
     } else {
         logger.record("TinySMB fixture diagnostic socket opens", false);
     }
@@ -68,31 +97,61 @@ pub fn probe_smb_fixture(logger: &mut ProbeLogger) {
         if !file.is_null() {
             let mut observed = [0u8; CONTENT.len()];
             // SAFETY: Both buffers are live and the file remains open.
-            let written = unsafe { smb::write_file(CONTENT.as_ptr().cast(), CONTENT.len(), 0, file) };
-            let read = unsafe { smb::read_file(observed.as_mut_ptr().cast(), observed.len(), 0, file) };
+            let written =
+                unsafe { smb::write_file(CONTENT.as_ptr().cast(), CONTENT.len(), 0, file) };
+            let read =
+                unsafe { smb::read_file(observed.as_mut_ptr().cast(), observed.len(), 0, file) };
             logger.note_i32("TinySMB fixture write result", written);
             logger.note_i32("TinySMB fixture read result", read);
-            logger.record("TinySMB fixture writes and reads known bytes", written == CONTENT.len() as i32 && read == CONTENT.len() as i32 && observed == CONTENT);
+            logger.record(
+                "TinySMB fixture writes and reads known bytes",
+                written == CONTENT.len() as i32
+                    && read == CONTENT.len() as i32
+                    && observed == CONTENT,
+            );
             smb::close_file(file);
-            let stale = unsafe { smb::read_file(observed.as_mut_ptr().cast(), observed.len(), 0, file) };
-            logger.record("TinySMB closed file handle is rejected", stale == smb::SMB_ERROR);
+            let stale =
+                unsafe { smb::read_file(observed.as_mut_ptr().cast(), observed.len(), 0, file) };
+            logger.record(
+                "TinySMB closed file handle is rejected",
+                stale == smb::SMB_ERROR,
+            );
         }
         let mut entry = smb::SmbDirEntry::default();
         // SAFETY: The search pattern and output entry are valid for each call.
-        let search = unsafe { smb::find_first(c"probe-data.bin".as_ptr(), smb::SMB_SRCH_ARCHIVE, &mut entry, connection) };
+        let search = unsafe {
+            smb::find_first(
+                c"probe-data.bin".as_ptr(),
+                smb::SMB_SRCH_ARCHIVE,
+                &mut entry,
+                connection,
+            )
+        };
         logger.note_i32("TinySMB fixture search result", search);
-        logger.record("TinySMB search finds the archive file", search == smb::SMB_SUCCESS && entry.attributes & u32::from(smb::SMB_SRCH_ARCHIVE) != 0);
+        logger.record(
+            "TinySMB search finds the archive file",
+            search == smb::SMB_SUCCESS && entry.attributes & u32::from(smb::SMB_SRCH_ARCHIVE) != 0,
+        );
         if search == smb::SMB_SUCCESS {
             let closed = unsafe { smb::find_close(&mut entry, connection) };
             logger.note_i32("TinySMB fixture search close result", closed);
             logger.record("TinySMB search closes", closed == smb::SMB_SUCCESS);
-            logger.record("TinySMB closed search handle is invalidated", entry.sid == 0);
+            logger.record(
+                "TinySMB closed search handle is invalidated",
+                entry.sid == 0,
+            );
         }
         let removed = unsafe { smb::delete_file(c"probe-data.bin".as_ptr(), connection) };
-        logger.record("TinySMB fixture removes its file", removed == smb::SMB_SUCCESS);
+        logger.record(
+            "TinySMB fixture removes its file",
+            removed == smb::SMB_SUCCESS,
+        );
         smb::close_connection(connection);
         let stale = unsafe { smb::path_info(c"probe-data.bin".as_ptr(), &mut entry, connection) };
-        logger.record("TinySMB closed connection handle is rejected", stale == smb::SMB_ERROR);
+        logger.record(
+            "TinySMB closed connection handle is rejected",
+            stale == smb::SMB_ERROR,
+        );
     }
     // SAFETY: The device name and credentials are static NUL-terminated data.
     let mounted = unsafe {
@@ -108,9 +167,15 @@ pub fn probe_smb_fixture(logger: &mut ProbeLogger) {
     // SAFETY: The name remains valid and close_device accepts a C string.
     unsafe { smb::close_device(c"smbtest".as_ptr()) };
     let stale_device = unsafe { smb::check_connection(c"smbtest".as_ptr()) };
-    logger.record("TinySMB closed device is invalidated", mounted && !stale_device);
+    logger.record(
+        "TinySMB closed device is invalidated",
+        mounted && !stale_device,
+    );
     smb::set_dolphin_fixture_port(0);
-    logger.record("TinySMB fixture deinitializes network", network::deinit() >= 0);
+    logger.record(
+        "TinySMB fixture deinitializes network",
+        network::deinit() >= 0,
+    );
 }
 
 pub fn run(logger: &mut ProbeLogger) {

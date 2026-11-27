@@ -1,0 +1,33 @@
+{
+  "probe": "wpad_probe",
+  "cases": [
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_event_bufs",
+      "line": 1254,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_valid_channel_argument_guards",
+      "api_path": "wpad::set_event_bufs",
+      "checks": [
+        "WPAD valid channel rejects a null event buffer",
+        "WPAD valid channel rejects a zero event count without writing",
+        "WPAD empty channel installs and initializes an event buffer"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "send_stream_data",
+      "line": 1339,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_valid_channel_argument_guards",
+      "api_path": "wpad::send_stream_data",
+      "checks": [
+        "WPAD valid channel rejects a null stream buffer",
+        "WPAD valid channel rejects a zero stream length"
+      ],
+      "evidence_scope": "invalid-arguments"
+    }
+  ]
+}

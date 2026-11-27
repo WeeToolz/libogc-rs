@@ -1,0 +1,37 @@
+{
+  "source_revision": "6530d34f10f85cf710ac2df67039024ceeba686c",
+  "source_fingerprint": "a70fc70b249be011607fe86715bdcede6574bc61cdafde8ebd1da5d9c9b5dba5",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "libdb_diagnostics_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-21-libdb-diagnostics-final",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "44ca5b6ebed0ae3fe2b477dfcee1b92929ca38932740efb723f3a9919005ef6c",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {},
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "643a3508fa14f5f3d374bc77d158157e4f156249b6ae723bf70fbff93c0260ec",
+  "suite_sha256": "aa3a3db19ebb6e71bf09e696d8ae9ca7c8c3b2821443283a312dfbce807b6eb7",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-21-libdb-diagnostics-final/libdb_diagnostics_probe/probe.log": "45c41d0dd864209b6e7482297c0a0098994133213b742bfa507557c7d84b412f",
+    "docs/dolphin-runs/2026-11-21-libdb-diagnostics-final/libdb_diagnostics_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-21-libdb-diagnostics-final/libdb_diagnostics_probe/stderr.log": "d61f80141ee036ffa510c29c5446ec20afaa9fd6e67ca161e871c23c8389c9d4",
+    "docs/dolphin-runs/2026-11-21-libdb-diagnostics-final/libdb_diagnostics_probe/probe-transport.bin": "1bf76b92149a90714431cf9d9f27c9721524b78e5c13c4391b65d5f52ab3e6df",
+    "docs/dolphin-runs/2026-11-21-libdb-diagnostics-final/libdb_diagnostics_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-21-libdb-diagnostics-final/libdb_diagnostics_probe/pages/page-002.png": "2c1bb8c2038c69238d96b4b9c7d19780fc86065d359309fafb97036fcb39fb54"
+  },
+  "exit_code": 0
+}

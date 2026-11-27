@@ -1,0 +1,40 @@
+{
+  "source_revision": "8d8bd3e698045bded59e75c7433bb9ad35f6a795",
+  "source_fingerprint": "5b65a475d65205b1dda827425e9ee95ba5804f02ce7d49c3d2d257e1a3b4b72e",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "input_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-21-controller-evidence-recheck-v2",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "1a107fb79c36b60cad1a6aae9b6695df7ded7636feb8177076dd283019203ec2",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {},
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "16395f318e9d5acae2efb50458f99827c69ffa9fb1530d5496a6312d7f2f5613",
+  "suite_sha256": "e00f8879b41dad1685713521394b8472457557218177de54eb7a88a435bf7a56",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-21-controller-evidence-recheck-v2/input_probe/probe.log": "97a9078ed3db51ea0ea4afaff6ecfb7dc0e5d56dd2670745bd25cb1a4450c45a",
+    "docs/dolphin-runs/2026-11-21-controller-evidence-recheck-v2/input_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-21-controller-evidence-recheck-v2/input_probe/stderr.log": "9e1a3e3bca99db393b4d415349c0e66ede77bc54a5979c8b01ae12971ed928ba",
+    "docs/dolphin-runs/2026-11-21-controller-evidence-recheck-v2/input_probe/probe-transport.bin": "1bc25aa6768dd8f73c21726e1c2f9a42c12ea6b001b43f2ef3746d5855a20ffa",
+    "docs/dolphin-runs/2026-11-21-controller-evidence-recheck-v2/input_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-21-controller-evidence-recheck-v2/input_probe/pages/page-002.png": "7fb1dfa487933b16ebb7740d1ec7a826d9d630930399ade66a2eb4ae8aa1512d",
+    "docs/dolphin-runs/2026-11-21-controller-evidence-recheck-v2/input_probe/pages/page-003.png": "c3719156ad28ecb20307c9b23df55b140e045ff37a6b7c65b2972d05c083d78b",
+    "docs/dolphin-runs/2026-11-21-controller-evidence-recheck-v2/input_probe/pages/page-004.png": "12e13010fa32410447d70ee8d37ba0286b99fe84db0678ba6a2eaa712eead2be",
+    "docs/dolphin-runs/2026-11-21-controller-evidence-recheck-v2/input_probe/pages/page-005.png": "cdc66c36f76a0a8b904b8f75c12cf88065e49d521a635110494cad79fe61ca4e"
+  },
+  "exit_code": 0
+}

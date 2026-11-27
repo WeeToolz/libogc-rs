@@ -1,0 +1,41 @@
+{
+  "probe": "wpad_probe",
+  "cases": [
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "read_event",
+      "line": 876,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_empty_channel_event_queue",
+      "api_path": "wpad::read_event",
+      "checks": [
+        "WPAD empty channel read reports no controller"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "flush",
+      "line": 959,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_empty_channel_event_queue",
+      "api_path": "wpad::flush",
+      "checks": [
+        "WPAD empty channel flush reports no controller"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "dropped_events",
+      "line": 930,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_empty_channel_event_queue",
+      "api_path": "wpad::dropped_events",
+      "checks": [
+        "WPAD empty channel dropped-event count is zero"
+      ]
+    }
+  ]
+}

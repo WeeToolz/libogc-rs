@@ -1,0 +1,7 @@
+PASS Video console_init_framebuffer initializes the buffered console
+PASS IPC reinitialize masks and restores interrupts
+PASS IPC reinitialize preserves disabled interrupts
+PASS IPC reinitialize fixture held a real IOS reply
+PASS IPC reinitialize delivers the held reply exactly once
+PASS IPC reinitialize closes held descriptor and accepts new requests
+PASS summary passes=26 fails=0

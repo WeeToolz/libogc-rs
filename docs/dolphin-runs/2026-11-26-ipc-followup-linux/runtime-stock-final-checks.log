@@ -1,0 +1,53 @@
+PASS Video console_init_framebuffer initializes the buffered console
+PASS System framebuffer snapshot matches probe mode allocation
+PASS Raw system framebuffer snapshot records allocation
+PASS System aggregate snapshot includes startup and framebuffer
+PASS System framebuffer snapshot records null mode
+PASS Video framebuffer size aligns width and adds AA rows
+PASS Video snapshot retains last queried state
+PASS Video current line query returns
+PASS Video next field query returns
+PASS Video sys current line query stays in range
+PASS Video sys next field query is a valid field
+PASS Video sys reports the Broadway timer frequency
+INFO Video fixture configured mode=0
+INFO Video current preferred mode=22
+PASS Video raw register snapshot matches VI registers
+PASS Video control match distinguishes mode
+PASS Video raw control match distinguishes mode
+PASS Video framebuffer match distinguishes buffers
+PASS Video raw framebuffer match distinguishes buffers
+PASS Video current TV mode matches configured mode
+PASS Video raw TV mode matches configured mode
+PASS Video scan mode matches VI registers
+PASS Video wait_vsync observes retrace
+PASS Video raw wait_v_sync observes retrace
+PASS Video raw immediate framebuffer programs VI
+PASS Video wrapper immediate framebuffer programs VI
+PASS Video raw next framebuffer latches after flush
+PASS Video raw flush publishes framebuffer
+PASS Video framebuffer fixture restored
+PASS Video raw black toggles vertical display
+PASS Video raw component cable matches VI register
+PASS Video raw preferred mode copies into caller storage
+PASS Video right framebuffer setter records and restores its pointer
+PASS Video raw right framebuffer setter records and restores its pointer
+PASS Video console_init_ex initializes and reuses its console buffer
+PASS Video console_init initializes once and restores the probe display
+PASS Video console selection exposes metrics and position
+PASS Video console window clips and font copies
+PASS Video default console supplies its font
+PASS Video console clear resets the cursor
+PASS Video RGBA blit rejects invalid image sizes
+INFO Raw ES stock System Menu fixture
+PASS Raw ES stored TMD matches fixture digest and guard
+INFO Raw ES stored content list result=0
+PASS Raw ES stock TMD returns stored IDs and preserves guard
+FAIL lwIP reuse option set and read
+FAIL Raw TCP reuse option is enabled
+PASS Raw video setup has a live mode and framebuffer
+PASS Raw video init clears callbacks and keeps retrace active
+PASS Raw video configure applies valid geometry despite invalid requests
+FAIL lwIP reuse option set and read
+FAIL Raw TCP reuse option is enabled
+FAIL summary passes=887 fails=2

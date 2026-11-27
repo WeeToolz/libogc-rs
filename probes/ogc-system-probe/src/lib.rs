@@ -1109,6 +1109,10 @@ pub fn run_ipc_relaunch_probe_bin() -> i32 {
         ipc::Ioctlv { data: (&mut title.0 as *mut u64).cast(), len: 8 },
         ipc::Ioctlv { data: (&mut view.0 as *mut es::Tikview).cast(), len: core::mem::size_of::<es::Tikview>() as u32 },
     ]);
+    #[cfg(feature = "ipc-relaunch-background")]
+    logger.note("IPC relaunch mode=background");
+    #[cfg(not(feature = "ipc-relaunch-background"))]
+    logger.note("IPC relaunch mode=foreground");
     logger.note("IPC relaunch handoff begins");
     #[cfg(not(feature = "ipc-relaunch-background"))]
     let result = unsafe { ipc::IOS_IoctlvReboot(fd.raw(), 8, 2, 0, vectors.0.as_mut_ptr()) };
@@ -1216,6 +1220,9 @@ fn es_operations_invalid_results() -> [i32; 24] {
     }
 }
 
+#[cfg(all(target_arch = "powerpc", feature = "ios-reload-probe", feature = "dolphin-automation"))]
+mod ios_reload_pending;
+
 #[cfg(all(target_arch = "powerpc", feature = "ios-reload-probe"))]
 /// Reloads the current IOS and checks IPC after it returns.
 pub fn run_ios_reload_probe_bin() -> i32 {
@@ -1291,6 +1298,15 @@ pub fn run_ios_reload_probe_bin() -> i32 {
             .iter()
             .all(|&rc| rc == ogc_es_sys::ES_EINVAL),
     );
+    let mut limits_count = 0xa5a5_a5a5;
+    // SAFETY: The output points to a writable u32.
+    let consumption_rc = unsafe { ogc_es_sys::get_consumption_count(u64::MAX, &mut limits_count) };
+    logger.note_i32("ES consumption result", consumption_rc);
+    logger.note_u32("ES consumption output", limits_count);
+    logger.record(
+        "ES consumption query returns a count",
+        consumption_rc >= 0 && limits_count == 0,
+    );
     IOS_RELOAD_RESET_MSR.store(u32::MAX, core::sync::atomic::Ordering::Release);
     ogc_ipc::set_debug_hook(Some(ios_reload_ipc_debug_hook));
     logger.note("IOS reload begins");
@@ -1307,6 +1323,10 @@ pub fn run_ios_reload_probe_bin() -> i32 {
         Err(_) => false,
     };
     logger.record("IPC opens and closes FS after reload", ipc_ok);
+    #[cfg(feature = "dolphin-automation")]
+    if result == 0 && ipc_ok {
+        ios_reload_pending::run(&mut logger, version);
+    }
     logger.summary();
     finish_probe()
 }

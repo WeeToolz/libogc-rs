@@ -1,0 +1,17 @@
+{
+  "probe": "bus_probe",
+  "cases": [
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "lc_alloc_tags",
+      "line": 624,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache",
+      "api_path": "cache::lc_alloc_tags",
+      "checks": [
+        "locked cache zero-tag allocation preserves data"
+      ]
+    }
+  ]
+}

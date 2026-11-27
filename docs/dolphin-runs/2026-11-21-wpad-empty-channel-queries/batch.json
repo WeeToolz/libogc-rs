@@ -1,0 +1,101 @@
+{
+  "probe": "wpad-probe",
+  "cases": [
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "data",
+      "line": 1604,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_valid_channel_empty_queries",
+      "api_path": "data",
+      "checks": [
+        "WPAD empty channel data pointer is available"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "battery_level",
+      "line": 1721,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_valid_channel_empty_queries",
+      "api_path": "battery_level",
+      "checks": [
+        "WPAD empty channel battery level is zero"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "buttons_down",
+      "line": 1747,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_valid_channel_empty_queries",
+      "api_path": "buttons_down",
+      "checks": [
+        "WPAD empty channel button states are zero"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "buttons_held",
+      "line": 1760,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_valid_channel_empty_queries",
+      "api_path": "buttons_held",
+      "checks": [
+        "WPAD empty channel button states are zero"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "buttons_up",
+      "line": 1734,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_valid_channel_empty_queries",
+      "api_path": "buttons_up",
+      "checks": [
+        "WPAD empty channel button states are zero"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "accel",
+      "line": 1851,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_valid_channel_empty_queries",
+      "api_path": "accel",
+      "checks": [
+        "WPAD empty channel acceleration is zero"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "ir",
+      "line": 1779,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_valid_channel_empty_queries",
+      "api_path": "ir",
+      "checks": [
+        "WPAD empty channel infrared state is zero"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "expansion",
+      "line": 1875,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_valid_channel_empty_queries",
+      "api_path": "expansion",
+      "checks": [
+        "WPAD empty channel expansion type is none"
+      ]
+    }
+  ]
+}

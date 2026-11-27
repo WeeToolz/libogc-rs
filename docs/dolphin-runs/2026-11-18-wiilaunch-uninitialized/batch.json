@@ -1,0 +1,152 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "try_launch_title",
+      "line": 287,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized",
+      "api_path": "launch::try_launch_title",
+      "checks": [
+        "Wii launch operations require initialization"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "launch_title",
+      "line": 283,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized",
+      "api_path": "launch::launch_title",
+      "checks": [
+        "Wii launch operations require initialization"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "try_launch_title_with_args",
+      "line": 394,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized",
+      "api_path": "launch::try_launch_title_with_args",
+      "checks": [
+        "Wii launch operations require initialization"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "launch_title_with_args",
+      "line": 390,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized",
+      "api_path": "launch::launch_title_with_args",
+      "checks": [
+        "Wii launch operations require initialization"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "try_return_to_menu",
+      "line": 445,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized",
+      "api_path": "launch::try_return_to_menu",
+      "checks": [
+        "Wii launch operations require initialization"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "return_to_menu",
+      "line": 441,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized",
+      "api_path": "launch::return_to_menu",
+      "checks": [
+        "Wii launch operations require initialization"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "try_return_to_settings",
+      "line": 454,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized",
+      "api_path": "launch::try_return_to_settings",
+      "checks": [
+        "Wii launch operations require initialization"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "return_to_settings",
+      "line": 450,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized",
+      "api_path": "launch::return_to_settings",
+      "checks": [
+        "Wii launch operations require initialization"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "try_return_to_settings_page",
+      "line": 481,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized",
+      "api_path": "launch::try_return_to_settings_page",
+      "checks": [
+        "Wii launch operations require initialization"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "return_to_settings_page",
+      "line": 477,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized",
+      "api_path": "launch::return_to_settings_page",
+      "checks": [
+        "Wii launch operations require initialization"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "try_open_url",
+      "line": 493,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized",
+      "api_path": "launch::try_open_url",
+      "checks": [
+        "Wii launch operations require initialization"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "open_url",
+      "line": 489,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized",
+      "api_path": "launch::open_url",
+      "checks": [
+        "Wii launch operations require initialization"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin uninitialized launch state only. Initialized launches, ES interactions, persistence and physical Wii remain unverified."
+  ]
+}

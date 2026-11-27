@@ -1,0 +1,37 @@
+{
+  "source_revision": "6530d34f10f85cf710ac2df67039024ceeba686c",
+  "source_fingerprint": "1fd69e7d741def11363906276147a456fc36f951c2e3da6a9f3f4cd53d5bfa4a",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "debugger_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-21-libdb-socket-diagnostics-final",
+    "--timeout-seconds",
+    "240"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "f6b51677943f94ae3ba711721936e9a2001a7638b372e454443f6902cb2982fd",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {},
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "925bff6c5ccf44822443538893f50182bc568f1b4e1d3edcd5432570ce2877a1",
+  "suite_sha256": "7bd7198f95ad020d71373b692ecbb3cabe9dbeaa5a308933b6bed6a37af9797d",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-21-libdb-socket-diagnostics-final/debugger_probe/probe.log": "17a1a733a61073ec206ca249f4466f4b7ae0444f5e2d38995d20e95b1c47e1c9",
+    "docs/dolphin-runs/2026-11-21-libdb-socket-diagnostics-final/debugger_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-21-libdb-socket-diagnostics-final/debugger_probe/stderr.log": "4d35cb9b4bde519b3cb5c27433d7886a0d6613a95bf9bb5194f2841cd371eeb7",
+    "docs/dolphin-runs/2026-11-21-libdb-socket-diagnostics-final/debugger_probe/probe-transport.bin": "50b52f30958b56e25c67c2768f113b20400413919fdef7cdd8628f39e7efedc4",
+    "docs/dolphin-runs/2026-11-21-libdb-socket-diagnostics-final/debugger_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-21-libdb-socket-diagnostics-final/debugger_probe/pages/page-002.png": "21f88142b4b56b9dae040860789ccd51e58ed40af41a27ffdb75367e88567744"
+  },
+  "exit_code": 1
+}

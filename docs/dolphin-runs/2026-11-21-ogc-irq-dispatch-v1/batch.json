@@ -1,0 +1,17 @@
+{
+  "probe": "lwp-probe",
+  "cases": [
+    {
+      "crate": "ogc-irq",
+      "path": "src/lib.rs",
+      "symbol": "dispatch_pending",
+      "line": 71,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_irq_dispatch_pending",
+      "api_path": "irq::dispatch_pending",
+      "checks": [
+        "IRQ dispatch reports no handled pending interrupt"
+      ]
+    }
+  ]
+}

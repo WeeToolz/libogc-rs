@@ -1,0 +1,3143 @@
+{
+  "schema_version": 1,
+  "inventory_count": 3380,
+  "unverified_count": 209,
+  "remaining_count": 209,
+  "entries": [
+    {
+      "crate": "libdb-sys",
+      "symbol": "DEBUG_Init",
+      "interface_kind": "extern-c",
+      "implementation_file": "crates/compatibility/libdb-sys/src/lib.rs",
+      "line": 1388,
+      "classification": "unverified",
+      "probe": "debugger-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "libdb-sys",
+      "symbol": "arm",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/compatibility/libdb-sys/src/wii_network.rs",
+      "line": 49,
+      "classification": "unverified",
+      "probe": "debugger-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "libdb-sys",
+      "symbol": "bind",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/compatibility/libdb-sys/src/wii_network.rs",
+      "line": 30,
+      "classification": "unverified",
+      "probe": "debugger-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "libdb-sys",
+      "symbol": "bind_with_control",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/compatibility/libdb-sys/src/wii_network.rs",
+      "line": 34,
+      "classification": "unverified",
+      "probe": "debugger-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "libdb-sys",
+      "symbol": "close",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/compatibility/libdb-sys/src/wii_network.rs",
+      "line": 57,
+      "classification": "unverified",
+      "probe": "debugger-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "libdb-sys",
+      "symbol": "diagnostic_failure",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/libdb-sys/src/wii_network.rs",
+      "line": 250,
+      "classification": "unverified",
+      "probe": "debugger-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "libdb-sys",
+      "symbol": "disarm",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/compatibility/libdb-sys/src/wii_network.rs",
+      "line": 53,
+      "classification": "unverified",
+      "probe": "debugger-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "libdb-sys",
+      "symbol": "failure_from_socket",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/libdb-sys/src/wii_network.rs",
+      "line": 268,
+      "classification": "unverified",
+      "probe": "debugger-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "libdb-sys",
+      "symbol": "poll",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/compatibility/libdb-sys/src/wii_network.rs",
+      "line": 41,
+      "classification": "unverified",
+      "probe": "debugger-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "libdb-sys",
+      "symbol": "state",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/compatibility/libdb-sys/src/wii_network.rs",
+      "line": 45,
+      "classification": "unverified",
+      "probe": "debugger-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "symbol": "clear_stored_link_keys",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/lwbt-sys/src/lib.rs",
+      "line": 692,
+      "classification": "unverified",
+      "probe": "bluetooth-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "symbol": "close",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/lwbt-sys/src/lib.rs",
+      "line": 364,
+      "classification": "unverified",
+      "probe": "bluetooth-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "symbol": "init",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/lwbt-sys/src/lib.rs",
+      "line": 327,
+      "classification": "unverified",
+      "probe": "bluetooth-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "symbol": "last_status",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/lwbt-sys/src/lib.rs",
+      "line": 360,
+      "classification": "unverified",
+      "probe": "bluetooth-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `pure` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "symbol": "set_connection_request_callback",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/lwbt-sys/src/lib.rs",
+      "line": 580,
+      "classification": "unverified",
+      "probe": "bluetooth-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "symbol": "set_disconnect_callback",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/lwbt-sys/src/lib.rs",
+      "line": 561,
+      "classification": "unverified",
+      "probe": "bluetooth-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "symbol": "set_host_sync_button_callback",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/lwbt-sys/src/lib.rs",
+      "line": 572,
+      "classification": "unverified",
+      "probe": "bluetooth-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "symbol": "set_link_key_notification_callback",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/lwbt-sys/src/lib.rs",
+      "line": 594,
+      "classification": "unverified",
+      "probe": "bluetooth-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "symbol": "set_link_key_request_callback",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/lwbt-sys/src/lib.rs",
+      "line": 587,
+      "classification": "unverified",
+      "probe": "bluetooth-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "symbol": "shutdown",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/lwbt-sys/src/lib.rs",
+      "line": 356,
+      "classification": "unverified",
+      "probe": "bluetooth-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "symbol": "try_init",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/lwbt-sys/src/lib.rs",
+      "line": 310,
+      "classification": "unverified",
+      "probe": "bluetooth-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "symbol": "set_network_top_fd",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/services/lwip-sys/src/lib.rs",
+      "line": 530,
+      "classification": "unverified",
+      "probe": "network-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "lwip-sys",
+      "symbol": "set_network_top_fd",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/lwip-sys/src/lib.rs",
+      "line": 1493,
+      "classification": "unverified",
+      "probe": "network-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc",
+      "symbol": "init",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/ogc/src/cast.rs",
+      "line": 119,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "symbol": "clear_guest_link_keys",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/services/ogc-bt-sync/src/wii_host.rs",
+      "line": 107,
+      "classification": "unverified",
+      "probe": "bluetooth-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `protocol` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "symbol": "complete",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/services/ogc-bt-sync/src/request.rs",
+      "line": 33,
+      "classification": "unverified",
+      "probe": "bluetooth-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "symbol": "load_guest_link_key",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/services/ogc-bt-sync/src/wii_host.rs",
+      "line": 73,
+      "classification": "unverified",
+      "probe": "bluetooth-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `protocol` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "symbol": "load_link_key",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/services/ogc-bt-sync/src/wii_host.rs",
+      "line": 69,
+      "classification": "unverified",
+      "probe": "bluetooth-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "symbol": "new",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/services/ogc-bt-sync/src/request.rs",
+      "line": 25,
+      "classification": "unverified",
+      "probe": "bluetooth-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "symbol": "open",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/services/ogc-bt-sync/src/transport.rs",
+      "line": 420,
+      "classification": "unverified",
+      "probe": "bluetooth-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "symbol": "open_async",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/services/ogc-bt-sync/src/transport.rs",
+      "line": 294,
+      "classification": "unverified",
+      "probe": "bluetooth-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "symbol": "result",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/services/ogc-bt-sync/src/request.rs",
+      "line": 37,
+      "classification": "unverified",
+      "probe": "bluetooth-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "symbol": "start",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/services/ogc-bt-sync/src/wii_host.rs",
+      "line": 76,
+      "classification": "unverified",
+      "probe": "bluetooth-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "symbol": "take_host",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/services/ogc-bt-sync/src/transport.rs",
+      "line": 263,
+      "classification": "unverified",
+      "probe": "bluetooth-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "symbol": "l2_enhance",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-cache/src/lib.rs",
+      "line": 648,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "symbol": "lc_alloc",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-cache/src/lib.rs",
+      "line": 579,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "symbol": "lc_alloc_no_invalidate",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-cache/src/lib.rs",
+      "line": 595,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "symbol": "lc_alloc_one_tag",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-cache/src/lib.rs",
+      "line": 611,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "symbol": "lc_alloc_tags",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-cache/src/lib.rs",
+      "line": 624,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "symbol": "lc_disable",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-cache/src/lib.rs",
+      "line": 435,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "symbol": "lc_enable",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-cache/src/lib.rs",
+      "line": 429,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "symbol": "lc_flush_queue",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-cache/src/lib.rs",
+      "line": 570,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "symbol": "lc_load_blocks",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-cache/src/lib.rs",
+      "line": 446,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "symbol": "lc_store_blocks",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-cache/src/lib.rs",
+      "line": 474,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-conf",
+      "symbol": "save_changes",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-conf/src/lib.rs",
+      "line": 340,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "symbol": "set_bluetooth_diagnostics_hook",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/services/ogc-controller/src/hardware.rs",
+      "line": 975,
+      "classification": "unverified",
+      "probe": "input-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `protocol` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "symbol": "set_bluetooth_event_hook",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/services/ogc-controller/src/hardware.rs",
+      "line": 971,
+      "classification": "unverified",
+      "probe": "input-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `protocol` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "symbol": "add_content_finish",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-es-sys/src/imp.rs",
+      "line": 1915,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for es-abi-driver role and hardware validation status; evidence scope: Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "symbol": "add_content_start",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-es-sys/src/imp.rs",
+      "line": 1864,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for es-abi-driver role and hardware validation status; evidence scope: Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "symbol": "add_title_cancel",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-es-sys/src/imp.rs",
+      "line": 1947,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for es-abi-driver role and hardware validation status; evidence scope: Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "symbol": "add_title_finish",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-es-sys/src/imp.rs",
+      "line": 1933,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for es-abi-driver role and hardware validation status; evidence scope: Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "symbol": "delete_title",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-es-sys/src/imp.rs",
+      "line": 2146,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for es-abi-driver role and hardware validation status; evidence scope: Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "symbol": "delete_title_content",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-es-sys/src/imp.rs",
+      "line": 2163,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for es-abi-driver role and hardware validation status; evidence scope: Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "symbol": "export_content_begin",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-es-sys/src/imp.rs",
+      "line": 1684,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for es-abi-driver role and hardware validation status; evidence scope: Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "symbol": "export_content_end",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-es-sys/src/imp.rs",
+      "line": 1735,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for es-abi-driver role and hardware validation status; evidence scope: Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "symbol": "export_title_done",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-es-sys/src/imp.rs",
+      "line": 1753,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for es-abi-driver role and hardware validation status; evidence scope: Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "symbol": "import_boot",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-es-sys/src/imp.rs",
+      "line": 1964,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "symbol": "patch_ahbprot_reset",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-es-sys/src/lib.rs",
+      "line": 41,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "symbol": "reset",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-es-sys/src/imp.rs",
+      "line": 448,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-es-sys",
+      "symbol": "set_uid",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-es-sys/src/imp.rs",
+      "line": 481,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for es-abi-driver role and hardware validation status; evidence scope: Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-ios-sys",
+      "symbol": "_ios_initialize_subsystems",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-ios-sys/src/lib.rs",
+      "line": 269,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-ios-sys",
+      "symbol": "_ios_launch_new_ios",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-ios-sys/src/lib.rs",
+      "line": 322,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-ios-sys",
+      "symbol": "_ios_load_startup_ios",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-ios-sys/src/lib.rs",
+      "line": 314,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-ios-sys",
+      "symbol": "_ios_shutdown_subsystems",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-ios-sys/src/lib.rs",
+      "line": 286,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-ios-sys",
+      "symbol": "reload_ios",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-ios-sys/src/lib.rs",
+      "line": 348,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "source review: discards 1 operation result(s) with a wildcard binding; declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "symbol": "__ogc_ipc_ioctlv_format_bridge",
+      "interface_kind": "extern-c",
+      "implementation_file": "crates/core/ogc-ipc/src/lib.rs",
+      "line": 2685,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "symbol": "ioctlv_reboot",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/core/ogc-ipc/src/lib.rs",
+      "line": 756,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "symbol": "ioctlv_reboot_background",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/core/ogc-ipc/src/lib.rs",
+      "line": 772,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "symbol": "reinitialize",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-ipc/src/lib.rs",
+      "line": 1298,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "symbol": "validate_path",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-ipc/src/lib.rs",
+      "line": 2752,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-irq",
+      "symbol": "dispatch_pending",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-irq/src/lib.rs",
+      "line": 71,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-irq",
+      "symbol": "restore_exception_vector",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-irq/src/lib.rs",
+      "line": 77,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-irq",
+      "symbol": "restore_runtime_exception_vectors",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-irq/src/lib.rs",
+      "line": 85,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-irq-sys",
+      "symbol": "k_irq_dispatch_pending",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-irq-sys/src/lib.rs",
+      "line": 791,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-irq-sys",
+      "symbol": "k_irq_restore_exception_vector",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-irq-sys/src/lib.rs",
+      "line": 803,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-irq-sys",
+      "symbol": "k_irq_restore_runtime_exception_vectors",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-irq-sys/src/lib.rs",
+      "line": 814,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "symbol": "raw",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/core/ogc-lwp/src/lib.rs",
+      "line": 169,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "symbol": "reschedule",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-lwp/src/lib.rs",
+      "line": 379,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-lwp",
+      "symbol": "set_priority",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/core/ogc-lwp/src/lib.rs",
+      "line": 104,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "symbol": "reschedule",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-lwp-driver/src/runtime.rs",
+      "line": 2668,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `scheduler` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "symbol": "set_workspace_allocator",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-lwp-driver/src/runtime.rs",
+      "line": 676,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `scheduler` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "symbol": "initialize",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-lwp-sys/src/lib.rs",
+      "line": 26,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "symbol": "note_ipc_wake",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-lwp-sys/src/lib.rs",
+      "line": 360,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-lwp-sys",
+      "symbol": "set_workspace_allocator",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-lwp-sys/src/lib.rs",
+      "line": 31,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-network",
+      "symbol": "as_sockaddr_mut_ptr",
+      "interface_kind": "trait-method",
+      "implementation_file": "crates/services/ogc-network/src/lib.rs",
+      "line": 238,
+      "classification": "unverified",
+      "probe": "network-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-network",
+      "symbol": "attach_active",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/ogc-network/src/lib.rs",
+      "line": 72,
+      "classification": "unverified",
+      "probe": "network-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-network",
+      "symbol": "socket_address_len",
+      "interface_kind": "trait-method",
+      "implementation_file": "crates/services/ogc-network/src/lib.rs",
+      "line": 241,
+      "classification": "unverified",
+      "probe": "network-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "symbol": "net_attach_active",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/services/ogc-network-sys/src/lib.rs",
+      "line": 685,
+      "classification": "unverified",
+      "probe": "network-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "symbol": "net_attach_active",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/ogc-network-sys/src/lib.rs",
+      "line": 1957,
+      "classification": "unverified",
+      "probe": "network-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "symbol": "net_wc24cleanup",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/services/ogc-network-sys/src/lib.rs",
+      "line": 1067,
+      "classification": "unverified",
+      "probe": "network-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "symbol": "net_wc24cleanup",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/ogc-network-sys/src/lib.rs",
+      "line": 1977,
+      "classification": "unverified",
+      "probe": "network-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "symbol": "block_count",
+      "interface_kind": "trait-method",
+      "implementation_file": "crates/core/ogc-runtime/src/driver.rs",
+      "line": 27,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "symbol": "block_size",
+      "interface_kind": "trait-method",
+      "implementation_file": "crates/core/ogc-runtime/src/driver.rs",
+      "line": 26,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "symbol": "cancel",
+      "interface_kind": "trait-method",
+      "implementation_file": "crates/core/ogc-runtime/src/driver.rs",
+      "line": 38,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "symbol": "flush",
+      "interface_kind": "trait-method",
+      "implementation_file": "crates/core/ogc-runtime/src/driver.rs",
+      "line": 30,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "symbol": "initialize",
+      "interface_kind": "trait-method",
+      "implementation_file": "crates/core/ogc-runtime/src/driver.rs",
+      "line": 20,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "symbol": "open",
+      "interface_kind": "trait-method",
+      "implementation_file": "crates/core/ogc-runtime/src/driver.rs",
+      "line": 43,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "symbol": "read",
+      "interface_kind": "trait-method",
+      "implementation_file": "crates/core/ogc-runtime/src/driver.rs",
+      "line": 44,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "symbol": "read_blocks",
+      "interface_kind": "trait-method",
+      "implementation_file": "crates/core/ogc-runtime/src/driver.rs",
+      "line": 28,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "symbol": "receive_report",
+      "interface_kind": "trait-method",
+      "implementation_file": "crates/core/ogc-runtime/src/driver.rs",
+      "line": 52,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "symbol": "send_report",
+      "interface_kind": "trait-method",
+      "implementation_file": "crates/core/ogc-runtime/src/driver.rs",
+      "line": 51,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "symbol": "shutdown",
+      "interface_kind": "trait-method",
+      "implementation_file": "crates/core/ogc-runtime/src/driver.rs",
+      "line": 21,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "symbol": "state",
+      "interface_kind": "trait-method",
+      "implementation_file": "crates/core/ogc-runtime/src/driver.rs",
+      "line": 19,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "symbol": "write",
+      "interface_kind": "trait-method",
+      "implementation_file": "crates/core/ogc-runtime/src/driver.rs",
+      "line": 45,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "symbol": "write_blocks",
+      "interface_kind": "trait-method",
+      "implementation_file": "crates/core/ogc-runtime/src/driver.rs",
+      "line": 29,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for driver-contracts role and hardware validation status; evidence scope: Mock dispatch only in Dolphin. Production driver behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "ogc-si",
+      "symbol": "init",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/hardware/ogc-si/src/lib.rs",
+      "line": 17,
+      "classification": "unverified",
+      "probe": "input-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-si",
+      "symbol": "transfer_commands",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/hardware/ogc-si/src/lib.rs",
+      "line": 107,
+      "classification": "unverified",
+      "probe": "input-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "symbol": "init",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/hardware/ogc-si-sys/src/lib.rs",
+      "line": 1464,
+      "classification": "unverified",
+      "probe": "input-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "source review: discards 1 operation result(s) with a wildcard binding; declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "symbol": "register_wireless_id_accessors",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/hardware/ogc-si-sys/src/lib.rs",
+      "line": 1050,
+      "classification": "unverified",
+      "probe": "input-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-si-sys",
+      "symbol": "transfer_commands",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/hardware/ogc-si-sys/src/lib.rs",
+      "line": 1388,
+      "classification": "unverified",
+      "probe": "input-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-std-runtime",
+      "symbol": "__wii_std_initialize",
+      "interface_kind": "extern-c",
+      "implementation_file": "crates/services/ogc-std-runtime/src/lib.rs",
+      "line": 120,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-std-runtime",
+      "symbol": "__wii_std_net",
+      "interface_kind": "extern-c",
+      "implementation_file": "crates/services/ogc-std-runtime/src/net.rs",
+      "line": 178,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-std-runtime",
+      "symbol": "initialize",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/ogc-std-runtime/src/lib.rs",
+      "line": 69,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-std-runtime",
+      "symbol": "network_initialize",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/ogc-std-runtime/src/net.rs",
+      "line": 10,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-std-runtime",
+      "symbol": "network_snapshot",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/ogc-std-runtime/src/net.rs",
+      "line": 13,
+      "classification": "unverified",
+      "probe": "lwp-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-stm",
+      "symbol": "close",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-stm/src/lib.rs",
+      "line": 412,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-stm",
+      "symbol": "init",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-stm/src/lib.rs",
+      "line": 261,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-stm",
+      "symbol": "reboot_system",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-stm/src/lib.rs",
+      "line": 526,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-stm",
+      "symbol": "shutdown_to_idle",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-stm/src/lib.rs",
+      "line": 480,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-stm",
+      "symbol": "shutdown_to_standby",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-stm/src/lib.rs",
+      "line": 457,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-stm",
+      "symbol": "try_close",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-stm/src/lib.rs",
+      "line": 449,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-stm",
+      "symbol": "try_init",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-stm/src/lib.rs",
+      "line": 281,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-stm",
+      "symbol": "try_reboot_system",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-stm/src/lib.rs",
+      "line": 545,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-stm",
+      "symbol": "try_shutdown_to_idle",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-stm/src/lib.rs",
+      "line": 502,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-stm",
+      "symbol": "try_shutdown_to_standby",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-stm/src/lib.rs",
+      "line": 476,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-sysbase",
+      "symbol": "open_append",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/core/ogc-sysbase/src/lib.rs",
+      "line": 341,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-sysbase",
+      "symbol": "open_truncate",
+      "interface_kind": "rust-method-or-module-function",
+      "implementation_file": "crates/core/ogc-sysbase/src/lib.rs",
+      "line": 349,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-sysbase",
+      "symbol": "restore_stdin_device",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-sysbase/src/lib.rs",
+      "line": 721,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-sysbase",
+      "symbol": "setDefaultDevice",
+      "interface_kind": "extern-c",
+      "implementation_file": "crates/core/ogc-sysbase/src/lib.rs",
+      "line": 674,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-sysbase",
+      "symbol": "set_stdin_device",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-sysbase/src/lib.rs",
+      "line": 713,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "symbol": "exit",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-system/src/lib.rs",
+      "line": 319,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "symbol": "last_config_write_result",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-system/src/lib.rs",
+      "line": 651,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-system",
+      "symbol": "sync_sram",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-system/src/lib.rs",
+      "line": 1603,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "symbol": "__ogc_dev_begin",
+      "interface_kind": "extern-c",
+      "implementation_file": "crates/core/ogc-system-sys/src/dev.rs",
+      "line": 202,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "symbol": "__ogc_dev_end",
+      "interface_kind": "extern-c",
+      "implementation_file": "crates/core/ogc-system-sys/src/dev.rs",
+      "line": 374,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "symbol": "capture",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-system-sys/src/dev.rs",
+      "line": 165,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "symbol": "current_system_argv",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-system-sys/src/lib.rs",
+      "line": 996,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "symbol": "finish",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-system-sys/src/dev.rs",
+      "line": 322,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "symbol": "real_destination",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-system-sys/src/dev_stub.rs",
+      "line": 2,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "symbol": "set_pre_main_progress_callback",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-system-sys/src/lib.rs",
+      "line": 1986,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "symbol": "sys_init",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-system-sys/src/lib.rs",
+      "line": 1523,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "symbol": "sys_main_loop",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-system-sys/src/lib.rs",
+      "line": 2105,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "symbol": "sys_pre_main",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-system-sys/src/lib.rs",
+      "line": 2084,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "source review: discards 1 operation result(s) with a wildcard binding; declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "symbol": "sys_reset_system",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-system-sys/src/lib.rs",
+      "line": 2467,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "symbol": "sys_run_reset_functions",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-system-sys/src/lib.rs",
+      "line": 3980,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "symbol": "device_change_notify_async",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/ogc-usb/src/lib.rs",
+      "line": 227,
+      "classification": "unverified",
+      "probe": "usb-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "symbol": "free_descriptors",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/ogc-usb/src/lib.rs",
+      "line": 117,
+      "classification": "unverified",
+      "probe": "usb-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "symbol": "device_change_notify_async",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/ogc-usb-sys/src/lib.rs",
+      "line": 3210,
+      "classification": "unverified",
+      "probe": "usb-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "symbol": "device_removal_notify_async",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/ogc-usb-sys/src/lib.rs",
+      "line": 3183,
+      "classification": "unverified",
+      "probe": "usb-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-usbgecko",
+      "symbol": "flashwrite",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/ogc-usbgecko/src/lib.rs",
+      "line": 611,
+      "classification": "unverified",
+      "probe": "debugger-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-usbgecko",
+      "symbol": "receive_buffer",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/ogc-usbgecko/src/lib.rs",
+      "line": 494,
+      "classification": "unverified",
+      "probe": "debugger-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-usbgecko",
+      "symbol": "recvbuffer_ex",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/ogc-usbgecko/src/lib.rs",
+      "line": 534,
+      "classification": "unverified",
+      "probe": "debugger-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-usbgecko",
+      "symbol": "recvbuffer_safe",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/ogc-usbgecko/src/lib.rs",
+      "line": 514,
+      "classification": "unverified",
+      "probe": "debugger-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-usbgecko",
+      "symbol": "send_buffer",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/ogc-usbgecko/src/lib.rs",
+      "line": 504,
+      "classification": "unverified",
+      "probe": "debugger-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-usbgecko",
+      "symbol": "sendbuffer_ex",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/ogc-usbgecko/src/lib.rs",
+      "line": 544,
+      "classification": "unverified",
+      "probe": "debugger-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-usbgecko",
+      "symbol": "sendbuffer_safe",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/ogc-usbgecko/src/lib.rs",
+      "line": 524,
+      "classification": "unverified",
+      "probe": "debugger-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-video",
+      "symbol": "console_init",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/hardware/ogc-video/src/lib.rs",
+      "line": 897,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-video",
+      "symbol": "console_init_ex",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/hardware/ogc-video/src/lib.rs",
+      "line": 953,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-video",
+      "symbol": "console_init_framebuffer",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/hardware/ogc-video/src/lib.rs",
+      "line": 1030,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-video",
+      "symbol": "set_next_right_framebuffer",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/hardware/ogc-video/src/lib.rs",
+      "line": 510,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `compatibility-forwarder` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-video-sys",
+      "symbol": "set_next_right_framebuffer",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/hardware/ogc-video-sys/src/lib.rs",
+      "line": 1100,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-video-sys",
+      "symbol": "vi_control_register_for_mode",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/hardware/ogc-video-sys/src/platform_timing.rs",
+      "line": 251,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-video-sys",
+      "symbol": "vi_mode_is_progressive",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/hardware/ogc-video-sys/src/platform_timing.rs",
+      "line": 267,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-video-sys",
+      "symbol": "vi_scan_mode_for_mode",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/hardware/ogc-video-sys/src/platform_timing.rs",
+      "line": 271,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-video-sys",
+      "symbol": "vi_timing_for_mode",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/hardware/ogc-video-sys/src/platform_timing.rs",
+      "line": 227,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "symbol": "initialize",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-wiilaunch/src/lib.rs",
+      "line": 263,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "symbol": "launch_title",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-wiilaunch/src/lib.rs",
+      "line": 283,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "symbol": "launch_title_with_args",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-wiilaunch/src/lib.rs",
+      "line": 390,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "symbol": "open_url",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-wiilaunch/src/lib.rs",
+      "line": 489,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "symbol": "return_to_menu",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-wiilaunch/src/lib.rs",
+      "line": 441,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "symbol": "return_to_settings",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-wiilaunch/src/lib.rs",
+      "line": 450,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "symbol": "return_to_settings_page",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-wiilaunch/src/lib.rs",
+      "line": 477,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "symbol": "try_initialize",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-wiilaunch/src/lib.rs",
+      "line": 275,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "symbol": "try_launch_title",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-wiilaunch/src/lib.rs",
+      "line": 287,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "symbol": "try_launch_title_with_args",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-wiilaunch/src/lib.rs",
+      "line": 394,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "symbol": "try_open_url",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-wiilaunch/src/lib.rs",
+      "line": 493,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "symbol": "try_return_to_menu",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-wiilaunch/src/lib.rs",
+      "line": 445,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "symbol": "try_return_to_settings",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-wiilaunch/src/lib.rs",
+      "line": 454,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "symbol": "try_return_to_settings_page",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/core/ogc-wiilaunch/src/lib.rs",
+      "line": 481,
+      "classification": "unverified",
+      "probe": "system-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "tinysmb-sys",
+      "symbol": "close_connection",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/tinysmb-sys/src/lib.rs",
+      "line": 533,
+      "classification": "unverified",
+      "probe": "smb-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `protocol` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "tinysmb-sys",
+      "symbol": "close_device",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/tinysmb-sys/src/lib.rs",
+      "line": 429,
+      "classification": "unverified",
+      "probe": "smb-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `protocol` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "tinysmb-sys",
+      "symbol": "close_file",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/tinysmb-sys/src/lib.rs",
+      "line": 742,
+      "classification": "unverified",
+      "probe": "smb-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `protocol` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "tinysmb-sys",
+      "symbol": "read_file",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/tinysmb-sys/src/lib.rs",
+      "line": 758,
+      "classification": "unverified",
+      "probe": "smb-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `protocol` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "tinysmb-sys",
+      "symbol": "set_search_flags",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/tinysmb-sys/src/lib.rs",
+      "line": 486,
+      "classification": "unverified",
+      "probe": "smb-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `protocol` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "tinysmb-sys",
+      "symbol": "write_file",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/tinysmb-sys/src/lib.rs",
+      "line": 802,
+      "classification": "unverified",
+      "probe": "smb-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `protocol` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "wiikeyboard-sys",
+      "symbol": "deinitialize",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/wiikeyboard-sys/src/lib.rs",
+      "line": 1132,
+      "classification": "unverified",
+      "probe": "keyboard-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "wiikeyboard-sys",
+      "symbol": "last_status",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/wiikeyboard-sys/src/lib.rs",
+      "line": 1266,
+      "classification": "unverified",
+      "probe": "keyboard-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "wiikeyboard-sys",
+      "symbol": "open",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/wiikeyboard-sys/src/lib.rs",
+      "line": 1159,
+      "classification": "unverified",
+      "probe": "keyboard-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "wiikeyboard-sys",
+      "symbol": "try_close",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/compatibility/wiikeyboard-sys/src/lib.rs",
+      "line": 1239,
+      "classification": "unverified",
+      "probe": "keyboard-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "symbol": "control_speaker",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/wpad-sys/src/lib.rs",
+      "line": 846,
+      "classification": "unverified",
+      "probe": "wpad-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "Transmits the complete speaker command/configuration sequence; hardware acceptance remains pending; evidence scope: Invalid channel behavior only in Dolphin. Valid channel behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "symbol": "disconnect",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/wpad-sys/src/lib.rs",
+      "line": 1288,
+      "classification": "unverified",
+      "probe": "wpad-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for wpad-driver-abi role and hardware validation status; evidence scope: Invalid channel behavior only in Dolphin. Valid channel behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "symbol": "is_speaker_enabled",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/wpad-sys/src/lib.rs",
+      "line": 1306,
+      "classification": "unverified",
+      "probe": "wpad-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for wpad-driver-abi role and hardware validation status; evidence scope: Invalid channel behavior only in Dolphin. Valid channel behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "symbol": "rumble",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/wpad-sys/src/lib.rs",
+      "line": 1501,
+      "classification": "unverified",
+      "probe": "wpad-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for wpad-driver-abi role and hardware validation status; evidence scope: Invalid channel behavior only in Dolphin. Valid channel behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "symbol": "search",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/wpad-sys/src/lib.rs",
+      "line": 1363,
+      "classification": "unverified",
+      "probe": "wpad-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for wpad-driver-abi role and hardware validation status; evidence scope: Disabled adapter behavior only in Dolphin. Active discovery and pairing are unverified."
+        }
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "symbol": "search_bluetooth_hid",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/wpad-sys/src/lib.rs",
+      "line": 1382,
+      "classification": "unverified",
+      "probe": "wpad-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for wpad-driver-abi role and hardware validation status; evidence scope: Disabled adapter behavior only in Dolphin. Active discovery and pairing are unverified."
+        }
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "symbol": "send_stream_data",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/wpad-sys/src/lib.rs",
+      "line": 1337,
+      "classification": "unverified",
+      "probe": "wpad-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for wpad-driver-abi role and hardware validation status; evidence scope: Invalid channel behavior only in Dolphin. Valid channel behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "symbol": "set_battery_dead_callback",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/wpad-sys/src/lib.rs",
+      "line": 1477,
+      "classification": "unverified",
+      "probe": "wpad-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "symbol": "set_data_format",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/wpad-sys/src/lib.rs",
+      "line": 1100,
+      "classification": "unverified",
+      "probe": "wpad-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for wpad-driver-abi role and hardware validation status; evidence scope: Invalid channel behavior only in Dolphin. Valid channel behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "symbol": "set_disconnect_callback",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/wpad-sys/src/lib.rs",
+      "line": 1481,
+      "classification": "unverified",
+      "probe": "wpad-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "symbol": "set_event_bufs",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/wpad-sys/src/lib.rs",
+      "line": 1254,
+      "classification": "unverified",
+      "probe": "wpad-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for wpad-driver-abi role and hardware validation status; evidence scope: Invalid channel behavior only in Dolphin. Valid channel behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "symbol": "set_idle_thresholds",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/wpad-sys/src/lib.rs",
+      "line": 1528,
+      "classification": "unverified",
+      "probe": "wpad-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "Filters button/IR/acceleration/joystick/board/MotionPlus activity before restarting the idle timer; hardware acceptance remains pending; evidence scope: Invalid channel behavior only in Dolphin. Valid channel behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "symbol": "set_idle_timeout",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/wpad-sys/src/lib.rs",
+      "line": 1461,
+      "classification": "unverified",
+      "probe": "wpad-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `scheduler` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "symbol": "set_motion_plus",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/wpad-sys/src/lib.rs",
+      "line": 1122,
+      "classification": "unverified",
+      "probe": "wpad-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "Activates or disables MotionPlus and refreshes extension reporting; hardware acceptance remains pending; evidence scope: Invalid channel behavior only in Dolphin. Valid channel behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "symbol": "set_power_button_callback",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/wpad-sys/src/lib.rs",
+      "line": 1473,
+      "classification": "unverified",
+      "probe": "wpad-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "symbol": "set_status_callback",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/wpad-sys/src/lib.rs",
+      "line": 1489,
+      "classification": "unverified",
+      "probe": "wpad-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `hardware` without exact API test or probe evidence"
+        }
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "symbol": "set_v_res",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/wpad-sys/src/lib.rs",
+      "line": 1183,
+      "classification": "unverified",
+      "probe": "wpad-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for wpad-driver-abi role and hardware validation status; evidence scope: Invalid channel behavior only in Dolphin. Valid channel behavior is unverified."
+        }
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "symbol": "start_pairing",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/wpad-sys/src/lib.rs",
+      "line": 1404,
+      "classification": "unverified",
+      "probe": "wpad-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for wpad-driver-abi role and hardware validation status; evidence scope: Disabled adapter behavior only in Dolphin. Active discovery and pairing are unverified."
+        }
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "symbol": "stop_search",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/wpad-sys/src/lib.rs",
+      "line": 1388,
+      "classification": "unverified",
+      "probe": "wpad-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "See crate contract for wpad-driver-abi role and hardware validation status; evidence scope: Disabled adapter behavior only in Dolphin. Active discovery and pairing are unverified."
+        }
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "symbol": "wipe_saved_controllers",
+      "interface_kind": "rust-function",
+      "implementation_file": "crates/services/wpad-sys/src/lib.rs",
+      "line": 1424,
+      "classification": "unverified",
+      "probe": "wpad-probe",
+      "reasons": [
+        {
+          "code": "disallowed_classification",
+          "message": "declared `ios` without exact API test or probe evidence"
+        }
+      ]
+    }
+  ]
+}

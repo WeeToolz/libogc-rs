@@ -1,0 +1,36 @@
+{
+  "source_revision": "ddb76cc995c7f920f19018c74fa7857b4a93523f",
+  "source_fingerprint": "be277d5366fa031aa7623d672687e272debef4e0ac9703ecbbada7388465b04f",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "stm_api_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-21-stm-lifecycle-focused-v2",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "a840582d02e8f3db930a3da037cf15beaadbb3628946e127eb67264d88415ffe",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {},
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "9b51502a117f21fa3d4be7e6eb8ebca6b573db996ce4b7cc2ff293699e0f6d58",
+  "suite_sha256": "699023e29dd825baa8e3de04ffab4eda74c727ffdbcf006437621cdda8f6aae9",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-21-stm-lifecycle-focused-v2/stm_api_probe/probe.log": "4ea3e078d8fabbf3579756313179121676c75fbfd7cad9cdaea352951af0df3b",
+    "docs/dolphin-runs/2026-11-21-stm-lifecycle-focused-v2/stm_api_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-21-stm-lifecycle-focused-v2/stm_api_probe/stderr.log": "b573d17b6b456c6a4af199be08bafddafa348e0b00a6efc5f56f369cef3d78d4",
+    "docs/dolphin-runs/2026-11-21-stm-lifecycle-focused-v2/stm_api_probe/probe-transport.bin": "896a990d49cdf695ee26af4cced641ca2f4d31534d358cdb2749f292c5e7f82b",
+    "docs/dolphin-runs/2026-11-21-stm-lifecycle-focused-v2/stm_api_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d"
+  },
+  "exit_code": 1
+}

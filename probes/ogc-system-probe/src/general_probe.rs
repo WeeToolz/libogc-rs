@@ -12,6 +12,8 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_es_disc_views(logger);
     probe_es_consumption(logger);
     probe_es_device_identity(logger);
+    #[cfg(feature = "dolphin-automation")]
+    probe_es_identity_rejection(logger);
     probe_es_content_invalid(logger);
     probe_es_open_content(logger);
     probe_es_crypto_inputs(logger);
@@ -54,6 +56,119 @@ pub fn run(logger: &mut ProbeLogger) {
         "console footer write",
         crate::probe_support::screen_write(b"general probe uses direct runtime calls\n").is_ok(),
     );
+}
+
+// Stock Dolphin rejects direct PPC identity verification. Exercise the actual
+// IOS error paths without changing the active identity or installing content.
+#[cfg(feature = "dolphin-automation")]
+fn probe_es_identity_rejection(logger: &mut ProbeLogger) {
+    const MENU: u64 = 0x0000_0001_0000_0002;
+    #[repr(align(64))]
+    struct Aligned<const N: usize>([u8; N]);
+    let opened = es::init();
+    logger.record("ES identity rejection opens service", opened == 0);
+    if opened != 0 {
+        return;
+    }
+    let mut tmd = Aligned([0; 832]);
+    let fetched = unsafe { es::get_stored_tmd(MENU, tmd.0.as_mut_ptr().cast(), 808) };
+    logger.record("ES identity rejection fetches menu TMD", fetched == 0);
+    if fetched == 0 {
+        let mut cert = Aligned([0; 0x300]);
+        cert.0[..4].copy_from_slice(&es::ES_SIG_RSA2048.to_be_bytes());
+        cert.0[0x180..0x184].copy_from_slice(&es::ES_CERT_RSA2048.to_be_bytes());
+        let mut ticket = Aligned([0; es::STD_SIGNED_TIK_SIZE]);
+        ticket.0[..4].copy_from_slice(&es::ES_SIG_RSA2048.to_be_bytes());
+        let view = Aligned([0; core::mem::size_of::<es::Tikview>()]);
+        let mut key = 0xa5a5_a5a5u32;
+        // SAFETY: All blobs are live, aligned, and sized for their declared
+        // format. The synthetic certificate and ticket are not credentials.
+        let identify = unsafe {
+            es::identify(
+                cert.0.as_ptr().cast(),
+                0x300,
+                tmd.0.as_ptr().cast(),
+                808,
+                ticket.0.as_ptr().cast(),
+                es::STD_SIGNED_TIK_SIZE as u32,
+                &mut key,
+            )
+        };
+        logger.note_i32("ES identity rejection result", identify);
+        logger.record(
+            "ES identify rejects direct PPC request without changing key",
+            identify == -1017 && key == 0xa5a5_a5a5,
+        );
+        let verify = unsafe {
+            es::verify_with_ticket_view(
+                cert.0.as_ptr().cast(),
+                0x300,
+                tmd.0.as_ptr().cast(),
+                808,
+                view.0.as_ptr().cast(),
+                &mut key,
+            )
+        };
+        logger.note_i32("ES verify rejection result", verify);
+        logger.record("ES verify rejects direct PPC request", verify == -1017);
+        let alias = unsafe {
+            es::di_verify_with_ticket_view(
+                cert.0.as_ptr().cast(),
+                0x300,
+                tmd.0.as_ptr().cast(),
+                808,
+                view.0.as_ptr().cast(),
+                &mut key,
+            )
+        };
+        logger.record(
+            "ES DI verify alias rejects direct PPC request",
+            alias == -1017,
+        );
+        let truncated = unsafe {
+            es::identify(
+                cert.0.as_ptr().cast(),
+                0x300,
+                tmd.0.as_ptr().cast(),
+                4,
+                ticket.0.as_ptr().cast(),
+                es::STD_SIGNED_TIK_SIZE as u32,
+                &mut key,
+            )
+        };
+        let null_view = unsafe {
+            es::verify_with_ticket_view(
+                cert.0.as_ptr().cast(),
+                0x300,
+                tmd.0.as_ptr().cast(),
+                808,
+                core::ptr::null(),
+                &mut key,
+            )
+        };
+        logger.record(
+            "ES identity rejects truncated TMD and null view",
+            truncated == es::ES_EINVAL && null_view == es::ES_EINVAL,
+        );
+    }
+    let mut stats = ogc_filesystem::IsfsStats::default();
+    let fs = ogc_filesystem::initialize();
+    let before = ogc_filesystem::get_stats(&mut stats);
+    let uid = es::set_uid(u64::MAX);
+    let after = ogc_filesystem::get_stats(&mut stats);
+    logger.note_i32("ES invalid UID result", uid);
+    logger.note_i32("ISFS stats before UID rejection", before);
+    logger.note_i32("ISFS stats after UID rejection", after);
+    logger.record(
+        "ES rejected UID preserves open ISFS",
+        fs == 0 && uid < 0 && before == 0 && after == 0,
+    );
+    let mut count = 0;
+    logger.record(
+        "ES remains usable after rejected identity requests",
+        unsafe { es::get_num_titles(&mut count) } == 0 && count > 0,
+    );
+    logger.record("ES identity rejection closes service", es::close() == 0);
 }
 
 fn probe_es_crypto_vector(logger: &mut ProbeLogger) {
@@ -319,6 +434,12 @@ fn probe_es_open_content(logger: &mut ProbeLogger) {
         );
     }
     logger.record("ES content open probe closes service", es::close() == 0);
+    // SAFETY: A null view must be rejected before it is accessed.
+    let closed_null = unsafe { es::open_title_content(MENU, core::ptr::null(), 0) };
+    logger.record(
+        "ES title content checks closed service before null view",
+        closed_null == es::ES_ENOTINIT,
+    );
 }
 
 fn probe_es_content_invalid(logger: &mut ProbeLogger) {
@@ -491,7 +612,7 @@ fn probe_es_disc_views(logger: &mut ProbeLogger) {
     logger.note_i32("ES current title size result", missing_rc);
     logger.record(
         "ES disc view size reports no active title",
-        missing_rc == -1017 && missing_size == u32::MAX,
+        missing_rc == -1017 && missing_size == 0,
     );
     // SAFETY: The API rejects a null output before it sends an IOS request.
     let null_ticket = unsafe { es::get_ticket_view(core::ptr::null(), core::ptr::null_mut()) };

@@ -1,0 +1,56 @@
+{
+  "source_revision": "a3a9f370f3bae19ed33667beb6f40941802d0d90",
+  "source_fingerprint": "eb3c8323667f243c7d55c7c680d588e87b3567f15a009841a00097e5faea1a15",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-20-usb-mouse-lifecycle",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "62ce679906c1a46a545ae7556754fc92b3969d96d3fcef9a8cef2c6bb69fa9da",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "9105e07250b6d2f439fec9dcb6359327c200b3f77a16cbf6e0491c93a1421b27",
+  "suite_sha256": "c554fc0f3982278bcce14294aa732a3cc448f6ac1f7860c056253444649911c6",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-20-usb-mouse-lifecycle/runtime_probe/probe.log": "3c2912c8867fde08710d8fa2c71b9840a5cac6569adae7bcb2b9027adf9eb11c",
+    "docs/dolphin-runs/2026-11-20-usb-mouse-lifecycle/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-20-usb-mouse-lifecycle/runtime_probe/stderr.log": "108b6e0ba1526fd4493d4af11a9d0a3efc2a8b8703ac249076a45498516f43a6",
+    "docs/dolphin-runs/2026-11-20-usb-mouse-lifecycle/runtime_probe/probe-transport.bin": "93f2cd81d935d51a5b468f2217543fd09e8cec3861b608a30885a561c39e512a",
+    "docs/dolphin-runs/2026-11-20-usb-mouse-lifecycle/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-20-usb-mouse-lifecycle/runtime_probe/pages/page-002.png": "5f947b9212cb392fb29390d46cc90c8f0127f278f75518e47898f43c3891c8e1",
+    "docs/dolphin-runs/2026-11-20-usb-mouse-lifecycle/runtime_probe/pages/page-003.png": "1daa2287195337d699bf42676d44a87a04a5b89a949fd18ea8ab8a70f353ffbf",
+    "docs/dolphin-runs/2026-11-20-usb-mouse-lifecycle/runtime_probe/pages/page-004.png": "32f622b17cd00bcd89f33cf96d1bbbb81cee0cbb15e710ca575a55953188a2b0",
+    "docs/dolphin-runs/2026-11-20-usb-mouse-lifecycle/runtime_probe/pages/page-005.png": "5f89c76e2178c53255b4ac3948d5f48edb3a91895f2ef7d197c1e9d1d9ddd125",
+    "docs/dolphin-runs/2026-11-20-usb-mouse-lifecycle/runtime_probe/pages/page-006.png": "d836389ed6a61327e7811d8ff6ecdb7b00934ce5a05f734cea950e98e1c9ab53",
+    "docs/dolphin-runs/2026-11-20-usb-mouse-lifecycle/runtime_probe/pages/page-007.png": "b505ce793be7e32cfd3499fde6b612a6c9a43faa45bd928a753c085df2472dd0",
+    "docs/dolphin-runs/2026-11-20-usb-mouse-lifecycle/runtime_probe/pages/page-008.png": "cdd1256d3317db1a76f8b6eda4ee0d42940d1f095dc29f45b92cf294f4232f1a",
+    "docs/dolphin-runs/2026-11-20-usb-mouse-lifecycle/runtime_probe/pages/page-009.png": "0698c3eeecf58e13275624494abeaea4e3da28a2e8cb6936af213bc0dbb727d1",
+    "docs/dolphin-runs/2026-11-20-usb-mouse-lifecycle/runtime_probe/pages/page-010.png": "6dd74fd4d7e7e5a661fe9a6269e37acd51dfc6be11eaa7da64656ed005631129",
+    "docs/dolphin-runs/2026-11-20-usb-mouse-lifecycle/runtime_probe/pages/page-011.png": "691d1a62c3598074471cb027d43052cedb95740440bef6aa59f18a81fca7e901",
+    "docs/dolphin-runs/2026-11-20-usb-mouse-lifecycle/runtime_probe/pages/page-012.png": "541454f8eb6d7a4a072e4849be998ae7c7b9e5611579333c9c7f92c9b21a5ca2"
+  },
+  "exit_code": 1
+}

@@ -1,0 +1,192 @@
+
+
+BOOT 1/3: system and video initialized
+INFO Wiiload arguments source=entry count=0
+PASS SYS_Init completed
+INFO startup stage=0 completed_mask=0x7ff failed_stage=0
+BOOT watchdog arm starting
+INFO recovery reset watchdog not armed
+BOOT watchdog arm complete
+BOOT Wiiload report argument check
+INFO Wiiload report check disabled for this probe build
+BOOT before first vsync
+BOOT 2/3: entering IOS pre-main
+PRE 0/7: closing inherited IOS descriptors
+IPC: sync state ready
+IPC: command=0x00000002 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000002 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x135e0fc0
+PRE 1/7: IOS startup
+PRE 2/7: IOS subsystems
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x135e0fc0
+PRE 3/7: STM handler
+PRE 4/7: STM devices
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x135e0f40
+PRE 5/7: configuration
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x135e0f40
+IPC: IOS reply ready
+PRE 6/7: Wii launch state
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x135e0f40
+PRE 7/7: complete
+-- page 2 --
+BOOT 3/3: IOS pre-main completed
+PASS Video console_init_framebuffer initializes the buffered console
+PASS pre-main progress callback reports stages in order
+PASS system pre-main completes without a failed stage
+PASS display initialized
+INFO boot stage: system/video initialized
+INFO boot stage: IOS pre-main completed
+INFO log backend disabled
+INFO argv0 unavailable
+INFO argv raw magic=0x00000000 len=0 argc=0 cmd=0x00000000 argv=0x00000000 end=0x00000000
+PASS power button callback installed
+INFO power-button STM actions deferred until shutdown
+INFO fat mount sd=not-selected usb=not-selected
+INFO previous stm handler chained=0
+INFO previous power callback replaced
+
+== GENERAL PROBE ==
+PASS ES signature sizes match public layouts
+PASS ES signature types accept only supported values
+PASS ES certificate sizes match public layouts
+PASS ES certificate types accept only supported values
+PASS ES signed certificate sizes combine signature and certificate
+-- page 3 --
+PASS ES signed ticket sizes include signature
+PASS ES title metadata sizes match public layouts
+PASS ES signed title metadata adds signature size
+PASS ES next certificate follows all supported ABI layouts
+PASS ES next certificate rejects unknown certificate type
+PASS ES next certificate rejects invalid signature and null
+PASS ES catalog opens for path and content checks
+INFO ES data directory result=0
+PASS ES system menu data path matches NAND
+PASS ES rejected stored content list preserves output
+PASS ES catalog closes after path and content checks
+PASS ES disc view probe opens service
+PASS ES disc TMD view size matches system menu
+PASS ES disc TMD view matches menu and rejects null
+INFO ES disc view: query current title size
+INFO ES current title size result=-1017
+PASS ES disc view size reports no active title
+PASS ES disc ticket view rejects null output
+INFO ES disc view: query current ticket
+PASS ES disc ticket view reports no active title
+PASS ES disc view probe closes service
+PASS ES consumption probe opens service
+PASS ES consumption count returns zero and rejects null
+-- page 4 --
+PASS ES consumption validates output and preserves empty results
+PASS ES consumption queries reject closed service
+PASS ES identity probe opens service
+PASS ES device ID matches imported NAND and rejects null
+PASS ES title ID unavailable preserves output and rejects null
+PASS ES Korean key query returns IOS error
+PASS ES identity probe closes service
+PASS ES identity rejection opens service
+PASS ES identity rejection fetches menu TMD
+INFO ES identity rejection result=-1017
+PASS ES identify rejects direct PPC request without changing key
+INFO ES verify rejection result=-1017
+PASS ES verify rejects direct PPC request
+PASS ES DI verify alias rejects direct PPC request
+PASS ES identity rejects truncated TMD and null view
+INFO ES invalid UID result=-1017
+INFO ISFS stats before UID rejection=0
+INFO ISFS stats after UID rejection=0
+PASS ES rejected UID preserves open ISFS
+PASS ES remains usable after rejected identity requests
+PASS ES identity rejection closes service
+PASS ES content validation opens service
+PASS ES content read rejects invalid inputs and preserves output
+-- page 5 --
+PASS ES content seek rejects negative descriptor
+PASS ES content close rejects negative descriptor
+PASS ES content validation closes service
+PASS ES content open probe starts service
+PASS ES active content rejects absent title
+PASS ES title content opens and rejects null view
+PASS ES title content reads fixture after seek and closes
+PASS ES content open probe closes service
+PASS ES title content checks closed service before null view
+PASS ES crypto probe opens service
+PASS ES device certificate has ECC format and bounded output
+PASS ES encrypt rejects invalid buffers without mutation
+PASS ES decrypt rejects invalid buffers without mutation
+PASS ES encrypt invalid key preserves IV and destination
+INFO ES encrypt invalid key result=-2000
+PASS ES decrypt invalid key preserves IV and destination
+INFO ES decrypt invalid key result=-2000
+PASS ES crypto probe closes service
+PASS ES crypto vector opens service
+INFO ES crypto vector encrypt result=0
+PASS ES encrypt matches independent CBC vector and updates IV
+INFO ES crypto vector decrypt result=0
+PASS ES decrypt matches independent CBC vector and updates IV
+-- page 6 --
+PASS ES crypto vector closes service
+PASS WPAD speaker encoding matches C reference
+PASS WPAD speaker continuation preserves encoder state
+PASS WPAD speaker odd sample uses zero padding
+PASS Bluetooth idle host starts disabled
+PASS Bluetooth idle host rejects search and report
+PASS Bluetooth idle host rejects disconnect request
+PASS Bluetooth idle host has no queued events
+PASS Bluetooth idle host poll leaves it disabled
+PASS Bluetooth idle host shutdown completes without adapter
+PASS Bluetooth closed host remains complete after poll
+PASS GX breakpoint callback replacement and restoration
+PASS counter bias roundtrip
+PASS display offset roundtrip
+PASS EU RGB60 roundtrip
+PASS language roundtrip
+PASS progressive scan roundtrip
+PASS sound mode roundtrip
+PASS video mode roundtrip
+INFO system time=51579566819025821
+PASS system time advanced
+INFO hollywood revision=0x00000011
+PASS hollywood revision observable
+-- page 7 --
+INFO font encoding=0
+PASS font encoding sane
+PASS reset button state sane
+INFO video tv mode=0
+INFO component cable=1
+ogc-system-probe general
+PASS console banner write
+system and video state captured
+PASS console summary write
+general probe uses direct runtime calls
+PASS console footer write
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+INFO summary_candidate passes=94 fails=0
+PASS summary passes=94 fails=0

@@ -1,0 +1,16 @@
+   Compiling xtask v0.1.0 (/Volumes/SSD/WiiDev/WeeToolz/libogc-rs/xtask)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.79s
+     Running `target/debug/xtask dolphin-validate --probe ipc_relaunch_probe --dolphin /Applications/Dolphin.app/Contents/MacOS/Dolphin --timeout-seconds 45 --artifact-dir /private/tmp/ipc-lldb-run`
+warning: unnecessary `unsafe` block
+     --> probes/ogc-system-probe/src/runtime_probe.rs:10276:20
+      |
+10276 |     let negative = unsafe { bte::link_key_request_negative_reply(core...
+      |                    ^^^^^^ unnecessary `unsafe` block
+      |
+      = note: `#[warn(unused_unsafe)]` (part of `#[warn(unused)]`) on by default
+
+warning: `ogc-system-probe` (lib) generated 1 warning
+    Finished `release` profile [optimized] target(s) in 0.02s
+wrote probe DOLs under /Volumes/SSD/WiiDev/WeeToolz/libogc-rs/target/xtask/probes-dolphin
+Dolphin probe: ipc_relaunch_probe
+Error: "Dolphin GDB did not listen on 127.0.0.1:59879: Connection refused (os error 61)"

@@ -1,0 +1,6 @@
+PASS Video console_init_framebuffer initializes the buffered console
+PASS IPC relaunch system menu ticket view
+INFO IPC relaunch mode=background
+INFO IPC relaunch handoff begins
+INFO IPC relaunch returned=0
+PASS IPC relaunch request accepted

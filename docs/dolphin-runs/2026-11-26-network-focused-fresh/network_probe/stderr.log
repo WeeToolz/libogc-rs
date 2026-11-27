@@ -1,0 +1,149 @@
+35:09:348 Core/Boot/DolReader.cpp:67 W[BOOT]: DolReader: Text section 0 size is not aligned to 32 bytes and can cause issues when loaded
+35:09:348 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 0 size is not aligned to 32 bytes and can cause issues when loaded
+35:09:348 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 1 size is not aligned to 32 bytes and can cause issues when loaded
+35:09:349 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+35:09:350 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+35:09:350 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+35:09:408 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+35:09:409 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
+35:09:409 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
+35:09:409 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
+35:09:498 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App name: org.dolphin-emu.dolphin
+35:09:498 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App version: <unspecified>
+35:09:498 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App ID: <unspecified>
+35:09:498 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: SDL revision: SDL-release-3.4.20-0-gf00dc919c
+35:09:515 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
+35:09:515 InputCommon/ControllerInterface/DualShockUDPClient/DualShockUDPClient.cpp:492 I[CI]: DualShockUDPClient PopulateDevices
+35:09:515 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:141 I[CI]: SteamDeck PopulateDevices
+35:09:531 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:171 I[CI]: No Steam Deck interface found
+35:09:551 Core/ConfigManager.cpp:279 N[CORE]: Active title: 
+35:09:552 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+35:09:553 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+35:09:553 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+35:09:553 Core/Core.cpp:237 I[BOOT]: Starting core = Wii mode
+35:09:553 Core/Core.cpp:238 I[BOOT]: CPU Thread separate = No
+35:09:598 InputCommon/ControllerInterface/ControllerInterface.cpp:310 N[CI]: Removed device: Quartz/0/Keyboard & Mouse
+35:09:606 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
+35:09:613 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 0000000100000050
+35:09:613 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+35:09:613 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
+35:09:614 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+35:09:614 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+35:09:618 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:7e:cc:a2
+35:09:669 Core/Boot/Boot.cpp:546 N[BOOT]: Booting from executable: /Volumes/SSD/WiiDev/WeeToolz/libogc-rs/target/xtask/custom-dols/ogc_system_probe-network_probe-dev.dol
+35:09:669 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/sys/uid.sys): Result 0
+35:09:669 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/sys/uid.sys): Result 0
+35:09:670 Core/Boot/Boot_BS2Emu.cpp:435 I[BOOT]: Using serial number: 372730284
+35:09:670 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /title/00000001/00000002/data/setting.txt (NAND)
+35:09:670 Core/Boot/Boot_BS2Emu.cpp:463 I[BOOT]: Setup Wii Memory...
+35:09:670 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 000000010000003a
+35:09:670 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+35:09:671 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
+35:09:671 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+35:09:671 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+35:09:672 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:7e:cc:a2
+35:09:760 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ncd/manage (mode 0, fd 0)
+35:09:761 Core/IOS/Network/NCD/Manage.cpp:112 I[IOS_NET]: NET_NCD_MANAGE: IOCTLV_NCD_GETLINKSTATUS
+35:09:761 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ip/top (mode 0, fd 0)
+35:09:762 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/kd/request (mode 0, fd 1)
+35:09:763 Core/IOS/Network/IP/Top.cpp:908 I[IOS_NET]: IOCTL_SO_GETHOSTID = 192.168.1.52
+35:09:763 Core/IOS/Network/IP/Top.cpp:682 I[IOS_NET]: IOCTL_SO_SOCKET Socket: -0000044 (2,1,6), BufferIn: (007eabe0, 12), BufferOut: (00000000, 0)
+35:09:805 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/es (mode 0, fd 0)
+35:09:808 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 1)
+35:09:810 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 2)
+35:09:817 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 3)
+35:09:820 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 4)
+35:09:828 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/SYSCONF (mode 1, fd 3)
+35:09:828 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/SYSCONF): Result 0
+35:09:831 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/SYSCONF, 0x006dfffa, 16384): Result 0
+35:09:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/SYSCONF): Result 0
+35:09:834 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/setting.txt (mode 1, fd 3)
+35:09:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/setting.txt): Result 0
+35:09:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/setting.txt, 0x006e3ffa, 256): Result 0
+35:09:835 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/setting.txt): Result 0
+35:09:841 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/state.dat (mode 1, fd 3)
+35:09:841 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/state.dat): Result 0
+35:09:844 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/state.dat, 0x017f4e20, 32): Result 0
+35:09:848 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/state.dat): Result 0
+35:09:848 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/NANDBOOTINFO (mode 1, fd 3)
+35:09:848 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/NANDBOOTINFO): Result 0
+35:09:848 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/NANDBOOTINFO, 0x017f4e20, 4128): Result 0
+35:09:849 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/NANDBOOTINFO): Result 0
+35:10:401 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/kd/request (mode 0, fd 0)
+35:10:419 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ncd/manage (mode 0, fd 0)
+35:10:419 Core/IOS/Network/NCD/Manage.cpp:112 I[IOS_NET]: NET_NCD_MANAGE: IOCTLV_NCD_GETLINKSTATUS
+35:10:419 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ip/top (mode 0, fd 0)
+35:10:419 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/kd/request (mode 0, fd 3)
+35:10:420 Core/IOS/Network/IP/Top.cpp:908 I[IOS_NET]: IOCTL_SO_GETHOSTID = 192.168.1.52
+35:10:483 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ncd/manage (mode 0, fd 3)
+35:10:484 Core/IOS/Network/NCD/Manage.cpp:119 I[IOS_NET]: NET_NCD_MANAGE: IOCTLV_NCD_GETWIRELESSMACADDRESS
+35:10:484 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:7e:cc:a2
+35:10:519 Core/IOS/Network/IP/Top.cpp:908 I[IOS_NET]: IOCTL_SO_GETHOSTID = 192.168.1.52
+35:10:554 Core/IOS/Network/IP/Top.cpp:1148 I[IOS_NET]: IOCTLV_SO_GETINTERFACEOPT(0000FFFE, 00004003, 0, C, 0) BufferIn: (007eabe0, 8), BufferIn2: (00000000, 0) 
+35:10:554 Core/IOS/Network/IP/Top.cpp:1148 I[IOS_NET]: IOCTLV_SO_GETINTERFACEOPT(0000FFFE, 00004005, 0, 4, 0) BufferIn: (007eabe0, 8), BufferIn2: (00000000, 0) 
+35:10:555 Core/IOS/Network/IP/Top.cpp:1148 I[IOS_NET]: IOCTLV_SO_GETINTERFACEOPT(0000FFFE, 00004006, 0, 300, 0) BufferIn: (007eabe0, 8), BufferIn2: (00000000, 0) 
+35:10:568 Core/IOS/Network/IP/Top.cpp:682 I[IOS_NET]: IOCTL_SO_SOCKET Socket: -0000044 (2,1,6), BufferIn: (007eabe0, 12), BufferOut: (00000000, 0)
+35:10:602 Core/IOS/Network/IP/Top.cpp:682 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,1,0), BufferIn: (007eabe0, 12), BufferOut: (00000000, 0)
+35:10:653 Core/IOS/Network/IP/Top.cpp:710 I[IOS_NET]: IOCTL_SO_CLOSE(0) 0
+35:10:669 Core/IOS/Network/IP/Top.cpp:682 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,2,0), BufferIn: (007eabe0, 12), BufferOut: (00000000, 0)
+35:10:702 Core/IOS/Network/IP/Top.cpp:742 I[IOS_NET]: IOCTL_SO_SHUTDOWN(fd=0, how=0) = 0
+35:10:719 Core/IOS/Network/IP/Top.cpp:710 I[IOS_NET]: IOCTL_SO_CLOSE(0) 0
+35:10:769 Core/IOS/Network/IP/Top.cpp:682 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,2,0), BufferIn: (007eabe0, 12), BufferOut: (00000000, 0)
+35:10:769 Core/IOS/Network/IP/Top.cpp:682 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000001 (2,2,0), BufferIn: (007eabe0, 12), BufferOut: (00000000, 0)
+35:10:786 Core/IOS/Network/Socket.cpp:298 I[IOS_NET]: IOCTL_SO_BIND (00000000, 127.0.0.1:0) = 0
+35:10:786 Core/IOS/Network/Socket.cpp:298 I[IOS_NET]: IOCTL_SO_BIND (00000001, 127.0.0.1:0) = 0
+35:10:803 Core/IOS/Network/IP/Top.cpp:859 W[IOS_NET]: IOCTL_SO_GETSOCKNAME output buffer is too small. Truncating
+35:10:803 Core/IOS/Network/IP/Top.cpp:859 W[IOS_NET]: IOCTL_SO_GETSOCKNAME output buffer is too small. Truncating
+35:10:818 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SENDTO  = 8 Socket: 00000000, BufferIn: (007eabe0, 8), BufferIn2: (007eac20, 40), 127.0.0.1
+35:10:818 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SENDTO  = 27 Socket: 00000000, BufferIn: (007eabe0, 27), BufferIn2: (007eac20, 40), 127.0.0.1
+35:10:851 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECVFROM (8, 0x12d4bbbc0) Socket: 00000001, Flags: 00000000, BufferIn: (007eabe0, 8), BufferIn2: (00000000, 0), BufferOut: (000c3bc0, 64), BufferOut2: (007eac20, 8)
+35:10:886 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECVFROM (27, 0x12d4bbbc0) Socket: 00000001, Flags: 00000000, BufferIn: (007eabe0, 8), BufferIn2: (00000000, 0), BufferOut: (000c3bc0, 64), BufferOut2: (007eac20, 8)
+35:10:917 Core/IOS/Network/Socket.cpp:635 I[IOS_NET]: IOCTLV_SO_SENDTO  = 11 Socket: 00000001, BufferIn: (007eabe0, 11), BufferIn2: (007eac20, 40), 127.0.0.1
+35:10:950 Core/IOS/Network/Socket.cpp:694 I[IOS_NET]: IOCTLV_SO_RECVFROM (11, 0x12d4bbbc0) Socket: 00000000, Flags: 00000000, BufferIn: (007eabe0, 8), BufferIn2: (00000000, 0), BufferOut: (000c3bc0, 64), BufferOut2: (007eac20, 8)
+35:10:970 Core/IOS/Network/IP/Top.cpp:710 I[IOS_NET]: IOCTL_SO_CLOSE(1) 0
+35:10:986 Core/IOS/Network/IP/Top.cpp:710 I[IOS_NET]: IOCTL_SO_CLOSE(0) 0
+35:11:003 Core/IOS/Network/IP/Top.cpp:682 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,1,0), BufferIn: (007eabe0, 12), BufferOut: (00000000, 0)
+35:11:034 Core/IOS/Network/Socket.cpp:298 I[IOS_NET]: IOCTL_SO_BIND (00000000, 0.0.0.0:0) = 0
+35:11:051 Core/IOS/Network/IP/Top.cpp:859 W[IOS_NET]: IOCTL_SO_GETSOCKNAME output buffer is too small. Truncating
+35:11:204 Core/IOS/Network/IP/Top.cpp:186 I[IOS_NET]: SO_SETSOCKOPT: unknown optname 2147483647
+35:11:204 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_GETSOCKOPT failed with error 42: Protocol not available, ret = -1
+35:11:219 Core/IOS/Network/IP/Top.cpp:827 I[IOS_NET]: IOCTL_SO_SETSOCKOPT(00000000, 0000ffff, 00001008, 00000004) BufferIn: (007eabe0, 36), BufferOut: (00000000, 0)00 00 00 01 78 00 00 00 70 0e 30 24 78 00 00 00 e0 19 f9 fe
+35:11:219 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_SETSOCKOPT failed with error 42: Protocol not available, ret = -1
+35:11:236 Core/IOS/Network/IP/Top.cpp:710 I[IOS_NET]: IOCTL_SO_CLOSE(0) 0
+35:11:270 Core/IOS/Network/IP/Top.cpp:682 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,1,0), BufferIn: (007eabe0, 12), BufferOut: (00000000, 0)
+35:11:270 Core/IOS/Network/IP/Top.cpp:682 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000001 (2,1,0), BufferIn: (007eabe0, 12), BufferOut: (00000000, 0)
+35:11:286 Core/IOS/Network/Socket.cpp:298 I[IOS_NET]: IOCTL_SO_BIND (00000000, 0.0.0.0:0) = 0
+35:11:320 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_CONNECT failed with error 49: Can't assign requested address, ret = -1
+35:11:320 Core/IOS/Network/Socket.cpp:312 I[IOS_NET]: IOCTL_SO_CONNECT (00000001, 0.0.0.0:0) = -1
+35:11:353 Core/IOS/Network/IP/Top.cpp:710 I[IOS_NET]: IOCTL_SO_CLOSE(0) 0
+35:11:370 Core/IOS/Network/IP/Top.cpp:710 I[IOS_NET]: IOCTL_SO_CLOSE(1) 0
+35:11:384 Core/IOS/Network/IP/Top.cpp:682 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,1,0), BufferIn: (007eabe0, 12), BufferOut: (00000000, 0)
+35:11:384 Core/IOS/Network/IP/Top.cpp:682 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000001 (2,1,0), BufferIn: (007eabe0, 12), BufferOut: (00000000, 0)
+35:11:404 Core/IOS/Network/Socket.cpp:298 I[IOS_NET]: IOCTL_SO_BIND (00000000, 0.0.0.0:40500) = 0
+35:11:404 Core/IOS/Network/Socket.cpp:124 E[IOS_NET]: SO_BIND failed with error 48: Address already in use, ret = -1
+35:11:404 Core/IOS/Network/Socket.cpp:298 I[IOS_NET]: IOCTL_SO_BIND (00000001, 0.0.0.0:40500) = -1
+35:11:468 Core/IOS/Network/IP/Top.cpp:710 I[IOS_NET]: IOCTL_SO_CLOSE(0) 0
+35:11:487 Core/IOS/Network/IP/Top.cpp:710 I[IOS_NET]: IOCTL_SO_CLOSE(1) 0
+35:11:603 Core/IOS/Network/IP/Top.cpp:682 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,1,0), BufferIn: (007eabe0, 12), BufferOut: (00000000, 0)
+35:11:620 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/kd/request (mode 0, fd 3)
+35:11:620 Core/IOS/Network/IP/Top.cpp:710 I[IOS_NET]: IOCTL_SO_CLOSE(0) -8
+35:11:620 Core/IOS/Network/IP/Top.cpp:710 I[IOS_NET]: IOCTL_SO_CLOSE(0) -8
+35:11:636 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/kd/request (mode 0, fd 3)
+35:11:670 Core/IOS/Network/IP/Top.cpp:682 I[IOS_NET]: IOCTL_SO_SOCKET Socket: 00000000 (2,2,0), BufferIn: (007eabe0, 12), BufferOut: (00000000, 0)
+35:11:687 Core/IOS/Network/IP/Top.cpp:710 I[IOS_NET]: IOCTL_SO_CLOSE(0) 0
+35:11:703 Core/IOS/Network/IP/Top.cpp:710 I[IOS_NET]: IOCTL_SO_CLOSE(0) -8
+35:11:703 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/kd/request (mode 0, fd 3)
+35:11:703 Core/IOS/Network/IP/Top.cpp:710 I[IOS_NET]: IOCTL_SO_CLOSE(0) -8
+35:11:704 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ncd/manage (mode 0, fd 3)
+35:11:705 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/wd/command (mode 65539, fd 3)
+35:11:705 Core/IOS/Network/WD/Command.cpp:195 I[IOS_NET]: Opening with mode=AOSS Access Point Scan (3) buffer_flags=00010000
+35:11:705 Core/IOS/Network/WD/Command.cpp:213 I[IOS_NET]: Opened
+35:11:803 Core/IOS/Network/WD/Command.cpp:225 I[IOS_NET]: Closing and resetting status to Idle
+35:11:803 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ncd/manage (mode 0, fd 3)
+35:11:854 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ncd/manage (mode 0, fd 3)
+35:11:854 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/wd/command (mode 65539, fd 3)
+35:11:854 Core/IOS/Network/WD/Command.cpp:195 I[IOS_NET]: Opening with mode=AOSS Access Point Scan (3) buffer_flags=00010000
+35:11:854 Core/IOS/Network/WD/Command.cpp:213 I[IOS_NET]: Opened
+35:11:954 Core/IOS/Network/WD/Command.cpp:225 I[IOS_NET]: Closing and resetting status to Idle
+35:11:954 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/ncd/manage (mode 0, fd 3)
+35:12:019 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/kd/request (mode 0, fd 3)

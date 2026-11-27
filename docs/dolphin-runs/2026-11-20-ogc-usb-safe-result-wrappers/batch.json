@@ -1,0 +1,89 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "device_description",
+      "line": 97,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_safe_result_wrappers",
+      "api_path": "usb::device_description",
+      "checks": [
+        "USB device description maps invalid handle to error"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "descriptors",
+      "line": 109,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_safe_result_wrappers",
+      "api_path": "usb::descriptors",
+      "checks": [
+        "USB descriptor query maps invalid handle to error"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "generic_descriptor",
+      "line": 135,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_safe_result_wrappers",
+      "api_path": "usb::generic_descriptor",
+      "checks": [
+        "USB generic descriptor maps invalid handle to error"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "hid_descriptor",
+      "line": 161,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_safe_result_wrappers",
+      "api_path": "usb::hid_descriptor",
+      "checks": [
+        "USB HID descriptor maps invalid handle to error"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "report_descriptor_size",
+      "line": 178,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_safe_result_wrappers",
+      "api_path": "usb::report_descriptor_size",
+      "checks": [
+        "USB report descriptor size maps invalid handle to error"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "report_descriptor",
+      "line": 199,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_safe_result_wrappers",
+      "api_path": "usb::report_descriptor",
+      "checks": [
+        "USB report descriptor maps invalid handle to error"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "ascii_string",
+      "line": 558,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_safe_result_wrappers",
+      "api_path": "usb::ascii_string",
+      "checks": [
+        "USB ASCII string maps invalid handle to error"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "source_revision": "b4a3d5337fe2e402a112a3435ec4a5eed880b031",
+  "source_fingerprint": "020ed4957a8d369e98cac10bd54773a92907d98a727eed843703b987858b16cd",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "input_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-21-ogc-controller-startup-hooks-final-verified",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "ca093e3a4e7d39819ae2a89a4076c76a8d86d86bd7398db324beef2671dfe2dc",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {},
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "81fc2dae0316238ca411f9d8778a6338c8ec866f2b74b8a175441a9089d19246",
+  "suite_sha256": "3525f2e85aec84ec10b87141701c1de0e57b633173906f4f39b49ddf78c08b1b",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-21-ogc-controller-startup-hooks-final-verified/input_probe/probe.log": "1453229565e5fa9afd76db4eaf8406f96154b99f8ff5519b9273ba3bc08408e7",
+    "docs/dolphin-runs/2026-11-21-ogc-controller-startup-hooks-final-verified/input_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-21-ogc-controller-startup-hooks-final-verified/input_probe/stderr.log": "cce7ea27812cb532687ee10b62715036861356b86ceb751c84eeef26206a4eb1",
+    "docs/dolphin-runs/2026-11-21-ogc-controller-startup-hooks-final-verified/input_probe/probe-transport.bin": "2b69034430eb2d264d28cef63164683345ee7119982156cb55e4e6c28c643f87",
+    "docs/dolphin-runs/2026-11-21-ogc-controller-startup-hooks-final-verified/input_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-21-ogc-controller-startup-hooks-final-verified/input_probe/pages/page-002.png": "eec8b5d5e87ab946a5e047d9406c69b923337db0033d36ad7c01b204ccbd0914",
+    "docs/dolphin-runs/2026-11-21-ogc-controller-startup-hooks-final-verified/input_probe/pages/page-003.png": "7f4130247c6c4adf85de3ba4dc0f0c035e3b7979909a7baf7112e22b2a1694b1",
+    "docs/dolphin-runs/2026-11-21-ogc-controller-startup-hooks-final-verified/input_probe/pages/page-004.png": "fb87392f18620d9e9d8b135d53559ea65108e61eb22396c0385e4001554a9ba9",
+    "docs/dolphin-runs/2026-11-21-ogc-controller-startup-hooks-final-verified/input_probe/pages/page-005.png": "fd0271c2c70ce1f9ed4c05ac9a872785817de935b26c00f25be1e3f169726876"
+  },
+  "exit_code": 0
+}

@@ -1,0 +1,6 @@
+PASS IPC relaunch system menu ticket view
+INFO IPC relaunch handoff begins
+INFO IPC relaunch returned=0
+PASS IPC relaunch request accepted
+43:35:188 Core/IOS/ES/ES.cpp:171 N[IOS]: Re-launching title 0000000100000002 after IOS reload.
+43:35:432 Core/IOS/IOS.cpp:445 I[IOS]: BootstrapPPC: /title/00000001/00000002/content/00000098.app

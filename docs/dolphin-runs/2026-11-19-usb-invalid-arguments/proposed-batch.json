@@ -1,0 +1,104 @@
+{
+  "probe": "hid_descriptor_probe",
+  "cases": [
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "open_device",
+      "line": 47,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_invalid_arguments",
+      "api_path": "usb::open_device",
+      "checks": [
+        "USB open rejects null output"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "close_device",
+      "line": 59,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_invalid_arguments",
+      "api_path": "usb::close_device",
+      "checks": [
+        "USB close rejects null output"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "get_device_description",
+      "line": 93,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_invalid_arguments",
+      "api_path": "usb::get_device_description",
+      "checks": [
+        "USB device description rejects null output"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "get_descriptors",
+      "line": 105,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_invalid_arguments",
+      "api_path": "usb::get_descriptors",
+      "checks": [
+        "USB descriptors reject null output"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "get_generic_descriptor",
+      "line": 124,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_invalid_arguments",
+      "api_path": "usb::get_generic_descriptor",
+      "checks": [
+        "USB generic descriptor rejects invalid buffers"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "get_hid_descriptor",
+      "line": 157,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_invalid_arguments",
+      "api_path": "usb::get_hid_descriptor",
+      "checks": [
+        "USB HID descriptor rejects invalid buffers"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "get_report_descriptor",
+      "line": 190,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_invalid_arguments",
+      "api_path": "usb::get_report_descriptor",
+      "checks": [
+        "USB report descriptor rejects invalid buffers"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "get_configuration",
+      "line": 487,
+      "evidence_path": "probes/ogc-system-probe/src/hid_descriptor_probe.rs",
+      "function": "probe_invalid_arguments",
+      "api_path": "usb::get_configuration",
+      "checks": [
+        "USB configuration rejects null output"
+      ]
+    }
+  ],
+  "limits": [
+    "Invalid argument rejection only; no USB device, successful transfer, IOS or physical Wii behavior is covered."
+  ]
+}

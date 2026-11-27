@@ -1,0 +1,89 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "clear_halt",
+      "line": 4308,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_sys_invalid_handle_operations",
+      "api_path": "raw_usb::clear_halt",
+      "checks": [
+        "USB sys clear halt rejects invalid handle"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_configuration",
+      "line": 4215,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_sys_invalid_handle_operations",
+      "api_path": "raw_usb::get_configuration",
+      "checks": [
+        "USB sys configuration query preserves output on invalid handle"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_report_descriptor_size",
+      "line": 2342,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_sys_invalid_handle_operations",
+      "api_path": "raw_usb::get_report_descriptor_size",
+      "checks": [
+        "USB sys report descriptor size rejects invalid handle"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "resume_device",
+      "line": 3308,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_sys_invalid_handle_operations",
+      "api_path": "raw_usb::resume_device",
+      "checks": [
+        "USB sys resume rejects invalid handle"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_alternative_interface",
+      "line": 4284,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_sys_invalid_handle_operations",
+      "api_path": "raw_usb::set_alternative_interface",
+      "checks": [
+        "USB sys alternate interface rejects invalid handle"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_configuration",
+      "line": 4260,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_sys_invalid_handle_operations",
+      "api_path": "raw_usb::set_configuration",
+      "checks": [
+        "USB sys configuration set rejects invalid handle"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "suspend_device",
+      "line": 3295,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_sys_invalid_handle_operations",
+      "api_path": "raw_usb::suspend_device",
+      "checks": [
+        "USB sys suspend rejects invalid handle"
+      ]
+    }
+  ]
+}

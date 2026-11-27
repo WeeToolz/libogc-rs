@@ -1,0 +1,176 @@
+{
+  "probe": "lwp_probe",
+  "cases": [
+    {
+      "crate": "ogc-runtime",
+      "path": "src/driver.rs",
+      "symbol": "block_count",
+      "line": 27,
+      "evidence_path": "probes/lwp-probe/src/runtime_contract_probe.rs",
+      "function": "probe_driver_trait_contracts",
+      "api_path": "block.block_count",
+      "checks": [
+        "runtime BlockDevice reports independent size and count"
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "path": "src/driver.rs",
+      "symbol": "block_size",
+      "line": 26,
+      "evidence_path": "probes/lwp-probe/src/runtime_contract_probe.rs",
+      "function": "probe_driver_trait_contracts",
+      "api_path": "block.block_size",
+      "checks": [
+        "runtime BlockDevice reports independent size and count"
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "path": "src/driver.rs",
+      "symbol": "cancel",
+      "line": 38,
+      "evidence_path": "probes/lwp-probe/src/runtime_contract_probe.rs",
+      "function": "probe_driver_trait_contracts",
+      "api_path": "operation.cancel",
+      "checks": [
+        "runtime AsyncOperation cancel changes the mock completion"
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "path": "src/driver.rs",
+      "symbol": "flush",
+      "line": 30,
+      "evidence_path": "probes/lwp-probe/src/runtime_contract_probe.rs",
+      "function": "probe_driver_trait_contracts",
+      "api_path": "block.flush",
+      "checks": [
+        "runtime BlockDevice flush reports completion"
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "path": "src/driver.rs",
+      "symbol": "initialize",
+      "line": 20,
+      "evidence_path": "probes/lwp-probe/src/runtime_contract_probe.rs",
+      "function": "probe_driver_trait_contracts",
+      "api_path": "lifecycle.initialize",
+      "checks": [
+        "runtime Lifecycle state and initialize return expected states"
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "path": "src/driver.rs",
+      "symbol": "open",
+      "line": 43,
+      "evidence_path": "probes/lwp-probe/src/runtime_contract_probe.rs",
+      "function": "probe_driver_trait_contracts",
+      "api_path": "debug.open",
+      "checks": [
+        "runtime DebugTransport opens and transfers independent bytes"
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "path": "src/driver.rs",
+      "symbol": "read",
+      "line": 44,
+      "evidence_path": "probes/lwp-probe/src/runtime_contract_probe.rs",
+      "function": "probe_driver_trait_contracts",
+      "api_path": "debug.read",
+      "checks": [
+        "runtime DebugTransport opens and transfers independent bytes"
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "path": "src/driver.rs",
+      "symbol": "read_blocks",
+      "line": 28,
+      "evidence_path": "probes/lwp-probe/src/runtime_contract_probe.rs",
+      "function": "probe_driver_trait_contracts",
+      "api_path": "block.read_blocks",
+      "checks": [
+        "runtime BlockDevice reads the selected block and rejects invalid lengths"
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "path": "src/driver.rs",
+      "symbol": "receive_report",
+      "line": 52,
+      "evidence_path": "probes/lwp-probe/src/runtime_contract_probe.rs",
+      "function": "probe_driver_trait_contracts",
+      "api_path": "hid.receive_report",
+      "checks": [
+        "runtime HidTransport receives the expected report"
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "path": "src/driver.rs",
+      "symbol": "send_report",
+      "line": 51,
+      "evidence_path": "probes/lwp-probe/src/runtime_contract_probe.rs",
+      "function": "probe_driver_trait_contracts",
+      "api_path": "hid.send_report",
+      "checks": [
+        "runtime HidTransport sends the requested report"
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "path": "src/driver.rs",
+      "symbol": "shutdown",
+      "line": 21,
+      "evidence_path": "probes/lwp-probe/src/runtime_contract_probe.rs",
+      "function": "probe_driver_trait_contracts",
+      "api_path": "lifecycle.shutdown",
+      "checks": [
+        "runtime Lifecycle shutdown returns to uninitialized state"
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "path": "src/driver.rs",
+      "symbol": "state",
+      "line": 19,
+      "evidence_path": "probes/lwp-probe/src/runtime_contract_probe.rs",
+      "function": "probe_driver_trait_contracts",
+      "api_path": "lifecycle.state",
+      "checks": [
+        "runtime Lifecycle state and initialize return expected states"
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "path": "src/driver.rs",
+      "symbol": "write",
+      "line": 45,
+      "evidence_path": "probes/lwp-probe/src/runtime_contract_probe.rs",
+      "function": "probe_driver_trait_contracts",
+      "api_path": "debug.write",
+      "checks": [
+        "runtime DebugTransport opens and transfers independent bytes"
+      ]
+    },
+    {
+      "crate": "ogc-runtime",
+      "path": "src/driver.rs",
+      "symbol": "write_blocks",
+      "line": 29,
+      "evidence_path": "probes/lwp-probe/src/runtime_contract_probe.rs",
+      "function": "probe_driver_trait_contracts",
+      "api_path": "block.write_blocks",
+      "checks": [
+        "runtime BlockDevice writes a block and rejects out-of-range writes"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin exercises each public trait method through deterministic mock implementations. It does not verify a concrete hardware driver implementation."
+  ]
+}

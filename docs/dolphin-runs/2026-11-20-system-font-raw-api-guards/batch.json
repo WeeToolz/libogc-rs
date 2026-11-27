@@ -1,0 +1,41 @@
+{
+  "probe": "font-probe",
+  "cases": [
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_init_font",
+      "line": 2970,
+      "evidence_path": "probes/ogc-system-probe/src/font_probe.rs",
+      "function": "probe_raw_font_api_guards",
+      "api_path": "raw_system::sys_init_font",
+      "checks": [
+        "Raw system font init rejects null storage"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_get_font_texture",
+      "line": 2993,
+      "evidence_path": "probes/ogc-system-probe/src/font_probe.rs",
+      "function": "probe_raw_font_api_guards",
+      "api_path": "raw_system::sys_get_font_texture",
+      "checks": [
+        "Raw system font texture clears outputs without font data"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_get_font_texel",
+      "line": 3054,
+      "evidence_path": "probes/ogc-system-probe/src/font_probe.rs",
+      "function": "probe_raw_font_api_guards",
+      "api_path": "raw_system::sys_get_font_texel",
+      "checks": [
+        "Raw system font texel rejects null image"
+      ]
+    }
+  ]
+}

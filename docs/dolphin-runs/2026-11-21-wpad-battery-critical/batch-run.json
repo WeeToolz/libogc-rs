@@ -1,0 +1,40 @@
+{
+  "source_revision": "4aa517c07abe595d760af5d34badc33f7f5ece06",
+  "source_fingerprint": "2e6debe0970378f2c62a6efe64aacf07a9b4d7425ebac4cac5cea21996a981a3",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "wpad_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-21-wpad-battery-critical",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "66b8d12d6cc22da4760407c35504ca20ef371626fe4e6ffae8d5ea114d2db0db",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {},
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "0c1d4fcd40842f034ec484a989b16e51fffa37bb9ff1584d0bd09e88e23b2b9b",
+  "suite_sha256": "7c71a98109d5c4b22d7b0995ae9c2351976f4be6a6c958e276cbbb67cb8b5325",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-21-wpad-battery-critical/wpad_probe/probe.log": "35853423528d0439a9f585430c6dd4fea53dcf1d81f227c476ae8709edcc8a39",
+    "docs/dolphin-runs/2026-11-21-wpad-battery-critical/wpad_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-21-wpad-battery-critical/wpad_probe/stderr.log": "9132ee78af2e903d1e199fb8378ce1b3404a20cde2e865ca513b5412e7acd9ba",
+    "docs/dolphin-runs/2026-11-21-wpad-battery-critical/wpad_probe/probe-transport.bin": "53cd176438d1938ccab3fd101c6bc57da33a3623fbfb5a94a2d9790bda28cf1b",
+    "docs/dolphin-runs/2026-11-21-wpad-battery-critical/wpad_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-21-wpad-battery-critical/wpad_probe/pages/page-002.png": "ff3264e6193dcb38d23cdfb26fb83b00d2592ee8ee9b536339f9ce00e2811503",
+    "docs/dolphin-runs/2026-11-21-wpad-battery-critical/wpad_probe/pages/page-003.png": "720f81e3d5a76386e04338f832b8dd7f2a7a82f74871b12b1a26db157fd7be6c",
+    "docs/dolphin-runs/2026-11-21-wpad-battery-critical/wpad_probe/pages/page-004.png": "b72886cb2c423fcf2ec1b8739985d61029790e2340cb586eabe9f8c74c88d029",
+    "docs/dolphin-runs/2026-11-21-wpad-battery-critical/wpad_probe/pages/page-005.png": "a1302df2eb7ebdcd2af4228b5662535edd3d14d1cfdd92f8b39ab1ed36579e73"
+  },
+  "exit_code": 0
+}

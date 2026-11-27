@@ -1,0 +1,47 @@
+{
+  "source_revision": "6737c5113573de6a36de2ed6d8422a4a8610b060",
+  "source_fingerprint": "b74c63de5ab90810f298168fb11a022a7db6f5c10787508fc0447489483bb3ae",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "font_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-20-system-font-raw-api-guards-final",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "8bfb454e56e178d1b477880cbad754a997dec7cc09096045c177e8708c053328",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "80f861e5abdc54ab1359df5c69b998bc48c6f9878f1a40fbfe1bed741a61116d",
+  "suite_sha256": "31f07d4b4c9ba4defea11e2a278ab9236db5d4424ebb66d12ff7f73e97ff58fa",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-20-system-font-raw-api-guards-final/font_probe/probe.log": "cd0852159dca36b9dc3a2c5ab68a405923c45d1c2b011246ab162d3b87ed2f4f",
+    "docs/dolphin-runs/2026-11-20-system-font-raw-api-guards-final/font_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-20-system-font-raw-api-guards-final/font_probe/stderr.log": "c9eff026cf6a8fa7c83df66058c333b10c8248b3b1c05493fdfd525983670d90",
+    "docs/dolphin-runs/2026-11-20-system-font-raw-api-guards-final/font_probe/probe-transport.bin": "74aa846a4e9e51f1f67ea82e1abca1ec7c552d625eb1560f26f78812d924c9d8",
+    "docs/dolphin-runs/2026-11-20-system-font-raw-api-guards-final/font_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-20-system-font-raw-api-guards-final/font_probe/pages/page-002.png": "ba55a3aba8d048dbdb32f41896928bbf1bb0b75031cc27364cad871ae0bf92a0",
+    "docs/dolphin-runs/2026-11-20-system-font-raw-api-guards-final/font_probe/pages/page-003.png": "0c6f36a0455032ffa53edc9c1829ae415177262ca9823b8230166d25bd1370e4"
+  },
+  "exit_code": 0
+}

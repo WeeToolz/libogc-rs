@@ -1,0 +1,80 @@
+{
+  "probe": "wpad_probe",
+  "cases": [
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "bluetooth_diagnostics",
+      "line": 70,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_bluetooth_helpers",
+      "api_path": "wpad::bluetooth_diagnostics",
+      "checks": [
+        "WPAD Bluetooth diagnostics report ready adapter"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "bluetooth_hid_next_event",
+      "line": 60,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_bluetooth_helpers",
+      "api_path": "wpad::bluetooth_hid_next_event",
+      "checks": [
+        "WPAD Bluetooth event queue is empty without HID devices"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "bluetooth_hid_state",
+      "line": 46,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_bluetooth_helpers",
+      "api_path": "wpad::bluetooth_hid_state",
+      "checks": [
+        "WPAD Bluetooth invalid HID slot is empty"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "bluetooth_shutdown_complete",
+      "line": 86,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "run",
+      "api_path": "wpad::bluetooth_shutdown_complete",
+      "checks": [
+        "WPAD Bluetooth shutdown query reports complete"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "bluetooth_switch_calibration",
+      "line": 83,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_bluetooth_helpers",
+      "api_path": "wpad::bluetooth_switch_calibration",
+      "checks": [
+        "WPAD Switch calibration rejects invalid slot"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_bluetooth_poll_hook",
+      "line": 99,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_bluetooth_helpers",
+      "api_path": "wpad::set_bluetooth_poll_hook",
+      "checks": [
+        "WPAD Bluetooth poll hook observes scan boundary"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin adapter with no connected Bluetooth HID controller only. Pairing, calibration with a Switch controller and physical Wii remain unverified."
+  ]
+}

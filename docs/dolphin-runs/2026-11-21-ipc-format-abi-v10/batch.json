@@ -1,0 +1,145 @@
+{
+  "probe": "runtime_probe",
+  "limits": [
+    "Dolphin evidence only; no physical console cache-coherency claim.",
+    "Selected scalar, q:d, qi:d, one sync stack length, one async pointer and length stack shape, and one callback completion. The full format grammar, rejection paths, allocation failures, concurrent requests, and DMA boundary matrix remain open.",
+    "The ES descriptor close is fixture cleanup and is not formatter evidence."
+  ],
+  "cases": [
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "__ogc_ipc_ioctlv_format_bridge",
+      "line": 2685,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_format_bridge",
+      "api_path": "ipc::__ogc_ipc_ioctlv_format_bridge",
+      "checks": [
+        "IPC format internal bridge null-call guard",
+        "IPC format internal bridge copies ES title count to output vector",
+        "IPC format internal bridge transfers title input and directory output"
+      ],
+      "evidence_scope": "scalar-and-buffer",
+      "contracts": [
+        {
+          "id": "ipc-format.internal.null-call-guard",
+          "checks": [
+            "IPC format internal bridge null-call guard"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.internal.scalar-output",
+          "checks": [
+            "IPC format internal bridge copies ES title count to output vector"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.internal.title-input-buffer-output",
+          "checks": [
+            "IPC format internal bridge transfers title input and directory output"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "IOS_IoctlvFormat",
+      "line": 30,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_format_bridge",
+      "api_path": "IOS_IoctlvFormat",
+      "checks": [
+        "IPC format public ABI sync :i returns the ES title count",
+        "IPC format public ABI sync q:d formats title directory",
+        "IPC format public ABI sync qi:d decodes the overflow length"
+      ],
+      "evidence_scope": "scalar-and-buffer",
+      "contracts": [
+        {
+          "id": "ipc-format.sync.public-abi",
+          "checks": [
+            "IPC format public ABI sync :i returns the ES title count",
+            "IPC format public ABI sync q:d formats title directory",
+            "IPC format public ABI sync qi:d decodes the overflow length"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.sync.overflow-arguments",
+          "checks": [
+            "IPC format public ABI sync qi:d decodes the overflow length"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        }
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "IOS_IoctlvFormatAsync",
+      "line": 63,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_format_bridge",
+      "api_path": "IOS_IoctlvFormatAsync",
+      "checks": [
+        "IPC format public ABI async :i preserves output and callback",
+        "IPC format public ABI async q:d spills and copies back before callback"
+      ],
+      "evidence_scope": "scalar-and-buffer",
+      "contracts": [
+        {
+          "id": "ipc-format.async.public-abi",
+          "checks": [
+            "IPC format public ABI async :i preserves output and callback",
+            "IPC format public ABI async q:d spills and copies back before callback"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.overflow-arguments",
+          "checks": [
+            "IPC format public ABI async q:d spills and copies back before callback"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.userdata",
+          "checks": [
+            "IPC format public ABI async :i preserves output and callback",
+            "IPC format public ABI async q:d spills and copies back before callback"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.exactly-once",
+          "checks": [
+            "IPC format public ABI async :i preserves output and callback",
+            "IPC format public ABI async q:d spills and copies back before callback"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        },
+        {
+          "id": "ipc-format.async.copyback-before-callback",
+          "checks": [
+            "IPC format public ABI async q:d spills and copies back before callback"
+          ],
+          "environment": "dolphin",
+          "scope": "partial"
+        }
+      ]
+    }
+  ]
+}

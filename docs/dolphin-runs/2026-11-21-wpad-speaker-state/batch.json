@@ -1,0 +1,17 @@
+{
+  "probe": "wpad_probe",
+  "cases": [
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "is_speaker_enabled",
+      "line": 1306,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_valid_channel_empty_queries",
+      "api_path": "wpad::is_speaker_enabled",
+      "checks": [
+        "WPAD empty channel speaker query reports not ready"
+      ]
+    }
+  ]
+}

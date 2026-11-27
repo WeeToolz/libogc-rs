@@ -1,0 +1,29 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "init",
+      "line": 1062,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_mouse_lifecycle",
+      "api_path": "usb::mouse::init",
+      "checks": [
+        "USB mouse initializes its worker"
+      ]
+    },
+    {
+      "crate": "ogc-usb",
+      "path": "src/lib.rs",
+      "symbol": "deinit",
+      "line": 1139,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_mouse_lifecycle",
+      "api_path": "usb::mouse::deinit",
+      "checks": [
+        "USB mouse deinitialization joins its worker and releases state"
+      ]
+    }
+  ]
+}

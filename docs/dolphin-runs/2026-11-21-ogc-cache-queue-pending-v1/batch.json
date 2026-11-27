@@ -1,0 +1,29 @@
+{
+  "probe": "bus_probe",
+  "cases": [
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "lc_queue_length",
+      "line": 562,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_locked_cache_dma",
+      "api_path": "cache::lc_queue_length",
+      "checks": [
+        "lc_queue_length observes pending locked-cache DMA"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "lc_queue_wait",
+      "line": 566,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_locked_cache_dma",
+      "api_path": "cache::lc_queue_wait",
+      "checks": [
+        "lc_queue_wait drains pending locked-cache DMA"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "boot_stage_address": 2150260864,
+  "boot_stage": 3,
+  "program_counter": 2147910632,
+  "program_counter_symbol": "_RNvNtCs61OQOPKN68G_14ogc_lwp_driver7runtime18select_next_locked+0x114",
+  "program_counter_reply": "800683E8",
+  "debugger_stop": "T0540:800683e8;01:806dce38;",
+  "stack_trace": [
+    "sp=806dce38 lr=29000890 __ogc_ps_reg+0x29000870",
+    "sp=806dce48 lr=8006548c _RNvNtCs61OQOPKN68G_14ogc_lwp_driver7runtime13switch_locked+0x38",
+    "sp=806dce88 lr=80063e48 _RNvNtCs61OQOPKN68G_14ogc_lwp_driver7runtime10idle_entry+0x54",
+    "sp=806dcea8 lr=80066d94 _RNvNtCs61OQOPKN68G_14ogc_lwp_driver7runtime16thread_bootstrap+0x5c",
+    "sp=806dceb8 lr=00000000 compiler_builtins.f266b4b7ea4a36b-cgu.7+0x0"
+  ],
+  "error": null
+}

@@ -1,0 +1,53 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "console_clear",
+      "line": 781,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_console_state",
+      "api_path": "console_clear",
+      "checks": [
+        "Video console clear returns"
+      ]
+    },
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "console_blit_rgba",
+      "line": 791,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_console_state",
+      "api_path": "console_blit_rgba",
+      "checks": [
+        "Video RGBA blit rejects invalid image sizes"
+      ]
+    },
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "get_current_line",
+      "line": 369,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_queries",
+      "api_path": "get_current_line",
+      "checks": [
+        "Video current line query returns"
+      ]
+    },
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "get_next_field",
+      "line": 356,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_queries",
+      "api_path": "get_next_field",
+      "checks": [
+        "Video next field query returns"
+      ]
+    }
+  ]
+}

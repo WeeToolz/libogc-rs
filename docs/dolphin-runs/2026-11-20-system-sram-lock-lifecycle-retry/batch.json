@@ -1,0 +1,65 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "_sys_lock_sram",
+      "line": 4427,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_lock_lifecycle",
+      "api_path": "raw_system::_sys_lock_sram",
+      "checks": [
+        "System SRAM lock returns access"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "_sys_sync_sram",
+      "line": 4528,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_lock_lifecycle",
+      "api_path": "raw_system::_sys_sync_sram",
+      "checks": [
+        "System SRAM sync reports current state"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "_sys_unlock_sram",
+      "line": 4463,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_lock_lifecycle",
+      "api_path": "raw_system::_sys_unlock_sram",
+      "checks": [
+        "System SRAM unlock without write returns ready"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "_sys_lock_sram_ex",
+      "line": 4445,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_lock_lifecycle",
+      "api_path": "raw_system::_sys_lock_sram_ex",
+      "checks": [
+        "Extended SRAM lock returns access"
+      ]
+    },
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "_sys_unlock_sram_ex",
+      "line": 4485,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_sram_lock_lifecycle",
+      "api_path": "raw_system::_sys_unlock_sram_ex",
+      "checks": [
+        "Extended SRAM unlock without write returns ready"
+      ]
+    }
+  ]
+}

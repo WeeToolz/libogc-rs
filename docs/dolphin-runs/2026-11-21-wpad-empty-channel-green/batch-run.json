@@ -1,0 +1,40 @@
+{
+  "source_revision": "1bcbb54c2b1bc9d32942f28526be36409932cabb",
+  "source_fingerprint": "4ea382fb563e2614e7b29ee933a2fcf3b9d62be825c2b3c58fb23e99a0f93df0",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "wpad_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-21-wpad-empty-channel-green",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "d1eb3e4d5e77516d9722b486beb5cf3d3cf87097cef4b8c643d6492a4fed80de",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {},
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "f74ef6a4283bad07afdc7e932ece3870e18a734bbd2c214b3c68ccced57d1b29",
+  "suite_sha256": "43e019187f8ce3399526c96b93e7db81dc742fb2a454ec5265e46f4eaf25388c",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-21-wpad-empty-channel-green/wpad_probe/probe.log": "1b2ff668a6a54b16c02926d222328ad26690252d7b71e3dbaf2dbf9526deba4d",
+    "docs/dolphin-runs/2026-11-21-wpad-empty-channel-green/wpad_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-21-wpad-empty-channel-green/wpad_probe/stderr.log": "49553b6208231fdb048f65f1c0cfd361d08738695b412e8734d02c7414419475",
+    "docs/dolphin-runs/2026-11-21-wpad-empty-channel-green/wpad_probe/probe-transport.bin": "73562eb617ac68284301ff582134ac1459bea7b5e3763536209c7772157ac6d0",
+    "docs/dolphin-runs/2026-11-21-wpad-empty-channel-green/wpad_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-21-wpad-empty-channel-green/wpad_probe/pages/page-002.png": "ff3264e6193dcb38d23cdfb26fb83b00d2592ee8ee9b536339f9ce00e2811503",
+    "docs/dolphin-runs/2026-11-21-wpad-empty-channel-green/wpad_probe/pages/page-003.png": "11ec6ae28a8c1d821192da5cd03345267c25d477d8f76679d6d83fed6cba47ba",
+    "docs/dolphin-runs/2026-11-21-wpad-empty-channel-green/wpad_probe/pages/page-004.png": "b269c3227bee42ba234b49fabafd311cf73a7116ef79e88df27d3449eb0e8ceb",
+    "docs/dolphin-runs/2026-11-21-wpad-empty-channel-green/wpad_probe/pages/page-005.png": "4c08a7252478a2e339466c897e2158a123febd32e96ea9d9dfbd7cf4504435d5"
+  },
+  "exit_code": 0
+}

@@ -1,0 +1,23 @@
+{
+  "probe": "wpad_probe",
+  "cases": [
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_data_format",
+      "line": 1100,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_valid_channel_empty_queries",
+      "api_path": "wpad::set_data_format",
+      "checks": [
+        "WPAD setter checks confirm an empty channel",
+        "WPAD empty channel ignores an invalid data format",
+        "WPAD disabled adapter rejects data format"
+      ],
+      "evidence_scope": "empty-channel"
+    }
+  ],
+  "limits": [
+    "Dolphin has no connected Remote. It tests the C empty-channel no-op and disabled-state result. Data-format reports after connection remain unverified."
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "probe": "input_probe",
+  "cases": [
+    {
+      "crate": "ogc-input",
+      "path": "src/lib.rs",
+      "symbol": "scan_pads",
+      "line": 58,
+      "evidence_path": "config/implementation-evidence.csv",
+      "function": "probes/ogc-system-probe/src/input_probe.rs::probe_pad_low_level_state",
+      "api_path": "ogc_input::scan_pads",
+      "checks": [
+        "PAD low level scans observe scripted controller"
+      ]
+    },
+    {
+      "crate": "ogc-input",
+      "path": "src/lib.rs",
+      "symbol": "scan_pads_with_status",
+      "line": 63,
+      "evidence_path": "config/implementation-evidence.csv",
+      "function": "probes/ogc-system-probe/src/input_probe.rs::probe_pad_low_level_state",
+      "api_path": "ogc_input::scan_pads_with_status",
+      "checks": [
+        "PAD low level scans observe scripted controller"
+      ]
+    },
+    {
+      "crate": "ogc-input",
+      "path": "src/lib.rs",
+      "symbol": "control_motor",
+      "line": 50,
+      "evidence_path": "config/implementation-evidence.csv",
+      "function": "probes/ogc-system-probe/src/input_probe.rs::probe_pad_low_level_state",
+      "api_path": "ogc_input::control_motor",
+      "checks": [
+        "PAD invalid motor request produces trace without state change"
+      ]
+    },
+    {
+      "crate": "ogc-input",
+      "path": "src/lib.rs",
+      "symbol": "set_spec",
+      "line": 54,
+      "evidence_path": "config/implementation-evidence.csv",
+      "function": "probes/ogc-system-probe/src/input_probe.rs::probe_pad_low_level_state",
+      "api_path": "ogc_input::set_spec",
+      "checks": [
+        "PAD set spec preserves the selected specification"
+      ]
+    },
+    {
+      "crate": "ogc-input",
+      "path": "src/lib.rs",
+      "symbol": "set_sampling_callback",
+      "line": 103,
+      "evidence_path": "config/implementation-evidence.csv",
+      "function": "probes/ogc-system-probe/src/input_probe.rs::probe_pad_low_level_state",
+      "api_path": "ogc_input::set_sampling_callback",
+      "checks": [
+        "PAD sampling callback replaces delivers and removes"
+      ]
+    },
+    {
+      "crate": "ogc-input",
+      "path": "src/lib.rs",
+      "symbol": "set_debug_hook",
+      "line": 107,
+      "evidence_path": "config/implementation-evidence.csv",
+      "function": "probes/ogc-system-probe/src/input_probe.rs::probe_pad_low_level_state",
+      "api_path": "ogc_input::set_debug_hook",
+      "checks": [
+        "PAD repeated initialization reports debug stages"
+      ]
+    }
+  ]
+}

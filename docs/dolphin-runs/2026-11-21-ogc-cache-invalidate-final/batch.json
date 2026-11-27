@@ -1,0 +1,53 @@
+{
+  "probe": "bus_probe",
+  "cases": [
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "dc_flash_invalidate",
+      "line": 302,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache_instruction_apis",
+      "api_path": "ogc_cache::dc_flash_invalidate",
+      "checks": [
+        "dc_flash_invalidate preserves other HID0 bits and restores state"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "ic_block_invalidate",
+      "line": 414,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache_instruction_apis",
+      "api_path": "ogc_cache::ic_block_invalidate",
+      "checks": [
+        "ic_block_invalidate preserves executable code behavior"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "ic_flash_invalidate",
+      "line": 375,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache_instruction_apis",
+      "api_path": "ogc_cache::ic_flash_invalidate",
+      "checks": [
+        "ic_flash_invalidate preserves other HID0 bits and restores state"
+      ]
+    },
+    {
+      "crate": "ogc-cache",
+      "path": "src/lib.rs",
+      "symbol": "ic_sync",
+      "line": 371,
+      "evidence_path": "probes/ogc-system-probe/src/bus_probe.rs",
+      "function": "probe_cache_instruction_apis",
+      "api_path": "ogc_cache::ic_sync",
+      "checks": [
+        "ic_sync completes after instruction cache invalidation"
+      ]
+    }
+  ]
+}

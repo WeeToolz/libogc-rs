@@ -1,0 +1,43 @@
+{
+  "source_revision": "63752b48d2af8bdafc579215cb18b6803bb6aac4",
+  "source_fingerprint": "1319d427be772ae3be790cde182ca63c4a9e48f245e5d8faf1d1ba41279278e5",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "wpad_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-21-wpad-wipe-saved-controllers-focused-v2",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "b2b07dadb673f318574bf70bd0bd2b79f5b20e40f27144d1fe8c80231b288b11",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {},
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "1084519cef5a64c6575f18a87a760fe8333590196d22dc6647c06a1b7153ce9d",
+  "suite_sha256": "eefdb5423aabf72cbf97626b8c3dc405b99a7bea3d154c0e1e3d335f02d78159",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-21-wpad-wipe-saved-controllers-focused-v2/wpad_probe/probe.log": "4ca2ccb169e843f7c9d2e76864a91a0080dc6b6a05e47b74ad62662334e82516",
+    "docs/dolphin-runs/2026-11-21-wpad-wipe-saved-controllers-focused-v2/wpad_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-21-wpad-wipe-saved-controllers-focused-v2/wpad_probe/stderr.log": "60a4a9839c7f2db034fc316636e7a4b080e9b5e8049b8b2e09772ac2988c3662",
+    "docs/dolphin-runs/2026-11-21-wpad-wipe-saved-controllers-focused-v2/wpad_probe/probe-transport.bin": "6074adaad735363a835076a3c3ca1836c3afc794350778eaa8fe8304d9f86ead",
+    "docs/dolphin-runs/2026-11-21-wpad-wipe-saved-controllers-focused-v2/wpad_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-21-wpad-wipe-saved-controllers-focused-v2/wpad_probe/pages/page-002.png": "d3a9be63c9cbd5a5b421acc1b17eb9ec8cb14ee45ce39162647c5c6bcd793217",
+    "docs/dolphin-runs/2026-11-21-wpad-wipe-saved-controllers-focused-v2/wpad_probe/pages/page-003.png": "3498b7315ad86c017f81d96595cfc5681084c9b750dfe784bfd5c3722842d1d3",
+    "docs/dolphin-runs/2026-11-21-wpad-wipe-saved-controllers-focused-v2/wpad_probe/pages/page-004.png": "cdd5c161d75ccb856f2ac0bdcae3f1c2e15ba039f34cf921c948ec5f09d8a1ca",
+    "docs/dolphin-runs/2026-11-21-wpad-wipe-saved-controllers-focused-v2/wpad_probe/pages/page-005.png": "330a87c66304ec4a9bbec6ffb1ff17f9309c4ae2d9efde52531a89d7f854dfe4",
+    "docs/dolphin-runs/2026-11-21-wpad-wipe-saved-controllers-focused-v2/wpad_probe/pages/page-006.png": "33089c88f738caf16dc1e2f4dafd189f61d3187fc53f1ae3949c0fea77a80703",
+    "docs/dolphin-runs/2026-11-21-wpad-wipe-saved-controllers-focused-v2/wpad_probe/pages/page-007.png": "51501e2015bb9fe580eb45d10962c6046b8fbef076ab7bfaa1b6bf73138989e9",
+    "docs/dolphin-runs/2026-11-21-wpad-wipe-saved-controllers-focused-v2/wpad_probe/pages/page-008.png": "7dc330702f3053726f1d336586ebea1a7ab871d7f2614228d22ecb248a3692a9"
+  },
+  "exit_code": 1
+}

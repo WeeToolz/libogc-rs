@@ -1,0 +1,48 @@
+{
+  "source_revision": "aeee41bb36ca5fc7ad6769389e91dbb45ce62b9d",
+  "source_fingerprint": "d656f97fd5cbba725c2aeed3aa426c9cb3f763cc78fcd3bc2ddc179a816b470a",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "wpad_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-19-wpad-invalid-fixtures",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "671c6c3b5bccd44798f595df46ea9ab77236c6207432114890df6a1870a538ce",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "92d887d8bd1a249ba073a5dac33aae228ed00f671c9b66d5736c3f6d6c482a4a",
+  "suite_sha256": "d4397aafa9fdd51365a94c5ae5fe3f6e7c1896177c8df4da5a15fa64feee89a8",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-19-wpad-invalid-fixtures/wpad_probe/probe.log": "8b35b2f6443e5beff6ef03bb5dfbd06486410f9f830336bf31fbbc578eb51e97",
+    "docs/dolphin-runs/2026-11-19-wpad-invalid-fixtures/wpad_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-19-wpad-invalid-fixtures/wpad_probe/stderr.log": "8cbbabd89efe7d544b38235205df90b37baf5ea25189609ecbecc1f8d1425cfb",
+    "docs/dolphin-runs/2026-11-19-wpad-invalid-fixtures/wpad_probe/probe-transport.bin": "87ecaf695059fe88ebe11fb98c3d9e33d741e663e73b176e459b285577720af8",
+    "docs/dolphin-runs/2026-11-19-wpad-invalid-fixtures/wpad_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-19-wpad-invalid-fixtures/wpad_probe/pages/page-002.png": "1c656eeddc3f12459c9d8c962c95e492b311e20a2d864d1c5d6129e115b522bf",
+    "docs/dolphin-runs/2026-11-19-wpad-invalid-fixtures/wpad_probe/pages/page-003.png": "ee0344a7111bd8310569288fd58f0e6f99c85786627c2f829c831be48217badf",
+    "docs/dolphin-runs/2026-11-19-wpad-invalid-fixtures/wpad_probe/pages/page-004.png": "a3ecc49bdbf85e8951de4c148b01edd584372a3b0ee6125c10079564fb36bd60"
+  },
+  "exit_code": 1
+}

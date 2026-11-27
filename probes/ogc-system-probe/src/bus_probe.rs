@@ -684,7 +684,10 @@ fn probe_locked_cache_dma(logger: &mut ProbeLogger) {
     // SAFETY: Read back the cache line loaded by the queued DMA operation.
     unsafe { read_locked(locked_base, 0, &mut flushed_load) };
     let queue_after_flush = cache::lc_queue_length();
-    logger.note_u32("locked cache queue immediately after DMA", queue_before_flush);
+    logger.note_u32(
+        "locked cache queue immediately after DMA",
+        queue_before_flush,
+    );
     if queue_before_flush == 0 {
         logger.note("UNTESTED nonzero locked cache queue depth: DMA completed before sampling");
     }

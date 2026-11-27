@@ -1,0 +1,17 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_allocate_framebuffer",
+      "line": 2141,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_system_framebuffer_null_mode",
+      "api_path": "raw_system::sys_allocate_framebuffer",
+      "checks": [
+        "System framebuffer rejects null mode"
+      ]
+    }
+  ]
+}

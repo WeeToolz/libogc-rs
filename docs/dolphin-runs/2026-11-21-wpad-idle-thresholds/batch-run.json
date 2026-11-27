@@ -1,0 +1,40 @@
+{
+  "source_revision": "240d339ae390c3d3da10dbccd9c666f6dd7d7205",
+  "source_fingerprint": "6dad212c2b64ed126ebc87e6a4965ee6273e86b76b74f9112d0c2771357ec8ed",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "wpad_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-21-wpad-idle-thresholds",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "e0f1f0135d96f58b1146a3bba858179f59a2c1cc9fc7aef8671cf05dff00df36",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {},
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "c8b041ba01a5650a7e7dd68d1327898823dcdd76854591a688a5ebe40f392049",
+  "suite_sha256": "d4e5fdcb0c31539f14a11e3913cea8afb450f9facbf39e49702509074353330f",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-21-wpad-idle-thresholds/wpad_probe/probe.log": "47ca8854e5d12bb33cc09562f14ed712a1581859438eea768ec1a7917656c28e",
+    "docs/dolphin-runs/2026-11-21-wpad-idle-thresholds/wpad_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-21-wpad-idle-thresholds/wpad_probe/stderr.log": "554cd251feea18b5a3cb40a3b4a948100f06a196320440bf129503c70cbf9189",
+    "docs/dolphin-runs/2026-11-21-wpad-idle-thresholds/wpad_probe/probe-transport.bin": "ded3207dfdbc5a6a3ee7f9c6995dac95ac9ac562b56eb8b531bb087e202e00ef",
+    "docs/dolphin-runs/2026-11-21-wpad-idle-thresholds/wpad_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-21-wpad-idle-thresholds/wpad_probe/pages/page-002.png": "ff3264e6193dcb38d23cdfb26fb83b00d2592ee8ee9b536339f9ce00e2811503",
+    "docs/dolphin-runs/2026-11-21-wpad-idle-thresholds/wpad_probe/pages/page-003.png": "4e4de118993ca9971946ac9b6e0a47e0986a5fe46cc3d0718658169081965eea",
+    "docs/dolphin-runs/2026-11-21-wpad-idle-thresholds/wpad_probe/pages/page-004.png": "03b69c6233d25b4c6aeb45fe892b6dbfa0c12088adb8c6f8f61b616ad45df595",
+    "docs/dolphin-runs/2026-11-21-wpad-idle-thresholds/wpad_probe/pages/page-005.png": "9d7e26b140393e6e34022a13168a5f1eb1283ba049919533ed5e80711c87a3b7"
+  },
+  "exit_code": 0
+}

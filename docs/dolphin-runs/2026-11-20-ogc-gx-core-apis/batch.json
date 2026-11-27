@@ -1,0 +1,162 @@
+{
+  "probe": "video_probe",
+  "cases": [
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "abort_frame",
+      "line": 2020,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_unverified_apis",
+      "api_path": "gx::abort_frame",
+      "checks": [
+        "GX abort frame empties pending GP FIFO work"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "clear_gp_metric",
+      "line": 7472,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_unverified_apis",
+      "api_path": "gx::clear_gp_metric",
+      "checks": [
+        "GX GP metric clear resets both counters"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "disable_break_pt",
+      "line": 1906,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_unverified_apis",
+      "api_path": "gx::disable_break_pt",
+      "checks": [
+        "GX breakpoint disable clears status"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "enable_break_pt",
+      "line": 1888,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_unverified_apis",
+      "api_path": "gx::enable_break_pt",
+      "checks": [
+        "GX null breakpoint enable leaves status unchanged"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "init",
+      "line": 1804,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_unverified_apis",
+      "api_path": "gx::init",
+      "checks": [
+        "GX init rejects null and misaligned FIFO storage"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "read_clks_per_vtx",
+      "line": 7501,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_unverified_apis",
+      "api_path": "gx::read_clks_per_vtx",
+      "checks": [
+        "GX clocks per vertex query returns its documented byte range"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "redirect_write_gather_pipe",
+      "line": 1962,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_unverified_apis",
+      "api_path": "gx::redirect_write_gather_pipe",
+      "checks": [
+        "GX write gather redirect selects its aperture"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "restore_write_gather_pipe",
+      "line": 1992,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_unverified_apis",
+      "api_path": "gx::restore_write_gather_pipe",
+      "checks": [
+        "GX write gather restore keeps the CPU FIFO live"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "set_cpu_fifo",
+      "line": 1716,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_unverified_apis",
+      "api_path": "gx::set_cpu_fifo",
+      "checks": [
+        "GX CPU FIFO setter preserves the active FIFO"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "set_gp_fifo",
+      "line": 1731,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_unverified_apis",
+      "api_path": "gx::set_gp_fifo",
+      "checks": [
+        "GX GP FIFO setter preserves the active FIFO"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "set_misc",
+      "line": 1875,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_unverified_apis",
+      "api_path": "gx::set_misc",
+      "checks": [
+        "GX misc DL save mode restores vertex descriptors",
+        "GX misc DL no-save mode keeps vertex descriptor changes"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "set_v_cache_metric",
+      "line": 7528,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_unverified_apis",
+      "api_path": "gx::set_v_cache_metric",
+      "checks": [
+        "GX vertex cache metric setter preserves the current counters"
+      ]
+    },
+    {
+      "crate": "ogc-gx",
+      "path": "src/lib.rs",
+      "symbol": "tpl_open_tpl_from_file",
+      "line": 9392,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "probe_gx_unverified_apis",
+      "api_path": "gx::tpl_open_tpl_from_file",
+      "checks": [
+        "GX TPL file open handles null inputs"
+      ]
+    }
+  ]
+}

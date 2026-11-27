@@ -63,8 +63,7 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
         logger.note_u32("IPC reinitialize MSR after", after);
         logger.record(
             "IPC reinitialize masks and restores interrupts",
-            REINIT_MSR.load(Ordering::Acquire) & 0x8000 == 0
-                && after & 0x8000 == before & 0x8000,
+            REINIT_MSR.load(Ordering::Acquire) & 0x8000 == 0 && after & 0x8000 == before & 0x8000,
         );
         let saved = ogc_irq::irq_disable();
         REINIT_MSR.store(u32::MAX, Ordering::Release);
@@ -110,6 +109,9 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
             "C IPC heap rejects invalid heap IDs",
             iosAlloc(-1, 32).is_null(),
         );
+        probe_loader_ipc_bounds(logger);
+        probe_pending_reply_reinitialize(logger);
+        probe_ioctlv_reply(logger);
     }
 
     submit_fs_open(&mut state);
@@ -148,6 +150,131 @@ pub fn monitor(logger: &mut ProbeLogger) -> ! {
         draw_dashboard(&state);
         logger.display().wait_vsync();
     }
+}
+
+// Deliver one real IOS reply across the PPC client reset. This deliberately
+// does not claim that an old IOS instance preserves requests across a reload.
+#[cfg(target_arch = "powerpc")]
+fn probe_pending_reply_reinitialize(logger: &mut ProbeLogger) {
+    use ogc_ipc as ipc;
+    static RESULT: AtomicI32 = AtomicI32::new(IPC_ASYNC_UNSET);
+    static CALLS: AtomicU32 = AtomicU32::new(0);
+    unsafe extern "C" fn complete(result: i32, _: *mut c_void) -> i32 {
+        RESULT.store(result, Ordering::Relaxed);
+        CALLS.fetch_add(1, Ordering::Release);
+        result
+    }
+    let irq = ogc_irq::irq_disable();
+    let submitted = unsafe {
+        ipc::IOS_OpenAsync(
+            c"/dev/fs".as_ptr(),
+            IPC_OPEN_NONE,
+            Some(complete),
+            core::ptr::null_mut(),
+        )
+    };
+    let start = system::time();
+    let control = || unsafe { core::ptr::read_volatile((ipc::HW_IPC_PPCBASE + 4) as *const u32) };
+    // With acknowledgements masked, IOS may require the request ACK to be
+    // consumed before it posts its reply. Poll only the ACK via the normal
+    // path while the reply bit is not set; then stop polling.
+    let mut pending = false;
+    if submitted == 0 {
+        while system::time().wrapping_sub(start) < WII_TIMER_CLOCK_HZ {
+            let flags = control();
+            if flags & 0x14 == 0x14 {
+                pending = true;
+                break;
+            }
+            // The reply handler has priority if both bits become set between
+            // the status check and poll. Do not claim a pending reply then.
+            if flags & 0x22 == 0x22 {
+                ipc_poll();
+            }
+            core::hint::spin_loop();
+        }
+    }
+    let held = pending && CALLS.load(Ordering::Acquire) == 0;
+    if held {
+        ipc::reinitialize();
+    }
+    ogc_irq::irq_restore(irq);
+    let start = system::time();
+    while submitted == 0
+        && CALLS.load(Ordering::Acquire) == 0
+        && system::time().wrapping_sub(start) < WII_TIMER_CLOCK_HZ * 2
+    {
+        ipc_poll();
+        ogc_lwp::sys::yield_thread();
+    }
+    let result = RESULT.load(Ordering::Acquire);
+    let calls = CALLS.load(Ordering::Acquire);
+    logger.record(
+        "IPC reinitialize fixture held a real IOS reply",
+        submitted == 0 && held,
+    );
+    logger.record(
+        "IPC reinitialize delivers the held reply exactly once",
+        held && calls == 1 && result >= 0,
+    );
+    let closed = calls == 1 && result >= 0 && ipc::IOS_Close(result) == 0;
+    let recovered = ipc::open_file(c"/dev/fs", IPC_OPEN_NONE).is_ok_and(|fd| fd.close().is_ok());
+    logger.record(
+        "IPC reinitialize closes held descriptor and accepts new requests",
+        closed && recovered && CALLS.load(Ordering::Acquire) == 1,
+    );
+}
+
+#[cfg(target_arch = "powerpc")]
+fn probe_loader_ipc_bounds(logger: &mut ProbeLogger) {
+    use ogc_ipc as ipc;
+    unsafe extern "C" {
+        static __ipcbufferLo: u8;
+        static __ipcbufferHi: u8;
+    }
+    // Only the exact deliberately narrowed fixture values enable this check.
+    let linker_lo = core::ptr::addr_of!(__ipcbufferLo) as usize;
+    let linker_hi = core::ptr::addr_of!(__ipcbufferHi) as usize;
+    let (low, high) = unsafe {
+        (
+            core::ptr::read_volatile(0x8000_3130 as *const u32) as usize,
+            core::ptr::read_volatile(0x8000_3134 as *const u32) as usize,
+        )
+    };
+    if (low != 0 && low != linker_lo + 0x1000)
+        || (high != 0 && high != linker_hi - 0x1000)
+        || (low == 0 && high == 0)
+    {
+        return;
+    }
+    let expected_lo = if low == 0 { linker_lo } else { low };
+    let expected_hi = if high == 0 { linker_hi } else { high };
+    logger.note_hex32("IPC loader low", low as u32);
+    logger.note_hex32("IPC loader high", high as u32);
+    // No allocation may occur while temporarily testing the base. Restore the
+    // allocated low watermark before reenabling interrupts or logging.
+    let irq = ogc_irq::irq_disable();
+    let current_lo = ipc::get_buffer_lo();
+    let current_hi = ipc::get_buffer_hi();
+    unsafe { ipc::IPC_SetBufferLo((expected_lo - 32) as *mut c_void) };
+    let rejects_below = ipc::get_buffer_lo() == current_lo;
+    unsafe { ipc::IPC_SetBufferLo(expected_lo as *mut c_void) };
+    let accepts_base = ipc::get_buffer_lo() as usize == expected_lo;
+    unsafe { ipc::IPC_SetBufferLo(current_lo) };
+    unsafe { ipc::IPC_SetBufferHi((expected_hi + 32) as *mut c_void) };
+    let rejects_above = ipc::get_buffer_hi() == current_hi;
+    unsafe { ipc::IPC_SetBufferHi(current_hi) };
+    let restored = ipc::get_buffer_lo() == current_lo && ipc::get_buffer_hi() == current_hi;
+    ogc_irq::irq_restore(irq);
+    logger.record(
+        "IPC loader lower bound selected",
+        rejects_below && accepts_base && current_lo as usize >= expected_lo,
+    );
+    logger.record(
+        "IPC loader upper bound selected",
+        rejects_above && current_hi as usize == expected_hi,
+    );
+    logger.record("IPC loader allocated watermarks restored", restored);
 }
 
 struct IpcAsyncProbeState {
@@ -248,6 +375,108 @@ fn service_ipc_after_auto_window(state: &mut IpcAsyncProbeState) {
             state.manual_poll_hits = state.manual_poll_hits.wrapping_add(1);
         }
     }
+}
+
+// IOS replaces the request command with IPC_REPLY and writes the original
+// command into the descriptor word. The callback must see restored CPU
+// addresses and the output without doing its own cache maintenance.
+#[cfg(target_arch = "powerpc")]
+fn probe_ioctlv_reply(logger: &mut ProbeLogger) {
+    use ogc_ipc as ipc;
+    #[repr(align(32))]
+    struct Aligned<T>(T);
+    struct Reply {
+        vector: *const ipc::Ioctlv,
+        output: *const u8,
+        expected: [u8; 4],
+        count: AtomicU32,
+        result: AtomicI32,
+        restored: AtomicU32,
+        output_matches: AtomicU32,
+    }
+    unsafe extern "C" fn complete(result: i32, userdata: *mut c_void) -> i32 {
+        // SAFETY: The submitter keeps the context and DMA storage alive until
+        // the completion callback finishes. Only this callback reads them.
+        let reply = unsafe { &*userdata.cast::<Reply>() };
+        let vector = unsafe { &*reply.vector };
+        let bytes = unsafe { core::slice::from_raw_parts(reply.output, 32) };
+        reply.result.store(result, Ordering::Relaxed);
+        reply.restored.store(
+            u32::from(vector.data.cast_const().cast::<u8>() == reply.output && vector.len == 4),
+            Ordering::Relaxed,
+        );
+        reply.output_matches.store(
+            u32::from(bytes[..4] == reply.expected && bytes[4..].iter().all(|byte| *byte == 0xa5)),
+            Ordering::Relaxed,
+        );
+        reply.count.fetch_add(1, Ordering::Release);
+        result
+    }
+    let Ok(fd) = ipc::open_file(c"/dev/es", ipc::IPC_OPEN_NONE) else {
+        logger.record("IPC async reply opens ES", false);
+        return;
+    };
+    let mut expected = [0u8; 4];
+    let reference = fd.ioctlv(0x0e, 0, [ipc::IoctlvEntry::Out(&mut expected)]);
+    logger.record(
+        "IPC async reply reference title count",
+        reference == 0 && expected != [0; 4],
+    );
+    let mut output = Aligned([0xa5u8; 32]);
+    let mut vector = Aligned([ipc::Ioctlv {
+        data: output.0.as_mut_ptr().cast(),
+        len: 4,
+    }]);
+    let reply = Reply {
+        vector: vector.0.as_ptr(),
+        output: output.0.as_ptr(),
+        expected,
+        count: AtomicU32::new(0),
+        result: AtomicI32::new(IPC_ASYNC_UNSET),
+        restored: AtomicU32::new(0),
+        output_matches: AtomicU32::new(0),
+    };
+    // SAFETY: Both aligned buffers own their complete cache lines and are
+    // retained until the callback finishes. An accepted request never times
+    // out by returning from this frame while IOS still owns those buffers.
+    let submitted = unsafe {
+        ipc::IOS_IoctlvAsync(
+            fd.raw(),
+            0x0e,
+            0,
+            1,
+            vector.0.as_mut_ptr(),
+            Some(complete),
+            (&reply as *const Reply).cast_mut().cast(),
+        )
+    };
+    logger.record("IPC async reply submits ES title count", submitted == 0);
+    if submitted == 0 {
+        while reply.count.load(Ordering::Acquire) == 0 {
+            ipc_poll();
+            ogc_lwp::sys::yield_thread();
+        }
+        logger.record(
+            "IPC async reply restores vector address before callback",
+            reply.restored.load(Ordering::Acquire) == 1,
+        );
+        logger.record(
+            "IPC async reply output and canaries visible before callback",
+            reply.result.load(Ordering::Acquire) == 0
+                && reply.output_matches.load(Ordering::Acquire) == 1
+                && reply.count.load(Ordering::Acquire) == 1,
+        );
+    } else {
+        logger.record(
+            "IPC async reply restores vector address before callback",
+            false,
+        );
+        logger.record(
+            "IPC async reply output and canaries visible before callback",
+            false,
+        );
+    }
+    logger.record("IPC async reply closes ES", fd.close().is_ok());
 }
 
 #[cfg(target_arch = "powerpc")]

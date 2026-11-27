@@ -1,0 +1,42 @@
+{
+  "probe": "wpad_probe",
+  "cases": [
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "search",
+      "line": 1365,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_active_search",
+      "api_path": "wpad::search",
+      "checks": [
+        "WPAD guest search starts an inquiry"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "stop_search",
+      "line": 1390,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_active_search",
+      "api_path": "wpad::stop_search",
+      "checks": [
+        "WPAD stop_search ends the guest inquiry",
+        "WPAD stop_search ends the general inquiry"
+      ]
+    },
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "search_bluetooth_hid",
+      "line": 1384,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_active_search",
+      "api_path": "wpad::search_bluetooth_hid",
+      "checks": [
+        "WPAD HID search starts a general inquiry"
+      ]
+    }
+  ]
+}

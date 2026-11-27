@@ -108,6 +108,8 @@ pub static OGC_PROBE_RESET_PROGRESS: [AtomicU32; RESET_PROGRESS_RECORDS * 3] =
 pub static OGC_PROBE_BOOT_STAGE: AtomicU32 = AtomicU32::new(0);
 static mut PROBE_FRAMEBUFFER_A: *mut c_void = null_mut();
 static mut PROBE_FRAMEBUFFER_B: *mut c_void = null_mut();
+static mut PROBE_FRAMEBUFFER_MODE: video::GxrModeObj = video::sys::TV_NTSC_480_INT_DF;
+static mut PROBE_FRAMEBUFFER_BYTES: usize = 0;
 static mut PROBE_APP_DIR: Option<&'static str> = None;
 
 /// Logger that mirrors probe output to the console and, when possible, ISFS.
@@ -1014,16 +1016,23 @@ struct FramebufferInfo {
 /// Return the complete regions allocated for the two probe framebuffers.
 /// Call after console initialization on the initial thread.
 pub fn framebuffer_regions() -> Option<[core::ops::Range<usize>; 2]> {
-    let mode = unsafe { video::get_preferred_mode(null_mut()) };
-    if mode.is_null() {
-        return None;
-    }
-    let bytes = unsafe { video::get_frame_buffer_size(mode) } as usize;
+    let bytes = unsafe { PROBE_FRAMEBUFFER_BYTES };
     let (a, b) = unsafe { (PROBE_FRAMEBUFFER_A as usize, PROBE_FRAMEBUFFER_B as usize) };
     if a == 0 || b == 0 || bytes == 0 {
         return None;
     }
     Some([a..a.checked_add(bytes)?, b..b.checked_add(bytes)?])
+}
+
+/// Return the mode actually used to allocate and configure the probe display.
+/// A later CONF initialization can change VIDEO_GetPreferredMode.
+pub fn framebuffer_mode() -> Option<video::GxrModeObj> {
+    unsafe { (PROBE_FRAMEBUFFER_BYTES != 0).then(|| PROBE_FRAMEBUFFER_MODE) }
+}
+
+/// The mode address passed to both original framebuffer allocation calls.
+pub fn framebuffer_mode_address() -> usize {
+    core::ptr::addr_of!(PROBE_FRAMEBUFFER_MODE) as usize
 }
 
 fn init_buffered_console() -> Option<FramebufferInfo> {
@@ -1035,6 +1044,10 @@ fn init_buffered_console() -> Option<FramebufferInfo> {
     }
 
     unsafe {
+        // The preferred-mode object can change after CONF initializes. Keep
+        // a stable copy for the allocated buffers and capture metadata.
+        PROBE_FRAMEBUFFER_MODE = *rmode;
+        let rmode = &raw mut PROBE_FRAMEBUFFER_MODE;
         let framebuffer_bytes = video::get_frame_buffer_size(rmode);
         let framebuffer_a = system::allocate_framebuffer(rmode);
         let framebuffer_b = system::allocate_framebuffer(rmode);
@@ -1069,6 +1082,7 @@ fn init_buffered_console() -> Option<FramebufferInfo> {
         .is_ok();
         initialized.then(|| {
             let bytes = framebuffer_bytes as usize;
+            PROBE_FRAMEBUFFER_BYTES = bytes;
             FramebufferInfo {
                 bytes,
                 #[cfg(feature = "agent-report")]
@@ -1413,18 +1427,17 @@ impl ProbeLogger {
 
     /// Add the VI heartbeat below the console text area.
     pub fn enable_activity_indicator(&mut self) {
-        let mode = unsafe { video::get_preferred_mode(null_mut()) };
-        let enabled = if mode.is_null() {
-            false
-        } else {
+        let enabled = if let Some(mode) = framebuffer_mode() {
             unsafe {
                 activity_indicator::start(
                     PROBE_FRAMEBUFFER_A,
                     self.display.framebuffer_bytes,
-                    (*mode).fb_width as usize,
-                    (*mode).xfb_height as usize,
+                    mode.fb_width as usize,
+                    mode.xfb_height as usize,
                 )
             }
+        } else {
+            false
         };
         self.record("activity indicator has a valid framebuffer", enabled);
         self.note("Corner: spinner means VI active; IDLE s is seconds since logged progress.");

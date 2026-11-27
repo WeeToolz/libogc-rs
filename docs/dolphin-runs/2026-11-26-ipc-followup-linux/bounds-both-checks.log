@@ -1,0 +1,9 @@
+PASS Video console_init_framebuffer initializes the buffered console
+PASS IPC reinitialize masks and restores interrupts
+PASS IPC reinitialize preserves disabled interrupts
+INFO IPC loader low=0x933e1000
+INFO IPC loader high=0x933ff000
+PASS IPC loader lower bound selected
+PASS IPC loader upper bound selected
+PASS IPC loader allocated watermarks restored
+PASS summary passes=26 fails=0

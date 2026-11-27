@@ -1,0 +1,31 @@
+{
+  "probe": "runtime_probe",
+  "limits": [
+    "Dolphin evidence only; no physical console cache-coherency claim.",
+    "Covers the public synchronous and asynchronous symbols, selected q:d and qi:d forms, and one callback path. The full formatter grammar, rejection paths, allocation failures, concurrency, and DMA boundary matrix remain open.",
+    "IPC descriptor close is fixture cleanup and does not count as formatter behavior."
+  ],
+  "cases": [
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "__ogc_ipc_ioctlv_format_bridge",
+      "line": 2685,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_format_bridge",
+      "api_path": "ipc::__ogc_ipc_ioctlv_format_bridge",
+      "evidence_scope": "scalar-and-buffer",
+      "checks": [
+        "IPC format internal bridge null-call guard",
+        "IPC format internal bridge copies ES title count to output vector",
+        "IPC format internal bridge transfers title input and directory output",
+        "IPC format public ABI sync :i returns the ES title count",
+        "IPC format public ABI async :i preserves output and callback",
+        "IPC format public ABI sync q:d formats title directory",
+        "IPC format public ABI sync qi:d decodes the overflow length",
+        "IPC format public ABI async q:d spills and copies back before callback",
+        "IPC fixture closes ES descriptor"
+      ]
+    }
+  ]
+}

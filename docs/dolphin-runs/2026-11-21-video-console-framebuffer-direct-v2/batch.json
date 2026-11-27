@@ -1,0 +1,17 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "console_init_framebuffer",
+      "line": 1030,
+      "evidence_path": "probes/ogc-system-probe/src/probe_support.rs",
+      "function": "init_buffered_console",
+      "api_path": "ogc-video::console_init_framebuffer",
+      "checks": [
+        "Video console_init_framebuffer initializes the buffered console"
+      ]
+    }
+  ]
+}

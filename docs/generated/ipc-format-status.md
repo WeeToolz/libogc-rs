@@ -4,7 +4,7 @@ Generated from `config/ipc-format-contracts.csv` by `cargo xtask inventory`. Sta
 
 ## Status counts
 
-verified: 78 | partial: 2 | blocked: 8 | unverified: 0
+verified: 80 | partial: 0 | blocked: 8 | unverified: 0
 
 `unverified` is the actionable count. `blocked` records requirements that need unavailable prerequisites.
 
@@ -22,7 +22,7 @@ verified: 78 | partial: 2 | blocked: 8 | unverified: 0
 | `ipc-format.async.concurrent-requests` | `IOS_IoctlvFormatAsync` | `verified` | Two IOS completions with distinct userdata and destinations in one run |
 | `ipc-format.async.copyback-before-callback` | `IOS_IoctlvFormatAsync` | `verified` | Callback observes one staged output buffer |
 | `ipc-format.async.dma-input-boundaries` | `IOS_IoctlvFormatAsync` | `verified` | Hashes every logical input byte and checks actual workspace alloc/free events before IOS submission |
-| `ipc-format.async.dma-output-copyback` | `IOS_IoctlvFormatAsync` | `partial` | Async entry ABI decoding and formatter cleanup only; no request submission, callback, or DMA coherency claim |
+| `ipc-format.async.dma-output-copyback` | `IOS_IoctlvFormatAsync` | `verified` | Dolphin live ES output and exactly-once callback see copied data at 31/32/33/63/64/65 bytes and two alignments; physical DMA coherency remains blocked. |
 | `ipc-format.async.dma-staging-allocation` | `IOS_IoctlvFormatAsync` | `verified` | The stated async d-vector staging allocation and release sizes pass in Dolphin; physical cache behavior is outside this allocation contract. |
 | `ipc-format.async.error-completion` | `IOS_IoctlvFormatAsync` | `verified` | Invalid descriptor tests one IOS error completion and cleanup path only |
 | `ipc-format.async.es-error` | `IOS_IoctlvFormatAsync` | `verified` | Live ES error completion with callback and recovery. |
@@ -64,7 +64,7 @@ verified: 78 | partial: 2 | blocked: 8 | unverified: 0
 | `ipc-format.sync.aes-live-input` | `IOS_IoctlvFormat` | `blocked` | Blocked on physical Wii validation of Broadway cache behavior and IOS DMA coherency; Dolphin functional evidence passes. |
 | `ipc-format.sync.cleanup-on-error` | `IOS_IoctlvFormat` | `verified` | Real State and StagingBuffer workspace exhaustion plus Argv and Scalar heap exhaustion release formatter state with balanced independent ledgers. |
 | `ipc-format.sync.dma-input-boundaries` | `IOS_IoctlvFormat` | `verified` | Hashes every logical input byte and checks actual workspace alloc/free events; no IOS submission |
-| `ipc-format.sync.dma-output-copyback` | `IOS_IoctlvFormat` | `partial` | Software copyback and canaries only; no Dolphin or hardware DMA coherency claim |
+| `ipc-format.sync.dma-output-copyback` | `IOS_IoctlvFormat` | `verified` | Dolphin live ES output preserves path and canaries at 31/32/33/63/64/65 bytes and two alignments; physical DMA coherency remains blocked. |
 | `ipc-format.sync.dma-staging-allocation` | `IOS_IoctlvFormat` | `verified` | The stated d-vector staging allocation and release sizes pass in Dolphin; physical cache behavior is outside this allocation contract. |
 | `ipc-format.sync.es-error` | `IOS_IoctlvFormat` | `verified` | Live ES error completion and recovery. |
 | `ipc-format.sync.heap-failure-paths` | `IOS_IoctlvFormat` | `verified` | Probe role fault and real workspace exhaustion both leave the formatter heap ledger empty and free every held workspace block once. |

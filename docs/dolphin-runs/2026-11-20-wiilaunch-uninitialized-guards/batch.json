@@ -1,0 +1,149 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "launch_title",
+      "line": 283,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized_guards",
+      "api_path": "wiilaunch::launch_title",
+      "checks": [
+        "Wii launch raw title returns not-initialized code"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "launch_title_with_args",
+      "line": 390,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized_guards",
+      "api_path": "wiilaunch::launch_title_with_args",
+      "checks": [
+        "Wii launch raw title with args returns not-initialized code"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "open_url",
+      "line": 489,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized_guards",
+      "api_path": "wiilaunch::open_url",
+      "checks": [
+        "Wii launch raw URL returns not-initialized code"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "return_to_menu",
+      "line": 441,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized_guards",
+      "api_path": "wiilaunch::return_to_menu",
+      "checks": [
+        "Wii launch raw menu return returns not-initialized code"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "return_to_settings",
+      "line": 450,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized_guards",
+      "api_path": "wiilaunch::return_to_settings",
+      "checks": [
+        "Wii launch raw settings return returns not-initialized code"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "return_to_settings_page",
+      "line": 477,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized_guards",
+      "api_path": "wiilaunch::return_to_settings_page",
+      "checks": [
+        "Wii launch raw settings page returns not-initialized code"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "try_launch_title",
+      "line": 287,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized_guards",
+      "api_path": "wiilaunch::try_launch_title",
+      "checks": [
+        "Wii launch try title rejects uninitialized state"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "try_launch_title_with_args",
+      "line": 394,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized_guards",
+      "api_path": "wiilaunch::try_launch_title_with_args",
+      "checks": [
+        "Wii launch try title with args rejects uninitialized state"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "try_open_url",
+      "line": 493,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized_guards",
+      "api_path": "wiilaunch::try_open_url",
+      "checks": [
+        "Wii launch try URL rejects uninitialized state"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "try_return_to_menu",
+      "line": 445,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized_guards",
+      "api_path": "wiilaunch::try_return_to_menu",
+      "checks": [
+        "Wii launch try menu return rejects uninitialized state"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "try_return_to_settings",
+      "line": 454,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized_guards",
+      "api_path": "wiilaunch::try_return_to_settings",
+      "checks": [
+        "Wii launch try settings return rejects uninitialized state"
+      ]
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "try_return_to_settings_page",
+      "line": 481,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_uninitialized_guards",
+      "api_path": "wiilaunch::try_return_to_settings_page",
+      "checks": [
+        "Wii launch try settings page rejects uninitialized state"
+      ]
+    }
+  ]
+}

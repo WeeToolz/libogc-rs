@@ -1657,7 +1657,10 @@ unsafe fn reply_handler() {
         debug_mark(59, (*req).magic, request_magic(), (*req).result as u32);
 
         if (*req).magic == request_magic() {
-            let request_cmd = (*req).cmd;
+            // IOS replaces word 0 with IPC_REPLY and writes the original
+            // command into word 2 (the descriptor on submission). C names
+            // that reply field req_cmd. Use it before restoring DMA addresses.
+            let request_cmd = (*req).fd as u32;
             if request_cmd == IOS_IOCTLV {
                 // 48: reply full request snapshot: req ptr, result, ioctl.
                 debug_mark(48, req_ptr, (*req).result as u32, (*req).data.ioctlv.ioctl);

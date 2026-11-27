@@ -1,0 +1,16 @@
+{
+  "boot_stage_address": 2150189040,
+  "boot_stage": 3,
+  "program_counter": 2147764000,
+  "program_counter_symbol": "_RNvCs8qM4U8o07w1_7ogc_stm18event_hook_handler+0x6c",
+  "program_counter_reply": "80044720",
+  "debugger_stop": "T0540:80044720;01:806b7fa8;",
+  "stack_trace": [
+    "sp=806b7fa8 lr=ffff175a __ipcbufferHi+0x6cbf175a",
+    "sp=806b7fd8 lr=8004f1bc _RNvCs53YDlRXqMEl_7ogc_ipc25deferred_request_callback+0x64",
+    "sp=806b7fe8 lr=800569e0 _RNvNtCs9DYsuRIGe4j_14ogc_lwp_driver7runtime14deferred_entry+0x17c",
+    "sp=806b8048 lr=80057794 _RNvNtCs9DYsuRIGe4j_14ogc_lwp_driver7runtime16thread_bootstrap+0x5c",
+    "sp=806b8058 lr=00000000 compiler_builtins.f266b4b7ea4a36b-cgu.7+0x0"
+  ],
+  "error": null
+}

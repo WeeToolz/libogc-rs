@@ -1,0 +1,23 @@
+{
+  "probe": "wpad_probe",
+  "cases": [
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "send_stream_data",
+      "line": 1339,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_empty_channel_stream",
+      "api_path": "wpad::send_stream_data",
+      "checks": [
+        "WPAD stream probe confirms empty channel",
+        "WPAD empty channel speaker stream succeeds",
+        "WPAD empty channel rejects malformed speaker stream arguments"
+      ],
+      "evidence_scope": "no-controller-and-invalid-arguments"
+    }
+  ],
+  "limits": [
+    "Dolphin has no connected Wii Remote. This probe checks a valid empty-channel no-op and Rust safety guards for malformed arguments."
+  ]
+}

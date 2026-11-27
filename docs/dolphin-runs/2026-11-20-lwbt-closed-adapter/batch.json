@@ -1,0 +1,152 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "try_shutdown",
+      "line": 331,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_closed_adapter",
+      "api_path": "bte::try_shutdown",
+      "checks": [
+        "lwBT shutdown releases a live PCB"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "init_core",
+      "line": 386,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_closed_adapter",
+      "api_path": "bte::init_core",
+      "checks": [
+        "lwBT core init completes with closed adapter error"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "apply_patch",
+      "line": 393,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_closed_adapter",
+      "api_path": "bte::apply_patch",
+      "checks": [
+        "lwBT patch completes with closed adapter error"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "init_sub",
+      "line": 400,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_closed_adapter",
+      "api_path": "bte::init_sub",
+      "checks": [
+        "lwBT sub init completes with closed adapter error"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "read_bd_addr",
+      "line": 437,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_closed_adapter",
+      "api_path": "bte::read_bd_addr",
+      "checks": [
+        "lwBT address read preserves output on closed adapter"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "read_remote_name",
+      "line": 474,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_closed_adapter",
+      "api_path": "bte::read_remote_name",
+      "checks": [
+        "lwBT name read preserves output on closed adapter"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "inquiry",
+      "line": 496,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_closed_adapter",
+      "api_path": "bte::inquiry",
+      "checks": [
+        "lwBT inquiry completes with closed adapter error"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "periodic_inquiry",
+      "line": 507,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_closed_adapter",
+      "api_path": "bte::periodic_inquiry",
+      "checks": [
+        "lwBT periodic inquiry rejects closed adapter"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_pair_mode",
+      "line": 654,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_closed_adapter",
+      "api_path": "bte::get_pair_mode",
+      "checks": [
+        "lwBT failed inquiry preserves normal pair mode"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "exit_periodic_inquiry",
+      "line": 519,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_closed_adapter",
+      "api_path": "bte::exit_periodic_inquiry",
+      "checks": [
+        "lwBT inquiry exit rejects closed adapter"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "set_evt_filter",
+      "line": 455,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_closed_adapter",
+      "api_path": "bte::set_evt_filter",
+      "checks": [
+        "lwBT event filter validates input before transport"
+      ]
+    },
+    {
+      "crate": "lwbt-sys",
+      "path": "src/lib.rs",
+      "symbol": "sendmessageasync",
+      "line": 975,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_lwbt_closed_adapter",
+      "api_path": "bte::sendmessageasync",
+      "checks": [
+        "lwBT asynchronous message rejects null PCB"
+      ]
+    }
+  ],
+  "limits": [
+    "This run checks shutdown with a live PCB, error completion with a closed adapter, and argument handling. It does not exercise Bluetooth radio traffic, pairing, vendor patch upload, or adapter startup."
+  ]
+}

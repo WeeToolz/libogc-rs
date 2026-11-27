@@ -1,0 +1,29 @@
+{
+  "probe": "network_probe",
+  "cases": [
+    {
+      "crate": "ogc-network",
+      "path": "src/lib.rs",
+      "symbol": "as_sockaddr_mut_ptr",
+      "line": 238,
+      "evidence_path": "probes/ogc-system-probe/src/network_probe.rs",
+      "function": "probe_socket_address_layout",
+      "api_path": "address.as_sockaddr_mut_ptr",
+      "checks": [
+        "socket address pointers address their original values"
+      ]
+    },
+    {
+      "crate": "ogc-network",
+      "path": "src/lib.rs",
+      "symbol": "socket_address_len",
+      "line": 241,
+      "evidence_path": "probes/ogc-system-probe/src/network_probe.rs",
+      "function": "probe_socket_address_layout",
+      "api_path": "network::Sockaddr::socket_address_len",
+      "checks": [
+        "socket address ABI lengths are sixteen bytes"
+      ]
+    }
+  ]
+}

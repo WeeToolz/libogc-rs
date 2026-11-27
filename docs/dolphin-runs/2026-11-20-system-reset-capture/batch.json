@@ -1,0 +1,20 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_reset_system",
+      "line": 2467,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_reset_system_capture",
+      "api_path": "raw_system::sys_reset_system",
+      "checks": [
+        "Raw reset API captures all arguments without resetting Dolphin"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin checks captured reset arguments without performing the hardware reset. Physical reset behavior remains unverified."
+  ]
+}

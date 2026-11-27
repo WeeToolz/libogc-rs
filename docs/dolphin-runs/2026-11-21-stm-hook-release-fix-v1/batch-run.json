@@ -1,0 +1,38 @@
+{
+  "source_revision": "634336b05b3b7f1d4ef82005dafc1880dffc4f2c",
+  "source_fingerprint": "f39844d6a63754a116011547d02fe2b7493cc3661bfd41cf0f5a388259c8e39d",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "stm_api_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-21-stm-hook-release-fix-v1",
+    "--timeout-seconds",
+    "90"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "6de294ee11afb7e16d35ec0636007b050c7c9421f3d9ea9118fbb88f8619203f",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {},
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "5c8d694f91891c0da3cb674b9a0d61ad51a88b4fba3f1290298d33251d052131",
+  "suite_sha256": "33a067b342072646d36c5f64e9872d369db85ff355933b0e61452259cae28b3a",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-21-stm-hook-release-fix-v1/stm_api_probe/probe.log": "edff41ae8d625e6f28a78da3251b0ed21bf86e9649322047f3f0c0af5b037c5e",
+    "docs/dolphin-runs/2026-11-21-stm-hook-release-fix-v1/stm_api_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-21-stm-hook-release-fix-v1/stm_api_probe/stderr.log": "861ef80ab5d31d83e6a478099475ef7d8b4ad6190d30c466d084a3fde5b3c872",
+    "docs/dolphin-runs/2026-11-21-stm-hook-release-fix-v1/stm_api_probe/probe-transport.bin": "81d2e80cfc3f6c560a0b2e36ed087932536b8ceb077cf581e729e6555b75a6e0",
+    "docs/dolphin-runs/2026-11-21-stm-hook-release-fix-v1/stm_api_probe/pages/page-001.png": "e6dd1abf76db752b93a7c21cf5716bd30995f5716a9d0f3b119ebb9b9b336fb5",
+    "docs/dolphin-runs/2026-11-21-stm-hook-release-fix-v1/stm_api_probe/pages/page-002.png": "3118a006e819ed752ce316b4f9ca3a2ca4d16ed0aa24ab6ae34e3824bb08d3cf",
+    "docs/dolphin-runs/2026-11-21-stm-hook-release-fix-v1/stm_api_probe/pages/page-003.png": "1e4ecf358a421767e9d02741cd9c5eb1727281d3135cc28629a27757a206b94d"
+  },
+  "exit_code": 0
+}

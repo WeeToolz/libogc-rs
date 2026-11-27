@@ -1,0 +1,49 @@
+{
+  "source_revision": "c6727ea5e1ab561430a097adfa517a61c283a0e0",
+  "source_fingerprint": "ebdf9f0ba4ac81e1f10269961e890ded599bb53a54eb7364f504ab36b98ae11e",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "wpad_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-19-wpad-bluetooth",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "61380f0fc97fb861d9fdcd373b09bb8dc842e7872cfe5b1a613e601f23776807",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 587,
+    "sha256": "67abb7b87bd3a24047772ea28f08283e3af10061a81496f672b10126bc7db7cc"
+  },
+  "manifest_sha256": "c05cd89bce251367c0873bda98bb0103f76b1efffe5b4298f1d2c3d7428ebf4e",
+  "suite_sha256": "50942b93721f632e063acc1c2ebcc7bc2201522263905b64047d1a4db647ce43",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-19-wpad-bluetooth/wpad_probe/probe.log": "0ceef874a15479e1559728386e10f4f97eeeba741823627012f487c319328b85",
+    "docs/dolphin-runs/2026-11-19-wpad-bluetooth/wpad_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-19-wpad-bluetooth/wpad_probe/stderr.log": "6996e4a7e64c715e46f82d252906230a05b4db2956bfcb093519a3990c31b8ed",
+    "docs/dolphin-runs/2026-11-19-wpad-bluetooth/wpad_probe/probe-transport.bin": "9706afdfee31db990aa965b6523b18bf3695bc290298c0ae7b66a3ab9087c3fa",
+    "docs/dolphin-runs/2026-11-19-wpad-bluetooth/wpad_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-19-wpad-bluetooth/wpad_probe/pages/page-002.png": "1c656eeddc3f12459c9d8c962c95e492b311e20a2d864d1c5d6129e115b522bf",
+    "docs/dolphin-runs/2026-11-19-wpad-bluetooth/wpad_probe/pages/page-003.png": "0387e1257f68da5a3282bdbb27fb191450f9c5e4489e1833a5cffcea6b64f894",
+    "docs/dolphin-runs/2026-11-19-wpad-bluetooth/wpad_probe/pages/page-004.png": "03f466c8fc22fe70af47d16fd8dbfec65b3823195ee23247fcc693b95eda7a48",
+    "docs/dolphin-runs/2026-11-19-wpad-bluetooth/wpad_probe/pages/page-005.png": "034be3623e28814468a0be2e51e8c92ef2b6417f3edbd2b76fa5c47623c1be5c"
+  },
+  "exit_code": 1
+}

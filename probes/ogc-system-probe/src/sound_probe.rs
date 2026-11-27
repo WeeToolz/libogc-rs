@@ -29,7 +29,11 @@ fn prepare_dma_buffer() -> u32 {
 
 fn callback_stack_top() -> *mut u8 {
     // SAFETY: PowerPC grows the callback stack down from the aligned end.
-    unsafe { core::ptr::addr_of_mut!(AUDIO_CALLBACK_STACK.0).cast::<u8>().add(1024) }
+    unsafe {
+        core::ptr::addr_of_mut!(AUDIO_CALLBACK_STACK.0)
+            .cast::<u8>()
+            .add(1024)
+    }
 }
 
 pub fn run(logger: &mut ProbeLogger) {

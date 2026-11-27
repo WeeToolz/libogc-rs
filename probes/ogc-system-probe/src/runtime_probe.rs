@@ -4813,15 +4813,14 @@ fn probe_raw_video_setup(logger: &mut ProbeLogger) {
 
     unsafe extern "C" fn marker(_: u32) {}
 
-    let mode = unsafe { sys::get_preferred_mode(null_mut()) };
+    let mode = crate::probe_support::framebuffer_mode();
     let framebuffer = sys::get_current_framebuffer();
-    let ready = !mode.is_null() && !framebuffer.is_null();
+    let ready = mode.is_some() && !framebuffer.is_null();
     logger.record("Raw video setup has a live mode and framebuffer", ready);
     if !ready {
         return;
     }
-    // SAFETY: The mode comes from VI and the active framebuffer stays allocated.
-    let mut original = unsafe { *mode };
+    let Some(mut original) = mode else { return };
     let mut narrower = original;
     narrower.vi_width /= 2;
     narrower.vi_x_origin = 0;
@@ -7096,9 +7095,7 @@ fn probe_exi_raw_lock_queue(logger: &mut ProbeLogger) {
     EXI_UNLOCK_CALLS.store(0, Ordering::Release);
     EXI_UNLOCK_ARGS.store(0, Ordering::Release);
     let locked = raw_exi::lock(1, 1, None) == 1;
-    let queued_all = (0..33).all(|_| {
-        raw_exi::lock(1, 2, Some(probe_exi_unlock_callback)) == 0
-    });
+    let queued_all = (0..33).all(|_| raw_exi::lock(1, 2, Some(probe_exi_unlock_callback)) == 0);
     let mut drained = true;
     for index in 0..32 {
         drained &= raw_exi::unlock(1) == 1;
@@ -8208,15 +8205,15 @@ fn probe_video_register_checks(logger: &mut ProbeLogger) {
     use ogc_video as video;
     use ogc_video::sys as raw_video;
     logger.report_step("Video register checks and retrace waits");
-    let mode = unsafe { video::get_preferred_mode(core::ptr::null_mut()) };
     let Some(regions) = crate::probe_support::framebuffer_regions() else {
         logger.record("Video register fixture has two framebuffers", false);
         return;
     };
-    if mode.is_null() {
+    let Some(mut active) = crate::probe_support::framebuffer_mode() else {
         logger.record("Video register fixture has an active mode", false);
         return;
-    }
+    };
+    let mode = &mut active as *mut video::GxrModeObj;
     // SAFETY: The live mode and both complete framebuffer regions belong to the probe.
     let mut other_mode = unsafe { *mode };
     other_mode.vi_tv_mode ^= 2;
@@ -8253,7 +8250,7 @@ fn probe_video_register_checks(logger: &mut ProbeLogger) {
         raw_video::framebuffer_registers_match(framebuffer, mode) == 1
             && raw_video::framebuffer_registers_match(other, mode) == 0
     };
-    let mode_value = unsafe { (*mode).vi_tv_mode };
+    let mode_value = active.vi_tv_mode;
     let expected_tv = match (mode_value >> 2) & 7 {
         0 | 3 => 0,
         2 => 2,
@@ -8274,6 +8271,13 @@ fn probe_video_register_checks(logger: &mut ProbeLogger) {
     let after = raw_video::retrace_count();
     raw_video::wait_v_sync();
     let raw_after = raw_video::retrace_count();
+    logger.note_u32("Video fixture configured mode", mode_value);
+    let preferred = unsafe { video::get_preferred_mode(core::ptr::null_mut()) };
+    if !preferred.is_null() {
+        logger.note_u32("Video current preferred mode", unsafe {
+            (*preferred).vi_tv_mode
+        });
+    }
     logger.record("Video raw register snapshot matches VI registers", direct);
     logger.record("Video control match distinguishes mode", control);
     logger.record("Video raw control match distinguishes mode", raw_control);
@@ -8306,15 +8310,15 @@ fn probe_video_framebuffer_updates(logger: &mut ProbeLogger) {
     use ogc_video as video;
     use ogc_video::sys as raw_video;
     logger.report_step("Video framebuffer updates and display state");
-    let mode = unsafe { raw_video::get_preferred_mode(core::ptr::null_mut()) };
     let Some(regions) = crate::probe_support::framebuffer_regions() else {
         logger.record("Video update fixture has two framebuffers", false);
         return;
     };
-    if mode.is_null() {
-        logger.record("Video update fixture has a preferred mode", false);
+    let Some(mut active) = crate::probe_support::framebuffer_mode() else {
+        logger.record("Video update fixture has an allocated mode", false);
         return;
-    }
+    };
+    let mode = &mut active as *mut video::GxrModeObj;
     let original = raw_video::get_current_framebuffer();
     let next = raw_video::get_next_framebuffer();
     if original != next
@@ -8390,7 +8394,12 @@ fn probe_video_framebuffer_updates(logger: &mut ProbeLogger) {
     copied.vi_height = 1;
     copied.xfb_mode = u32::MAX;
     let copied_ptr = unsafe { raw_video::get_preferred_mode(&mut copied) };
-    let current = unsafe { *mode };
+    let preferred = unsafe { raw_video::get_preferred_mode(core::ptr::null_mut()) };
+    let current = if preferred.is_null() {
+        active
+    } else {
+        unsafe { *preferred }
+    };
     let expected_format = match conf::get_video() {
         1 if conf::get_eu_rgb60() > 0 => 5,
         1 => 1,
@@ -8398,7 +8407,8 @@ fn probe_video_framebuffer_updates(logger: &mut ProbeLogger) {
         _ => 0,
     };
     let expected_progressive = conf::get_progressive_scan() > 0 && cable != 0;
-    let mode_ok = copied_ptr == &mut copied as *mut _
+    let mode_ok = !preferred.is_null()
+        && copied_ptr == &mut copied as *mut _
         && copied.vi_tv_mode == current.vi_tv_mode
         && copied.vi_tv_mode == ((expected_format << 2) | u32::from(expected_progressive) * 2)
         && copied.fb_width == current.fb_width
@@ -8448,9 +8458,9 @@ fn probe_video_console_init_ex(logger: &mut ProbeLogger) {
     use ogc_video as video;
 
     logger.report_step("Video extended console initialization");
-    let mode = unsafe { video::get_preferred_mode(core::ptr::null_mut()) };
+    let active = crate::probe_support::framebuffer_mode();
     let framebuffer = video::get_current_framebuffer();
-    if mode.is_null() || framebuffer.is_null() {
+    if active.is_none() || framebuffer.is_null() {
         logger.record(
             "Video console_init_ex has a live mode and framebuffer",
             false,
@@ -8458,8 +8468,10 @@ fn probe_video_console_init_ex(logger: &mut ProbeLogger) {
         return;
     }
 
-    let width = unsafe { (*mode).fb_width as i32 };
-    let height = unsafe { (*mode).xfb_height as i32 };
+    let Some(mut active) = active else { return };
+    let mode = &mut active as *mut video::GxrModeObj;
+    let width = active.fb_width as i32;
+    let height = active.xfb_height as i32;
     let previous_callback = video::set_post_retrace_callback(None);
     let first = unsafe { video::console_init_ex(mode, 0, 0, width, height) };
     let first_console = video::console_get_default();
@@ -8503,13 +8515,15 @@ fn probe_video_console_init(logger: &mut ProbeLogger) {
     use ogc_video as video;
 
     logger.report_step("Video default console initialization");
-    let mode = unsafe { video::get_preferred_mode(core::ptr::null_mut()) };
+    let active = crate::probe_support::framebuffer_mode();
     let display_framebuffer = video::get_current_framebuffer();
-    if mode.is_null() || display_framebuffer.is_null() {
+    if active.is_none() || display_framebuffer.is_null() {
         logger.record("Video console_init has a live mode and framebuffer", false);
         return;
     }
 
+    let Some(mut active) = active else { return };
+    let mode = &mut active as *mut video::GxrModeObj;
     let first = unsafe { video::console_init(core::ptr::null_mut()) };
     let first_console = video::console_get_default();
     let first_framebuffer = if first_console.is_null() {
@@ -8532,14 +8546,25 @@ fn probe_video_console_init(logger: &mut ProbeLogger) {
         && first_console == second_console
         && first_framebuffer == second_framebuffer;
 
-    let width = unsafe { (*mode).fb_width as i32 };
-    let height = unsafe { (*mode).xfb_height as i32 };
+    let width = active.fb_width as i32;
+    let height = active.xfb_height as i32;
     let restored = unsafe {
         video::console_init_framebuffer(mode, display_framebuffer, 0, 0, width, height).is_ok()
     };
-    unsafe { video::set_next_framebuffer(display_framebuffer) };
+    unsafe {
+        video::configure(mode);
+        video::set_next_framebuffer(display_framebuffer);
+    };
     video::flush();
-    video::wait_vsync();
+    for _ in 0..4 {
+        video::wait_vsync();
+        if video::get_current_framebuffer() == display_framebuffer
+            && unsafe { video::hardware_proof(mode, display_framebuffer) }
+                .next_framebuffer_registers_match
+        {
+            break;
+        }
+    }
     let display_restored = video::get_current_framebuffer() == display_framebuffer
         && unsafe { video::hardware_proof(mode, display_framebuffer) }
             .next_framebuffer_registers_match;
@@ -9430,23 +9455,18 @@ fn probe_system_raw_snapshots(logger: &mut ProbeLogger) {
             && calls.init_called
             && calls.pre_main_called,
     );
-    // SAFETY: A null destination requests the initialized preferred mode.
-    let mode = unsafe { ogc_video::get_preferred_mode(core::ptr::null_mut()) };
+    let mode_address = crate::probe_support::framebuffer_mode_address();
     let framebuffer = raw_system::snapshot_framebuffer();
-    let expected = if mode.is_null() {
-        0
-    } else {
-        // SAFETY: A non-null preferred mode is valid for the probe lifetime.
-        let mode = unsafe { &*mode };
+    let expected = crate::probe_support::framebuffer_mode().map_or(0, |mode| {
         u32::from(mode.fb_width).div_ceil(16)
             * 16
             * (u32::from(mode.xfb_height) + if mode.aa != 0 { 4 } else { 0 })
             * 2
-    };
+    });
     logger.record(
         "Raw system framebuffer snapshot records allocation",
         framebuffer.called
-            && framebuffer.rmode == mode as usize
+            && framebuffer.rmode == mode_address
             && expected > 0
             && framebuffer.bytes == expected,
     );
@@ -9461,31 +9481,27 @@ fn probe_system_raw_snapshots(logger: &mut ProbeLogger) {
         combined.startup.init_completed
             && combined.startup.init_completed_mask == 0x7ff
             && combined.pre_main.completed
-            && combined.framebuffer.last_request_rmode == mode as usize
+            && combined.framebuffer.last_request_rmode == mode_address
             && combined.framebuffer.last_request_bytes == expected,
     );
 }
 
 fn probe_system_framebuffer_status(logger: &mut ProbeLogger) {
-    // SAFETY: A null argument requests the video subsystem's live preferred mode.
-    let mode = unsafe { ogc_video::get_preferred_mode(core::ptr::null_mut()) };
-    if mode.is_null() {
+    let Some(mode) = crate::probe_support::framebuffer_mode() else {
         logger.record(
-            "System framebuffer snapshot matches preferred mode allocation",
+            "System framebuffer snapshot matches probe mode allocation",
             false,
         );
         return;
-    }
-    // SAFETY: The preferred mode remains valid for the probe lifetime.
-    let (width, height, aa) = unsafe { ((*mode).fb_width, (*mode).xfb_height, (*mode).aa) };
-    let expected = (usize::from(width).div_ceil(16) * 16)
-        * (usize::from(height) + if aa != 0 { 4 } else { 0 })
+    };
+    let expected = (usize::from(mode.fb_width).div_ceil(16) * 16)
+        * (usize::from(mode.xfb_height) + if mode.aa != 0 { 4 } else { 0 })
         * 2;
     let snapshot = system::snapshot_framebuffer();
     logger.record(
-        "System framebuffer snapshot matches preferred mode allocation",
+        "System framebuffer snapshot matches probe mode allocation",
         expected > 0
-            && snapshot.last_request_rmode == mode as usize
+            && snapshot.last_request_rmode == crate::probe_support::framebuffer_mode_address()
             && snapshot.last_request_bytes as usize == expected
             && snapshot.last_bytes == expected
             && system::last_framebuffer_bytes() == expected,
@@ -14081,16 +14097,31 @@ fn probe_raw_es_catalog(logger: &mut ProbeLogger) {
     let hash_init = sha::init();
     let hashed = hash_init == 0 && sha::calculate(&tmd.0[..808], &mut digest) == 0;
     let hash_close = if hash_init == 0 { sha::close() } else { -1 };
+    // The relaunch fixture restores the stock TMD. The older fixture uses the
+    // Priiloader-modified TMD. Both must match a known full SHA-1 digest.
+    let modified_tmd = digest
+        == [
+            0x8f, 0x9e, 0x05, 0xf8, 0xd8, 0xd0, 0xb3, 0x41, 0x9e, 0xa4, 0xb8, 0x7e, 0x37, 0xa4,
+            0x07, 0x4a, 0x3a, 0x32, 0x9a, 0xeb,
+        ];
+    let stock_tmd = digest
+        == [
+            0xe8, 0xf9, 0x65, 0x7d, 0x59, 0x1b, 0x30, 0x5e, 0x30, 0x0c, 0x10, 0x9b, 0x56, 0x41,
+            0x63, 0x0a, 0xa4, 0xe2, 0x31, 0x8b,
+        ];
+    logger.note(if stock_tmd {
+        "Raw ES stock System Menu fixture"
+    } else if modified_tmd {
+        "Raw ES modified System Menu fixture"
+    } else {
+        "Raw ES unknown System Menu fixture"
+    });
     logger.record(
         "Raw ES stored TMD matches fixture digest and guard",
         tmd_rc == 0
             && hashed
             && hash_close == 0
-            && digest
-                == [
-                    0x8f, 0x9e, 0x05, 0xf8, 0xd8, 0xd0, 0xb3, 0x41, 0x9e, 0xa4, 0xb8, 0x7e, 0x37,
-                    0xa4, 0x07, 0x4a, 0x3a, 0x32, 0x9a, 0xeb,
-                ]
+            && (modified_tmd || stock_tmd)
             && tmd.0[808..].iter().all(|b| *b == 0xa5),
     );
     if tmd_rc == 0 {
@@ -14113,10 +14144,19 @@ fn probe_raw_es_catalog(logger: &mut ProbeLogger) {
             for id in ids {
                 logger.note_hex32("Raw ES stored content ID", id);
             }
-            logger.record(
-                "Raw ES rejected TMD leaves stored ID buffer unchanged",
-                listed == -2011 && ids.iter().all(|id| *id == u32::MAX),
-            );
+            if stock_tmd {
+                logger.record(
+                    "Raw ES stock TMD returns stored IDs and preserves guard",
+                    listed == 0
+                        && ids[..9] == [0x96, 0x97, 9, 10, 11, 12, 0x59, 0x5a, 0x98]
+                        && ids[9] == u32::MAX,
+                );
+            } else {
+                logger.record(
+                    "Raw ES rejected TMD leaves stored ID buffer unchanged",
+                    modified_tmd && listed == -2011 && ids.iter().all(|id| *id == u32::MAX),
+                );
+            }
         }
     }
     let mut shared_count = u32::MAX;

@@ -1,0 +1,7 @@
+PASS IPC async reply reference title count
+PASS IPC async reply submits ES title count
+FAIL IPC async reply restores vector address before callback
+PASS IPC async reply output and canaries visible before callback
+PASS IPC async reply closes ES
+FAIL IPC async reply restores vector address before callback
+FAIL summary passes=22 fails=1

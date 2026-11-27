@@ -1,0 +1,81 @@
+{
+  "source_revision": "64092d005a66c73e9a9354dee4cb090bede1a414",
+  "source_fingerprint": "d618e70a6cd80b879a3f265b89fc9ff03c464087298506b7bbcb8330e431e5fa",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "runtime_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "17e141dabf623fad2acae9a835121f6bb445c67049c98c40ff6fbcb4c9d10511",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libogc-rs-fixtures/layer3-stereo.mp3",
+      "sha256": "81b37c353f469a792480ed477139b662a3970a4cee24337b86507aca1f2bb38a"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "0e18e47d54ca57aa35055a81c77d625b55cec5df8b5a6de782696fff6b8347b7",
+  "suite_sha256": "e6faef73c0d3092425fbf646ccf5109b4db85b418a5c487285caac250cdad6f1",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/probe.log": "c1dca99877cc1451724d20ccbe4faf8eab59cba9cb2ee21203ea5033dcabf858",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/stderr.log": "1d14585fd3768dc793c8e24401bd6a9e0a7c3c672aeaaafe84beb6f9060c1c24",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/probe-transport.bin": "ab643e427ba69f1424b467042b3864db0eeb8234cbbbe685c3e785a7b5b4d29a",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-002.png": "5f947b9212cb392fb29390d46cc90c8f0127f278f75518e47898f43c3891c8e1",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-003.png": "1daa2287195337d699bf42676d44a87a04a5b89a949fd18ea8ab8a70f353ffbf",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-004.png": "32f622b17cd00bcd89f33cf96d1bbbb81cee0cbb15e710ca575a55953188a2b0",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-005.png": "5f89c76e2178c53255b4ac3948d5f48edb3a91895f2ef7d197c1e9d1d9ddd125",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-006.png": "d836389ed6a61327e7811d8ff6ecdb7b00934ce5a05f734cea950e98e1c9ab53",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-007.png": "b505ce793be7e32cfd3499fde6b612a6c9a43faa45bd928a753c085df2472dd0",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-008.png": "3055728633f603077ff933b23a4b34449cd35ebc6449c679b7c436821fe45b24",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-009.png": "783e291928bd9bee561e2a343819aaf84da4e915ad5016e6cd6a9c0afbd2d84b",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-010.png": "fc6851a347395329eba95319b4d34b783e11a6faac796fb4ec3040c89f2172e5",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-011.png": "d83bf9299f099076626d92ffc81267561b5f36a94a38e54f229b5519eca44e42",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-012.png": "de05c03b2fe9591b07928458325eead5342320813a6e290e4a5e6bfedee8ab3c",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-013.png": "00d51a7c781dfbe4b9f10c17a050343294992491018b971702125ea70c23ea38",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-014.png": "e89a0be3213f5fc7f6fa74febf67cff8d9c27f605c67fa1e6a4f2de0422bde8c",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-015.png": "97f0edd1295e6e284a782b157262c995f2ebe0a87fd0d9e5109a1e8b2c06d556",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-016.png": "88faeeb89f2bc07778a0e9a817f7ed5b7fad30512d2582d34c57161c6c19df53",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-017.png": "d81033ca21f7a5145203c6f627f51e421355072ceff1519dc44ff572435a2425",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-018.png": "1c9f96537410a6cd55eb70ded8f9e2dcb8b3a7b8def7d24858380dc3ced0e44b",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-019.png": "654a940e91ca56c8a44a07dfe8bf7caf9a4740d490aaa21dadfc3e8b8df59628",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-020.png": "344c336dfd2a641955d98e19b3827495fc4c4ab073337d70c7a8e8ba26f39a43",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-021.png": "50b8681c41f0f1fd4df7c1be25cf6f3c7b757564a1a11519e418f0e7df8f4ca5",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-022.png": "b3cb831b608c95cf0559e24d815a7b87ddcccae4d2f530ef686635473bc67499",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-023.png": "658522671cb40dc8b6d02eaa700c85283ecf4748b804b115761cac18d25d3b2f",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-024.png": "dc0805eff2d61440637233d8b31717df48ea212944256c46c001348c66c213a9",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-025.png": "97790e121efd9f7ba81ea7a9f9b0a70e20df5abf3583013e7670e35bab4eb72e",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-026.png": "5038895bc41ed4b385ea9e4506bddf0a0da41ef6b80fea48f3c7176805860a98",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-027.png": "80686e24efa21bdce7c3162fa6b9f82ea3ed22fcbe1ffb77acae1ff65b154396",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-028.png": "a1fe6fa066f73c99bd61fb26f51a14578cf16e09161b07d624f3eff0459dcaba",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-029.png": "70442575bcbcac8ceb53d7df75d78cbfb1273575c75362a73905c4bc9e28206b",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-030.png": "f56246f4de8c1654a1d82daa161d187b6800a2cee6161a70120e379b7eb504c6",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-031.png": "10a9f9007b4d273e5156c8c7860120ec34a37e9eadd91c06313f5e567828a869",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-032.png": "fe48891d8431a2f77832f68d13078451c68ed136d96c1783ec2ae9f781736f07",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-033.png": "0b80f00182f3d64fa7af5e3f1c058467e3e97a6f7b8bdd573a718d5a33c36c58",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-034.png": "f6011126c4e7d4e9b0b7bf7e9787e0a1873dd0d56c3151a11655822a997cb4eb",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-035.png": "eac660181ba15215c1b34e4af69ed6191a55fbfa3dd3b8759e61e82a90b8d54d",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-036.png": "529b02e3fc157527440af34063aa985fa33f195f7fe8bccbf280e98a79923c92",
+    "docs/dolphin-runs/2026-11-20-bt-protocol-calls-escalated/runtime_probe/pages/page-037.png": "08ec6ad871d31e7994a97958b9ffe2cf7890e7bc1e372ff27607eae75cb8ddd5"
+  },
+  "exit_code": 0
+}

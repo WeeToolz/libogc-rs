@@ -1,0 +1,188 @@
+{
+  "probe": "network_probe",
+  "cases": [
+    {
+      "crate": "tinysmb-sys",
+      "path": "src/lib.rs",
+      "symbol": "check_connection",
+      "line": 460,
+      "evidence_path": "probes/ogc-system-probe/src/network_probe.rs",
+      "function": "probe_smb_invalid_arguments",
+      "api_path": "smb::check_connection",
+      "checks": [
+        "TinySMB connection query rejects null name"
+      ]
+    },
+    {
+      "crate": "tinysmb-sys",
+      "path": "src/lib.rs",
+      "symbol": "connect",
+      "line": 499,
+      "evidence_path": "probes/ogc-system-probe/src/network_probe.rs",
+      "function": "probe_smb_invalid_arguments",
+      "api_path": "smb::connect",
+      "checks": [
+        "TinySMB connect rejects missing credentials"
+      ]
+    },
+    {
+      "crate": "tinysmb-sys",
+      "path": "src/lib.rs",
+      "symbol": "create_directory",
+      "line": 842,
+      "evidence_path": "probes/ogc-system-probe/src/network_probe.rs",
+      "function": "probe_smb_invalid_arguments",
+      "api_path": "smb::create_directory",
+      "checks": [
+        "TinySMB directory create rejects null path"
+      ]
+    },
+    {
+      "crate": "tinysmb-sys",
+      "path": "src/lib.rs",
+      "symbol": "delete_directory",
+      "line": 869,
+      "evidence_path": "probes/ogc-system-probe/src/network_probe.rs",
+      "function": "probe_smb_invalid_arguments",
+      "api_path": "smb::delete_directory",
+      "checks": [
+        "TinySMB directory delete rejects null path"
+      ]
+    },
+    {
+      "crate": "tinysmb-sys",
+      "path": "src/lib.rs",
+      "symbol": "delete_file",
+      "line": 899,
+      "evidence_path": "probes/ogc-system-probe/src/network_probe.rs",
+      "function": "probe_smb_invalid_arguments",
+      "api_path": "smb::delete_file",
+      "checks": [
+        "TinySMB file delete rejects null path"
+      ]
+    },
+    {
+      "crate": "tinysmb-sys",
+      "path": "src/lib.rs",
+      "symbol": "disk_information",
+      "line": 961,
+      "evidence_path": "probes/ogc-system-probe/src/network_probe.rs",
+      "function": "probe_smb_invalid_arguments",
+      "api_path": "smb::disk_information",
+      "checks": [
+        "TinySMB disk query rejects null output"
+      ]
+    },
+    {
+      "crate": "tinysmb-sys",
+      "path": "src/lib.rs",
+      "symbol": "find_close",
+      "line": 681,
+      "evidence_path": "probes/ogc-system-probe/src/network_probe.rs",
+      "function": "probe_smb_invalid_arguments",
+      "api_path": "smb::find_close",
+      "checks": [
+        "TinySMB search close rejects unknown handle"
+      ]
+    },
+    {
+      "crate": "tinysmb-sys",
+      "path": "src/lib.rs",
+      "symbol": "find_first",
+      "line": 612,
+      "evidence_path": "probes/ogc-system-probe/src/network_probe.rs",
+      "function": "probe_smb_invalid_arguments",
+      "api_path": "smb::find_first",
+      "checks": [
+        "TinySMB first search rejects null path"
+      ]
+    },
+    {
+      "crate": "tinysmb-sys",
+      "path": "src/lib.rs",
+      "symbol": "find_next",
+      "line": 651,
+      "evidence_path": "probes/ogc-system-probe/src/network_probe.rs",
+      "function": "probe_smb_invalid_arguments",
+      "api_path": "smb::find_next",
+      "checks": [
+        "TinySMB next search rejects unknown handle"
+      ]
+    },
+    {
+      "crate": "tinysmb-sys",
+      "path": "src/lib.rs",
+      "symbol": "init",
+      "line": 399,
+      "evidence_path": "probes/ogc-system-probe/src/network_probe.rs",
+      "function": "probe_smb_invalid_arguments",
+      "api_path": "smb::init",
+      "checks": [
+        "TinySMB init rejects missing credentials"
+      ]
+    },
+    {
+      "crate": "tinysmb-sys",
+      "path": "src/lib.rs",
+      "symbol": "init_device",
+      "line": 365,
+      "evidence_path": "probes/ogc-system-probe/src/network_probe.rs",
+      "function": "probe_smb_invalid_arguments",
+      "api_path": "smb::init_device",
+      "checks": [
+        "TinySMB device init rejects null name"
+      ]
+    },
+    {
+      "crate": "tinysmb-sys",
+      "path": "src/lib.rs",
+      "symbol": "open_file",
+      "line": 700,
+      "evidence_path": "probes/ogc-system-probe/src/network_probe.rs",
+      "function": "probe_smb_invalid_arguments",
+      "api_path": "smb::open_file",
+      "checks": [
+        "TinySMB file open rejects null path"
+      ]
+    },
+    {
+      "crate": "tinysmb-sys",
+      "path": "src/lib.rs",
+      "symbol": "path_info",
+      "line": 585,
+      "evidence_path": "probes/ogc-system-probe/src/network_probe.rs",
+      "function": "probe_smb_invalid_arguments",
+      "api_path": "smb::path_info",
+      "checks": [
+        "TinySMB path query rejects null path"
+      ]
+    },
+    {
+      "crate": "tinysmb-sys",
+      "path": "src/lib.rs",
+      "symbol": "reconnect",
+      "line": 551,
+      "evidence_path": "probes/ogc-system-probe/src/network_probe.rs",
+      "function": "probe_smb_invalid_arguments",
+      "api_path": "smb::reconnect",
+      "checks": [
+        "TinySMB reconnect rejects an unknown handle"
+      ]
+    },
+    {
+      "crate": "tinysmb-sys",
+      "path": "src/lib.rs",
+      "symbol": "rename",
+      "line": 927,
+      "evidence_path": "probes/ogc-system-probe/src/network_probe.rs",
+      "function": "probe_smb_invalid_arguments",
+      "api_path": "smb::rename",
+      "checks": [
+        "TinySMB rename rejects null path"
+      ]
+    }
+  ],
+  "limits": [
+    "The selected calls use null paths, missing credentials, a zeroed unknown handle, or an unknown connection. Each returns before opening an SMB session. This run does not test file I/O because the unsafe API requires a live file handle. Successful SMB logins, directory operations, and server interoperability remain unverified."
+  ]
+}

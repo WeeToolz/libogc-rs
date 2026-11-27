@@ -1,0 +1,34 @@
+{
+  "probe": "video_probe",
+  "cases": [
+    {
+      "crate": "ogc-video-sys",
+      "path": "src/lib.rs",
+      "symbol": "init",
+      "line": 804,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "init_display",
+      "api_path": "sys::init",
+      "checks": [
+        "Raw video init clears retrace callbacks",
+        "VI retrace interrupt arrives after flush"
+      ]
+    },
+    {
+      "crate": "ogc-video-sys",
+      "path": "src/lib.rs",
+      "symbol": "configure",
+      "line": 937,
+      "evidence_path": "probes/ogc-system-probe/src/video_probe.rs",
+      "function": "init_display",
+      "api_path": "sys::configure",
+      "checks": [
+        "Raw video configure commits the valid mode and ignores invalid requests",
+        "VI retrace interrupt arrives after flush"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin preferred mode and retrace tests. Other modes, stereoscopic scanout, and physical Wii video behavior remain open."
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "source_revision": "7672367602ec6c29a3ad9bd5be20843293c082c4",
+  "source_fingerprint": "43410707eb4fee17e59fbf7701dc6e31079c35faa51f5a253e63ff8376a79206",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "bus_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-21-ogc-cache-dma-v2",
+    "--timeout-seconds",
+    "180",
+    "--nand-dir",
+    "/Users/user/Library/Application Support/Dolphin/Wii"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "02a2483a02f50220c2882f7841917339b8a8b7dc4260f1d419fd05248200d0a0",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {},
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "5942ce07defe822836c11fa8307f01c48891542f04930875d78a9faeddaba7f7",
+  "suite_sha256": "b397391c4af400a5dfb06c44404967ecfb8427a212958c8eb9dcf8db6fb53107",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-21-ogc-cache-dma-v2/bus_probe/probe.log": "a02930376ce986c243479791dab07a745906e0087ad476da9b98641b60ff9a15",
+    "docs/dolphin-runs/2026-11-21-ogc-cache-dma-v2/bus_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-21-ogc-cache-dma-v2/bus_probe/stderr.log": "80756088adc58e9638e3d188ae14ec5b1825a9eda1918fbc63317c05207db410",
+    "docs/dolphin-runs/2026-11-21-ogc-cache-dma-v2/bus_probe/probe-transport.bin": "46adf8fdc9d867b100c381d32852bd529f44ece44fe11686d8bbf1b4b8b3d97f",
+    "docs/dolphin-runs/2026-11-21-ogc-cache-dma-v2/bus_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-21-ogc-cache-dma-v2/bus_probe/pages/page-002.png": "79cbc6ec6906b4068210269bc543d4900117c18a2bd20159180a0723fa607657",
+    "docs/dolphin-runs/2026-11-21-ogc-cache-dma-v2/bus_probe/pages/page-003.png": "f9d65a02a5d4b1a9cf07c93da3cce06ad15b6f984f5a665e184c31a360548a67"
+  },
+  "exit_code": 1
+}

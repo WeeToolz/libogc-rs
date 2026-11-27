@@ -1,0 +1,20 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-system-sys",
+      "path": "src/lib.rs",
+      "symbol": "sys_stdio_report",
+      "line": 861,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_stdio_report_mode",
+      "api_path": "raw_system::sys_stdio_report",
+      "checks": [
+        "Raw stdio report selects and clears stdout mode"
+      ]
+    }
+  ],
+  "limits": [
+    "Checks the observable report mode state in Dolphin. UART output and physical hardware routing remain unverified."
+  ]
+}

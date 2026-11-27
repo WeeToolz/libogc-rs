@@ -1,0 +1,56 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/std_net.rs",
+      "symbol": "set_option",
+      "line": 506,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_owned_udp_service",
+      "api_path": "sender.set_option",
+      "checks": [
+        "Owned network set option rejects unsupported options locally"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/std_net.rs",
+      "symbol": "bool_option",
+      "line": 533,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_owned_udp_service",
+      "api_path": "receiver.bool_option",
+      "checks": [
+        "Owned network boolean option rejects unsupported options locally"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/socket_error.rs",
+      "symbol": "local",
+      "line": 9,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_owned_udp_service",
+      "api_path": "service::NetError::local",
+      "checks": [
+        "Owned network local error preserves its errno domain"
+      ]
+    },
+    {
+      "crate": "ogc-network-sys",
+      "path": "src/socket_error.rs",
+      "symbol": "retryable",
+      "line": 49,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_owned_udp_service",
+      "api_path": "retryable_error.retryable",
+      "checks": [
+        "Owned network retry classification uses IOS socket errors"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin verifies the owned-socket local option guards and pure error mapping. It does not prove all IOS socket option behavior or network behavior on hardware."
+  ]
+}

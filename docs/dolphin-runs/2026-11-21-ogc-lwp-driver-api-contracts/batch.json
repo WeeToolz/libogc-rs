@@ -1,0 +1,44 @@
+{
+  "probe": "lwp_probe",
+  "cases": [
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "note_ipc_wake",
+      "line": 3874,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "run_ipc_wakeup",
+      "api_path": "driver::note_ipc_wake",
+      "checks": [
+        "LWP IPC wake note increments counter"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/runtime.rs",
+      "symbol": "set_thread_priority",
+      "line": 2525,
+      "evidence_path": "probes/lwp-probe/src/main.rs",
+      "function": "probe_priority_order",
+      "api_path": "driver::set_thread_priority",
+      "checks": [
+        "LWP priority change selects higher worker"
+      ]
+    },
+    {
+      "crate": "ogc-lwp-driver",
+      "path": "src/arch/powerpc.rs",
+      "symbol": "zeroed",
+      "line": 32,
+      "evidence_path": "probes/lwp-probe/src/runtime_contract_probe.rs",
+      "function": "probe_lwp_context_constructor",
+      "api_path": "ogc_lwp_driver::LwpContext::zeroed",
+      "checks": [
+        "LWP context constructor zeroes all register state"
+      ]
+    }
+  ],
+  "limits": [
+    "The context constructor check validates the PowerPC register-state layout in Dolphin. Dolphin does not provide physical Wii timing evidence."
+  ]
+}

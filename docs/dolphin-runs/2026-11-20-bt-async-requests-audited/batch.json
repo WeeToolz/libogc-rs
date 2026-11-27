@@ -1,0 +1,178 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "close",
+      "line": 484,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_async_request_paths",
+      "api_path": "transport.close",
+      "checks": [
+        "Bluetooth synchronous close maps the IPC descriptor result"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "close_async",
+      "line": 336,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_async_request_paths",
+      "api_path": "close_transport.close_async",
+      "checks": [
+        "Bluetooth owned command and close results match request status"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/request.rs",
+      "symbol": "copy_to",
+      "line": 56,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_async_request_paths",
+      "api_path": "request.copy_to",
+      "checks": [
+        "Bluetooth async transfers publish consistent request results"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "is_complete",
+      "line": 150,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_async_request_paths",
+      "api_path": "request.is_complete",
+      "checks": [
+        "Bluetooth owned command and close results match request status"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/request.rs",
+      "symbol": "raw_result",
+      "line": 51,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_async_request_paths",
+      "api_path": "request.raw_result",
+      "checks": [
+        "Bluetooth async transfers publish consistent request results"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "raw_result",
+      "line": 155,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_async_request_paths",
+      "api_path": "request.raw_result",
+      "checks": [
+        "Bluetooth owned command and close results match request status"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "result",
+      "line": 160,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_async_request_paths",
+      "api_path": "request.result",
+      "checks": [
+        "Bluetooth owned command and close results match request status"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "status",
+      "line": 165,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_async_request_paths",
+      "api_path": "request.status",
+      "checks": [
+        "Bluetooth owned command and close results match request status"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "read_acl_async",
+      "line": 324,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_async_request_paths",
+      "api_path": "transport.read_acl_async",
+      "checks": [
+        "Bluetooth async transfers publish consistent request results"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "read_event_async",
+      "line": 316,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_async_request_paths",
+      "api_path": "transport.read_event_async",
+      "checks": [
+        "Bluetooth async transfers publish consistent request results"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "write_acl_async",
+      "line": 328,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_async_request_paths",
+      "api_path": "transport.write_acl_async",
+      "checks": [
+        "Bluetooth async transfers publish consistent request results"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "send_hci_command_async",
+      "line": 539,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_async_request_paths",
+      "api_path": "transport.send_hci_command_async",
+      "checks": [
+        "Bluetooth async callbacks report invalid descriptor completion",
+        "Bluetooth raw async command rejects a missing completion callback"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "send_hci_command_async_owned",
+      "line": 624,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_async_request_paths",
+      "api_path": "transport.send_hci_command_async_owned",
+      "checks": [
+        "Bluetooth owned command and close results match request status"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/transport.rs",
+      "symbol": "send_hci_command_async_with",
+      "line": 638,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_async_request_paths",
+      "api_path": "transport.send_hci_command_async_with",
+      "checks": [
+        "Bluetooth owned command and close results match request status",
+        "Bluetooth async callbacks report invalid descriptor completion"
+      ]
+    }
+  ],
+  "limits": [
+    "The test uses descriptor -1 and checks IPC completion state, request result mapping, callback delivery, and synchronous close mapping. It does not test successful adapter transfers, valid Bluetooth frames, pairing, or physical Wii hardware."
+  ]
+}

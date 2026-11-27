@@ -1,0 +1,17 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "initialize",
+      "line": 263,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_error_codes",
+      "api_path": "ogc_wiilaunch::initialize",
+      "checks": [
+        "Wii launch initialization succeeds on repeated calls"
+      ]
+    }
+  ]
+}

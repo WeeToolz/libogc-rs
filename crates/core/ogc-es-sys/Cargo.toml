@@ -10,6 +10,7 @@ ogc-sys = { path = "../../abi/ogc-sys" }
 ogc-cache = { path = "../ogc-cache" }
 ogc-lwp-sys = { path = "../ogc-lwp-sys" }
 ogc-sysbase = { path = "../ogc-sysbase" }
+ogc-filesystem = { path = "../../services/ogc-filesystem" }
 
 [lib]
 path = "src/lib.rs"

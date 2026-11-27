@@ -1,0 +1,41 @@
+{
+  "source_revision": "07a6e25c553359864c2f36dd6c4e75ef46d3840f",
+  "source_fingerprint": "dab9421602eb77b1047bf015e12eb83582d2c15dec09091a0222cfc981a35b20",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "wpad_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-21-wpad-set-format-parity-fixed",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "c3ffe02a368eb32388948839df82250df58b41a5b74f5af0846b9aeedcc9595e",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {},
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "fa906fef972a629c6c302281663a25600ad73b3d47ea8fa34f00ffd5b48121ad",
+  "suite_sha256": "60a782241c6d570f251b5b46b65804ae5af2862698f3e04a1b3a4e8bbdbf1405",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-21-wpad-set-format-parity-fixed/wpad_probe/probe.log": "c4d81643e38bd1c8ab851bdc1094c8c21579727a14edf4f6d1eca24b07fa8c10",
+    "docs/dolphin-runs/2026-11-21-wpad-set-format-parity-fixed/wpad_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-21-wpad-set-format-parity-fixed/wpad_probe/stderr.log": "6600bd64fea1f7c2bd32917e378b4fb63db9f1db9956ef58ff4cc95241f0b7bb",
+    "docs/dolphin-runs/2026-11-21-wpad-set-format-parity-fixed/wpad_probe/probe-transport.bin": "aff3d2dca819b9edbeb174b25fbeaaaa83609227adc8f9ab82350347891a7fc8",
+    "docs/dolphin-runs/2026-11-21-wpad-set-format-parity-fixed/wpad_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-21-wpad-set-format-parity-fixed/wpad_probe/pages/page-002.png": "ff3264e6193dcb38d23cdfb26fb83b00d2592ee8ee9b536339f9ce00e2811503",
+    "docs/dolphin-runs/2026-11-21-wpad-set-format-parity-fixed/wpad_probe/pages/page-003.png": "b5e66e61913d3bc770d723696be5b3bbe6ea1197a63e5cfc89f01ae7a28d7180",
+    "docs/dolphin-runs/2026-11-21-wpad-set-format-parity-fixed/wpad_probe/pages/page-004.png": "91f63799ff0ec25eb635f568ab9f60d84f6a8df3cc773edc01145ba9176723de",
+    "docs/dolphin-runs/2026-11-21-wpad-set-format-parity-fixed/wpad_probe/pages/page-005.png": "c801f60f85de529d0001f4e489887765d021e15cbed97d8d555662042974b368",
+    "docs/dolphin-runs/2026-11-21-wpad-set-format-parity-fixed/wpad_probe/pages/page-006.png": "6cc82a636b9db05c514f87895efaf09567ac8f41de885c0a0b38b528942307ae"
+  },
+  "exit_code": 0
+}

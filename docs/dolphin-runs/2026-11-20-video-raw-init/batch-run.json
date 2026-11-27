@@ -1,0 +1,76 @@
+{
+  "source_revision": "a4bd182df8ddb9a9f4c9f6360390950fd80461df",
+  "source_fingerprint": "d0c4809efb6cb302154fa8c5117bdb16144fc36dee3c7bf832cf8ecb15d505ef",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "video_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-20-video-raw-init",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "0c5f169e3d45ee5f7673a298c9e603e05bdbe2a60b9bd3acec6708757940d13b",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "3e123d71db5034272c8189e0ede488000336ebd04f37736189992b333398d374",
+  "suite_sha256": "5214ddefb23f5f04822f8867bafb8eb38f99c93e434cbfeed0b0a8d8759e7810",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/probe.log": "bebf6f7d73ace1d92eafa492c8343ae9d7b3db00bab013b7a26eb30f2414eade",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/stderr.log": "535135561d5928a470c89d525a0a6269815985b85c83409716ce64917d17255b",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/probe-transport.bin": "1dde19451487ef8ec054f951ea90a73c9e455837e0f6dd1db01b35afd39efdb1",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-002.png": "320607dd113e5a5dfab9312b19f84eaa4ab8a65c09dee9554ec48090bb88ebda",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-003.png": "3fbdb6c4e30a3d8b92766338b096f49381750d988cd76a2b7c6dfba205af1748",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-004.png": "7305b66aee0c423d841f10fa997490d0bdf895d87d61a6c4b160910ab631a97d",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-005.png": "418ac687b0e8d85d7d53757bb5612fdcaa598d2c9aa2531526a3f2b9f2312875",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-006.png": "6626a52bfa3fd585533f48c985c78c791d353d25f4d965e5cf2f731d1aedd4e5",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-007.png": "0c39045dec88f7c57c697a7b928107da4643166574d3cc373b31acf24cc0aa80",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-008.png": "980ccab230b84ef43aed9a921a72207e507513e0f3a63e15f39ade2e13c45318",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-009.png": "2090df595dc0055bc51e72723240e01c146fa98f5940990b664247ae363a8983",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-010.png": "885ba29051dd437a080d539e2fdd6dc0a13770f8b5b6afb35c1e3656fc29fb78",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-011.png": "898841aa932bd23f13cabc9db44abb22dff8049ca0ccd706d9c721b7049443e4",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-012.png": "8c98344e38a534a912edb66bac176f2371e09ed6d9fa36f82e2c2f52434e7a06",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-013.png": "e991577f03ba4138600dd7cc8dd0c02318ff0ce864dc66cd2499a1e2dda9584c",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-014.png": "6dfb87f3a26127dba9927488ef49c7512e88fb777d6232160fbe2f3c04c82c5a",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-015.png": "358b59a83fbf212a553ff264fa55aa61b7c1da9a4a83c239ab60fe0a8cd2d54d",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-016.png": "5fcd39af56538310bfb3ae424a7fd739bb0a072bec36863c17dd55f694fbd2d8",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-017.png": "30a5a7d57abcc3fefbbece7bfe68eb65eb21642a23b408b1348e2cd1a76ae4ae",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-018.png": "f6061f0f3367fba2e0741074c0ee4ccbe98a5693047d5ce4c033846973e4fac2",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-019.png": "be7b3ab93bdd4b96e9c230997ce260eb7bd96590b7d08789506a34e6889b707f",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-020.png": "7953de8cccffd7ad3b45279c04e8999ffa97ec3a02338beccc7d1b0d563a7e3b",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-021.png": "b5419343cb4884498d16acb1d7304443d69966f7548fd555fe540a714d9cfffa",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-022.png": "c8694f6d9fe244483ffbde506a21ae4bd6947ae062dd0f1c7c04d8da25e94b5d",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-023.png": "727f796dad9bd43dbff99673fa2c594a7c31f46a67791b53424839828c785e6d",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-024.png": "2c85aaf26154fc5234278993c794402515e1a2016c52c890183afe3ce24b8814",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-025.png": "1cf1cd3351bf2786d11d775b8f760e698bdc0638144a2ef4d148e47904533f78",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-026.png": "e67705b8c7fdbd6e5e4db777e7e40ed56fc3dab50cb924ca2aa7cff305499a89",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-027.png": "bd237b38b580804bba85d9a8da59bed7fa292295f47d84446cf6aa31390e8d30",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-028.png": "587383df871ad6d74d30471665aa737fbcae6ab60a4eb0978a22e7ef693d3de2",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-029.png": "9d7067c6d81b36a24d0e73cb3dd4d0405ee7a4c1ef410a6f1fce4db2a543843f",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-030.png": "4e9cd13f1ceab9315cf3e018a3dd9b32e311d19cbaeaef3494565fbc325e794b",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-031.png": "1e2dd3794ab7e2678f1530641d694b5155f9ef6c47d8eb2f3e9d0dc7445b1e98",
+    "docs/dolphin-runs/2026-11-20-video-raw-init/video_probe/pages/page-032.png": "afacf21ac318d655cb9b4e0f50bf3e301b558862ba1c23d8cab1a5bea7e6a5a5"
+  },
+  "exit_code": 1
+}

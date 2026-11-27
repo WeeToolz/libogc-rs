@@ -37,7 +37,10 @@ pub fn run(logger: &mut ProbeLogger) {
     );
     logger.record("arena1 low alloc math", test_arena1(original.arena1_lo));
     logger.record("arena2 low alloc math", test_arena2(original.arena2_lo));
-    logger.record("allocator free bytes track allocate and free", probe_free_bytes());
+    logger.record(
+        "allocator free bytes track allocate and free",
+        probe_free_bytes(),
+    );
 
     // SAFETY: these are the arena bounds captured at probe entry, before the
     // probe's temporary allocations changed them.

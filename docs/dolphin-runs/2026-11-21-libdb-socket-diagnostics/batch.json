@@ -1,0 +1,29 @@
+{
+  "probe": "debugger_probe",
+  "cases": [
+    {
+      "crate": "libdb-sys",
+      "path": "src/wii_network.rs",
+      "symbol": "diagnostic_failure",
+      "line": 250,
+      "evidence_path": "probes/ogc-system-probe/src/debugger_probe.rs",
+      "function": "probe_tcp_debugger",
+      "api_path": "debug::wii_network::diagnostic_failure",
+      "checks": [
+        "Wii network transport failure preserves socket diagnostics"
+      ]
+    },
+    {
+      "crate": "libdb-sys",
+      "path": "src/wii_network.rs",
+      "symbol": "failure_from_socket",
+      "line": 268,
+      "evidence_path": "probes/ogc-system-probe/src/debugger_probe.rs",
+      "function": "probe_tcp_debugger",
+      "api_path": "debug::wii_network::failure_from_socket",
+      "checks": [
+        "Wii network socket failure preserves operation, code, and cleanup"
+      ]
+    }
+  ]
+}

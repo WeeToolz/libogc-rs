@@ -1,0 +1,137 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "open_device",
+      "line": 1739,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_api_batch",
+      "api_path": "usb_sys::open_device",
+      "checks": [
+        "USB open rejects a null output descriptor"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "close_device",
+      "line": 1802,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_api_batch",
+      "api_path": "usb_sys::close_device",
+      "checks": [
+        "USB close rejects a null descriptor pointer"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "close_device_async",
+      "line": 1852,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_api_batch",
+      "api_path": "usb_sys::close_device_async",
+      "checks": [
+        "USB async close rejects a null descriptor pointer"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "free_descriptors",
+      "line": 2180,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_api_batch",
+      "api_path": "usb_sys::free_descriptors",
+      "checks": [
+        "USB descriptor free accepts a null descriptor"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_ascii_string",
+      "line": 4534,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_api_batch",
+      "api_path": "usb_sys::get_ascii_string",
+      "checks": [
+        "USB ASCII string query rejects a null buffer"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_device_description",
+      "line": 2072,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_api_batch",
+      "api_path": "usb_sys::get_device_description",
+      "checks": [
+        "USB device description rejects a null output"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_descriptors",
+      "line": 2132,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_api_batch",
+      "api_path": "usb_sys::get_descriptors",
+      "checks": [
+        "USB descriptor query rejects a null output"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_device_list",
+      "line": 4327,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_api_batch",
+      "api_path": "usb_sys::get_device_list",
+      "checks": [
+        "USB device list rejects a null array without changing count"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_generic_descriptor",
+      "line": 2221,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_api_batch",
+      "api_path": "usb_sys::get_generic_descriptor",
+      "checks": [
+        "USB generic descriptor rejects a null buffer"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_hid_descriptor",
+      "line": 2294,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_api_batch",
+      "api_path": "usb_sys::get_hid_descriptor",
+      "checks": [
+        "USB HID descriptor rejects a null output"
+      ]
+    },
+    {
+      "crate": "ogc-usb-sys",
+      "path": "src/lib.rs",
+      "symbol": "get_report_descriptor",
+      "line": 2384,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_usb_api_batch",
+      "api_path": "usb_sys::get_report_descriptor",
+      "checks": [
+        "USB report descriptor rejects a null buffer"
+      ]
+    }
+  ]
+}

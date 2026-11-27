@@ -1,0 +1,29 @@
+{
+  "probe": "stm_api_probe",
+  "cases": [
+    {
+      "crate": "ogc-stm",
+      "path": "src/lib.rs",
+      "symbol": "close",
+      "line": 412,
+      "evidence_path": "probes/ogc-system-probe/src/stm_api_probe.rs",
+      "function": "run_close",
+      "api_path": "stm::close",
+      "checks": [
+        "STM close releases the interface"
+      ]
+    },
+    {
+      "crate": "ogc-stm",
+      "path": "src/lib.rs",
+      "symbol": "try_close",
+      "line": 449,
+      "evidence_path": "probes/ogc-system-probe/src/stm_api_probe.rs",
+      "function": "run_close",
+      "api_path": "stm::try_close",
+      "checks": [
+        "STM try close accepts a closed interface"
+      ]
+    }
+  ]
+}

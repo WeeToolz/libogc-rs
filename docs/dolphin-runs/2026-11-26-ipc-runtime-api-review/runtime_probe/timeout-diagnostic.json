@@ -1,0 +1,23 @@
+{
+  "boot_stage_address": 2151034808,
+  "boot_stage": 3,
+  "program_counter": 2148497756,
+  "program_counter_symbol": "_RNvNtNtCs1iDTAbbju2Z_17compiler_builtins3int19specialized_div_rem11u64_div_rem+0x74",
+  "program_counter_reply": "800F795C",
+  "debugger_stop": "T0540:800f795c;01:817ebf30;",
+  "stack_trace": [
+    "sp=817ebf30 lr=800d4964 _RNvCs63hDLuylwzn_11ogc_exi_sys6unlock+0xe4",
+    "sp=817ebf40 lr=00000001 compiler_builtins.f266b4b7ea4a36b-cgu.7+0x1",
+    "sp=817ebf60 lr=800c645c _RNvCsgkhdhAtxtoI_13ogc_video_sys22wait_v_sync_timeout_us+0x120",
+    "sp=817ebfa0 lr=800c456c _RNvCsiR6cxmuvZMc_9ogc_video21wait_vsync_timeout_us+0x10",
+    "sp=817ebfb0 lr=800420ec _RNvMs2_NtCsalhk9MLtpWu_16ogc_system_probe13probe_supportNtB5_12ProbeDisplay12capture_page+0x2f8",
+    "sp=817ec120 lr=8004224c _RNvMs2_NtCsalhk9MLtpWu_16ogc_system_probe13probe_supportNtB5_12ProbeDisplay20clear_if_near_bottom+0x68",
+    "sp=817ec260 lr=800438c4 _RNvMs3_NtCsalhk9MLtpWu_16ogc_system_probe13probe_supportNtB5_11ProbeLogger14write_line_raw.llvm.11554464404100852255+0x180",
+    "sp=817ec2a0 lr=80043120 _RNvMs3_NtCsalhk9MLtpWu_16ogc_system_probe13probe_supportNtB5_11ProbeLogger12record_check.llvm.11554464404100852255+0x2d8",
+    "sp=817ec500 lr=8003e2e4 _RNvNtCsalhk9MLtpWu_16ogc_system_probe13runtime_probe3run+0x2010c",
+    "sp=817fca30 lr=80008194 _RNvCsalhk9MLtpWu_16ogc_system_probe21run_runtime_probe_bin+0x44",
+    "sp=817fffc0 lr=80004078 main+0x10",
+    "sp=817fffd0 lr=800f0ad8 _start_rust+0x2a8"
+  ],
+  "error": null
+}

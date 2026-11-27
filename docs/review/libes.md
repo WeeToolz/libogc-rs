@@ -218,3 +218,43 @@ checks passed. See `../dolphin-runs/2026-11-26-es-operation-precedence-red/`
 and `../dolphin-runs/2026-11-26-es-operation-precedence-green/`. This is not a
 successful-operation test for these APIs. Independent review and physical Wii
 validation remain pending.
+
+## 2026-11-26 follow-up: operation order and lifecycle
+
+Reference: C `7d4b8b3e7b84`; Rust base `ae51d7e19a13` plus local changes.
+The `ogc-es` facade re-exports `ogc-es-sys`; review the production paths in
+`src/imp.rs`, the filesystem implementation, and their C equivalents in
+`libogc/es.c`. The existing filesystem audit remains applicable. Review the
+service check, argument checks, vector direction and size, result propagation,
+output copyback, and cleanup separately; normal success alone does not prove
+error precedence.
+
+| Area | Source comparison and result |
+| --- | --- |
+| Initialization, close, reset (`es.c:124-177`) | Register on each successful init; remove only when a descriptor is open; close and discard the descriptor even if device removal fails; reset invalidates the descriptor. Keep Rust registry-error reporting rather than discard registry errors as C does. |
+| UID (`es.c:194-205`) | After a nonnegative IOS result, call ISFS deinitialize; call initialize only if deinitialize fails. Return the original IOS result. The existing ISFS error-reporting difference is retained. |
+| Catalog, ticket views, stored metadata, contents, shared contents | Compare descriptor guard, counts, layout sizes, pointer/alignment checks and ioctl vector directions; preserve bounded Rust validation. Existing success/invalid-argument coverage is not exhaustive. |
+| Consumption (`es.c:434-455`) | Copy the zero-initialized local count back after submission, even on IOS failure. Use an explicit null/zero-length omitted vector. Host tests cover error copyback; Dolphin covers zero-count and descriptor rejection. |
+| DI views (`es.c:457-498`) | Validate TMD length before alignment and preserve omitted null vectors. C `ES_DiGetTMDViewSize` tests `!size` on a local initialized to zero, so its request is unreachable. Intentionally retain the working Rust request and output-pointer check; copy the local value on all submitted results, as in the intended C path. Dolphin tests the valid System Menu view and no-current-title error. |
+| Identify / DI verify (`es.c:576-650`) | Release owned allocations before close/init, preserve the original IOS result (including positive values), and copy Identify key output only on success. Use explicit omitted CRL vectors. Reject truncated headers and null ticket views for safety; initialize owned output memory before borrowing it. |
+| Install, reimport, export, delete, launch and boot (`es.c:~500-809,~860-875`) | Compare dispatch, vector widths and guards. Preserve explicit null vectors for omitted CRLs/boot fields and reject undersized signatures. Successful privileged or destructive operations are not established by this run. |
+| Content I/O (`es.c:805-850`) | Check descriptor before the ticket-view pointer in `open_title_content`; reject null view for safety. Dolphin opens/reads/seeks/closes System Menu content and tests closed-state precedence. |
+| Crypto, signing, device information and certificate helpers | Existing general probe covers layouts, bounded outputs, AES-CBC vector and invalid inputs. Successful signing and verification coverage and allowed buffer aliasing need explicit follow-up; the Rust borrowed-slice API must not assume that overlapping C inputs are valid. |
+| `es:` devoptab | Keep the existing filesystem audit and tests; lifecycle registration is corrected here. Exact ES-heap allocation failure behavior differs where the typed Rust IPC path uses its own allocation/staging strategy. Do not claim exact allocator exhaustion parity without a test. |
+
+Additional intentional safety differences include null-output checks and
+bounds checks before reading TMD/CRL signatures. The shared ISFS implementation
+reports errors that C ISFS discards; do not change that separate contract to
+force ES parity. A complete matrix for all malformed combinations, aliasing,
+allocation failures and successful privileged operations has not been proved.
+
+Verification: host `xtask` tests (161 passed), core target group (25 packages),
+Dolphin `general_probe` (94 passed) and `ios_reload_probe` (21 passed). All ten
+captured pages passed. See [fresh evidence](../dolphin-runs/2026-11-26-es-lifecycle-linux/README.md).
+Stock Dolphin deliberately denies direct PowerPC DI verification in
+`Source/Core/Core/IOS/ES/ES.cpp:805-808`. Host tests cover release-before-reopen
+and preservation of the original result, and the UID deinitialize/initialize
+condition. Successful privileged IOS operations require separate suitable
+fixtures or emulator support. The package status remains `needs_re_review`;
+this change does not promote all APIs to verified. Physical Wii evidence
+remains explicitly pending and is separate from emulator completion.

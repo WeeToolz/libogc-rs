@@ -16,6 +16,10 @@ pub const MAX_SIGNED_TMD_SIZE: usize = MAX_TMD_SIZE + core::mem::size_of::<SigRs
 const ES_PATH: &CStr = c"/dev/es";
 const ES_HEAP_SIZE: i32 = 0x800;
 
+#[path = "imp/completion.rs"]
+mod completion;
+#[path = "imp/consumption.rs"]
+mod consumption;
 #[path = "imp/filesystem.rs"]
 mod filesystem;
 
@@ -93,7 +97,6 @@ pub struct ImportBootParams {
 struct EsState {
     fd: Option<FileDescriptor>,
     heap: Option<HeapId>,
-    filesystem_registered: bool,
 }
 
 impl EsState {
@@ -101,7 +104,6 @@ impl EsState {
         Self {
             fd: None,
             heap: None,
-            filesystem_registered: false,
         }
     }
 }
@@ -162,6 +164,12 @@ impl HeapAlloc {
     fn new(heap: HeapId, size: usize) -> Result<Self, i32> {
         let alloc_size = size.max(1) as i32;
         let ptr = heap.alloc(alloc_size).ok_or(ES_ENOMEM)?;
+        // The verification output vectors borrow initialized bytes.
+        unsafe {
+            ptr.as_ptr()
+                .cast::<u8>()
+                .write_bytes(0, alloc_size as usize)
+        };
         Ok(Self { heap, ptr })
     }
 
@@ -205,16 +213,11 @@ fn current_heap(state: &EsState) -> Result<HeapId, i32> {
     state.heap.ok_or(ES_ENOTINIT)
 }
 
-fn reopen(state: &mut EsState) -> Result<(), i32> {
-    if let Some(fd) = state.fd.take() {
-        let raw = fd.raw();
-        if let Err(error) = fd.close() {
-            state.fd = Some(FileDescriptor::new(raw));
-            return Err(error);
-        }
-    }
-    state.fd = Some(open_file(ES_PATH, IPC_OPEN_NONE)?);
-    Ok(())
+fn reopen_after_verify(state: &mut EsState) {
+    // C closes and initializes ES after successful verification. Both secondary
+    // results are discarded; the caller receives the original IOS result.
+    let _ = close_state(state);
+    let _ = init_state(state);
 }
 
 fn bytes_of<T>(value: &T) -> &[u8] {
@@ -409,40 +412,36 @@ pub fn signed_cert_size(signature_type: Sigtype, cert_type: u32) -> usize {
     certificate_size_inner(cert_type) + signature_size_inner(signature_type)
 }
 
+fn init_state(state: &mut EsState) -> i32 {
+    if let Err(rc) = ensure_open(state) {
+        return rc;
+    }
+    let rc = filesystem::init_fs();
+    if rc < 0 {
+        return rc;
+    }
+    0
+}
+
 pub fn init() -> i32 {
-    with_state(|state| {
-        if let Err(rc) = ensure_open(state) {
-            return rc;
-        }
-        if state.filesystem_registered {
-            return 0;
-        }
-        let rc = filesystem::init_fs();
-        if rc < 0 {
-            return rc;
-        }
-        state.filesystem_registered = true;
-        0
-    })
+    with_state(init_state)
+}
+
+fn close_state(state: &mut EsState) -> i32 {
+    let Some(fd) = state.fd.take() else {
+        return 0;
+    };
+    // C closes the descriptor even if device removal fails.
+    let registration_rc = filesystem::deinit_fs();
+    match fd.close() {
+        Ok(()) if registration_rc < 0 => registration_rc,
+        Ok(()) => 0,
+        Err(rc) => rc,
+    }
 }
 
 pub fn close() -> i32 {
-    with_state(|state| {
-        if state.filesystem_registered {
-            let rc = filesystem::deinit_fs();
-            if rc < 0 {
-                return rc;
-            }
-            state.filesystem_registered = false;
-        }
-        if let Some(fd) = state.fd.take() {
-            return match fd.close() {
-                Ok(()) => 0,
-                Err(rc) => rc,
-            };
-        }
-        0
-    })
+    with_state(close_state)
 }
 
 pub fn reset() -> i32 {
@@ -488,7 +487,9 @@ pub fn set_uid(uid: u64) -> i32 {
             Err(rc) => return rc,
         };
 
-        fd.ioctlv(IOCTL_ES_SETUID, 1, [IoctlvEntry::In(bytes_of(&uid))])
+        let rc = fd.ioctlv(IOCTL_ES_SETUID, 1, [IoctlvEntry::In(bytes_of(&uid))]);
+        // Match the C condition, including the non-success deinit branch.
+        completion::finish_set_uid(rc, ogc_filesystem::deinitialize, ogc_filesystem::initialize)
     })
 }
 
@@ -721,7 +722,10 @@ pub unsafe fn get_num_stored_tmd_contents(
             if cnt.is_null() {
                 return ES_EINVAL;
             }
-            if stmd.is_null() || !is_valid_signature_type(read_u32_unaligned(stmd.cast::<u32>())) {
+            if stmd.is_null()
+                || tmd_size < 4
+                || !is_valid_signature_type(read_u32_unaligned(stmd.cast::<u32>()))
+            {
                 return ES_EINVAL;
             }
             if !is_aligned(stmd.cast(), 64) {
@@ -768,7 +772,10 @@ pub unsafe fn get_stored_tmd_contents(
             if cnt == 0 || contents.is_null() {
                 return ES_EINVAL;
             }
-            if stmd.is_null() || !is_valid_signature_type(read_u32_unaligned(stmd.cast::<u32>())) {
+            if stmd.is_null()
+                || tmd_size < 4
+                || !is_valid_signature_type(read_u32_unaligned(stmd.cast::<u32>()))
+            {
                 return ES_EINVAL;
             }
             if !is_aligned(stmd.cast(), 64) || !is_aligned(contents.cast(), 4) {
@@ -1022,23 +1029,20 @@ pub unsafe fn get_consumption_count(ticket_id: u64, n_limits: *mut u32) -> i32 {
             Ok(fd) => fd,
             Err(rc) => return rc,
         };
-        let mut out = 0u32;
-        let empty: &mut [u8] = &mut [];
-        let rc = fd.ioctlv(
-            IOCTL_ES_GETCONSUMPTION,
-            1,
-            [
-                IoctlvEntry::In(bytes_of(&ticket_id)),
-                IoctlvEntry::Out(empty),
-                IoctlvEntry::Out(bytes_of_mut(&mut out)),
-            ],
-        );
-        if rc < 0 {
-            rc
-        } else {
-            unsafe { n_limits.write(out) };
-            rc
-        }
+        let (rc, out) = consumption::read_count(|out| {
+            fd.ioctlv(
+                IOCTL_ES_GETCONSUMPTION,
+                1,
+                [
+                    IoctlvEntry::In(bytes_of(&ticket_id)),
+                    IoctlvEntry::OutNull,
+                    IoctlvEntry::Out(bytes_of_mut(out)),
+                ],
+            )
+        });
+        // The caller may supply an uninitialized output; do not borrow its value.
+        unsafe { n_limits.write(out) };
+        rc
     })
 }
 
@@ -1093,39 +1097,36 @@ pub unsafe fn di_get_tmd_view_size(
             if let Err(rc) = require_initialized(state) {
                 return rc;
             }
+            if !s_tmd.is_null() && signed_tmd_size_checked(s_tmd, tmd_size) != Some(tmd_size) {
+                return ES_EINVAL;
+            }
+            // C tests its zero-initialized local size instead of view_size.
+            // Retain the functional, pointer-checked Rust API.
             if view_size.is_null() {
                 return ES_EINVAL;
             }
             if !is_aligned(s_tmd.cast(), 4) {
                 return ES_EALIGN;
             }
-            if !s_tmd.is_null() && signed_tmd_size_checked(s_tmd, tmd_size) != Some(tmd_size) {
-                return ES_EINVAL;
-            }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
                 Err(rc) => return rc,
             };
-            let stmd_bytes = if s_tmd.is_null() {
-                &[][..]
+            let stmd = if s_tmd.is_null() {
+                IoctlvEntry::InNull(0)
             } else {
-                slice_from_const(s_tmd.cast::<u8>(), tmd_size as usize)
+                IoctlvEntry::In(slice_from_const(s_tmd.cast::<u8>(), tmd_size as usize))
             };
-            let mut out = 0u32;
-            let rc = fd.ioctlv(
-                IOCTL_ES_DIGETTMDVIEWSIZE,
-                1,
-                [
-                    IoctlvEntry::In(stmd_bytes),
-                    IoctlvEntry::Out(bytes_of_mut(&mut out)),
-                ],
-            );
-            if rc < 0 {
-                rc
-            } else {
-                view_size.write(out);
-                rc
-            }
+            let (rc, out) = consumption::read_count(|out| {
+                fd.ioctlv(
+                    IOCTL_ES_DIGETTMDVIEWSIZE,
+                    1,
+                    [stmd, IoctlvEntry::Out(bytes_of_mut(out))],
+                )
+            });
+            // Preserve the copyback in the intended C request path.
+            view_size.write(out);
+            rc
         })
     }
 }
@@ -1144,23 +1145,23 @@ pub unsafe fn di_get_tmd_view(
             if let Err(rc) = require_initialized(state) {
                 return rc;
             }
+            if !s_tmd.is_null() && signed_tmd_size_checked(s_tmd, tmd_size) != Some(tmd_size) {
+                return ES_EINVAL;
+            }
             if view.is_null() || (view_size as usize) < core::mem::size_of::<TmdView>() {
                 return ES_EINVAL;
             }
             if !is_aligned(s_tmd.cast(), 4) || !is_aligned(view.cast(), 4) {
                 return ES_EALIGN;
             }
-            if !s_tmd.is_null() && signed_tmd_size_checked(s_tmd, tmd_size) != Some(tmd_size) {
-                return ES_EINVAL;
-            }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,
                 Err(rc) => return rc,
             };
-            let stmd_bytes = if s_tmd.is_null() {
-                &[][..]
+            let stmd = if s_tmd.is_null() {
+                IoctlvEntry::InNull(0)
             } else {
-                slice_from_const(s_tmd.cast::<u8>(), tmd_size as usize)
+                IoctlvEntry::In(slice_from_const(s_tmd.cast::<u8>(), tmd_size as usize))
             };
             let out = slice_from_mut(view.cast::<u8>(), view_size as usize);
             let size_in = view_size;
@@ -1169,7 +1170,7 @@ pub unsafe fn di_get_tmd_view(
                 IOCTL_ES_DIGETTMDVIEW,
                 2,
                 [
-                    IoctlvEntry::In(stmd_bytes),
+                    stmd,
                     IoctlvEntry::In(bytes_of(&size_in)),
                     IoctlvEntry::Out(out),
                 ],
@@ -1197,23 +1198,14 @@ pub unsafe fn get_ticket_view(s_tik: *const SignedBlob, view: *mut Tikview) -> i
                 Ok(fd) => fd,
                 Err(rc) => return rc,
             };
-            let in_len = if s_tik.is_null() {
-                0
+            let tik = if s_tik.is_null() {
+                IoctlvEntry::InNull(0)
             } else {
-                STD_SIGNED_TIK_SIZE
-            };
-            let tik_bytes = if s_tik.is_null() {
-                &[][..]
-            } else {
-                slice_from_const(s_tik.cast::<u8>(), in_len)
+                IoctlvEntry::In(slice_from_const(s_tik.cast::<u8>(), STD_SIGNED_TIK_SIZE))
             };
             let out = slice_from_mut(view.cast::<u8>(), core::mem::size_of::<Tikview>());
 
-            fd.ioctlv(
-                IOCTL_ES_DIGETTICKETVIEW,
-                1,
-                [IoctlvEntry::In(tik_bytes), IoctlvEntry::Out(out)],
-            )
+            fd.ioctlv(IOCTL_ES_DIGETTICKETVIEW, 1, [tik, IoctlvEntry::Out(out)])
         })
     }
 }
@@ -1364,7 +1356,7 @@ pub unsafe fn identify(
                 return ES_EINVAL;
             }
             if tmd.is_null()
-                || tmd_size == 0
+                || tmd_size < core::mem::size_of::<u32>() as u32
                 || !is_valid_signature_type(read_u32_unaligned(tmd.cast::<u32>()))
             {
                 return ES_EINVAL;
@@ -1394,6 +1386,11 @@ pub unsafe fn identify(
                 Ok(fd) => fd,
                 Err(rc) => return rc,
             };
+            // The C implementation reads num_contents directly; reject a
+            // truncated header before reading that field.
+            if signed_tmd_size_checked(tmd, tmd_size).is_none() {
+                return ES_EINVAL;
+            }
             let payload = signature_payload(tmd).cast::<Tmd>();
             let num_contents =
                 read_u16_unaligned({ core::ptr::addr_of!((*payload).num_contents) }) as usize;
@@ -1417,30 +1414,29 @@ pub unsafe fn identify(
                     num_contents * core::mem::size_of::<Sha1>(),
                 )
             };
-            let empty: &mut [u8] = &mut [];
             let rc = fd.ioctlv(
                 IOCTL_ES_DIVERIFY,
                 4,
                 [
                     IoctlvEntry::In(cert_bytes),
-                    IoctlvEntry::In(empty),
+                    IoctlvEntry::InNull(0),
                     IoctlvEntry::In(ticket_bytes),
                     IoctlvEntry::In(tmd_bytes),
                     IoctlvEntry::Out(keyid_out),
                     IoctlvEntry::Out(hashes_out),
                 ],
             );
-            if rc >= 0 {
-                if !keyid.is_null() {
-                    keyid.write(keyid_buf.as_mut_ptr::<u32>().read());
-                }
-                match reopen(state) {
-                    Ok(()) => 0,
-                    Err(error) => error,
-                }
-            } else {
-                rc
+            if rc >= 0 && !keyid.is_null() {
+                keyid.write(keyid_buf.as_mut_ptr::<u32>().read());
             }
+            completion::finish_verify(
+                rc,
+                || {
+                    drop(keyid_buf);
+                    drop(hashes);
+                },
+                || reopen_after_verify(state),
+            )
         })
     }
 }
@@ -1479,6 +1475,9 @@ pub unsafe fn verify_with_ticket_view(
             {
                 return ES_EALIGN;
             }
+            if ticket_view.is_null() {
+                return ES_EINVAL;
+            }
             let heap = match current_heap(state) {
                 Ok(heap) => heap,
                 Err(rc) => return rc,
@@ -1502,7 +1501,6 @@ pub unsafe fn verify_with_ticket_view(
             };
             let cert_bytes =
                 slice_from_const(certificates.cast::<u8>(), certificates_size as usize);
-            let empty: &mut [u8] = &mut [];
             let view_bytes =
                 slice_from_const(ticket_view.cast::<u8>(), core::mem::size_of::<Tikview>());
             let tmd_bytes = slice_from_const(s_tmd.cast::<u8>(), tmd_size as usize);
@@ -1516,21 +1514,14 @@ pub unsafe fn verify_with_ticket_view(
                 4,
                 [
                     IoctlvEntry::In(cert_bytes),
-                    IoctlvEntry::In(empty),
+                    IoctlvEntry::InNull(0),
                     IoctlvEntry::In(view_bytes),
                     IoctlvEntry::In(tmd_bytes),
                     IoctlvEntry::Out(key_out),
                     IoctlvEntry::Out(hashes_out),
                 ],
             );
-            if rc >= 0 {
-                match reopen(state) {
-                    Ok(()) => 0,
-                    Err(error) => error,
-                }
-            } else {
-                rc
-            }
+            completion::finish_verify(rc, || drop(hashes), || reopen_after_verify(state))
         })
     }
 }
@@ -1586,6 +1577,7 @@ pub unsafe fn add_ticket(
             }
             if crl_size != 0
                 && (crl.is_null()
+                    || crl_size < 4
                     || !is_valid_signature_type(read_u32_unaligned(crl.cast::<u32>())))
             {
                 return ES_EINVAL;
@@ -1606,10 +1598,10 @@ pub unsafe fn add_ticket(
             let tik_bytes = slice_from_const(tik.cast::<u8>(), tik_size as usize);
             let cert_bytes =
                 slice_from_const(certificates.cast::<u8>(), certificates_size as usize);
-            let crl_bytes = if crl_size == 0 {
-                &[][..]
+            let crl_vector = if crl_size == 0 {
+                IoctlvEntry::InNull(0)
             } else {
-                slice_from_const(crl.cast::<u8>(), crl_size as usize)
+                IoctlvEntry::In(slice_from_const(crl.cast::<u8>(), crl_size as usize))
             };
 
             fd.ioctlv(
@@ -1618,7 +1610,7 @@ pub unsafe fn add_ticket(
                 [
                     IoctlvEntry::In(tik_bytes),
                     IoctlvEntry::In(cert_bytes),
-                    IoctlvEntry::In(crl_bytes),
+                    crl_vector,
                 ],
             )
         })
@@ -1773,7 +1765,10 @@ pub unsafe fn reimport_title_init(tmd: *const SignedBlob, tmd_size: u32) -> i32 
             if let Err(rc) = require_initialized(state) {
                 return rc;
             }
-            if tmd.is_null() || !is_valid_signature_type(read_u32_unaligned(tmd.cast::<u32>())) {
+            if tmd.is_null()
+                || tmd_size < 4
+                || !is_valid_signature_type(read_u32_unaligned(tmd.cast::<u32>()))
+            {
                 return ES_EINVAL;
             }
             if signed_tmd_size_checked(tmd, tmd_size) != Some(tmd_size) {
@@ -1811,6 +1806,7 @@ pub unsafe fn add_title_start(
             }
             if certificates.is_null()
                 || tmd.is_null()
+                || tmd_size < 4
                 || !is_valid_signature_type(read_u32_unaligned(tmd.cast::<u32>()))
             {
                 return ES_EINVAL;
@@ -1820,6 +1816,7 @@ pub unsafe fn add_title_start(
             }
             if crl_size != 0
                 && (crl.is_null()
+                    || crl_size < 4
                     || !is_valid_signature_type(read_u32_unaligned(crl.cast::<u32>())))
             {
                 return ES_EINVAL;
@@ -1840,10 +1837,10 @@ pub unsafe fn add_title_start(
             let tmd_bytes = slice_from_const(tmd.cast::<u8>(), tmd_size as usize);
             let cert_bytes =
                 slice_from_const(certificates.cast::<u8>(), certificates_size as usize);
-            let crl_bytes = if crl_size == 0 {
-                &[][..]
+            let crl_vector = if crl_size == 0 {
+                IoctlvEntry::InNull(0)
             } else {
-                slice_from_const(crl.cast::<u8>(), crl_size as usize)
+                IoctlvEntry::In(slice_from_const(crl.cast::<u8>(), crl_size as usize))
             };
             let one = 1u32;
 
@@ -1853,7 +1850,7 @@ pub unsafe fn add_title_start(
                 [
                     IoctlvEntry::In(tmd_bytes),
                     IoctlvEntry::In(cert_bytes),
-                    IoctlvEntry::In(crl_bytes),
+                    crl_vector,
                     IoctlvEntry::In(bytes_of(&one)),
                 ],
             )
@@ -2004,7 +2001,6 @@ pub unsafe fn import_boot(params: ImportBootParams) -> i32 {
                 params.tmd_certs.cast::<u8>(),
                 params.tmd_certs_size as usize,
             );
-            let empty: &[u8] = &[];
             let content = slice_from_const(params.content, params.content_size as usize);
 
             fd.ioctlv(
@@ -2015,7 +2011,7 @@ pub unsafe fn import_boot(params: ImportBootParams) -> i32 {
                     IoctlvEntry::In(tik_certs),
                     IoctlvEntry::In(tmd_bytes),
                     IoctlvEntry::In(tmd_certs),
-                    IoctlvEntry::In(empty),
+                    IoctlvEntry::InNull(0),
                     IoctlvEntry::In(content),
                 ],
             )
@@ -2046,14 +2042,14 @@ pub fn open_content(index: u16) -> i32 {
 pub unsafe fn open_title_content(title_id: u64, views: *const Tikview, index: u16) -> i32 {
     unsafe {
         with_state(|state| {
+            if let Err(rc) = require_initialized(state) {
+                return rc;
+            }
             if views.is_null() {
                 return ES_EINVAL;
             }
             if !is_aligned(views.cast(), 4) {
                 return ES_EALIGN;
-            }
-            if let Err(rc) = require_initialized(state) {
-                return rc;
             }
             let fd = match current_fd(state) {
                 Ok(fd) => fd,

@@ -401,10 +401,32 @@ struct ProbeResult {
     probe_log_transport: String,
     symbol_elf: String,
     timeout_diagnostic: Option<TimeoutDiagnostic>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    relaunch_handoff: Option<RelaunchHandoff>,
     dolphin_log: String,
     probe_log_tail: Vec<String>,
     dolphin_log_tail: Vec<String>,
     detail: String,
+}
+
+#[derive(Serialize)]
+struct RelaunchHandoff {
+    mode: String,
+    title: String,
+    boot_content: String,
+    boot_content_sha256: String,
+    signature_address: u32,
+    signature_sha256: String,
+    program_counter: u32,
+    stop_reply: String,
+}
+
+struct RelaunchDestination {
+    content: String,
+    content_sha256: String,
+    signature_address: u32,
+    signature: Vec<u8>,
+    source_text: Vec<std::ops::Range<u32>>,
 }
 
 #[derive(Serialize)]
@@ -735,6 +757,12 @@ pub fn print_help() {
     eprintln!("  --timeout-seconds N     override every probe timeout");
     eprintln!("  --disable-wii-sd-card   run probes without Dolphin's virtual Wii SD card");
     eprintln!(
+        "  LIBOGC_DOLPHIN_IPC_BOUNDS=low|high|both tests nonzero loader bounds with ipc_async_probe"
+    );
+    eprintln!(
+        "  LIBOGC_DOLPHIN_RELAUNCH_BACKGROUND=1 selects the background build of ipc_relaunch_probe (select only that probe)"
+    );
+    eprintln!(
         "  LIBOGC_DOLPHIN_RELAUNCH_PANIC_DIAGNOSTIC=1 disables automatic abort on panic alerts for ipc_relaunch_probe"
     );
     eprintln!(
@@ -847,6 +875,62 @@ mod wpad_probe_selection_tests {
         );
     }
     #[test]
+    fn loader_fixture_only_narrows_reserved_bounds() {
+        let (lo, hi) = (0x933e0000, 0x93400000);
+        assert_eq!(
+            super::ipc_test_loader_bounds("low", lo, hi),
+            Ok((lo + 0x1000, 0))
+        );
+        assert_eq!(
+            super::ipc_test_loader_bounds("high", lo, hi),
+            Ok((0, hi - 0x1000))
+        );
+        assert_eq!(
+            super::ipc_test_loader_bounds("both", lo, hi),
+            Ok((lo + 0x1000, hi - 0x1000))
+        );
+        assert!(super::ipc_test_loader_bounds("both", hi, lo).is_err());
+        assert!(super::ipc_test_loader_bounds("bad", lo, hi).is_err());
+    }
+
+    #[test]
+    fn relaunch_requires_guest_handoff_without_failure() {
+        let good = "PASS IPC relaunch system menu ticket view\nINFO IPC relaunch mode=foreground\nINFO IPC relaunch handoff begins\n";
+        assert!(super::relaunch_source_ready(good, false));
+        assert!(super::relaunch_source_ready(
+            &format!("{good}INFO IPC relaunch returned=0\n"),
+            false
+        ));
+        assert!(!super::relaunch_source_ready(
+            &format!("{good}INFO IPC relaunch returned=-1\n"),
+            false
+        ));
+        assert!(!super::relaunch_source_ready(
+            &format!("{good}FAIL a check\n"),
+            false
+        ));
+        assert!(!super::relaunch_source_ready(
+            "INFO IPC relaunch handoff begins\n",
+            false
+        ));
+        let background = good.replace("foreground", "background");
+        assert!(!super::relaunch_source_ready(&background, true));
+        assert!(super::relaunch_source_ready(
+            &format!(
+                "{background}INFO IPC relaunch returned=0\nPASS IPC relaunch request accepted\n"
+            ),
+            true
+        ));
+        assert!(!super::relaunch_source_ready(good, true));
+        assert_eq!(
+            super::relaunch_stop_pc("T0540:81534418;01:816a7628;"),
+            Some(0x81534418)
+        );
+        assert_eq!(super::relaunch_stop_pc("S05"), None);
+        assert_eq!(super::relaunch_stop_pc("T0540:abc;"), None);
+    }
+
+    #[test]
     fn panic_alert_override_is_limited_to_explicit_relaunch_diagnostics() {
         let mut args = vec!["Dolphin.Interface.AbortOnPanicAlert=True".to_string()];
         super::configure_relaunch_panic_diagnostic(&mut args, "ipc_relaunch_probe", true);
@@ -868,7 +952,11 @@ mod wpad_probe_selection_tests {
     #[test]
     fn relaunch_probe_requires_explicit_selection() {
         let defaults = super::select_probes(&[]).unwrap();
-        assert!(!defaults.iter().any(|probe| probe.name == "ipc_relaunch_probe"));
+        assert!(
+            !defaults
+                .iter()
+                .any(|probe| probe.name == "ipc_relaunch_probe")
+        );
         let selected = super::select_probes(&["ipc_relaunch_probe".to_string()]).unwrap();
         assert_eq!(selected.len(), 1);
         assert_eq!(selected[0].name, "ipc_relaunch_probe");
@@ -1068,6 +1156,15 @@ fn run_probe(
             dol_path.display()
         ));
     }
+    let background_relaunch = std::env::var_os("LIBOGC_DOLPHIN_RELAUNCH_BACKGROUND").as_deref()
+        == Some(std::ffi::OsStr::new("1"));
+    let destination = if spec.name == "ipc_relaunch_probe"
+        && std::env::var_os("LIBOGC_DOLPHIN_RELAUNCH_PANIC_DIAGNOSTIC").is_none()
+    {
+        Some(relaunch_destination(&nand_copy.path, &dol_path)?)
+    } else {
+        None
+    };
     let symbol_elf = if dev_dol.is_some() {
         std::env::var_os("LIBOGC_DOLPHIN_DEV_ELF")
             .map(PathBuf::from)
@@ -1142,6 +1239,31 @@ fn run_probe(
     );
     let mut gdb = GdbClient::connect(gdb_port, Duration::from_secs(10))?;
     gdb.initialise()?;
+    // An opt-in test loader may narrow only the existing reserved linker arena.
+    if let Some(mode) = std::env::var_os("LIBOGC_DOLPHIN_IPC_BOUNDS") {
+        if spec.name != "ipc_async_probe" {
+            return Err("IPC bounds injection requires ipc_async_probe".to_string());
+        }
+        let symbols = symbols.as_ref().map_err(|error| error.to_string())?;
+        let address = |name: &str| {
+            symbols
+                .iter()
+                .find(|symbol| symbol.name == name)
+                .map(|symbol| symbol.address)
+                .ok_or_else(|| format!("missing linker symbol {name}"))
+        };
+        let lo = address("__ipcbufferLo")?;
+        let hi = address("__ipcbufferHi")?;
+        let (low, high) = ipc_test_loader_bounds(mode.to_str().unwrap_or_default(), lo, hi)?;
+        let mut bytes = [0u8; 8];
+        bytes[..4].copy_from_slice(&low.to_be_bytes());
+        bytes[4..].copy_from_slice(&high.to_be_bytes());
+        gdb.write_memory(0x8000_3130, &bytes)?;
+        if gdb.read_memory(0x8000_3130, bytes.len())? != bytes {
+            return Err("IPC loader bounds write did not round trip".to_string());
+        }
+        write_json(&probe_dir.join("loader-bounds.json"), &(lo, hi, low, high))?;
+    }
     if media.format_private_card
         || std::env::var_os("LIBOGC_DOLPHIN_CARD_HOTPLUG").is_some()
         || dev_dol.is_some()
@@ -1222,6 +1344,8 @@ fn run_probe(
     let mut page_frames = Vec::new();
     let mut page_capture_error = None;
     let mut timeout_diagnostic = None;
+    let mut relaunch_handoff = None;
+    let mut destination_seen = None;
     'probe: loop {
         if gecko_receiver.is_none() && Instant::now() >= next_gecko_connect {
             gecko_receiver = connect_usb_gecko()
@@ -1291,6 +1415,41 @@ fn run_probe(
         if let Some(status) = child.try_wait().map_err(|err| err.to_string())? {
             completion = Completion::Exited(status.to_string());
             break;
+        }
+        // A successful title handoff replaces the guest, so it cannot emit a
+        // normal final summary. Require the explicit source marker, IOS title
+        // boot evidence, and live destination code instead of treating a timeout
+        // or a title log alone as a pass.
+        if let Some(destination) = destination.as_ref()
+            && page_frames.len() == captures.len()
+            && !page_frames.is_empty()
+            && relaunch_source_ready(&captured_probe_log, background_relaunch)
+        {
+            let log = fs::read_to_string(user_dir.join("Logs/dolphin.log")).unwrap_or_default();
+            let boot_line = format!(
+                "BootstrapPPC: /title/00000001/00000002/content/{}",
+                destination.content
+            );
+            if log.contains("Re-launching title 0000000100000002 after IOS reload.")
+                && log.contains(&boot_line)
+            {
+                let seen = *destination_seen.get_or_insert_with(Instant::now);
+                if seen.elapsed() >= Duration::from_secs(3) {
+                    match gdb.observe_relaunch(destination, background_relaunch) {
+                        Ok(Some(evidence)) => {
+                            relaunch_handoff = Some(evidence);
+                            completion = Completion::Handoff;
+                            break;
+                        }
+                        Ok(None) => destination_seen = Some(Instant::now()),
+                        Err(error) => {
+                            page_capture_error = Some(error);
+                            completion = Completion::CaptureError;
+                            break;
+                        }
+                    }
+                }
+            }
         }
         if Instant::now() >= deadline {
             timeout_diagnostic = Some(match boot_stage_address {
@@ -1406,6 +1565,30 @@ fn run_probe(
             summary_count: summaries.len(),
         },
     );
+    if matches!(completion, Completion::Handoff)
+        && (relaunch_handoff.is_none()
+            || !failure_lines.is_empty()
+            || !relaunch_source_ready(&probe_log, background_relaunch))
+    {
+        status = "fail";
+        detail = "relaunch handoff evidence incomplete or guest reported failure".to_string();
+    }
+    if std::env::var_os("LIBOGC_DOLPHIN_IPC_BOUNDS").is_some()
+        && ![
+            "IPC loader lower bound selected",
+            "IPC loader upper bound selected",
+            "IPC loader allocated watermarks restored",
+        ]
+        .iter()
+        .all(|label| {
+            probe_log
+                .lines()
+                .any(|line| line == format!("PASS {label}"))
+        })
+    {
+        status = "fail";
+        detail = "requested loader bounds checks did not all pass".to_string();
+    }
     if media.format_private_card && !card_format_evidence_complete(&probe_log) {
         status = "fail";
         detail = "card format did not verify marker removal and final unmount".to_string();
@@ -1462,6 +1645,7 @@ fn run_probe(
         probe_log_transport: "Dolphin USB Gecko TCP".to_string(),
         symbol_elf: symbol_elf.display().to_string(),
         timeout_diagnostic,
+        relaunch_handoff,
         dolphin_log: dolphin_log_path.display().to_string(),
         probe_log_tail: last_lines(&probe_log, 50),
         dolphin_log_tail: last_lines(&dolphin_log, 50),
@@ -1476,6 +1660,7 @@ fn run_probe(
 
 enum Completion {
     Summary,
+    Handoff,
     CaptureError,
     Exited(String),
     TimedOut,
@@ -1523,6 +1708,11 @@ fn classify_probe_completion(
                 page_capture_error.unwrap_or("unknown error")
             ),
         ),
+        Completion::Handoff if frames_valid && pages_valid && page_capture_error.is_none() && summary_count == 0 => (
+            "pass",
+            "observed System Menu title handoff and live destination code; no guest summary expected".to_string(),
+        ),
+        Completion::Handoff => ("setup_error", "incomplete relaunch capture evidence".to_string()),
         Completion::Summary => match (parsed, frames_valid, pages_valid, page_capture_error) {
             (Some(summary), true, true, None)
                 if summary.reported_pass && summary.passes > 0 && summary.fails == 0 =>
@@ -1583,6 +1773,130 @@ impl Drop for ChildGuard {
             let _ = self.0.kill();
             let _ = self.0.wait();
         }
+    }
+}
+
+fn relaunch_stop_pc(stop: &str) -> Option<u32> {
+    let registers = stop.strip_prefix('T')?.get(2..)?;
+    registers.split(';').find_map(|field| {
+        let (register, value) = field.split_once(':')?;
+        if u32::from_str_radix(register, 16).ok()? != 64 || value.len() != 8 {
+            return None;
+        }
+        u32::from_str_radix(value, 16).ok()
+    })
+}
+
+fn relaunch_source_ready(log: &str, background: bool) -> bool {
+    let mode = if background {
+        "INFO IPC relaunch mode=background"
+    } else {
+        "INFO IPC relaunch mode=foreground"
+    };
+    let mut lines = log.lines();
+    let ticket = lines.any(|line| line == "PASS IPC relaunch system menu ticket view");
+    let mode_ok = lines.any(|line| line == mode);
+    let handoff = lines.any(|line| line == "INFO IPC relaunch handoff begins");
+    let returned: Vec<_> = log
+        .lines()
+        .filter(|line| line.starts_with("INFO IPC relaunch returned="))
+        .collect();
+    ticket
+        && mode_ok
+        && handoff
+        && !log.lines().any(|line| line.starts_with("FAIL "))
+        && returned
+            .iter()
+            .all(|line| *line == "INFO IPC relaunch returned=0")
+        && if background {
+            returned.len() == 1
+                && log
+                    .lines()
+                    .any(|line| line == "PASS IPC relaunch request accepted")
+        } else {
+            returned.len() <= 1
+        }
+}
+
+fn dol_text_sections(bytes: &[u8]) -> Result<Vec<(std::ops::Range<u32>, usize)>, String> {
+    let mut sections = Vec::new();
+    for index in 0..7 {
+        let offset = elf_u32(bytes, index * 4)? as usize;
+        let address = elf_u32(bytes, 0x48 + index * 4)?;
+        let size = elf_u32(bytes, 0x90 + index * 4)?;
+        if size == 0 {
+            continue;
+        }
+        let end = address
+            .checked_add(size)
+            .ok_or("DOL section address overflow")?;
+        checked_elf_slice(bytes, offset, size as usize)?;
+        sections.push((address..end, offset));
+    }
+    if sections.is_empty() {
+        return Err("DOL has no text sections".into());
+    }
+    Ok(sections)
+}
+
+fn relaunch_destination(nand: &Path, source: &Path) -> Result<RelaunchDestination, String> {
+    let dir = nand.join("title/00000001/00000002/content");
+    let tmd = fs::read(dir.join("title.tmd")).map_err(|err| err.to_string())?;
+    // Wii System Menu TMD uses an RSA-2048 signature and 36-byte records.
+    if elf_u32(&tmd, 0)? != 0x0001_0001
+        || checked_elf_slice(&tmd, 0x18c, 8)? != 0x0000_0001_0000_0002u64.to_be_bytes()
+    {
+        return Err("not an RSA-2048 System Menu TMD".into());
+    }
+    let count = elf_u16(&tmd, 0x1de)? as usize;
+    let index = elf_u16(&tmd, 0x1e0)?;
+    let record = (0..count)
+        .map(|i| 0x1e4 + i * 36)
+        .find(|&at| elf_u16(&tmd, at + 4) == Ok(index))
+        .ok_or("System Menu boot content not found")?;
+    let content = format!("{:08x}.app", elf_u32(&tmd, record)?);
+    let image = fs::read(dir.join(&content)).map_err(|err| err.to_string())?;
+    let size = u64::from_be_bytes(checked_elf_slice(&tmd, record + 8, 8)?.try_into().unwrap());
+    if size != image.len() as u64 {
+        return Err("System Menu boot content size mismatch".into());
+    }
+    let sections = dol_text_sections(&image)?;
+    // The Wii menu bootstrap DOL may use a physical entry address.
+    let entry = elf_u32(&image, 0xe0)? | 0x8000_0000;
+    let (range, offset) = sections
+        .iter()
+        .find(|(range, _)| range.contains(&entry))
+        .ok_or("System Menu entry is outside its text sections")?;
+    let length = (range.end - entry).min(64) as usize;
+    if length < 32 {
+        return Err("System Menu entry signature is too short".into());
+    }
+    let signature =
+        checked_elf_slice(&image, offset + (entry - range.start) as usize, length)?.to_vec();
+    let source_bytes = fs::read(source).map_err(|err| err.to_string())?;
+    let source_text = dol_text_sections(&source_bytes)?
+        .into_iter()
+        .map(|(range, _)| range)
+        .collect();
+    Ok(RelaunchDestination {
+        content,
+        content_sha256: format!("{:x}", Sha256::digest(&image)),
+        signature_address: entry,
+        signature,
+        source_text,
+    })
+}
+
+fn ipc_test_loader_bounds(mode: &str, lo: u32, hi: u32) -> Result<(u32, u32), String> {
+    // Preserve at least 120 KiB of the 128 KiB Wii IPC arena. Never expand it.
+    if lo & 31 != 0 || hi & 31 != 0 || hi.checked_sub(lo).unwrap_or(0) < 0x20000 {
+        return Err("IPC test requires a complete aligned linker arena".to_string());
+    }
+    match mode {
+        "low" => Ok((lo + 0x1000, 0)),
+        "high" => Ok((0, hi - 0x1000)),
+        "both" => Ok((lo + 0x1000, hi - 0x1000)),
+        _ => Err("LIBOGC_DOLPHIN_IPC_BOUNDS must be low, high, or both".to_string()),
     }
 }
 
@@ -1952,6 +2266,50 @@ impl GdbClient {
         self.send_packet("c")
     }
 
+    fn observe_relaunch(
+        &mut self,
+        destination: &RelaunchDestination,
+        background: bool,
+    ) -> Result<Option<RelaunchHandoff>, String> {
+        self.stream
+            .get_mut()
+            .write_all(&[0x03])
+            .map_err(|err| err.to_string())?;
+        let stop = self.read_packet()?;
+        if !stop.starts_with('T') && !stop.starts_with('S') {
+            return Err(format!("unexpected relaunch stop: {stop}"));
+        }
+        let observation = (|| {
+            let pc = match relaunch_stop_pc(&stop) {
+                Some(pc) => pc,
+                None => self.read_register(64)?,
+            };
+            let code =
+                self.read_memory(destination.signature_address, destination.signature.len())?;
+            if code != destination.signature
+                || !(0x8000_0000..0x8180_0000).contains(&pc)
+                || destination
+                    .source_text
+                    .iter()
+                    .any(|range| range.contains(&pc))
+            {
+                return Ok(None);
+            }
+            Ok(Some(RelaunchHandoff {
+                mode: if background { "background" } else { "foreground" }.to_string(),
+                title: "0000000100000002".to_string(),
+                boot_content: destination.content.clone(),
+                boot_content_sha256: destination.content_sha256.clone(),
+                signature_address: destination.signature_address,
+                signature_sha256: format!("{:x}", Sha256::digest(&code)),
+                program_counter: pc,
+                stop_reply: stop,
+            }))
+        })();
+        self.continue_execution()?;
+        observation
+    }
+
     fn capture_xfb(&mut self, capture: &PageCapture, path: &Path) -> Result<(), String> {
         self.stream
             .get_mut()
@@ -2136,6 +2494,15 @@ impl GdbClient {
         self.stream
             .read_exact(&mut ack)
             .map_err(|err| format!("Dolphin GDB acknowledgement read failed: {err}"))?;
+        // Dolphin sends the protocol ACK and the reply in separate writes.
+        // On Linux a delayed TCP ACK can stall the reply behind Nagle's
+        // algorithm for each framebuffer chunk. Request an immediate ACK
+        // without changing the debugger protocol or the captured bytes.
+        #[cfg(target_os = "linux")]
+        {
+            use std::os::linux::net::TcpStreamExt;
+            let _ = self.stream.get_ref().set_quickack(true);
+        }
         match ack[0] {
             b'+' => Ok(()),
             b'-' => Err("Dolphin GDB rejected a packet checksum".to_string()),

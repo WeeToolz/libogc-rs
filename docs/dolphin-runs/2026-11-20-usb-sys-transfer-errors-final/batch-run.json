@@ -1,0 +1,48 @@
+{
+  "source_revision": "49eaafa1a9e65c00a0f8e537563ef840e4f13a79",
+  "source_fingerprint": "5d4ab5a26cb2dcb9486457e7ee415cd857bca02f11265984adbcaf7ba46b16fb",
+  "command": [
+    "cargo",
+    "xtask",
+    "dolphin-validate",
+    "--probe",
+    "hid_descriptor_probe",
+    "--dolphin",
+    "/Applications/Dolphin.app/Contents/MacOS/Dolphin",
+    "--artifact-dir",
+    "docs/dolphin-runs/2026-11-20-usb-sys-transfer-errors-final",
+    "--timeout-seconds",
+    "180"
+  ],
+  "dolphin_sha256": "888de10b7c6e8297aab2e4d51b050589b8dec9f13c889b7f094b3e92b9285e77",
+  "dol_sha256": "e38cf7dc5b75114fef718ab04c54a7519fca0dc277b2a5a7a23cdf43199fdc1e",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: aarch64-apple-darwin\nrelease: 1.97.0\nLLVM version: 22.1.6\n",
+  "external_fixtures_before_run": {
+    "LIBOGC_MAD_REFERENCE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    },
+    "LIBOGC_MAD_PROBE_MP3": {
+      "path": "/Volumes/SSD/WiiDev/Devtools/libmad-rs/test-data/layer3/libmad-stereo-mpeg1.mp3",
+      "sha256": "c1f5d2789060c3e3e1527ebd08c4a7777fb0ca55f4f46da720c919e518b9ae73"
+    }
+  },
+  "nand_source_after_run": {
+    "path": "/Users/user/Library/Application Support/Dolphin/Wii",
+    "files": 588,
+    "sha256": "007a0bdd6a8d1cea1cdf0369d51d2b79e3a5e2b031681cf0eb6fd8a32110c092"
+  },
+  "manifest_sha256": "048fb5833909453c14e6bb89820fb0ce4ddc69276812b92bb887ec67f0dc7ee9",
+  "suite_sha256": "20a53d8bb93ce8dc310b0797f5f8dcc779fb8e439e450f6d7fbcc36b11f32281",
+  "evidence_sha256": {
+    "docs/dolphin-runs/2026-11-20-usb-sys-transfer-errors-final/hid_descriptor_probe/probe.log": "ad7f3c39b4e3ced3c5f9247919f7f0616256806c731b5b5d1e11393c73280706",
+    "docs/dolphin-runs/2026-11-20-usb-sys-transfer-errors-final/hid_descriptor_probe/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/dolphin-runs/2026-11-20-usb-sys-transfer-errors-final/hid_descriptor_probe/stderr.log": "9f7335b71743ea55c98a1f92da044a6d4434d7e8301a20974abccbfff4104228",
+    "docs/dolphin-runs/2026-11-20-usb-sys-transfer-errors-final/hid_descriptor_probe/probe-transport.bin": "ccfe200f61d6bdd6d29e4fd01f70f3856c48d9ca704adb3fca76bca1e473cec5",
+    "docs/dolphin-runs/2026-11-20-usb-sys-transfer-errors-final/hid_descriptor_probe/pages/page-001.png": "486cb60684cdde013de0bd117f357cf61d0b2742f7037f1ca41fdc6af87fe26d",
+    "docs/dolphin-runs/2026-11-20-usb-sys-transfer-errors-final/hid_descriptor_probe/pages/page-002.png": "117a20eb9bd745eab3c8702c5d6b842c60d2bcdebb7befaf2101a1818feb31fb",
+    "docs/dolphin-runs/2026-11-20-usb-sys-transfer-errors-final/hid_descriptor_probe/pages/page-003.png": "37ffa1675c095413505ce0a5fd6d8dceb4d367aaf116f7055ba9f045ca026f12",
+    "docs/dolphin-runs/2026-11-20-usb-sys-transfer-errors-final/hid_descriptor_probe/pages/page-004.png": "b3dc5a218abaea4bc92c9c20897a90d5296c6889d3be82112f050ce511f5313d"
+  },
+  "exit_code": 0
+}

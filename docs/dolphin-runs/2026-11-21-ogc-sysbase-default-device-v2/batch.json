@@ -1,0 +1,18 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-sysbase",
+      "path": "src/lib.rs",
+      "symbol": "setDefaultDevice",
+      "line": 674,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_sysbase_default_device",
+      "api_path": "setDefaultDevice",
+      "checks": [
+        "setDefaultDevice selects a registered default device",
+        "setDefaultDevice ignores out-of-range indexes"
+      ]
+    }
+  ]
+}

@@ -556,3 +556,59 @@ observed IPC reinitialization during the IOS 58 reload. Its saved MSR was 50,
 with external interrupts disabled, and all 12 probe checks passed. The probe
 build enabled the `format-probe-hooks` feature. This run still
 does not cover pending IPC requests during reload.
+
+### 2026-11-26 Linux reply decoder and relaunch follow-up
+
+The C request declaration overlays the descriptor field with `req_cmd` at
+byte offset 8. In `__ipc_replyhandler`, C selects the read, ioctl and ioctlv
+cache operations from this reply field. IOS replaces command word 0 with
+`IPC_REPLY`. Rust previously selected the operation from word 0, so a
+successful raw async ioctlv reply could leave the caller's vector data
+address physical instead of cached (K0). Rust now selects the operation from
+word 2 (`fd` during submission), before cache maintenance and callback
+scheduling. The focused live ES title count test checks the vector address,
+result, callback count, output and neighboring canary bytes in the callback.
+The baseline failed only the address check (22 passed, one failed); the fixed
+probe passed 23 checks. The broader runtime run retained exactly the same 13
+video/network failures as its baseline (876 passed, 13 failed); it is not a
+full suite pass. All IPC formatter checks passed, including the live sync and
+async output boundary cases. The formatter ledger now has 80 verified and
+eight hardware-blocked rows, with no partial or unverified rows. IOS reload
+passed 21 checks. Physical cache behavior is not established by Dolphin.
+
+The relaunch abort reproduced on a direct System Menu boot without the Rust
+probe. A diagnostic with automatic panic abort disabled exposed an invalid
+read of address zero at PC `0x8134d700`. The imported NAND contains a
+Priiloader-modified System Menu boot file and TMD, and original copies of
+both. Restoring the original pair in a private fixture (after matching the
+original boot file against its original TMD size and SHA-1) allowed direct
+boot to the Health and Safety screen with automatic panic abort enabled.
+The identical foreground and background DOLs also reached this screen.
+The sequential background run returned zero before the handoff. The raw
+runner reports remain timeouts, not passes, because the launched menu
+replaces the probe. The destination screenshots and IOS title/boot logs
+establish title handoff for both operations, not subsequent menu interaction
+or every possible mailbox sequence. This isolates the abort to the modified
+fixture; the exact failing guest instruction's cause within that fixture
+has not been established. No production IPC change was needed for this
+fixture correction.
+
+See [IPC reply and relaunch evidence](../dolphin-runs/2026-11-26-ipc-reply-relaunch-linux/README.md).
+Outstanding replies across reinitialization still need targeted evidence.
+The physical Wii cache and loader override cases remain pending.
+
+
+## 2026-11-26 follow-up — loader overrides, held reply and relaunch runner
+
+The [follow-up evidence](../dolphin-runs/2026-11-26-ipc-followup-linux/README.md)
+verifies low-only, high-only and both nonzero loader bounds in Dolphin by
+narrowing the reserved arena. A real posted async IOS reply survives the PPC
+client reset and completes once; a new request succeeds afterward. The
+combined test passes 29 checks. This does not establish survival of in-flight
+requests across replacement of the old IOS instance. Both foreground and
+background relaunch now report automatic handoff success with a matching
+mode, IOS boot log and live destination code. The previous timeout records
+remain unchanged. Physical cache coherency and physical loader behavior
+remain pending. Keep the package parity-blocked for the combined actual IOS
+reload/outstanding request coverage gap. No IPC production changes in this
+follow-up were needed.

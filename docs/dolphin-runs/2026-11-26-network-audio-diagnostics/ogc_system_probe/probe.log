@@ -1,0 +1,2881 @@
+
+
+BOOT 1/3: system and video initialized
+INFO Wiiload arguments source=entry count=0
+PASS SYS_Init completed
+INFO startup stage=0 completed_mask=0x7ff failed_stage=0
+BOOT watchdog arm starting
+INFO recovery reset watchdog not armed
+BOOT watchdog arm complete
+BOOT Wiiload report argument check
+INFO Wiiload report check disabled for this probe build
+BOOT before first vsync
+BOOT 2/3: entering IOS pre-main
+PRE 0/7: closing inherited IOS descriptors
+IPC: sync state ready
+IPC: command=0x00000002 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000002 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 1/7: IOS startup
+PRE 2/7: IOS subsystems
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0fc0
+PRE 3/7: STM handler
+PRE 4/7: STM devices
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+PRE 5/7: configuration
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+PRE 6/7: Wii launch state
+IPC: sync state ready
+IPC: command=0x00000001 fd=0x00000000
+IPC: request prepared
+IPC: command=0x00000001 fd=0x00000000
+IPC: request sent
+IPC: polling, no completion bits
+IPC: ctrl=0x00000031 arm=0x133e0f40
+PRE 7/7: complete
+-- page 2 --
+BOOT 3/3: IOS pre-main completed
+PASS Video console_init_framebuffer initializes the buffered console
+PASS pre-main progress callback reports stages in order
+PASS system pre-main completes without a failed stage
+PASS display initialized
+INFO boot stage: system/video initialized
+INFO boot stage: IOS pre-main completed
+INFO log backend disabled
+INFO argv0=ogc_system_probe.dol
+PASS power button callback installed
+INFO power-button STM actions deferred until shutdown
+INFO fat mount sd=not-selected usb=not-selected
+INFO previous stm handler chained=0
+INFO previous power callback replaced
+PASS activity indicator has a valid framebuffer
+INFO Corner: spinner means VI active; IDLE s is seconds since logged progress.
+INFO STEP 1 General; vi_frame=144 frame_increment=15 passes=6 fails=0
+
+== GENERAL PROBE ==
+PASS ES signature sizes match public layouts
+PASS ES signature types accept only supported values
+PASS ES certificate sizes match public layouts
+-- page 3 --
+PASS ES certificate types accept only supported values
+PASS ES signed certificate sizes combine signature and certificate
+PASS ES signed ticket sizes include signature
+PASS ES title metadata sizes match public layouts
+PASS ES signed title metadata adds signature size
+PASS ES next certificate follows all supported ABI layouts
+PASS ES next certificate rejects unknown certificate type
+PASS ES next certificate rejects invalid signature and null
+PASS ES catalog opens for path and content checks
+INFO ES data directory result=0
+PASS ES system menu data path matches NAND
+PASS ES rejected stored content list preserves output
+PASS ES catalog closes after path and content checks
+PASS ES disc view probe opens service
+PASS ES disc TMD view size matches system menu
+PASS ES disc TMD view matches menu and rejects null
+INFO ES disc view: query current title size
+INFO ES current title size result=-1017
+PASS ES disc view size reports no active title
+PASS ES disc ticket view rejects null output
+INFO ES disc view: query current ticket
+PASS ES disc ticket view reports no active title
+PASS ES disc view probe closes service
+-- page 4 --
+PASS ES consumption probe opens service
+PASS ES consumption count returns zero and rejects null
+PASS ES consumption validates output and preserves empty results
+PASS ES consumption queries reject closed service
+PASS ES identity probe opens service
+PASS ES device ID matches imported NAND and rejects null
+PASS ES title ID unavailable preserves output and rejects null
+PASS ES Korean key query returns IOS error
+PASS ES identity probe closes service
+PASS ES content validation opens service
+PASS ES content read rejects invalid inputs and preserves output
+PASS ES content seek rejects negative descriptor
+PASS ES content close rejects negative descriptor
+PASS ES content validation closes service
+PASS ES content open probe starts service
+PASS ES active content rejects absent title
+PASS ES title content opens and rejects null view
+PASS ES title content reads fixture after seek and closes
+PASS ES content open probe closes service
+PASS ES crypto probe opens service
+PASS ES device certificate has ECC format and bounded output
+PASS ES encrypt rejects invalid buffers without mutation
+PASS ES decrypt rejects invalid buffers without mutation
+-- page 5 --
+PASS ES encrypt invalid key preserves IV and destination
+INFO ES encrypt invalid key result=-2000
+PASS ES decrypt invalid key preserves IV and destination
+INFO ES decrypt invalid key result=-2000
+PASS ES crypto probe closes service
+PASS ES crypto vector opens service
+INFO ES crypto vector encrypt result=0
+PASS ES encrypt matches independent CBC vector and updates IV
+INFO ES crypto vector decrypt result=0
+PASS ES decrypt matches independent CBC vector and updates IV
+PASS ES crypto vector closes service
+PASS WPAD speaker encoding matches C reference
+PASS WPAD speaker continuation preserves encoder state
+PASS WPAD speaker odd sample uses zero padding
+PASS Bluetooth idle host starts disabled
+PASS Bluetooth idle host rejects search and report
+PASS Bluetooth idle host rejects disconnect request
+PASS Bluetooth idle host has no queued events
+PASS Bluetooth idle host poll leaves it disabled
+PASS Bluetooth idle host shutdown completes without adapter
+PASS Bluetooth closed host remains complete after poll
+PASS GX breakpoint callback replacement and restoration
+PASS counter bias roundtrip
+-- page 6 --
+PASS display offset roundtrip
+PASS EU RGB60 roundtrip
+PASS language roundtrip
+PASS progressive scan roundtrip
+PASS sound mode roundtrip
+PASS video mode roundtrip
+INFO system time=51574534703187316
+PASS system time advanced
+INFO hollywood revision=0x00000011
+PASS hollywood revision observable
+INFO font encoding=0
+PASS font encoding sane
+PASS reset button state sane
+INFO video tv mode=0
+INFO component cable=0
+ogc-system-probe general
+PASS console banner write
+system and video state captured
+PASS console summary write
+general probe uses direct runtime calls
+PASS console footer write
+INFO STEP 2 Startup; vi_frame=485 frame_increment=341 passes=83 fails=0
+
+-- page 7 --
+== STARTUP PROBE ==
+INFO startup time before=51574534781227763
+INFO startup time after=51574534781227781
+INFO expected init steps=14
+INFO expected premain steps=7
+PASS startup time monotonic
+PASS runtime init called
+PASS runtime pre-main called
+PASS runtime pre-main completed
+INFO runtime pre-main failed stage=0
+INFO runtime pre-main result=0
+PASS low memory init called
+PASS wii init sequence includes ipc client
+PASS wii pre-main sequence includes ios init
+INFO STEP 3 SRAM; vi_frame=563 frame_increment=78 passes=90 fails=0
+
+== SRAM PROBE ==
+PASS sram checksum matches live snapshot
+PASS sram getter parity
+PASS counter bias setter restore
+PASS display offset setter restore
+PASS eu rgb60 setter restore
+PASS language setter restore
+-- page 8 --
+PASS progressive setter restore
+PASS sound mode setter restore
+PASS video mode setter restore
+PASS wireless id setter restore
+PASS gbs setter restore
+PASS raw standard SRAM values restore
+PASS raw extended SRAM values restore
+PASS final sram restore
+INFO STEP 4 Arena; vi_frame=642 frame_increment=79 passes=104 fails=0
+
+== ARENA PROBE ==
+INFO arena1 lo=0x80c4d980
+INFO arena1 hi=0x81800000
+INFO arena2 lo=0x90000000
+INFO arena2 hi=0x94000000
+PASS arena1 bounds and size roundtrip
+PASS arena2 bounds and size roundtrip
+PASS arena1 size matches bounds
+PASS arena2 size matches bounds
+PASS arena1 low alloc math
+PASS arena2 low alloc math
+PASS allocator free bytes track allocate and free
+PASS arena bounds restored
+-- page 9 --
+PASS raw arena1 bounds and allocation
+PASS raw and ABI arena2 bounds and allocation
+INFO STEP 5 Callbacks; vi_frame=721 frame_increment=79 passes=114 fails=0
+
+== CALLBACK PROBE ==
+PASS reset callback roundtrip
+PASS reset callback replacement preserves previous pointer
+PASS power callback roundtrip
+INFO power dispatch timebase low=0x2bc89fef
+INFO power dispatch called=1
+INFO power dispatch result=1
+INFO power dispatch callback count=1
+PASS power callback dispatch
+PASS reset registration bookkeeping
+PASS reset function gate
+PASS power cooldown math
+PASS report callback receives formatted bytes
+PASS stdio report installs UART stream writers
+INFO STEP 6 Runtime; vi_frame=737 frame_increment=16 passes=123 fails=0
+
+== RUNTIME PROBE ==
+PASS socket address pointers address their original values
+-- page 10 --
+PASS socket address ABI lengths are sixteen bytes
+PASS Network error conversion preserves nonnegative results
+PASS Network error conversion maps IOS errors
+PASS Network error conversion offsets unknown values
+PASS inet_addr dotted decimal
+PASS inet_addr abbreviated hexadecimal
+PASS inet_addr rejects overflow
+PASS inet_addr rejects invalid octal
+INFO STEP 7 Raw IPv4 address and type-of-service values; vi_frame=811 frame_increment=74 passes=132 fails=0
+PASS IPv4 wrapper packs and reads fixed network-order values
+PASS Raw IPv4 packing matches fixed network-order word
+PASS Raw IPv4 octet getters match fixed bytes
+PASS IPv4 wrapper packs and reads fixed network-order values
+PASS Raw IPv4 packing matches fixed network-order word
+PASS Raw IPv4 octet getters match fixed bytes
+PASS IPv4 wrapper packs and reads fixed network-order values
+PASS Raw IPv4 packing matches fixed network-order word
+PASS Raw IPv4 octet getters match fixed bytes
+PASS IPv4 wrapper masks type of service and precedence
+PASS Raw IPv4 TOS and precedence masks
+PASS IPv4 wrapper masks type of service and precedence
+PASS Raw IPv4 TOS and precedence masks
+-- page 11 --
+PASS IPv4 wrapper masks type of service and precedence
+PASS Raw IPv4 TOS and precedence masks
+PASS Raw IPv4 parser accepts valid and rejects invalid input
+PASS IPv4 wrapper parses valid and invalid input
+PASS Network resolver error text matches known and unknown codes
+PASS Descriptor set clears both bytes
+PASS Descriptor set preserves bits across byte boundaries
+PASS Descriptor clear leaves neighboring bits unchanged
+PASS LWP message queue handle matches initialized queue
+PASS LWP message queue rejects send when full
+PASS LWP message queue returns urgent before FIFO and reports empty
+PASS LWP closed message queue rejects send
+PASS LWP mutex handle retains initialized raw value
+PASS LWP mutex handle closes
+PASS LWP queue handle retains output
+PASS LWP condition handle retains output
+PASS LWP condition signal and broadcast succeed
+PASS LWP condition destroy succeeds
+PASS LWP semaphore handle retains output
+PASS LWP semaphore destroy succeeds
+PASS LWP condition timeout reacquires mutex
+PASS LWP condition signal wakes waiting worker
+PASS LWP driver semaphore starts at two
+-- page 12 --
+PASS LWP driver semaphore wait decrements
+PASS LWP driver semaphore post increments
+PASS LWP driver closed semaphore rejects access
+PASS LWP driver queue rejects overflow
+PASS LWP driver queue returns urgent then FIFO
+PASS LWP driver closed queue rejects send
+PASS LWP driver mutex rejects repeated nonrecursive lock
+PASS LWP driver mutex can be locked after release
+PASS LWP driver closed mutex rejects lock
+PASS LWP driver empty condition broadcasts
+PASS LWP driver closed condition rejects broadcast
+PASS LWP workspace retains separate allocations
+PASS LWP workspace allocates after release
+PASS LWP raw try lock reports busy
+PASS LWP raw semaphore reports its count
+PASS LWP raw closed queue rejects sleep
+PASS LWP ABI closed queue rejects sleep
+PASS LWP driver sleep waits requested ticks
+PASS LWP raw sleep waits requested ticks
+PASS LWP driver workspace preserves separate allocations
+PASS LWP driver workspace allocates after release
+PASS LWP driver closing queue cancels waiter
+PASS LWP current thread handle is live
+-- page 13 --
+PASS LWP created thread returns its handle
+PASS LWP thread runs and returns its argument
+PASS LWP detached worker finishes without join
+PASS LWP raw detached worker finishes without join
+PASS LWP suspended worker stops running
+PASS LWP resumed worker finishes
+PASS LWP driver nested suspension stops worker
+PASS LWP driver final resume lets worker finish
+PASS LWP driver reports current thread
+PASS LWP driver finds thread by its argument
+PASS LWP driver captures suspended thread context
+PASS LWP driver removes joined thread metadata
+PASS LWP queue signal wakes one waiter
+PASS LWP queue broadcast wakes remaining waiter
+PASS LWP driver queue signal wakes one waiter
+PASS LWP driver queue broadcast wakes remaining waiter
+PASS LWP raw queue signal wakes one waiter
+PASS LWP raw queue broadcast wakes remaining waiter
+PASS LWP ABI queue signal wakes one waiter
+PASS LWP ABI queue broadcast wakes remaining waiter
+PASS Controller empty slot keeps source
+PASS Controller manager starts with empty slots
+PASS Controller USB profile checks identity and usage
+-- page 14 --
+PASS Controller left slot needs a right partner
+PASS Controller right slot retains address and handle
+PASS Controller pairs left and right by role
+PASS Controller split keeps both devices
+PASS Controller disconnect clears pair and one device
+PASS Controller guide report sets HOME
+PASS Controller guide release clears HOME
+PASS Controller short guide report invalidates sample
+PASS Controller rejects missing or incompatible calibration
+PASS PAD clamp applies bounds and preserves error samples
+PASS PAD diagnostic decoder handles neutral sample and invalid channels
+PASS Controller USB ownership rejects contention and permits reuse
+
+== OWNED AUDIO BUFFER ==
+PASS owned audio buffers preserve aligned copied bytes
+PASS default audio voice handle is null
+PASS L2CAP connection request bytes
+PASS L2CAP configuration request bytes
+PASS L2CAP configuration MTU bytes
+PASS L2CAP connection response bytes and errors
+PASS L2CAP configuration response bytes and errors
+PASS L2CAP disconnection response bytes and errors
+PASS L2CAP command reject bytes and errors
+-- page 15 --
+PASS L2CAP invalid CID reject bytes and errors
+PASS L2CAP data bytes and errors
+PASS ACL parsing fields and truncation
+PASS L2CAP parsing fields and truncation
+PASS L2CAP signal parsing and payload
+PASS L2CAP signal iteration and error cursor
+PASS HIDP parsing fields and empty input
+PASS HCI command events and truncated packets
+PASS HCI connection and disconnection events
+PASS HCI unknown and malformed events
+PASS Bluetooth address preserves HCI byte order
+PASS Bluetooth class extracts major and minor fields
+PASS Bluetooth class recognizes peripheral devices
+PASS Bluetooth queue preserves connection report and disconnect order
+PASS Bluetooth queue applies backpressure without losing state
+PASS Bluetooth discovery classifies controller names
+PASS Bluetooth HCI endpoints validate direction and distinct inputs
+PASS Bluetooth transport keeps supplied descriptor and endpoints
+PASS Bluetooth transport parses and rejects event frames
+PASS Bluetooth transport rejects oversized PIN before submission
+PASS Bluetooth transport rejects invalid endpoints before open
+PASS Bluetooth sync reads and writes propagate invalid descriptor errors
+PASS Bluetooth HCI helpers propagate invalid descriptor errors
+-- page 16 --
+PASS Bluetooth L2CAP send helpers propagate invalid descriptor errors
+PASS Bluetooth transport validates command and PIN lengths before IOS
+PASS Bluetooth async transfers publish consistent request results
+PASS Bluetooth owned command and close results match request status
+PASS Bluetooth async callbacks report invalid descriptor completion
+PASS Bluetooth synchronous close maps the IPC descriptor result
+PASS Bluetooth raw async command rejects a missing completion callback
+PASS L2CAP channel readiness requires a remote channel
+PASS L2CAP HID state tracks both configured channels
+PASS Bluetooth host startup and failure lifecycle
+PASS Bluetooth disabled protocol calls reject work and count malformed ACL
+PASS Bluetooth opcode packs group and masked command
+PASS Bluetooth disconnected slots reject disconnect requests
+PASS Bluetooth link key requests preserve keys and reject unknown peers
+PASS Bluetooth disconnect rejects null PCB
+PASS Bluetooth listen rejects null PCB
+PASS Bluetooth connect rejects null PCB
+PASS Bluetooth listen step rejects null PCB
+PASS Bluetooth connect step rejects null PCB
+PASS Bluetooth send data rejects null PCB
+PASS Bluetooth send message rejects null PCB
+PASS Bluetooth key write rejects null address
+-- page 17 --
+PASS Bluetooth key delete rejects null address
+PASS Bluetooth key reply rejects null address
+PASS Bluetooth negative key reply rejects null address
+PASS Bluetooth key read rejects null output
+PASS Bluetooth PCB allocation initializes fields
+PASS Bluetooth PCB argument setter stores value
+PASS Bluetooth PCB receive setter clears callback
+PASS Bluetooth PCB disconnect setter clears callback
+PASS Bluetooth PCB free releases a slot
+
+== LWBT CLOSED ADAPTER ==
+INFO lwBT shutdown status=0x00000000
+INFO lwBT released PCB disconnect status=0xfffffff8
+PASS lwBT shutdown releases a live PCB
+PASS lwBT core init completes with closed adapter error
+PASS lwBT patch completes with closed adapter error
+PASS lwBT sub init completes with closed adapter error
+PASS lwBT address read preserves output on closed adapter
+PASS lwBT name read preserves output on closed adapter
+PASS lwBT inquiry completes with closed adapter error
+PASS lwBT periodic inquiry rejects closed adapter
+PASS lwBT failed inquiry preserves normal pair mode
+PASS lwBT inquiry exit rejects closed adapter
+-- page 18 --
+PASS lwBT event filter validates input before transport
+PASS lwBT asynchronous message rejects null PCB
+PASS System runtime state tracks Wii and GameCube input
+PASS System runtime power cooldown extends after attempts
+PASS System runtime reset plan reflects target and requested action
+PASS Wii launch fallible initialization reads state files
+PASS Wii launch initialization succeeds on repeated calls
+PASS Wii launch error codes preserve named and ES values
+PASS System startup snapshots report completed initialization
+PASS System startup validation preserves failed stage and incomplete state
+PASS Checked initialization preserves completed startup
+PASS System framebuffer snapshot matches preferred mode allocation
+PASS Raw system snapshots report completed startup
+PASS Raw system framebuffer snapshot records allocation
+PASS Raw system time snapshot records call
+PASS System aggregate snapshot includes startup and framebuffer
+PASS System framebuffer rejects null mode
+PASS System framebuffer snapshot records null mode
+PASS System SRAM lock returns access
+PASS System SRAM sync reports current state
+PASS System SRAM unlock without write returns ready
+PASS Extended SRAM lock returns access
+-- page 19 --
+PASS Extended SRAM unlock without write returns ready
+PASS System font encoding and snapshots report query
+PASS System power callback dispatch observes cooldown
+PASS System reset callback setter returns previous handler
+PASS System reset registration tracks the same live record
+PASS Raw reset snapshot returns stable state
+PASS Hollywood revision query marks its hardware snapshot
+PASS Reset button query returns its documented boolean value
+PASS HBC reload-stub query returns a stable result
+PASS Runtime FP disabled stage remains clear
+PASS System stdio report mode query returns stable state
+PASS Reset debug hook setter returns and restores the previous hook
+PASS ES launch rejects null ticket view
+PASS ES background launch rejects null ticket view
+PASS ES identify rejects invalid ticket size
+PASS ES verify rejects null signed metadata
+PASS ES ticket-view verifier rejects null metadata
+PASS ES title add rejects null metadata
+PASS ES content add rejects empty input
+PASS ES title export rejects an empty output buffer
+PASS ES content export rejects an empty output buffer
+PASS ES signing rejects null buffers
+PASS ES signature verifier rejects null buffers
+-- page 20 --
+PASS ES ticket add rejects invalid size
+PASS ES ticket delete rejects null view
+PASS ES title reimport rejects null metadata
+PASS System protection call records its arguments
+PASS System protection snapshot returns recorded arguments
+PASS System sys argv accessor returns a stable descriptor
+PASS System sys argv check preserves a valid stable descriptor
+PASS System argv wrapper preserves the checked descriptor
+PASS Raw stdio report keeps stdout routing selected after a false call
+PASS System stdio wrapper matches the raw report mode
+PASS PMC start stores control values
+PASS PMC dump marks counters read
+PASS PMC stop marks counters stopped
+PASS PMC reset clears started state
+PASS USB open rejects a null output descriptor
+PASS USB close rejects a null descriptor pointer
+PASS USB async close rejects a null descriptor pointer
+PASS USB device description rejects a null output
+PASS USB descriptor query rejects a null output
+PASS USB generic descriptor rejects a null buffer
+PASS USB HID descriptor rejects a null output
+PASS USB report descriptor rejects a null buffer
+PASS USB device list rejects a null array without changing count
+-- page 21 --
+PASS USB ASCII string query rejects a null buffer
+PASS USB descriptor free accepts a null descriptor
+INFO STEP 8 USB service lifecycle; vi_frame=1744 frame_increment=933 passes=369 fails=0
+PASS USB service initializes with the raw API
+PASS USB service deinitializes after raw initialization
+PASS USB fallible initialization reports success
+PASS USB fallible deinitialization reports success
+INFO STEP 9 USB raw system lifecycle; vi_frame=1761 frame_increment=17 passes=373 fails=0
+PASS USB sys initialize starts both host services
+PASS USB sys deinitialize stops both host services
+PASS USB sys vendor initialize starts the vendor host
+PASS USB sys vendor deinitialize stops the vendor host
+INFO STEP 10 USB mouse lifecycle; vi_frame=1784 frame_increment=23 passes=377 fails=0
+PASS USB mouse initializes its worker
+PASS USB mouse deinitialization joins its worker and releases state
+PASS USB device description maps invalid handle to error
+PASS USB descriptor query maps invalid handle to error
+PASS USB generic descriptor maps invalid handle to error
+PASS USB HID descriptor maps invalid handle to error
+PASS USB report descriptor size maps invalid handle to error
+-- page 22 --
+PASS USB report descriptor maps invalid handle to error
+PASS USB ASCII string maps invalid handle to error
+PASS USB suspend rejects invalid handle
+PASS USB resume rejects invalid handle
+PASS USB set configuration rejects invalid handle
+PASS USB set alternate interface rejects invalid handle
+PASS USB clear halt rejects invalid handle
+PASS USB zero-capacity device list returns an empty result
+PASS USB removal notification rejects an invalid descriptor
+PASS USB ASCII string rejects an invalid descriptor without changing output
+PASS USB mouse event queue starts empty
+PASS USB mouse event flush preserves an empty queue
+PASS USB mouse reports disconnected before initialization
+PASS USB open handle rejects an invalid device id
+PASS USB handle close rejects an invalid descriptor
+PASS USB async handle close rejects an invalid descriptor
+PASS USB fallible async close maps an invalid descriptor
+PASS USB report descriptor size rejects an invalid handle
+PASS USB raw suspend rejects invalid handle
+PASS USB raw resume rejects invalid handle
+PASS USB raw configuration rejects invalid handle
+PASS USB raw alternate interface rejects invalid handle
+-- page 23 --
+PASS USB raw clear halt rejects invalid handle
+PASS USB configuration query rejects invalid handle
+PASS USB sys suspend rejects invalid handle
+PASS USB sys resume rejects invalid handle
+PASS USB sys configuration query preserves output on invalid handle
+PASS USB sys configuration set rejects invalid handle
+PASS USB sys alternate interface rejects invalid handle
+PASS USB sys clear halt rejects invalid handle
+PASS USB sys report descriptor size rejects invalid handle
+PASS USB sys async control read rejects invalid handle
+PASS USB sys async control write rejects invalid handle
+PASS USB sys V5 failure status reports a valid stage and error
+PASS Video framebuffer size aligns width and adds AA rows
+PASS Video snapshot retains last queried state
+PASS Video current line query returns
+PASS Video next field query returns
+PASS Video sys current line query stays in range
+PASS Video sys next field query is a valid field
+PASS Video sys reports the Broadway timer frequency
+INFO STEP 11 Video register checks and retrace waits; vi_frame=1969 frame_increment=185 passes=425 fails=0
+PASS Video raw register snapshot matches VI registers
+PASS Video control match distinguishes mode
+-- page 24 --
+PASS Video raw control match distinguishes mode
+PASS Video framebuffer match distinguishes buffers
+PASS Video raw framebuffer match distinguishes buffers
+PASS Video current TV mode matches configured mode
+PASS Video raw TV mode matches configured mode
+PASS Video scan mode matches VI registers
+PASS Video wait_vsync observes retrace
+PASS Video raw wait_v_sync observes retrace
+INFO STEP 12 Video framebuffer updates and display state; vi_frame=2044 frame_increment=75 passes=435 fails=0
+PASS Video raw immediate framebuffer programs VI
+PASS Video wrapper immediate framebuffer programs VI
+PASS Video raw next framebuffer latches after flush
+PASS Video raw flush publishes framebuffer
+PASS Video framebuffer fixture restored
+PASS Video raw black toggles vertical display
+PASS Video raw component cable matches VI register
+PASS Video raw preferred mode copies into caller storage
+PASS Video right framebuffer setter records and restores its pointer
+PASS Video raw right framebuffer setter records and restores its pointer
+INFO STEP 13 Video extended console initialization; vi_frame=2057 frame_increment=13 passes=445 fails=0
+PASS Video console_init_ex initializes and reuses its console buffer
+INFO STEP 14 Video default console initialization; vi_frame=2059 frame_increment=2 passes=446 fails=0
+PASS Video console_init initializes once and restores the probe display
+PASS Video console selection exposes metrics and position
+PASS Video console window clips and font copies
+PASS Video default console supplies its font
+PASS Video console clear resets the cursor
+PASS Video RGBA blit rejects invalid image sizes
+PASS WD counts complete nonempty elements
+PASS WD element lengths and missing IDs
+PASS WD copies payload and clears remaining buffer
+PASS WD safe copy checks capacity
+PASS WD rejects truncated descriptor
+PASS WD defaults overwrite every scan parameter
+PASS WD default scan constructor returns expected fields
+PASS IPC heap rejects nonpositive size
+PASS IPC default heap remains stable
+PASS IPC created heap has valid ID
+PASS IPC allocations are aligned and distinct
+PASS IPC freed space supports a larger allocation
+PASS IPC path validation accepts 63 bytes and rejects 64 bytes
+PASS IPC async open rejects oversized path before submission
+PASS IPC format internal bridge null-call guard
+PASS IPC format public sync b/h/i/q decodes register and aligned overflow words
+PASS IPC async mixed b h stack q and d arguments decode vector order and destinations
+PASS IPC format public sync iq skips one GPR before aligned q
+PASS IPC format public sync iqq advances from aligned GPR q to stack q
+PASS IPC format public async b/h/i/q decodes register and aligned overflow words
+PASS IPC format public sync :b/:h/:i/:q constructs exact scalar widths
+PASS IPC format public async :b/:h/:i/:q constructs exact scalar widths
+PASS IPC format public sync scalar output copyback preserves width canaries
+PASS IPC format public async entry scalar cleanup preserves width canaries
+PASS IPC format public sync ds constructs input buffer and string vectors
+-- page 25 --
+PASS IPC format public async ds decodes input buffer and stack string
+PASS IPC format public sync :d stages an 8-byte output buffer
+PASS IPC format public sync output copyback preserves DMA boundary canaries
+PASS IPC format public async entry staging cleanup preserves DMA boundary canaries
+PASS IPC controlled sync mixed scalar and buffer completion preserves widths and canaries
+PASS IPC controlled async mixed scalar and buffer completion preserves widths and canaries
+PASS IPC format public sync input staging reads selected DMA boundary lengths
+PASS IPC format public async entry reads selected DMA boundary lengths
+PASS IPC format public sync d vectors reserve full cache lines and keep logical lengths
+PASS IPC format public async d vectors reserve full cache lines and keep logical lengths
+PASS IPC format public sync d:d separates input and output vectors
+PASS IPC format public async d:d separates input and overflow output arguments
+PASS IPC format public sync preserves null d pointers and lengths
+PASS IPC format public sync accepts empty normal and maximum length strings
+PASS IPC format public sync rejects a null format pointer
+PASS IPC format public sync accepts empty and colon-only formats
+PASS IPC format public sync accepts the maximum valid format length
+PASS IPC format maximum 31-parameter staged d ownership balances all 64 workspace events
+INFO IPC async max staged d captured vector counts=0x001f0000
+INFO IPC async max staged d workspace events=0x00000040
+INFO IPC async max staged d callback and buffer status=0x00000003
+-- page 26 --
+INFO IPC async max staged d controlled completion result=-2147483547
+INFO IPC async max staged d workspace and heap ledgers=0x00000007
+PASS IPC format async maximum 31 staged d inputs remain intact through callback with 64 workspace events
+PASS IPC format public async parser matches sync null empty colon maximum and null-buffer boundaries
+PASS IPC format public sync rejects unknown malformed overlong and unterminated input
+PASS IPC format public sync rejects a null scalar output pointer
+PASS IPC format public sync rejects an unavailable heap
+INFO IPC typed ES title result=0
+INFO IPC formatted ES title result=0
+INFO IPC typed ES title count=0x00000053
+INFO IPC formatted ES title count=0x00000053
+PASS IPC format internal bridge copies ES title count to output vector
+INFO IPC public sync ES title result=0
+PASS IPC format public ABI sync :i returns the ES title count
+PASS IPC format public ABI async :i preserves output and callback
+INFO IPC typed ES title directory result=0
+INFO IPC formatted ES title directory result=0
+PASS IPC format internal bridge transfers title input and directory output
+PASS IPC format public ABI sync q:d formats title directory
+PASS IPC format public sync ES output respects DMA boundary lengths and canaries
+PASS IPC format public async ES output copyback preserves DMA boundary canaries
+INFO IPC typed ES title content count result=0
+INFO IPC typed ES title content count=0x00000009
+PASS IPC format public sync d input reaches ES with the complete title ID
+-- page 27 --
+INFO IPC formatted ES large input result length=31=-1017
+INFO IPC formatted ES large input result length=32=-1017
+INFO IPC formatted ES large input result length=33=-1017
+INFO IPC formatted ES large input result length=63=-1017
+INFO IPC formatted ES large input result length=64=-1017
+INFO IPC formatted ES large input result length=65=-1017
+PASS IPC format ES rejects oversized d inputs after full cache-line tail staging
+INFO IPC typed AES input result length=32=0
+INFO IPC alternate typed AES input result length=32=0
+INFO IPC formatted AES input result length=32=0
+INFO IPC typed AES input result length=64=0
+INFO IPC alternate typed AES input result length=64=0
+INFO IPC formatted AES input result length=64=0
+INFO IPC AES live full output status length and offset320=0x00000001
+INFO IPC AES live full output status length and offset320=0x00000003
+INFO IPC AES live full output status length and offset321=0x00000001
+INFO IPC AES live full output status length and offset321=0x00000003
+INFO IPC AES live full output status length and offset640=0x00000001
+INFO IPC AES live full output status length and offset640=0x00000003
+INFO IPC AES live full output status length and offset641=0x00000001
+INFO IPC AES live full output status length and offset641=0x00000003
+PASS IPC sync AES full 32 and 64 byte outputs preserve boundary canaries
+PASS IPC async AES callback sees full 32 and 64 byte outputs and IV
+PASS IPC AES direct plaintext and staged key match typed mutated-tail control
+PASS IPC format AES matches NIST CBC known-answer ciphertext and consumes staged tail bytes
+PASS IPC async AES matches NIST CBC known-answer ciphertext and consumes a mutated staged tail in the callback
+-- page 28 --
+PASS IPC format public async d input survives IOS completion
+PASS IPC format public async d input completes without a user callback
+INFO IPC typed ES title contents result=0
+INFO IPC public sync ES title contents result=0
+INFO IPC typed ES title contents first value=0x00000096
+INFO IPC public sync ES title contents first value=0x00000096
+PASS IPC format public ABI sync qi:d decodes the overflow length
+INFO IPC public async ES title directory submission=0
+INFO IPC public async ES title directory completion=0
+INFO IPC public async ES title directory callback count=0x00000001
+INFO IPC public async ES title directory callback userdata=0x2468ace0
+INFO IPC public async ES title directory callback output match=0x00000001
+INFO IPC public async ES title directory callback first word=0x2f746974
+INFO IPC public async ES title directory final first word=0x2f746974
+INFO IPC public async ES title directory output word0=0x2f746974
+INFO IPC public async ES title directory output word1=0x6c652f30
+INFO IPC public async ES title directory output word2=0x30303030
+INFO IPC public async ES title directory output word3=0x3030312f
+INFO IPC public async ES title directory output word4=0x30303030
+INFO IPC public async ES title directory output word5=0x30303032
+INFO IPC public async ES title directory output word6=0x2f646174
+INFO IPC public async ES title directory output word7=0x61ff0000
+PASS IPC format public ABI async q:d spills and copies back before callback
+PASS IPC format public async concurrent scalar and buffer requests keep callbacks separate
+PASS IPC sync submitted ES error matches typed control and recovers
+PASS IPC async submitted ES error callback matches typed control and recovers
+-- page 29 --
+PASS IPC callback-less submitted ES error releases state and recovers
+PASS IPC format async callback re-entry submits a separate second request exactly once
+PASS IPC format re-entry submission failure completes without a second callback
+PASS IPC async three callback-linked requests retain separate outputs and ownership
+INFO IPC formatter concurrent workers ready=2
+INFO IPC formatter concurrent parser arrivals=2
+INFO IPC formatter concurrent submissions=2
+INFO IPC formatter concurrent request result=0=0
+INFO IPC formatter concurrent request result=1=0
+INFO IPC formatter concurrent callback count=2
+INFO IPC formatter concurrent scalar output matched=1
+INFO IPC formatter concurrent buffer output matched=1
+INFO IPC formatter concurrent request ledger balanced=1
+INFO IPC formatter concurrent heap ledger balanced=1
+PASS IPC format formatter construction enters concurrently on two LWPs with separate IOS state
+PASS IPC format public async invalid descriptor completes once with error and releases state
+PASS IPC format successful parse balances independent argv and scalar heap events
+PASS IPC format State allocation failure leaves formatter heap ledger empty
+PASS IPC format Argv allocation failure leaves formatter heap ledger empty
+PASS IPC format second Scalar allocation failure balances prior heap records
+PASS IPC format StagingBuffer failure balances formatter argv ownership
+PASS IPC formatter real heap exhaustion rejects Argv allocation without leaks
+-- page 30 --
+PASS IPC formatter real heap exhaustion frees Argv and the first Scalar exactly once
+PASS IPC formatter async real heap exhaustion rejects Argv
+PASS IPC async Argv heap exhaustion immediately recovers with a formatted ES request
+PASS IPC formatter async real heap exhaustion releases the first Scalar and Argv
+PASS IPC async Scalar heap exhaustion immediately recovers with a formatted ES request
+PASS IPC formatter real heap exhaustion recovers on the same heap
+PASS IPC formatter FormatState real workspace exhaustion balances all reservations
+PASS IPC async FormatState real workspace exhaustion balances all reservations
+PASS IPC async FormatState workspace exhaustion immediately recovers with a formatted ES request
+PASS IPC formatter staged-buffer real workspace exhaustion releases state and argv
+PASS IPC async staged-buffer real workspace exhaustion releases state and argv
+PASS IPC async staged-buffer workspace exhaustion immediately recovers with a formatted ES request
+PASS IPC sync final staged-buffer real workspace exhaustion cleans prior ownership
+PASS IPC async final staged-buffer real workspace exhaustion cleans prior ownership
+PASS IPC format public sync allocation failures release partial formatter state
+PASS IPC format public async request allocation failure releases state without callback
+PASS IPC format async request allocation fault balances formatter heap records
+-- page 31 --
+PASS IPC format public async submission failure releases request and formatter state
+PASS IPC format submission failure frees its one allocated request record exactly once
+PASS IPC format submission failure balances formatter argv and scalar heap records
+PASS IPC format async request allocator exhaustion returns ENOMEM and balances held records
+PASS IPC format formatter recovers after injected allocation failures
+PASS IPC fixture closes ES descriptor
+INFO STEP 15 IPC buffer boundary accessors; vi_frame=2752 frame_increment=693 passes=556 fails=0
+PASS IPC Rust buffer setters and getters update bounds
+PASS IPC C buffer setters and getters update bounds
+PASS IPC buffer bounds restored
+INFO STEP 16 IPC file read and seek; vi_frame=2756 frame_increment=4 passes=559 fails=0
+PASS IPC descriptor identifies open file
+PASS IPC reads settings bytes
+PASS IPC seek selects file offsets
+PASS IPC exact read detects short file
+INFO STEP 17 IPC file stat ioctls; vi_frame=2761 frame_increment=5 passes=563 fails=0
+PASS IPC ioctl reads file stats
+PASS IPC ioctl_result reads guarded file stats
+PASS IPC ioctl_async returns file stats
+PASS Device registry finds the exact prefix
+-- page 32 --
+PASS Device registry returns the registered table
+PASS Device registry removes the registered name
+PASS Device C registry removes by path
+
+== SYSBASE DEVICE HELPERS ==
+PASS DeviceFile open_append sets append and create flags
+PASS DeviceFile open_truncate sets truncate and create flags
+PASS stdin device replacement restores the previous device
+PASS stdin restore leaves a changed device untouched
+PASS sysbase probe devoptab cleanup restores the registry
+PASS Newlib errno is isolated per thread
+PASS Newlib errno classification maps known and unknown codes
+PASS IRQ handler registry stores and removes handler
+PASS Raw IRQ registry stores and clears handler
+PASS IRQ nested disable and restore preserve MSR delivery state
+PASS IRQ mask operations update and restore debug bit
+PASS IRQ dispatch reports no handled pending interrupt
+PASS EXI lock rejects contention and permits reacquisition
+PASS Raw EXI lock delivers each queued callback once
+PASS Raw EXI lock queue holds 32 callbacks and drops overflow
+PASS EXI selection tracks state and rejects duplicates
+PASS EXI callback registry installs and restores callback
+PASS raw EXI attach rejects an invalid channel
+PASS raw EXI detach rejects an invalid channel
+PASS raw EXI device ID query rejects an invalid channel without changing output
+PASS EXI attach rejects an invalid channel
+PASS EXI detach rejects an invalid channel
+-- page 33 --
+PASS EXI device ID query rejects an invalid channel
+PASS EXI safe device ID query maps an invalid channel to an error
+PASS EXI try attach maps an invalid channel to an error
+PASS EXI try detach maps an invalid channel to an error
+PASS EXI try probe reports no device on an invalid channel
+PASS EXI try extended probe maps an invalid channel to an error
+PASS EXI immediate writes complete and preserve source
+PASS EXI DMA writes complete and preserve source
+PASS raw EXI base selects the Wii register window
+PASS raw EXI probe reset reaches stable channel results
+PASS SI decodes controller and error types
+PASS SI rejects channels outside zero through three
+PASS SI raw decodes known device and errors
+PASS SI raw rejects invalid channels without output writes
+INFO STEP 18 SI polling and command registers; vi_frame=2931 frame_increment=170 passes=606 fails=0
+PASS SI wrapper sets polling coordinates
+PASS SI raw sets polling coordinates
+PASS SI wrapper enables and disables polling
+PASS SI raw enables and disables polling
+PASS SI wrapper writes channel command
+PASS SI raw writes channel command
+PASS SI polling and command registers restored
+INFO SI direct transfer command status=0x20080808
+PASS SI direct transfer command syncs to idle
+INFO STEP 19 SI polling handlers and transfers; vi_frame=2941 frame_increment=10 passes=614 fails=0
+-- page 34 --
+PASS SI wrapper polling interrupt changes and reports previous state
+PASS SI raw polling interrupt changes and reports previous state
+PASS SI wrapper polling handler registration and removal
+PASS SI raw polling handler registration and removal
+PASS SI wrapper transfer reports no controller and clears busy
+PASS SI raw transfer reports no controller and clears busy
+INFO STEP 20 SI sampling rate configuration; vi_frame=3010 frame_increment=69 passes=620 fails=0
+PASS SI wrapper sets sampling rate one
+PASS SI wrapper refresh restores selected sampling rate
+PASS SI raw clamps and sets sampling rate
+PASS SI raw refresh restores selected sampling rate
+PASS SI sampling rate fixture restored
+
+== UI INPUT ADAPTERS ==
+PASS UI PAD edges reset and reconnect
+PASS UI WPAD edges pointer and errors
+PASS System arena snapshot matches runtime bounds
+INFO hollywood revision=0x00000011
+PASS core hollywood revision matches system
+PASS System hardware getters match Dolphin default values
+PASS Raw system hardware snapshot records getter calls
+PASS Raw system clock advances monotonically
+INFO Proof font encoding=0
+INFO Proof reset button=0
+INFO Proof Hollywood revision=0x00000011
+INFO Snapshot font queried=1
+-- page 35 --
+INFO Snapshot reset queried=1
+INFO Snapshot Hollywood queried=1
+PASS System hardware proof records Dolphin observations
+INFO PowerPC immediate delta=0
+INFO PowerPC timebase=51574541655584031
+INFO PowerPC timebase delta=2
+PASS PowerPC timebase advances
+INFO font encoding=0
+INFO arena1 size=12265088
+INFO arena2 size=67108864
+INFO system time=51574537367711316
+PASS performance counters read
+INFO pmc load/stores=0
+INFO pmc miss cycles=0
+INFO pmc cycles=0
+INFO pmc instructions=0
+INFO STEP 21 System alarm callbacks and cancellation; vi_frame=3108 frame_increment=98 passes=635 fails=0
+PASS System alarm creation returns a handle
+PASS System one-shot alarm delivers handle and argument
+PASS System alarm snapshot records handle and callbacks
+PASS System periodic alarm delivers repeated callbacks
+PASS System alarm cancellation stops callbacks
+PASS System alarm removal succeeds
+INFO STEP 22 Raw system alarm callbacks and state; vi_frame=3130 frame_increment=22 passes=641 fails=0
+PASS Raw system alarm creation returns a handle
+-- page 36 --
+PASS Raw system alarms reject invalid inputs
+PASS Raw system one-shot alarm delivers handle and argument
+PASS Raw system periodic alarm repeats
+PASS Raw system alarm cancellation stops callbacks
+PASS Raw system alarm removal and state snapshot
+INFO STEP 23 System SRAM getter values; vi_frame=3215 frame_increment=85 passes=647 fails=0
+PASS SRAM field getters read supplied signed and unsigned values
+PASS System counter bias reads SRAM
+PASS System display offset reads signed SRAM
+PASS System RGB60 reads SRAM bit
+PASS System language reads SRAM
+PASS System progressive scan reads SRAM bit
+PASS System sound mode reads SRAM bit
+PASS System video mode reads SRAM bits
+PASS System SRAM getter snapshots record calls
+PASS System SRAM checksum wraps both sums
+PASS System configuration snapshot reflects SRAM fixture
+PASS System SRAM buffer is restored
+INFO STEP 24 System SRAM lock exclusivity; vi_frame=3228 frame_increment=13 passes=659 fails=0
+PASS System standard SRAM lock excludes both lock types
+PASS System standard SRAM unlock completes
+PASS SRAM snapshots reject a held lock
+PASS Standard SRAM snapshot matches locked data
+PASS System extended SRAM lock excludes both lock types
+PASS System extended SRAM unlock completes
+-- page 37 --
+PASS Extended SRAM snapshot matches locked data
+PASS SRAM sync snapshot reports the actual result
+PASS System SRAM lock can be reacquired after release
+PASS Wireless ID getter reads each extended SRAM channel
+PASS GBS getter reads extended SRAM
+PASS Extended SRAM fixture lock and restoration
+INFO STEP 25 System SRAM configuration setters; vi_frame=3303 frame_increment=75 passes=671 fails=0
+PASS System last config write result follows SRAM setters
+PASS System SRAM sync reports success
+PASS SRAM counter bias setter updates field
+PASS SRAM display offset setter updates field
+PASS SRAM language setter updates field
+PASS SRAM RGB60 setter updates bit
+PASS SRAM progressive setter updates bit
+PASS SRAM sound setter updates bit
+PASS SRAM video setter updates bits
+PASS SRAM wireless setter updates selected channel
+PASS SRAM GBS setter updates field
+PASS SRAM setter fixture restores both images
+
+== IOS STM PROBE ==
+PASS ES service initializes before the IOS preferred-version query
+INFO ios preferred=58
+INFO ios version=58
+INFO ios revision=6176
+INFO ios revision major=24
+-- page 38 --
+INFO ios revision minor=32
+INFO stm led rc=0
+PASS stm reachable
+INFO STEP 26 IOS version and preferred title; vi_frame=3388 frame_increment=85 passes=685 fails=0
+PASS IOS version matches low memory
+PASS IOS revision matches low memory
+PASS IOS revision major matches low memory
+PASS IOS revision minor matches low memory
+PASS IOS preferred version selects installed IOS 58
+
+== CONF PROBE ==
+INFO conf init rc=0
+INFO conf video=0
+INFO conf region=1
+INFO conf area=1
+INFO conf language=1
+INFO conf sound=1
+INFO conf aspect=1
+INFO conf progressive=0
+INFO conf sensorbar=1
+INFO conf counter bias rc=0
+INFO conf counter bias=0
+INFO conf display offset rc=0
+INFO conf display offset=0
+INFO conf pad devices rc=0
+INFO conf registered pads=5
+-- page 39 --
+INFO STEP 27 Wii configuration fixture values and mutation; vi_frame=3411 frame_increment=23 passes=690 fails=0
+PASS CONF initialization is repeatable
+PASS CONF byte settings are readable
+PASS CONF generic length type and value
+PASS CONF missing and wrong length inputs fail
+PASS CONF known byte values are set in memory
+PASS CONF language reads selected value
+PASS CONF sound mode reads selected value
+PASS CONF aspect ratio reads selected value
+PASS CONF progressive mode reads selected value
+PASS CONF RGB60 mode reads selected value
+PASS CONF sensor bar reads selected value
+PASS CONF speaker volume reads selected value
+PASS CONF motor mode reads selected value
+PASS CONF screen saver reads selected value
+PASS CONF in-memory settings are restored
+INFO STEP 28 Wii configuration typed values; vi_frame=3489 frame_increment=78 passes=705 fails=0
+PASS CONF shutdown and LED decode two-byte setting
+PASS CONF counter bias decodes big endian word
+PASS CONF IR sensitivity decodes big endian word
+PASS CONF WiiConnect24 decodes big endian word
+PASS CONF horizontal display offset is signed
+PASS CONF EULA decodes boolean
+PASS CONF nickname decodes ten big endian characters
+PASS CONF rejects an empty nickname without output changes
+-- page 40 --
+PASS CONF parental length error preserves outputs
+INFO STEP 29 Wii configuration controller records; vi_frame=3561 frame_increment=72 passes=714 fails=0
+PASS CONF controller records are readable
+PASS CONF registered controller records and byte layout
+PASS CONF rejects too many registered controllers
+PASS CONF registered controller record is restored
+PASS CONF guest controller records and byte layout
+PASS CONF rejects too many guest controllers
+PASS CONF null guest input clears guest records
+PASS CONF guest controller record is restored
+INFO STEP 30 Wii configuration text settings; vi_frame=3570 frame_increment=9 passes=722 fails=0
+PASS CONF text settings file reads and closes
+PASS CONF region matches decoded GAME field
+PASS CONF area matches decoded AREA field
+PASS CONF video matches decoded VIDEO field
+
+== ES PROBE ==
+INFO es init rc=0
+INFO es title id rc=-1017
+INFO es title hi=0x00000000
+INFO es title lo=0x00000000
+INFO es device id rc=0
+INFO es device id=0x06eeed45
+INFO es boot2 rc=0
+INFO es boot2=4
+-- page 41 --
+INFO es korean key rc=-1017
+INFO es close rc=0
+
+== ES CLOSED SERVICE ==
+PASS ES service closes before guard checks
+PASS ES add_content_start rejects a closed service
+PASS ES add_content_finish rejects a closed service
+PASS ES add_title_cancel rejects a closed service
+PASS ES add_title_finish rejects a closed service
+PASS ES export_content_begin rejects a closed service
+PASS ES export_content_end rejects a closed service
+PASS ES export_title_done rejects a closed service
+PASS ES delete_title rejects a closed service
+PASS ES delete_title_content rejects a closed service
+PASS ES set_uid rejects a closed service
+
+== RAW ES CATALOG ==
+PASS Raw ES initializes
+INFO Raw ES title count=83
+PASS Raw ES title count is bounded and nonzero
+PASS Raw ES title list includes system menu
+INFO Raw ES owned title count=96
+PASS Raw ES owned title count is bounded and nonzero
+PASS Raw ES owned title list includes system menu
+INFO Raw ES data path result=0
+INFO Raw ES data path bytes=0x2f746974
+INFO Raw ES data path bytes=0x6c652f30
+-- page 42 --
+INFO Raw ES data path bytes=0x30303030
+INFO Raw ES data path bytes=0x3030312f
+INFO Raw ES data path bytes=0x30303030
+INFO Raw ES data path bytes=0x30303032
+INFO Raw ES data path bytes=0x2f646174
+INFO Raw ES data path bytes=0x61a5a5a5
+PASS Raw ES Dolphin writes 29 path bytes without terminator
+INFO Raw ES stored TMD size result=0
+INFO Raw ES stored TMD size=808
+PASS Raw ES system menu TMD size matches NAND fixture
+INFO Raw ES title contents count result=0
+INFO Raw ES title contents count=9
+PASS Raw ES system menu content count matches TMD
+PASS Raw ES system menu content IDs match TMD
+INFO Raw ES stored TMD result=0
+PASS Raw ES stored TMD matches fixture digest and guard
+INFO Raw ES stored content count result=0
+INFO Raw ES stored content count=9
+PASS Raw ES stored content count matches NAND files
+INFO Raw ES stored content list result=-2011
+INFO Raw ES stored content ID=0xffffffff
+INFO Raw ES stored content ID=0xffffffff
+INFO Raw ES stored content ID=0xffffffff
+INFO Raw ES stored content ID=0xffffffff
+INFO Raw ES stored content ID=0xffffffff
+INFO Raw ES stored content ID=0xffffffff
+INFO Raw ES stored content ID=0xffffffff
+-- page 43 --
+INFO Raw ES stored content ID=0xffffffff
+INFO Raw ES stored content ID=0xffffffff
+INFO Raw ES stored content ID=0xffffffff
+PASS Raw ES rejected TMD leaves stored ID buffer unchanged
+INFO Raw ES shared content count result=0
+INFO Raw ES shared content count=120
+PASS Raw ES shared content count matches NAND files
+PASS Raw ES shared content list matches fixture and guard
+INFO Raw ES ticket count result=0
+INFO Raw ES ticket count=1
+PASS Raw ES system menu has one ticket view
+PASS Raw ES ticket view identifies system menu
+INFO Raw ES TMD view size result=0
+INFO Raw ES TMD view size=236
+PASS Raw ES TMD view size fits system menu
+PASS Raw ES TMD view identifies menu and content count
+PASS Raw ES boot2 version matches Dolphin fixture
+PASS Raw ES closes
+
+== CRYPTO PROBE ==
+PASS sha init
+PASS sha context helpers
+PASS sha calculate
+PASS sha abc vector
+PASS sha close
+INFO aes bad key rc=-4
+PASS aes rejects bad key size
+-- page 44 --
+INFO aes init rc=0
+PASS aes encrypt/decrypt roundtrip
+INFO aes close rc=0
+
+== ISO9660 PROBE ==
+PASS ISO9660 C exports reject null arguments
+PASS iso descriptor read failure
+PASS iso path table read failure
+PASS iso truncated path table
+PASS ISO9660 Rust C wrappers mount read the label and unmount the volume
+PASS ISO9660 convenience open and seek work
+INFO ISO9660 mounted device lookup=1
+INFO ISO9660 file open error=0
+INFO ISO9660 stat callback result=0
+PASS ISO9660 mounted file opens
+PASS ISO9660 file read returns expected bytes
+PASS ISO9660 file seek returns expected position
+PASS ISO9660 read after seek returns expected bytes
+PASS ISO9660 EOF preserves the output buffer
+PASS ISO9660 rejects writes to a mounted file
+PASS ISO9660 missing file returns ENOENT
+PASS ISO9660 file close completes
+PASS ISO9660 stat reports file metadata
+PASS ISO9660 chdir accepts the root directory
+PASS iso mount after failures
+PASS ISO9660 convenience open and seek work
+INFO ISO9660 mounted device lookup=1
+-- page 45 --
+INFO ISO9660 file open error=0
+INFO ISO9660 stat callback result=0
+PASS ISO9660 mounted file opens
+PASS ISO9660 file read returns expected bytes
+PASS ISO9660 file seek returns expected position
+PASS ISO9660 read after seek returns expected bytes
+PASS ISO9660 EOF preserves the output buffer
+PASS ISO9660 rejects writes to a mounted file
+PASS ISO9660 missing file returns ENOENT
+PASS ISO9660 file close completes
+PASS ISO9660 stat reports file metadata
+PASS ISO9660 chdir accepts the root directory
+INFO Rust filesystem ISO mount=1
+INFO Rust filesystem ISO volume label=1
+INFO Rust filesystem ISO unmount=1
+INFO Rust filesystem ISO label cleared=1
+PASS Rust filesystem ISO mount
+PASS Rust filesystem ISO volume label
+PASS Rust filesystem ISO unmount
+PASS Rust filesystem ISO cleanup
+
+== ISFS INVALID-STATE API PROBE ==
+PASS ISFS sync path APIs reject overlong paths and preserve outputs
+PASS ISFS async path APIs reject overlong paths before callback
+INFO ISFS deinitialize result=0
+INFO ISFS repeated deinitialize result=-101
+INFO ISFS reinitialize result=0
+-- page 46 --
+PASS ISFS service deinitialize and reinitialize
+PASS ISFS uninitialized synchronous APIs reject and preserve outputs
+PASS ISFS get_stats_async rejects a closed service and preserves output
+PASS ISFS uninitialized async APIs reject without destructive submission
+
+== ISFS SUCCESSFUL FILE CYCLE ==
+PASS ISFS get volume stats
+PASS ISFS create test directory
+PASS ISFS create test file
+PASS ISFS file write seek read stats and close
+PASS ISFS sync file data persists after close and reopen
+PASS ISFS get set get attributes and usage
+INFO ISFS successful readdir result=0
+INFO ISFS successful readdir count=1
+INFO ISFS successful readdir file entry=1
+PASS ISFS read directory lists test file
+
+== ISFS ASYNC FILE CYCLE ==
+PASS ISFS create_file_async completes successfully
+PASS ISFS open_async returns an open descriptor
+PASS ISFS async write seek read and file stats
+PASS ISFS async attributes usage and directory listing
+PASS ISFS async file data persists after close and reopen
+PASS ISFS async close delete and cleanup
+INFO STEP 31 IPC synchronous and asynchronous file cycle; vi_frame=4129 frame_increment=559 passes=815 fails=0
+PASS IPC write persists bytes
+-- page 47 --
+PASS IPC exact write persists bytes
+PASS IPC async write completes and persists
+PASS IPC async seek selects offset
+PASS IPC async read returns bytes
+PASS IPC async close completes and persists
+PASS IPC test file cleanup
+
+== ISFS ASYNC DIRECTORY CYCLE ==
+PASS ISFS get_stats_async returns service stats
+PASS ISFS create_dir_async usage and read_dir_async
+PASS ISFS delete_async removes directory and preserves error outputs
+
+== ISFS DIRECTORY RENAME CYCLES ==
+INFO ISFS sync directory rename result=0
+PASS ISFS sync rename moves an empty directory
+PASS ISFS sync directory rename cleanup removes both paths
+INFO ISFS async directory rename submit result=0
+INFO ISFS async directory rename callback result=0
+PASS ISFS async rename completes and moves an empty directory
+PASS ISFS async directory rename cleanup removes both paths
+
+== ISFS ASYNC RENAME CYCLE ==
+INFO ISFS rename_async callback result=-101
+PASS ISFS rename_async callback matches file state
+PASS ISFS async rename test files are cleaned up
+INFO ISFS successful rename result=-101
+PASS ISFS sync rename result matches file state
+-- page 48 --
+INFO ISFS renamed-file reopen skipped because Dolphin rejected rename
+INFO ISFS usage after directory delete result=-106
+PASS ISFS delete test file and directory
+PASS ISFS file and directory are absent after delete
+
+== ISFS FORMAT API PROBE ==
+INFO ISFS format_async submission result=0
+INFO ISFS format_async callback result=0
+PASS ISFS format_async removes the marker file
+PASS ISFS format_async removes the marker directory
+PASS ISFS format_async completes and removes marker state
+PASS ISFS format_async marker cleanup
+
+== ISFS SYNCHRONOUS FORMAT PROBE ==
+INFO ISFS synchronous format initialize result=0
+PASS ISFS synchronous format prepares the temporary root
+INFO ISFS synchronous format marker directory result=0
+INFO ISFS synchronous format marker file result=0
+INFO ISFS synchronous format result=0
+INFO ISFS synchronous format deinitialize result=0
+INFO ISFS synchronous format reinitialize result=0
+PASS ISFS synchronous format creates isolated marker state
+PASS ISFS synchronous format clears marker state after service restart
+PASS ISFS synchronous format cleanup succeeds
+INFO STEP 32 Raw UDP loopback operations; vi_frame=4363 frame_increment=234 passes=842 fails=0
+PASS Raw network initializes and reports status
+-- page 49 --
+PASS Network MAC matches independent IOS response
+PASS Network MAC rejects null output
+INFO STEP 33 IPC vector MAC queries; vi_frame=4429 frame_increment=66 passes=845 fails=0
+PASS IPC ioctlv returns MAC
+PASS IPC ioctlv_result returns MAC
+PASS IPC ioctlv_raw returns MAC
+PASS IPC ioctlv_async_raw returns MAC
+PASS Network static configuration rejects without writes
+FAIL Network DHCP address matches IOS host address
+FAIL Network DHCP text address matches binary address
+FAIL Network wrapper DHCP addresses match IOS
+PASS Network resolver rejects null and empty names
+FAIL Network resolver returns numeric loopback address
+FAIL Network resolver wrapper returns numeric loopback
+FAIL Raw UDP sockets open
+PASS Raw network deinitializes
+PASS Network resolver requires an active session
+PASS Raw network asynchronous initialization completes
+PASS Network wrapper asynchronous initialization completes
+INFO STEP 34 Owned UDP service; vi_frame=4446 frame_increment=17 passes=855 fails=6
+PASS Owned UDP service initializes
+PASS Owned network request constructor initializes ABI fields
+PASS Owned UDP binds distinct loopback sockets
+PASS Owned network set option rejects unsupported options locally
+PASS Owned network boolean option rejects unsupported options locally
+-- page 50 --
+PASS Owned network local error preserves its errno domain
+PASS Owned network retry classification uses IOS socket errors
+PASS Owned UDP timeout state validates values
+PASS Owned UDP nonblocking empty receive preserves bytes
+PASS Owned UDP addressed transfer preserves payload and source
+PASS Owned UDP connected transfer preserves payload
+PASS Owned UDP releases leases and closes sockets
+INFO STEP 35 Owned TCP service; vi_frame=4521 frame_increment=75 passes=867 fails=6
+PASS Owned resolver returns loopback and rejects invalid names
+PASS Owned TCP connect and accept match peer addresses
+PASS Owned TCP connection transfers bytes
+PASS Owned TCP shutdown delivers EOF
+PASS Owned TCP rejects invalid shutdown mode
+PASS Owned TCP closes all sockets
+INFO STEP 36 Raw TCP loopback operations; vi_frame=4528 frame_increment=7 passes=873 fails=6
+PASS Raw TCP network initializes
+INFO Raw TCP listener descriptor=0
+INFO Raw TCP client descriptor=1
+PASS Raw TCP sockets open
+PASS lwIP reuse option set and read
+PASS lwIP reuse option clears
+PASS lwIP zero-length option read preserves output
+PASS lwIP oversized option write rejected
+INFO Raw TCP reuse option=4
+PASS Raw TCP reuse option is enabled
+-- page 51 --
+PASS Raw TCP reuse option can be cleared
+PASS Raw TCP nonblocking flags set and clear
+PASS Raw TCP listener binds and listens
+PASS lwIP unconnected peer query preserves output
+PASS Raw TCP client connects
+PASS Raw TCP listener becomes ready
+PASS Raw TCP accept reports loopback peer
+PASS lwIP listener local address matches bind
+PASS lwIP client peer matches listener
+PASS lwIP client local address matches accepted peer
+PASS lwIP accepted peer matches client
+PASS Raw TCP accepted socket receives bytes
+PASS Raw TCP write shutdown delivers EOF
+PASS Raw TCP accepted socket closes
+PASS Raw TCP wrapper relistens and accepts
+PASS Raw TCP accepted peer matches second client
+PASS Raw TCP second accepted socket closes
+PASS Raw TCP second client closes
+PASS Raw TCP listener closes
+PASS Raw TCP client closes
+PASS Raw TCP network deinitializes
+INFO STEP 37 Network TCP wrapper operations; vi_frame=4622 frame_increment=94 passes=901 fails=6
+PASS TCP wrapper initializes
+PASS TCP wrapper sockets open
+PASS TCP wrapper changes socket flags
+PASS TCP wrapper resolves raw socket
+-- page 52 --
+PASS TCP wrapper binds and listens
+PASS TCP wrapper typed connect
+PASS TCP wrapper typed accept
+PASS Select reports queued stream data
+PASS Pointer poll reports queued stream data
+PASS Slice poll reports queued stream data
+PASS TCP wrapper slice send and receive
+PASS Select clears an empty stream
+PASS TCP FIONREAD is rejected without writing output
+PASS TCP FIONBIO enables nonblocking mode
+INFO TCP empty nonblocking receive result=-6
+PASS TCP nonblocking receive leaves empty buffer unchanged
+PASS TCP FIONBIO restores blocking mode
+PASS TCP wrapper slice write and read
+PASS TCP wrapper raw send and receive
+PASS TCP wrapper raw write and read
+PASS TCP wrapper releases accepted socket
+PASS TCP wrapper accepts without peer output
+PASS TCP wrapper second accepted socket closes
+PASS TCP wrapper second client closes
+PASS TCP pointer accept returns loopback peer
+PASS TCP pointer accepted socket closes
+PASS TCP pointer accept client closes
+PASS TCP wrapper listener closes
+PASS Socket table exit closes a live handle
+PASS Socket table init permits fresh sockets
+PASS Fresh socket closes
+-- page 53 --
+PASS TCP wrapper deinitializes
+INFO STEP 38 Network UDP wrapper operations; vi_frame=4779 frame_increment=157 passes=932 fails=6
+PASS UDP wrapper initializes
+PASS UDP wrapper sockets open
+INFO UDP getsockname result=0
+INFO UDP getsockname address length=8
+INFO UDP getsockname address family=2
+INFO UDP getsockname address=0x7f000001
+INFO UDP getsockname port=51710
+INFO UDP getsockname result=0
+INFO UDP getsockname address length=8
+INFO UDP getsockname address family=2
+INFO UDP getsockname address=0x7f000001
+INFO UDP getsockname port=52197
+PASS UDP wrapper binds loopback sockets
+PASS UDP recvfrom rejects an invalid handle and preserves output
+PASS UDP wrapper binds distinct loopback ports
+PASS UDP sendto rejects an invalid handle
+PASS UDP sendto reports byte count and queues datagram
+INFO UDP wrapper received byte count=6
+INFO UDP wrapper received address length=16
+INFO UDP wrapper expected source port=51710
+INFO UDP wrapper received source port=51710
+PASS UDP recvfrom returns the payload and source address
+PASS UDP wrapper sender closes
+PASS UDP wrapper receiver closes
+-- page 54 --
+PASS UDP wrapper deinitializes
+PASS raw network attach opens active IOS socket service
+PASS network wrapper attaches and opens a socket
+PASS network attach probe deinitializes
+INFO WC24 cleanup result=0
+PASS WC24 cleanup permits network startup and socket use
+PASS WC24 cleanup probe deinitializes
+PASS lwIP network descriptor gates IOS socket creation
+PASS lwIP descriptor probe restores network lifecycle
+PASS debugger network binds and closes listener
+PASS debugger network accepts local client
+PASS debugger network exchanges a framed packet
+PASS debugger network arm and disarm change state
+PASS debugger network closes connected transport
+PASS debugger network probe deinitializes
+PASS Raw video setup has a live mode and framebuffer
+PASS Raw video init clears callbacks and keeps retrace active
+PASS Raw video configure applies valid geometry despite invalid requests
+
+== SYSBASE DEFAULT DEVICE ==
+PASS setDefaultDevice selects a registered default device
+PASS setDefaultDevice ignores out-of-range indexes
+INFO STEP 39 Font; vi_frame=9 frame_increment=4294962526 passes=961 fails=6
+
+== FONT PROBE ==
+PASS Raw system font init rejects null storage
+PASS Raw system font texture clears outputs without font data
+-- page 55 --
+PASS Raw system font texel rejects null image
+INFO font encoding=0
+PASS font encoding sane
+PASS font buffer allocated
+INFO font init rc a=0
+INFO font init rc b=0
+PASS font init reports a stable loaded or unavailable state
+INFO font ascii width=0
+INFO font ascii xpos=0
+INFO font ascii ypos=0
+PASS font ascii texture
+INFO font extended width=0
+INFO font extended xpos=0
+INFO font extended ypos=0
+PASS font extended texture
+INFO font fallback width=0
+INFO font fallback xpos=0
+INFO font fallback ypos=0
+PASS font fallback texture
+INFO font ascii texel width=0
+PASS font ascii texel
+INFO STEP 40 Bus; vi_frame=97 frame_increment=88 passes=971 fails=6
+
+== BUS PROBE ==
+
+== CACHE PROBE ==
+PASS cache invalidate preserves flushed data
+-- page 56 --
+PASS cache no-sync operations preserve data
+PASS locked cache zero-length load returns zero
+PASS locked cache zero-length store returns zero
+PASS locked cache zero-tag allocation preserves data
+PASS locked cache wait accepts maximum queue depth
+PASS cache range operations
+INFO locked cache queue=0
+INFO locked cache base=0xe0000000
+
+== CACHE CONTROLS ==
+PASS HID0 cache baseline and restoration
+PASS dc_disable clears only DCE
+PASS dc_enable sets only DCE
+PASS dc_freeze sets only DLOCK
+PASS dc_unfreeze clears only DLOCK
+PASS ic_disable clears only ICE
+PASS ic_enable sets only ICE
+PASS ic_freeze sets only ILOCK
+PASS ic_unfreeze clears only ILOCK
+PASS lc_disable clears only the locked-cache enable bit
+PASS lc_enable restores locked-cache enable after disable
+PASS lc_flush_queue leaves an initially empty queue empty
+INFO L2 enhancement HID4 before=0x83900000
+INFO L2 enhancement HID4 after=0xa7b00000
+INFO L2 enhancement L2CR before=0x00000000
+INFO L2 enhancement L2CR after=0x80200000
+PASS L2 enhancement enables the cache when HID4 supports it
+-- page 57 --
+
+== LOCKED CACHE ALLOCATIONS ==
+PASS lc_alloc_tags zeros two nonzero tags and preserves adjacent lines
+PASS lc_alloc_one_tag zeros one tag without changing adjacent lines
+PASS lc_alloc enables locked cache and zeros two requested lines
+PASS lc_alloc_no_invalidate zeros one requested line
+PASS locked-cache allocation probe restores HID2 and buffer
+
+== LOCKED CACHE DMA ==
+PASS lc_load_data transfers rounded nonzero data into locked cache
+INFO lc_store_data blocks=1
+INFO lc_store_data wait result=1
+INFO lc_store_data payload matches=1
+INFO lc_store_data guard matches=1
+PASS lc_store_data copies one nonzero cache line and preserves guard bytes
+PASS lc_load_blocks transfers one cache line into locked cache
+PASS lc_store_blocks transfers one cache line and preserves guard bytes
+PASS lc_flush_queue completes pending DMA and drains the queue
+PASS locked-cache DMA probe restores HID2 and buffers
+
+== CACHE INSTRUCTION APIs ==
+INFO HID0 after DC flash invalidate request=0x0011c664
+INFO HID0 after IC flash invalidate request=0x0011c664
+INFO Dolphin flash-invalidate readback does not prove cache timing on hardware
+PASS dc_flash_invalidate preserves other HID0 bits and restores state
+PASS ic_flash_invalidate preserves other HID0 bits and restores state
+PASS ic_block_invalidate preserves executable code behavior
+-- page 58 --
+PASS ic_sync completes after instruction cache invalidation
+
+== ARAM PROBE ==
+INFO aram base=0x00004000
+PASS aram initialized
+INFO aram size=50331648
+INFO aram internal size=16777216
+INFO aram dma busy=0
+INFO aram alloc=0x00004000
+INFO aram free top=0x00004000
+PASS aram alloc/free length
+
+== DSP PROBE ==
+PASS dsp callback replaced default
+PASS DSP direct and wrapper callback registration restore the prior handler
+PASS DSP volatile task fields read and write caller memory
+PASS DSP direct and wrapper halt set the hardware halt bit
+PASS DSP direct and wrapper assert_int set the processor interrupt bit
+INFO DSP cpu mailbox ready=0 wrapper=0x12345678 direct=0x09abcdef
+PASS DSP direct and wrapper CPU mailbox APIs return the written message
+PASS DSP direct and wrapper unhalt clear the hardware halt bit
+INFO DSP incoming mailbox ready=true wrapper=0x8071feed direct=0x0071feed pending=0
+PASS DSP mailbox status and reads acknowledge incoming DSP mail
+PASS DSP direct and wrapper DMA status report idle
+
+== DSP TASK SCHEDULER PROBE ==
+-- page 59 --
+PASS DSP task assert returns no task when the queue is empty
+PASS DSP task reset exposes its boot mailbox before task scheduling
+PASS DSP task direct add boots the AESND mixer fixture and hands off its parameter block
+PASS DSP task wrapper add rejects a null task
+PASS DSP direct and wrapper cancel set the task cancellation flag
+PASS DSP task completion callback removes the task and clears cancellation flags
+PASS DSP shutdown completes all four observed stages
+PASS DSP direct and wrapper shutdown leave DMA and mailboxes idle
+
+== EXI SI PROBE ==
+INFO exi probe ch0=0
+INFO exi probe ex ch0=1
+INFO exi state ch0=0
+INFO exi probe ch1=1
+INFO exi probe ex ch1=1
+INFO exi state ch1=0
+INFO exi probe ch2=1
+INFO exi probe ex ch2=1
+INFO exi state ch2=0
+PASS exi synchronous lock acquires and unlocks channel 2
+PASS exi synchronous lock rejects invalid channel
+PASS raw EXI synchronous lock acquires and unlocks
+PASS exi safe synchronous lock wrapper
+PASS EXI LockSync wakes same-device callers in turn
+
+== EXI TRANSFER PROBE ==
+-- page 60 --
+PASS EXI transfer immediate, aligned DMA, unaligned head-tail, and read paths
+PASS EXI transfer rejects read-write mode
+INFO EXI transfer immediate spans=3
+INFO EXI transfer immediate bytes=44
+INFO EXI transfer DMA chunks=3
+INFO EXI transfer DMA bytes=128
+INFO si probe ch0=0x00000080
+INFO si type ch0=0x09000000
+INFO si status ch0=0x00000020
+INFO si probe ch1=0x00000080
+INFO si type ch1=0x00000008
+INFO si status ch1=0x00002008
+INFO si probe ch2=0x00000080
+INFO si type ch2=0x00000008
+INFO si status ch2=0x00200808
+INFO si probe ch3=0x00000080
+INFO si type ch3=0x00000008
+INFO si status ch3=0x20080808
+
+== TIMESLICE PROBE ==
+PASS SYS_SetTimeslice keeps configured interval and rotates threads
+PASS LWP creation enables default timeslice and rotates equal priorities
+INFO configured interval worker switches=65
+INFO automatic interval worker switches=15
+PASS card banner masks and null
+PASS card icon formats preserve adjacent fields
+PASS card icon speeds preserve adjacent fields
+-- page 61 --
+PASS card metadata addresses remain distinct
+
+== CARD HELPER PROBE ==
+PASS card banner helper
+PASS card icon fmt helper
+PASS card icon speed helper
+INFO card probe slot0=1
+INFO card probe ex slot0=0
+INFO card mem size slot0=16777216
+INFO card sector size slot0=8192
+INFO card probe slot1=1
+INFO card probe ex slot1=-2
+INFO card mem size slot1=0
+INFO card sector size slot1=0
+
+== DISC PROBE ==
+INFO dvd drive status=4
+INFO dvd current disk id ptr=0x804828f8
+INFO dvd drive info ptr=0x804828a0
+INFO di init rc=1
+INFO di status=10
+INFO di cover rc=0
+INFO di cover=0x00000001
+INFO di error rc=0
+INFO di error=0x01000000
+
+== USB CORE PROBE ==
+-- page 62 --
+INFO usb init rc=0
+INFO usb list rc=-6
+INFO usb deinit rc=0
+INFO usbgecko alive ch0=0
+INFO usbgecko alive ch1=1
+INFO usbgecko alive ch2=0
+
+== IRQ LWP PROBE ==
+INFO irq vi handler present=1
+INFO current thread raw=2145218591
+PASS lwp yield returned
+INFO STEP 41 Video; vi_frame=734 frame_increment=637 passes=1042 fails=6
+
+== VIDEO PROBE ==
+PASS GX texture descriptor dimensions and format
+PASS GX texture descriptor wrap and user data
+INFO STEP 42 GX display copy scale valid dimensions; vi_frame=739 frame_increment=5 passes=1044 fails=6
+PASS GX display copy scale ratio
+INFO STEP 43 GX display copy scale unsupported dimensions; vi_frame=741 frame_increment=2 passes=1045 fails=6
+PASS GX display copy scale rejects unsupported dimensions
+PASS GX TPL memory rejects null input
+PASS GX TPL memory image opens
+PASS GX TPL image metadata and invalid index
+PASS GX TPL creates texture descriptor
+PASS GX TPL close invalidates descriptor
+-- page 63 --
+PASS GX indexed TPL texture and palette
+PASS GX frame configuration validates input
+PASS GX frame filter and field settings retained
+PASS GX texture image and user pointers
+PASS GX texture filter and LOD queries
+PASS GX texture grouped queries
+PASS GX indexed texture descriptors and palette
+PASS GX texture LOD fields and clamps
+PASS GX texture cache region C layout
+PASS GX texture preload region C layout
+PASS GX palette region preserves cached fields
+PASS GX palette object masks format
+PASS GX texture buffer tile and mip sizes
+PASS GX RGB565 tiled conversion and partial dimensions
+PASS GX light object fields and attenuation
+PASS GX light distance attenuation modes
+PASS GX light spotlight cutoff
+PASS GX light spotlight modes
+PASS GX specular directions
+PASS GX overscan modes and in-place output
+PASS GX fog adjustment table and zero width
+PASS GX perspective fog table and null inputs
+INFO STEP 44 GX wrapped FIFO pointer metadata; vi_frame=832 frame_increment=91 passes=1073 fails=6
+PASS GX FIFO base size and initial count
+PASS GX FIFO watermarks and adjacent fields
+PASS GX FIFO short initialization preserves object
+-- page 64 --
+PASS GX FIFO wrap flag readback
+PASS GX wrapped FIFO keeps real pointer addresses and distance
+INFO STEP 45 GX invalid FIFO pointer rejection; vi_frame=900 frame_increment=68 passes=1078 fails=6
+PASS GX invalid FIFO pointer leaves prior metadata unchanged
+PASS VI framebuffer wrapper sizes include row and AA padding
+PASS VI framebuffer sys sizes include row and AA padding
+PASS VI framebuffer sizes return zero for null mode
+PASS VI framebuffer clear writes only the padded extent
+PASS XFB A survives cached alias flush
+PASS XFB B survives cached alias flush
+INFO VI initial retrace wait number=1
+INFO VI initial retrace count before=2
+INFO VI initial retrace count after=3
+INFO VI initial retrace wait number=2
+INFO VI initial retrace count before=6
+INFO VI initial retrace count after=7
+PASS VI retrace interrupt arrives after flush
+PASS video init display
+
+== RAW VIDEO API ==
+PASS Raw video framebuffer size aligns width
+PASS Raw video clear preserves framebuffer guards
+PASS Raw video antialias framebuffer includes four rows
+PASS Raw video scan mode matches active mode
+PASS Raw video framebuffer state matches active display
+PASS Raw video snapshot contains active framebuffer
+-- page 65 --
+PASS Raw video Wii timebase frequency
+PASS Raw video fixed timing conversions
+PASS Raw video mode standard mapping
+PASS Raw video callbacks fire in retrace order
+PASS Raw video restores retrace callbacks
+PASS GX MEM2 FIFO rejects invalid sizes without allocation
+PASS GX default MEM2 FIFO address size and arena advancement
+PASS GX active CPU FIFO reports its base and size
+PASS GX active GP FIFO reports its base and size
+PASS GX canvas dimensions and validation
+INFO STEP 46 GX EFB color and depth access; vi_frame=93 frame_increment=4294966489 passes=1103 fails=6
+PASS GX EFB format command completes
+INFO GX EFB observed ARGB=0xff123456
+INFO GX EFB observed depth=0x00123456
+INFO GX EFB observed ARGB=0xffabcdef
+INFO GX EFB observed depth=0x00abcdef
+INFO GX EFB observed ARGB=0xff654321
+INFO GX EFB observed depth=0x00654321
+PASS GX EFB RGB8 colors preserve X and Y coordinates
+PASS GX EFB Z24 depths preserve X and Y coordinates
+PASS GX EFB replacement preserves adjacent color and depth
+PASS GX EFB alpha read mode changes only returned alpha
+INFO STEP 47 GX pixel engine configuration register readback; vi_frame=105 frame_increment=12 passes=1108 fails=6
+INFO GX PE register actual=0x000003a5
+INFO GX PE register expected=0x000003a5
+-- page 66 --
+PASS GX alpha mode stores function and threshold
+INFO GX PE register actual=0x0000ff12
+INFO GX PE register expected=0x0000ff12
+PASS GX alpha mode replaces both bytes
+INFO GX PE register actual=0x00000048
+INFO GX PE register expected=0x00000048
+PASS GX destination alpha masks disabled enable bit
+INFO GX PE register actual=0x000001a5
+INFO GX PE register expected=0x000001a5
+PASS GX destination alpha stores enabled value
+INFO GX PE register actual=0x0000f030
+INFO GX PE register expected=0x0000f030
+PASS GX color update changes only its bit
+INFO GX PE register actual=0x0000f038
+INFO GX PE register expected=0x0000f038
+PASS GX color update changes only its bit
+INFO GX PE register actual=0x0000f028
+INFO GX PE register expected=0x0000f028
+PASS GX alpha update changes only its bit
+INFO GX PE register actual=0x0000f038
+INFO GX PE register expected=0x0000f038
+PASS GX alpha update changes only its bit
+INFO GX PE register actual=0x0000f038
+INFO GX PE register expected=0x0000f038
+PASS GX dither changes only its bit
+INFO GX PE register actual=0x0000f03c
+INFO GX PE register expected=0x0000f03c
+-- page 67 --
+PASS GX dither changes only its bit
+INFO GX PE register actual=0x00000000
+INFO GX PE register expected=0x00000000
+PASS GX blend mode baseline is zero
+INFO GX PE register actual=0x000064a1
+INFO GX PE register expected=0x000064a1
+PASS GX blend mode encodes factors and logic field
+INFO GX PE register actual=0x000031e2
+INFO GX PE register expected=0x000031e2
+PASS GX logic mode replaces prior blend fields
+INFO GX PE register actual=0x0000ff01
+INFO GX PE register expected=0x0000ff01
+PASS GX subtract mode sets subtract and blend bits
+INFO GX PE register actual=0x00000000
+INFO GX PE register expected=0x00000000
+PASS GX poke Z mode clears update
+INFO GX PE register actual=0x00000010
+INFO GX PE register expected=0x00000010
+PASS GX poke Z mode follows C update-bit behavior
+INFO GX PE register actual=0x00000000
+INFO GX PE register expected=0x00000000
+PASS GX poke Z mode clears prior update bit
+PASS GX pixel engine configuration registers restore
+INFO STEP 48 GX display-list capture and GPU replay; vi_frame=282 frame_increment=177 passes=1126 fails=6
+PASS GX direct draw token reaches pixel engine
+PASS GX display list has exact BP bytes padding and guard
+-- page 68 --
+PASS GX capture does not execute token commands
+PASS GX replay executes captured token on pixel engine
+PASS GX display list has exact BP bytes padding and guard
+PASS GX capture does not execute token commands
+PASS GX replay executes captured token on pixel engine
+PASS GX display-list overflow preserves guard and GPU token
+PASS GX inactive display-list end returns zero
+PASS GX FIFO executes commands after capture overflow
+INFO STEP 49 GX viewport command bytes; vi_frame=355 frame_increment=73 passes=1136 fails=6
+PASS GX viewport emits exact nonzero-origin XF transform
+PASS GX viewport encodes changed geometry and reversed depth
+INFO STEP 50 GX viewport field jitter command bytes; vi_frame=358 frame_increment=3 passes=1138 fails=6
+INFO GX viewport jitter field=0
+PASS GX viewport jitter emits exact field-dependent Y origin
+INFO GX viewport jitter field=1
+PASS GX viewport jitter emits exact field-dependent Y origin
+INFO STEP 51 GX scissor command bytes; vi_frame=363 frame_increment=5 passes=1140 fails=6
+INFO GX scissor input width=64
+PASS GX scissor encodes bias inclusive bounds and unsigned wrap
+INFO GX scissor input width=0
+PASS GX scissor encodes bias inclusive bounds and unsigned wrap
+INFO GX scissor input width=1
+PASS GX scissor encodes bias inclusive bounds and unsigned wrap
+INFO STEP 52 GX scissor offset command bytes; vi_frame=370 frame_increment=7 passes=1143 fails=6
+-- page 69 --
+PASS GX scissor offset encodes bias half units and negative wrap
+PASS GX scissor offset encodes bias half units and negative wrap
+PASS GX scissor offset encodes bias half units and negative wrap
+INFO STEP 53 GX projection matrix command bytes; vi_frame=436 frame_increment=66 passes=1146 fails=6
+INFO GX projection type=0
+PASS GX projection emits exact selected columns and integer type
+INFO GX projection type=1
+PASS GX projection emits exact selected columns and integer type
+INFO STEP 54 GX immediate position matrix commands; vi_frame=441 frame_increment=5 passes=1148 fails=6
+INFO GX position matrix slot=3
+PASS GX position matrix emits exact row order and destination
+INFO GX position matrix slot=9
+PASS GX position matrix emits exact row order and destination
+INFO STEP 55 GX indexed position matrix commands; vi_frame=446 frame_increment=5 passes=1150 fails=6
+PASS GX indexed position encodes source index length and slot
+PASS GX indexed position encodes source index length and slot
+INFO STEP 56 GX normal matrix from 3x4 commands; vi_frame=449 frame_increment=3 passes=1152 fails=6
+PASS GX normal matrix omits translation and selects normal memory
+PASS GX normal matrix omits translation and selects normal memory
+INFO STEP 57 GX immediate 3x3 normal matrix commands; vi_frame=452 frame_increment=3 passes=1154 fails=6
+PASS GX 3x3 normal matrix emits all nine words in row order
+PASS GX 3x3 normal matrix emits all nine words in row order
+-- page 70 --
+INFO STEP 58 GX indexed normal matrix commands; vi_frame=455 frame_increment=3 passes=1156 fails=6
+PASS GX indexed normal encodes source index length and address
+PASS GX indexed normal encodes source index length and address
+INFO STEP 59 GX immediate texture matrix commands; vi_frame=520 frame_increment=65 passes=1158 fails=6
+INFO GX texture matrix slot=30
+INFO GX texture matrix word count=8
+PASS GX texture matrix emits exact format rows and memory bank
+INFO GX texture matrix slot=30
+INFO GX texture matrix word count=12
+PASS GX texture matrix emits exact format rows and memory bank
+INFO GX texture matrix slot=67
+INFO GX texture matrix word count=8
+PASS GX texture matrix emits exact format rows and memory bank
+INFO GX texture matrix slot=67
+INFO GX texture matrix word count=12
+PASS GX texture matrix emits exact format rows and memory bank
+INFO STEP 60 GX indexed texture matrix commands; vi_frame=533 frame_increment=13 passes=1162 fails=6
+PASS GX indexed texture encodes source format length and bank
+PASS GX indexed texture encodes source format length and bank
+PASS GX indexed texture encodes source format length and bank
+PASS GX indexed texture encodes source format length and bank
+INFO STEP 61 GX signed position capture and boundary bytes; vi_frame=538 frame_increment=5 passes=1166 fails=6
+PASS GX position3s16 captures zeros and exact signed boundary bytes
+-- page 71 --
+PASS GX position3s16 captures zeros and exact signed boundary bytes
+PASS GX position3s8 captures zeros and exact signed boundary bytes
+PASS GX position3s8 captures zeros and exact signed boundary bytes
+PASS GX position2s16 captures zeros and exact signed boundary bytes
+PASS GX position2s16 captures zeros and exact signed boundary bytes
+PASS GX position2s8 captures zeros and exact signed boundary bytes
+PASS GX position2s8 captures zeros and exact signed boundary bytes
+INFO STEP 62 GX signed normal capture and boundary bytes; vi_frame=609 frame_increment=71 passes=1174 fails=6
+PASS GX normal3s16 captures zeros and exact signed boundary bytes
+PASS GX normal3s16 captures zeros and exact signed boundary bytes
+PASS GX normal3s8 captures zeros and exact signed boundary bytes
+PASS GX normal3s8 captures zeros and exact signed boundary bytes
+INFO STEP 63 GX signed texture coordinate capture and bytes; vi_frame=614 frame_increment=5 passes=1178 fails=6
+PASS GX tex_coord2s16 captures zeros and exact signed boundary bytes
+PASS GX tex_coord2s16 captures zeros and exact signed boundary bytes
+PASS GX tex_coord2s8 captures zeros and exact signed boundary bytes
+PASS GX tex_coord2s8 captures zeros and exact signed boundary bytes
+PASS GX tex_coord1s16 captures zeros and exact signed boundary bytes
+PASS GX tex_coord1s16 captures zeros and exact signed boundary bytes
+PASS GX tex_coord1s8 captures zeros and exact signed boundary bytes
+PASS GX tex_coord1s8 captures zeros and exact signed boundary bytes
+INFO STEP 64 GX vertex color capture bytes; vi_frame=623 frame_increment=9 passes=1186 fails=6
+PASS GX color4u8 captures exact RGBA channel order
+PASS GX color4u8 captures exact RGBA channel order
+-- page 72 --
+PASS GX color3u8 captures exactly three RGB bytes
+PASS GX color3u8 captures exactly three RGB bytes
+PASS GX color3f32 captures fixed normalized conversion bytes
+PASS GX color3f32 captures fixed normalized conversion bytes
+PASS GX color1u32 captures exact big-endian packed color
+PASS GX color1u32 captures exact big-endian packed color
+PASS GX color1u16 captures exactly two packed bytes
+PASS GX color1u16 captures exactly two packed bytes
+INFO STEP 65 GX eight-bit vertex index capture; vi_frame=696 frame_increment=73 passes=1196 fails=6
+PASS GX position1x8 exact index bytes
+PASS GX position1x8 exact index bytes
+PASS GX normal1x8 exact index bytes
+PASS GX normal1x8 exact index bytes
+PASS GX color1x8 exact index bytes
+PASS GX color1x8 exact index bytes
+PASS GX tex_coord1x8 exact index bytes
+PASS GX tex_coord1x8 exact index bytes
+PASS GX matrix_index1x8 exact index bytes
+PASS GX matrix_index1x8 exact index bytes
+INFO STEP 66 GX sixteen-bit vertex index capture; vi_frame=707 frame_increment=11 passes=1206 fails=6
+PASS GX position1x16 exact big-endian index
+PASS GX position1x16 exact big-endian index
+PASS GX normal1x16 exact big-endian index
+PASS GX normal1x16 exact big-endian index
+PASS GX color1x16 exact big-endian index
+-- page 73 --
+PASS GX color1x16 exact big-endian index
+PASS GX tex_coord1x16 exact big-endian index
+PASS GX tex_coord1x16 exact big-endian index
+INFO STEP 67 GX floating-point vertex data bytes; vi_frame=778 frame_increment=71 passes=1214 fails=6
+PASS GX position3f32 exact XYZ float bits and width
+PASS GX position3f32 exact XYZ float bits and width
+PASS GX position2f32 exact XY float bits and width
+PASS GX tex_coord2f32 exact ST float bits and width
+PASS GX position2f32 exact XY float bits and width
+PASS GX tex_coord2f32 exact ST float bits and width
+PASS GX normal3f32 exact XYZ float bits and width
+PASS GX normal3f32 exact XYZ float bits and width
+PASS GX tex_coord1f32 exact single float bits and width
+PASS GX tex_coord1f32 exact single float bits and width
+INFO STEP 68 GX unsigned position data bytes; vi_frame=789 frame_increment=11 passes=1224 fails=6
+PASS GX position3u16 exact unsigned XYZ big-endian bytes
+PASS GX position3u16 exact unsigned XYZ big-endian bytes
+PASS GX position3u8 exact unsigned XYZ bytes
+PASS GX position3u8 exact unsigned XYZ bytes
+PASS GX position2u16 exact unsigned XY big-endian bytes
+PASS GX position2u16 exact unsigned XY big-endian bytes
+PASS GX position2u8 exact unsigned XY bytes
+PASS GX position2u8 exact unsigned XY bytes
+INFO STEP 69 GX unsigned texture coordinate data bytes; vi_frame=798 frame_increment=9 passes=1232 fails=6
+-- page 74 --
+PASS GX tex_coord2u16 exact unsigned ST big-endian bytes
+PASS GX tex_coord2u16 exact unsigned ST big-endian bytes
+PASS GX tex_coord2u8 exact unsigned ST bytes
+PASS GX tex_coord2u8 exact unsigned ST bytes
+PASS GX tex_coord1u16 exact unsigned single big-endian value
+PASS GX tex_coord1u16 exact unsigned single big-endian value
+PASS GX tex_coord1u8 exact unsigned single byte
+PASS GX tex_coord1u8 exact unsigned single byte
+INFO STEP 70 GX TEV color register command bytes; vi_frame=869 frame_increment=71 passes=1240 fails=6
+PASS GX TEV color encodes RA BG slots and three BG writes
+PASS GX TEV color encodes RA BG slots and three BG writes
+INFO STEP 71 GX signed TEV color register bytes; vi_frame=872 frame_increment=3 passes=1242 fails=6
+PASS GX signed TEV color preserves exact eleven-bit fields
+PASS GX signed TEV color preserves exact eleven-bit fields
+INFO STEP 72 GX constant TEV color register bytes; vi_frame=875 frame_increment=3 passes=1244 fails=6
+PASS GX constant TEV color sets bank bit and exact channel fields
+PASS GX constant TEV color sets bank bit and exact channel fields
+INFO STEP 73 GX signed constant TEV color register bytes; vi_frame=878 frame_increment=3 passes=1246 fails=6
+PASS GX signed constant TEV color encodes bank and signed fields
+PASS GX signed constant TEV color encodes bank and signed fields
+INFO STEP 74 GX TEV combiner command bytes; vi_frame=881 frame_increment=3 passes=1248 fails=6
+PASS GX TEV input and arithmetic operation preserve other fields
+-- page 75 --
+INFO STEP 75 GX TEV constant selectors and swap command bytes; vi_frame=883 frame_increment=2 passes=1249 fails=6
+PASS GX TEV swap table and even odd selectors encode exact fields
+PASS GX TEV swap mode encodes raster and texture selections
+INFO STEP 76 GX indirect TEV command bytes; vi_frame=948 frame_increment=65 passes=1251 fails=6
+PASS GX indirect TEV packs all fields and direct resets them
+PASS GX indirect TEV masks stage and input fields
+INFO STEP 77 GX indirect texture scale and order bytes; vi_frame=951 frame_increment=3 passes=1253 fails=6
+PASS GX indirect scale packs four stages and preserves neighbors
+PASS GX indirect order packs four coordinate and map pairs
+INFO STEP 78 GX indirect TEV helper command bytes; vi_frame=954 frame_increment=3 passes=1255 fails=6
+PASS GX indirect bump ST emits three stage commands
+PASS GX indirect bump XYZ emits bias and matrix
+PASS GX indirect repeat emits wrap and previous offset
+PASS GX indirect warp emits selected bias and wrap
+INFO STEP 79 GX indirect texture matrix and tile bytes; vi_frame=959 frame_increment=5 passes=1259 fails=6
+PASS GX indirect matrix packs signed coefficients and exponent
+PASS GX indirect matrix rejects null input
+PASS GX indirect tile emits spacing matrix and wrap fields
+INFO STEP 80 GX texture coordinate scale and flag command bytes; vi_frame=963 frame_increment=4 passes=1262 fails=6
+PASS GX manual texture scale emits sizes and deferred flags
+PASS GX manual texture scale wraps zero size to sixteen bits
+-- page 76 --
+INFO STEP 81 GX alpha comparison command bytes; vi_frame=966 frame_increment=3 passes=1264 fails=6
+PASS GX alpha comparison encodes both references and operations
+PASS GX alpha comparison encodes both references and operations
+INFO STEP 82 GX fog color command bytes; vi_frame=1031 frame_increment=65 passes=1266 fails=6
+PASS GX fog color encodes RGB and ignores alpha
+PASS GX fog color encodes RGB and ignores alpha
+PASS GX fog color encodes RGB and ignores alpha
+INFO STEP 83 GX fog and range adjustment command bytes; vi_frame=1035 frame_increment=4 passes=1269 fails=6
+PASS GX perspective fog emits expected coefficients and color
+PASS GX orthographic fog emits expected coefficients and color
+PASS GX degenerate perspective fog emits zero coefficients
+PASS GX fog range adjustment packs table and wraps center
+PASS GX disabled fog range adjustment does not read a table
+INFO STEP 84 GX clip mode command bytes; vi_frame=1041 frame_increment=6 passes=1274 fails=6
+PASS GX clip mode emits exact XF enable and disable values
+PASS GX clip mode emits exact XF enable and disable values
+INFO STEP 85 GX copy clear color and depth command bytes; vi_frame=1044 frame_increment=3 passes=1276 fails=6
+PASS GX copy clear packs AR GB and masked 24-bit depth
+PASS GX copy clear packs AR GB and masked 24-bit depth
+INFO STEP 86 GX display copy command bytes; vi_frame=1047 frame_increment=3 passes=1278 fails=6
+PASS GX display copy encodes first configuration
+-- page 77 --
+PASS GX display copy encodes second configuration
+INFO STEP 87 GX copy filter sample and coefficient bytes; vi_frame=1112 frame_increment=65 passes=1280 fails=6
+INFO GX filter AA enabled=0
+INFO GX vertical filter enabled=0
+PASS GX copy filter emits six exact default or masked table words
+INFO GX filter AA enabled=1
+INFO GX vertical filter enabled=0
+PASS GX copy filter emits six exact default or masked table words
+INFO GX filter AA enabled=0
+INFO GX vertical filter enabled=1
+PASS GX copy filter emits six exact default or masked table words
+INFO GX filter AA enabled=1
+INFO GX vertical filter enabled=1
+PASS GX copy filter emits six exact default or masked table words
+PASS GX copy filter rejects enabled null table without commands
+PASS GX copy filter rejects enabled null table without commands
+INFO STEP 88 GX even and odd field mask command bytes; vi_frame=1127 frame_increment=15 passes=1286 fails=6
+PASS GX field mask encodes independent even odd and masked bits
+PASS GX field mask encodes independent even odd and masked bits
+PASS GX field mask encodes independent even odd and masked bits
+PASS GX field mask encodes independent even odd and masked bits
+INFO STEP 89 GX bounding box reset command bytes; vi_frame=1132 frame_increment=5 passes=1290 fails=6
+PASS GX bounding box reset emits both fixed reset words each time
+PASS GX bounding box reset emits both fixed reset words each time
+-- page 78 --
+INFO STEP 90 GX Z texture bias format and operation command bytes; vi_frame=1135 frame_increment=3 passes=1292 fails=6
+PASS GX Z texture emits exact masked bias format and operation
+PASS GX Z texture emits exact masked bias format and operation
+PASS GX Z texture emits exact masked bias format and operation
+INFO STEP 91 GX depth comparison mode command bytes; vi_frame=1201 frame_increment=66 passes=1295 fails=6
+PASS GX depth mode encodes enable function and update
+PASS GX depth mode encodes enable function and update
+PASS GX depth mode encodes enable function and update
+INFO STEP 92 GX pixel engine control command bytes; vi_frame=1205 frame_increment=4 passes=1298 fails=6
+PASS GX alpha update and dither preserve neighboring fields
+PASS GX destination alpha encodes enable and value
+PASS GX depth comparison location toggles the expected bit
+INFO STEP 93 GX vertex cache invalidation command; vi_frame=1209 frame_increment=4 passes=1301 fails=6
+PASS GX vertex cache invalidation emits opcode each time
+PASS GX vertex cache invalidation emits opcode each time
+INFO STEP 94 GX texture cache invalidation commands; vi_frame=1212 frame_increment=3 passes=1303 fails=6
+INFO GX cache trace size=32
+INFO GX cache trace word0=0x0f000000
+INFO GX cache trace opcode=97
+INFO GX cache trace word1=0x66001000
+INFO GX cache trace opcode=97
+INFO GX cache trace word2=0x66001100
+-- page 79 --
+INFO GX cache trace opcode=97
+INFO GX cache trace word3=0x0f000000
+INFO GX cache trace opcode=97
+PASS GX invalidate_tex_all emits both cache words and flushes
+PASS GX invalidate_texture_cache emits both cache words and flushes
+PASS GX invalidate_tex_all emits both cache words and flushes
+PASS GX invalidate_texture_cache emits both cache words and flushes
+PASS GX executes cache commands and subsequent token
+INFO STEP 95 GX texture region invalidation command bytes; vi_frame=1289 frame_increment=77 passes=1308 fails=6
+PASS GX region invalidation emits C cache words and flushes
+PASS GX region invalidation emits C cache words and flushes
+PASS GX region invalidation omits an empty odd bank
+PASS GX region invalidation rejects a null region
+INFO STEP 96 GX line point and field shared state; vi_frame=1294 frame_increment=5 passes=1312 fails=6
+PASS GX line point field baseline completes
+PASS GX line width preserves point fields
+PASS GX point size preserves line fields
+PASS GX field mode preserves dimensions and flushes current mask
+PASS GX field mode clears its bits and retains line point state
+PASS GX nonzero indirect mask setup completes
+PASS GX field mode preserves a nonzero indirect mask
+PASS GX indirect mask restoration completes
+INFO GX field trace size=32
+INFO GX field trace word0=0x226b220c
+INFO GX field trace opcode=97
+-- page 80 --
+INFO GX field trace word1=0x0f000000
+INFO GX field trace opcode=97
+INFO GX field trace word2=0x68000001
+INFO GX field trace opcode=97
+INFO GX field trace word3=0x0f000000
+INFO GX field trace opcode=97
+PASS GX line point field restoration completes
+PASS GX cleared vertex descriptor is fully empty
+PASS GX descriptor list orders attributes and stops at sentinel
+PASS GX single descriptor switches normal and removes color
+PASS GX vertex descriptor restoration
+INFO STEP 97 GX vertex array and primitive command bytes; vi_frame=1379 frame_increment=85 passes=1325 fails=6
+PASS GX position array encodes physical address and stride
+PASS GX NBT array maps to normal array registers
+PASS GX invalid array attribute emits no command
+PASS GX primitive begin and end encode header
+INFO STEP 98 GX vertex format command bytes; vi_frame=1384 frame_increment=5 passes=1329 fails=6
+PASS GX vertex format flushes exact CP words and honors terminator
+INFO STEP 99 GX lighting channel command bytes; vi_frame=1386 frame_increment=2 passes=1330 fails=6
+PASS GX channel colors and lighting control emit expected XF words
+INFO STEP 100 GX generation mode and texture offset command bytes; vi_frame=1388 frame_increment=2 passes=1331 fails=6
+PASS GX cull modes map to hardware values and reject invalid input
+PASS GX coplanar mode emits its mask and preserves generation state
+-- page 81 --
+PASS GX channel texture TEV and indirect counts flush expected state
+PASS GX texture offsets preserve size and mask coordinate and enables
+INFO STEP 101 GX texture generator and current matrix command bytes; vi_frame=1455 frame_increment=67 passes=1335 fails=6
+PASS GX texture generators and matrix indices emit expected CP and XF words
+INFO STEP 102 GX pixel format and TEV default command bytes; vi_frame=1457 frame_increment=2 passes=1336 fails=6
+PASS GX RGB565 format sets pixel control and deferred multisample bit
+PASS GX V8 format selects YUV field and invalid format emits nothing
+PASS GX modulate TEV default uses previous stage and clamp
+PASS GX replace TEV default selects texture and clamps
+INFO STEP 103 GX TEV order automatic texture scale; vi_frame=1462 frame_increment=5 passes=1340 fails=6
+INFO GX TEV order trace size=32
+INFO GX TEV order trace bytes=1630011392
+INFO GX TEV order trace bytes=1482765824
+INFO GX TEV order trace bytes=483639
+INFO GX TEV order trace bytes=912
+PASS GX TEV order updates automatic texture coordinate scale
+PASS GX TEV order selects map-specific scale and wrap fields
+PASS GX preloaded texture supplies map-specific scale
+PASS GX manual texture scale is not overwritten by TEV order
+PASS GX null TEV texture does not update automatic scale
+PASS GX indirect texture order updates automatic scale
+INFO STEP 104 GX preloaded texture command bytes; vi_frame=1474 frame_increment=12 passes=1346 fails=6
+PASS GX preloaded texture emits map five object and region registers
+-- page 82 --
+PASS GX preloaded texture rejects invalid arguments without commands
+INFO STEP 105 GX texture preload command bytes; vi_frame=1539 frame_increment=65 passes=1348 fails=6
+PASS GX texture preload emits C base and mip-level commands
+PASS GX texture preload emits C base and mip-level commands
+PASS GX texture preload rejects null pointers
+INFO STEP 106 GX TLUT callback and load commands; vi_frame=1543 frame_increment=4 passes=1351 fails=6
+PASS GX TLUT load calls callback and emits source region and flush words
+PASS GX TLUT load rejects null object and callback region
+PASS GX TLUT callback replacement returns installed callback
+INFO STEP 107 GX texture region callback and load commands; vi_frame=1547 frame_increment=4 passes=1354 fails=6
+PASS GX texture callback receives object map and supplies region words
+PASS GX texture callback null region is rejected
+PASS GX texture callback replacement returns installed callback
+INFO STEP 108 GX completion and token callbacks; vi_frame=1551 frame_increment=4 passes=1357 fails=6
+PASS GX token and finish interrupts invoke callbacks
+PASS GX queued draw done signals before wait
+PASS GX draw done waits for next finish callback
+PASS GX callback setters return replaced handlers
+INFO STEP 109 GX solid rectangle rendered pixel checks; vi_frame=1557 frame_increment=6 passes=1361 fails=6
+PASS GX solid rectangle render setup completes
+PASS GX altered combiner renders black before reconfiguration
+PASS GX solid pipeline reconfiguration completes
+-- page 83 --
+PASS GX solid rectangle writes inside pixels and preserves outside
+PASS GX disabled color update preserves rendered pixels
+PASS GX disabled blending writes transparent source color
+PASS GX zero-alpha blend preserves destination pixels
+PASS GX opaque blend replaces destination pixels
+PASS GX scissor clips opaque blended rectangle
+PASS GX rectangle test state restoration completes
+INFO STEP 110 GX textured rectangle rendered pixel checks; vi_frame=1630 frame_increment=73 passes=1371 fails=6
+PASS GX textured rectangle setup completes
+PASS GX textured drawing rejects invalid object map and geometry
+PASS GX texture object loads into map zero
+INFO GX textured sample ARGB0=0xffff0000
+INFO GX textured sample ARGB1=0xff00ff00
+INFO GX textured sample ARGB2=0xff0000ff
+INFO GX textured sample ARGB3=0xffffff00
+INFO GX textured sample ARGB4=0xff000000
+PASS GX textured rectangle draws first tile quadrants
+INFO GX textured sample ARGB0=0xffff00ff
+INFO GX textured sample ARGB1=0xff00ffff
+INFO GX textured sample ARGB2=0xffffffff
+INFO GX textured sample ARGB3=0xff4080c0
+INFO GX textured sample ARGB4=0xff000000
+PASS GX texture replacement draws new tile quadrants
+PASS GX textured rectangle state restoration completes
+INFO STEP 111 GX EFB texture copy rendered pixel checks; vi_frame=1647 frame_increment=17 passes=1377 fails=6
+-- page 84 --
+PASS GX EFB texture copy completes
+PASS GX EFB copy writes expected tiled RGBA8 bytes
+INFO GX textured sample ARGB0=0xffff0000
+INFO GX textured sample ARGB1=0xff00ff00
+INFO GX textured sample ARGB2=0xff0000ff
+INFO GX textured sample ARGB3=0xffffff00
+INFO GX textured sample ARGB4=0xff000000
+PASS GX copied texture renders expected quadrants
+PASS GX texture copy state restoration completes
+INFO STEP 112 GX frame lifecycle framebuffer copies; vi_frame=1719 frame_increment=72 passes=1381 fails=6
+INFO GX frame initialized black pixels=0x10801080
+PASS GX frame lifecycle initializes display
+INFO GX frame copied white pixels=0xeb80eb80
+PASS GX frame lifecycle presents white EFB pixels
+INFO STEP 113 GX frame commands and completion; vi_frame=1724 frame_increment=5 passes=1383 fails=6
+PASS GX frame commands configure copy flush and finish
+PASS GX frame progress and clearing copy
+PASS GX asynchronous present copies cleared EFB and signals completion
+INFO STEP 114 GX thread ownership and idle status; vi_frame=1730 frame_increment=6 passes=1386 fails=6
+PASS GX current thread setter returns previous owner
+PASS GX overflow counter reset returns prior idle count
+PASS GX status matches stable command processor register
+INFO STEP 115 GX metric commands and register outputs; vi_frame=1734 frame_increment=4 passes=1389 fails=6
+-- page 85 --
+PASS GX XF raster metric initialization commands
+PASS GX vertex cache metric clear command
+PASS GX metric selector emits fixed vertex and texel commands
+PASS GX XF raster metric outputs match stable CP registers
+PASS GX vertex cache metric outputs match stable CP registers
+PASS GX vertex metric matches CP register and preserves second output
+PASS GX disabled metric returns zero
+INFO STEP 116 GX light commands and pixel state; vi_frame=1804 frame_increment=70 passes=1396 fails=6
+PASS GX immediate light loads all words and selects slot
+PASS GX indexed light encodes index and slot
+PASS GX pixel mode sync emits current pixel control
+PASS GX bounding box outputs match stable PE registers
+INFO STEP 117 GX focused public API checks; vi_frame=1809 frame_increment=5 passes=1400 fails=6
+PASS GX init rejects null and misaligned FIFO storage
+PASS GX null breakpoint enable leaves status unchanged
+PASS GX breakpoint disable clears status
+PASS GX TPL file open handles null inputs
+PASS GX CPU FIFO setter preserves the active FIFO
+PASS GX GP FIFO setter preserves the active FIFO
+PASS GX write gather redirect selects its aperture
+PASS GX write gather restore keeps the CPU FIFO live
+PASS GX misc DL save mode restores vertex descriptors
+PASS GX misc DL no-save mode keeps vertex descriptor changes
+PASS GX GP metric clear resets counter zero and leaves unsupported counter one untouched
+-- page 86 --
+PASS GX clocks per vertex query returns its documented byte range
+PASS GX vertex cache metric setter preserves the current counters
+PASS GX abort frame empties pending GP FIFO work
+PASS video control register readback
+PASS video framebuffer register readback
+PASS video scan mode matches selected VI mode
+PASS VI sys scan mode matches selected VI mode
+INFO VI selected mode=0
+INFO VI timing platform clock Hz=60750000
+INFO VI expected retrace us=16683
+INFO VI measured retrace average us=16683
+PASS VI wait matches selected mode timing
+INFO VI retrace count before wait=1903
+INFO VI retrace count after wait=1904
+PASS VI retrace interrupt advances counter
+PASS pre retrace callback fired
+PASS post retrace callback fired
+PASS retrace callback order
+PASS video next framebuffer observable
+PASS component cable state sane
+PASS framebuffer draw memory readback
+PASS framebuffer swap register readback
+ogc-system-probe video
+PASS console write video banner
+video probe validated retrace and swap behavior
+PASS console write video footer
+INFO STEP 118 Sound; vi_frame=1917 frame_increment=108 passes=1429 fails=6
+-- page 87 --
+
+== SOUND PROBE ==
+PASS ogc-audio-sys init stores callback stack
+PASS ogc-audio-sys stream and DMA callbacks register
+PASS ogc-audio-sys AI register getters
+INFO ogc-audio-sys DMA expected address=0x8043e440
+INFO ogc-audio-sys DMA read address=0x0043e440
+INFO ogc-audio-sys DMA read length=4096
+INFO ogc-audio-sys DMA read enable=1
+INFO ogc-audio-sys DMA bytes left=4064
+PASS ogc-audio-sys DMA registers and enable
+PASS ogc-audio-sys DMA stop
+PASS ogc-audio-sys stream counter reset
+PASS ogc-audio-sys callbacks and stream cleaned up
+INFO Audio wrapper: initialize and read state
+PASS audio initialized
+PASS audio wrapper reinit preserves the callback stack
+INFO Audio wrapper: configure stream and DSP sample rate
+INFO Audio wrapper: start DMA from probe buffer
+PASS audio register roundtrips
+PASS audio dma bytes left in range
+PASS audio dma stop
+PASS stream callback registered
+PASS dma callback registered
+PASS stream callback previous preserved
+PASS dma callback previous preserved
+PASS audio snapshot stable
+-- page 88 --
+FAIL stream sample counter reset
+INFO audio stop sample count=6243241
+INFO audio stop play state=0
+FAIL audio timing probe
+
+== ASND PROBE ==
+INFO ASND: initialize mixer
+PASS asnd initialized
+PASS asnd voice setup
+PASS asnd add rejected while busy
+INFO ASND playback sample counter=1024
+INFO ASND global callback count=1
+INFO ASND voice callback count=1
+INFO ASND second buffer add result=1
+INFO ASND buffer ready result=0
+PASS asnd double buffer queued
+PASS asnd playback progressed
+PASS asnd voices active
+PASS asnd pause/resume
+PASS asnd metrics recorded
+PASS asnd cleanup and reinit
+INFO STEP 119 Network; vi_frame=2091 frame_increment=174 passes=1455 fails=8
+
+== NETWORK PROBE ==
+
+== TINYSMB INVALID ARGUMENTS ==
+PASS TinySMB device init rejects null name
+-- page 89 --
+PASS TinySMB connection query rejects null name
+PASS TinySMB init rejects missing credentials
+PASS TinySMB connect rejects missing credentials
+PASS TinySMB reconnect rejects an unknown handle
+PASS TinySMB path query rejects null path
+PASS TinySMB first search rejects null path
+PASS TinySMB next search rejects unknown handle
+PASS TinySMB search close rejects unknown handle
+PASS TinySMB file open rejects null path
+PASS TinySMB directory create rejects null path
+PASS TinySMB directory delete rejects null path
+PASS TinySMB file delete rejects null path
+PASS TinySMB rename rejects null path
+PASS TinySMB disk query rejects null output
+PASS network cleanup before init
+PASS network init
+INFO network init rc=0
+PASS network status matches init
+INFO network status=0
+PASS network mac nonzero
+INFO network mac rc=0
+PASS network host ip nonzero
+INFO network host ip=0xc0a80134
+PASS network dhcp if_config
+INFO network explicit TCP protocol socket result=-68
+INFO network explicit TCP protocol socket did not open; inspect the result for platform support
+-- page 90 --
+INFO network socket result=0
+PASS network socket open
+PASS network socket close
+INFO network udp socket result=0
+PASS network udp socket open
+PASS network shutdown accepted
+PASS network udp socket close
+
+== UDP LOOPBACK TRANSFERS ==
+PASS UDP transfer sockets open
+PASS UDP sockets bind loopback ephemeral ports
+PASS UDP addresses report distinct assigned ports
+PASS UDP sends complete datagrams
+PASS UDP first datagram becomes readable
+PASS UDP first datagram bytes and sender match
+PASS UDP second datagram becomes readable
+PASS UDP second datagram bytes and sender match
+PASS UDP receive queue is empty after two packets
+PASS UDP reply sends complete bytes
+PASS UDP reply becomes readable
+PASS UDP reply bytes and sender match
+PASS UDP receiver closes
+PASS UDP sender closes
+PASS network edge socket open
+PASS network bind ephemeral
+PASS network getsockname
+PASS network SO_REUSEADDR roundtrip
+-- page 91 --
+PASS network SO_RCVBUF roundtrip
+PASS network SO_RCVTIMEO roundtrip
+PASS network IP_TTL roundtrip
+PASS network TCP_NODELAY roundtrip
+PASS network TCP_KEEPALIVE roundtrip
+PASS network poll local socket
+PASS network getsockopt null rejected
+PASS network failed getsockopt preserves caller output
+PASS network readonly sockopt rejected
+PASS network edge socket close
+PASS network double close rejected
+PASS network short sockaddr sockets open
+PASS network bind accepts eight-byte Wii sockaddr
+INFO network short sockaddr bind rc=0
+PASS network connect accepts eight-byte address and rejects port zero
+INFO network short sockaddr connect rc=-1
+PASS network short sockaddr bind socket close
+PASS network short sockaddr connect socket close
+PASS network bind conflict sockets open
+INFO network bind conflict raw rc=-112
+PASS network bind preserves address-in-use error
+PASS network bind conflict port found
+PASS network bind conflict first socket close
+PASS network bind conflict second socket close
+PASS libdb bind fixture sockets allocated
+INFO libdb initial bind rc=0
+INFO libdb duplicate bind rc=-10
+-- page 92 --
+PASS libdb first socket binds
+PASS libdb duplicate bind returns ERR_USE
+INFO libdb close has no return value; bound-state cleanup is not verified
+PASS network cleanup socket open
+PASS network cleanup invalidates open socket
+PASS network reinit after cleanup
+INFO network reinit rc=0
+PASS network cleanup reinit socket open
+PASS network cleanup reinit socket close
+PASS wireless scan succeeds on first attempt
+PASS wireless scan result count is valid on first attempt
+INFO wireless scan result count=1
+PASS wireless scan succeeds on second attempt
+PASS wireless scan result count is valid on second attempt
+INFO wireless scan result count=1
+INFO STEP 120 Storage; vi_frame=2452 frame_increment=361 passes=1532 fails=8
+
+== STORAGE PROBE ==
+
+== DVD /DEV/DI ==
+INFO dvd initial status=4
+INFO dvd cover status=4
+INFO dvd disc present=0
+INFO dvd tests skipped: insert a readable Wii/GameCube disc
+PASS dvd init and drive status report no disc
+PASS dvd cover status reports no disc
+PASS dvd presence reports no disc
+-- page 93 --
+PASS dvd no fake success without media
+PASS dvd idle command block status
+PASS dvd auto invalidation update and restore
+PASS dvd pause updates drive state
+PASS dvd cancel all pauses without pending requests
+PASS dvd reset none restores no-disc state
+PASS dvd static information pointers remain stable
+INFO dvd mount async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd mount async without media accepted
+PASS dvd mount async without media callback
+PASS dvd mount async without media callback after return
+PASS dvd mount async without media result
+INFO dvd inquiry async without media submit=1 complete=1 result=0 after_return=1
+PASS dvd inquiry async without media accepted
+PASS dvd inquiry async without media callback
+PASS dvd inquiry async without media callback after return
+PASS dvd inquiry async without media result
+INFO STEP 121 DVD no-media boot-sector async read submission; vi_frame=2543 frame_increment=91 passes=1550 fails=8
+INFO DVD no-media boot-sector async read: submitting
+INFO DVD no-media boot-sector async read submission returned=1
+INFO dvd bs read async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd bs read async without media accepted
+PASS dvd bs read async without media callback
+PASS dvd bs read async without media callback after return
+PASS dvd bs read async without media result
+-- page 94 --
+INFO dvd control check async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd control check async without media accepted
+PASS dvd control check async without media callback
+PASS dvd control check async without media callback after return
+PASS dvd control check async without media result
+INFO dvd set zero gcm offset async submit=1 complete=1 result=0 after_return=1
+PASS dvd set zero gcm offset async accepted
+PASS dvd set zero gcm offset async callback
+PASS dvd set zero gcm offset async callback after return
+PASS dvd set zero gcm offset async result
+INFO dvd set zero gcm offset sync result=1
+PASS dvd set zero gcm offset sync
+INFO dvd control check sync result=-1
+PASS dvd control check sync reports no media
+INFO dvd zero offset seek rejects invalid offset submit=1 complete=1 result=-4 after_return=1
+PASS dvd zero offset seek rejects invalid offset accepted
+PASS dvd zero offset seek rejects invalid offset callback
+PASS dvd zero offset seek rejects invalid offset callback after return
+PASS dvd zero offset seek rejects invalid offset result
+INFO dvd zero offset sync seek result=-1
+PASS dvd zero offset sync seek reports invalid state
+INFO dvd stop stream async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd stop stream async without media accepted
+PASS dvd stop stream async without media callback
+-- page 95 --
+PASS dvd stop stream async without media callback after return
+PASS dvd stop stream async without media result
+INFO dvd stop stream sync result=-1
+PASS dvd stop stream sync without media
+INFO dvd spin up async without media submit=1 complete=1 result=0 after_return=1
+PASS dvd spin up async without media accepted
+PASS dvd spin up async without media callback
+PASS dvd spin up async without media callback after return
+PASS dvd spin up async without media result
+INFO dvd spin up sync result=1
+PASS dvd spin up sync without media
+INFO dvd stop motor without media result=0
+PASS dvd stop motor call completes
+
+== DVD SYS DIRECT NO MEDIA ==
+PASS dvd sys status APIs report no disc
+PASS dvd sys static output pointers remain stable
+PASS dvd sys idle command status is readable
+PASS dvd sys sync mount rejects no disc
+INFO dvd sys mount async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd sys mount async without media accepted
+PASS dvd sys mount async without media callback
+PASS dvd sys mount async without media callback after return
+PASS dvd sys mount async without media result
+PASS dvd sys mount async updates its command block
+INFO dvd sys control async without media submit=1 complete=1 result=-4 after_return=1
+-- page 96 --
+PASS dvd sys control async without media accepted
+PASS dvd sys control async without media callback
+PASS dvd sys control async without media callback after return
+PASS dvd sys control async without media result
+PASS dvd sys control sync reports no disc
+INFO dvd sys zero offset async submit=1 complete=1 result=0 after_return=1
+PASS dvd sys zero offset async accepted
+PASS dvd sys zero offset async callback
+PASS dvd sys zero offset async callback after return
+PASS dvd sys zero offset async result
+PASS dvd sys zero offset sync completes
+INFO dvd sys spin up async without media submit=1 complete=1 result=0 after_return=1
+PASS dvd sys spin up async without media accepted
+PASS dvd sys spin up async without media callback
+PASS dvd sys spin up async without media callback after return
+PASS dvd sys spin up async without media result
+PASS dvd sys spin up sync completes without media
+INFO dvd sys inquiry async without media submit=1 complete=1 result=0 after_return=1
+PASS dvd sys inquiry async without media accepted
+PASS dvd sys inquiry async without media callback
+PASS dvd sys inquiry async without media callback after return
+PASS dvd sys inquiry async without media result
+PASS dvd sys inquiry sync returns drive information
+INFO dvd sys read disk ID async without media submit=1 complete=1 result=-4 after_return=1
+-- page 97 --
+PASS dvd sys read disk ID async without media accepted
+PASS dvd sys read disk ID async without media callback
+PASS dvd sys read disk ID async without media callback after return
+PASS dvd sys read disk ID async without media result
+PASS dvd sys disk ID failure preserves transfer count
+INFO dvd sys absolute read async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd sys absolute read async without media accepted
+PASS dvd sys absolute read async without media callback
+PASS dvd sys absolute read async without media callback after return
+PASS dvd sys absolute read async without media result
+PASS dvd sys reads preserve output and report no disc
+INFO dvd sys BS read async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd sys BS read async without media accepted
+PASS dvd sys BS read async without media callback
+PASS dvd sys BS read async without media callback after return
+PASS dvd sys BS read async without media result
+PASS dvd sys BS read preserves output and byte count
+INFO dvd sys seek async without media submit=1 complete=1 result=-4 after_return=1
+PASS dvd sys seek async without media accepted
+PASS dvd sys seek async without media callback
+PASS dvd sys seek async without media callback after return
+PASS dvd sys seek async without media result
+PASS dvd sys seek sync reports no disc
+INFO dvd sys stop stream async without media submit=1 complete=1 result=-4 after_return=1
+-- page 98 --
+PASS dvd sys stop stream async without media accepted
+PASS dvd sys stop stream async without media callback
+PASS dvd sys stop stream async without media callback after return
+PASS dvd sys stop stream async without media result
+PASS dvd sys stop stream sync reports no disc
+PASS dvd sys auto invalidation changes and restores state
+PASS dvd sys pause cancel and reset update drive state
+INFO dvd sys last error after no-disc calls=16923136
+PASS dvd sys last error read is stable
+PASS dvd sys stop motor completes
+
+== USB ARGV ==
+INFO argc=5
+INFO argv0=ogc_system_probe.dol
+INFO launched_from=unknown
+PASS argv handoff
+
+== RAW USB STORAGE ==
+INFO usb initialize rc=0
+INFO usb startup=1
+INFO usb inserted=0
+PASS usb raw startup
+PASS usb storage null handle rejected
+INFO usb candidate count=0
+INFO usb storage list rc=-6
+PASS usb insertion state matches device enumeration
+
+-- page 99 --
+== USB INTERFACE WITHOUT A DEVICE ==
+PASS USB slot A callbacks reject reads and writes and restart cleanly
+PASS USB slot B callbacks reject reads and writes and restart cleanly
+INFO usb raw sector read skipped: no USB storage device is present
+
+== FAT USB MOUNT ==
+INFO fat mount usb=device-unavailable
+INFO usb FAT file operations skipped: no USB storage device is present
+PASS usb FAT mount reports no device
+INFO usb storage deinitialize=0
+PASS usb storage deinitialize
+INFO wii sd startup=1 inserted=1 read=1 clear=1 shutdown=1 restart=1 inserted2=1 shutdown2=1
+INFO GameCube SD interfaces skipped: no emulated EXI SD adapter configured
+
+== FAT SD MOUNT ==
+INFO fat mount sd=ok
+PASS sd fat mount
+INFO sd fopen write=1
+INFO sd write callback result=16
+INFO sd write callback errno=0
+INFO sd fsync=0
+INFO sd fsync errno=0
+INFO sd fclose write=0
+INFO sd fclose write errno=0
+INFO sd fopen read=1
+INFO sd read callback result=16
+-- page 100 --
+INFO sd read callback errno=139
+INFO sd fclose read=0
+INFO sd fclose read errno=0
+INFO sd remove=0
+PASS sd file write
+PASS sd file fsync
+PASS sd file roundtrip
+PASS sd file remove
+INFO fat unmount sd=ok
+PASS sd fat unmount
+
+== CARD ASYNC + DETACH ==
+PASS card identifier validation
+PASS CARD slot conversion validates both slots and preserves invalid input
+INFO card init=0
+
+== CARD INVALID CHANNEL APIs ==
+PASS CARD sys probe_ex rejects an invalid channel and preserves outputs
+PASS CARD wrapper probe_ex forwards the invalid-channel error
+PASS CARD sys get_error_code rejects an invalid channel
+PASS CARD wrapper get_error_code forwards the invalid-channel result
+PASS CARD sys get_sector_size preserves output on invalid channel
+PASS CARD sys create rejects invalid channel and preserves output
+PASS CARD sys and wrapper delete reject an invalid channel
+PASS CARD sys get_block_count preserves output on invalid channel
+PASS CARD wrapper get_block_count forwards error and preserves output
+PASS CARD sys get_free_blocks preserves output on invalid channel
+-- page 101 --
+PASS CARD wrapper get_free_blocks forwards error and preserves output
+PASS CARD sys get_serial_no preserves outputs on invalid channel
+PASS CARD wrapper get_serial_no forwards error and preserves outputs
+PASS CARD sys get_status rejects an invalid channel and preserves output
+PASS CARD wrapper get_status forwards the error and preserves output
+PASS CARD sys get_status_ex rejects an invalid channel and preserves output
+PASS CARD sys get_attributes rejects an invalid channel and preserves output
+PASS CARD sys set_status rejects an invalid channel without changing input
+PASS CARD sys set_status_ex rejects an invalid channel without changing input
+PASS CARD sys set_attributes rejects an invalid channel
+PASS CARD sys get_directory rejects an invalid channel and preserves outputs
+PASS CARD sys find_first initializes its cursor before an invalid-channel error
+PASS CARD sys find_next advances its cursor before an invalid-channel error
+PASS CARD sys and wrapper mount_async reject invalid channels without callbacks
+PASS CARD sys create_async rejects an invalid channel without callback or output changes
+PASS CARD sys create_entry and delete_entry reject invalid channels
+PASS CARD sys open_entry rejects an invalid channel and preserves output
+PASS CARD sys read_async and write_async reject invalid channels without callbacks
+PASS CARD sys metadata async submissions reject invalid channels without callbacks
+INFO CARD EXI channel 0 status before probe=0x00001008
+INFO CARD raw slot probe result=1
+INFO CARD typed probe_info result=0
+PASS CARD probe returns an EXI presence value and rejects an invalid channel
+PASS CARD probe_info returns valid geometry or a device error
+-- page 102 --
+PASS CARD probe_info preserves the operation status
+PASS CARD serial_number rejects an unmounted slot
+PASS CARD slice transfers reject empty, short, misaligned, and overflowing requests before I/O
+PASS CARD read_async_owned rejects an invalid channel and returns its file
+PASS CARD write_async_owned rejects an invalid channel and returns file and bytes
+PASS CARD read_async_owned rejects invalid transfer shapes and preserves files
+PASS CARD write_async_owned rejects invalid transfer shapes and returns payloads
+PASS CARD owned create and delete reject embedded NUL and oversized filenames
+PASS CARD owned entry operations reject unterminated names and return entries
+PASS CARD set_status_async_owned rejects out-of-range file numbers and returns stat
+INFO CARD slot probe after bounded retries=1
+INFO CARD probe_info after bounded retries=0
+PASS card mount request retains its slot
+INFO card mount async owned submit=0 complete=1 result=0
+PASS card mount async owned accepted
+PASS card mount async owned completion
+PASS card mount async owned result
+PASS card mounted owner retains its slot
+PASS card mounted owner reports attached
+PASS card mounted owner has no detach result before removal
+PASS CARD sys probe detects the mounted slot
+PASS CARD facade probe detects the mounted slot
+PASS CARD sys probe_ex reports mounted media geometry
+PASS CARD facade probe_ex reports mounted media geometry
+-- page 103 --
+PASS CARD owned duplicate mount returns busy
+PASS CARD owned mount remains attached after duplicate request
+PASS CARD sys get_sector_size matches mounted geometry
+PASS CARD get_sector_size wrapper matches mounted geometry
+PASS CARD sys get_block_count matches mounted geometry
+PASS CARD get_block_count wrapper matches mounted geometry
+PASS CARD sys get_serial_no matches mounted serial number
+PASS CARD get_serial_no wrapper matches mounted serial number
+INFO card sector size rc=0
+INFO card sector size=8192
+PASS card SAVE preflight found no existing file
+PASS card free blocks before create
+PASS CARD sys get_free_blocks matches mounted free space
+PASS CARD get_free_blocks wrapper matches mounted free space
+INFO card free block count before create=2043
+PASS CARD create beyond available blocks returns insufficient space
+PASS CARD failed oversized create preserves output handle and free space
+PASS CARD unexpected oversized create cleanup
+PASS CARD failed oversized create leaves no directory entry
+PASS CARD sys create_entry creates a valid file handle
+PASS CARD sys create_entry file handle closes
+PASS CARD sys delete_entry removes the created entry
+PASS CARD synchronous entry deletion leaves no directory entry
+PASS CARD synchronous entry cleanup succeeds
+PASS CARD synchronous entry lifecycle restores free blocks
+PASS CARD facade create initializes a file handle
+PASS CARD facade create file handle closes
+-- page 104 --
+PASS CARD facade create reopens with expected status
+PASS CARD facade reopened file handle closes
+PASS CARD facade delete removes its created file
+PASS CARD facade file cleanup succeeds
+PASS CARD facade file lifecycle restores free blocks
+PASS card create request retains its slot
+INFO card create async owned submit=0 complete=1 result=0
+PASS card create async owned accepted
+PASS card create async owned completion
+PASS card create async owned result
+INFO card SAVE file channel after create=0
+INFO card SAVE file number after create=0
+PASS CARD sys get_status reads the created SAVE entry
+PASS CARD get_status wrapper matches the created SAVE entry
+PASS CARD sys get_status_ex reads the created SAVE directory entry
+PASS card set status async owned
+PASS card create entry async owned
+PASS card close created entry
+INFO card delete entry completion status=0
+PASS card delete entry async owned
+INFO card write async owned submit=0 complete=1 result=0
+PASS card write async owned accepted
+PASS card write async owned completion
+PASS card write async owned result
+INFO card read async owned submit=0 complete=1 result=0
+PASS card read async owned accepted
+PASS card read async owned completion
+-- page 105 --
+PASS card read async owned result
+PASS card async owned roundtrip
+PASS card safe sync roundtrip
+PASS card raw sync roundtrip
+PASS card raw wrapper sync roundtrip
+PASS card close save
+PASS card unmount after create
+PASS card mount request retains its slot
+PASS card remount after create
+PASS card create persisted after remount
+PASS card data persisted after remount
+PASS card status persisted after remount
+INFO CARD get attributes before update=0
+INFO CARD set attributes update=0
+INFO CARD set attributes restore=0
+PASS CARD sys get_attributes and set_attributes read back and restore flags
+PASS CARD sys set_status updates and restores metadata
+PASS CARD sys set_status_ex updates and restores metadata
+INFO CARD sys set_status_async submit=0 complete=1 result=0 after_return=1
+PASS CARD sys set_status_async accepted
+PASS CARD sys set_status_async callback
+PASS CARD sys set_status_async callback after return
+PASS CARD sys set_status_async result
+PASS CARD sys set_status_async updates the banner format
+INFO CARD sys set_status_async restore submit=0 complete=1 result=0 after_return=1
+PASS CARD sys set_status_async restore accepted
+-- page 106 --
+PASS CARD sys set_status_async restore callback
+PASS CARD sys set_status_async restore callback after return
+PASS CARD sys set_status_async restore result
+PASS CARD sys set_status_async restores original metadata
+INFO CARD sys set_attributes_async submit=0 complete=1 result=0 after_return=1
+PASS CARD sys set_attributes_async accepted
+PASS CARD sys set_attributes_async callback
+PASS CARD sys set_attributes_async callback after return
+PASS CARD sys set_attributes_async result
+PASS CARD sys set_attributes_async updates the flags
+INFO CARD sys set_attributes_async restore submit=0 complete=1 result=0 after_return=1
+PASS CARD sys set_attributes_async restore accepted
+PASS CARD sys set_attributes_async restore callback
+PASS CARD sys set_attributes_async restore callback after return
+PASS CARD sys set_attributes_async restore result
+PASS CARD sys set_attributes_async restores the flags
+PASS CARD game and company setters select the created save
+PASS CARD sys find_first and find_next enumerate the created save
+INFO CARD sys write_async submit=0 complete=1 result=0 after_return=1
+PASS CARD sys write_async accepted
+PASS CARD sys write_async callback
+PASS CARD sys write_async callback after return
+PASS CARD sys write_async result
+INFO CARD sys read_async submit=0 complete=1 result=0 after_return=1
+PASS CARD sys read_async accepted
+PASS CARD sys read_async callback
+-- page 107 --
+PASS CARD sys read_async callback after return
+PASS CARD sys read_async result
+PASS CARD sys read_async returns raw write data
+INFO CARD sys write_async restore submit=0 complete=1 result=0 after_return=1
+PASS CARD sys write_async restore accepted
+PASS CARD sys write_async restore callback
+PASS CARD sys write_async restore callback after return
+PASS CARD sys write_async restore result
+PASS CARD raw async read and write complete with restored data
+PASS card close remounted save
+PASS card delete request retains its slot
+PASS card delete completion preserves operation status
+INFO card delete async owned submit=0 complete=1 result=0
+PASS card delete async owned accepted
+PASS card delete async owned completion
+PASS card delete async owned result
+PASS card delete async owned completion
+PASS CARD raw async test name is unused
+INFO CARD sys create_async submit=0 complete=1 result=0 after_return=1
+PASS CARD sys create_async accepted
+PASS CARD sys create_async callback
+PASS CARD sys create_async callback after return
+PASS CARD sys create_async result
+PASS CARD sys create_async returns a valid file
+PASS CARD raw async create closes its file
+INFO CARD sys delete_async submit=0 complete=1 result=0 after_return=1
+PASS CARD sys delete_async accepted
+-- page 108 --
+PASS CARD sys delete_async callback
+PASS CARD sys delete_async callback after return
+PASS CARD sys delete_async result
+PASS CARD sys delete_async removes the temporary file
+PASS CARD raw async entry name is unused
+INFO CARD sys create_entry_async submit=0 complete=1 result=0 after_return=1
+PASS CARD sys create_entry_async accepted
+PASS CARD sys create_entry_async callback
+PASS CARD sys create_entry_async callback after return
+PASS CARD sys create_entry_async result
+PASS CARD sys create_entry_async creates the requested entry
+PASS CARD sys open_entry finds the created entry
+PASS CARD sys open_entry handle closes
+PASS CARD raw async entry create closes its file
+INFO CARD sys delete_entry_async submit=0 complete=1 result=0 after_return=1
+PASS CARD sys delete_entry_async accepted
+PASS CARD sys delete_entry_async callback
+PASS CARD sys delete_entry_async callback after return
+PASS CARD sys delete_entry_async result
+PASS CARD sys delete_entry_async removes the temporary entry
+PASS card unmount after delete
+PASS card mount request retains its slot
+PASS card remount after delete
+PASS card delete persisted after remount
+PASS card free blocks restored after delete
+PASS card final unmount
+
+-- page 109 --
+== CARD SYNC MOUNT LIFECYCLES ==
+INFO CARD wrapper sync mount result=0
+PASS CARD wrapper sync mount succeeds
+PASS CARD wrapper mount exposes sector size
+INFO CARD wrapper sync unmount result=0
+PASS CARD wrapper sync unmount succeeds
+PASS CARD wrapper unmount clears mounted state
+INFO CARD sys sync mount result=0
+PASS CARD sys sync mount succeeds
+PASS CARD sys mount exposes sector size
+INFO CARD sys unmount result=0
+PASS CARD sys unmount succeeds
+PASS CARD sys unmount clears mounted state
+INFO card format skipped: pass --destructive-card-format=ERASE-SLOT-A to erase slot A
+
+== MEDIA HOTPLUG SOAK ==
+INFO hotplug soak skipped: automated Dolphin run has no media operator
+INFO fat shutdown all=ok
+INFO card shutdown=0
+INFO dvd shutdown=0
+PASS dvd sys shutdown completes
+INFO storage lwp debug events=18089
+INFO STEP 122 Keyboard; vi_frame=4270 frame_increment=1727 passes=1850 fails=8
+
+== KEYBOARD PROBE ==
+PASS worker creation failure preserves prior stdin
+-- page 110 --
+
+== USB HID RAW PROBE ==
+PASS usb core init
+INFO hid device list error=-6
+PASS usb keyboard init
+PASS keyboard init
+PASS keyboard disconnected by default
+PASS keyboard scan without device
+PASS keyboard led rejected without device
+PASS keyboard toggle rejected without device
+PASS keyboard event queue empty
+PASS keyboard flush empty
+PASS keyboard deinit
+PASS usb core device list succeeds or reports absent OH0 after keyboard deinit
+PASS probe VI retraces complete within 100 ms
+PASS Dolphin screen-data transport completed
+INFO summary_candidate passes=1864 fails=8
+FAILED CHECKS (retained from all pages)
+FAIL Network DHCP address matches IOS host address
+FAIL Network DHCP text address matches binary address
+FAIL Network wrapper DHCP addresses match IOS
+FAIL Network resolver returns numeric loopback address
+FAIL Network resolver wrapper returns numeric loopback
+FAIL Raw UDP sockets open
+FAIL stream sample counter reset
+FAIL audio timing probe
+FAIL summary passes=1864 fails=8

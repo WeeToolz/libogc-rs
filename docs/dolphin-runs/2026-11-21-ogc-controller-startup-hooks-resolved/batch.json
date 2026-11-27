@@ -1,0 +1,68 @@
+{
+  "probe": "input_probe",
+  "cases": [
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "init",
+      "line": 943,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "monitor",
+      "api_path": "controllers.init",
+      "checks": [
+        "controller manager init produces a clean first scan"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "enable_bluetooth_hid",
+      "line": 956,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "monitor",
+      "api_path": "controllers.enable_bluetooth_hid",
+      "checks": [
+        "controller Bluetooth HID startup request accepted"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "set_bluetooth_startup_hook",
+      "line": 967,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "monitor",
+      "api_path": "controllers.set_bluetooth_startup_hook",
+      "checks": [
+        "Bluetooth startup hook receives stage progress"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "set_input_trace_observer",
+      "line": 1438,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "monitor",
+      "api_path": "controllers.set_input_trace_observer",
+      "checks": [
+        "input trace observer receives controller events"
+      ]
+    },
+    {
+      "crate": "ogc-controller",
+      "path": "src/hardware.rs",
+      "symbol": "set_usb_startup_hook",
+      "line": 1432,
+      "evidence_path": "probes/ogc-system-probe/src/input_probe.rs",
+      "function": "monitor",
+      "api_path": "controllers.set_usb_startup_hook",
+      "checks": [
+        "USB startup hook receives stage messages"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin supplies scripted GameCube input and emulated Bluetooth startup. It does not verify callbacks from a physical Bluetooth controller or USB HID device."
+  ]
+}

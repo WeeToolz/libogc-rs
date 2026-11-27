@@ -1,0 +1,68 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "search",
+      "line": 613,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_unavailable_protocol_calls",
+      "api_path": "hid.search",
+      "checks": [
+        "Bluetooth disabled protocol calls reject work and count malformed ACL"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "stop_search",
+      "line": 664,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_unavailable_protocol_calls",
+      "api_path": "hid.stop_search",
+      "checks": [
+        "Bluetooth disabled protocol calls reject work and count malformed ACL"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "send_report",
+      "line": 1338,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_unavailable_protocol_calls",
+      "api_path": "hid.send_report",
+      "checks": [
+        "Bluetooth disabled protocol calls reject work and count malformed ACL"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "tick",
+      "line": 533,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_unavailable_protocol_calls",
+      "api_path": "hid.tick",
+      "checks": [
+        "Bluetooth disabled protocol calls reject work and count malformed ACL"
+      ]
+    },
+    {
+      "crate": "ogc-bt-sync",
+      "path": "src/hid_host.rs",
+      "symbol": "receive_acl",
+      "line": 1454,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_bt_unavailable_protocol_calls",
+      "api_path": "hid.receive_acl",
+      "checks": [
+        "Bluetooth disabled protocol calls reject work and count malformed ACL"
+      ]
+    }
+  ],
+  "limits": [
+    "This test uses a disabled protocol host and one malformed ACL frame. It does not test adapter I/O, connected links, valid ACL traffic, or physical hardware."
+  ]
+}

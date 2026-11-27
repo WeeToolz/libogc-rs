@@ -1,0 +1,17 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-video",
+      "path": "src/lib.rs",
+      "symbol": "set_next_right_framebuffer",
+      "line": 510,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_video_framebuffer_updates",
+      "api_path": "set_next_right_framebuffer",
+      "checks": [
+        "Video right framebuffer setter records and restores its pointer"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "probe": "wpad_probe",
+  "cases": [
+    {
+      "crate": "wpad-sys",
+      "path": "src/lib.rs",
+      "symbol": "is_battery_critical",
+      "line": 1906,
+      "evidence_path": "probes/ogc-system-probe/src/wpad_probe.rs",
+      "function": "probe_valid_channel_empty_queries",
+      "api_path": "wpad::is_battery_critical",
+      "checks": [
+        "WPAD empty channel battery is not critical"
+      ]
+    }
+  ]
+}

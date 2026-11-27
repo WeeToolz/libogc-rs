@@ -1,0 +1,56 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "raw",
+      "line": 256,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_file_reads",
+      "api_path": "ipc::FileDescriptor::raw",
+      "checks": [
+        "IPC descriptor identifies open file"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "seek",
+      "line": 364,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_file_reads",
+      "api_path": "ipc::FileDescriptor::seek",
+      "checks": [
+        "IPC seek selects file offsets"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "read",
+      "line": 375,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_file_reads",
+      "api_path": "ipc::FileDescriptor::read",
+      "checks": [
+        "IPC reads settings bytes"
+      ]
+    },
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "read_exact",
+      "line": 396,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_file_reads",
+      "api_path": "ipc::FileDescriptor::read_exact",
+      "checks": [
+        "IPC exact read detects short file"
+      ]
+    }
+  ],
+  "limits": [
+    "Dolphin IOS reads the copied NAND setting.txt. Other files, write operations, async callbacks, and physical Wii remain unverified."
+  ]
+}

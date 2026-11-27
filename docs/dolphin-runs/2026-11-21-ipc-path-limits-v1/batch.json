@@ -1,0 +1,18 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-ipc",
+      "path": "src/lib.rs",
+      "symbol": "validate_path",
+      "line": 2752,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_ipc_path_limits",
+      "api_path": "ipc::validate_path",
+      "checks": [
+        "IPC path validation accepts 63 bytes and rejects 64 bytes",
+        "IPC async open rejects oversized path before submission"
+      ]
+    }
+  ]
+}
