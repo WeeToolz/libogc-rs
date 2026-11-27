@@ -38,6 +38,11 @@ pub(crate) fn is_known_probe(name: &str) -> bool {
 
 const PROBES: &[ProbeSpec] = &[
     ProbeSpec {
+        name: "gx_gamecube_abort_probe",
+        timeout_seconds: 90,
+        input_pipe: false,
+    },
+    ProbeSpec {
         name: "card_probe",
         timeout_seconds: 120,
         input_pipe: false,
@@ -1102,7 +1107,7 @@ fn copy_directory(source: &Path, destination: &Path) -> Result<(), String> {
 }
 
 fn dolphin_probe_elf_path(root: &Path, spec: ProbeSpec) -> PathBuf {
-    if spec.name == "card_probe" {
+    if super::GAMECUBE_PROBE_BINARIES.contains(&spec.name) {
         return root
             .join("target/xtask/gamecube-system-probe-build/powerpc-nintendo-gamecube/release")
             .join(spec.name);

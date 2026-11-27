@@ -217,8 +217,13 @@ pub fn run_gx_api_probe(logger: &mut ProbeLogger) {
     probe_gx_interrupt_delivery(logger);
     probe_gx_watermark_delivery(logger, false);
     probe_gx_unverified_apis(logger);
-    probe_gx_abort_recovery(logger);
+    probe_gx_abort_recovery(logger, false);
+    probe_gx_abort_recovery(logger, true);
+    probe_gx_detached_abort(logger);
+    probe_gx_abort_pending_pe_interrupts(logger);
     probe_gx_watermark_delivery(logger, true);
+    probe_gx_watermark_delivery_with_ownership(logger, true, false, true);
+    probe_gx_watermark_delivery_with_ownership(logger, true, true, true);
     // A later overflow must still suspend and resume a new producer.
     probe_gx_watermark_delivery(logger, false);
     // Exercise the production APIs for the copy-scale and FIFO arithmetic
@@ -233,10 +238,14 @@ pub fn run_gx_api_probe(logger: &mut ProbeLogger) {
 // Keep the abort experiment separate from the normal rendering FIFO.
 static mut GX_ABORT_FIFO_STORAGE: ProbeFifoStorage = ProbeFifoStorage([0; 65536]);
 
-fn probe_gx_abort_recovery(logger: &mut ProbeLogger) {
+fn probe_gx_abort_recovery(logger: &mut ProbeLogger, wrap: bool) {
     use ogc_gx as gx;
     use ogc_lwp::sys as lwp;
-    logger.report_step("GX abort with live pending FIFO commands");
+    logger.report_step(if wrap {
+        "GX linked FIFO wrap and pending PE events during abort"
+    } else {
+        "GX abort with live pending FIFO commands"
+    });
     if !unsafe { gx::finish_frame_and_wait() } {
         logger.record("GX abort initial FIFO drain", false);
         return;
@@ -245,17 +254,25 @@ fn probe_gx_abort_recovery(logger: &mut ProbeLogger) {
     let mut gp = gx::GxFifoObj::default();
     let mut abort_fifo = gx::GxFifoObj::default();
     let base = core::ptr::addr_of_mut!(GX_ABORT_FIFO_STORAGE).cast::<c_void>();
+    let start_offset = if wrap { 65536 - 32 } else { 0 };
+    let start_ptr = unsafe { base.cast::<u8>().add(start_offset).cast::<c_void>() };
     unsafe {
         gx::get_cpu_fifo(&mut cpu);
         gx::get_gp_fifo(&mut gp);
         gx::init_fifo_base(&mut abort_fifo, base, 65536);
+        gx::init_fifo_ptrs(&mut abort_fifo, start_ptr, start_ptr);
         gx::set_gp_fifo(null_mut());
         gx::set_cpu_fifo(&mut abort_fifo);
         gx::set_gp_fifo(&mut abort_fifo);
     }
     let previous_callback = gx::set_break_pt_callback(Some(probe_gx_break_interrupt));
     GX_IRQ_BREAK_COUNT.store(0, Ordering::Release);
-    gx::enable_break_pt(base);
+    let previous_done = gx::set_draw_done_callback(Some(probe_gx_done_callback));
+    let previous_token = gx::set_draw_sync_callback(Some(probe_gx_token_callback));
+    GX_DONE_COUNT.store(0, Ordering::Release);
+    GX_TOKEN_COUNT.store(0, Ordering::Release);
+    GX_LAST_TOKEN.store(0, Ordering::Release);
+    gx::enable_break_pt(start_ptr);
     // Submit a bounded command stream, stopped before execution by the breakpoint.
     for _ in 0..3 {
         unsafe { gx::flush() };
@@ -266,6 +283,13 @@ fn probe_gx_abort_recovery(logger: &mut ProbeLogger) {
     {
         core::hint::spin_loop();
     }
+    // These commands cannot execute while the GP remains at its breakpoint.
+    gx::set_draw_sync(0x1357);
+    gx::set_draw_done();
+    let old_pe_held =
+        GX_TOKEN_COUNT.load(Ordering::Acquire) == 0 && GX_DONE_COUNT.load(Ordering::Acquire) == 0;
+    let pi = 0xcc00_3000usize as *const u32;
+    let before_abort_write = unsafe { core::ptr::read_volatile(pi.add(5)) } & 0x1fff_ffe0;
     let cp = 0xcc00_0000usize as *const u16;
     let pending = unsafe {
         u32::from(core::ptr::read_volatile(cp.add(24)))
@@ -278,11 +302,11 @@ fn probe_gx_abort_recovery(logger: &mut ProbeLogger) {
     let control = unsafe { core::ptr::read_volatile(cp.add(1)) };
     let callback_cleared = gx::set_break_pt_callback(None).is_none();
     // C's Wii __GX_InitRevBits sends eight VAT1 loads, two XF loads and one BP load.
-    // The FIFO starts at the saved write pointer, which is the base in this experiment.
+    // C rewinds the linked FIFO to its saved write pointer, even across the ring boundary.
     let bytes = mem_k0_to_k1(base as usize) as *const u8;
     let mut revision = [0u8; 96];
     for (index, byte) in revision.iter_mut().enumerate() {
-        *byte = unsafe { core::ptr::read_volatile(bytes.add(index)) };
+        *byte = unsafe { core::ptr::read_volatile(bytes.add((start_offset + index) % 65536)) };
     }
     let vat = revision[..48]
         .chunks_exact(6)
@@ -294,7 +318,21 @@ fn probe_gx_abort_recovery(logger: &mut ProbeLogger) {
         ];
     let bp = revision[66..71] == [0x61, 0x58, 0, 0, 0x0f];
     let padding_only = revision[71..].iter().all(|byte| *byte == 0);
+    let old_pe_discarded =
+        GX_TOKEN_COUNT.load(Ordering::Acquire) == 0 && GX_DONE_COUNT.load(Ordering::Acquire) == 0;
+    gx::set_draw_sync(0x2468);
     let recovered = unsafe { gx::finish_frame_and_wait() };
+    let start = lwp::now_ticks();
+    while GX_TOKEN_COUNT.load(Ordering::Acquire) == 0
+        && lwp::now_ticks().wrapping_sub(start) < 60_750_000
+    {
+        core::hint::spin_loop();
+    }
+    let token_count = GX_TOKEN_COUNT.load(Ordering::Acquire);
+    let done_count = GX_DONE_COUNT.load(Ordering::Acquire);
+    let token = GX_LAST_TOKEN.load(Ordering::Acquire);
+    gx::set_draw_done_callback(previous_done);
+    gx::set_draw_sync_callback(previous_token);
     let mut after = gx::GxFifoObj::default();
     unsafe { gx::get_gp_fifo(&mut after) };
     let empty = unsafe { gx::get_fifo_count(&after) } == 0;
@@ -323,6 +361,207 @@ fn probe_gx_abort_recovery(logger: &mut ProbeLogger) {
     logger.record(
         "GX abort accepts new PE work and drains FIFO",
         recovered && empty,
+    );
+    logger.record(
+        "GX abort discards queued PE token and finish commands",
+        old_pe_held && old_pe_discarded,
+    );
+    logger.record(
+        "GX abort preserves PE callbacks for fresh work only",
+        token_count == 1 && done_count == 1 && token == 0x2468,
+    );
+    if wrap {
+        let base_phys = base as u32 & 0x1fff_ffe0;
+        logger.note_hex32(
+            "GX linked wrapped PI write pointer before abort",
+            before_abort_write,
+        );
+        logger.record(
+            "GX linked FIFO actually wraps before abort and revision stream crosses boundary",
+            before_abort_write >= base_phys
+                && before_abort_write < base_phys + 65536 - 32
+                && breakpoint == 1
+                && pending >= 96
+                && vat
+                && xf
+                && bp
+                && recovered
+                && empty,
+        );
+    }
+}
+
+// Verify real PI write-gather wrap with separate CPU and GP FIFO objects.
+fn probe_gx_detached_abort(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    logger.report_step("GX detached FIFO abort and wrap");
+    if !unsafe { gx::finish_frame_and_wait() } {
+        logger.record("GX detached abort initial FIFO drain", false);
+        return;
+    }
+    let mut saved_cpu = gx::GxFifoObj::default();
+    let mut saved_gp = gx::GxFifoObj::default();
+    let mut cpu = gx::GxFifoObj::default();
+    let mut gp = gx::GxFifoObj::default();
+    let cpu_base = core::ptr::addr_of_mut!(GX_ABORT_FIFO_STORAGE).cast::<u8>();
+    let gp_base = core::ptr::addr_of_mut!(GX_IRQ_FIFO_STORAGE).cast::<u8>();
+    let cpu_end = unsafe { cpu_base.add(65536 - 32) };
+    let gp_ptr = unsafe { gp_base.add(128) };
+    let gp_write = unsafe { gp_ptr.add(96) };
+    unsafe {
+        gx::get_cpu_fifo(&mut saved_cpu);
+        gx::get_gp_fifo(&mut saved_gp);
+        gx::init_fifo_base(&mut cpu, cpu_base.cast(), 65536);
+        gx::init_fifo_base(&mut gp, gp_base.cast(), 65536);
+        gx::init_fifo_ptrs(&mut cpu, cpu_end.cast(), cpu_end.cast());
+        gx::init_fifo_ptrs(&mut gp, gp_ptr.cast(), gp_ptr.cast());
+        gx::set_gp_fifo(null_mut());
+        gx::set_cpu_fifo(&mut cpu);
+        gx::set_gp_fifo(&mut gp);
+    }
+    // Hold a real, independent GP command stream at its read pointer. The
+    // CPU FIFO can wrap while the GP consumes none of these NOPs.
+    let previous_callback = gx::set_break_pt_callback(Some(probe_gx_break_interrupt));
+    GX_IRQ_BREAK_COUNT.store(0, Ordering::Release);
+    gx::enable_break_pt(gp_ptr.cast());
+    unsafe {
+        let uncached = mem_k0_to_k1(gp_ptr as usize) as *mut u8;
+        for offset in 0..96 {
+            core::ptr::write_volatile(uncached.add(offset), 0);
+        }
+        gx::init_fifo_ptrs(&mut gp, gp_ptr.cast(), gp_write.cast());
+        gx::set_gp_fifo(&mut gp);
+    }
+    let start_ticks = ogc_lwp::sys::now_ticks();
+    while GX_IRQ_BREAK_COUNT.load(Ordering::Acquire) == 0
+        && ogc_lwp::sys::now_ticks().wrapping_sub(start_ticks) < 60_750_000
+    {
+        core::hint::spin_loop();
+    }
+    let pi = 0xcc00_3000usize as *const u32;
+    let cp = 0xcc00_0000usize as *const u16;
+    let read_pair = |low: usize| unsafe {
+        u32::from(core::ptr::read_volatile(cp.add(low)))
+            | (u32::from(core::ptr::read_volatile(cp.add(low + 1))) << 16)
+    };
+    let physical = |p: *mut u8| p as u32 & 0x1fff_ffe0;
+    let start = unsafe { core::ptr::read_volatile(pi.add(5)) } & 0x1fff_ffe0;
+    for _ in 0..2 {
+        unsafe { gx::flush() };
+    }
+    let wrapped = unsafe { core::ptr::read_volatile(pi.add(5)) } & 0x1fff_ffe0;
+    let pending = read_pair(24);
+    let detached_before = unsafe { core::ptr::read_volatile(cp.add(1)) } & 0x1d == 1
+        && pending == 96
+        && read_pair(26) == physical(gp_write)
+        && read_pair(28) == physical(gp_ptr)
+        && GX_IRQ_BREAK_COUNT.load(Ordering::Acquire) == 1;
+    gx::abort_frame();
+    let control = unsafe { core::ptr::read_volatile(cp.add(1)) };
+    let after = unsafe { core::ptr::read_volatile(pi.add(5)) } & 0x1fff_ffe0;
+    let gpu_preserved = read_pair(24) == 0
+        && read_pair(26) == physical(gp_write)
+        && read_pair(28) == physical(gp_write);
+    let cpu_preserved = unsafe { core::ptr::read_volatile(pi.add(3)) } == physical(cpu_base)
+        && after == physical(cpu_base) + 128;
+    unsafe {
+        gx::set_gp_fifo(null_mut());
+        gx::set_cpu_fifo(&mut saved_cpu);
+        gx::set_gp_fifo(&mut saved_gp);
+    }
+    gx::set_break_pt_callback(previous_callback);
+    let recovered = unsafe { gx::finish_frame_and_wait() };
+    logger.note_u32("GX detached pending GP bytes", pending);
+    logger.note_hex32("GX detached CPU initial pointer", start);
+    logger.note_hex32("GX detached CPU wrapped pointer", wrapped);
+    logger.note_hex32("GX detached CPU abort pointer", after);
+    logger.record(
+        "GX detached CPU actual write-pointer wrap",
+        start == physical(cpu_end) && wrapped == physical(cpu_base) + 32,
+    );
+    logger.record(
+        "GX detached abort discards separate pending GP FIFO work",
+        detached_before && gpu_preserved,
+    );
+    logger.record(
+        "GX detached abort keeps watermark interrupts masked and FIFO unlinked",
+        control & 0x3f == 1,
+    );
+    logger.record(
+        "GX detached abort appends revision commands to CPU FIFO",
+        cpu_preserved,
+    );
+    logger.record(
+        "GX detached abort permits linked PE completion after restoration",
+        recovered,
+    );
+}
+
+// Distinguish already raised PE interrupts from discarded FIFO commands.
+fn probe_gx_abort_pending_pe_interrupts(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    use ogc_lwp::sys as lwp;
+    logger.report_step("GX abort with already raised PE interrupts");
+    if !unsafe { gx::finish_frame_and_wait() } {
+        logger.record("GX pending PE initial FIFO drain", false);
+        return;
+    }
+    let old_done = gx::set_draw_done_callback(Some(probe_gx_done_callback));
+    let old_token = gx::set_draw_sync_callback(Some(probe_gx_token_callback));
+    GX_DONE_COUNT.store(0, Ordering::Release);
+    GX_TOKEN_COUNT.store(0, Ordering::Release);
+    GX_LAST_TOKEN.store(0, Ordering::Release);
+    // PE interrupt cause bits in the processor interface, not the write-only
+    // acknowledgment bits in the PE control register.
+    const PE_CAUSES: u32 = 0x600;
+    let cause = 0xcc00_3000usize as *const u32;
+    let irq_state = ogc_irq::irq_disable();
+    gx::set_draw_sync(0x369c);
+    gx::set_draw_done();
+    let start = lwp::now_ticks();
+    while unsafe { core::ptr::read_volatile(cause) } & PE_CAUSES != PE_CAUSES
+        && lwp::now_ticks().wrapping_sub(start) < 60_750_000
+    {
+        core::hint::spin_loop();
+    }
+    let pending_before = unsafe { core::ptr::read_volatile(cause) } & PE_CAUSES;
+    let held =
+        GX_TOKEN_COUNT.load(Ordering::Acquire) == 0 && GX_DONE_COUNT.load(Ordering::Acquire) == 0;
+    gx::abort_frame();
+    let pending_after = unsafe { core::ptr::read_volatile(cause) } & PE_CAUSES;
+    let still_held =
+        GX_TOKEN_COUNT.load(Ordering::Acquire) == 0 && GX_DONE_COUNT.load(Ordering::Acquire) == 0;
+    ogc_irq::irq_restore(irq_state);
+    let start = lwp::now_ticks();
+    while (GX_TOKEN_COUNT.load(Ordering::Acquire) == 0
+        || GX_DONE_COUNT.load(Ordering::Acquire) == 0)
+        && lwp::now_ticks().wrapping_sub(start) < 60_750_000
+    {
+        core::hint::spin_loop();
+    }
+    let delivered = GX_TOKEN_COUNT.load(Ordering::Acquire) == 1
+        && GX_DONE_COUNT.load(Ordering::Acquire) == 1
+        && GX_LAST_TOKEN.load(Ordering::Acquire) == 0x369c;
+    gx::set_draw_done_callback(old_done);
+    gx::set_draw_sync_callback(old_token);
+    let recovered = unsafe { gx::finish_frame_and_wait() };
+    logger.note_hex32("GX PE causes before abort", pending_before);
+    logger.note_hex32("GX PE causes after abort", pending_after);
+    logger.record(
+        "GX abort starts with both PE interrupts raised but undelivered",
+        held && pending_before == PE_CAUSES,
+    );
+    logger.record(
+        "GX abort preserves already raised PE interrupts",
+        still_held && pending_after == PE_CAUSES,
+    );
+    logger.record(
+        "GX pending PE callbacks delivered exactly once after IRQ restore",
+        delivered,
+    );
+    logger.record(
+        "GX fresh PE work completes after pending interrupt delivery",
+        recovered,
     );
 }
 
@@ -402,6 +641,15 @@ unsafe extern "C" fn probe_gx_irq_producer(_arg: *mut c_void) -> *mut c_void {
 }
 
 fn probe_gx_watermark_delivery(logger: &mut ProbeLogger, abort: bool) {
+    probe_gx_watermark_delivery_with_ownership(logger, abort, false, false);
+}
+
+fn probe_gx_watermark_delivery_with_ownership(
+    logger: &mut ProbeLogger,
+    abort: bool,
+    application_suspend: bool,
+    change_owner: bool,
+) {
     use ogc_gx as gx;
     use ogc_lwp::sys as lwp;
     logger.report_step(if abort {
@@ -458,11 +706,29 @@ fn probe_gx_watermark_delivery(logger: &mut ProbeLogger, abort: bool) {
     let control_held = unsafe { core::ptr::read_volatile(cp.add(1)) };
     let status_held = unsafe { core::ptr::read_volatile(cp) };
     let done_held = GX_IRQ_PRODUCER_DONE.load(Ordering::Acquire);
+    let extra_suspend =
+        application_suspend && suspended && lwp::suspend_thread(worker) == lwp::LWP_SUCCESSFUL;
+    let owner_changed = if change_owner {
+        gx::set_current_gx_thread() == worker
+    } else {
+        true
+    };
     if abort {
         gx::abort_frame();
     } else {
         gx::disable_break_pt();
     }
+    let application_still_suspended = if application_suspend && extra_suspend {
+        lwp::sleep_ticks(60_750 * 5);
+        let held = lwp::thread_is_suspended(worker) != 0
+            && GX_IRQ_PRODUCER_DONE.load(Ordering::Acquire) == 0;
+        let released = lwp::resume_thread(worker) == lwp::LWP_SUCCESSFUL;
+        held && released
+    } else {
+        !application_suspend
+    };
+    let owner_preserved =
+        !change_owner || gx::get_current_gx_thread() == ogc_lwp::current_thread().raw();
     let start = lwp::now_ticks();
     while created
         && GX_IRQ_PRODUCER_DONE.load(Ordering::Acquire) == 0
@@ -503,8 +769,22 @@ fn probe_gx_watermark_delivery(logger: &mut ProbeLogger, abort: bool) {
             && overflow_count == 1
             && control_held & 0x0c == 0x08,
     );
+    if change_owner {
+        logger.record(
+            "GX abort preserves changed producer designation and resumes original owner",
+            owner_changed && owner_preserved && recovered && joined,
+        );
+    }
+    if application_suspend {
+        logger.record(
+            "GX abort releases only GX suspension, preserving application suspension",
+            extra_suspend && application_still_suspended && recovered && joined,
+        );
+    }
     logger.record(
-        if abort {
+        if application_suspend {
+            "GX producer resumes after application releases its own suspension"
+        } else if abort {
             "GX abort resumes suspended producing LWP without manual resume"
         } else {
             "GX low watermark resumes producing LWP"

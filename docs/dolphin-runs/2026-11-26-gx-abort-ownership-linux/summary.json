@@ -1,0 +1,99 @@
+{
+  "local_base": "2ba6ed42f1fb19978879d358a63e85a3bc1fb901",
+  "upstream_base_reported": "168f83e7",
+  "dolphin": "stock 2609b (Linux x86_64, OGL)",
+  "private_archive_sha256": "d8352a5bb29156e51f5a951393e5af5d22f0a3732c788cdc9f79b34231fe57af",
+  "runs": [
+    {
+      "stage": "baseline",
+      "probe": "gx_api_probe",
+      "status": "pass",
+      "dol_sha256": "df6ccd0a95dcf55faf6aaa8161bc4e393c933dd7a133f9f3ff4ac06906d19648",
+      "passes": 94,
+      "fails": 0,
+      "page_capture_count": 9,
+      "pages_valid": true,
+      "frames_valid": true,
+      "duration_milliseconds": 17441,
+      "summary_line": "PASS summary passes=94 fails=0"
+    },
+    {
+      "stage": "extended",
+      "probe": "gx_api_probe",
+      "status": "pass",
+      "dol_sha256": "56ac9395db6bea86a7158947c573d1f1746f9ebe3411c6f276caf21ee38317c7",
+      "passes": 105,
+      "fails": 0,
+      "page_capture_count": 10,
+      "pages_valid": true,
+      "frames_valid": true,
+      "duration_milliseconds": 20356,
+      "summary_line": "PASS summary passes=105 fails=0"
+    },
+    {
+      "stage": "pending",
+      "probe": "gx_api_probe",
+      "status": "pass",
+      "dol_sha256": "5bb39494d5cf2cf956f10415790c0f397692e9b107bfa2f255584e2c6d63452d",
+      "passes": 105,
+      "fails": 0,
+      "page_capture_count": 10,
+      "pages_valid": true,
+      "frames_valid": true,
+      "duration_milliseconds": 19124,
+      "summary_line": "PASS summary passes=105 fails=0"
+    },
+    {
+      "stage": "final",
+      "probe": "gx_api_probe",
+      "status": "pass",
+      "dol_sha256": "f15be90cab137abab98e0666ec45ade8cd1e6c83c920e9bf589bf15d64c1a1b3",
+      "passes": 109,
+      "fails": 0,
+      "page_capture_count": 10,
+      "pages_valid": true,
+      "frames_valid": true,
+      "duration_milliseconds": 18133,
+      "summary_line": "PASS summary passes=109 fails=0"
+    },
+    {
+      "stage": "broad",
+      "probe": "video_probe",
+      "status": "pass",
+      "dol_sha256": "b80e04084373c18b6a9c1ad46b467c695e4dc82e626295c92d804cfe769574d4",
+      "passes": 414,
+      "fails": 0,
+      "page_capture_count": 32,
+      "pages_valid": true,
+      "frames_valid": true,
+      "duration_milliseconds": 57133,
+      "summary_line": "PASS summary passes=414 fails=0"
+    },
+    {
+      "stage": "broad",
+      "probe": "lwp_probe",
+      "status": "pass",
+      "dol_sha256": "d95e358e4d8e81c3363ed2708ff6d3cae602d53db94e409bd6296063c01b7883",
+      "passes": 282,
+      "fails": 0,
+      "page_capture_count": 20,
+      "pages_valid": true,
+      "frames_valid": true,
+      "duration_milliseconds": 50128,
+      "summary_line": "PASS summary passes=282 fails=0"
+    },
+    {
+      "stage": "gamecube",
+      "probe": "gx_gamecube_abort_probe",
+      "status": "pass",
+      "dol_sha256": "ea6ca103077b319c41d37556f40bf8657b5c4498ba60f4d78d056ebe10b7bda6",
+      "passes": 12,
+      "fails": 0,
+      "page_capture_count": 1,
+      "pages_valid": true,
+      "frames_valid": true,
+      "duration_milliseconds": 3098,
+      "summary_line": "PASS summary passes=12 fails=0"
+    }
+  ]
+}

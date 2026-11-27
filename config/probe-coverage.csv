@@ -32,3 +32,5 @@ aesnd-stream-probe,probes/ogc-system-probe/src/aesnd_stream_probe.rs,
 usbstorage-transport-probe,probes/ogc-system-probe/src/usbstorage_transport_probe.rs,
 mp3player-probe,probes/ogc-system-probe/src/mp3player_probe.rs,
 aram-probe,probes/ogc-system-probe/src/aram_probe.rs,
+gx-api-probe,probes/ogc-system-probe/src/video_probe.rs,gx_api_probe
+gx-gamecube-abort-probe,probes/ogc-system-probe/src/gx_gamecube_abort_probe/main.rs,gx_gamecube_abort_probe

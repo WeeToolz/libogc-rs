@@ -426,6 +426,8 @@ fn check_wii_wiisd() -> Result<(), String> {
     )
 }
 
+const GAMECUBE_PROBE_BINARIES: &[&str] = &["card_probe", "gx_gamecube_abort_probe"];
+
 const PROBE_BINARIES: &[&str] = &[
     "arena_probe",
     "bus_probe",
@@ -483,6 +485,17 @@ mod probe_artifact_tests {
                 vec!["-p", "lwp-probe", "--bin", "lwp_probe"]
             ]
         );
+    }
+
+    #[test]
+    fn gamecube_probes_use_the_separate_target_build() {
+        let manifest = include_str!("../../probes/ogc-system-probe/Cargo.toml");
+        for &probe in super::GAMECUBE_PROBE_BINARIES {
+            assert!(!super::PROBE_BINARIES.contains(&probe));
+            assert!(super::dolphin::is_known_probe(probe));
+            assert!(manifest.contains(&format!("name = \"{probe}\"")));
+            assert!(manifest.contains(&format!("path = \"src/{probe}/main.rs\"")));
+        }
     }
 
     #[test]
@@ -1572,8 +1585,11 @@ fn build_probe_selection(
             run_command(&mut command)?;
         }
     }
-    if mode == ProbeBuildMode::Dolphin && selected.is_none_or(|names| names.contains(&"card_probe"))
-    {
+    for &probe in GAMECUBE_PROBE_BINARIES {
+        if mode != ProbeBuildMode::Dolphin || selected.is_some_and(|names| !names.contains(&probe))
+        {
+            continue;
+        }
         let gamecube_target_spec = root.join("targets/powerpc-nintendo-gamecube.json");
         let gamecube_target_dir = root.join("target/xtask/gamecube-system-probe-build");
         let mut gamecube_rustflags = encoded_powerpc_wii_rustflags(&root);
@@ -1601,7 +1617,7 @@ fn build_probe_selection(
                 "-p",
                 "ogc-system-probe",
                 "--bin",
-                "card_probe",
+                probe,
                 "--features",
                 "dolphin-automation,gamecube-card-probe",
             ])
@@ -1612,8 +1628,10 @@ fn build_probe_selection(
         run_command(&mut command)?;
 
         gc_elf::convert_elf_file(
-            &gamecube_target_dir.join("powerpc-nintendo-gamecube/release/card_probe"),
-            &probe_output.join("card_probe.dol"),
+            &gamecube_target_dir
+                .join("powerpc-nintendo-gamecube/release")
+                .join(probe),
+            &probe_output.join(format!("{probe}.dol")),
             gc_elf::DolProfile::Libogc,
         )
         .map_err(|error| error.to_string())?;

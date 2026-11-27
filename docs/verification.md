@@ -277,3 +277,15 @@ abort discards the pending commands and submits Wii revision commands.
 Host GX 5/5 and xtask 164/164, Wii hardware group and inventory pass.
 Detached FIFOs, wraparound, outstanding PE callbacks, GameCube runtime and
 physical Wii counter timing and sticky CP status remain pending.
+
+### GX abort FIFO ownership and GameCube recovery (2026-11-26)
+
+[Scoped evidence](dolphin-runs/2026-11-26-gx-abort-ownership-linux/README.md):
+stock Dolphin 2609b, Wii GX 109/109, GameCube GX abort 12/12, Wii video
+414/414 (before the final PE-only test extension), LWP 282/282. All 63
+captures from these four runs are valid. The Wii checks distinguish
+queued commands discarded by abort from already-raised PE interrupts
+that survive abort. Detached FIFO pointers, actual ring wrap, and
+independent suspension ownership pass. No production or emulator changes.
+Host xtask 165/165, inventory and source audit pass. Full runtime suite
+not repeated. Physical timing and independent full GX review remain open.

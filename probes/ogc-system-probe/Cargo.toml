@@ -12,6 +12,7 @@ ipc-relaunch-background = ["ipc-relaunch-probe"]
 ios-reload-probe = []
 mounted-log = []
 dolphin-automation = ["mounted-log", "pad-diagnostics", "lwbt-sys/dolphin-automation", "ogc-exi/dolphin-automation", "ogc-ipc/format-probe-hooks", "wpad-sys/dolphin-probe-hooks", "tinysmb-sys/dolphin-fixture"]
+# Reduced probe module set shared by GameCube-target probes.
 gamecube-card-probe = []
 agent-report = []
 pad-diagnostics = [
@@ -191,6 +192,11 @@ path = "src/storage_probe/main.rs"
 [[bin]]
 name = "card_probe"
 path = "src/card_probe/main.rs"
+required-features = ["gamecube-card-probe"]
+
+[[bin]]
+name = "gx_gamecube_abort_probe"
+path = "src/gx_gamecube_abort_probe/main.rs"
 required-features = ["gamecube-card-probe"]
 
 [[bin]]

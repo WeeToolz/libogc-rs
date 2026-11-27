@@ -2951,7 +2951,7 @@ ogc-wd,src/lib.rs,scan_once_result,615,ios,hardware-probe,probes/ogc-system-prob
 ogc-wd,src/lib.rs,scan_result,605,ios,hardware-probe,probes/ogc-system-probe/src/wd_probe.rs,run,wd::scan_result
 ogc-wd,src/lib.rs,try_wd_deinit,550,ios,hardware-probe,probes/ogc-system-probe/src/wd_probe.rs,run,wd::try_wd_deinit
 ogc-wd,src/lib.rs,try_wd_init,546,ios,hardware-probe,probes/ogc-system-probe/src/wd_probe.rs,run,wd::try_wd_init
-ogc-gx,src/lib.rs,abort_frame,2101,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_unverified_apis,gx::abort_frame
+ogc-gx,src/lib.rs,abort_frame,2101,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_abort_recovery,gx::abort_frame
 ogc-gx,src/lib.rs,clear_gp_metric,7601,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_unverified_apis,gx::clear_gp_metric
 ogc-gx,src/lib.rs,disable_break_pt,1944,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_unverified_apis,gx::disable_break_pt
 ogc-gx,src/lib.rs,enable_break_pt,1926,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_unverified_apis,gx::enable_break_pt

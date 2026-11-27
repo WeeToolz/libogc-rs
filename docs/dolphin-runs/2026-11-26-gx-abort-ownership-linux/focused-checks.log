@@ -1,0 +1,139 @@
+PASS GX API probe FIFO initialization
+PASS GX MEM2 initialization enables linked FIFO high watermark only
+PASS GX MEM2 initialization records the producing LWP
+PASS GX live breakpoint initial FIFO drain
+INFO GX live breakpoint callback count=1
+INFO GX live breakpoint CP control=23
+INFO GX live breakpoint CP status=26
+PASS GX live breakpoint callback delivered once
+PASS GX live breakpoint release allows PE completion
+PASS GX pressure FIFO drains after producer joins
+INFO GX pressure breakpoint callback count=1
+INFO GX live overflow counter=1
+INFO GX live held CP control=27
+INFO GX live held CP status=25
+INFO GX live recovered CP control=21
+PASS GX pressure breakpoint callback delivered once
+PASS GX high watermark suspends producing LWP
+PASS GX low watermark resumes producing LWP
+PASS GX init rejects null and misaligned FIFO storage
+PASS GX null breakpoint enable leaves status unchanged
+PASS GX breakpoint disable clears status
+PASS GX TPL file open handles null inputs
+PASS GX CPU FIFO setter preserves the active FIFO
+PASS GX GP FIFO setter preserves the active FIFO
+PASS GX breakpoint enables matching physical address and CP bits
+PASS GX breakpoint disable preserves GP reads and watermark link
+PASS GX detached GP FIFO disables reads and link
+PASS GX CPU-only FIFO keeps GP reads disabled
+PASS GX attached GP FIFO restores reads and link
+PASS GX detached and CPU-only FIFO mask watermark interrupts
+PASS GX linked GP FIFO enables only the high watermark interrupt
+PASS GX linked CPU FIFO enables only the high watermark interrupt
+PASS GX GP detach clears the watermark interrupt enable bits
+PASS GX write gather redirect unlinks and masks watermark interrupts
+PASS GX write gather restore relinks and enables high watermark only
+PASS GX write gather redirect selects its aperture
+PASS GX write gather restore keeps the CPU FIFO live
+PASS GX misc DL save mode restores vertex descriptors
+PASS GX misc DL no-save mode keeps vertex descriptor changes
+PASS GX GP metric clear resets counter zero and leaves unsupported counter one untouched
+PASS GX clocks per vertex query returns its documented byte range
+PASS GX vertex cache metric setter preserves the current counters
+PASS GX abort frame empties pending GP FIFO work
+INFO GX abort pending FIFO bytes=192
+INFO GX abort CP control=21
+PASS GX abort starts with real pending FIFO work
+PASS GX abort clears breakpoint and restores linked read control
+PASS GX abort emits Wii VAT revision commands
+PASS GX abort emits Wii XF and BP revision commands
+PASS GX abort flush discards pending VAT state
+PASS GX abort accepts new PE work and drains FIFO
+PASS GX abort discards queued PE token and finish commands
+PASS GX abort preserves PE callbacks for fresh work only
+INFO GX abort pending FIFO bytes=192
+INFO GX abort CP control=21
+PASS GX abort starts with real pending FIFO work
+PASS GX abort clears breakpoint and restores linked read control
+PASS GX abort emits Wii VAT revision commands
+PASS GX abort emits Wii XF and BP revision commands
+PASS GX abort flush discards pending VAT state
+PASS GX abort accepts new PE work and drains FIFO
+PASS GX abort discards queued PE token and finish commands
+PASS GX abort preserves PE callbacks for fresh work only
+INFO GX linked wrapped PI write pointer before abort=0x000d4780
+PASS GX linked FIFO actually wraps before abort and revision stream crosses boundary
+INFO GX detached pending GP bytes=96
+INFO GX detached CPU initial pointer=0x000e46c0
+INFO GX detached CPU wrapped pointer=0x000d4700
+INFO GX detached CPU abort pointer=0x000d4760
+PASS GX detached CPU actual write-pointer wrap
+PASS GX detached abort discards separate pending GP FIFO work
+PASS GX detached abort keeps watermark interrupts masked and FIFO unlinked
+PASS GX detached abort appends revision commands to CPU FIFO
+PASS GX detached abort permits linked PE completion after restoration
+INFO GX PE causes before abort=0x00000600
+INFO GX PE causes after abort=0x00000600
+PASS GX abort starts with both PE interrupts raised but undelivered
+PASS GX abort preserves already raised PE interrupts
+PASS GX pending PE callbacks delivered exactly once after IRQ restore
+PASS GX fresh PE work completes after pending interrupt delivery
+PASS GX pressure FIFO drains after producer joins
+INFO GX pressure breakpoint callback count=1
+INFO GX live overflow counter=1
+INFO GX live held CP control=27
+INFO GX live held CP status=25
+INFO GX live recovered CP control=21
+PASS GX pressure breakpoint callback delivered once
+PASS GX high watermark suspends producing LWP
+PASS GX abort resumes suspended producing LWP without manual resume
+PASS GX pressure FIFO drains after producer joins
+INFO GX pressure breakpoint callback count=1
+INFO GX live overflow counter=1
+INFO GX live held CP control=27
+INFO GX live held CP status=25
+INFO GX live recovered CP control=21
+PASS GX pressure breakpoint callback delivered once
+PASS GX high watermark suspends producing LWP
+PASS GX abort preserves changed producer designation and resumes original owner
+PASS GX abort resumes suspended producing LWP without manual resume
+PASS GX pressure FIFO drains after producer joins
+INFO GX pressure breakpoint callback count=1
+INFO GX live overflow counter=1
+INFO GX live held CP control=27
+INFO GX live held CP status=25
+INFO GX live recovered CP control=21
+PASS GX pressure breakpoint callback delivered once
+PASS GX high watermark suspends producing LWP
+PASS GX abort preserves changed producer designation and resumes original owner
+PASS GX abort releases only GX suspension, preserving application suspension
+PASS GX producer resumes after application releases its own suspension
+PASS GX pressure FIFO drains after producer joins
+INFO GX pressure breakpoint callback count=1
+INFO GX live overflow counter=1
+INFO GX live held CP control=27
+INFO GX live held CP status=25
+INFO GX live recovered CP control=21
+PASS GX pressure breakpoint callback delivered once
+PASS GX high watermark suspends producing LWP
+PASS GX low watermark resumes producing LWP
+PASS GX FIFO base size and initial count
+PASS GX FIFO watermarks and adjacent fields
+PASS GX FIFO short initialization preserves object
+PASS GX FIFO wrap flag readback
+PASS GX wrapped FIFO keeps real pointer addresses and distance
+PASS GX invalid FIFO pointer leaves prior metadata unchanged
+PASS GX nonwrapped FIFO keeps real pointer addresses and distance
+PASS GX frame configuration validates input
+PASS GX frame configuration rejects copy sizes that exceed the XFB
+PASS GX frame filter and field settings retained
+PASS GX copy-scale invalid dimensions use the safety fallback
+PASS GX copy-scale reference ratios encode the expected register values
+PASS GX copy-scale unity produces 480 lines
+PASS GX copy-scale odd divisor produces 481 lines
+PASS GX copy-scale 127 divisor produces 482 lines
+PASS GX copy-scale reduction produces 360 lines
+PASS GX display copy encodes first configuration
+PASS GX display copy encodes second configuration
+PASS GX display copy scale above 256 retains scale-enable bit
+PASS summary passes=109 fails=0

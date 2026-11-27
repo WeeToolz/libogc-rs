@@ -458,3 +458,18 @@ eight valid captures on stock Dolphin 2609b. See
 [the target-vector report](../dolphin-runs/2026-11-26-gx-target-vectors-linux/README.md).
 The full video repeat did not complete. No production code or package
 parity status changed.
+
+### GX abort FIFO ownership and GameCube recovery (2026-11-26)
+
+[Scoped evidence](../dolphin-runs/2026-11-26-gx-abort-ownership-linux/README.md)
+compares C's linked-only CPU pointer update in `__GX_CleanGPFifo`, the
+GameCube branch of `GX_AbortFrame`, and the PE callback lifecycle. The
+Wii probe passes 109/109, including live detached GP work, linked and
+detached pointer wrap, queued PE cancellation, already-raised PE IRQ
+preservation, producer ownership changes and separate application
+suspensions. The GameCube DOL passes 12/12 in Dolphin's GameCube mode:
+no Wii revision commands, pending VAT retained until explicit flush,
+and fresh graphics completion. Broad Wii video and LWP checks pass
+414/414 and 282/282. No production or Dolphin changes were necessary.
+The independent full API review and target evidence mappings remain open.
+Physical CP status clearing and PE memory-counter timing remain pending.

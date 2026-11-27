@@ -1,0 +1,13 @@
+35:23:153 Core/Core.cpp:237 I[BOOT]: Starting core = GameCube mode
+PASS GameCube system initialization
+PASS GameCube target configuration
+PASS GameCube GX caller-owned FIFO initialization
+PASS GameCube initial PE completion
+INFO GameCube pending FIFO bytes=96
+INFO GameCube CP control after abort=0x00000015
+PASS GameCube abort begins with live pending FIFO commands
+PASS GameCube abort clears FIFO and restores link and interrupt mask
+PASS GameCube abort emits no Wii revision commands
+PASS GameCube abort retains pending VAT for the next flush
+PASS GameCube accepts PE completion after abort
+PASS summary passes=12 fails=0
