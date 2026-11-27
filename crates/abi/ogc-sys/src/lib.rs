@@ -631,6 +631,7 @@ static DECREMENTER_VECTOR_STATE: AtomicU8 = AtomicU8::new(0); // 0: unsaved, 1: 
 static DECREMENTER_VECTOR_BACKUP: [AtomicU8; DECREMENTER_VECTOR_STUB_LEN] =
     [const { AtomicU8::new(0) }; DECREMENTER_VECTOR_STUB_LEN];
 static IRQ_DISPATCH_CALLBACK: AtomicUsize = AtomicUsize::new(0);
+static IRQ_DISPATCH_ACTIVE: AtomicUsize = AtomicUsize::new(0);
 static DECREMENTER_DISPATCH_CALLBACK: AtomicUsize = AtomicUsize::new(0);
 static GENERAL_EXCEPTION_CALLBACK: AtomicUsize = AtomicUsize::new(0);
 static INTERRUPT_RETURN_CALLBACK: AtomicUsize = AtomicUsize::new(0);
@@ -1240,6 +1241,13 @@ pub fn restore_decrementer_exception_vector() {
     }
 }
 
+/// True while the external IRQ exception dispatcher is executing a handler.
+/// The scheduler must defer a context switch until the interrupt-return hook.
+#[doc(hidden)]
+pub fn in_irq_dispatch() -> bool {
+    IRQ_DISPATCH_ACTIVE.load(Ordering::Acquire) != 0
+}
+
 #[unsafe(no_mangle)]
 pub extern "C" fn __ogc_sys_irq_dispatch() -> u32 {
     let raw = IRQ_DISPATCH_CALLBACK.load(Ordering::Acquire);
@@ -1247,7 +1255,10 @@ pub extern "C" fn __ogc_sys_irq_dispatch() -> u32 {
         return 0;
     }
     let callback: IrqDispatchCallback = unsafe { core::mem::transmute(raw) };
-    unsafe { callback() }
+    let previous = IRQ_DISPATCH_ACTIVE.swap(1, Ordering::AcqRel);
+    let result = unsafe { callback() };
+    IRQ_DISPATCH_ACTIVE.store(previous, Ordering::Release);
+    result
 }
 
 pub fn install_irq_exception_vector() {
@@ -1598,14 +1609,17 @@ mod tests {
     }
 
     unsafe extern "C" fn sample_irq_callback() -> u32 {
-        1
+        u32::from(in_irq_dispatch())
     }
 
     #[test]
     fn irq_dispatch_callback_round_trips() {
         set_irq_dispatch_callback(Some(sample_irq_callback));
+        assert!(!in_irq_dispatch());
         assert_eq!(__ogc_sys_irq_dispatch(), 1);
+        assert!(!in_irq_dispatch());
         set_irq_dispatch_callback(None);
         assert_eq!(__ogc_sys_irq_dispatch(), 0);
+        assert!(!in_irq_dispatch());
     }
 }

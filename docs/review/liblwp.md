@@ -403,3 +403,19 @@ The LWP driver now owns a dedicated periodic deadline in its decrementer schedul
 Dolphin 2609a run `docs/dolphin-runs/2026-11-26-lwp-timeslice-dedicated-timer` passed 73 checks. The probe verified explicit tick configuration, retain-current behavior, disable, automatic enable from thread creation, and repeated rotation between equal-priority worker threads. PowerPC checks for `ogc-system` and `ogc-lwp-sys` passed. Host `cargo test -p ogc-lwp-driver` cannot compile because its target-only workspace dependencies reject the host target. Physical Wii verification and independent parity re-review remain pending.
 
 The shared `bus_probe` now calls `ogc_lwp_driver::set_timeslice`, `ogc_system_sys::sys_set_timeslice`, and `ogc_system::set_timeslice` directly in the rotation scenario. Dolphin 2609a run `docs/dolphin-runs/2026-11-26-timeslice-api-inventory` passed 77 checks with 0 failures. This adds exact API evidence for the driver, raw system, and safe facade paths. Physical Wii verification and independent parity re-review remain pending.
+
+## External IRQ self-suspension — 2026-11-26
+
+C `KThreadSwitchTo` checks `PPCIsInExcpt` before a context switch
+(`tuxedo/thread.c:84-149`); a switch requested by an IRQ is deferred until
+exception return. Rust's `suspend_thread` previously used a cooperative
+switch even on the shared external IRQ exception stack. A real GX pressure
+probe reproduced the failure; the same probe with only the deferred
+suspension branch removed timed out. Record external IRQ-dispatch context
+in `ogc-sys` and let the existing `interrupt_return` hook save and select
+the next context after the handler returns. Normal self-suspension outside
+an IRQ keeps the existing cooperative path. The corrected GX probe passes
+45/45 and restores the producer without manual resume. See
+[run evidence](../dolphin-runs/2026-11-26-gx-live-cp-irq-linux/README.md).
+This scope covers external IRQ self-suspension; other exception-context
+scheduler and blocking paths and independent review remain open.

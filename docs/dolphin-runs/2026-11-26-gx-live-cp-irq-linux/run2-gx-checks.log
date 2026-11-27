@@ -1,0 +1,3 @@
+PASS GX API probe FIFO initialization
+PASS GX MEM2 initialization enables linked FIFO high watermark only
+PASS GX MEM2 initialization records the producing LWP

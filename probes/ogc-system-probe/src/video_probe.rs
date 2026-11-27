@@ -214,8 +214,185 @@ pub fn run_gx_api_probe(logger: &mut ProbeLogger) {
         return;
     }
     logger.record("GX API probe FIFO initialization", true);
+    probe_gx_interrupt_delivery(logger);
+    probe_gx_watermark_delivery(logger);
     probe_gx_unverified_apis(logger);
     logger.summary();
+}
+
+static GX_IRQ_BREAK_COUNT: AtomicU32 = AtomicU32::new(0);
+
+unsafe extern "C" fn probe_gx_break_interrupt() {
+    GX_IRQ_BREAK_COUNT.fetch_add(1, Ordering::Release);
+}
+
+fn probe_gx_interrupt_delivery(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    use ogc_lwp::sys as lwp;
+    logger.report_step("GX live CP breakpoint interrupt");
+    let drained = unsafe { gx::finish_frame_and_wait() };
+    if !drained {
+        logger.record("GX live breakpoint initial FIFO drain", false);
+        return;
+    }
+    let mut gp = gx::GxFifoObj::default();
+    let mut read = null_mut();
+    let mut write = null_mut();
+    unsafe {
+        gx::get_gp_fifo(&mut gp);
+        gx::get_fifo_ptrs(&gp, &mut read, &mut write);
+    }
+    let ready = !read.is_null() && read == write && unsafe { gx::get_fifo_count(&gp) } == 0;
+    logger.record("GX live breakpoint initial FIFO drain", ready);
+    if !ready {
+        return;
+    }
+    let previous = gx::set_break_pt_callback(Some(probe_gx_break_interrupt));
+    GX_IRQ_BREAK_COUNT.store(0, Ordering::Release);
+    gx::enable_break_pt(read);
+    // Submit just one NOP burst. No watermark pressure or thread switch.
+    unsafe { gx::flush() };
+    let start = lwp::now_ticks();
+    while GX_IRQ_BREAK_COUNT.load(Ordering::Acquire) == 0
+        && lwp::now_ticks().wrapping_sub(start) < 60_750_000
+    {
+        core::hint::spin_loop();
+    }
+    let count = GX_IRQ_BREAK_COUNT.load(Ordering::Acquire);
+    let cp = 0xcc00_0000usize as *const u16;
+    let control = unsafe { core::ptr::read_volatile(cp.add(1)) };
+    let status = unsafe { core::ptr::read_volatile(cp) };
+    gx::disable_break_pt();
+    let recovered = unsafe { gx::finish_frame_and_wait() };
+    let final_count = GX_IRQ_BREAK_COUNT.load(Ordering::Acquire);
+    gx::set_break_pt_callback(previous);
+    logger.note_u32("GX live breakpoint callback count", count);
+    logger.note_u32("GX live breakpoint CP control", u32::from(control));
+    logger.note_u32("GX live breakpoint CP status", u32::from(status));
+    logger.record(
+        "GX live breakpoint callback delivered once",
+        count == 1 && final_count == 1 && status & 0x10 != 0 && control & 0x20 == 0,
+    );
+    logger.record("GX live breakpoint release allows PE completion", recovered);
+}
+
+// The test owns a separate 64 KiB FIFO and uses a bounded producer.
+static GX_PRESSURE_BREAK_COUNT: AtomicU32 = AtomicU32::new(0);
+static GX_IRQ_PRODUCER_DONE: AtomicU32 = AtomicU32::new(0);
+static mut GX_IRQ_FIFO_STORAGE: ProbeFifoStorage = ProbeFifoStorage([0; 65536]);
+
+unsafe extern "C" fn probe_gx_pressure_break_interrupt() {
+    GX_PRESSURE_BREAK_COUNT.fetch_add(1, Ordering::Release);
+}
+
+unsafe extern "C" fn probe_gx_irq_producer(_arg: *mut c_void) -> *mut c_void {
+    ogc_gx::set_current_gx_thread();
+    // Only 512 bytes of NOPs, even if interrupt delivery fails.
+    for _ in 0..16 {
+        unsafe { ogc_gx::flush() };
+    }
+    GX_IRQ_PRODUCER_DONE.store(1, Ordering::Release);
+    null_mut()
+}
+
+fn probe_gx_watermark_delivery(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    use ogc_lwp::sys as lwp;
+    logger.report_step("GX live CP breakpoint and watermark interrupts");
+    if !unsafe { gx::finish_frame_and_wait() } {
+        logger.record("GX pressure test initial FIFO drain", false);
+        return;
+    }
+    let mut cpu = gx::GxFifoObj::default();
+    let mut gp = gx::GxFifoObj::default();
+    let mut pressure = gx::GxFifoObj::default();
+    let base = core::ptr::addr_of_mut!(GX_IRQ_FIFO_STORAGE).cast::<c_void>();
+    unsafe {
+        gx::get_cpu_fifo(&mut cpu);
+        gx::get_gp_fifo(&mut gp);
+        gx::init_fifo_base(&mut pressure, base, 65536);
+        gx::init_fifo_limits(&mut pressure, 64, 32);
+        gx::set_gp_fifo(null_mut());
+        gx::set_cpu_fifo(&mut pressure);
+        gx::set_gp_fifo(&mut pressure);
+    }
+    let previous_callback = gx::set_break_pt_callback(Some(probe_gx_pressure_break_interrupt));
+    GX_PRESSURE_BREAK_COUNT.store(0, Ordering::Release);
+    GX_IRQ_PRODUCER_DONE.store(0, Ordering::Release);
+    let _ = gx::reset_overflow_count();
+    gx::enable_break_pt(base);
+    let mut worker = lwp::LWP_THREAD_NULL;
+    let created = unsafe {
+        lwp::create_thread(
+            &mut worker,
+            Some(probe_gx_irq_producer),
+            null_mut(),
+            null_mut(),
+            40 * 1024,
+            64,
+        )
+    } == lwp::LWP_SUCCESSFUL;
+    let cp = 0xcc00_0000usize as *const u16;
+    // Do not log or submit graphics work while the GP is stopped.
+    let start = lwp::now_ticks();
+    while created
+        && lwp::thread_is_suspended(worker) == 0
+        && GX_IRQ_PRODUCER_DONE.load(Ordering::Acquire) == 0
+        && lwp::now_ticks().wrapping_sub(start) < 60_750_000
+    {
+        lwp::sleep_ticks(60_750);
+    }
+    let suspended = created && lwp::thread_is_suspended(worker) != 0;
+    let overflow_count = gx::get_overflow_count();
+    let break_count = GX_PRESSURE_BREAK_COUNT.load(Ordering::Acquire);
+    let control_held = unsafe { core::ptr::read_volatile(cp.add(1)) };
+    let status_held = unsafe { core::ptr::read_volatile(cp) };
+    let done_held = GX_IRQ_PRODUCER_DONE.load(Ordering::Acquire);
+    gx::disable_break_pt();
+    let start = lwp::now_ticks();
+    while created
+        && GX_IRQ_PRODUCER_DONE.load(Ordering::Acquire) == 0
+        && lwp::now_ticks().wrapping_sub(start) < 60_750_000
+    {
+        lwp::sleep_ticks(60_750);
+    }
+    let recovered = GX_IRQ_PRODUCER_DONE.load(Ordering::Acquire) != 0;
+    let control_recovered = unsafe { core::ptr::read_volatile(cp.add(1)) };
+    // Manual resume is failure cleanup only, never passing evidence.
+    if created && !recovered && lwp::thread_is_suspended(worker) != 0 {
+        let _ = lwp::resume_thread(worker);
+    }
+    let joined = created && unsafe { lwp::join_thread(worker, null_mut()) } == lwp::LWP_SUCCESSFUL;
+    gx::set_current_gx_thread();
+    gx::set_break_pt_callback(previous_callback);
+    let drained = unsafe { gx::finish_frame_and_wait() };
+    unsafe {
+        gx::set_gp_fifo(null_mut());
+        gx::set_cpu_fifo(&mut cpu);
+        gx::set_gp_fifo(&mut gp);
+    }
+    logger.record("GX pressure FIFO drains after producer joins", drained);
+    logger.note_u32("GX pressure breakpoint callback count", break_count);
+    logger.note_u32("GX live overflow counter", overflow_count);
+    logger.note_u32("GX live held CP control", u32::from(control_held));
+    logger.note_u32("GX live held CP status", u32::from(status_held));
+    logger.note_u32("GX live recovered CP control", u32::from(control_recovered));
+    logger.record(
+        "GX pressure breakpoint callback delivered once",
+        break_count == 1 && status_held & 0x10 != 0 && control_held & 0x20 == 0,
+    );
+    logger.record(
+        "GX high watermark suspends producing LWP",
+        created
+            && suspended
+            && done_held == 0
+            && overflow_count == 1
+            && control_held & 0x0c == 0x08,
+    );
+    logger.record(
+        "GX low watermark resumes producing LWP",
+        suspended && recovered && joined && control_recovered & 0x0c == 0x04,
+    );
 }
 
 fn probe_raw_video(logger: &mut ProbeLogger, rmode: *mut video::GxrModeObj) {

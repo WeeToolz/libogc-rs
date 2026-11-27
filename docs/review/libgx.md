@@ -411,3 +411,16 @@ operations in the C sequence. [Dolphin regression evidence](../dolphin-runs/2026
 records 30/32 before and 32/32 after. This is limited to setter register
 behavior; MEM2 initialization, write-gather redirect/restore, interrupt
 handler behavior, and actual overflow/underflow delivery still need review.
+
+## Live CP interrupt delivery — 2026-11-26
+
+[Scoped evidence](../dolphin-runs/2026-11-26-gx-live-cp-irq-linux/README.md)
+records a passing real breakpoint IRQ and a passing combined high/low
+watermark producer suspension and recovery test (45/45). Two initial
+pressure runs and a controlled baseline without deferred suspension timed
+out with invalid program counters. The correction is in the shared LWP
+scheduler and external IRQ dispatch, not Dolphin or the GX interrupt
+handler. Stock graphical Dolphin delivers the required events. Its CP
+clear-register effect is still not emulated; physical Wii timing and
+sticky-status clearing, Wii abort-frame recovery, and the full API review
+remain pending.

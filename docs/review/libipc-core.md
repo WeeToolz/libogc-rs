@@ -682,3 +682,14 @@ tracked without a corresponding reply, or strand a synchronous waiter.
 This is a source-level concern, not a reproduced runtime defect. Distinguish
 unsent requests from transmitted requests before changing cancellation or
 mailbox-credit behavior. Keep independent concurrency review open.
+
+## External IRQ dispatch context — 2026-11-26
+
+The external IRQ dispatcher now exposes a scoped runtime context flag for
+LWP self-suspension. This avoids a cooperative context switch from the
+shared exception stack and uses the existing exception-return scheduler,
+matching C's deferred switch in exception context. The `ogc-sys` host test
+checks the flag inside the callback and its restoration on return. The
+[GX live interrupt evidence](../dolphin-runs/2026-11-26-gx-live-cp-irq-linux/README.md)
+verifies real suspension and resumption; independent review is required.
+This is not a blanket change to exception handling or other blocking APIs.

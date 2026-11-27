@@ -1,0 +1,9 @@
+PASS GX API probe FIFO initialization
+PASS GX MEM2 initialization enables linked FIFO high watermark only
+PASS GX MEM2 initialization records the producing LWP
+PASS GX live breakpoint initial FIFO drain
+INFO GX live breakpoint callback count=1
+INFO GX live breakpoint CP control=23
+INFO GX live breakpoint CP status=26
+PASS GX live breakpoint callback delivered once
+PASS GX live breakpoint release allows PE completion

@@ -244,3 +244,13 @@ or a clean full runtime suite. Host xtask tests passed 164/164.
 Five and four valid capture pages respectively. The probe reads CP control
 bits for detached, CPU-only, linked GP and linked CPU assignments. Actual
 watermark interrupt delivery and physical Wii behavior remain pending.
+
+### Live GX CP interrupts and external IRQ self-suspension (2026-11-26)
+
+[Scoped evidence](dolphin-runs/2026-11-26-gx-live-cp-irq-linux/README.md):
+stock Dolphin 2609b delivers live breakpoint and watermark interrupts.
+The same pressure probe times out without the deferred LWP suspension
+branch. With the correction, GX passes 45/45, LWP 282/282, and bus 78/78
+with all 35 capture pages valid. Host ogc-sys tests pass 10/10 and xtask
+passes 164/164. Physical CP status clearing, exact timing, other exception
+context paths and Wii abort recovery remain pending.

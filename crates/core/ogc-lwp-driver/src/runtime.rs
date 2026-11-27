@@ -2520,7 +2520,14 @@ pub fn suspend_thread(thread: LwpThread) -> i32 {
         }
         if index == CURRENT {
             THREADS[index].state = ThreadState::Suspended;
-            switch_locked(index, irq);
+            if ogc_sys::in_irq_dispatch() {
+                // The external IRQ frame is on a shared exception stack.
+                // Save the interrupted thread and select its successor at
+                // interrupt return, not with a cooperative context switch.
+                arch::restore_interrupts(irq);
+            } else {
+                switch_locked(index, irq);
+            }
         } else {
             if THREADS[index].state == ThreadState::Ready {
                 THREADS[index].state = ThreadState::Suspended;
