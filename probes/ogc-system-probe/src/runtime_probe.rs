@@ -10705,6 +10705,19 @@ fn probe_lwbt_closed_adapter(logger: &mut ProbeLogger) {
         "lwBT asynchronous message rejects null PCB",
         send == bte::ERR_ARG,
     );
+
+    let init = bte::try_init();
+    logger.note_i32("lwBT public init result", init);
+    logger.record(
+        "lwBT last status reports public init result",
+        bte::last_status() == init,
+    );
+    let shutdown = bte::try_shutdown();
+    logger.note_i32("lwBT public shutdown result", shutdown);
+    logger.record(
+        "lwBT last status reports public shutdown result",
+        shutdown == bte::ERR_OK && bte::last_status() == shutdown,
+    );
 }
 
 fn probe_bt_host_startup(logger: &mut ProbeLogger) {
