@@ -1829,7 +1829,38 @@ fn toolchain_lib_dir(nightly_rustc: &str) -> Option<String> {
 fn check_group(group: &str) -> Result<(), String> {
     let root = repo_root()?;
     let packages = workspace::packages_for_group(&root, group)?;
-    check_runtime_packages(&root, &packages, &format!("group-{group}"), "check")
+    let (workspace_packages, standalone_packages) = split_group_packages(group, &packages);
+    if !workspace_packages.is_empty() {
+        check_runtime_packages(
+            &root,
+            &workspace_packages,
+            &format!("group-{group}"),
+            "check",
+        )?;
+    }
+    for package in standalone_packages {
+        let manifest = standalone_package_manifest(&package)
+            .ok_or_else(|| format!("no standalone manifest is registered for {package}"))?;
+        run_command(
+            runtime_check_command(&root, &format!("group-{group}-{package}"), "check")?
+                .args(["--manifest-path", manifest]),
+        )?;
+    }
+    Ok(())
+}
+
+fn split_group_packages(group: &str, packages: &[String]) -> (Vec<String>, Vec<String>) {
+    packages
+        .iter()
+        .cloned()
+        .partition(|package| !(group == "probes" && package == "easycap-patterns"))
+}
+
+fn standalone_package_manifest(package: &str) -> Option<&'static str> {
+    match package {
+        "easycap-patterns" => Some("probes/easycap-patterns/Cargo.toml"),
+        _ => None,
+    }
 }
 
 fn check_all_runtime() -> Result<(), String> {
@@ -1844,17 +1875,15 @@ fn clippy() -> Result<(), String> {
     let packages = workspace::all_runtime_packages(&root)?;
     check_runtime_packages(&root, &packages, "all-runtime", "clippy")?;
 
-    let probes = workspace::packages_for_group(&root, "probes")?;
+    let packages = workspace::packages_for_group(&root, "probes")?;
+    let (probes, standalone_probes) = split_group_packages("probes", &packages);
     for features in [
         None,
         Some("ogc-system-probe/dolphin-automation"),
         Some("ogc-system-probe/dolphin-automation,ogc-system-probe/ios-reload-probe"),
     ] {
         let mut check = runtime_check_command(&root, "all-runtime", "clippy")?;
-        for probe in probes
-            .iter()
-            .filter(|name| !matches!(name.as_str(), "easycap-patterns" | "examples"))
-        {
+        for probe in probes.iter().filter(|name| name.as_str() != "examples") {
             check.args(["-p", probe]);
         }
         if let Some(features) = features {
@@ -1862,10 +1891,14 @@ fn clippy() -> Result<(), String> {
         }
         run_command(&mut check)?;
     }
-    run_command(
-        runtime_check_command(&root, "all-runtime", "clippy")?
-            .args(["--manifest-path", "probes/easycap-patterns/Cargo.toml"]),
-    )?;
+    for package in standalone_probes {
+        let manifest = standalone_package_manifest(&package)
+            .ok_or_else(|| format!("no standalone manifest is registered for {package}"))?;
+        run_command(
+            runtime_check_command(&root, "all-runtime", "clippy")?
+                .args(["--manifest-path", manifest]),
+        )?;
+    }
     run_command(
         runtime_check_command(&root, "all-runtime", "clippy")?.args([
             "-p",
@@ -2137,4 +2170,27 @@ fn verify_complete() -> Result<(), String> {
     check_all_runtime()?;
     build_dols()?;
     build_probes()
+}
+
+#[cfg(test)]
+mod check_group_tests {
+    #[test]
+    fn probe_group_separates_standalone_manifests_from_workspace_packages() {
+        let packages = vec![
+            "easycap-patterns".to_string(),
+            "ogc-system-probe".to_string(),
+        ];
+        assert_eq!(
+            super::split_group_packages("probes", &packages),
+            (
+                vec!["ogc-system-probe".to_string()],
+                vec!["easycap-patterns".to_string()]
+            )
+        );
+        assert_eq!(
+            super::standalone_package_manifest("easycap-patterns"),
+            Some("probes/easycap-patterns/Cargo.toml")
+        );
+        assert_eq!(super::standalone_package_manifest("ogc-system-probe"), None);
+    }
 }
