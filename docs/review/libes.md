@@ -53,6 +53,13 @@ Independent review confirmed that C checks `__es_fd < 0` before `!titleID`, and 
 ## Intentional Rust additions
 
 - `patch_ahbprot_reset` is a Rust-only helper for restoring the HBC AHBPROT check. It is documented as using HBC's Wii-only patch sequence and does not correspond to a public libogc ES API (`ogc-es-sys/src/lib.rs:30-68`).
+
+  The HBC reference advances a `u16` pointer by `0x4000` elements, covering
+  0x8000 bytes. The Rust scan now covers that range; previously it covered
+  only half. Rust requires the complete signature to fit within the range,
+  while the C loop can read up to six halfwords past its end. This bounds the
+  read, but leaves signatures starting in those final six halfwords unmatched.
+  The memory patch and cache flush still require target verification.
 - Rust provides `ImportBootParams` as a parameter record for `import_boot`, while the C API uses a flat argument list. This is an interface-shape convenience; the fields map to the C arguments.
 - Rust adds defensive pointer, alignment, size, and certificate-list validation around several raw calls. These checks intentionally return libogc ES error constants before issuing an ioctl; no adverse mismatch was confirmed from those checks in this review.
 

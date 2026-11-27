@@ -42,7 +42,8 @@ pub fn patch_ahbprot_reset() -> i32 {
     const AHBPROT_STATUS: usize = 0x0D80_0064;
     const MEM2_PROTECTION: usize = 0x0D8B_420A;
     const ES_MODULE_START: usize = 0x939F_0000;
-    const ES_MODULE_BYTES: usize = 0x4000;
+    // HBC advances a u16 pointer by 0x4000 elements (0x8000 bytes).
+    const ES_MODULE_HALFWORDS: usize = 0x4000;
     const EXPECTED: [u16; 7] = [0x685B, 0x22EC, 0x0052, 0x189B, 0x681B, 0x4698, 0x07DB];
 
     // These addresses and instruction words match HBC's Wii-only patch.
@@ -52,7 +53,7 @@ pub fn patch_ahbprot_reset() -> i32 {
         }
         core::ptr::write_volatile(MEM2_PROTECTION as *mut u16, 2);
         let module = ES_MODULE_START as *mut u16;
-        for offset in 0..=ES_MODULE_BYTES / 2 - EXPECTED.len() {
+        for offset in 0..=ES_MODULE_HALFWORDS - EXPECTED.len() {
             let candidate = module.add(offset);
             let mut matches = true;
             for (index, expected) in EXPECTED.iter().enumerate() {
