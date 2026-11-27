@@ -24,6 +24,8 @@ const PAUSE_QUERY: &[u8] = b"qHbcPause";
 const RESUME_QUERY: &[u8] = b"qHbcResume";
 const CONTROL_QUEUE_CAPACITY: u8 = 4;
 const GENERATION_MASK: u32 = 0x3fff_ffff;
+// Outside the range of every generation packed into a queue entry.
+const NO_AUTHORIZED_GENERATION: u32 = u32::MAX;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum AcceptStatus {
@@ -147,7 +149,7 @@ impl CooperativeControl {
             transport_ready: AtomicBool::new(false),
             worker_running: AtomicBool::new(false),
             generation: AtomicU32::new(0),
-            authorized_generation: AtomicU32::new(GENERATION_MASK),
+            authorized_generation: AtomicU32::new(NO_AUTHORIZED_GENERATION),
             queue_head: AtomicU8::new(0),
             queue_tail: AtomicU8::new(0),
             queue: [const { AtomicU32::new(0) }; CONTROL_QUEUE_CAPACITY as usize],
@@ -162,7 +164,7 @@ impl CooperativeControl {
         self.worker_running.store(true, Ordering::Release);
         self.generation.fetch_add(1, Ordering::AcqRel);
         self.authorized_generation
-            .store(GENERATION_MASK, Ordering::Release);
+            .store(NO_AUTHORIZED_GENERATION, Ordering::Release);
         self.state
             .store(CooperativeState::Disabled as u8, Ordering::Release);
         self.last_result.store(0, Ordering::Release);
@@ -191,8 +193,7 @@ impl CooperativeControl {
     pub fn state(&self) -> CooperativeState {
         let connected = self.connected.load(Ordering::Acquire);
         let generation = self.generation.load(Ordering::Acquire) & GENERATION_MASK;
-        let authorized_generation =
-            self.authorized_generation.load(Ordering::Acquire) & GENERATION_MASK;
+        let authorized_generation = self.authorized_generation.load(Ordering::Acquire);
         let state = load_cooperative_state(self.state.load(Ordering::Acquire));
         if !connected || generation != authorized_generation {
             if matches!(
@@ -222,7 +223,7 @@ impl CooperativeControl {
 
     pub fn is_authorized(&self) -> bool {
         let generation = self.generation.load(Ordering::Acquire) & GENERATION_MASK;
-        self.is_authorized_for(generation)
+        self.is_available() && self.is_connected() && self.is_authorized_for(generation)
     }
 
     pub fn last_result(&self) -> &'static [u8] {
@@ -294,7 +295,7 @@ impl CooperativeControl {
     pub fn service(&self, reset_pending: bool, pause_eligible: bool) -> MainControlResult {
         if reset_pending {
             self.authorized_generation
-                .store(GENERATION_MASK, Ordering::Release);
+                .store(NO_AUTHORIZED_GENERATION, Ordering::Release);
             self.state
                 .store(CooperativeState::Disabled as u8, Ordering::Release);
             self.last_result.store(5, Ordering::Release);
@@ -304,7 +305,7 @@ impl CooperativeControl {
 
         if !self.is_available() {
             self.authorized_generation
-                .store(GENERATION_MASK, Ordering::Release);
+                .store(NO_AUTHORIZED_GENERATION, Ordering::Release);
             self.state
                 .store(CooperativeState::Disabled as u8, Ordering::Release);
             self.last_result.store(6, Ordering::Release);
@@ -321,7 +322,7 @@ impl CooperativeControl {
                     | CooperativeState::ResumeRequested
             );
             self.authorized_generation
-                .store(GENERATION_MASK, Ordering::Release);
+                .store(NO_AUTHORIZED_GENERATION, Ordering::Release);
             self.state
                 .store(CooperativeState::Running as u8, Ordering::Release);
             self.last_result
@@ -334,13 +335,24 @@ impl CooperativeControl {
             };
         }
 
-        if self.authorized_generation.load(Ordering::Acquire) & GENERATION_MASK
-            != current_generation
-        {
+        if self.authorized_generation.load(Ordering::Acquire) != current_generation {
+            let was_paused = matches!(
+                load_cooperative_state(self.state.load(Ordering::Acquire)),
+                CooperativeState::Paused
+                    | CooperativeState::PauseRequested
+                    | CooperativeState::ResumeRequested
+            );
             self.state
                 .store(CooperativeState::Running as u8, Ordering::Release);
             self.authorized_generation
-                .store(GENERATION_MASK, Ordering::Release);
+                .store(NO_AUTHORIZED_GENERATION, Ordering::Release);
+            if was_paused {
+                // The worker may have accepted a new client before the main
+                // thread observed the disconnect. Resume the old pause first;
+                // keep requests for the new generation for the next safe point.
+                self.last_result.store(4, Ordering::Release);
+                return MainControlResult::Resumed;
+            }
         }
 
         let mut result = MainControlResult::Unchanged;
@@ -409,7 +421,7 @@ impl CooperativeControl {
     }
 
     fn is_authorized_for(&self, generation: u32) -> bool {
-        self.authorized_generation.load(Ordering::Acquire) & GENERATION_MASK == generation
+        self.authorized_generation.load(Ordering::Acquire) == generation
     }
 
     fn pop_request(&self) -> Option<(u32, ControlRequest)> {
@@ -1518,6 +1530,46 @@ mod tests {
         assert_eq!(control.service(false, true), MainControlResult::Resumed);
         assert_eq!(control.state(), CooperativeState::Running);
         assert!(!control.is_authorized());
+    }
+
+    #[test]
+    fn unarmed_generation_at_wrap_boundary_remains_unauthorized() {
+        let control = connected_control();
+        control.generation.store(GENERATION_MASK, Ordering::Release);
+        assert_eq!(control.service(false, true), MainControlResult::Unchanged);
+        assert!(!control.is_authorized());
+        assert_eq!(
+            control.enqueue(ControlRequest::Pause),
+            Err(ControlQueueError::Unauthorized)
+        );
+        authorize(&control);
+        assert!(control.is_authorized());
+        control.set_client_connected(false);
+        control.set_client_connected(true);
+        control.service(false, true);
+        assert!(!control.is_authorized());
+    }
+
+    #[test]
+    fn reconnect_before_service_resumes_old_pause_without_losing_new_arm() {
+        let control = connected_control();
+        authorize(&control);
+        control.enqueue(ControlRequest::Pause).unwrap();
+        assert_eq!(
+            control.service(false, true),
+            MainControlResult::EnteredPause
+        );
+        control.enqueue(ControlRequest::Resume).unwrap();
+        control.set_client_connected(false);
+        control.set_client_connected(true);
+        assert!(!control.is_authorized());
+        control.enqueue(ControlRequest::Arm).unwrap();
+        assert_eq!(control.service(false, true), MainControlResult::Resumed);
+        assert_eq!(control.state(), CooperativeState::Running);
+        assert_eq!(control.last_result(), b"resumed");
+        assert!(!control.is_authorized());
+        assert_eq!(control.service(false, true), MainControlResult::Authorized);
+        assert!(control.is_authorized());
     }
 
     #[test]

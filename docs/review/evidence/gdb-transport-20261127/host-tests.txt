@@ -1,0 +1,52 @@
+   Compiling gdb-transport v0.1.0 (<checkout>/crates/compatibility/gdb-transport)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.42s
+     Running unittests src/lib.rs (target/debug/build/gdb-transport/6646867ecdafb9c7/out/gdb_transport-6646867ecdafb9c7)
+
+running 39 tests
+test diagnostics::tests::clean_close_and_failed_close_have_distinct_observable_results ... ok
+test diagnostics::tests::each_backend_stage_preserves_its_wire_operation_and_raw_error ... ok
+test diagnostics::tests::listening_reply_uses_fixed_wire_values ... ok
+test diagnostics::tests::malformed_query_is_rejected_without_changing_record ... ok
+test diagnostics::tests::poll_failure_and_cleanup_preserve_original_ios_error ... ok
+test diagnostics::tests::startup_failure_remains_queryable_without_claiming_listener_opened ... ok
+test diagnostics::tests::transport_failure_does_not_invent_ios_error ... ok
+test tests::backend_failures_are_returned_and_close_the_active_client ... ok
+test tests::connection_does_not_arm_and_disconnect_removes_authorization ... ok
+test tests::cooperative_pause_resume_cycles_return_to_authorized_running_state ... ok
+test tests::custom_commands_require_authorization_and_unknown_commands_stay_inert ... ok
+test tests::diagnostic_query_returns_only_fixed_read_only_status ... ok
+test tests::disconnect_clears_authorization_and_resumes_a_paused_main_thread ... ok
+test tests::duplicate_arm_pause_and_resume_requests_are_idempotent ... ok
+test tests::engine_acks_valid_frames_and_nacks_invalid_frames ... ok
+test tests::failed_close_keeps_socket_state_for_retry_and_reports_both_failures ... ok
+test tests::frame_split_across_transport_polls_is_acked_after_completion ... ok
+test tests::full_control_queue_rejects_new_events_without_replacing_existing_events ... ok
+test tests::gdb_and_wiiload_ports_are_distinct ... ok
+test tests::interrupted_accept_read_and_write_are_retried_on_later_polls ... ok
+test tests::local_resume_changes_only_a_paused_state ... ok
+test tests::oversized_frame_spanning_reads_is_rejected_without_buffer_growth ... ok
+test tests::oversized_packet_is_discarded_without_writing_past_the_buffer ... ok
+test tests::packet_decoder_handles_partial_reads_and_valid_checksums ... ok
+test tests::packet_decoder_rejects_bad_checksum_and_non_hex_checksum ... ok
+test tests::partial_packet_times_out_and_closes_the_client ... ok
+test tests::partial_writes_keep_unsent_acknowledgements_for_the_next_poll ... ok
+test tests::pause_conditions_reject_each_active_operation ... ok
+test tests::pause_request_at_an_unsafe_safe_point_is_rejected_with_busy_state ... ok
+test tests::reconnect_before_service_resumes_old_pause_without_losing_new_arm ... ok
+test tests::repeated_bind_close_cycles_do_not_double_close_sockets ... ok
+test tests::repeated_worker_initialization_clears_previous_authorization_and_events ... ok
+test tests::reset_wins_over_queued_resume_and_disconnect_regardless_of_order ... ok
+test tests::second_client_is_rejected_and_does_not_replace_the_first ... ok
+test tests::status_queries_are_drained_without_overflowing_the_bounded_reply_queue ... ok
+test tests::unarmed_generation_at_wrap_boundary_remains_unauthorized ... ok
+test tests::unknown_gdb_command_gets_empty_reply_without_execution ... ok
+test tests::worker_failure_while_paused_is_detected_without_a_queue_event ... ok
+test tests::would_block_and_disconnect_return_without_waiting ... ok
+
+test result: ok. 39 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests gdb_transport
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

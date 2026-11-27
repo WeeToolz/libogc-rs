@@ -1,0 +1,15 @@
+thread 'tests::reconnect_before_service_resumes_old_pause_without_losing_new_arm' (16212) panicked at crates/compatibility/gdb-transport/src/lib.rs:1549:9:
+assertion `left == right` failed
+  left: Authorized
+ right: Resumed
+stack backtrace:
+
+thread 'tests::unarmed_generation_at_wrap_boundary_remains_unauthorized' (16218) panicked at crates/compatibility/gdb-transport/src/lib.rs:1528:9:
+assertion failed: !control.is_authorized()
+stack backtrace:
+   0:     0x562e6bb0e3a1 - std[43cb1fa5a3307b47]::backtrace_rs::backtrace::libunwind::trace
+                               at /rustc/28221559263a3976766cf305940e80e30cf9ba8a/library/std/src/../../backtrace/src/backtrace/libunwind.rs:117:9
+
+test tests::reconnect_before_service_resumes_old_pause_without_losing_new_arm ... FAILED
+test tests::unarmed_generation_at_wrap_boundary_remains_unauthorized ... FAILED
+test result: FAILED. 37 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s

@@ -1,0 +1,3 @@
+    Checking gdb-transport v0.1.0 (<checkout>/crates/compatibility/gdb-transport)
+    Checking libdb-sys v0.1.0 (<checkout>/crates/compatibility/libdb-sys)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.38s
