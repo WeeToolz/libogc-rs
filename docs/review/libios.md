@@ -1,8 +1,8 @@
 # IOS parity review
 
-Scope: public declarations in `crates/core/ogc-ios/src/lib.rs` and `crates/core/ogc-ios-sys/src/lib.rs`, compared with `C-sources/libogc/gc/ogc/ios.h` and `C-sources/libogc/libogc/ios.c`. This review covers the exported API and the PowerPC implementation. It does not compare transitive ES, STM, IPC, or IRQ implementations.
+Scope: public declarations in `crates/core/ogc-ios/src/lib.rs` and `crates/core/ogc-ios-sys/src/lib.rs`, compared with `C-sources/libogc/gc/ogc/ios.h` and `C-sources/libogc/libogc/ios.c`. This review covers the exported API and the PowerPC implementation. The separate [timing, cache, and STM audit](libios-timing-cache-stm-audit.md) covers the IOS wrapper's use of STM and its current safety differences. It does not replace the IPC or IRQ reviews.
 
-Status: the preferred-version TMD size and launch-polling fixes passed static review. The 2026-10-07 follow-up also reconciled version-word cache invalidation with the supplied C cache primitive. Target timing and STM behavior remain open.
+Status: source review and existing Dolphin evidence cover IOS 58 reload, subsystem lifecycle APIs, IPC-ready polling, ticket-view alignment, and the shared STM lifecycle on success. The IOS lifecycle probe passed 112 checks on 2026-11-27. The separate STM API probe timed out after two checks, so its other public STM API checks remain open. The eight physical cache and DMA contracts, physical Wii behavior, failed IOS replacement handshakes, and unexpected-version cleanup remain open. See the linked audit and probe reports for evidence and limits.
 
 ## Confirmed mismatches
 
@@ -12,7 +12,7 @@ Status: the preferred-version TMD size and launch-polling fixes passed static re
 
 - **FIXED:** IOS launch polling uses the timebase-backed one-millisecond wait, matching C's `udelay(1000)` cadence closely enough at the source contract level. Target timing still needs runtime verification.
 - **FIXED:** `ios_read_version_word` issues one `dcbi` for the 32-byte-aligned version address before reading the word. The supplied C `PPCDCacheInvalidate` computes covered cache lines and issues `dcbi` for each one; the 8-byte IOS range occupies exactly one cache line. Rust no longer adds the extra `sync` that was absent from the C primitive. Target IOS reload behavior still needs execution testing.
-- Rust represents the STM initialization in terms of opening `/dev/stm/immediate` and `/dev/stm/eventhook` and retains descriptors for close/retry (`ogc-ios-sys/src/lib.rs:165-218`). C calls `__STM_Init` and `__STM_Close` (`ios.c:79-87,94-108`). The higher-level order and error precedence match, but this review did not trace the STM implementation to verify descriptor and retry behavior in all error cases.
+- Rust routes IOS subsystem startup and shutdown through the shared `ogc-stm` lifecycle. It installs and releases the event hook on the success path. Rust preserves STM open and event-hook errors and cleans up partial opens; pinned C can report success when device opens fail and retains an immediate descriptor after a partial open. These are deliberate safety differences. Failure injection and physical Wii behavior remain unverified; see the detailed audit.
 
 ## Parity observed
 
