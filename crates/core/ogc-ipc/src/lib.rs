@@ -19,6 +19,7 @@ mod critical_lock;
 mod dma_buffer;
 mod poll_guard;
 mod raw_contract;
+mod replacement_logic;
 
 #[cfg(target_arch = "powerpc")]
 core::arch::global_asm!(
@@ -1332,19 +1333,21 @@ impl IosReplacement {
         // ready on hardware. Require a complete fresh synchronous round trip
         // while competing submissions are still excluded. Do not infer DMA
         // retirement from the version word or the advisory ready-bit wait alone.
-        if !open_file(c"/dev/es", IPC_OPEN_NONE).is_ok_and(|fd| fd.close().is_ok()) {
-            return;
-        }
-        let irq_state = unsafe { lock_by_msr() };
-        for slot in &ASYNC_IN_FLIGHT {
-            let address = slot.swap(0, Ordering::AcqRel);
-            if address != 0 {
-                unsafe { cancel_abandoned_request(address as *mut IpcRequest) };
-            }
-        }
-        // Release the submission scope before enabling the deferred worker.
-        drop(self);
-        unsafe { unlock_by_msr(irq_state) };
+        replacement_logic::retire_after_fresh_handshake(
+            || open_file(c"/dev/es", IPC_OPEN_NONE).is_ok_and(|fd| fd.close().is_ok()),
+            move || {
+                let irq_state = unsafe { lock_by_msr() };
+                for slot in &ASYNC_IN_FLIGHT {
+                    let address = slot.swap(0, Ordering::AcqRel);
+                    if address != 0 {
+                        unsafe { cancel_abandoned_request(address as *mut IpcRequest) };
+                    }
+                }
+                // Release the submission scope before enabling the deferred worker.
+                drop(self);
+                unsafe { unlock_by_msr(irq_state) };
+            },
+        );
     }
 }
 

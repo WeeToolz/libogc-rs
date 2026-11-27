@@ -688,6 +688,13 @@ callbacks in FIFO order across ring wrap, formatter userdata, and no staged
 output copyback. Actual failed IOS launch, failed fresh ES handshake, and
 independent concurrency review remain open.
 
+The fresh-handshake gate in `IosReplacement::finish` now uses shared logic with
+host tests for both outcomes. A failed handshake leaves retirement uncalled;
+a successful handshake permits retirement. Dolphin 2609a passed the existing
+112-check `ios_reload_probe` after this change. That run exercises successful
+replacement and cancellation, but it does not force the fresh `/dev/es`
+handshake to fail. See the [run record](../dolphin-runs/2026-11-27-ipc-replacement-handshake-gate/README.md).
+
 ## External IRQ dispatch context — 2026-11-26
 
 The external IRQ dispatcher now exposes a scoped runtime context flag for
