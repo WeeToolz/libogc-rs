@@ -6,6 +6,7 @@ license.workspace = true
 
 [features]
 stm-api-probe = []
+ios-reload-probe = []
 
 [dependencies]
 ogc-es-sys = { path = "../ogc-es-sys" }

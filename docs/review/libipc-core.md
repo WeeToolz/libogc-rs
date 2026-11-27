@@ -722,6 +722,17 @@ open. See the [negative injection evidence](../dolphin-runs/2026-11-27-ios-launc
 and the
 [failed-handshake run record](../dolphin-runs/2026-11-27-ipc-replacement-handshake-failure/README.md).
 
+The current tree adds a separate one-shot ES launch-result injection to the
+`ios_reload_probe`. It calls the public `launch_new_ios` entry point and checks
+the injected error, the C-matching invalid version word after failure, IPC
+recovery, and retention of pending raw and formatted requests. The
+feature-enabled PowerPC target builds, but Dolphin could not start because
+its `--version` command exits with
+`SIGABRT`. The DOL and failed runner invocation are recorded in the
+[injected launch report](../dolphin-runs/2026-11-27-ios-injected-launch-failure/README.md).
+This is not evidence of an actual IOS launch failure. Keep the injected
+runtime case and a real ES launch error open until they run.
+
 ### Zero-vector request retirement guard (2026-11-27)
 
 `IOS_IoctlvAsync` accepts a zero-vector request with a null array. If IOS replacement retires that request before a reply, the cancellation path must not create a Rust slice from the absent array. It now checks vector-count addition, byte-length multiplication, pointer alignment, and address-range overflow. A zero-vector request skips array access. Host contract tests cover the empty case, a valid range, null and misaligned nonempty arrays, count overflow, and address wrap. The cancellation path validates the layout before it accesses a nonempty vector array.

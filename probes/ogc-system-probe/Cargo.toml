@@ -14,7 +14,7 @@ ipc-relaunch-wiilaunch = ["ipc-relaunch-probe"]
 ipc-relaunch-wiilaunch-legacy = ["ipc-relaunch-probe"]
 ipc-relaunch-wiilaunch-args = ["ipc-relaunch-probe"]
 ipc-relaunch-wiilaunch-args-legacy = ["ipc-relaunch-probe"]
-ios-reload-probe = []
+ios-reload-probe = ["dep:ogc-ios-sys", "ogc-ios-sys/ios-reload-probe"]
 mounted-log = []
 dolphin-automation = ["mounted-log", "pad-diagnostics", "dep:lwbt-sys", "lwbt-sys/dolphin-automation", "ogc-exi/dolphin-automation", "ogc-ipc/format-probe-hooks", "wpad-sys/dolphin-probe-hooks", "tinysmb-sys/dolphin-fixture"]
 # Reduced probe module set shared by GameCube-target probes.
@@ -76,6 +76,7 @@ ogc-gcsd = { path = "../../crates/services/ogc-gcsd" }
 ogc-gx = { path = "../../crates/hardware/ogc-gx" }
 ogc-input = { path = "../../crates/services/ogc-input" }
 ogc-ios = { path = "../../crates/core/ogc-ios" }
+ogc-ios-sys = { path = "../../crates/core/ogc-ios-sys", optional = true }
 ogc-ipc = { path = "../../crates/core/ogc-ipc" }
 ogc-irq = { path = "../../crates/core/ogc-irq" }
 ogc-lwp = { path = "../../crates/core/ogc-lwp" }

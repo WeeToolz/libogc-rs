@@ -49,9 +49,34 @@ static IOS_ES_INIT_RESULT: AtomicI32 = AtomicI32::new(0);
 static IOS_STM_INIT_RESULT: AtomicI32 = AtomicI32::new(0);
 static IOS_ES_CLOSE_RESULT: AtomicI32 = AtomicI32::new(0);
 static IOS_STM_CLOSE_RESULT: AtomicI32 = AtomicI32::new(0);
+#[cfg(feature = "ios-reload-probe")]
+static IOS_NEXT_LAUNCH_RESULT_FOR_PROBE: AtomicI32 = AtomicI32::new(0);
 
 #[cfg(target_arch = "powerpc")]
 const IOS_VERSION_WORD_ADDR: usize = 0x8000_3140;
+
+#[cfg(all(target_arch = "powerpc", feature = "ios-reload-probe"))]
+/// Inject one negative ES launch result for the IOS reload probe.
+///
+/// This hook tests the launch-error branch without changing normal builds.
+pub fn fail_next_launch_for_probe(result: i32) -> bool {
+    result < 0
+        && IOS_NEXT_LAUNCH_RESULT_FOR_PROBE
+            .compare_exchange(0, result, Ordering::AcqRel, Ordering::Acquire)
+            .is_ok()
+}
+
+#[cfg(target_arch = "powerpc")]
+fn launch_title_background(title_id: u64, views: *const Tikview) -> i32 {
+    #[cfg(feature = "ios-reload-probe")]
+    {
+        let injected = IOS_NEXT_LAUNCH_RESULT_FOR_PROBE.swap(0, Ordering::AcqRel);
+        if injected < 0 {
+            return injected;
+        }
+    }
+    unsafe { es::launch_title_background(title_id, views) }
+}
 
 #[cfg(target_arch = "powerpc")]
 #[inline(always)]
@@ -143,7 +168,7 @@ fn launch_ios_from_es(version: i32) -> i32 {
         core::arch::asm!("eieio", options(nostack));
     }
 
-    let rc = unsafe { es::launch_title_background(title_id, views.0.as_ptr()) };
+    let rc = launch_title_background(title_id, views.0.as_ptr());
     if rc < 0 {
         return rc;
     }
