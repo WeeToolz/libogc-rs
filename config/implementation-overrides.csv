@@ -13,7 +13,9 @@ lwip-sys,src/ios_socket_flags.rs,option_to_ios,pure,network-probe,Maps the publi
 tuxedo-sys,*,*,compatibility-forwarder,lwp-probe,Tuxedo ABI delegates thread synchronization queue and timer behavior to LWP
 ogc-dvd-sys,*,*,compatibility-forwarder,dvd-probe,Queued Wii /dev/di implementation; streaming stop maps to the verified transport operation and requires hardware validation
 ogc-dvd,*,*,compatibility-forwarder,dvd-probe,Safe facade delegates to the queued /dev/di compatibility implementation
-ogc-gx,src/lib.rs,end,pure,system-probe,Compiler-ordering marker for the GX primitive boundary; vertex writes emit the hardware commands
+ogc-gx,src/lib.rs,end,pure,video-probe,Compiler-ordering marker for the GX primitive boundary; vertex writes emit the hardware commands
+ogc-gx,src/lib.rs,abort_frame,compatibility-forwarder,gx-api-probe,Wii and GameCube FIFO recovery scoped probes; physical counter timing and CP sticky status pending
+ogc-gx,src/lib.rs,set_break_pt_callback,compatibility-forwarder,gx-api-probe,Real breakpoint callback and register preservation in the focused GX probe
 ogc-card-sys,*,*,hardware,card-probe,EXI-backed CARD implementation with queued asynchronous operations detach invalidation and shutdown; real-Wii validation pending
 ogc-usbstorage-sys,*,*,hardware,storage-probe,USB BOT/SCSI implementation includes cache flush device identity removal detection and teardown
 ogc-usbstorage-sys,src/lib.rs,flush_drive,hardware,storage-probe,Calls the production slot-specific cache flush backend; usb_volumes_probe checks the result. Physical two-drive acceptance remains pending.

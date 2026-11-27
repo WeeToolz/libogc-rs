@@ -289,3 +289,14 @@ that survive abort. Detached FIFO pointers, actual ring wrap, and
 independent suspension ownership pass. No production or emulator changes.
 Host xtask 165/165, inventory and source audit pass. Full runtime suite
 not repeated. Physical timing and independent full GX review remain open.
+
+### GX texture field and file-backed TPL target mapping (2026-11-26)
+
+[Scoped evidence](dolphin-runs/2026-11-26-gx-texture-target-linux/README.md):
+stock Dolphin 2609b, format field regression 117/118 before and 118/118
+after correction, final GX 125/125 and video 429/429, 44 valid final capture
+pages. All 278 GX implementation entries map to named target runners;
+no host-only GX mapping remains. The file-backed TPL fixture exercises
+production DeviceFile reads with a controlled device, not a physical disk.
+Independent approval of the current implementation and physical Wii
+behavior remain open. Full runtime was not repeated.

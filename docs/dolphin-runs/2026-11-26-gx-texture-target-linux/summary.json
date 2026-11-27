@@ -1,0 +1,74 @@
+{
+  "local_base": "bf50639e",
+  "upstream_base_reported": "168f83e7",
+  "c_reference": "7d4b8b3e7b845516f0cc2a85274879ddd8cbf142",
+  "dolphin": "stock 2609b (Linux x86_64, OGL)",
+  "private_archive_sha256": "e317f779796144364e896db3866fb32a77a40f03ca30721151af846fac448767",
+  "runs": [
+    {
+      "stage": "baseline-repeat",
+      "probe": "gx_api_probe",
+      "status": "probe_fail",
+      "dol_sha256": "e7e8d53649e7641055c5a2746c1cd55b5f6943d53fd25c03184497488747674b",
+      "passes": 117,
+      "fails": 1,
+      "page_capture_count": 12,
+      "pages_valid": true,
+      "frames_valid": true,
+      "duration_milliseconds": 21462,
+      "summary_line": "FAIL summary passes=117 fails=1"
+    },
+    {
+      "stage": "corrected-repeat",
+      "probe": "gx_api_probe",
+      "status": "pass",
+      "dol_sha256": "5cabcbdb195092e382b2f7e69325c4b0f334f895e659bb1d044c08b8052e4d19",
+      "passes": 118,
+      "fails": 0,
+      "page_capture_count": 11,
+      "pages_valid": true,
+      "frames_valid": true,
+      "duration_milliseconds": 20683,
+      "summary_line": "PASS summary passes=118 fails=0"
+    },
+    {
+      "stage": "video",
+      "probe": "video_probe",
+      "status": "pass",
+      "dol_sha256": "51b4d7e08b3ed7e2de88084a39d06041789bee34035ec7d6996f036f36e9ae6a",
+      "passes": 422,
+      "fails": 0,
+      "page_capture_count": 32,
+      "pages_valid": true,
+      "frames_valid": true,
+      "duration_milliseconds": 63326,
+      "summary_line": "PASS summary passes=422 fails=0"
+    },
+    {
+      "stage": "file-focused",
+      "probe": "gx_api_probe",
+      "status": "pass",
+      "dol_sha256": "94767d5f30a546b62b04833a80156c615c75f6df59bd4704e1c9eccd9a072c38",
+      "passes": 125,
+      "fails": 0,
+      "page_capture_count": 11,
+      "pages_valid": true,
+      "frames_valid": true,
+      "duration_milliseconds": 21023,
+      "summary_line": "PASS summary passes=125 fails=0"
+    },
+    {
+      "stage": "video-final",
+      "probe": "video_probe",
+      "status": "pass",
+      "dol_sha256": "f592f5fb408650e93a5fdec41eedc3aa928ae099c7281d9d98e006a855d7eda3",
+      "passes": 429,
+      "fails": 0,
+      "page_capture_count": 33,
+      "pages_valid": true,
+      "frames_valid": true,
+      "duration_milliseconds": 59516,
+      "summary_line": "PASS summary passes=429 fails=0"
+    }
+  ]
+}

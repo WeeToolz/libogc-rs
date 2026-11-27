@@ -5576,7 +5576,7 @@ pub unsafe fn init_tex_obj_from_init(obj: *mut GxTexObj, img_ptr: *mut c_void, i
         ptr.tex_size = (ptr.tex_size & !0x3ff) | ((init.wd.wrapping_sub(1) as u32) & 0x3ff);
         ptr.tex_size =
             (ptr.tex_size & !0xffc00) | (((init.ht.wrapping_sub(1) as u32) & 0x3ff) << 10);
-        ptr.tex_size = (ptr.tex_size & !0xf00000) | ((init.fmt as u32) << 20);
+        ptr.tex_size = (ptr.tex_size & !0xf00000) | (((init.fmt & 0x0f) as u32) << 20);
         ptr.tex_maddr = (ptr.tex_maddr & !0x00ff_ffff)
             | tex_image_address(ogc_core::mem_virtual_to_physical(img_ptr as usize));
 

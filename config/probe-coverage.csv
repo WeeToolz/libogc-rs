@@ -34,3 +34,4 @@ mp3player-probe,probes/ogc-system-probe/src/mp3player_probe.rs,
 aram-probe,probes/ogc-system-probe/src/aram_probe.rs,
 gx-api-probe,probes/ogc-system-probe/src/video_probe.rs,gx_api_probe
 gx-gamecube-abort-probe,probes/ogc-system-probe/src/gx_gamecube_abort_probe/main.rs,gx_gamecube_abort_probe
+video-probe,probes/ogc-system-probe/src/video_probe.rs,video_probe

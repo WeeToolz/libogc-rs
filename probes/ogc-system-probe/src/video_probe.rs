@@ -70,11 +70,13 @@ pub fn run(logger: &mut ProbeLogger) {
     probe_texture_descriptors(logger);
     probe_tpl_memory(logger);
     probe_tpl_indexed(logger);
+    probe_tpl_file_backing(logger);
     probe_frame_config(logger);
     probe_texture_queries(logger);
     probe_texture_indexed_lod(logger);
     probe_texture_regions(logger);
     probe_texture_sizes(logger);
+    probe_texture_field_vectors(logger);
     probe_texture_conversion(logger);
     probe_light_object(logger);
     probe_light_falloff(logger);
@@ -232,6 +234,9 @@ pub fn run_gx_api_probe(logger: &mut ProbeLogger) {
     probe_frame_config(logger);
     probe_copy_scale_vectors(logger);
     probe_display_copy_commands(logger);
+    probe_texture_sizes(logger);
+    probe_texture_field_vectors(logger);
+    probe_tpl_file_backing(logger);
     logger.summary();
 }
 
@@ -1001,6 +1006,212 @@ fn probe_tpl_indexed(logger: &mut ProbeLogger) {
     }
 }
 
+// A read-only device fixture exercises the production DeviceFile path with
+// deterministic short reads. It does not substitute for a filesystem probe.
+static TPL_FILE_BYTES: AtomicUsize = AtomicUsize::new(0);
+static TPL_FILE_PAYLOAD_READ: AtomicUsize = AtomicUsize::new(0);
+static TPL_FILE_CLOSES: AtomicUsize = AtomicUsize::new(0);
+const TPL_FILE_LEN: usize = 224;
+
+unsafe extern "C" fn tpl_fixture_open(
+    _r: *mut ogc_sysbase::Reent,
+    state: *mut c_void,
+    _path: *const core::ffi::c_char,
+    flags: i32,
+    _mode: i32,
+) -> i32 {
+    if flags != ogc_sysbase::O_RDONLY || TPL_FILE_BYTES.load(Ordering::Acquire) == 0 {
+        return -1;
+    }
+    unsafe { state.cast::<usize>().write(0) };
+    0
+}
+
+unsafe extern "C" fn tpl_fixture_close(_r: *mut ogc_sysbase::Reent, _state: *mut c_void) -> i32 {
+    TPL_FILE_CLOSES.fetch_add(1, Ordering::Relaxed);
+    0
+}
+
+unsafe extern "C" fn tpl_fixture_seek(
+    _r: *mut ogc_sysbase::Reent,
+    state: *mut c_void,
+    pos: i64,
+    dir: i32,
+) -> i64 {
+    let current = unsafe { state.cast::<usize>().read() };
+    let base = match dir {
+        0 => 0,
+        1 => current as i64,
+        2 => TPL_FILE_LEN as i64,
+        _ => return -1,
+    };
+    let Some(next) = base.checked_add(pos) else {
+        return -1;
+    };
+    if !(0..=TPL_FILE_LEN as i64).contains(&next) {
+        return -1;
+    }
+    unsafe { state.cast::<usize>().write(next as usize) };
+    next
+}
+
+unsafe extern "C" fn tpl_fixture_read(
+    _r: *mut ogc_sysbase::Reent,
+    state: *mut c_void,
+    out: *mut core::ffi::c_char,
+    len: usize,
+) -> isize {
+    let offset = unsafe { state.cast::<usize>().read() };
+    let count = len.min(7).min(TPL_FILE_LEN.saturating_sub(offset));
+    let base = TPL_FILE_BYTES.load(Ordering::Acquire) as *const u8;
+    if base.is_null() {
+        return -1;
+    }
+    if count == 0 {
+        return 0;
+    }
+    // SAFETY: Registration keeps the fixture live, and both ranges are bounded.
+    unsafe {
+        core::ptr::copy_nonoverlapping(base.add(offset), out.cast::<u8>(), count);
+        state.cast::<usize>().write(offset + count);
+    }
+    let payload = (offset + count).saturating_sub(offset.max(128));
+    TPL_FILE_PAYLOAD_READ.fetch_add(payload, Ordering::Relaxed);
+    count as isize
+}
+
+fn probe_tpl_file_backing(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    use ogc_sysbase as base;
+    // Two image headers and one palette header precede three separate tiles.
+    let mut bytes = [0u8; TPL_FILE_LEN];
+    bytes[0..4].copy_from_slice(&0x0020_af30u32.to_be_bytes());
+    bytes[4..8].copy_from_slice(&2u32.to_be_bytes());
+    bytes[8..12].copy_from_slice(&12u32.to_be_bytes());
+    bytes[12..16].copy_from_slice(&28u32.to_be_bytes());
+    bytes[20..24].copy_from_slice(&64u32.to_be_bytes());
+    bytes[24..28].copy_from_slice(&100u32.to_be_bytes());
+    bytes[28..30].copy_from_slice(&8u16.to_be_bytes());
+    bytes[30..32].copy_from_slice(&8u16.to_be_bytes());
+    bytes[36..40].copy_from_slice(&128u32.to_be_bytes());
+    bytes[64..66].copy_from_slice(&4u16.to_be_bytes());
+    bytes[66..68].copy_from_slice(&8u16.to_be_bytes());
+    bytes[68..72].copy_from_slice(&u32::from(gx::GX_TF_CI8).to_be_bytes());
+    bytes[72..76].copy_from_slice(&160u32.to_be_bytes());
+    bytes[100..102].copy_from_slice(&16u16.to_be_bytes());
+    bytes[104..108].copy_from_slice(&u32::from(gx::GX_TL_RGB565).to_be_bytes());
+    bytes[108..112].copy_from_slice(&192u32.to_be_bytes());
+    bytes[128..160].fill(0x15);
+    bytes[160..192].fill(0x2a);
+    bytes[192..224].fill(0x5c);
+    // SAFETY: Zero is valid for this C callback table. The table and fixture
+    // remain live until the file closes and the registration is removed.
+    let mut device: base::Devoptab = unsafe { core::mem::zeroed() };
+    device.name = c"gxtplprobe".as_ptr();
+    device.struct_size = core::mem::size_of::<usize>();
+    device.open_r = Some(tpl_fixture_open);
+    device.close_r = Some(tpl_fixture_close);
+    device.seek_r = Some(tpl_fixture_seek);
+    device.read_r = Some(tpl_fixture_read);
+    TPL_FILE_BYTES.store(bytes.as_ptr() as usize, Ordering::Release);
+    TPL_FILE_PAYLOAD_READ.store(0, Ordering::Relaxed);
+    TPL_FILE_CLOSES.store(0, Ordering::Relaxed);
+    let registered = unsafe { base::add_device(&device) } >= 0;
+    logger.record("GX TPL file device registered", registered);
+    if !registered {
+        TPL_FILE_BYTES.store(0, Ordering::Release);
+        return;
+    }
+    let mut file = gx::TplFile {
+        type_: 0,
+        ntextures: 0,
+        texdesc: null_mut(),
+        tpl_file: null_mut(),
+    };
+    let opened =
+        unsafe { gx::tpl_open_tpl_from_file(&mut file, c"gxtplprobe:/fixture.tpl".as_ptr()) };
+    logger.record(
+        "GX TPL file opens headers without reading payloads",
+        opened == 1
+            && file.ntextures == 2
+            && TPL_FILE_PAYLOAD_READ.load(Ordering::Relaxed) == 0
+            && TPL_FILE_CLOSES.load(Ordering::Relaxed) == 0,
+    );
+    if opened == 1 {
+        let (mut fmt, mut w, mut h) = (u32::MAX, 0, 0);
+        let info = unsafe { gx::tpl_get_texture_info(&mut file, 1, &mut fmt, &mut w, &mut h) };
+        logger.record(
+            "GX TPL file metadata needs no payload read",
+            info == 0
+                && (fmt, w, h) == (u32::from(gx::GX_TF_CI8), 8, 4)
+                && TPL_FILE_PAYLOAD_READ.load(Ordering::Relaxed) == 0,
+        );
+        let mut direct = gx::GxTexObj::default();
+        let mut indexed = gx::GxTexObj::default();
+        let mut palette = gx::GxTlutObj::default();
+        // The returned addresses are physical addresses of live buffers owned
+        // by the open TPL. Verify the bytes before releasing the file.
+        let matches_tile = |address: *mut c_void, expected: u8| {
+            let addr = address as u32;
+            addr != 0
+                && addr & 31 == 0
+                && unsafe {
+                    core::slice::from_raw_parts(ogc_core::mem_physical_to_k0(addr) as *const u8, 32)
+                }
+                .iter()
+                .all(|&v| v == expected)
+        };
+        let result = unsafe { gx::tpl_get_texture(&mut file, 0, &mut direct) };
+        let direct_addr =
+            unsafe { gx::tex_obj_snapshot(&direct) }.map_or(null_mut(), |s| s.image_ptr);
+        logger.record(
+            "GX TPL file loads aligned direct image on demand",
+            result == 0
+                && TPL_FILE_PAYLOAD_READ.load(Ordering::Relaxed) == 32
+                && matches_tile(direct_addr, 0x15),
+        );
+        let result = unsafe { gx::tpl_get_texture_ci(&mut file, 1, &mut indexed, &mut palette, 3) };
+        let indexed_addr =
+            unsafe { gx::tex_obj_snapshot(&indexed) }.map_or(null_mut(), |s| s.image_ptr);
+        let palette_addr =
+            unsafe { gx::tlut_obj_snapshot(&palette) }.map_or(null_mut(), |s| s.image_ptr);
+        logger.record(
+            "GX TPL file loads aligned CI image and palette on demand",
+            result == 0
+                && TPL_FILE_PAYLOAD_READ.load(Ordering::Relaxed) == 96
+                && matches_tile(indexed_addr, 0x2a)
+                && matches_tile(palette_addr, 0x5c),
+        );
+        let repeated = unsafe {
+            gx::tpl_get_texture(&mut file, 0, &mut direct) == 0
+                && gx::tpl_get_texture_ci(&mut file, 1, &mut indexed, &mut palette, 3) == 0
+        };
+        logger.record(
+            "GX TPL file reuses retained payload buffers",
+            repeated
+                && TPL_FILE_PAYLOAD_READ.load(Ordering::Relaxed) == 96
+                && unsafe { gx::tex_obj_snapshot(&direct) }
+                    .is_some_and(|s| s.image_ptr == direct_addr)
+                && unsafe { gx::tex_obj_snapshot(&indexed) }
+                    .is_some_and(|s| s.image_ptr == indexed_addr)
+                && unsafe { gx::tlut_obj_snapshot(&palette) }
+                    .is_some_and(|s| s.image_ptr == palette_addr),
+        );
+        unsafe { gx::tpl_close_tpl_file(&mut file) };
+    }
+    let removed = base::remove_device(c"gxtplprobe") == 0;
+    TPL_FILE_BYTES.store(0, Ordering::Release);
+    logger.record(
+        "GX TPL file closes once and unregisters cleanly",
+        opened == 1
+            && file.ntextures == 0
+            && file.texdesc.is_null()
+            && file.tpl_file.is_null()
+            && TPL_FILE_CLOSES.load(Ordering::Relaxed) == 1
+            && removed,
+    );
+}
+
 fn probe_frame_config(logger: &mut ProbeLogger) {
     use ogc_gx as gx;
     #[repr(align(32))]
@@ -1091,6 +1302,9 @@ fn probe_texture_sizes(logger: &mut ProbeLogger) {
         (8, 5, gx::GX_TF_I8, 0, 0, 64),
         (5, 5, gx::GX_TF_RGB565, 0, 0, 128),
         (5, 5, gx::GX_TF_RGBA8, 0, 0, 256),
+        (16, 8, gx::GX_TF_RGBA8, 0, 0, 512),
+        (4, 4, gx::GX_TF_RGBA8, 1, 2, 128),
+        (4, 4, gx::GX_TF_Z24X8, 0, 0, 64),
         (8, 8, gx::GX_TF_I4, 1, 0, 0),
         (8, 8, gx::GX_TF_I4, 1, 4, 128),
         (8, 8, gx::GX_TF_I4, 1, 10, 128),
@@ -1101,6 +1315,98 @@ fn probe_texture_sizes(logger: &mut ProbeLogger) {
             gx::get_tex_buffer_size(width, height, u32::from(format), mipmap, levels) == expected;
     }
     logger.record("GX texture buffer tile and mip sizes", matches);
+    logger.record(
+        "GX texture buffer uses full format value",
+        gx::get_tex_buffer_size(4, 4, 0x100 | u32::from(gx::GX_TF_RGBA8), 0, 0) == 32,
+    );
+}
+
+fn probe_texture_field_vectors(logger: &mut ProbeLogger) {
+    use ogc_gx as gx;
+    let mut obj = gx::GxTexObj::default();
+    let init = gx::GxTexObjInit {
+        wd: 8,
+        ht: 8,
+        fmt: gx::GX_TF_I4,
+        wrap_s: u8::MAX,
+        wrap_t: u8::MAX,
+        mipmap: 0,
+    };
+    // SAFETY: The descriptor is live and initialized. The null image address
+    // is only encoded in the descriptor; no texture is loaded or sampled.
+    unsafe {
+        gx::init_tex_obj(&mut obj, null_mut(), init);
+        logger.record("GX texture init masks wrap fields", obj.val[0] == 0x9f);
+        // C _SHIFTL(fmt, 20, 4) masks the format in the packed BP word,
+        // while the complete format byte is retained in tex_fmt.
+        let mut formats_ok = true;
+        for fmt in [
+            gx::GX_TF_RGB565,
+            gx::GX_TF_Z8,
+            gx::GX_TF_Z24X8,
+            gx::GX_CTF_R4,
+            u8::MAX,
+        ] {
+            gx::init_tex_obj(&mut obj, null_mut(), gx::GxTexObjInit { fmt, ..init });
+            formats_ok &= obj.val[2] == (7 | (7 << 10) | (u32::from(fmt & 0x0f) << 20))
+                && gx::get_tex_obj_fmt(&obj) == u32::from(fmt);
+        }
+        logger.record(
+            "GX texture format masks packed size to four bits",
+            formats_ok,
+        );
+        gx::init_tex_obj(
+            &mut obj,
+            null_mut(),
+            gx::GxTexObjInit {
+                wd: 0,
+                ht: 0,
+                fmt: gx::GX_TF_RGB565,
+                ..init
+            },
+        );
+        logger.record(
+            "GX zero texture dimensions wrap to ten bits",
+            obj.val[2] == ((u32::from(gx::GX_TF_RGB565) << 20) | 0x000f_ffff),
+        );
+
+        obj = gx::GxTexObj::default();
+        gx::init_tex_obj_wrap_mode(&mut obj, u8::MAX, u8::MAX);
+        logger.record(
+            "GX texture wrap setter masks both fields",
+            obj.val[0] == 0x0f,
+        );
+        obj = gx::GxTexObj::default();
+        gx::init_tex_obj_lod(
+            &mut obj,
+            gx::GxTexObjLod {
+                minfilt: gx::GX_NEAR,
+                magfilt: gx::GX_NEAR,
+                minlod: -1.0,
+                maxlod: 12.0,
+                lodbias: 0.0,
+                biasclamp: u8::MAX,
+                edgelod: 0,
+                maxaniso: u8::MAX,
+            },
+        );
+        logger.record(
+            "GX texture LOD masks fields and clamps limits",
+            obj.val[0] == 0x380100 && obj.val[1] == 0xa000,
+        );
+        obj = gx::GxTexObj::default();
+        gx::init_tex_obj_bias_clamp(&mut obj, u8::MAX);
+        logger.record(
+            "GX texture bias clamp masks one bit",
+            obj.val[0] == 0x200000,
+        );
+        obj = gx::GxTexObj::default();
+        gx::init_tex_obj_max_aniso(&mut obj, u8::MAX);
+        logger.record(
+            "GX texture anisotropy masks two bits",
+            obj.val[0] == 0x180000,
+        );
+    }
 }
 
 fn probe_fog_table(logger: &mut ProbeLogger) {

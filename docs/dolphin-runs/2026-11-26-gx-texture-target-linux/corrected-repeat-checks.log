@@ -1,0 +1,10 @@
+PASS GX TPL file open handles null inputs
+PASS GX texture buffer tile and mip sizes
+PASS GX texture buffer uses full format value
+PASS GX texture init masks wrap fields
+PASS GX texture format masks packed size to four bits
+PASS GX texture wrap setter masks both fields
+PASS GX texture LOD masks fields and clamps limits
+PASS GX texture bias clamp masks one bit
+PASS GX texture anisotropy masks two bits
+PASS summary passes=118 fails=0

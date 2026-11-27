@@ -562,12 +562,12 @@ ogc-gu-sys,src/math.rs,ftofix32,42,pure,host-test,crates/hardware/ogc-gu-sys/src
 ogc-gu-sys,src/math.rs,fttofrac8,50,pure,host-test,crates/hardware/ogc-gu-sys/src/math.rs,scalar_helpers_match_c_macros
 ogc-gu-sys,src/math.rs,max,26,pure,host-test,crates/hardware/ogc-gu-sys/src/math.rs,scalar_helpers_match_c_macros
 ogc-gu-sys,src/math.rs,min,30,pure,host-test,crates/hardware/ogc-gu-sys/src/math.rs,scalar_helpers_match_c_macros
-ogc-gx,src/lib.rs,get_tex_buffer_size,5914,compatibility-forwarder,host-test,crates/hardware/ogc-gx/src/lib.rs,texture_buffer_size_matches_libogc_shape
-ogc-gx,src/lib.rs,init_tex_obj,5605,compatibility-forwarder,host-test,crates/hardware/ogc-gx/src/lib.rs,texture_field_inputs_are_masked_to_c_bit_widths
-ogc-gx,src/lib.rs,init_tex_obj_bias_clamp,5747,compatibility-forwarder,host-test,crates/hardware/ogc-gx/src/lib.rs,texture_field_inputs_are_masked_to_c_bit_widths
-ogc-gx,src/lib.rs,init_tex_obj_lod,5667,compatibility-forwarder,host-test,crates/hardware/ogc-gx/src/lib.rs,texture_field_inputs_are_masked_to_c_bit_widths
-ogc-gx,src/lib.rs,init_tex_obj_max_aniso,5763,compatibility-forwarder,host-test,crates/hardware/ogc-gx/src/lib.rs,texture_field_inputs_are_masked_to_c_bit_widths
-ogc-gx,src/lib.rs,init_tex_obj_wrap_mode,5697,compatibility-forwarder,host-test,crates/hardware/ogc-gx/src/lib.rs,texture_field_inputs_are_masked_to_c_bit_widths
+ogc-gx,src/lib.rs,get_tex_buffer_size,5914,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_sizes,gx::get_tex_buffer_size
+ogc-gx,src/lib.rs,init_tex_obj,5605,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_field_vectors,gx::init_tex_obj
+ogc-gx,src/lib.rs,init_tex_obj_bias_clamp,5747,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_field_vectors,gx::init_tex_obj_bias_clamp
+ogc-gx,src/lib.rs,init_tex_obj_lod,5667,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_field_vectors,gx::init_tex_obj_lod
+ogc-gx,src/lib.rs,init_tex_obj_max_aniso,5763,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_field_vectors,gx::init_tex_obj_max_aniso
+ogc-gx,src/lib.rs,init_tex_obj_wrap_mode,5697,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_texture_field_vectors,gx::init_tex_obj_wrap_mode
 ogc-gu-sys,src/math.rs,rad_to_deg,38,pure,host-test,crates/hardware/ogc-gu-sys/src/math.rs,scalar_helpers_match_c_macros
 ogc-sha,src/lib.rs,as_mut_ptr,80,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_crypto
 ogc-sha,src/lib.rs,as_ptr,76,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_crypto
@@ -2709,7 +2709,7 @@ ogc-controller,src/hardware.rs,scan_with_raw,1466,protocol,hardware-probe,probes
 ogc-controller,src/hardware.rs,scan_with_raw_at,1471,protocol,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_controller_scan_modes,controllers.scan_with_raw_at
 ogc-controller,src/hardware.rs,set_input_scan_hook,977,protocol,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_controller_scan_modes,controllers.set_input_scan_hook
 ogc-es-sys,src/imp.rs,next_cert,2469,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_certificate_chain,es::next_cert
-ogc-gx,src/lib.rs,set_break_pt_callback,1894,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_break_callback,gx::set_break_pt_callback
+ogc-gx,src/lib.rs,set_break_pt_callback,1894,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_interrupt_delivery,gx::set_break_pt_callback
 ogc-es-sys,src/imp.rs,get_data_dir,499,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_catalog_paths,es::get_data_dir
 ogc-es-sys,src/imp.rs,get_stored_tmd_contents,761,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_catalog_paths,es::get_stored_tmd_contents
 ogc-es-sys,src/imp.rs,get_device_id,2406,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_device_identity,es::get_device_id
@@ -2963,7 +2963,7 @@ ogc-gx,src/lib.rs,set_cpu_fifo,1729,compatibility-forwarder,hardware-probe,probe
 ogc-gx,src/lib.rs,set_gp_fifo,1756,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_unverified_apis,gx::set_gp_fifo
 ogc-gx,src/lib.rs,set_misc,1913,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_unverified_apis,gx::set_misc
 ogc-gx,src/lib.rs,set_v_cache_metric,7657,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_unverified_apis,gx::set_v_cache_metric
-ogc-gx,src/lib.rs,tpl_open_tpl_from_file,9521,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_gx_unverified_apis,gx::tpl_open_tpl_from_file
+ogc-gx,src/lib.rs,tpl_open_tpl_from_file,9521,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,probe_tpl_file_backing,gx::tpl_open_tpl_from_file
 ogc-stm,src/lib.rs,init_without_event_hook,286,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::init_without_event_hook
 ogc-stm,src/lib.rs,register_event_handler,468,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::register_event_handler
 ogc-stm,src/lib.rs,set_led_mode,521,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run,stm::set_led_mode

@@ -1,0 +1,37 @@
+PASS GX texture descriptor dimensions and format
+PASS GX texture descriptor wrap and user data
+PASS GX texture image and user pointers
+PASS GX texture filter and LOD queries
+PASS GX texture grouped queries
+PASS GX texture LOD fields and clamps
+PASS GX texture cache region C layout
+PASS GX texture preload region C layout
+PASS GX texture buffer tile and mip sizes
+PASS GX texture buffer uses full format value
+PASS GX texture init masks wrap fields
+PASS GX texture format masks packed size to four bits
+PASS GX texture wrap setter masks both fields
+PASS GX texture LOD masks fields and clamps limits
+PASS GX texture bias clamp masks one bit
+PASS GX texture anisotropy masks two bits
+PASS GX texture matrix emits exact format rows and memory bank
+PASS GX texture matrix emits exact format rows and memory bank
+PASS GX texture matrix emits exact format rows and memory bank
+PASS GX texture matrix emits exact format rows and memory bank
+PASS GX texture offsets preserve size and mask coordinate and enables
+PASS GX texture generators and matrix indices emit expected CP and XF words
+PASS GX texture preload emits C base and mip-level commands
+PASS GX texture preload emits C base and mip-level commands
+PASS GX texture preload rejects null pointers
+PASS GX texture callback receives object map and supplies region words
+PASS GX texture callback null region is rejected
+PASS GX texture callback replacement returns installed callback
+PASS GX textured rectangle setup completes
+PASS GX textured drawing rejects invalid object map and geometry
+PASS GX texture object loads into map zero
+PASS GX textured rectangle draws first tile quadrants
+PASS GX texture replacement draws new tile quadrants
+PASS GX textured rectangle state restoration completes
+PASS GX texture copy state restoration completes
+PASS GX TPL file open handles null inputs
+PASS summary passes=422 fails=0

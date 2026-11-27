@@ -1,0 +1,279 @@
+rust_symbol,rust_line,reference_kind,c_symbol,c_source_or_header,dolphin_runner,evidence_function
+abort_frame,2110,same-name lookup,GX_AbortFrame,libogc/gx.c:1627; libogc/gx.c:1638; gc/ogc/gx.h:1605,gx_api_probe,probe_gx_abort_recovery
+address,2288,Rust helper or alias,,,video_probe,probe_gx_canvas_dimensions
+adjust_for_overscan,6257,same-name lookup,GX_AdjustForOverscan,libogc/gx.c:5150; gc/ogc/gx.h:2359,video_probe,probe_overscan
+begin,5071,same-name lookup,GX_Begin,libogc/gx.c:2642; gc/ogc/gx.h:2055,video_probe,probe_vertex_array_commands
+begin_disp_list,4986,same-name lookup,GX_BeginDispList,libogc/gx.c:2132; gc/ogc/gx.h:2089,video_probe,probe_display_lists
+call_disp_list,1971,same-name lookup,GX_CallDispList,libogc/gx.c:2180; gc/ogc/gx.h:2110,video_probe,probe_display_lists
+clear_bounding_box,3998,same-name lookup,GX_ClearBoundingBox,libogc/gx.c:2126; gc/ogc/gx.h:3796,video_probe,probe_bounding_box_commands
+clear_gp_metric,7585,same-name lookup,GX_ClearGPMetric,libogc/gx.c:5078; gc/ogc/gx.h:5049,video_probe,probe_gx_unverified_apis
+clear_v_cache_metric,7623,same-name lookup,GX_ClearVCacheMetric,libogc/gx.c:5105; gc/ogc/gx.h:5088,video_probe,probe_gx_metric_registers
+clear_vtx_desc,4850,same-name lookup,GX_ClearVtxDesc,libogc/gx.c:3753; gc/ogc/gx.h:1781,video_probe,probe_vertex_descriptors
+color1u16,5406,same-name lookup,GX_Color1u16,gc/ogc/gx.h:2255,video_probe,probe_vertex_color_commands
+color1u32,5399,same-name lookup,GX_Color1u32,gc/ogc/gx.h:2250,video_probe,probe_vertex_color_commands
+color1x16,5420,same-name lookup,GX_Color1x16,gc/ogc/gx.h:2265,video_probe,probe_vertex_indices_16
+color1x8,5413,same-name lookup,GX_Color1x8,gc/ogc/gx.h:2260,video_probe,probe_vertex_indices_8
+color3f32,5390,same-name lookup,GX_Color3f32,gc/ogc/gx.h:2243,video_probe,probe_vertex_color_commands
+color3u8,5381,same-name lookup,GX_Color3u8,gc/ogc/gx.h:2236,video_probe,probe_vertex_color_commands
+color4u8,5371,same-name lookup,GX_Color4u8,gc/ogc/gx.h:2228,video_probe,probe_vertex_color_commands
+configure_frame,3668,Rust helper or alias,,,video_probe,probe_frame_commands
+configure_frame_with_progress,3680,Rust helper or alias,,,video_probe,probe_frame_commands
+configure_solid_2d,2817,Rust helper or alias,,,video_probe,probe_solid_rect_render
+configure_textured_2d,2829,Rust helper or alias,,,video_probe,probe_textured_rect_render
+copy_disp,3973,same-name lookup,GX_CopyDisp,libogc/gx.c:2010; gc/ogc/gx.h:3716,video_probe,probe_display_copy_commands
+copy_display,4029,Rust helper or alias,,,video_probe,probe_frame_commands
+copy_tex,3982,same-name lookup,GX_CopyTex,libogc/gx.c:2052; gc/ogc/gx.h:3772,video_probe,probe_texture_copy_render
+disable_break_pt,1949,same-name lookup,GX_DisableBreakPt,libogc/gx.c:1616; gc/ogc/gx.h:1705,video_probe,probe_gx_unverified_apis
+draw_done,4091,same-name lookup,GX_DrawDone,libogc/gx.c:1689; gc/ogc/gx.h:1740,video_probe,probe_gx_completion_callbacks
+draw_solid_rect,2932,Rust helper or alias,,,video_probe,probe_solid_rect_render
+draw_textured_rect,3226,Rust helper or alias,,,video_probe,probe_textured_rect_render
+enable_break_pt,1926,same-name lookup,GX_EnableBreakPt,libogc/gx.c:1602; gc/ogc/gx.h:1730,video_probe,probe_gx_unverified_apis
+enable_tex_offsets,6684,same-name lookup,GX_EnableTexOffsets,libogc/gx.c:3944; gc/ogc/gx.h:2932,video_probe,probe_generation_mode_commands
+end,5062,same-name lookup,GX_End,gc/ogc/gx.h:2118,video_probe,probe_vertex_array_commands
+end_disp_list,5023,same-name lookup,GX_EndDispList,libogc/gx.c:2158; gc/ogc/gx.h:2038,video_probe,probe_display_lists
+finish_frame,4103,Rust helper or alias,,,video_probe,probe_frame_commands
+finish_frame_and_wait,4114,Rust helper or alias,,,video_probe,probe_gx_completion_callbacks
+flush,4173,same-name lookup,GX_Flush,libogc/gx.c:1585; gc/ogc/gx.h:1615,video_probe,probe_frame_commands
+get_cpu_fifo,1788,same-name lookup,GX_GetCPUFifo,libogc/gx.c:1355; gc/ogc/gx.h:1506,video_probe,probe_gx_canvas_dimensions
+get_current_gx_thread,7533,same-name lookup,GX_GetCurrentGXThread,libogc/gx.c:1511; gc/ogc/gx.h:4978,video_probe,probe_gx_thread_and_status
+get_draw_sync,1905,same-name lookup,GX_GetDrawSync,libogc/gx.c:1661; gc/ogc/gx.h:1665,video_probe,probe_display_lists
+get_fifo_base,1809,same-name lookup,GX_GetFifoBase,libogc/gx.c:1479; gc/ogc/gx.h:1526,video_probe,probe_fifo_pointers
+get_fifo_count,1819,same-name lookup,GX_GetFifoCount,libogc/gx.c:1489; gc/ogc/gx.h:1539,video_probe,probe_fifo_pointers
+get_fifo_ptrs,1711,same-name lookup,GX_GetFifoPtrs,libogc/gx.c:1288; gc/ogc/gx.h:1460,video_probe,probe_fifo_pointers
+get_fifo_size,1814,same-name lookup,GX_GetFifoSize,libogc/gx.c:1484; gc/ogc/gx.h:1549,video_probe,probe_fifo_pointers
+get_fifo_wrap,1824,same-name lookup,GX_GetFifoWrap,libogc/gx.c:1494; gc/ogc/gx.h:1565,video_probe,probe_fifo_pointers
+get_gp_fifo,1799,same-name lookup,GX_GetGPFifo,libogc/gx.c:1457; gc/ogc/gx.h:1516,video_probe,probe_gx_canvas_dimensions
+get_gp_status,7647,same-name lookup,GX_GetGPStatus,libogc/gx.c:5121; gc/ogc/gx.h:5139,video_probe,probe_gx_thread_and_status
+get_overflow_count,7525,same-name lookup,GX_GetOverflowCount,libogc/gx.c:1499; gc/ogc/gx.h:4962,video_probe,probe_gx_thread_and_status
+get_tex_buffer_size,5898,same-name lookup,GX_GetTexBufferSize,libogc/gx.c:3069; gc/ogc/gx.h:4162,video_probe,probe_texture_sizes
+get_tex_obj_all,6045,same-name lookup,GX_GetTexObjAll,libogc/gx.c:3057; gc/ogc/gx.h:4142,video_probe,probe_texture_queries
+get_tex_obj_data,5947,same-name lookup,GX_GetTexObjData,libogc/gx.c:3009; gc/ogc/gx.h:4049,video_probe,probe_texture_queries
+get_tex_obj_filter_mode,5997,same-name lookup,GX_GetTexObjFilterMode,libogc/gx.c:3041; gc/ogc/gx.h:4127,video_probe,probe_texture_queries
+get_tex_obj_fmt,5933,same-name lookup,GX_GetTexObjFmt,libogc/gx.c:3000; gc/ogc/gx.h:4013,video_probe,probe_texture_descriptors
+get_tex_obj_height,5968,same-name lookup,GX_GetTexObjHeight,libogc/gx.c:3024; gc/ogc/gx.h:4085,video_probe,probe_texture_descriptors
+get_tex_obj_info,6022,Rust helper or alias,,,video_probe,probe_texture_queries
+get_tex_obj_lod,5982,same-name lookup,GX_GetTexObjLOD,libogc/gx.c:3034; gc/ogc/gx.h:4112,video_probe,probe_texture_queries
+get_tex_obj_mip_map,5940,same-name lookup,GX_GetTexObjMipMap,libogc/gx.c:3005; gc/ogc/gx.h:4025,video_probe,probe_texture_queries
+get_tex_obj_user_data,6138,same-name lookup,GX_GetTexObjUserData,libogc/gx.c:3415; gc/ogc/gx.h:4037,video_probe,probe_texture_queries
+get_tex_obj_width,5975,same-name lookup,GX_GetTexObjWidth,libogc/gx.c:3029; gc/ogc/gx.h:4097,video_probe,probe_texture_descriptors
+get_tex_obj_wrap_s,5954,same-name lookup,GX_GetTexObjWrapS,libogc/gx.c:3014; gc/ogc/gx.h:4061,video_probe,probe_texture_descriptors
+get_tex_obj_wrap_t,5961,same-name lookup,GX_GetTexObjWrapT,libogc/gx.c:3019; gc/ogc/gx.h:4073,video_probe,probe_texture_descriptors
+get_vtx_descv,4899,same-name lookup,GX_GetVtxDescv,libogc/gx.c:2389; gc/ogc/gx.h:2013,video_probe,probe_vertex_descriptors
+get_y_scale_factor,3839,same-name lookup,GX_GetYScaleFactor,libogc/gx.c:5167; gc/ogc/gx.h:3588,video_probe,probe_texture_descriptors
+init,1842,same-name lookup,GX_Init,libogc/gx.c:1074; gc/ogc/gx.h:1378,video_probe,probe_gx_unverified_apis
+init_fifo_base,1660,same-name lookup,GX_InitFifoBase,libogc/gx.c:1247; gc/ogc/gx.h:1408,video_probe,probe_fifo_pointers
+init_fifo_limits,1683,same-name lookup,GX_InitFifoLimits,libogc/gx.c:1262; gc/ogc/gx.h:1432,video_probe,probe_fifo_pointers
+init_fifo_ptrs,1694,same-name lookup,GX_InitFifoPtrs,libogc/gx.c:1270; gc/ogc/gx.h:1446,video_probe,probe_fifo_pointers
+init_fog_adj_table,6772,same-name lookup,GX_InitFogAdjTable,libogc/gx.c:4321; gc/ogc/gx.h:3336,video_probe,probe_fog_table
+init_light_attn,7933,same-name lookup,GX_InitLightAttn,libogc/gx.c:4732; gc/ogc/gx.h:4823,video_probe,probe_light_object
+init_light_attn_a,7953,same-name lookup,GX_InitLightAttnA,libogc/gx.c:4744; gc/ogc/gx.h:4851,video_probe,probe_light_object
+init_light_attn_k,7962,same-name lookup,GX_InitLightAttnK,libogc/gx.c:4753; gc/ogc/gx.h:4879,video_probe,probe_light_object
+init_light_color,7880,same-name lookup,GX_InitLightColor,libogc/gx.c:4581; gc/ogc/gx.h:4698,video_probe,probe_light_object
+init_light_dir,7889,same-name lookup,GX_InitLightDir,libogc/gx.c:4686; gc/ogc/gx.h:4722,video_probe,probe_light_object
+init_light_dist_attn,7901,same-name lookup,GX_InitLightDistAttn,libogc/gx.c:4695; gc/ogc/gx.h:4785,video_probe,probe_light_falloff
+init_light_pos,7870,same-name lookup,GX_InitLightPos,libogc/gx.c:4572; gc/ogc/gx.h:4684,video_probe,probe_light_object
+init_light_spot,7971,same-name lookup,GX_InitLightSpot,libogc/gx.c:4808; gc/ogc/gx.h:4959,video_probe,probe_light_falloff
+init_specular_dir,8028,same-name lookup,GX_InitSpecularDir,libogc/gx.c:4779; gc/ogc/gx.h:4930,video_probe,probe_specular_light
+init_specular_dir_ha,8002,same-name lookup,GX_InitSpecularDirHA,libogc/gx.c:4762; gc/ogc/gx.h:4904,video_probe,probe_specular_light
+init_tex_cache_region,5762,same-name lookup,GX_InitTexCacheRegion,libogc/gx.c:3149; gc/ogc/gx.h:4221,video_probe,probe_texture_regions
+init_tex_obj,5589,same-name lookup,GX_InitTexObj,libogc/gx.c:3226; gc/ogc/gx.h:4272,video_probe,probe_texture_field_vectors
+init_tex_obj_bias_clamp,5731,same-name lookup,GX_InitTexObjBiasClamp,libogc/gx.c:3391; gc/ogc/gx.h:4398,video_probe,probe_texture_field_vectors
+init_tex_obj_ci,5617,same-name lookup,GX_InitTexObjCI,libogc/gx.c:3301; gc/ogc/gx.h:4305,video_probe,probe_texture_indexed_lod
+init_tex_obj_ci_from_init,5596,Rust helper or alias,,,video_probe,probe_texture_indexed_lod
+init_tex_obj_data,5658,same-name lookup,GX_InitTexObjData,libogc/gx.c:3334; gc/ogc/gx.h:4330,video_probe,probe_texture_queries
+init_tex_obj_edge_lod,5739,same-name lookup,GX_InitTexObjEdgeLOD,libogc/gx.c:3397; gc/ogc/gx.h:4411,video_probe,probe_texture_indexed_lod
+init_tex_obj_filter_mode,5690,same-name lookup,GX_InitTexObjFilterMode,libogc/gx.c:3353; gc/ogc/gx.h:4354,video_probe,probe_texture_queries
+init_tex_obj_from_init,5523,Rust helper or alias,,,video_probe,probe_texture_queries
+init_tex_obj_lod,5651,same-name lookup,GX_InitTexObjLOD,libogc/gx.c:3310; gc/ogc/gx.h:4584,video_probe,probe_texture_field_vectors
+init_tex_obj_lod_bias,5721,same-name lookup,GX_InitTexObjLODBias,libogc/gx.c:3381; gc/ogc/gx.h:4385,video_probe,probe_texture_indexed_lod
+init_tex_obj_lod_from_params,5629,Rust helper or alias,,,video_probe,probe_texture_indexed_lod
+init_tex_obj_max_aniso,5747,same-name lookup,GX_InitTexObjMaxAniso,libogc/gx.c:3403; gc/ogc/gx.h:4429,video_probe,probe_texture_field_vectors
+init_tex_obj_max_lod,5710,same-name lookup,GX_InitTexObjMaxLOD,libogc/gx.c:3371; gc/ogc/gx.h:4372,video_probe,probe_texture_queries
+init_tex_obj_min_lod,5699,same-name lookup,GX_InitTexObjMinLOD,libogc/gx.c:3361; gc/ogc/gx.h:4363,video_probe,probe_texture_queries
+init_tex_obj_tlut,5673,same-name lookup,GX_InitTexObjTlut,libogc/gx.c:3340; gc/ogc/gx.h:4316,video_probe,probe_texture_indexed_lod
+init_tex_obj_user_data,5755,same-name lookup,GX_InitTexObjUserData,libogc/gx.c:3409; gc/ogc/gx.h:4440,video_probe,probe_texture_descriptors
+init_tex_obj_wrap_mode,5681,same-name lookup,GX_InitTexObjWrapMode,libogc/gx.c:3345; gc/ogc/gx.h:4342,video_probe,probe_texture_field_vectors
+init_tex_preload_region,5786,same-name lookup,GX_InitTexPreloadRegion,libogc/gx.c:3196; gc/ogc/gx.h:4246,video_probe,probe_texture_regions
+init_tlut_obj,6145,same-name lookup,GX_InitTlutObj,libogc/gx.c:3421; gc/ogc/gx.h:4536,video_probe,probe_texture_regions
+init_tlut_region,5810,same-name lookup,GX_InitTlutRegion,libogc/gx.c:3214; gc/ogc/gx.h:4551,video_probe,probe_texture_regions
+init_xf_ras_metric,7589,same-name lookup,GX_InitXfRasMetric,libogc/gx.c:5083; gc/ogc/gx.h:5059,video_probe,probe_gx_metric_registers
+initialize_default_mem2,2209,Rust helper or alias,,,video_probe,probe_gx_canvas_dimensions
+initialize_display,4136,Rust helper or alias,,,video_probe,probe_frame_lifecycle
+initialize_mem2,2223,Rust helper or alias,,,video_probe,probe_gx_canvas_dimensions
+inv_vtx_cache,4845,same-name lookup,GX_InvVtxCache,libogc/gx.c:2943; gc/ogc/gx.h:1771,video_probe,probe_vertex_cache_commands
+invalidate_tex_all,2972,same-name lookup,GX_InvalidateTexAll,libogc/gx.c:3605; gc/ogc/gx.h:4174,video_probe,probe_texture_cache_commands
+invalidate_tex_region,2983,same-name lookup,GX_InvalidateTexRegion,libogc/gx.c:3613; gc/ogc/gx.h:4193,video_probe,probe_texture_region_invalidation
+invalidate_texture_cache,2964,Rust helper or alias,,,video_probe,probe_texture_cache_commands
+light_obj_snapshot,6116,Rust helper or alias,,,video_probe,probe_light_object
+load_light_obj,7831,same-name lookup,GX_LoadLightObj,libogc/gx.c:4587; gc/ogc/gx.h:4740,video_probe,probe_gx_light_and_pixel_state
+load_light_obj_idx,7859,same-name lookup,GX_LoadLightObjIdx,libogc/gx.c:4643; gc/ogc/gx.h:4757,video_probe,probe_gx_light_and_pixel_state
+load_nrm_mtx_idx3x3,6328,same-name lookup,GX_LoadNrmMtxIdx3x3,libogc/gx.c:2896; gc/ogc/gx.h:2477,video_probe,probe_indexed_normal_matrix_commands
+load_nrm_mtx_imm,6310,same-name lookup,GX_LoadNrmMtxImm,libogc/gx.c:2884; gc/ogc/gx.h:2430,video_probe,probe_normal_matrix_commands
+load_nrm_mtx_imm3x3,6319,same-name lookup,GX_LoadNrmMtxImm3x3,libogc/gx.c:2890; gc/ogc/gx.h:2453,video_probe,probe_normal_matrix_3x3_commands
+load_pos_mtx_idx,6303,same-name lookup,GX_LoadPosMtxIdx,libogc/gx.c:2878; gc/ogc/gx.h:2405,video_probe,probe_indexed_position_matrix_commands
+load_pos_mtx_imm,6297,same-name lookup,GX_LoadPosMtxImm,libogc/gx.c:2872; gc/ogc/gx.h:2382,video_probe,probe_position_matrix_commands
+load_projection_mtx,4357,same-name lookup,GX_LoadProjectionMtx,libogc/gx.c:1798; gc/ogc/gx.h:1794,video_probe,probe_projection_commands
+load_tex_mtx_idx,6351,same-name lookup,GX_LoadTexMtxIdx,libogc/gx.c:2920; gc/ogc/gx.h:2528,video_probe,probe_indexed_texture_matrix_commands
+load_tex_mtx_imm,6335,same-name lookup,GX_LoadTexMtxImm,libogc/gx.c:2902; gc/ogc/gx.h:2503,video_probe,probe_texture_matrix_commands
+load_tex_obj,3183,same-name lookup,GX_LoadTexObj,libogc/gx.c:3433; gc/ogc/gx.h:4459,video_probe,probe_textured_rect_render
+load_tex_obj_preloaded,3032,same-name lookup,GX_LoadTexObjPreloaded,libogc/gx.c:3443; gc/ogc/gx.h:4502,video_probe,probe_preloaded_texture_commands
+load_tlut,3005,same-name lookup,GX_LoadTlut,libogc/gx.c:3648; gc/ogc/gx.h:4479,video_probe,probe_tlut_load_commands
+make_texture565,9129,Rust helper or alias,,,video_probe,probe_texture_conversion
+matrix_index1x8,5516,same-name lookup,GX_MatrixIndex1x8,gc/ogc/gx.h:2335,video_probe,probe_vertex_indices_8
+new,2421,Rust helper or alias,,,video_probe,probe_frame_config
+normal1x16,5364,same-name lookup,GX_Normal1x16,gc/ogc/gx.h:2223,video_probe,probe_vertex_indices_16
+normal1x8,5357,same-name lookup,GX_Normal1x8,gc/ogc/gx.h:2218,video_probe,probe_vertex_indices_8
+normal3f32,5330,same-name lookup,GX_Normal3f32,gc/ogc/gx.h:2197,video_probe,probe_float_vertex_commands
+normal3s16,5339,same-name lookup,GX_Normal3s16,gc/ogc/gx.h:2204,video_probe,probe_signed_normal_commands
+normal3s8,5348,same-name lookup,GX_Normal3s8,gc/ogc/gx.h:2211,video_probe,probe_signed_normal_commands
+peek_argb,7758,same-name lookup,GX_PeekARGB,libogc/gx.c:4506; gc/ogc/gx.h:3942,video_probe,probe_efb_access
+peek_z,7779,same-name lookup,GX_PeekZ,libogc/gx.c:4529; gc/ogc/gx.h:3977,video_probe,probe_efb_access
+pix_mode_sync,3991,same-name lookup,GX_PixModeSync,libogc/gx.c:1738; gc/ogc/gx.h:3786,video_probe,probe_gx_light_and_pixel_state
+poke_alpha_mode,7703,same-name lookup,GX_PokeAlphaMode,libogc/gx.c:4446; gc/ogc/gx.h:3817,video_probe,probe_efb_pe_registers
+poke_alpha_read,7708,same-name lookup,GX_PokeAlphaRead,libogc/gx.c:4451; gc/ogc/gx.h:3897,video_probe,probe_efb_access
+poke_alpha_update,7717,same-name lookup,GX_PokeAlphaUpdate,libogc/gx.c:4461; gc/ogc/gx.h:3829,video_probe,probe_efb_pe_registers
+poke_argb,7748,same-name lookup,GX_PokeARGB,libogc/gx.c:4497; gc/ogc/gx.h:3928,video_probe,probe_efb_access
+poke_blend_mode,7738,same-name lookup,GX_PokeBlendMode,libogc/gx.c:4476; gc/ogc/gx.h:3881,video_probe,probe_efb_pe_registers
+poke_color_update,7724,same-name lookup,GX_PokeColorUpdate,libogc/gx.c:4466; gc/ogc/gx.h:3839,video_probe,probe_efb_pe_registers
+poke_dither,7731,same-name lookup,GX_PokeDither,libogc/gx.c:4471; gc/ogc/gx.h:3853,video_probe,probe_efb_pe_registers
+poke_dst_alpha,7713,same-name lookup,GX_PokeDstAlpha,libogc/gx.c:4456; gc/ogc/gx.h:3911,video_probe,probe_efb_pe_registers
+poke_z,7773,same-name lookup,GX_PokeZ,libogc/gx.c:4519; gc/ogc/gx.h:3960,video_probe,probe_efb_access
+poke_z_mode,7788,same-name lookup,GX_PokeZMode,libogc/gx.c:4539; gc/ogc/gx.h:4001,video_probe,probe_efb_pe_registers
+position1x16,5323,same-name lookup,GX_Position1x16,gc/ogc/gx.h:2192,video_probe,probe_vertex_indices_16
+position1x8,5316,same-name lookup,GX_Position1x8,gc/ogc/gx.h:2187,video_probe,probe_vertex_indices_8
+position2f32,5276,same-name lookup,GX_Position2f32,gc/ogc/gx.h:2157,video_probe,probe_float_vertex_commands
+position2s16,5292,same-name lookup,GX_Position2s16,gc/ogc/gx.h:2169,video_probe,probe_signed_position_commands
+position2s8,5308,same-name lookup,GX_Position2s8,gc/ogc/gx.h:2181,video_probe,probe_signed_position_commands
+position2u16,5284,same-name lookup,GX_Position2u16,gc/ogc/gx.h:2163,video_probe,probe_unsigned_position_commands
+position2u8,5300,same-name lookup,GX_Position2u8,gc/ogc/gx.h:2175,video_probe,probe_unsigned_position_commands
+position3f32,5231,same-name lookup,GX_Position3f32,gc/ogc/gx.h:2122,video_probe,probe_float_vertex_commands
+position3s16,5249,same-name lookup,GX_Position3s16,gc/ogc/gx.h:2136,video_probe,probe_signed_position_commands
+position3s8,5267,same-name lookup,GX_Position3s8,gc/ogc/gx.h:2150,video_probe,probe_signed_position_commands
+position3u16,5240,same-name lookup,GX_Position3u16,gc/ogc/gx.h:2129,video_probe,probe_unsigned_position_commands
+position3u8,5258,same-name lookup,GX_Position3u8,gc/ogc/gx.h:2143,video_probe,probe_unsigned_position_commands
+preload_entire_texture,3088,same-name lookup,GX_PreloadEntireTexture,libogc/gx.c:3481; gc/ogc/gx.h:4520,video_probe,probe_texture_preload_commands
+present_frame,4154,Rust helper or alias,,,video_probe,probe_frame_commands
+present_frame_and_wait,4164,Rust helper or alias,,,video_probe,probe_frame_lifecycle
+read_bounding_box,7690,same-name lookup,GX_ReadBoundingBox,libogc/gx.c:5191; gc/ogc/gx.h:5178,video_probe,probe_gx_light_and_pixel_state
+read_clks_per_vtx,7614,same-name lookup,GX_ReadClksPerVtx,libogc/gx.c:5097; gc/ogc/gx.h:4961,video_probe,probe_gx_unverified_apis
+read_gp_metric,7670,same-name lookup,GX_ReadGPMetric,libogc/gx.c:5131; gc/ogc/gx.h:5159,video_probe,probe_gx_metric_registers
+read_v_cache_metric,7629,same-name lookup,GX_ReadVCacheMetric,libogc/gx.c:5110; gc/ogc/gx.h:5105,video_probe,probe_gx_metric_registers
+read_xf_ras_metric,7596,same-name lookup,GX_ReadXfRasMetric,libogc/gx.c:5089; gc/ogc/gx.h:5076,video_probe,probe_gx_metric_registers
+redirect_write_gather_pipe,2007,same-name lookup,GX_RedirectWriteGatherPipe,libogc/gx.c:1528; gc/ogc/gx.h:5208,video_probe,probe_gx_unverified_apis
+reset_overflow_count,7529,same-name lookup,GX_ResetOverflowCount,libogc/gx.c:1504; gc/ogc/gx.h:4963,video_probe,probe_gx_thread_and_status
+restore_write_gather_pipe,2037,same-name lookup,GX_RestoreWriteGatherPipe,libogc/gx.c:1554; gc/ogc/gx.h:5010,video_probe,probe_gx_unverified_apis
+set_alpha_compare,6703,same-name lookup,GX_SetAlphaCompare,libogc/gx.c:4039; gc/ogc/gx.h:3106,video_probe,probe_alpha_compare_commands
+set_alpha_update,6841,same-name lookup,GX_SetAlphaUpdate,libogc/gx.c:4383; gc/ogc/gx.h:3473,video_probe,probe_pe_control_commands
+set_array,4860,same-name lookup,GX_SetArray,libogc/gx.c:2283; gc/ogc/gx.h:1929,video_probe,probe_vertex_array_commands
+set_blend_mode,6632,same-name lookup,GX_SetBlendMode,libogc/gx.c:3735; gc/ogc/gx.h:2882,video_probe,probe_solid_rect_render
+set_break_pt_callback,1894,same-name lookup,GX_SetBreakPtCallback,libogc/gx.c:1727; gc/ogc/gx.h:1591,gx_api_probe,probe_gx_interrupt_delivery
+set_chan_amb_color,7084,same-name lookup,GX_SetChanAmbColor,libogc/gx.c:2211; gc/ogc/gx.h:1886,video_probe,probe_lighting_channel_commands
+set_chan_ctrl,7022,same-name lookup,GX_SetChanCtrl,libogc/gx.c:2193; gc/ogc/gx.h:1873,video_probe,probe_lighting_channel_commands
+set_chan_mat_color,7091,same-name lookup,GX_SetChanMatColor,libogc/gx.c:2247; gc/ogc/gx.h:1899,video_probe,probe_lighting_channel_commands
+set_clip_mode,6696,same-name lookup,GX_SetClipMode,libogc/gx.c:3952; gc/ogc/gx.h:2946,video_probe,probe_clip_mode_commands
+set_co_planar,6673,same-name lookup,GX_SetCoPlanar,libogc/gx.c:3937; gc/ogc/gx.h:2914,video_probe,probe_generation_mode_commands
+set_color_update,6831,same-name lookup,GX_SetColorUpdate,libogc/gx.c:4377; gc/ogc/gx.h:3458,video_probe,probe_solid_rect_render
+set_copy_clamp,3773,same-name lookup,GX_SetCopyClamp,libogc/gx.c:1905; gc/ogc/gx.h:3638,video_probe,probe_display_copy_commands
+set_copy_clear,3758,same-name lookup,GX_SetCopyClear,libogc/gx.c:1891; gc/ogc/gx.h:3698,video_probe,probe_copy_clear_commands
+set_copy_filter,3795,same-name lookup,GX_SetCopyFilter,libogc/gx.c:1916; gc/ogc/gx.h:3669,video_probe,probe_copy_filter_commands
+set_cpu_fifo,1729,same-name lookup,GX_SetCPUFifo,libogc/gx.c:1295; gc/ogc/gx.h:1473,video_probe,probe_gx_unverified_apis
+set_cull_mode,6657,same-name lookup,GX_SetCullMode,libogc/gx.c:3929; gc/ogc/gx.h:2896,video_probe,probe_generation_mode_commands
+set_current_gx_thread,7537,same-name lookup,GX_SetCurrentGXThread,libogc/gx.c:1516; gc/ogc/gx.h:4996,video_probe,probe_gx_thread_and_status
+set_current_mtx,6363,same-name lookup,GX_SetCurrentMtx,libogc/gx.c:2931; gc/ogc/gx.h:2542,video_probe,probe_texgen_commands
+set_disp_copy_dst,3873,same-name lookup,GX_SetDispCopyDst,libogc/gx.c:1996; gc/ogc/gx.h:3628,video_probe,probe_display_copy_commands
+set_disp_copy_frame2_field,3834,same-name lookup,GX_SetDispCopyFrame2Field,libogc/gx.c:1979; gc/ogc/gx.h:3685,video_probe,probe_display_copy_commands
+set_disp_copy_frame2field,3823,same-name lookup,GX_SetDispCopyFrame2Field,libogc/gx.c:1979; gc/ogc/gx.h:3685,video_probe,probe_display_copy_commands
+set_disp_copy_gamma,3784,same-name lookup,GX_SetDispCopyGamma,libogc/gx.c:1911; gc/ogc/gx.h:3648,video_probe,probe_display_copy_commands
+set_disp_copy_src,3863,same-name lookup,GX_SetDispCopySrc,libogc/gx.c:2002; gc/ogc/gx.h:3614,video_probe,probe_display_copy_commands
+set_disp_copy_y_scale,3846,same-name lookup,GX_SetDispCopyYScale,libogc/gx.c:1984; gc/ogc/gx.h:3601,video_probe,probe_display_copy_commands
+set_dither,6881,same-name lookup,GX_SetDither,libogc/gx.c:4415; gc/ogc/gx.h:3522,video_probe,probe_pe_control_commands
+set_draw_done,4069,same-name lookup,GX_SetDrawDone,libogc/gx.c:1666; gc/ogc/gx.h:1642,video_probe,probe_gx_completion_callbacks
+set_draw_done_callback,1884,same-name lookup,GX_SetDrawDoneCallback,libogc/gx.c:1705; gc/ogc/gx.h:1579,video_probe,probe_gx_completion_callbacks
+set_draw_sync,1899,same-name lookup,GX_SetDrawSync,libogc/gx.c:1651; gc/ogc/gx.h:1679,video_probe,probe_display_lists
+set_draw_sync_callback,1889,same-name lookup,GX_SetDrawSyncCallback,libogc/gx.c:1716; gc/ogc/gx.h:1693,video_probe,probe_gx_completion_callbacks
+set_dst_alpha,6891,same-name lookup,GX_SetDstAlpha,libogc/gx.c:4421; gc/ogc/gx.h:3537,video_probe,probe_pe_control_commands
+set_field_mask,4005,same-name lookup,GX_SetFieldMask,libogc/gx.c:4428; gc/ogc/gx.h:3553,video_probe,probe_field_mask_commands
+set_field_mode,4014,same-name lookup,GX_SetFieldMode,libogc/gx.c:4436; gc/ogc/gx.h:3576,video_probe,probe_line_point_field_commands
+set_fog,6721,same-name lookup,GX_SetFog,libogc/gx.c:4249; gc/ogc/gx.h:3288,video_probe,probe_fog_commands
+set_fog_color,6825,same-name lookup,GX_SetFogColor,libogc/gx.c:4372; gc/ogc/gx.h:3319,video_probe,probe_fog_color_commands
+set_fog_range_adj,6802,same-name lookup,GX_SetFogRangeAdj,libogc/gx.c:4348; gc/ogc/gx.h:3309,video_probe,probe_fog_commands
+set_gp_fifo,1756,same-name lookup,GX_SetGPFifo,libogc/gx.c:1378; gc/ogc/gx.h:1496,video_probe,probe_gx_unverified_apis
+set_gp_metric,7541,same-name lookup,GX_SetGPMetric,libogc/gx.c:4865; gc/ogc/gx.h:5037,video_probe,probe_gx_metric_registers
+set_ind_tex_coord_scale,7382,same-name lookup,GX_SetIndTexCoordScale,libogc/gx.c:4174; gc/ogc/gx.h:3265,video_probe,probe_indirect_texture_commands
+set_ind_tex_matrix,7273,same-name lookup,GX_SetIndTexMatrix,libogc/gx.c:4107; gc/ogc/gx.h:3356,video_probe,probe_indirect_matrix_commands
+set_ind_tex_order,7797,same-name lookup,GX_SetIndTexOrder,libogc/gx.c:4548; gc/ogc/gx.h:3251,video_probe,probe_indirect_texture_commands
+set_line_width,6610,same-name lookup,GX_SetLineWidth,libogc/gx.c:3761; gc/ogc/gx.h:2837,video_probe,probe_line_point_field_commands
+set_misc,1913,same-name lookup,GX_SetMisc,libogc/gx.c:1748; gc/ogc/gx.h:1626,video_probe,probe_gx_unverified_apis
+set_num_chans,7098,same-name lookup,GX_SetNumChans,libogc/gx.c:3982; gc/ogc/gx.h:3011,video_probe,probe_generation_mode_commands
+set_num_ind_stages,7230,same-name lookup,GX_SetNumIndStages,libogc/gx.c:4101; gc/ogc/gx.h:3239,video_probe,probe_generation_mode_commands
+set_num_tev_stages,7111,same-name lookup,GX_SetNumTevStages,libogc/gx.c:4033; gc/ogc/gx.h:3070,video_probe,probe_generation_mode_commands
+set_num_tex_gens,6183,same-name lookup,GX_SetNumTexGens,libogc/gx.c:2937; gc/ogc/gx.h:2692,video_probe,probe_generation_mode_commands
+set_pixel_fmt,6852,same-name lookup,GX_SetPixelFmt,libogc/gx.c:4395; gc/ogc/gx.h:3505,video_probe,probe_pixel_tev_commands
+set_point_size,6621,same-name lookup,GX_SetPointSize,libogc/gx.c:3768; gc/ogc/gx.h:2851,video_probe,probe_line_point_field_commands
+set_scissor,4338,same-name lookup,GX_SetScissor,libogc/gx.c:3957; gc/ogc/gx.h:2968,video_probe,probe_scissor_commands
+set_scissor_box_offset,4348,same-name lookup,GX_SetScissorBoxOffset,libogc/gx.c:3974; gc/ogc/gx.h:2994,video_probe,probe_scissor_offset_commands
+set_tev_alpha_in,6507,same-name lookup,GX_SetTevAlphaIn,libogc/gx.c:3882; gc/ogc/gx.h:2628,video_probe,probe_tev_combiner_commands
+set_tev_alpha_op,6563,same-name lookup,GX_SetTevAlphaOp,libogc/gx.c:3911; gc/ogc/gx.h:2676,video_probe,probe_tev_combiner_commands
+set_tev_color,6428,same-name lookup,GX_SetTevColor,libogc/gx.c:3775; gc/ogc/gx.h:2575,video_probe,probe_tev_color_commands
+set_tev_color_in,6494,same-name lookup,GX_SetTevColorIn,libogc/gx.c:3871; gc/ogc/gx.h:2610,video_probe,probe_tev_combiner_commands
+set_tev_color_op,6540,same-name lookup,GX_SetTevColorOp,libogc/gx.c:3893; gc/ogc/gx.h:2652,video_probe,probe_tev_combiner_commands
+set_tev_color_s10,6442,same-name lookup,GX_SetTevColorS10,libogc/gx.c:3790; gc/ogc/gx.h:2591,video_probe,probe_tev_signed_color_commands
+set_tev_direct,7209,same-name lookup,GX_SetTevDirect,libogc/gx.c:4096; gc/ogc/gx.h:3227,video_probe,probe_tev_indirect_commands
+set_tev_ind_bump_st,7285,same-name lookup,GX_SetTevIndBumpST,libogc/gx.c:4136; gc/ogc/gx.h:3377,video_probe,probe_indirect_helper_commands
+set_tev_ind_bump_xyz,7340,same-name lookup,GX_SetTevIndBumpXYZ,libogc/gx.c:4164; gc/ogc/gx.h:3395,video_probe,probe_indirect_helper_commands
+set_tev_ind_repeat,7361,same-name lookup,GX_SetTevIndRepeat,libogc/gx.c:4169; gc/ogc/gx.h:3446,video_probe,probe_indirect_helper_commands
+set_tev_ind_tile,7440,same-name lookup,GX_SetTevIndTile,libogc/gx.c:4215; gc/ogc/gx.h:3420,video_probe,probe_indirect_matrix_commands
+set_tev_ind_warp,7403,same-name lookup,GX_SetTevIndWarp,libogc/gx.c:4200; gc/ogc/gx.h:3434,video_probe,probe_indirect_helper_commands
+set_tev_indirect,7182,same-name lookup,GX_SetTevIndirect,libogc/gx.c:4090; gc/ogc/gx.h:3217,video_probe,probe_tev_indirect_commands
+set_tev_k_alpha_sel,7138,same-name lookup,GX_SetTevKAlphaSel,libogc/gx.c:4057; gc/ogc/gx.h:3147,video_probe,probe_tev_selector_commands
+set_tev_k_color,6458,same-name lookup,GX_SetTevKColor,libogc/gx.c:3805; gc/ogc/gx.h:3119,video_probe,probe_tev_k_color_commands
+set_tev_k_color_s10,6476,same-name lookup,GX_SetTevKColorS10,libogc/gx.c:3820; gc/ogc/gx.h:3165,video_probe,probe_tev_k_signed_color_commands
+set_tev_k_color_sel,7124,same-name lookup,GX_SetTevKColorSel,libogc/gx.c:4046; gc/ogc/gx.h:3133,video_probe,probe_tev_selector_commands
+set_tev_op,6903,same-name lookup,GX_SetTevOp,libogc/gx.c:3835; gc/ogc/gx.h:2559,video_probe,probe_pixel_tev_commands
+set_tev_order,6956,same-name lookup,GX_SetTevOrder,libogc/gx.c:3988; gc/ogc/gx.h:3051,video_probe,probe_tev_order_scale
+set_tev_swap_mode,7152,same-name lookup,GX_SetTevSwapMode,libogc/gx.c:4068; gc/ogc/gx.h:3181,video_probe,probe_tev_selector_commands
+set_tev_swap_mode_table,7163,same-name lookup,GX_SetTevSwapModeTable,libogc/gx.c:4076; gc/ogc/gx.h:3198,video_probe,probe_tev_selector_commands
+set_tex_coord_bias,5864,same-name lookup,GX_SetTexCoordBias,libogc/gx.c:3695; gc/ogc/gx.h:4628,video_probe,probe_tex_coord_scale_commands
+set_tex_coord_cyl_wrap,5848,same-name lookup,GX_SetTexCoordCylWrap,libogc/gx.c:3681; gc/ogc/gx.h:4607,video_probe,probe_tex_coord_scale_commands
+set_tex_coord_gen,6237,same-name lookup,GX_SetTexCoordGen,libogc/gx.c:2653; gc/ogc/gx.h:2726,video_probe,probe_texgen_commands
+set_tex_coord_gen2,6373,same-name lookup,GX_SetTexCoordGen2,libogc/gx.c:2658; gc/ogc/gx.h:2757,video_probe,probe_texgen_commands
+set_tex_coord_scale_manually,5827,same-name lookup,GX_SetTexCoordScaleManually,libogc/gx.c:3666; gc/ogc/gx.h:4605,video_probe,probe_tex_coord_scale_commands
+set_tex_copy_dst,3889,same-name lookup,GX_SetTexCopyDst,libogc/gx.c:2105; gc/ogc/gx.h:3758,video_probe,probe_texture_copy_render
+set_tex_copy_src,3879,same-name lookup,GX_SetTexCopySrc,libogc/gx.c:2097; gc/ogc/gx.h:3732,video_probe,probe_texture_copy_render
+set_tex_region_callback,5879,same-name lookup,GX_SetTexRegionCallback,libogc/gx.c:3709; gc/ogc/gx.h:4642,video_probe,probe_tex_region_callback
+set_tlut_region_callback,5890,same-name lookup,GX_SetTlutRegionCallback,libogc/gx.c:3722; gc/ogc/gx.h:4661,video_probe,probe_tlut_load_commands
+set_v_cache_metric,7641,same-name lookup,GX_SetVCacheMetric,libogc/gx.c:5117; gc/ogc/gx.h:5119,video_probe,probe_gx_unverified_apis
+set_viewport,4307,same-name lookup,GX_SetViewport,libogc/gx.c:1793; gc/ogc/gx.h:1816,video_probe,probe_viewport_commands
+set_viewport_jitter,4274,same-name lookup,GX_SetViewportJitter,libogc/gx.c:1767; gc/ogc/gx.h:1838,video_probe,probe_viewport_jitter_commands
+set_vtx_attr_fmt,4956,same-name lookup,GX_SetVtxAttrFmt,libogc/gx.c:2622; gc/ogc/gx.h:1955,video_probe,probe_vertex_format_commands
+set_vtx_attr_fmtv,4965,same-name lookup,GX_SetVtxAttrFmtv,libogc/gx.c:2629; gc/ogc/gx.h:1970,video_probe,probe_vertex_format_commands
+set_vtx_desc,4875,same-name lookup,GX_SetVtxDesc,libogc/gx.c:2369; gc/ogc/gx.h:1985,video_probe,probe_vertex_descriptors
+set_vtx_descv,4883,same-name lookup,GX_SetVtxDescv,libogc/gx.c:2375; gc/ogc/gx.h:1999,video_probe,probe_vertex_descriptors
+set_z_comp_loc,6600,same-name lookup,GX_SetZCompLoc,libogc/gx.c:4389; gc/ogc/gx.h:2823,video_probe,probe_pe_control_commands
+set_z_mode,6588,same-name lookup,GX_SetZMode,libogc/gx.c:2948; gc/ogc/gx.h:2810,video_probe,probe_z_mode_commands
+set_z_texture,6412,same-name lookup,GX_SetZTexture,libogc/gx.c:2777; gc/ogc/gx.h:2788,video_probe,probe_z_texture_commands
+size,2284,Rust helper or alias,,,video_probe,probe_gx_canvas_dimensions
+tex_coord1f32,5467,same-name lookup,GX_TexCoord1f32,gc/ogc/gx.h:2300,video_probe,probe_float_vertex_commands
+tex_coord1s16,5481,same-name lookup,GX_TexCoord1s16,gc/ogc/gx.h:2310,video_probe,probe_signed_texture_commands
+tex_coord1s8,5495,same-name lookup,GX_TexCoord1s8,gc/ogc/gx.h:2320,video_probe,probe_signed_texture_commands
+tex_coord1u16,5474,same-name lookup,GX_TexCoord1u16,gc/ogc/gx.h:2305,video_probe,probe_unsigned_texture_commands
+tex_coord1u8,5488,same-name lookup,GX_TexCoord1u8,gc/ogc/gx.h:2315,video_probe,probe_unsigned_texture_commands
+tex_coord1x16,5509,same-name lookup,GX_TexCoord1x16,gc/ogc/gx.h:2330,video_probe,probe_vertex_indices_16
+tex_coord1x8,5502,same-name lookup,GX_TexCoord1x8,gc/ogc/gx.h:2325,video_probe,probe_vertex_indices_8
+tex_coord2f32,5427,same-name lookup,GX_TexCoord2f32,gc/ogc/gx.h:2270,video_probe,probe_float_vertex_commands
+tex_coord2s16,5443,same-name lookup,GX_TexCoord2s16,gc/ogc/gx.h:2282,video_probe,probe_signed_texture_commands
+tex_coord2s8,5459,same-name lookup,GX_TexCoord2s8,gc/ogc/gx.h:2294,video_probe,probe_signed_texture_commands
+tex_coord2u16,5435,same-name lookup,GX_TexCoord2u16,gc/ogc/gx.h:2276,video_probe,probe_unsigned_texture_commands
+tex_coord2u8,5451,same-name lookup,GX_TexCoord2u8,gc/ogc/gx.h:2288,video_probe,probe_unsigned_texture_commands
+tex_mode_sync,1909,same-name lookup,GX_TexModeSync,libogc/gx.c:1743; gc/ogc/gx.h:1755,video_probe,probe_display_lists
+tex_obj_snapshot,6086,Rust helper or alias,,,video_probe,probe_texture_descriptors
+tlut_obj_snapshot,6163,Rust helper or alias,,,video_probe,probe_texture_regions
+tpl_close_tpl_file,9965,same-name lookup,TPL_CloseTPLFile,libogc/tpl.c:311; gc/ogc/tpl.h:25,video_probe,probe_tpl_memory
+tpl_get_texture,9773,same-name lookup,TPL_GetTexture,libogc/tpl.c:210; gc/ogc/tpl.h:22,video_probe,probe_tpl_memory
+tpl_get_texture_ci,9857,same-name lookup,TPL_GetTextureCI,libogc/tpl.c:252; gc/ogc/tpl.h:23,video_probe,probe_tpl_indexed
+tpl_get_texture_info,9733,same-name lookup,TPL_GetTextureInfo,libogc/tpl.c:189; gc/ogc/tpl.h:24,video_probe,probe_tpl_memory
+tpl_open_tpl_from_file,9505,same-name lookup,TPL_OpenTPLFromFile,libogc/tpl.c:86; gc/ogc/tpl.h:20,video_probe,probe_tpl_file_backing
+tpl_open_tpl_from_memory,9471,same-name lookup,TPL_OpenTPLFromMemory,libogc/tpl.c:147; gc/ogc/tpl.h:21,video_probe,probe_tpl_memory
+wait_draw_done,4075,same-name lookup,GX_WaitDrawDone,libogc/gx.c:1677; gc/ogc/gx.h:1657,video_probe,probe_gx_completion_callbacks
+with_copy_filter,2449,Rust helper or alias,,,video_probe,probe_frame_config
+with_field_mode,2454,Rust helper or alias,,,video_probe,probe_frame_config

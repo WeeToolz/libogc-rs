@@ -473,3 +473,39 @@ and fresh graphics completion. Broad Wii video and LWP checks pass
 414/414 and 282/282. No production or Dolphin changes were necessary.
 The independent full API review and target evidence mappings remain open.
 Physical CP status clearing and PE memory-counter timing remain pending.
+
+### GX target mapping and texture correction (2026-11-26)
+
+**BUG FIX** — implementer: ChatGPT (current GX parity work). Independent
+reviewer: not yet assigned. Compare `GX_InitTexObj` in C revision
+`7d4b8b3e7b845516f0cc2a85274879ddd8cbf142`, `libogc/gx.c:3226` onward,
+with `init_tex_obj_from_init`. C masks the packed format field to four
+bits; Rust previously allowed high format bits to spill outside that field.
+The corrected target regression passes 118/118 (117/118 before the fix).
+The final focused probe passes 125/125; broad video passes 429/429.
+The new successful file-backed TPL fixture checks the production file path
+and deferred aligned payload ownership, supplementing the earlier independent
+TPL review. See [the run report](../dolphin-runs/2026-11-26-gx-texture-target-linux/README.md).
+
+All 278 GX inventory entries now map to named Dolphin runner functions:
+276 to `video_probe` and two to `gx_api_probe`. No host-only GX entry remains.
+A static call-reference check confirms that each mapped evidence function
+is reachable from its runner. The [GX cross-reference](gx-api-cross-reference.csv)
+indexes all 278 current Rust declarations and their target mappings. It has
+250 same-name C GX/TPL lookup candidates at the stated C revision, and 28
+Rust helper or alias entries; the latter need contract/delegation review.
+Same-name references are navigation aids, not proof of matching semantics.
+The index describes Rust's implemented surface, not a claim that all C
+header macros are exposed as separate Rust APIs. Review the direct C API
+and macro surface, the helpers' composed operations, failure cases and the
+previous GX/LWP fixes as part of the independent final diff review.
+
+Per REVIEW-WORKFLOW.md, this implementer cannot approve their own changes.
+The GX package stays `needs_re_review`; the owner is unassigned until a
+separate reviewer claims the review. Prior independent scoped findings and
+accepted fixes remain in this note. Physical timing/CP clearing remain
+pending, and branch-complete target verification is not established by the
+mapping. Host xtask passed 165/165; hardware target group and inventory
+passed. Source structure audit passed, but the workspace-wide runtime
+completeness audit reports 157 disallowed entries outside GX. Do not
+represent that audit as a pass.

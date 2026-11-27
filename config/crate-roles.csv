@@ -48,7 +48,7 @@ ogc-filesystem-sys,crates/services/ogc-filesystem-sys,services,filesystem-abi,st
 ogc-gcsd,crates/services/ogc-gcsd,services,sd-gecko-driver,storage,true,reject,hardware,storage-probe
 ogc-gu,crates/hardware/ogc-gu,hardware,geometry-wrapper,hardware,true,reject,compatibility-forwarder,system-probe
 ogc-gu-sys,crates/hardware/ogc-gu-sys,hardware,geometry-abi,hardware,true,reject,pure,system-probe
-ogc-gx,crates/hardware/ogc-gx,hardware,gx-wrapper,hardware,true,reject,compatibility-forwarder,system-probe
+ogc-gx,crates/hardware/ogc-gx,hardware,gx-wrapper,hardware,true,reject,compatibility-forwarder,video-probe
 ogc-gx-sys,crates/hardware/ogc-gx-sys,hardware,gx-driver,hardware,true,reject,hardware,system-probe
 ogc-input,crates/services/ogc-input,services,input-wrapper,input,true,reject,compatibility-forwarder,input-probe
 ogc-input-sys,crates/services/ogc-input-sys,services,input-driver-abi,input,true,reject,hardware,input-probe
