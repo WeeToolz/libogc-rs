@@ -417,6 +417,7 @@ struct ProbeResult {
 
 #[derive(Serialize)]
 struct RelaunchHandoff {
+    api: String,
     mode: String,
     startup_marker: Option<String>,
     title: String,
@@ -781,6 +782,9 @@ pub fn print_help() {
     );
     eprintln!(
         "  LIBOGC_DOLPHIN_RELAUNCH_BACKGROUND=1 selects the background build of ipc_relaunch_probe (select only that probe)"
+    );
+    eprintln!(
+        "  LIBOGC_DOLPHIN_RELAUNCH_API=c|rust|try_launch_title|launch_title selects the public handoff API"
     );
     eprintln!(
         "  LIBOGC_DOLPHIN_RELAUNCH_PANIC_DIAGNOSTIC=1 disables automatic abort on panic alerts for ipc_relaunch_probe"
@@ -1384,6 +1388,14 @@ fn run_probe(
     let mut timeout_diagnostic = None;
     let mut relaunch_handoff = None;
     let mut destination_seen = None;
+    let relaunch_api = if spec.name == "ipc_relaunch_probe" {
+        selected_relaunch_api(std::env::var("LIBOGC_DOLPHIN_RELAUNCH_API").ok().as_deref())?
+    } else {
+        "c"
+    };
+    if matches!(relaunch_api, "try_launch_title" | "launch_title") && background_relaunch {
+        return Err("Wii launch handoff uses its foreground public API".to_string());
+    }
     'probe: loop {
         if gecko_receiver.is_none() && Instant::now() >= next_gecko_connect {
             gecko_receiver = connect_usb_gecko()
@@ -1463,13 +1475,8 @@ fn run_probe(
             } else {
                 "foreground"
             };
-            let api = if std::env::var("LIBOGC_DOLPHIN_RELAUNCH_API").as_deref() == Ok("rust") {
-                "rust"
-            } else {
-                "c"
-            };
             let source = format!(
-                "IPC_RELAUNCH source api={api} mode={mode} title={:016x}",
+                "IPC_RELAUNCH source api={relaunch_api} mode={mode} title={:016x}",
                 destination.title
             );
             let launch = format!(
@@ -1482,7 +1489,12 @@ fn run_probe(
             );
             let marker = "HBC: startup complete; entering render loop";
             if let Some((_, after_source)) = log.split_once(&source)
-                && let Some((_, after_launch)) = after_source.split_once(&launch)
+                && let Some(after_launch) =
+                    if matches!(relaunch_api, "try_launch_title" | "launch_title") {
+                        Some(after_source)
+                    } else {
+                        after_source.split_once(&launch).map(|(_, rest)| rest)
+                    }
                 && let Some((_, after_boot)) = after_launch.split_once(&boot)
                 && after_boot
                     .lines()
@@ -1493,6 +1505,7 @@ fn run_probe(
                 })
             {
                 relaunch_handoff = Some(RelaunchHandoff {
+                    api: relaunch_api.to_string(),
                     mode: mode.to_string(),
                     startup_marker: Some(marker.to_string()),
                     title: format!("{:016x}", destination.title),
@@ -1528,7 +1541,7 @@ fn run_probe(
             {
                 let seen = *destination_seen.get_or_insert_with(Instant::now);
                 if seen.elapsed() >= Duration::from_secs(3) {
-                    match gdb.observe_relaunch(destination, background_relaunch) {
+                    match gdb.observe_relaunch(destination, background_relaunch, relaunch_api) {
                         Ok(Some(evidence)) => {
                             relaunch_handoff = Some(evidence);
                             completion = Completion::Handoff;
@@ -2004,6 +2017,18 @@ fn relaunch_destination(
     })
 }
 
+fn selected_relaunch_api(value: Option<&str>) -> Result<&'static str, String> {
+    match value {
+        None | Some("c") => Ok("c"),
+        Some("rust") => Ok("rust"),
+        Some("try_launch_title") => Ok("try_launch_title"),
+        Some("launch_title") => Ok("launch_title"),
+        Some(other) => Err(format!(
+            "LIBOGC_DOLPHIN_RELAUNCH_API must be c, rust, try_launch_title, or launch_title; got {other}"
+        )),
+    }
+}
+
 fn ipc_test_loader_bounds(mode: &str, lo: u32, hi: u32) -> Result<(u32, u32), String> {
     // Preserve at least 120 KiB of the 128 KiB Wii IPC arena. Never expand it.
     if lo & 31 != 0 || hi & 31 != 0 || hi.saturating_sub(lo) < 0x20000 {
@@ -2415,6 +2440,7 @@ impl GdbClient {
         &mut self,
         destination: &RelaunchDestination,
         background: bool,
+        api: &str,
     ) -> Result<Option<RelaunchHandoff>, String> {
         self.stream
             .get_mut()
@@ -2441,6 +2467,7 @@ impl GdbClient {
                 return Ok(None);
             }
             Ok(Some(RelaunchHandoff {
+                api: api.to_string(),
                 mode: if background {
                     "background"
                 } else {
@@ -3091,6 +3118,22 @@ fn unix_seconds() -> u64 {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn relaunch_api_selection_accepts_only_built_probe_variants() {
+        assert_eq!(super::selected_relaunch_api(None), Ok("c"));
+        assert_eq!(super::selected_relaunch_api(Some("c")), Ok("c"));
+        assert_eq!(super::selected_relaunch_api(Some("rust")), Ok("rust"));
+        assert_eq!(
+            super::selected_relaunch_api(Some("try_launch_title")),
+            Ok("try_launch_title")
+        );
+        assert_eq!(
+            super::selected_relaunch_api(Some("launch_title")),
+            Ok("launch_title")
+        );
+        assert!(super::selected_relaunch_api(Some("unknown")).is_err());
+    }
+
     #[test]
     fn exfat_probe_requires_a_private_read_only_sd_image() {
         assert!(

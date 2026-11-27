@@ -3329,7 +3329,7 @@ ogc-ipc,src/isfs_service.rs,initialize,28,ios,hardware-probe,probes/ogc-system-p
 ogc-ipc,src/isfs_service.rs,deinitialize,47,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_uninitialized,filesystem::deinitialize
 ogc-ipc,src/isfs_service.rs,descriptor,19,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_successful_file_cycle,filesystem::get_stats
 ogc-ipc,src/isfs_service.rs,is_initialized,14,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_isfs_successful_file_cycle,filesystem::open
-ogc-wiilaunch,src/lib.rs,launch_title,283,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wiilaunch_error_codes,ogc_wiilaunch::launch_title,launch-rejection
+ogc-wiilaunch,src/lib.rs,launch_title,283,ios,hardware-probe,probes/ogc-system-probe/src/lib.rs,run_ipc_relaunch_probe_bin,ogc_wiilaunch::launch_title,launch-handoff
 ogc-wiilaunch,src/lib.rs,launch_title_with_args,390,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wiilaunch_error_codes,ogc_wiilaunch::launch_title_with_args,launch-rejection
-ogc-wiilaunch,src/lib.rs,try_launch_title,287,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wiilaunch_error_codes,ogc_wiilaunch::try_launch_title,launch-rejection
+ogc-wiilaunch,src/lib.rs,try_launch_title,287,ios,hardware-probe,probes/ogc-system-probe/src/lib.rs,run_ipc_relaunch_probe_bin,ogc_wiilaunch::try_launch_title,launch-handoff
 ogc-wiilaunch,src/lib.rs,try_launch_title_with_args,394,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_wiilaunch_error_codes,ogc_wiilaunch::try_launch_title_with_args,launch-rejection

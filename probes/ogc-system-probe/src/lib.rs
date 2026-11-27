@@ -1085,6 +1085,55 @@ pub fn run_ipc_relaunch_probe_bin() -> i32 {
         .expect("invalid Dolphin relaunch title ID");
     configure_probe_app_dir("ipc-relaunch-probe");
     let mut logger = init_probe_logger();
+    if cfg!(any(
+        feature = "ipc-relaunch-wiilaunch",
+        feature = "ipc-relaunch-wiilaunch-legacy"
+    )) {
+        let legacy = cfg!(feature = "ipc-relaunch-wiilaunch-legacy");
+        let api = if legacy {
+            "launch_title"
+        } else {
+            "try_launch_title"
+        };
+        let mode = "foreground";
+        let initialized = ogc_wiilaunch::initialize();
+        logger.note_i32("Wii launch initialize", initialized);
+        if initialized < 0 {
+            ogc_system::report(format_args!("IPC_RELAUNCH returned={initialized}\n"));
+            logger.record("Wii launch initializes before title handoff", false);
+            logger.summary();
+            return finish_probe();
+        }
+        logger.record("Wii launch initializes before title handoff", true);
+        let rejected_error = match ogc_wiilaunch::try_launch_title(0) {
+            Err(ogc_wiilaunch::LaunchError::Es(error)) if error < 0 => error,
+            _ => 0,
+        };
+        let rejected = if legacy {
+            rejected_error < 0 && ogc_wiilaunch::launch_title(0) == rejected_error
+        } else {
+            rejected_error < 0
+        };
+        logger.record("Wii launch rejects unknown title before handoff", rejected);
+        if !rejected {
+            logger.summary();
+            return finish_probe();
+        }
+        logger.note_i32("Wii launch unknown title IOS error", rejected_error);
+        ogc_system::report(format_args!(
+            "IPC_RELAUNCH source api={api} mode={mode} title={title_id:016x}\n"
+        ));
+        let result = if legacy {
+            ogc_wiilaunch::launch_title(title_id)
+        } else {
+            ogc_wiilaunch::try_launch_title(title_id).map_or_else(|error| error.raw_code(), |_| 0)
+        };
+        ogc_system::report(format_args!("IPC_RELAUNCH returned={result}\n"));
+        logger.note_i32("Wii launch title request returned", result);
+        logger.record("Wii launch title request accepted", result == 0);
+        logger.summary();
+        return finish_probe();
+    }
     let initialized = es::init();
     let mut view = Aligned(es::Tikview::default());
     let view_result = if initialized >= 0 {

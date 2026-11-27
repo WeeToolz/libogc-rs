@@ -99,6 +99,7 @@ enum EvidenceScope {
     IosLifecycleDolphin,
     EsBootImportArguments,
     LaunchRejection,
+    LaunchHandoff,
 }
 
 impl EvidenceScope {
@@ -131,6 +132,7 @@ impl EvidenceScope {
             "ios-lifecycle-dolphin" => Self::IosLifecycleDolphin,
             "es-boot-import-arguments" => Self::EsBootImportArguments,
             "launch-rejection" => Self::LaunchRejection,
+            "launch-handoff" => Self::LaunchHandoff,
             _ => return None,
         })
     }
@@ -203,6 +205,9 @@ impl EvidenceScope {
             Self::LaunchRejection => {
                 "Unknown-title and oversized-argument rejection only in Dolphin. Successful title handoff and launch-state persistence remain unverified."
             }
+            Self::LaunchHandoff => {
+                "Successful handoff to the installed OHBC test title and unknown-title rejection pass in Dolphin. Other destination titles, launch arguments, and physical Wii behavior remain unverified."
+            }
             Self::DolphinCacheRegister => {
                 "Dolphin HID0 transitions and restoration only. Physical cache state and timing are unverified."
             }
@@ -242,7 +247,8 @@ impl EvidenceScope {
             Self::ScalarAndBuffer
             | Self::IpcPartialDolphin
             | Self::IpcRebootGuard
-            | Self::IosLifecycleDolphin => "dolphin-partial",
+            | Self::IosLifecycleDolphin
+            | Self::LaunchHandoff => "dolphin-partial",
             Self::EsBootImportArguments => "unverified",
             Self::LaunchRejection => "unverified",
             Self::NoControllerAndInvalidArguments => "unverified",
@@ -2577,6 +2583,12 @@ mod tests {
             "unverified"
         );
         assert!(EvidenceScope::parse("launch-rejection").is_some());
+        assert_eq!(
+            EvidenceScope::parse("launch-handoff")
+                .unwrap()
+                .classification("ios"),
+            "dolphin-partial"
+        );
         let active_search_scope = EvidenceScope::parse("active-search-state").unwrap();
         assert_eq!(active_search_scope.classification("hardware"), "unverified");
         assert!(
