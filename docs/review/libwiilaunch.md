@@ -1,6 +1,6 @@
 # Wii launch parity review
 
-Status: static source review complete for both claimed crates. No compile, test, or hardware run was done.
+Status: static source review complete for both claimed crates. Host state tests and Dolphin rejection checks passed on 2026-11-27. No physical Wii run was done.
 
 ## Scope and source map
 
@@ -70,3 +70,20 @@ unverified in the inventory. Do not call the raw launch, menu, settings, or URL
 operations to test this state because a successful call can leave the probe or
 launch another title. A valid check needs an isolated state fixture that does
 not initialize the production singleton.
+
+## Dolphin rejection evidence (2026-11-27)
+
+The `2026-11-27-wiilaunch-guard-cases-v2` run passed all 901 runtime checks in
+Dolphin 2609a. It verified that an unknown title returns a negative IOS error
+through both `try_launch_title` and the legacy `launch_title`, and that an
+oversized argument list returns `ArgsTooLarge` or `WII_E2BIG` through the typed
+and legacy APIs. The oversized input fails before persistence or launch.
+
+These checks cover rejection behavior only. They do not verify successful title
+handoff, launch-state persistence, menu/settings return, or URL launch. The four
+launch APIs therefore remain unverified in the inventory. See the archived run
+for the exact check log, Dolphin log, and screenshots.
+
+The state crate's host tests passed 11/11. These tests verify serialization,
+buffer preservation on oversized input, persistence error handling, readback,
+and commit order. They do not prove that IOS launches a destination title.

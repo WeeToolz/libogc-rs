@@ -30,6 +30,7 @@ PARTIAL_SCOPES = {
     "mock-dispatch", "closed-service", "disabled-adapter", "invalid-channel",
     "invalid-arguments", "empty-channel", "no-controller",
     "no-controller-and-invalid-arguments", "active-search-state",
+    "launch-rejection",
     "zero-tag-count", "zero-length",
     "empty-queue", "no-pending-interrupt", "repeated-initialization", "no-event-hook",
     "synchronous-scalar-output", "scalar-output", "scalar-and-buffer",

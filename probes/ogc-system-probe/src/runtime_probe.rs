@@ -9923,6 +9923,32 @@ fn probe_wiilaunch_error_codes(logger: &mut ProbeLogger) {
             LaunchError::from_raw_code(code) == expected && expected.raw_code() == code
         }),
     );
+
+    let missing_title = ogc_wiilaunch::try_launch_title(0);
+    let missing_title_error = match missing_title {
+        Err(LaunchError::Es(error)) if error < 0 => ogc_wiilaunch::launch_title(0) == error,
+        _ => false,
+    };
+    logger.record(
+        "Wii launch rejects an unknown title and preserves its IOS error",
+        missing_title_error,
+    );
+
+    let mut oversized_bytes = [b'x'; 4097];
+    oversized_bytes[4096] = 0;
+    let oversized = core::ffi::CStr::from_bytes_with_nul(&oversized_bytes)
+        .expect("oversized launch argument is NUL terminated");
+    let oversized_typed =
+        ogc_wiilaunch::try_launch_title_with_args(0x0000_0001_0000_0002, 1, &[oversized]);
+    logger.record(
+        "Wii launch rejects oversized arguments before persistence",
+        oversized_typed == Err(LaunchError::ArgsTooLarge),
+    );
+    logger.record(
+        "Wii launch legacy args API returns the size error",
+        ogc_wiilaunch::launch_title_with_args(0x0000_0001_0000_0002, 1, &[oversized])
+            == ogc_wiilaunch::WII_E2BIG,
+    );
 }
 
 fn probe_system_runtime_state(logger: &mut ProbeLogger) {

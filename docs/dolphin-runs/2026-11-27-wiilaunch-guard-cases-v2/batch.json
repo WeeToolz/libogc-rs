@@ -1,0 +1,57 @@
+{
+  "probe": "runtime_probe",
+  "cases": [
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "launch_title",
+      "line": 283,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_error_codes",
+      "api_path": "ogc_wiilaunch::launch_title",
+      "checks": [
+        "Wii launch rejects an unknown title and preserves its IOS error"
+      ],
+      "evidence_scope": "launch-rejection"
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "launch_title_with_args",
+      "line": 390,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_error_codes",
+      "api_path": "ogc_wiilaunch::launch_title_with_args",
+      "checks": [
+        "Wii launch legacy args API returns the size error"
+      ],
+      "evidence_scope": "launch-rejection"
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "try_launch_title",
+      "line": 287,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_error_codes",
+      "api_path": "ogc_wiilaunch::try_launch_title",
+      "checks": [
+        "Wii launch rejects an unknown title and preserves its IOS error"
+      ],
+      "evidence_scope": "launch-rejection"
+    },
+    {
+      "crate": "ogc-wiilaunch",
+      "path": "src/lib.rs",
+      "symbol": "try_launch_title_with_args",
+      "line": 394,
+      "evidence_path": "probes/ogc-system-probe/src/runtime_probe.rs",
+      "function": "probe_wiilaunch_error_codes",
+      "api_path": "ogc_wiilaunch::try_launch_title_with_args",
+      "checks": [
+        "Wii launch rejects oversized arguments before persistence"
+      ],
+      "evidence_scope": "launch-rejection"
+    }
+  ]
+}

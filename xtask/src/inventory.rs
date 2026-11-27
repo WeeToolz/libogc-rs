@@ -98,6 +98,7 @@ enum EvidenceScope {
     IpcRebootGuard,
     IosLifecycleDolphin,
     EsBootImportArguments,
+    LaunchRejection,
 }
 
 impl EvidenceScope {
@@ -129,6 +130,7 @@ impl EvidenceScope {
             "ipc-reboot-guard" => Self::IpcRebootGuard,
             "ios-lifecycle-dolphin" => Self::IosLifecycleDolphin,
             "es-boot-import-arguments" => Self::EsBootImportArguments,
+            "launch-rejection" => Self::LaunchRejection,
             _ => return None,
         })
     }
@@ -198,6 +200,9 @@ impl EvidenceScope {
             Self::EsBootImportArguments => {
                 "Null and zero-length boot-import rejection only in Dolphin. Successful persistent boot import remains unverified until a disposable fixture and recovery path are qualified."
             }
+            Self::LaunchRejection => {
+                "Unknown-title and oversized-argument rejection only in Dolphin. Successful title handoff and launch-state persistence remain unverified."
+            }
             Self::DolphinCacheRegister => {
                 "Dolphin HID0 transitions and restoration only. Physical cache state and timing are unverified."
             }
@@ -239,6 +244,7 @@ impl EvidenceScope {
             | Self::IpcRebootGuard
             | Self::IosLifecycleDolphin => "dolphin-partial",
             Self::EsBootImportArguments => "unverified",
+            Self::LaunchRejection => "unverified",
             Self::NoControllerAndInvalidArguments => "unverified",
             _ => declared,
         }
@@ -2566,6 +2572,11 @@ mod tests {
                 .contains("Physical")
         );
         assert!(EvidenceScope::parse("unknown").is_none());
+        assert_eq!(
+            EvidenceScope::LaunchRejection.classification("ios"),
+            "unverified"
+        );
+        assert!(EvidenceScope::parse("launch-rejection").is_some());
         let active_search_scope = EvidenceScope::parse("active-search-state").unwrap();
         assert_eq!(active_search_scope.classification("hardware"), "unverified");
         assert!(
