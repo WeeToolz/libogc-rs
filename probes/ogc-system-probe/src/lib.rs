@@ -1087,10 +1087,23 @@ pub fn run_ipc_relaunch_probe_bin() -> i32 {
     let mut logger = init_probe_logger();
     if cfg!(any(
         feature = "ipc-relaunch-wiilaunch",
-        feature = "ipc-relaunch-wiilaunch-legacy"
+        feature = "ipc-relaunch-wiilaunch-legacy",
+        feature = "ipc-relaunch-wiilaunch-args",
+        feature = "ipc-relaunch-wiilaunch-args-legacy"
     )) {
-        let legacy = cfg!(feature = "ipc-relaunch-wiilaunch-legacy");
-        let api = if legacy {
+        let legacy = cfg!(any(
+            feature = "ipc-relaunch-wiilaunch-legacy",
+            feature = "ipc-relaunch-wiilaunch-args-legacy"
+        ));
+        let with_args = cfg!(any(
+            feature = "ipc-relaunch-wiilaunch-args",
+            feature = "ipc-relaunch-wiilaunch-args-legacy"
+        ));
+        let api = if with_args && legacy {
+            "launch_title_with_args"
+        } else if with_args {
+            "try_launch_title_with_args"
+        } else if legacy {
             "launch_title"
         } else {
             "try_launch_title"
@@ -1123,7 +1136,16 @@ pub fn run_ipc_relaunch_probe_bin() -> i32 {
         ogc_system::report(format_args!(
             "IPC_RELAUNCH source api={api} mode={mode} title={title_id:016x}\n"
         ));
-        let result = if legacy {
+        let result = if with_args && legacy {
+            ogc_wiilaunch::launch_title_with_args(title_id, 0x4a2, &[c"parity-probe", c"value=42"])
+        } else if with_args {
+            ogc_wiilaunch::try_launch_title_with_args(
+                title_id,
+                0x4a2,
+                &[c"parity-probe", c"value=42"],
+            )
+            .map_or_else(|error| error.raw_code(), |_| 0)
+        } else if legacy {
             ogc_wiilaunch::launch_title(title_id)
         } else {
             ogc_wiilaunch::try_launch_title(title_id).map_or_else(|error| error.raw_code(), |_| 0)

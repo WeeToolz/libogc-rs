@@ -1,0 +1,18 @@
+{
+  "date": "2026-11-27",
+  "dolphin_version": "Dolphin 2609a",
+  "passed": true,
+  "api": "launch_title_with_args",
+  "mode": "foreground",
+  "probe_sha256": "58bc1c33320cd5b6c973925c64f55a1384532eea7ec024f0baa632635e7b0826",
+  "title_id": "000100014f484243",
+  "boot_content": "00000001.app",
+  "boot_content_sha256": "5d3f61d8e7e4304461d361b269b93777de4fb08c03683413cc85b8310fd4f610",
+  "startup_marker": "HBC: startup complete; entering render loop",
+  "launchcode": "0x4a2",
+  "arguments": [
+    "parity-probe",
+    "value=42"
+  ],
+  "argument_state_verified": true
+}

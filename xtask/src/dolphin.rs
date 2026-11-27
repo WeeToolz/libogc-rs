@@ -427,6 +427,8 @@ struct RelaunchHandoff {
     signature_sha256: Option<String>,
     program_counter: Option<u32>,
     stop_reply: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    arguments_verified: Option<bool>,
 }
 
 struct RelaunchDestination {
@@ -784,7 +786,7 @@ pub fn print_help() {
         "  LIBOGC_DOLPHIN_RELAUNCH_BACKGROUND=1 selects the background build of ipc_relaunch_probe (select only that probe)"
     );
     eprintln!(
-        "  LIBOGC_DOLPHIN_RELAUNCH_API=c|rust|try_launch_title|launch_title selects the public handoff API"
+        "  LIBOGC_DOLPHIN_RELAUNCH_API selects c|rust|try_launch_title|launch_title|try_launch_title_with_args|launch_title_with_args"
     );
     eprintln!(
         "  LIBOGC_DOLPHIN_RELAUNCH_PANIC_DIAGNOSTIC=1 disables automatic abort on panic alerts for ipc_relaunch_probe"
@@ -1393,7 +1395,14 @@ fn run_probe(
     } else {
         "c"
     };
-    if matches!(relaunch_api, "try_launch_title" | "launch_title") && background_relaunch {
+    if matches!(
+        relaunch_api,
+        "try_launch_title"
+            | "launch_title"
+            | "try_launch_title_with_args"
+            | "launch_title_with_args"
+    ) && background_relaunch
+    {
         return Err("Wii launch handoff uses its foreground public API".to_string());
     }
     'probe: loop {
@@ -1488,7 +1497,16 @@ fn run_probe(
                 destination.nand_title_path, destination.content
             );
             let marker = "HBC: startup complete; entering render loop";
-            if let Some((_, after_source)) = log.split_once(&source)
+            let arguments_verified = if matches!(
+                relaunch_api,
+                "try_launch_title_with_args" | "launch_title_with_args"
+            ) {
+                verify_wii_launch_arguments(&nand_copy.path, destination.title)
+            } else {
+                true
+            };
+            if arguments_verified
+                && let Some((_, after_source)) = log.split_once(&source)
                 && let Some(after_launch) =
                     if matches!(relaunch_api, "try_launch_title" | "launch_title") {
                         Some(after_source)
@@ -1515,6 +1533,11 @@ fn run_probe(
                     signature_sha256: None,
                     program_counter: None,
                     stop_reply: None,
+                    arguments_verified: matches!(
+                        relaunch_api,
+                        "try_launch_title_with_args" | "launch_title_with_args"
+                    )
+                    .then_some(true),
                 });
                 completion = Completion::Handoff;
                 break;
@@ -2023,10 +2046,84 @@ fn selected_relaunch_api(value: Option<&str>) -> Result<&'static str, String> {
         Some("rust") => Ok("rust"),
         Some("try_launch_title") => Ok("try_launch_title"),
         Some("launch_title") => Ok("launch_title"),
+        Some("try_launch_title_with_args") => Ok("try_launch_title_with_args"),
+        Some("launch_title_with_args") => Ok("launch_title_with_args"),
         Some(other) => Err(format!(
-            "LIBOGC_DOLPHIN_RELAUNCH_API must be c, rust, try_launch_title, or launch_title; got {other}"
+            "LIBOGC_DOLPHIN_RELAUNCH_API must select a supported relaunch or Wii launch API; got {other}"
         )),
     }
+}
+
+fn valid_wii_state_checksum(bytes: &[u8]) -> bool {
+    if bytes.len() < 4 || !bytes.len().is_multiple_of(4) {
+        return false;
+    }
+    let word_sum = bytes[4..].chunks_exact(4).fold(0u32, |sum, word| {
+        sum.wrapping_add(u32::from_be_bytes([word[0], word[1], word[2], word[3]]))
+    });
+    u32::from_be_bytes(bytes[..4].try_into().unwrap()) == word_sum
+}
+
+fn verify_wii_launch_arguments(nand: &Path, title: u64) -> bool {
+    let Ok(bytes) = fs::read(nand.join("shared2/sys/NANDBOOTINFO")) else {
+        return false;
+    };
+    if bytes.len() != 4_128
+        || !valid_wii_state_checksum(&bytes)
+        || u32::from_be_bytes(bytes[12..16].try_into().unwrap()) != 0x4a2
+        || bytes[10] != 0x81
+        || bytes[11] != if title == 0x0001_0000_0000_0002 { 4 } else { 2 }
+    {
+        return false;
+    }
+    let argbuf = &bytes[32..];
+    let argsoff = u32::from_be_bytes(bytes[4..8].try_into().unwrap()) as usize;
+    let Some(argv_offset) = argsoff.checked_sub(0x1000) else {
+        return false;
+    };
+    if argv_offset + 4 > argbuf.len() {
+        return false;
+    }
+    let argc = u32::from_be_bytes(argbuf[argv_offset..argv_offset + 4].try_into().unwrap());
+    if argc != 3 || argv_offset + 16 > argbuf.len() {
+        return false;
+    }
+    let expected = [
+        format!("{title:016x}"),
+        "parity-probe".into(),
+        "value=42".into(),
+    ];
+    for (index, expected) in expected.iter().enumerate() {
+        let pointer_offset = argv_offset + 4 + index * 4;
+        let pointer = u32::from_be_bytes(
+            argbuf[pointer_offset..pointer_offset + 4]
+                .try_into()
+                .unwrap(),
+        ) as usize;
+        let Some(string_offset) = pointer.checked_sub(0x1000) else {
+            return false;
+        };
+        let Some(tail) = argbuf.get(string_offset..) else {
+            return false;
+        };
+        let Some(end) = tail.iter().position(|byte| *byte == 0) else {
+            return false;
+        };
+        if &tail[..end] != expected.as_bytes() {
+            return false;
+        }
+    }
+    let terminator_offset = argv_offset + 4 + expected.len() * 4;
+    if argbuf.get(terminator_offset..terminator_offset + 4) != Some(&[0, 0, 0, 0]) {
+        return false;
+    }
+    let Ok(stateflags) = fs::read(nand.join("title/00000001/00000002/data/state.dat")) else {
+        return false;
+    };
+    stateflags.len() == 32
+        && valid_wii_state_checksum(&stateflags)
+        && stateflags[5] == 3
+        && stateflags[7] == 2
 }
 
 fn ipc_test_loader_bounds(mode: &str, lo: u32, hi: u32) -> Result<(u32, u32), String> {
@@ -2482,6 +2579,7 @@ impl GdbClient {
                 signature_sha256: Some(format!("{:x}", Sha256::digest(&code))),
                 program_counter: Some(pc),
                 stop_reply: Some(stop),
+                arguments_verified: None,
             }))
         })();
         self.continue_execution()?;
@@ -3131,7 +3229,26 @@ mod tests {
             super::selected_relaunch_api(Some("launch_title")),
             Ok("launch_title")
         );
+        assert_eq!(
+            super::selected_relaunch_api(Some("try_launch_title_with_args")),
+            Ok("try_launch_title_with_args")
+        );
+        assert_eq!(
+            super::selected_relaunch_api(Some("launch_title_with_args")),
+            Ok("launch_title_with_args")
+        );
         assert!(super::selected_relaunch_api(Some("unknown")).is_err());
+    }
+
+    #[test]
+    fn wii_state_checksum_requires_complete_big_endian_words() {
+        let mut bytes = [0u8; 8];
+        bytes[4..].copy_from_slice(&7u32.to_be_bytes());
+        bytes[..4].copy_from_slice(&7u32.to_be_bytes());
+        assert!(super::valid_wii_state_checksum(&bytes));
+        bytes[7] ^= 1;
+        assert!(!super::valid_wii_state_checksum(&bytes));
+        assert!(!super::valid_wii_state_checksum(&bytes[..7]));
     }
 
     #[test]

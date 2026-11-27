@@ -100,6 +100,7 @@ enum EvidenceScope {
     EsBootImportArguments,
     LaunchRejection,
     LaunchHandoff,
+    LaunchHandoffArgs,
 }
 
 impl EvidenceScope {
@@ -133,6 +134,7 @@ impl EvidenceScope {
             "es-boot-import-arguments" => Self::EsBootImportArguments,
             "launch-rejection" => Self::LaunchRejection,
             "launch-handoff" => Self::LaunchHandoff,
+            "launch-handoff-args" => Self::LaunchHandoffArgs,
             _ => return None,
         })
     }
@@ -208,6 +210,9 @@ impl EvidenceScope {
             Self::LaunchHandoff => {
                 "Successful handoff to the installed OHBC test title and unknown-title rejection pass in Dolphin. Other destination titles, launch arguments, and physical Wii behavior remain unverified."
             }
+            Self::LaunchHandoffArgs => {
+                "Successful handoff and argument-state persistence pass for the tested values and installed OHBC title in Dolphin. Other argument values, destination titles, argument consumption, and physical Wii behavior remain unverified."
+            }
             Self::DolphinCacheRegister => {
                 "Dolphin HID0 transitions and restoration only. Physical cache state and timing are unverified."
             }
@@ -248,7 +253,8 @@ impl EvidenceScope {
             | Self::IpcPartialDolphin
             | Self::IpcRebootGuard
             | Self::IosLifecycleDolphin
-            | Self::LaunchHandoff => "dolphin-partial",
+            | Self::LaunchHandoff
+            | Self::LaunchHandoffArgs => "dolphin-partial",
             Self::EsBootImportArguments => "unverified",
             Self::LaunchRejection => "unverified",
             Self::NoControllerAndInvalidArguments => "unverified",
@@ -2589,6 +2595,9 @@ mod tests {
                 .classification("ios"),
             "dolphin-partial"
         );
+        let launch_args = EvidenceScope::parse("launch-handoff-args").unwrap();
+        assert_eq!(launch_args.classification("ios"), "dolphin-partial");
+        assert!(launch_args.limitation().contains("argument consumption"));
         let active_search_scope = EvidenceScope::parse("active-search-state").unwrap();
         assert_eq!(active_search_scope.classification("hardware"), "unverified");
         assert!(

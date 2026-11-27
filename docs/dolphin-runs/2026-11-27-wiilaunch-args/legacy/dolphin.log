@@ -1,0 +1,204 @@
+12:30:270 Core/Boot/DolReader.cpp:67 W[BOOT]: DolReader: Text section 0 size is not aligned to 32 bytes and can cause issues when loaded
+12:30:270 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 0 size is not aligned to 32 bytes and can cause issues when loaded
+12:30:270 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 1 size is not aligned to 32 bytes and can cause issues when loaded
+12:30:271 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+12:30:272 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+12:30:272 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+12:30:322 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+12:30:322 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/content/title.tmd): Result 0
+12:30:322 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/content/title.tmd): Result 0
+12:30:322 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/content/title.tmd): Result 0
+12:30:448 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App name: org.dolphin-emu.dolphin
+12:30:448 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App version: <unspecified>
+12:30:448 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: App ID: <unspecified>
+12:30:448 InputCommon/ControllerInterface/SDL/SDL.cpp:127 I[CI]: system: SDL revision: SDL-3.4.12-f87239e71
+12:30:465 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
+12:30:465 InputCommon/ControllerInterface/DualShockUDPClient/DualShockUDPClient.cpp:492 I[CI]: DualShockUDPClient PopulateDevices
+12:30:465 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:141 I[CI]: SteamDeck PopulateDevices
+12:30:479 InputCommon/ControllerInterface/SteamDeck/SteamDeck.cpp:171 I[CI]: No Steam Deck interface found
+12:30:496 Core/ConfigManager.cpp:279 N[CORE]: Active title: 
+12:30:498 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+12:30:498 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+12:30:499 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+12:30:499 Core/Core.cpp:237 I[BOOT]: Starting core = Wii mode
+12:30:499 Core/Core.cpp:238 I[BOOT]: CPU Thread separate = No
+12:30:536 InputCommon/ControllerInterface/ControllerInterface.cpp:310 N[CI]: Removed device: Quartz/0/Keyboard & Mouse
+12:30:542 InputCommon/ControllerInterface/ControllerInterface.cpp:273 N[CI]: Added device: Quartz/0/Keyboard & Mouse
+12:30:551 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 0000000100000050
+12:30:551 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+12:30:552 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
+12:30:552 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+12:30:552 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+12:30:556 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:d2:c8:7a
+12:30:606 Core/Boot/Boot.cpp:546 N[BOOT]: Booting from executable: /Volumes/SSD/WiiDev/WeeToolz/libogc-rs/target/xtask/probes-dolphin/ipc_relaunch_probe.dol
+12:30:607 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/sys/uid.sys): Result 0
+12:30:607 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/sys/uid.sys): Result 0
+12:30:608 Core/Boot/Boot_BS2Emu.cpp:435 I[BOOT]: Using serial number: 372730284
+12:30:608 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /title/00000001/00000002/data/setting.txt (NAND)
+12:30:608 Core/Boot/Boot_BS2Emu.cpp:463 I[BOOT]: Setup Wii Memory...
+12:30:608 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 000000010000003a
+12:30:608 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+12:30:609 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
+12:30:609 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+12:30:609 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+12:30:610 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:d2:c8:7a
+12:30:716 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/es (mode 0, fd 0)
+12:30:720 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 1)
+12:30:724 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 2)
+12:30:733 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/immediate (mode 0, fd 3)
+12:30:736 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/stm/eventhook (mode 0, fd 4)
+12:30:747 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/SYSCONF (mode 1, fd 3)
+12:30:747 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/SYSCONF): Result 0
+12:30:750 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/SYSCONF, 0x006a42ca, 16384): Result 0
+12:30:756 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/SYSCONF): Result 0
+12:30:756 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/setting.txt (mode 1, fd 3)
+12:30:756 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/setting.txt): Result 0
+12:30:756 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/setting.txt, 0x006a82ca, 256): Result 0
+12:30:758 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/setting.txt): Result 0
+12:30:764 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/state.dat (mode 1, fd 3)
+12:30:765 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/state.dat): Result 0
+12:30:768 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/state.dat, 0x017f4d60, 32): Result 0
+12:30:772 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/state.dat): Result 0
+12:30:772 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/NANDBOOTINFO (mode 1, fd 3)
+12:30:772 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/NANDBOOTINFO): Result 0
+12:30:772 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/NANDBOOTINFO, 0x017f4d60, 4128): Result 0
+12:30:773 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/NANDBOOTINFO): Result 0
+12:32:090 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/state.dat (mode 1, fd 3)
+12:32:090 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/state.dat): Result 0
+12:32:090 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/state.dat, 0x017fb980, 32): Result 0
+12:32:091 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/state.dat): Result 0
+12:32:091 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/NANDBOOTINFO (mode 1, fd 3)
+12:32:091 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/NANDBOOTINFO): Result 0
+12:32:091 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/NANDBOOTINFO, 0x017fb980, 4128): Result 0
+12:32:092 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/NANDBOOTINFO): Result 0
+12:32:161 Core/HW/EXI/EXI_DeviceIPL.cpp:306 N[OSREPORT]: IPC_RELAUNCH source api=launch_title_with_args mode=foreground title=000100014f484243
+12:32:163 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/state.dat (mode 3, fd 3)
+12:32:163 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/state.dat): Result 0
+12:32:163 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Write(/title/00000001/00000002/data/state.dat, 0x017f6d80, 32): Result 0
+12:32:164 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/state.dat): Result 0
+12:32:210 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/state.dat (mode 1, fd 3)
+12:32:210 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/state.dat): Result 0
+12:32:210 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/state.dat, 0x017f7da0, 32): Result 0
+12:32:211 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/state.dat): Result 0
+12:32:211 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/NANDBOOTINFO (mode 3, fd 3)
+12:32:211 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/NANDBOOTINFO): Result 0
+12:32:211 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Write(/shared2/sys/NANDBOOTINFO, 0x017f6d80, 4128): Result 0
+12:32:212 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/NANDBOOTINFO): Result 0
+12:32:275 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/NANDBOOTINFO (mode 1, fd 3)
+12:32:275 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/NANDBOOTINFO): Result 0
+12:32:275 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/NANDBOOTINFO, 0x017f7da0, 4128): Result 0
+12:32:276 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/NANDBOOTINFO): Result 0
+12:32:276 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/net/kd/request (mode 0, fd 3)
+12:32:277 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00010001/4f484243/content/title.tmd): Result 0
+12:32:277 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00010001/4f484243/content/title.tmd): Result 0
+12:32:277 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00010001/4f484243/content/title.tmd): Result 0
+12:32:277 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/sys/launch.sys): Result -106
+12:32:277 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Delete(/sys/space.sys): Result 0
+12:32:277 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/launch.sys (NAND)
+12:32:278 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: CreateFile(/tmp/launch.sys): Result 0
+12:32:278 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/tmp/launch.sys): Result 0
+12:32:278 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/tmp/launch.sys): Result 0
+12:32:278 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /sys/launch.sys (NAND)
+12:32:278 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Rename(/tmp/launch.sys, /sys/launch.sys): Result 0
+12:32:528 Core/IOS/IOS.cpp:311 I[IOS]: Starting IOS 000000010000003a
+12:32:528 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp (NAND)
+12:32:529 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+12:32:529 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/SYSCONF (NAND)
+12:32:530 Core/IOS/Network/MACUtils.cpp:47 I[IOS_NET]: Using MAC address: 00:17:ab:d2:c8:7a
+12:33:180 Core/IOS/IOS.cpp:539 I[IOS]: IPC initialised.
+12:33:180 Core/IOS/ES/ES.cpp:171 N[IOS]: Re-launching title 000100014f484243 after IOS reload.
+12:33:180 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00010001/4f484243/content/title.tmd): Result 0
+12:33:180 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00010001/4f484243/content/title.tmd): Result 0
+12:33:180 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00010001/4f484243/content/title.tmd): Result 0
+12:33:180 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/sys/launch.sys): Result 0
+12:33:180 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/sys/launch.sys): Result 0
+12:33:180 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Delete(/sys/launch.sys): Result 0
+12:33:181 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /tmp/space.sys (NAND)
+12:33:181 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: CreateFile(/tmp/space.sys): Result 0
+12:33:181 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/tmp/space.sys): Result 0
+12:33:181 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/tmp/space.sys): Result 0
+12:33:181 Core/IOS/FS/HostBackend/FS.cpp:263 I[IOS_FS]: Creating a default entry for /sys/space.sys (NAND)
+12:33:181 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Rename(/tmp/space.sys, /sys/space.sys): Result 0
+12:33:182 Core/ConfigManager.cpp:279 N[CORE]: Active title: Homebrew Channel (OHBC)
+12:33:184 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/sys/uid.sys): Result 0
+12:33:185 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/sys/uid.sys): Result 0
+12:33:398 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00010001/4f484243/content/00000001.app): Result 0
+12:33:398 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00010001/4f484243/content/00000001.app): Result 0
+12:33:398 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00010001/4f484243/content/00000001.app): Result 0
+12:33:398 Core/Boot/DolReader.cpp:67 W[BOOT]: DolReader: Text section 0 size is not aligned to 32 bytes and can cause issues when loaded
+12:33:398 Core/Boot/DolReader.cpp:102 W[BOOT]: DolReader: Data section 1 size is not aligned to 32 bytes and can cause issues when loaded
+12:33:400 Core/IOS/IOS.cpp:445 I[IOS]: BootstrapPPC: /title/00010001/4f484243/content/00000001.app
+12:33:678 Core/IOS/IOS.cpp:957 I[IOS]: Bootstrapping done.
+12:33:701 Core/HW/EXI/EXI_DeviceIPL.cpp:306 N[OSREPORT]: HBC: keeping the launching channel's return stub
+12:33:702 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/state.dat (mode 1, fd 0)
+12:33:702 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/state.dat): Result 0
+12:33:703 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/state.dat, 0x017f1e00, 32): Result 0
+12:33:703 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/state.dat): Result 0
+12:33:704 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/NANDBOOTINFO (mode 1, fd 0)
+12:33:704 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/NANDBOOTINFO): Result 0
+12:33:704 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/NANDBOOTINFO, 0x017f1e00, 4128): Result 0
+12:33:704 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/NANDBOOTINFO): Result 0
+12:33:705 Core/IOS/IOS.cpp:667 I[IOS]: Opening /shared2/sys/SYSCONF (mode 1, fd 0)
+12:33:705 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/shared2/sys/SYSCONF): Result 0
+12:33:705 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/shared2/sys/SYSCONF, 0x00499746, 16384): Result 0
+12:33:705 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/shared2/sys/SYSCONF): Result 0
+12:33:705 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/setting.txt (mode 1, fd 0)
+12:33:706 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/setting.txt): Result 0
+12:33:706 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/setting.txt, 0x0049d746, 256): Result 0
+12:33:706 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/setting.txt): Result 0
+12:33:706 Core/HW/EXI/EXI_DeviceIPL.cpp:306 N[OSREPORT]: HBC: initializing video
+12:33:775 Core/HW/EXI/EXI_DeviceIPL.cpp:306 N[OSREPORT]: HBC: video initialized
+12:33:776 Core/HW/EXI/EXI_DeviceIPL.cpp:306 N[OSREPORT]: HBC: loading settings and theme
+12:33:776 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/fs (mode 0, fd 0)
+12:33:776 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/play_rec.dat (mode 1, fd 1)
+12:33:776 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/play_rec.dat): Result 0
+12:33:777 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/data/play_rec.dat): Result 0
+12:33:777 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/play_rec.dat, 0x017f2e00, 4): Result 0
+12:33:777 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/play_rec.dat): Result 0
+12:33:777 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/play_rec.dat (mode 3, fd 1)
+12:33:778 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/play_rec.dat): Result 0
+12:33:778 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/data/play_rec.dat): Result 0
+12:33:778 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Write(/title/00000001/00000002/data/play_rec.dat, 0x017f2e00, 4): Result 0
+12:33:779 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/play_rec.dat): Result 0
+12:33:830 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00000001/00000002/data/play_rec.dat (mode 1, fd 1)
+12:33:830 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/00000002/data/play_rec.dat): Result 0
+12:33:830 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/00000002/data/play_rec.dat): Result 0
+12:33:830 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00000001/00000002/data/play_rec.dat, 0x017f2e00, 4): Result 0
+12:33:831 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/00000002/data/play_rec.dat): Result 0
+12:33:831 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/es (mode 0, fd 1)
+12:33:833 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00010001/4f484243/data/banner.bin (mode 1, fd 2)
+12:33:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00010001/4f484243/data/banner.bin): Result 0
+12:33:833 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00010001/4f484243/data/banner.bin): Result 0
+12:33:834 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00010001/4f484243/data/banner.bin, 0x017ea3c0, 16384): Result 0
+12:33:843 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00010001/4f484243/data/banner.bin, 0x017ea3c0, 12960): Result 0
+12:33:844 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00010001/4f484243/data/banner.bin): Result 0
+12:33:844 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00010001/4f484243/data/settings.xml (mode 1, fd 2)
+12:33:844 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00010001/4f484243/data/settings.xml): Result 0
+12:33:844 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00010001/4f484243/data/settings.xml): Result 0
+12:33:844 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Read(/title/00010001/4f484243/data/settings.xml, 0x017de320, 122): Result 0
+12:33:845 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00010001/4f484243/data/settings.xml): Result 0
+12:33:848 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: ReadDirectory(/title/00010001/4f484243/data): Result 0
+12:33:848 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: ReadDirectory(/title/00010001/4f484243/data): Result 0
+12:33:849 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: ReadDirectory(/title/00010001/4f484243/data/_bak): Result -106
+12:33:849 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: ReadDirectory(/title/00010001/4f484243/data/_tmp): Result -106
+12:33:849 Core/IOS/IOS.cpp:667 I[IOS]: Opening /title/00010001/4f484243/data/theme.zip (mode 1, fd 2)
+12:33:849 Core/IOS/FS/FileSystemProxy.cpp:123 E[IOS_FS]: Command: OpenFile(/title/00010001/4f484243/data/theme.zip): Result -106
+12:33:849 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/000000fe/content/title.tmd): Result 0
+12:33:849 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/000000fe/content/title.tmd): Result 0
+12:33:849 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/000000fe/content/title.tmd): Result 0
+12:33:849 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: OpenFile(/title/00000001/000000fe/content/title.tmd): Result 0
+12:33:849 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: GetFileStatus(/title/00000001/000000fe/content/title.tmd): Result 0
+12:33:849 Core/IOS/FS/FileSystemProxy.cpp:123 I[IOS_FS]: Command: Close(/title/00000001/000000fe/content/title.tmd): Result 0
+12:33:852 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/oh1/57e/305 (mode 3, fd 2)
+12:34:427 Core/HW/EXI/EXI_DeviceIPL.cpp:306 N[OSREPORT]: HBC: settings and theme loaded
+12:34:427 Core/HW/EXI/EXI_DeviceIPL.cpp:306 N[OSREPORT]: HBC: startup complete; entering render loop
+12:34:428 Core/HW/EXI/EXI_DeviceIPL.cpp:306 N[OSREPORT]: HBC: first lifecycle poll complete
+12:34:428 Core/HW/EXI/EXI_DeviceIPL.cpp:306 N[OSREPORT]: HBC: first storage poll complete
+12:34:428 Core/HW/EXI/EXI_DeviceIPL.cpp:306 N[OSREPORT]: HBC: first device poll complete
+12:34:428 Core/HW/EXI/EXI_DeviceIPL.cpp:306 N[OSREPORT]: HBC: Wiiload receiver state changed to Starting
+12:34:428 Core/HW/EXI/EXI_DeviceIPL.cpp:306 N[OSREPORT]: HBC: first receiver poll complete
+12:34:428 Core/HW/EXI/EXI_DeviceIPL.cpp:306 N[OSREPORT]: HBC: first controller scan starting
+12:34:431 Core/HW/EXI/EXI_DeviceIPL.cpp:306 N[OSREPORT]: HBC: Bluetooth startup: BLUETOOTH HCI RESET
+12:34:432 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/ven (mode 0, fd 3)
+12:34:433 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/usb/hid (mode 0, fd 4)
+12:34:435 Core/IOS/IOS.cpp:667 I[IOS]: Opening /dev/sdio/slot0 (mode 1, fd 5)

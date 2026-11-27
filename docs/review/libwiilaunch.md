@@ -1,6 +1,6 @@
 # Wii launch parity review
 
-Status: static source review complete for both claimed crates. Host state tests and Dolphin rejection checks passed on 2026-11-27. No physical Wii run was done.
+Status: static source review complete for both claimed crates. Host tests, strict Clippy, Dolphin rejection checks, and four successful test-title handoffs passed on 2026-11-27. No physical Wii run was done.
 
 ## Scope and source map
 
@@ -56,7 +56,7 @@ Rust also exposes the C settings strings and error values with equivalent conten
 - C `WII_LaunchTitleWithArgs` receives an unchecked variadic list and assumes a null sentinel; Rust's slice API has different input bounds and cannot match malformed C call behavior (`wiilaunch.c:290–311`).
 - C may continue after state-file writes fail because it ignores helper return codes. Rust instead aborts before launching. Hardware and compatibility expectations for the safer Rust behavior are not verified.
 - Rust's persistent launch state is protected by a lazily initialized LWP mutex (`ogc-wiilaunch/src/lib.rs:107–207`); C uses unguarded file-static state. Concurrent C calls are therefore not directly comparable, and concurrent Rust call ordering was not runtime-tested.
-- Source-level test cases are present for layout, errors, argument serialization, persistence order, and failure behavior (`ogc-wiilaunch/src/lib.rs:520–562`; `ogc-wiilaunch-state/src/lib.rs:260–621`) but were not run, per instruction.
+- Target-gated PowerPC layout assertions were not run by the host test command (`ogc-wiilaunch/src/lib.rs:520–532`). The state crate host tests did run as part of `cargo xtask test-host`.
 
 ## Dolphin evidence review (2026-11-21)
 
@@ -65,8 +65,8 @@ uninitialized-state behavior. The system startup probe calls
 `wiilaunch::initialize` before the runtime probe runs
 (`probes/ogc-system-probe/src/lib.rs:475–485` and
 `crates/core/ogc-system-sys/src/lib.rs:2094`). Its passing or failing checks
-must not be used as evidence for uninitialized guards. The launch APIs remain
-unverified in the inventory. Do not call the raw launch, menu, settings, or URL
+must not be used as evidence for uninitialized guards. At that time the launch
+APIs remained unverified in the inventory. Do not call the raw launch, menu, settings, or URL
 operations to test this state because a successful call can leave the probe or
 launch another title. A valid check needs an isolated state fixture that does
 not initialize the production singleton.
@@ -79,11 +79,27 @@ through both `try_launch_title` and the legacy `launch_title`, and that an
 oversized argument list returns `ArgsTooLarge` or `WII_E2BIG` through the typed
 and legacy APIs. The oversized input fails before persistence or launch.
 
-These checks cover rejection behavior only. They do not verify successful title
-handoff, launch-state persistence, menu/settings return, or URL launch. The four
-launch APIs therefore remain unverified in the inventory. See the archived run
-for the exact check log, Dolphin log, and screenshots.
+These checks cover rejection behavior only. They do not verify menu/settings
+return or URL launch. See the archived run for the exact check log, Dolphin log,
+and screenshots.
 
-The state crate's host tests passed 11/11. These tests verify serialization,
+The state crate's host tests passed. These tests verify serialization,
 buffer preservation on oversized input, persistence error handling, readback,
 and commit order. They do not prove that IOS launches a destination title.
+
+## Successful handoff and argument persistence (2026-11-27)
+
+The `2026-11-27-wiilaunch-handoffs` run proves successful `try_launch_title`
+and `launch_title` handoffs to the TMD-verified OHBC test title. The
+`2026-11-27-wiilaunch-args` run proves successful
+`try_launch_title_with_args` and `launch_title_with_args` handoffs. Its runner
+checks the complete persisted NANDBOOTINFO and state.dat checksums, launch code,
+title type, argv count and strings, null argv pointer, and return-to-arguments
+state. Both runs record the test title startup marker.
+
+This does not prove that OHBC consumes the arguments. It does not prove other
+destination titles or physical Wii behavior. The System Menu fixture remains
+open because the available boot image does not match its TMD. Physical cache
+and DMA evidence also remains open. See
+`../dolphin-runs/2026-11-27-wiilaunch-args/README.md` for fixture hashes and
+per-variant reports.
