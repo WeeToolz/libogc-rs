@@ -110,6 +110,23 @@ The reset path is waiting for the DSP mailbox busy bit to clear. The probe had
 also canceled its recovery watchdog before entering this wait. The probe now
 keeps that watchdog armed during a requested system reset. Hardware validation
 of the watchdog return remains open.
+
+# Agent-report watchdog execution context — 2026-11-27
+
+The recovery alarm callback ran from the decrementer interrupt path, but it
+called `reset_system` there. The periodic watchdog callback could also call
+the HBC loader from interrupt context. Both paths now set an atomic action only.
+A highest-priority LWP worker checks the heartbeat and runs the loader or reset
+from thread context. The worker uses a static 8 KiB stack. The heartbeat check
+runs every 10 ms while the worker is idle. Failure to create the worker leaves
+the watchdog unarmed.
+
+The agent system probe built for the Wii target. Strict `cargo xtask clippy`,
+`cargo xtask test-host`, formatting, and inventory checks passed. A Dolphin run
+has not yet verified worker scheduling, the timeout, or the return behavior.
+The physical Wii recovery path is not qualified. Do not use it for a physical
+diagnostic until the required recovery procedure passes.
+
 # `SYS_SetTimeslice` API follow-up — 2026-11-26
 
 C exports `SYS_SetTimeslice(u32)` in `libogc/system.c`; Rust previously had no equivalent. The raw Rust API is `ogc_system_sys::sys_set_timeslice`, and the safe facade is `ogc_system::set_timeslice`. Both delegate to the LWP driver's dedicated timeslice deadline, which implements C's zero-disable, one-retain-or-default, and explicit-tick behavior. See the detailed scheduler comparison and Dolphin evidence in [`liblwp.md`](liblwp.md#sys_settimeslice-and-automatic-lwp-timeslicing--2026-11-26).

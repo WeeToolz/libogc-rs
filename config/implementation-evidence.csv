@@ -541,7 +541,7 @@ ogc-video,src/lib.rs,set_next_framebuffer,499,compatibility-forwarder,hardware-p
 ogc-video,src/lib.rs,set_post_retrace_callback,573,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,run
 ogc-video,src/lib.rs,set_pre_retrace_callback,560,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,run
 ogc-video,src/lib.rs,wait_vsync_timeout_us,481,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/video_probe.rs,run
-ogc-system,src/lib.rs,reset_system,880,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/probe_support.rs,recovery_alarm_callback
+ogc-system,src/lib.rs,reset_system,880,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/probe_support.rs,recovery_worker
 ogc-system-sys,src/lib.rs,sys_exit_to_loader,1803,hardware,hardware-probe,probes/ogc-system-probe/src/probe_support.rs,restart_to_hbc
 iso9660,src/lib.rs,iso9660_get_volume_label,979,protocol,host-test,crates/media/iso9660/src/lib.rs,c_exports_are_callable,iso9660_get_volume_label
 iso9660,src/lib.rs,iso9660_mount,952,protocol,host-test,crates/media/iso9660/src/lib.rs,c_exports_are_callable,iso9660_mount

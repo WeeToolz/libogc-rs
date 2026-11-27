@@ -92,6 +92,19 @@ static WATCHDOG_LAST_HEARTBEAT_MS: AtomicU32 = AtomicU32::new(0);
 #[cfg(feature = "agent-report")]
 static WATCHDOG_TIMEOUT_MS: AtomicU32 = AtomicU32::new(0);
 #[cfg(feature = "agent-report")]
+static RECOVERY_ACTION: AtomicU32 = AtomicU32::new(0);
+#[cfg(feature = "agent-report")]
+static RECOVERY_WORKER_STATE: AtomicU32 = AtomicU32::new(0);
+#[cfg(feature = "agent-report")]
+#[repr(align(16))]
+struct RecoveryWorkerStack {
+    _bytes: [u8; 8 * 1024],
+}
+#[cfg(feature = "agent-report")]
+static mut RECOVERY_WORKER_STACK: RecoveryWorkerStack = RecoveryWorkerStack {
+    _bytes: [0; 8 * 1024],
+};
+#[cfg(feature = "agent-report")]
 const RESET_PROGRESS_RECORDS: usize = 24;
 #[cfg(feature = "agent-report")]
 #[unsafe(no_mangle)]
@@ -334,33 +347,12 @@ pub fn start_agent_watchdog() -> bool {
         else {
             return false;
         };
-        let mut alarm: system::SysWd = 0;
-        if system::create_alarm(&mut alarm) != 0 || alarm == 0 {
+        if !ensure_recovery_worker() {
             return false;
         }
-        let period = system::TimeSpec {
-            tv_sec: 1,
-            tv_nsec: 0,
-        };
         let now_ms = watchdog_now_ms();
         WATCHDOG_TIMEOUT_MS.store(timeout_ms, Ordering::Release);
         WATCHDOG_LAST_HEARTBEAT_MS.store(now_ms, Ordering::Release);
-        // SAFETY: The callback reads only atomics and requests a documented
-        // system restart. It does not use the callback argument.
-        let result = unsafe {
-            system::set_periodic_alarm(
-                alarm,
-                &period,
-                &period,
-                Some(watchdog_alarm_callback),
-                core::ptr::null_mut(),
-            )
-        };
-        if result != 0 {
-            let _ = system::remove_alarm(alarm);
-            WATCHDOG_TIMEOUT_MS.store(0, Ordering::Release);
-            return false;
-        }
         true
     }
     #[cfg(not(feature = "agent-report"))]
@@ -2704,33 +2696,80 @@ mod agent_arg_tests {
 
 #[cfg(feature = "agent-report")]
 unsafe extern "C" fn recovery_alarm_callback(_alarm: system::SysWd, _argument: *mut c_void) {
-    // SAFETY: This callback is the requested last resort after the configured
-    // probe deadline expires. SYS_RESTART is a documented libogc reset mode.
-    unsafe { system::reset_system(system::SYS_RESTART as i32, 0, 0) };
+    // Alarm callbacks run from decrementer interrupt context. Defer all system
+    // calls to the recovery worker.
+    RECOVERY_ACTION.store(2, Ordering::Release);
 }
 
 #[cfg(feature = "agent-report")]
-unsafe extern "C" fn watchdog_alarm_callback(_alarm: system::SysWd, _argument: *mut c_void) {
-    let timeout_ms = WATCHDOG_TIMEOUT_MS.load(Ordering::Acquire);
-    if timeout_ms == 0 {
-        return;
+fn ensure_recovery_worker() -> bool {
+    match RECOVERY_WORKER_STATE.compare_exchange(0, 1, Ordering::AcqRel, Ordering::Acquire) {
+        Ok(_) => {
+            let mut worker = ogc_lwp::sys::LWP_THREAD_NULL;
+            // SAFETY: The worker stack is static, aligned, and reserved for this
+            // thread. The entry does not use its argument and never returns.
+            let result = unsafe {
+                ogc_lwp::sys::create_thread(
+                    &mut worker,
+                    Some(recovery_worker),
+                    core::ptr::null_mut(),
+                    core::ptr::addr_of_mut!(RECOVERY_WORKER_STACK).cast(),
+                    core::mem::size_of::<RecoveryWorkerStack>() as u32,
+                    ogc_lwp::sys::LWP_PRIO_HIGHEST as u8,
+                )
+            };
+            if result == ogc_lwp::sys::LWP_SUCCESSFUL {
+                RECOVERY_WORKER_STATE.store(2, Ordering::Release);
+                true
+            } else {
+                RECOVERY_WORKER_STATE.store(0, Ordering::Release);
+                false
+            }
+        }
+        Err(2) => true,
+        Err(_) => false,
     }
-    let last_heartbeat = WATCHDOG_LAST_HEARTBEAT_MS.load(Ordering::Acquire);
-    if watchdog_now_ms().wrapping_sub(last_heartbeat) >= timeout_ms {
-        // Prefer HBC's installed return stub. If the DOL has overwritten it,
-        // restart the Wii so Priiloader or the system startup setting can act.
-        if system::sys::sys_hbc_reload_stub_present() {
-            system::sys::sys_exit_to_loader(0);
-        } else {
-            // SAFETY: This is the configured last-resort recovery action after
-            // the application heartbeat has stopped. SYS_RESTART is documented.
-            unsafe { system::reset_system(system::SYS_RESTART as i32, 0, 0) };
+}
+
+#[cfg(feature = "agent-report")]
+unsafe extern "C" fn recovery_worker(_argument: *mut c_void) -> *mut c_void {
+    loop {
+        match RECOVERY_ACTION.swap(0, Ordering::AcqRel) {
+            2 => {
+                // SAFETY: This is a configured recovery action, now running in
+                // LWP thread context rather than the decrementer interrupt.
+                unsafe { system::reset_system(system::SYS_RESTART as i32, 0, 0) };
+            }
+            3 => {
+                // Prefer HBC's installed return stub. If the DOL has
+                // overwritten it, use the configured system restart path.
+                if system::sys::sys_hbc_reload_stub_present() {
+                    restart_to_hbc();
+                } else {
+                    // SAFETY: SYS_RESTART is the configured last-resort action.
+                    unsafe { system::reset_system(system::SYS_RESTART as i32, 0, 0) };
+                }
+            }
+            _ => {
+                let timeout_ms = WATCHDOG_TIMEOUT_MS.load(Ordering::Acquire);
+                if timeout_ms != 0
+                    && watchdog_now_ms()
+                        .wrapping_sub(WATCHDOG_LAST_HEARTBEAT_MS.load(Ordering::Acquire))
+                        >= timeout_ms
+                {
+                    RECOVERY_ACTION.store(3, Ordering::Release);
+                }
+                ogc_lwp::sys::sleep_ticks(ogc_lwp::sys::TICKS_PER_SECOND / 100);
+            }
         }
     }
 }
 
 #[cfg(feature = "agent-report")]
 fn arm_recovery_reset(milliseconds: u32) -> Option<system::SysWd> {
+    if !ensure_recovery_worker() {
+        return None;
+    }
     let mut alarm: system::SysWd = 0;
     if system::create_alarm(&mut alarm) != 0 || alarm == 0 {
         return None;
