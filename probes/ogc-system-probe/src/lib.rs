@@ -1089,7 +1089,9 @@ pub fn run_ipc_relaunch_probe_bin() -> i32 {
         feature = "ipc-relaunch-wiilaunch",
         feature = "ipc-relaunch-wiilaunch-legacy",
         feature = "ipc-relaunch-wiilaunch-args",
-        feature = "ipc-relaunch-wiilaunch-args-legacy"
+        feature = "ipc-relaunch-wiilaunch-args-legacy",
+        feature = "ipc-relaunch-wiilaunch-menu",
+        feature = "ipc-relaunch-wiilaunch-menu-legacy"
     )) {
         let legacy = cfg!(any(
             feature = "ipc-relaunch-wiilaunch-legacy",
@@ -1099,7 +1101,16 @@ pub fn run_ipc_relaunch_probe_bin() -> i32 {
             feature = "ipc-relaunch-wiilaunch-args",
             feature = "ipc-relaunch-wiilaunch-args-legacy"
         ));
-        let api = if with_args && legacy {
+        let menu = cfg!(any(
+            feature = "ipc-relaunch-wiilaunch-menu",
+            feature = "ipc-relaunch-wiilaunch-menu-legacy"
+        ));
+        let menu_legacy = cfg!(feature = "ipc-relaunch-wiilaunch-menu-legacy");
+        let api = if menu && menu_legacy {
+            "return_to_menu"
+        } else if menu {
+            "try_return_to_menu"
+        } else if with_args && legacy {
             "launch_title_with_args"
         } else if with_args {
             "try_launch_title_with_args"
@@ -1117,7 +1128,14 @@ pub fn run_ipc_relaunch_probe_bin() -> i32 {
             logger.summary();
             return finish_probe();
         }
-        logger.record("Wii launch initializes before title handoff", true);
+        logger.record(
+            if menu {
+                "Wii launch initializes before menu handoff"
+            } else {
+                "Wii launch initializes before title handoff"
+            },
+            true,
+        );
         let rejected_error = match ogc_wiilaunch::try_launch_title(0) {
             Err(ogc_wiilaunch::LaunchError::Es(error)) if error < 0 => error,
             _ => 0,
@@ -1136,6 +1154,13 @@ pub fn run_ipc_relaunch_probe_bin() -> i32 {
         ogc_system::report(format_args!(
             "IPC_RELAUNCH source api={api} mode={mode} title={title_id:016x}\n"
         ));
+        if menu {
+            if menu_legacy {
+                logger.note("Wii launch handoff begins api=return_to_menu mode=foreground");
+            } else {
+                logger.note("Wii launch handoff begins api=try_return_to_menu mode=foreground");
+            }
+        }
         let result = if with_args && legacy {
             ogc_wiilaunch::launch_title_with_args(title_id, 0x4a2, &[c"parity-probe", c"value=42"])
         } else if with_args {
@@ -1145,14 +1170,34 @@ pub fn run_ipc_relaunch_probe_bin() -> i32 {
                 &[c"parity-probe", c"value=42"],
             )
             .map_or_else(|error| error.raw_code(), |_| 0)
+        } else if menu {
+            if menu_legacy {
+                ogc_wiilaunch::return_to_menu()
+            } else {
+                ogc_wiilaunch::try_return_to_menu().map_or_else(|error| error.raw_code(), |_| 0)
+            }
         } else if legacy {
             ogc_wiilaunch::launch_title(title_id)
         } else {
             ogc_wiilaunch::try_launch_title(title_id).map_or_else(|error| error.raw_code(), |_| 0)
         };
         ogc_system::report(format_args!("IPC_RELAUNCH returned={result}\n"));
-        logger.note_i32("Wii launch title request returned", result);
-        logger.record("Wii launch title request accepted", result == 0);
+        logger.note_i32(
+            if menu {
+                "Wii launch request returned"
+            } else {
+                "Wii launch title request returned"
+            },
+            result,
+        );
+        logger.record(
+            if menu {
+                "Wii launch request accepted"
+            } else {
+                "Wii launch title request accepted"
+            },
+            result == 0,
+        );
         logger.summary();
         return finish_probe();
     }

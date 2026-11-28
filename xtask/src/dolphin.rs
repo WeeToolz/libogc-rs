@@ -435,6 +435,7 @@ struct RelaunchHandoff {
     title: String,
     boot_content: String,
     boot_content_sha256: String,
+    tmd_sha256: String,
     signature_address: Option<u32>,
     signature_sha256: Option<String>,
     program_counter: Option<u32>,
@@ -448,6 +449,7 @@ struct RelaunchDestination {
     nand_title_path: String,
     content: String,
     content_sha256: String,
+    tmd_sha256: String,
     signature_address: u32,
     signature: Vec<u8>,
     source_text: Vec<std::ops::Range<u32>>,
@@ -798,7 +800,7 @@ pub fn print_help() {
         "  LIBOGC_DOLPHIN_RELAUNCH_BACKGROUND=1 selects the background build of ipc_relaunch_probe (select only that probe)"
     );
     eprintln!(
-        "  LIBOGC_DOLPHIN_RELAUNCH_API selects c|rust|try_launch_title|launch_title|try_launch_title_with_args|launch_title_with_args"
+        "  LIBOGC_DOLPHIN_RELAUNCH_API selects c|rust|try_launch_title|launch_title|try_launch_title_with_args|launch_title_with_args|try_return_to_menu|return_to_menu"
     );
     eprintln!(
         "  LIBOGC_DOLPHIN_RELAUNCH_PANIC_DIAGNOSTIC=1 disables automatic abort on panic alerts for ipc_relaunch_probe"
@@ -969,6 +971,56 @@ mod wpad_probe_selection_tests {
     }
 
     #[test]
+    fn menu_return_handoff_requires_the_selected_api_without_an_error() {
+        let started = concat!(
+            "PASS Wii launch initializes before menu handoff\n",
+            "PASS Wii launch rejects unknown title before handoff\n",
+            "INFO Wii launch handoff begins api=try_return_to_menu mode=foreground\n",
+        );
+        let good = concat!(
+            "PASS Wii launch initializes before menu handoff\n",
+            "PASS Wii launch rejects unknown title before handoff\n",
+            "INFO Wii launch handoff begins api=try_return_to_menu mode=foreground\n",
+            "INFO Wii launch request returned=0\n",
+            "PASS Wii launch request accepted\n",
+        );
+        assert!(super::handoff_source_ready(
+            started,
+            false,
+            "try_return_to_menu"
+        ));
+        assert!(super::handoff_source_ready(
+            good,
+            false,
+            "try_return_to_menu"
+        ));
+        assert!(!super::handoff_source_ready(
+            &good.replace("returned=0", "returned=-1"),
+            false,
+            "try_return_to_menu"
+        ));
+        assert!(!super::handoff_source_ready(
+            &good.replace("try_return_to_menu", "try_launch_title"),
+            false,
+            "try_return_to_menu"
+        ));
+        assert!(!super::handoff_source_ready(
+            &good.replace(
+                "PASS Wii launch request accepted",
+                "FAIL Wii launch request accepted"
+            ),
+            false,
+            "try_return_to_menu"
+        ));
+        let legacy = good.replace("try_return_to_menu", "return_to_menu");
+        assert!(super::handoff_source_ready(
+            &legacy,
+            false,
+            "return_to_menu"
+        ));
+    }
+
+    #[test]
     fn panic_alert_override_is_limited_to_explicit_relaunch_diagnostics() {
         let mut args = vec!["Dolphin.Interface.AbortOnPanicAlert=True".to_string()];
         super::configure_relaunch_panic_diagnostic(&mut args, "ipc_relaunch_probe", true);
@@ -1106,6 +1158,76 @@ fn copy_nand(source: &Path, destination: &Path) -> Result<(), String> {
     copy_directory(&source, &destination)
 }
 
+fn prepare_stock_system_menu_fixture(nand: &Path) -> Result<(), String> {
+    const MENU_TITLE: u64 = 0x0000_0001_0000_0002;
+    const STOCK_TMD_SHA256: &str =
+        "9dbaf2e13d4cb76debacd3778bce33d9bc29172c2c9530692ef1a746f6034586";
+    const STOCK_CONTENT_SHA256: &str =
+        "47b9c1bb0ba1890256fb368b1b3272e33ea2467feadf39d20ce469d6de6e6c43";
+    const STOCK_CONTENT_SIZE: usize = 3_867_904;
+    const STOCK_CONTENT_SHA1: &str = "26116613f624061ba99c8d1a299aaa6efa85670d";
+
+    let content_dir = nand.join("title/00000001/00000002/content");
+    let tmd = fs::read(content_dir.join("title_or.tmd"))
+        .map_err(|err| format!("stock System Menu TMD backup is unavailable: {err}"))?;
+    let tmd_sha256 = format!("{:x}", Sha256::digest(&tmd));
+    if tmd_sha256 != STOCK_TMD_SHA256 {
+        return Err(format!(
+            "stock System Menu TMD backup hash mismatch: got {tmd_sha256}"
+        ));
+    }
+    if elf_u32(&tmd, 0x18c)? != (MENU_TITLE >> 32) as u32
+        || elf_u32(&tmd, 0x190)? != MENU_TITLE as u32
+    {
+        return Err("stock System Menu TMD has the wrong title ID".to_string());
+    }
+    let content_count = elf_u16(&tmd, 0x1de)? as usize;
+    let boot_index = elf_u16(&tmd, 0x1e0)?;
+    let boot_record = (0..content_count)
+        .map(|index| 0x1e4 + index * 36)
+        .find(|&offset| elf_u16(&tmd, offset + 4) == Ok(boot_index))
+        .ok_or("stock System Menu TMD boot content record is missing")?;
+    let content_id = elf_u32(&tmd, boot_record)?;
+    let expected_size = u64::from_be_bytes(
+        checked_elf_slice(&tmd, boot_record + 8, 8)?
+            .try_into()
+            .map_err(|_| "stock System Menu TMD content size is invalid")?,
+    );
+    let expected_sha1 = checked_elf_slice(&tmd, boot_record + 16, 20)?;
+    if expected_size != STOCK_CONTENT_SIZE as u64
+        || expected_sha1
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect::<String>()
+            != STOCK_CONTENT_SHA1
+    {
+        return Err(
+            "stock System Menu TMD boot content record does not match the known fixture".into(),
+        );
+    }
+
+    let stock_content = fs::read(content_dir.join("10000098.app"))
+        .map_err(|err| format!("stock System Menu boot content backup is unavailable: {err}"))?;
+    let content_sha256 = format!("{:x}", Sha256::digest(&stock_content));
+    let content_sha1 = format!("{:x}", Sha1::digest(&stock_content));
+    if stock_content.len() != expected_size as usize
+        || content_sha1 != STOCK_CONTENT_SHA1
+        || content_sha256 != STOCK_CONTENT_SHA256
+    {
+        return Err(format!(
+            "stock System Menu boot content does not match its TMD: size {}, SHA-1 {content_sha1}, SHA-256 {content_sha256}",
+            stock_content.len()
+        ));
+    }
+
+    let boot_content = content_dir.join(format!("{content_id:08x}.app"));
+    fs::write(&boot_content, stock_content)
+        .map_err(|err| format!("restore private System Menu boot content: {err}"))?;
+    fs::write(content_dir.join("title.tmd"), tmd)
+        .map_err(|err| format!("restore private System Menu TMD: {err}"))?;
+    Ok(())
+}
+
 fn copy_directory(source: &Path, destination: &Path) -> Result<(), String> {
     fs::create_dir_all(destination).map_err(|err| format!("{}: {err}", destination.display()))?;
     for entry in fs::read_dir(source).map_err(|err| format!("{}: {err}", source.display()))? {
@@ -1207,6 +1329,11 @@ fn run_probe(
     }
     let background_relaunch = std::env::var_os("LIBOGC_DOLPHIN_RELAUNCH_BACKGROUND").as_deref()
         == Some(std::ffi::OsStr::new("1"));
+    let relaunch_api = if spec.name == "ipc_relaunch_probe" {
+        selected_relaunch_api(std::env::var("LIBOGC_DOLPHIN_RELAUNCH_API").ok().as_deref())?
+    } else {
+        "c"
+    };
     let destination = if spec.name == "ipc_relaunch_probe"
         && std::env::var_os("LIBOGC_DOLPHIN_RELAUNCH_PANIC_DIAGNOSTIC").is_none()
     {
@@ -1214,10 +1341,20 @@ fn run_probe(
             Ok(id) => u64::from_str_radix(&id, 16).map_err(|err| err.to_string())?,
             Err(_) => 0x0000_0001_0000_0002,
         };
+        if title == 0x0000_0001_0000_0002 {
+            prepare_stock_system_menu_fixture(&nand_copy.path)?;
+        }
         Some(relaunch_destination(&nand_copy.path, &dol_path, title)?)
     } else {
         None
     };
+    if matches!(relaunch_api, "try_return_to_menu" | "return_to_menu")
+        && destination
+            .as_ref()
+            .is_none_or(|destination| destination.title != 0x0000_0001_0000_0002)
+    {
+        return Err("menu-return APIs require a checked System Menu destination".to_string());
+    }
     let symbol_elf = if dev_dol.is_some() {
         std::env::var_os("LIBOGC_DOLPHIN_DEV_ELF")
             .map(PathBuf::from)
@@ -1402,17 +1539,14 @@ fn run_probe(
     let mut timeout_diagnostic = None;
     let mut relaunch_handoff = None;
     let mut destination_seen = None;
-    let relaunch_api = if spec.name == "ipc_relaunch_probe" {
-        selected_relaunch_api(std::env::var("LIBOGC_DOLPHIN_RELAUNCH_API").ok().as_deref())?
-    } else {
-        "c"
-    };
     if matches!(
         relaunch_api,
         "try_launch_title"
             | "launch_title"
             | "try_launch_title_with_args"
             | "launch_title_with_args"
+            | "try_return_to_menu"
+            | "return_to_menu"
     ) && background_relaunch
     {
         return Err("Wii launch handoff uses its foreground public API".to_string());
@@ -1541,6 +1675,7 @@ fn run_probe(
                     title: format!("{:016x}", destination.title),
                     boot_content: destination.content.clone(),
                     boot_content_sha256: destination.content_sha256.clone(),
+                    tmd_sha256: destination.tmd_sha256.clone(),
                     signature_address: None,
                     signature_sha256: None,
                     program_counter: None,
@@ -1562,7 +1697,7 @@ fn run_probe(
         if let Some(destination) = destination.as_ref()
             && page_frames.len() == captures.len()
             && !page_frames.is_empty()
-            && relaunch_source_ready(&captured_probe_log, background_relaunch)
+            && handoff_source_ready(&captured_probe_log, background_relaunch, relaunch_api)
         {
             let log = fs::read_to_string(user_dir.join("Logs/dolphin.log")).unwrap_or_default();
             let boot_line = format!(
@@ -1717,7 +1852,7 @@ fn run_probe(
             detail = "test title emitted its startup marker after the IOS launch".to_string();
         } else if relaunch_handoff.is_none()
             || !failure_lines.is_empty()
-            || !relaunch_source_ready(&probe_log, background_relaunch)
+            || !handoff_source_ready(&probe_log, background_relaunch, relaunch_api)
         {
             status = "fail";
             detail = "relaunch handoff evidence incomplete or guest reported failure".to_string();
@@ -1968,6 +2103,49 @@ fn relaunch_source_ready(log: &str, background: bool) -> bool {
         }
 }
 
+fn handoff_source_ready(log: &str, background: bool, api: &str) -> bool {
+    if !matches!(api, "try_return_to_menu" | "return_to_menu") {
+        return relaunch_source_ready(log, background);
+    }
+
+    let start_line = match api {
+        "try_return_to_menu" => {
+            Some("INFO Wii launch handoff begins api=try_return_to_menu mode=foreground")
+        }
+        "return_to_menu" => {
+            Some("INFO Wii launch handoff begins api=return_to_menu mode=foreground")
+        }
+        _ => None,
+    };
+    let Some(start_line) = start_line else {
+        return false;
+    };
+    let started = log.lines().any(|line| line == start_line);
+    let initialized = log
+        .lines()
+        .any(|line| line == "PASS Wii launch initializes before menu handoff");
+    let invalid_title_rejected = log
+        .lines()
+        .any(|line| line == "PASS Wii launch rejects unknown title before handoff");
+    let accepted = log
+        .lines()
+        .any(|line| line == "PASS Wii launch request accepted");
+    let returned: Vec<_> = log
+        .lines()
+        .filter(|line| line.starts_with("INFO Wii launch request returned="))
+        .collect();
+    let result_is_valid = match returned.as_slice() {
+        [] => true,
+        [line] => accepted && *line == "INFO Wii launch request returned=0",
+        _ => false,
+    };
+    initialized
+        && invalid_title_rejected
+        && started
+        && result_is_valid
+        && !log.lines().any(|line| line.starts_with("FAIL "))
+}
+
 fn dol_text_sections(bytes: &[u8]) -> Result<Vec<(std::ops::Range<u32>, usize)>, String> {
     let mut sections = Vec::new();
     for index in 0..7 {
@@ -2046,6 +2224,7 @@ fn relaunch_destination(
         nand_title_path,
         content,
         content_sha256: format!("{:x}", Sha256::digest(&image)),
+        tmd_sha256: format!("{:x}", Sha256::digest(&tmd)),
         signature_address: entry,
         signature,
         source_text,
@@ -2060,6 +2239,8 @@ fn selected_relaunch_api(value: Option<&str>) -> Result<&'static str, String> {
         Some("launch_title") => Ok("launch_title"),
         Some("try_launch_title_with_args") => Ok("try_launch_title_with_args"),
         Some("launch_title_with_args") => Ok("launch_title_with_args"),
+        Some("return_to_menu") => Ok("return_to_menu"),
+        Some("try_return_to_menu") => Ok("try_return_to_menu"),
         Some(other) => Err(format!(
             "LIBOGC_DOLPHIN_RELAUNCH_API must select a supported relaunch or Wii launch API; got {other}"
         )),
@@ -2586,6 +2767,7 @@ impl GdbClient {
                 title: format!("{:016x}", destination.title),
                 boot_content: destination.content.clone(),
                 boot_content_sha256: destination.content_sha256.clone(),
+                tmd_sha256: destination.tmd_sha256.clone(),
                 startup_marker: None,
                 signature_address: Some(destination.signature_address),
                 signature_sha256: Some(format!("{:x}", Sha256::digest(&code))),
@@ -3249,6 +3431,14 @@ mod tests {
             super::selected_relaunch_api(Some("launch_title_with_args")),
             Ok("launch_title_with_args")
         );
+        assert_eq!(
+            super::selected_relaunch_api(Some("try_return_to_menu")),
+            Ok("try_return_to_menu")
+        );
+        assert_eq!(
+            super::selected_relaunch_api(Some("return_to_menu")),
+            Ok("return_to_menu")
+        );
         assert!(super::selected_relaunch_api(Some("unknown")).is_err());
     }
 
@@ -3512,6 +3702,26 @@ mod tests {
         );
         NandProfileCopy::new(destination.clone()).cleanup().unwrap();
         assert!(!destination.exists());
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn rejects_unknown_stock_menu_tmd_without_replacing_private_files() {
+        let root = test_directory("stock-menu-reject");
+        let content = root.join("title/00000001/00000002/content");
+        fs::create_dir_all(&content).unwrap();
+        fs::write(content.join("title_or.tmd"), b"unknown TMD").unwrap();
+        fs::write(content.join("title.tmd"), b"current TMD").unwrap();
+        fs::write(content.join("00000098.app"), b"current boot image").unwrap();
+
+        let error = prepare_stock_system_menu_fixture(&root).unwrap_err();
+
+        assert!(error.contains("TMD backup hash mismatch"));
+        assert_eq!(fs::read(content.join("title.tmd")).unwrap(), b"current TMD");
+        assert_eq!(
+            fs::read(content.join("00000098.app")).unwrap(),
+            b"current boot image"
+        );
         fs::remove_dir_all(root).unwrap();
     }
 

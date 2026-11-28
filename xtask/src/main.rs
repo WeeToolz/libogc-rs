@@ -1653,6 +1653,22 @@ fn build_probe_selection(
                     .arg("--features")
                     .arg("ogc-system-probe/ipc-relaunch-wiilaunch-args-legacy");
             }
+            if mode == ProbeBuildMode::Dolphin
+                && selected.is_some_and(|names| names == ["ipc_relaunch_probe"])
+                && env::var("LIBOGC_DOLPHIN_RELAUNCH_API").as_deref() == Ok("try_return_to_menu")
+            {
+                command
+                    .arg("--features")
+                    .arg("ogc-system-probe/ipc-relaunch-wiilaunch-menu");
+            }
+            if mode == ProbeBuildMode::Dolphin
+                && selected.is_some_and(|names| names == ["ipc_relaunch_probe"])
+                && env::var("LIBOGC_DOLPHIN_RELAUNCH_API").as_deref() == Ok("return_to_menu")
+            {
+                command
+                    .arg("--features")
+                    .arg("ogc-system-probe/ipc-relaunch-wiilaunch-menu-legacy");
+            }
             run_command(&mut command)?;
         }
     }

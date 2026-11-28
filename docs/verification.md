@@ -310,3 +310,8 @@ The [2026-11-27 System Menu relaunch run](dolphin-runs/2026-11-27-stock-menu-rel
 passes all four foreground/background C and Rust reboot API handoffs with a
 TMD-matched System Menu fixture. Physical Wii IPC cache and DMA checks remain
 open.
+
+The [2026-11-28 Wii launch menu run](dolphin-runs/2026-11-28-wiilaunch-menu-handoffs/README.md)
+passes both typed and legacy `return_to_menu` handoffs with the same fixture
+checks. These runs prove destination execution in Dolphin. Later menu
+interaction and physical Wii behavior remain open.

@@ -3346,6 +3346,8 @@ ogc-wiilaunch,src/lib.rs,launch_title,283,ios,hardware-probe,probes/ogc-system-p
 ogc-wiilaunch,src/lib.rs,launch_title_with_args,390,ios,hardware-probe,probes/ogc-system-probe/src/lib.rs,run_ipc_relaunch_probe_bin,ogc_wiilaunch::launch_title_with_args,launch-handoff-args
 ogc-wiilaunch,src/lib.rs,try_launch_title,287,ios,hardware-probe,probes/ogc-system-probe/src/lib.rs,run_ipc_relaunch_probe_bin,ogc_wiilaunch::try_launch_title,launch-handoff
 ogc-wiilaunch,src/lib.rs,try_launch_title_with_args,394,ios,hardware-probe,probes/ogc-system-probe/src/lib.rs,run_ipc_relaunch_probe_bin,ogc_wiilaunch::try_launch_title_with_args,launch-handoff-args
+ogc-wiilaunch,src/lib.rs,return_to_menu,441,ios,hardware-probe,probes/ogc-system-probe/src/lib.rs,run_ipc_relaunch_probe_bin,ogc_wiilaunch::return_to_menu,menu-handoff
+ogc-wiilaunch,src/lib.rs,try_return_to_menu,445,ios,hardware-probe,probes/ogc-system-probe/src/lib.rs,run_ipc_relaunch_probe_bin,ogc_wiilaunch::try_return_to_menu,menu-handoff
 ogc,src/cast.rs,init,119,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_cast_gqr,ogc::cast::init,dolphin-partial
 lwbt-sys,src/lib.rs,last_status,368,pure,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_closed_adapter,bte::last_status,dolphin-partial
 lwbt-sys,src/lib.rs,close,372,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_lwbt_closed_adapter,bte::close,dolphin-partial

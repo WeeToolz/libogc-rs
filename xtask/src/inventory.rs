@@ -106,6 +106,7 @@ enum EvidenceScope {
     LaunchRejection,
     LaunchHandoff,
     LaunchHandoffArgs,
+    MenuHandoff,
 }
 
 impl EvidenceScope {
@@ -145,6 +146,7 @@ impl EvidenceScope {
             "launch-rejection" => Self::LaunchRejection,
             "launch-handoff" => Self::LaunchHandoff,
             "launch-handoff-args" => Self::LaunchHandoffArgs,
+            "menu-handoff" => Self::MenuHandoff,
             _ => return None,
         })
     }
@@ -238,6 +240,9 @@ impl EvidenceScope {
             Self::LaunchHandoffArgs => {
                 "Successful handoff and argument-state persistence pass for the tested values and installed OHBC title in Dolphin. Other argument values, destination titles, argument consumption, and physical Wii behavior remain unverified."
             }
+            Self::MenuHandoff => {
+                "Successful return to the TMD-verified System Menu title and destination execution pass in Dolphin. Later menu interaction and physical Wii behavior remain unverified."
+            }
             Self::DolphinCacheRegister => {
                 "Dolphin HID0 transitions and restoration only. Physical cache state and timing are unverified."
             }
@@ -284,7 +289,8 @@ impl EvidenceScope {
             | Self::IosEsReset
             | Self::LwpFirstInitialization
             | Self::LaunchHandoff
-            | Self::LaunchHandoffArgs => "dolphin-partial",
+            | Self::LaunchHandoffArgs
+            | Self::MenuHandoff => "dolphin-partial",
             Self::EsBootImportArguments => "unverified",
             Self::LaunchRejection => "unverified",
             Self::NoControllerAndInvalidArguments => "unverified",
@@ -2589,7 +2595,10 @@ mod tests {
         assert_eq!(ios_es_reset.classification("ios"), "dolphin-partial");
         assert!(ios_es_reset.limitation().contains("Physical Wii"));
         let lwp_init = EvidenceScope::parse("lwp-first-initialization").unwrap();
-        assert_eq!(lwp_init.classification("compatibility-forwarder"), "dolphin-partial");
+        assert_eq!(
+            lwp_init.classification("compatibility-forwarder"),
+            "dolphin-partial"
+        );
         assert!(lwp_init.limitation().contains("Physical scheduler"));
         for (name, limitation) in [
             (
@@ -2643,6 +2652,9 @@ mod tests {
         let launch_args = EvidenceScope::parse("launch-handoff-args").unwrap();
         assert_eq!(launch_args.classification("ios"), "dolphin-partial");
         assert!(launch_args.limitation().contains("argument consumption"));
+        let menu_handoff = EvidenceScope::parse("menu-handoff").unwrap();
+        assert_eq!(menu_handoff.classification("ios"), "dolphin-partial");
+        assert!(menu_handoff.limitation().contains("physical Wii behavior"));
         let active_search_scope = EvidenceScope::parse("active-search-state").unwrap();
         assert_eq!(active_search_scope.classification("hardware"), "unverified");
         assert!(

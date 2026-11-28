@@ -97,9 +97,20 @@ checks the complete persisted NANDBOOTINFO and state.dat checksums, launch code,
 title type, argv count and strings, null argv pointer, and return-to-arguments
 state. Both runs record the test title startup marker.
 
-This does not prove that OHBC consumes the arguments. It does not prove other
-destination titles or physical Wii behavior. The System Menu fixture remains
-open because the available boot image does not match its TMD. Physical cache
-and DMA evidence also remains open. See
-`../dolphin-runs/2026-11-27-wiilaunch-args/README.md` for fixture hashes and
-per-variant reports.
+This does not prove that OHBC consumes the arguments, other destination
+titles, or physical Wii behavior. The System Menu handoff is verified for the
+two menu-return APIs below. Physical cache and DMA evidence remains open. See
+`../dolphin-runs/2026-11-27-wiilaunch-args/README.md` for the argument handoff
+fixture hashes and per-variant reports.
+
+## Menu return handoffs (2026-11-28)
+
+The `2026-11-28-wiilaunch-menu-handoffs` Dolphin run passed both
+`try_return_to_menu` and the legacy `return_to_menu`. Each fresh private NAND
+copy used the original System Menu TMD and boot content only after the runner
+checked their hashes, the TMD boot record, and the content size. The probe
+logged the selected API and mode. Dolphin logged the title boot, and the
+runner checked the destination entry signature and program counter. See the
+[per-variant report](../dolphin-runs/2026-11-28-wiilaunch-menu-handoffs/README.md)
+for hashes and destination evidence. This proves a Dolphin title handoff. It
+does not prove later menu interaction or physical Wii behavior.
