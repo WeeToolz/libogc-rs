@@ -60,6 +60,14 @@ Independent review confirmed that C checks `__es_fd < 0` before `!titleID`, and 
   while the C loop can read up to six halfwords past its end. This bounds the
   read, but leaves signatures starting in those final six halfwords unmatched.
   The memory patch and cache flush still require target verification.
+  On 2026-11-28, the direct-DOL Dolphin attempt exited with `SIGABRT` after the
+  guard section began and before the AHBPROT state was recorded. DOL SHA-256:
+  `d9da5fb80863067c659f466275821142e1a3903a0ee2d38432b715b110b816f5`. The
+  probe had not called the patch helper; its preceding `has_ahbprot` register
+  read failed in this context. The helper can write MEM2 protection and ES
+  module memory, so do not call it from a direct-DOL probe. Its error and patch
+  paths remain unverified until a qualified HBC-context fixture and recovery
+  path are available.
 - Rust provides `ImportBootParams` as a parameter record for `import_boot`, while the C API uses a flat argument list. This is an interface-shape convenience; the fields map to the C arguments.
 - Rust adds defensive pointer, alignment, size, and certificate-list validation around several raw calls. These checks intentionally return libogc ES error constants before issuing an ioctl; no adverse mismatch was confirmed from those checks in this review.
 

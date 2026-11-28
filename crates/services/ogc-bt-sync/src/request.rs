@@ -22,7 +22,7 @@ unsafe impl Sync for TransferState {}
 
 impl TransferState {
     #[cfg(any(target_arch = "powerpc", test))]
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self {
             buffer: TransferBuffer(UnsafeCell::new([0; TRANSFER_BYTES])),
             result: AtomicI32::new(0),
@@ -30,11 +30,11 @@ impl TransferState {
         }
     }
     #[cfg(any(target_arch = "powerpc", test))]
-    pub fn complete(&self, result: i32) {
+    pub(crate) fn complete(&self, result: i32) {
         self.result.store(result, Ordering::Relaxed);
         self.complete.store(true, Ordering::Release);
     }
-    pub fn result(&self) -> Option<i32> {
+    pub(crate) fn result(&self) -> Option<i32> {
         self.complete
             .load(Ordering::Acquire)
             .then(|| self.result.load(Ordering::Relaxed))
