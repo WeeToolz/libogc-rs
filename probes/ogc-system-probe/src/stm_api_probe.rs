@@ -82,4 +82,45 @@ pub fn run_close(logger: &mut ProbeLogger) {
         "STM try close releases event hook after try init",
         stm::try_close().is_ok(),
     );
+
+    // Check the closed-state guards without sending a power-control request.
+    // These APIs clear VI before they check STM state, so restore that register
+    // after the calls to keep the remaining probe output visible.
+    let vi_control = unsafe { core::ptr::read_volatile(0xcc00_2002 as *const u16) };
+    let reboot = stm::reboot_system();
+    let standby = stm::shutdown_to_standby();
+    let idle = stm::shutdown_to_idle();
+    let reboot_try = stm::try_reboot_system();
+    let standby_try = stm::try_shutdown_to_standby();
+    let idle_try = stm::try_shutdown_to_idle();
+    unsafe {
+        core::ptr::write_volatile(0xcc00_2002 as *mut u16, vi_control);
+    }
+    logger.note_i32("closed STM reboot result", reboot);
+    logger.record(
+        "STM reboot rejects a closed interface",
+        reboot == stm::STM_ENOTINIT,
+    );
+    logger.note_i32("closed STM standby result", standby);
+    logger.record(
+        "STM standby shutdown rejects a closed interface",
+        standby == stm::STM_ENOTINIT,
+    );
+    logger.note_i32("closed STM idle result", idle);
+    logger.record(
+        "STM idle shutdown rejects a closed interface",
+        idle == stm::STM_ENOTINIT,
+    );
+    logger.record(
+        "STM try reboot preserves the closed-interface error",
+        reboot_try == Err(stm::ErrorCode::new(stm::STM_ENOTINIT)),
+    );
+    logger.record(
+        "STM try standby preserves the closed-interface error",
+        standby_try == Err(stm::ErrorCode::new(stm::STM_ENOTINIT)),
+    );
+    logger.record(
+        "STM try idle preserves the closed-interface error",
+        idle_try == Err(stm::ErrorCode::new(stm::STM_ENOTINIT)),
+    );
 }

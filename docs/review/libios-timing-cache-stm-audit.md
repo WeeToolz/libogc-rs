@@ -178,6 +178,20 @@ installed `/Applications/Dolphin.app/Contents/MacOS/Dolphin` exited with
 the fix remains unverified at runtime. Keep the STM close probe and physical
 Wii behavior open until Dolphin can run it.
 
+## STM probe rerun — 2026-11-28 UTC
+
+Dolphin 2609a ran the current `stm_api_probe` through the existing runner after
+the x86_64 launch check passed outside the sandbox. The current close and
+closed-interface suite passed 22 checks with no failures. Its DOL SHA-256 is
+`8e25e782e632020ef055fd167005ec543bd89294e0b2d2a6c161ee8ddfbfc4f2`; see
+`../dolphin-runs/2026-11-28-stm-api-closed-state/`.
+
+The added closed-state checks call all six raw and `try_` reboot, standby, and
+idle APIs after STM is closed. Each returns `STM_ENOTINIT`; the probe restores
+the VI control register after the checks. The calls do not test successful
+power-control IOS requests. Those APIs remain unverified for their successful
+operation, and physical Wii behavior remains open.
+
 ## Replacement cleanup on an unexpected IOS version
 
 `launch_ios_from_es` now finishes the active IOS replacement after the new

@@ -98,6 +98,7 @@ enum EvidenceScope {
     DolphinPartial,
     IpcRebootHandoff,
     IosLifecycleDolphin,
+    StmClosedPowerGuard,
     EsBootImportArguments,
     LaunchRejection,
     LaunchHandoff,
@@ -133,6 +134,7 @@ impl EvidenceScope {
             "dolphin-partial" => Self::DolphinPartial,
             "ipc-reboot-handoff" => Self::IpcRebootHandoff,
             "ios-lifecycle-dolphin" => Self::IosLifecycleDolphin,
+            "stm-closed-power-guard" => Self::StmClosedPowerGuard,
             "es-boot-import-arguments" => Self::EsBootImportArguments,
             "launch-rejection" => Self::LaunchRejection,
             "launch-handoff" => Self::LaunchHandoff,
@@ -206,6 +208,9 @@ impl EvidenceScope {
             Self::IosLifecycleDolphin => {
                 "IOS lifecycle API checks pass in Dolphin. Physical Wii reload behavior remains unverified; the startup loader contract is a no-op in pinned C."
             }
+            Self::StmClosedPowerGuard => {
+                "Closed-interface rejection only in Dolphin. Successful STM reboot and shutdown requests, and physical Wii behavior, remain unverified."
+            }
             Self::EsBootImportArguments => {
                 "Null and zero-length boot-import rejection only in Dolphin. Successful persistent boot import remains unverified until a disposable fixture and recovery path are qualified."
             }
@@ -250,6 +255,7 @@ impl EvidenceScope {
             | Self::ZeroLength
             | Self::EmptyQueue
             | Self::NoPendingInterrupt => "unverified",
+            Self::StmClosedPowerGuard => "unverified",
             Self::RepeatedInitialization
             | Self::NoEventHook
             | Self::SynchronousScalarOutput
@@ -2550,6 +2556,7 @@ mod tests {
             "scalar-output",
             "es-boot-import-arguments",
             "zero-tag-count",
+            "stm-closed-power-guard",
         ] {
             let scope = EvidenceScope::parse(scope).unwrap();
             assert_eq!(scope.classification("protocol"), "unverified");
@@ -2617,6 +2624,13 @@ mod tests {
             active_search_scope
                 .limitation()
                 .contains("usable controller channel")
+        );
+        let stm_closed_scope = EvidenceScope::parse("stm-closed-power-guard").unwrap();
+        assert_eq!(stm_closed_scope.classification("ios"), "unverified");
+        assert!(
+            stm_closed_scope
+                .limitation()
+                .contains("Successful STM reboot")
         );
     }
 

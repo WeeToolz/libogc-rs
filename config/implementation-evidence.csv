@@ -3287,6 +3287,12 @@ ogc-stm,src/lib.rs,init,276,ios,hardware-probe,probes/ogc-system-probe/src/stm_a
 ogc-stm,src/lib.rs,try_init,296,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_init
 ogc-stm,src/lib.rs,close,427,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::close
 ogc-stm,src/lib.rs,try_close,468,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_close
+ogc-stm,src/lib.rs,shutdown_to_standby,476,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::shutdown_to_standby,stm-closed-power-guard
+ogc-stm,src/lib.rs,try_shutdown_to_standby,495,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_shutdown_to_standby,stm-closed-power-guard
+ogc-stm,src/lib.rs,shutdown_to_idle,499,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::shutdown_to_idle,stm-closed-power-guard
+ogc-stm,src/lib.rs,try_shutdown_to_idle,521,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_shutdown_to_idle,stm-closed-power-guard
+ogc-stm,src/lib.rs,reboot_system,545,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::reboot_system,stm-closed-power-guard
+ogc-stm,src/lib.rs,try_reboot_system,564,ios,hardware-probe,probes/ogc-system-probe/src/stm_api_probe.rs,run_close,stm::try_reboot_system,stm-closed-power-guard
 ogc-ipc,src/lib.rs,validate_path,3421,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_path_limits,ipc::validate_path
 ogc-network-sys,src/lib.rs,net_wc24cleanup,1060,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_wc24_cleanup,raw_network::net_wc24cleanup
 ogc-network-sys,src/lib.rs,net_wc24cleanup,1970,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_wc24_cleanup,raw_network::net_wc24cleanup
