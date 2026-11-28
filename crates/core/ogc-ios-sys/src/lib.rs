@@ -54,6 +54,8 @@ static IOS_LIFECYCLE_ACTIVE: AtomicBool = AtomicBool::new(false);
 static IOS_NEXT_LAUNCH_RESULT_FOR_PROBE: AtomicI32 = AtomicI32::new(0);
 #[cfg(feature = "ios-reload-probe")]
 static IOS_NEXT_VERSION_FOR_PROBE: AtomicI32 = AtomicI32::new(0);
+#[cfg(feature = "ios-reload-probe")]
+static IOS_ES_RESET_RESULT_FOR_PROBE: AtomicI32 = AtomicI32::new(i32::MIN);
 
 #[cfg(target_arch = "powerpc")]
 const IOS_VERSION_WORD_ADDR: usize = 0x8000_3140;
@@ -84,6 +86,12 @@ pub fn set_next_version_for_probe(version: Option<i32>) -> bool {
             true
         }
     }
+}
+
+#[cfg(all(target_arch = "powerpc", feature = "ios-reload-probe"))]
+/// Clear and read the ES state result captured at the reset point.
+pub fn take_es_reset_result_for_probe() -> i32 {
+    IOS_ES_RESET_RESULT_FOR_PROBE.swap(i32::MIN, Ordering::AcqRel)
 }
 
 #[cfg(target_arch = "powerpc")]
@@ -206,6 +214,14 @@ fn launch_ios_from_es(version: i32) -> i32 {
     }
 
     es::reset();
+    #[cfg(feature = "ios-reload-probe")]
+    {
+        let mut title_count = 0;
+        // SAFETY: The reset-state check uses a valid output pointer. It returns
+        // before submitting IOS work when the reset has cleared the ES fd.
+        let result = unsafe { es::get_num_titles(&mut title_count) };
+        IOS_ES_RESET_RESULT_FOR_PROBE.store(result, Ordering::Release);
+    }
     // BUG FIX: C masks and frees the ACR handler only after the ES reset.
     irq::mask(irq::IM_PI_ACR);
     let irq_handler = irq::free(irq::IRQ_PI_ACR);

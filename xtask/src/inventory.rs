@@ -99,6 +99,7 @@ enum EvidenceScope {
     DolphinPartial,
     IpcRebootHandoff,
     IosLifecycleDolphin,
+    IosEsReset,
     StmClosedPowerGuard,
     EsBootImportArguments,
     LaunchRejection,
@@ -136,6 +137,7 @@ impl EvidenceScope {
             "dolphin-partial" => Self::DolphinPartial,
             "ipc-reboot-handoff" => Self::IpcRebootHandoff,
             "ios-lifecycle-dolphin" => Self::IosLifecycleDolphin,
+            "ios-es-reset" => Self::IosEsReset,
             "stm-closed-power-guard" => Self::StmClosedPowerGuard,
             "es-boot-import-arguments" => Self::EsBootImportArguments,
             "launch-rejection" => Self::LaunchRejection,
@@ -213,6 +215,9 @@ impl EvidenceScope {
             Self::IosLifecycleDolphin => {
                 "IOS lifecycle API checks pass in Dolphin. Physical Wii reload behavior remains unverified; the startup loader contract is a no-op in pinned C."
             }
+            Self::IosEsReset => {
+                "The public IOS reload path resets ES state and ES reopens on the new IOS in Dolphin. Physical Wii reload behavior remains unverified."
+            }
             Self::StmClosedPowerGuard => {
                 "Closed-interface rejection only in Dolphin. Successful STM reboot and shutdown requests, and physical Wii behavior, remain unverified."
             }
@@ -271,6 +276,7 @@ impl EvidenceScope {
             | Self::DolphinPartial
             | Self::IpcRebootHandoff
             | Self::IosLifecycleDolphin
+            | Self::IosEsReset
             | Self::LaunchHandoff
             | Self::LaunchHandoffArgs => "dolphin-partial",
             Self::EsBootImportArguments => "unverified",
@@ -2573,6 +2579,9 @@ mod tests {
             EvidenceScope::DolphinCacheRegister.classification("hardware"),
             "hardware"
         );
+        let ios_es_reset = EvidenceScope::parse("ios-es-reset").unwrap();
+        assert_eq!(ios_es_reset.classification("ios"), "dolphin-partial");
+        assert!(ios_es_reset.limitation().contains("Physical Wii"));
         for (name, limitation) in [
             (
                 "dolphin-partial",

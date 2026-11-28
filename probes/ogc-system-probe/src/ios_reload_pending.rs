@@ -596,12 +596,27 @@ fn run_once(
         ipc::fail_next_replacement_handshake_for_probe();
     }
     let result = ogc_ios::reload_ios(version);
+    let es_reset_result = ogc_ios::sys::take_es_reset_result_for_probe();
     logger.note_i32("pending reload result", result);
+    logger.note_i32("pending reload immediate ES reset result", es_reset_result);
     logger.record(
         "pending reload replaces IOS successfully",
         result == 0 && ogc_ios::get_version() == version,
     );
     if result != 0 {
+        return false;
+    }
+    logger.record(
+        "pending reload resets ES before subsystem reinitialization",
+        es_reset_result == ogc_es_sys::ES_ENOTINIT,
+    );
+    let mut title_count = 0;
+    // SAFETY: The count pointer is writable for one u32. reload_ios
+    // reinitializes the ES service after replacing IOS.
+    let es_usable = unsafe { ogc_es_sys::get_num_titles(&mut title_count) } == 0
+        && title_count > 0;
+    logger.record("pending reload reopens ES on the new IOS", es_usable);
+    if es_reset_result != ogc_es_sys::ES_ENOTINIT || !es_usable {
         return false;
     }
     if inject_handshake_failure {
