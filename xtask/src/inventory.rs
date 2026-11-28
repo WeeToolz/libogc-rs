@@ -96,7 +96,7 @@ enum EvidenceScope {
     DolphinMouseLifecycle,
     IpcPartialDolphin,
     DolphinPartial,
-    IpcRebootGuard,
+    IpcRebootHandoff,
     IosLifecycleDolphin,
     EsBootImportArguments,
     LaunchRejection,
@@ -131,7 +131,7 @@ impl EvidenceScope {
             "dolphin-mouse-lifecycle" => Self::DolphinMouseLifecycle,
             "ipc-partial-dolphin" => Self::IpcPartialDolphin,
             "dolphin-partial" => Self::DolphinPartial,
-            "ipc-reboot-guard" => Self::IpcRebootGuard,
+            "ipc-reboot-handoff" => Self::IpcRebootHandoff,
             "ios-lifecycle-dolphin" => Self::IosLifecycleDolphin,
             "es-boot-import-arguments" => Self::EsBootImportArguments,
             "launch-rejection" => Self::LaunchRejection,
@@ -200,8 +200,8 @@ impl EvidenceScope {
             Self::DolphinPartial => {
                 "Selected behavior passes in Dolphin. Physical Wii behavior remains unverified."
             }
-            Self::IpcRebootGuard => {
-                "Invalid argument guards and the OHBC test title handoff pass in Dolphin. The System Menu handoff remains unverified."
+            Self::IpcRebootHandoff => {
+                "System Menu handoffs pass in Dolphin with TMD-matched boot content. Physical Wii behavior remains unverified."
             }
             Self::IosLifecycleDolphin => {
                 "IOS lifecycle API checks pass in Dolphin. Physical Wii reload behavior remains unverified; the startup loader contract is a no-op in pinned C."
@@ -257,7 +257,7 @@ impl EvidenceScope {
             Self::ScalarAndBuffer
             | Self::IpcPartialDolphin
             | Self::DolphinPartial
-            | Self::IpcRebootGuard
+            | Self::IpcRebootHandoff
             | Self::IosLifecycleDolphin
             | Self::LaunchHandoff
             | Self::LaunchHandoffArgs => "dolphin-partial",
@@ -2568,7 +2568,10 @@ mod tests {
                 "ipc-partial-dolphin",
                 "Physical Wii cache behavior remains unverified",
             ),
-            ("ipc-reboot-guard", "System Menu handoff remains unverified"),
+            (
+                "ipc-reboot-handoff",
+                "TMD-matched boot content. Physical Wii behavior remains unverified",
+            ),
             (
                 "ios-lifecycle-dolphin",
                 "Physical Wii reload behavior remains unverified",

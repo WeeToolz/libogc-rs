@@ -3320,10 +3320,10 @@ ogc-ipc,src/lib.rs,IOS_Ioctl,3629,ios,hardware-probe,probes/ogc-system-probe/src
 ogc-ipc,src/lib.rs,IOS_IoctlAsync,3657,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctl_file_stats,ipc::IOS_IoctlAsync,ipc-partial-dolphin
 ogc-ipc,src/lib.rs,IOS_Ioctlv,3677,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctlv_mac,ipc::IOS_Ioctlv,ipc-partial-dolphin
 ogc-ipc,src/lib.rs,IOS_IoctlvAsync,3694,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctlv_mac,ipc::IOS_IoctlvAsync,ipc-partial-dolphin
-ogc-ipc,src/lib.rs,IOS_IoctlvReboot,3748,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctlv_mac,ipc::IOS_IoctlvReboot,ipc-reboot-guard
-ogc-ipc,src/lib.rs,IOS_IoctlvRebootBackground,3764,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctlv_mac,ipc::IOS_IoctlvRebootBackground,ipc-reboot-guard
-ogc-ipc,src/lib.rs,ioctlv_reboot,814,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctlv_mac,fd.ioctlv_reboot,ipc-reboot-guard
-ogc-ipc,src/lib.rs,ioctlv_reboot_background,830,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_ipc_ioctlv_mac,fd.ioctlv_reboot_background,ipc-reboot-guard
+ogc-ipc,src/lib.rs,IOS_IoctlvReboot,3748,ios,hardware-probe,probes/ogc-system-probe/src/lib.rs,run_ipc_relaunch_probe_bin,ipc::IOS_IoctlvReboot,ipc-reboot-handoff
+ogc-ipc,src/lib.rs,IOS_IoctlvRebootBackground,3764,ios,hardware-probe,probes/ogc-system-probe/src/lib.rs,run_ipc_relaunch_probe_bin,ipc::IOS_IoctlvRebootBackground,ipc-reboot-handoff
+ogc-ipc,src/lib.rs,ioctlv_reboot,814,ios,hardware-probe,probes/ogc-system-probe/src/lib.rs,run_ipc_relaunch_probe_bin,fd.ioctlv_reboot,ipc-reboot-handoff
+ogc-ipc,src/lib.rs,ioctlv_reboot_background,830,ios,hardware-probe,probes/ogc-system-probe/src/lib.rs,run_ipc_relaunch_probe_bin,fd.ioctlv_reboot_background,ipc-reboot-handoff
 ogc-ipc,src/lib.rs,begin,1336,ios,hardware-probe,probes/ogc-system-probe/src/ios_reload_pending.rs,run_once,ipc::IosReplacement::begin
 ogc-ipc,src/lib.rs,finish,1369,ios,hardware-probe,probes/ogc-system-probe/src/ios_reload_pending.rs,run_once,ogc_ios::reload_ios
 ogc-ipc,src/lib.rs,reinitialize,1691,ios,hardware-probe,probes/ogc-system-probe/src/ipc_async_probe.rs,probe_pending_reply_reinitialize,ipc::reinitialize
