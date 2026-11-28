@@ -1,6 +1,6 @@
 # IPC and system core parity review
 
-Status: the 2026-11-27 independent source review found no request-retirement or deferred-callback ownership mismatch. A confirmed concurrency safety gap remains between the IOS replacement gate and ES descriptor state. Actual IOS launch and `/dev/es` failure behavior, physical cache/DMA, loader, and Wii behavior remain open.
+Status: the 2026-11-27 independent source review found no request-retirement or deferred-callback ownership mismatch. The later lifecycle guard serializes public IOS launch/reload calls, and the ES close path restores descriptor state after a rejected submission; the competing-close probe passed in Dolphin. A broader independent concurrency review remains open. Actual IOS launch and `/dev/es` failure behavior, physical cache/DMA, loader, and Wii behavior also remain open.
 
 ## Scope and source map
 
@@ -687,10 +687,12 @@ requests with `IPC_ENOENT` before clearing the queue. It preserves sent requests
 and their replies. This is a justified safety difference from C, which clears
 the queue without completing those requests. The probe verifies exact-once
 callbacks in FIFO order across ring wrap, formatter userdata, and no staged
-output copyback. The follow-up now adds a raw `IOS_IoctlvAsync` vector-pointer
-assertion to the same probe, but Dolphin stopped at startup with SIGABRT, so
-that assertion has only been compiled and remains unverified at runtime. See
-the [pointer restoration build record](../dolphin-runs/2026-11-27-ipc-unsent-ioctlv-pointer-restore/README.md).
+output copyback. The follow-up added a raw `IOS_IoctlvAsync` vector-pointer
+assertion to the same probe. Its first Dolphin run stopped at startup with
+SIGABRT, so that run did not verify the assertion. The later current-tree
+901-check runtime run passed and verified vector-pointer restoration; see the
+[pointer restoration build record](../dolphin-runs/2026-11-27-ipc-unsent-ioctlv-pointer-restore/README.md)
+and the [current ioctl and formatter run](../dolphin-runs/2026-11-27-ogc-ipc-runtime-parity/README.md).
 Actual failed IOS launch, failed fresh ES handshake, and independent
 concurrency review remain open.
 
