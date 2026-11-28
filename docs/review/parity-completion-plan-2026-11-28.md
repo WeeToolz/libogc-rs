@@ -80,7 +80,26 @@ below are a checked snapshot, not completion criteria.
 
 - No connected physical Wii was established in this work session; physical
   cache and DMA acceptance remains open.
-- Independent reviewers are required for the 23 pending re-reviews.
-- `git push` failed because this environment could not resolve `github.com`.
+- Independent reviewers are required for the 22 current pending re-reviews.
+- The HBC Reborn source checkout is available at commit
+  `90025e8fe503795f5246392e044e010527879cc6`, but its working tree has
+  unrelated changes. The WAD packer reference files are clean. The WAD
+  differential template, content files, and common key are not available.
 - Open API and source-review work remains as listed in the generated inventory
   and `config/static-review-scope.csv`.
+
+## Progress — 2026-11-28
+
+- Recorded the locked-cache burst run. It passed 78 Dolphin checks, but
+  `lc_queue_length` pending-work behavior remains untested because Dolphin
+  drained the queue before sampling. The run does not verify physical Wii DMA.
+- Added evidence and cleanup requirements to this repository's `AGENTS.md`.
+- Independently reviewed the `gc-elf` channel entry vector. The reference
+  assembly and checked-in binary match byte for byte; 11 host tests and the WAD
+  ledger check pass. Physical IOS entry remains open. The source review ledger
+  now has 64 reviewed crates and 22 pending re-reviews.
+- Corrected the `gc-wad` note: the reference source exists, but differential
+  inputs are missing. Eight host tests pass; the package remains incomplete.
+- `rust-anything` CLI and doctor run. The CLI is available, but no Codex MCP
+  server is configured. No MCP setup change was needed for this work.
+- Pushed the verified commits through `d63d3f65` to `origin/main`.

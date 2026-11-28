@@ -36,11 +36,19 @@ Host tests cover NIST AES-CBC and independent SHA-1 vectors, WAD serialization a
 - Physical channel boot, Priiloader-to-stub dispatch, and the physical return failure remain unverified. Do not treat the prepared WAD as a confirmed hardware fix.
 
 
-## 2026-11-27 follow-up
+## 2026-11-28 follow-up
 
-The restored upstream workspace passed all eight existing host tests. The
-exact Reborn reference checkout, input template and reference signing fixtures
-are not present in the restored local C libogc archive. Do not promote WAD
-reference or signing coverage from these host results. Private-key signing,
-EC verification and trust-chain validation remain open. The package remains
-`review_incomplete`.
+The host tests do not exercise the Reborn differential harness. The reference
+checkout is available at `../../C-sources/hbc-reborn`, commit
+`90025e8fe503795f5246392e044e010527879cc6`; its `wii.py`, `wadpack.py`, and
+`retitle.py` files have no local changes. The checkout has unrelated changes
+outside these files. The inputs required by `tests/reference_reborn.py` (a WAD
+metadata template, content files, and the common key) are still absent from
+the gc-wad test fixtures. The RSA test fixtures are OpenSSL verification
+fixtures, not signing inputs for the Reborn packer. Do not promote WAD
+byte-for-byte or private-key signing coverage from the host tests.
+`cargo test -p gc-wad` passed all eight tests on 2026-11-28, and
+`cargo xtask wad-parity` passed; these checks do not run the Python
+differential harness. Private-key signing, EC verification, and trust-chain
+validation remain open. Keep the package `review_incomplete` until the missing
+differential inputs are available and the source review is complete.

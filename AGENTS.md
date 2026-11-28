@@ -18,6 +18,10 @@ the applicable procedure.
 - Before creating a probe expectation, check the pinned C behavior and the
   exact fixture contents. Verify fixture size and hash against signed metadata
   when the test depends on a NAND or title image.
+- For host differential checks, use Rust Anything or the repository's existing
+  differential harness with real reference inputs. If required inputs are
+  absent, record the exact gap and keep parity open. Do not invent fixture
+  contents or treat a synthetic fixture as reference signing evidence.
 - Record the named behavior that ran, exact result, run identity, and evidence
   limit. Keep compile, host, Dolphin, and physical Wii results distinct. A
   successful process exit does not replace the probe's own result.
