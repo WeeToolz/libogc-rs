@@ -3152,7 +3152,7 @@ ogc-es-sys,src/imp.rs,export_content_end,1762,ios,hardware-probe,probes/ogc-syst
 ogc-es-sys,src/imp.rs,export_title_done,1780,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_closed_service,raw_es::export_title_done,closed-service
 ogc-es-sys,src/imp.rs,delete_title,2177,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_closed_service,raw_es::delete_title,closed-service
 ogc-es-sys,src/imp.rs,delete_title_content,2194,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_closed_service,raw_es::delete_title_content,closed-service
-ogc-es-sys,src/imp.rs,set_uid,511,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_es_closed_service,raw_es::set_uid,closed-service
+ogc-es-sys,src/imp.rs,set_uid,511,ios,hardware-probe,probes/ogc-system-probe/src/general_probe.rs,probe_es_identity_rejection,es::set_uid,es-rejected-request
 wpad-sys,src/lib.rs,start_pairing,1468,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_disabled_discovery,wpad::start_pairing,disabled-adapter
 wpad-sys,src/lib.rs,set_host_sync_button_callback,1549,hardware,hardware-probe,probes/ogc-system-probe/src/wpad_probe.rs,probe_disabled_discovery,wpad::set_host_sync_button_callback,dolphin-host-callback
 ogc-video-sys,src/lib.rs,init,808,hardware,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_raw_video_setup,sys::init

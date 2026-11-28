@@ -74,6 +74,7 @@ struct IpcEvidenceContract {
 enum EvidenceScope {
     MockDispatch,
     ClosedService,
+    EsRejectedRequest,
     DisabledAdapter,
     InvalidChannel,
     InvalidArguments,
@@ -110,6 +111,7 @@ impl EvidenceScope {
         Some(match value {
             "mock-dispatch" => Self::MockDispatch,
             "closed-service" => Self::ClosedService,
+            "es-rejected-request" => Self::EsRejectedRequest,
             "disabled-adapter" => Self::DisabledAdapter,
             "invalid-channel" => Self::InvalidChannel,
             "invalid-arguments" => Self::InvalidArguments,
@@ -150,6 +152,9 @@ impl EvidenceScope {
             }
             Self::ClosedService => {
                 "Closed service guard only in Dolphin. Successful IOS requests and their effects are unverified."
+            }
+            Self::EsRejectedRequest => {
+                "An initialized ES request receives an IOS rejection in Dolphin, and service state remains usable. Successful UID changes remain unverified."
             }
             Self::DisabledAdapter => {
                 "Disabled adapter behavior only in Dolphin. Active discovery and pairing are unverified."
@@ -245,6 +250,7 @@ impl EvidenceScope {
         match self {
             Self::MockDispatch
             | Self::ClosedService
+            | Self::EsRejectedRequest
             | Self::DisabledAdapter
             | Self::InvalidChannel
             | Self::InvalidArguments
@@ -2540,6 +2546,7 @@ mod tests {
         for scope in [
             "mock-dispatch",
             "closed-service",
+            "es-rejected-request",
             "disabled-adapter",
             "invalid-channel",
             "invalid-arguments",
