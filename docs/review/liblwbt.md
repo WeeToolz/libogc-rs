@@ -169,3 +169,34 @@ The current 672-byte caller-data bound remains an accepted safety deviation: Rus
 Implementer: `notOrrytrout`, commit `176b8ea`. The PowerPC backend no longer performs the connection/listen waits inside the public `connectasync`, `listenasync`, `connectasync_step2`, or `listenasync_step2` calls. Each entry point reserves the setup operation, submits the immediate transport work, schedules the remaining HCI/L2CAP setup on the Rust-owned connection worker, and returns the submission result. The worker owns the later baseband/L2CAP waits and invokes the stored `conn_cfm` with the final result. This removes the bounded blocking/callback-in-entry-point behavior identified by `worker_d` while keeping the two-stage control-then-data sequence.
 
 The implementation does not link or call the C tree. The existing 673-byte MTU, HIDP DATA|OUTPUT framing, 14-PCB capacity, disconnect-ordering, and partial-disconnect fixes remain unchanged. The 672-byte caller-data bound remains an accepted safety deviation. Independent source re-review plus runtime validation of callback ordering and completion results is required before returning `lwbt-sys` to `reviewed`.
+
+## 2026-11-27 current-source re-review — connection task concurrency
+
+The async entry points now return after submission: `connectasync` and
+`listenasync` store the callback and schedule the later HCI/L2CAP work on the
+connection worker (`crates/compatibility/lwbt-sys/src/powerpc_backend.rs:1724-1767,1837-1878`). The worker calls the callback after setup completes
+(`:575-628`). This fixes the earlier blocking/callback-in-entry-point
+mismatch at source level. Runtime callback-order and failure-result evidence
+is still missing.
+
+**Confirmed current mismatch:** the worker has one global task slot.
+`reserve_connection_task` calls `try_reserve_connection_task`, which only
+changes `CONNECTION_TASK_IDLE` to `CONNECTION_TASK_RESERVED`; any second
+connect, listen, or step-two setup returns `ERR_CONN` while the first request
+is active (`powerpc_backend.rs:501-520,1724-1899`). This rejects a request for
+a different PCB and remote address before its callback can be registered.
+
+Pinned C supports separate concurrent setup requests. `bte_connectasync`
+rejects an address that is already connected, then allocates an L2CAP PCB and
+submits the control-channel request; `bte_listenasync` independently allocates
+and submits a listener (`../../C-sources/libogc/lwbt/bte.c:766-801,839-870`).
+The configured L2CAP PCB pool is 14 entries (`../../C-sources/libogc/lwbt/btopt.h:243,274`); C does not impose a single global setup task.
+
+This is not a safe Rust ownership restriction: each request already owns a
+distinct BTE PCB and transport slot. The current single-consumer event path
+needs a multi-request dispatcher that preserves callback order, failure
+results, and cancellation when a PCB is freed or reused. Do not clear this
+finding by merely queuing raw slot indexes; slot reuse can make stale setup
+work act on a new PCB. `lwbt-sys` remains `parity_blocked` until the dispatcher
+and its success, failure, overlap, and cancellation paths match the public C
+contract. No device test was run for this source review.
