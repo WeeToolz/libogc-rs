@@ -560,7 +560,7 @@ fn probe_locked_cache_dma(logger: &mut ProbeLogger) {
     }
 
     logger.section("LOCKED CACHE DMA");
-    let mut source = Align32::<96>(core::array::from_fn(|index| (index * 37 + 13) as u8));
+    let mut source = Align32::<512>(core::array::from_fn(|index| (index * 37 + 13) as u8));
     let mut destination = Align32([0xa5u8; 128]);
     let original_destination = destination.0;
     let source_ptr = source.0.as_mut_ptr().cast::<c_void>();
@@ -568,9 +568,9 @@ fn probe_locked_cache_dma(logger: &mut ProbeLogger) {
     let locked_base = cache::lc_get_base().cast::<u8>();
     let original_hid2 = read_hid2();
     let restore_locked_cache = if original_hid2 & LOCKED_CACHE_ENABLE != 0 {
-        let mut bytes = [0; 96];
-        // SAFETY: `LCGetBase` returns the mapped locked-cache base and the
-        // first three lines are within the 512-line cache region.
+        let mut bytes = [0; 15 * 32];
+        // SAFETY: `LCGetBase` returns the mapped locked-cache base and these
+        // 15 lines are within the 512-line cache region.
         unsafe { read_locked(locked_base, 0, &mut bytes) };
         Some(bytes)
     } else {
@@ -677,29 +677,41 @@ fn probe_locked_cache_dma(logger: &mut ProbeLogger) {
             && destination.0[96..] == original_destination[96..],
     );
 
-    // SAFETY: The source and locked-cache destination each cover one valid,
-    // aligned cache line. The flush must complete queued DMA before readback.
-    unsafe { cache::lc_load_blocks(locked_base.cast(), source_ptr.add(64), 1) };
+    // SAFETY: The source and 15 locked-cache destinations each cover a valid,
+    // aligned cache line. Every queued load has a distinct destination in the
+    // saved range, and all source bytes remain live until the queue drains.
+    for line in 0..15 {
+        unsafe {
+            cache::lc_load_blocks(locked_base.add(line * 32).cast(), source_ptr.add(64), 1);
+        }
+    }
     let queue_before_flush = cache::lc_queue_length();
+    if (1..=15).contains(&queue_before_flush) {
+        logger.record("lc_queue_length reports pending DMA work", true);
+    } else {
+        logger.note("UNTESTED nonzero locked cache queue depth: DMA completed before sampling");
+    }
     cache::lc_flush_queue();
-    let mut flushed_load = [0; 32];
-    // SAFETY: Read back the cache line loaded by the queued DMA operation.
+    let mut flushed_load = [0; 15 * 32];
+    // SAFETY: Read back all 15 cache lines loaded by the queued DMA burst.
     unsafe { read_locked(locked_base, 0, &mut flushed_load) };
     let queue_after_flush = cache::lc_queue_length();
+    let (flushed_lines, flushed_remainder) = flushed_load.as_chunks::<32>();
     logger.note_u32(
         "locked cache queue immediately after DMA",
         queue_before_flush,
     );
-    if queue_before_flush == 0 {
-        logger.note("UNTESTED nonzero locked cache queue depth: DMA completed before sampling");
-    }
     logger.record(
-        "lc_flush_queue completes pending DMA and drains the queue",
-        flushed_load == source.0[64..96] && queue_after_flush == 0,
+        "lc_flush_queue completes the DMA burst and drains the queue",
+        flushed_lines
+            .iter()
+            .all(|line| line == &source.0[64..96])
+            && flushed_remainder.is_empty()
+            && queue_after_flush == 0,
     );
 
     if let Some(bytes) = restore_locked_cache.as_ref() {
-        // SAFETY: Restore the three locked-cache lines saved before the probe.
+        // SAFETY: Restore the 15 locked-cache lines saved before the probe.
         unsafe { write_locked(locked_base, 0, bytes) };
     } else {
         cache::lc_disable();
@@ -710,9 +722,9 @@ fn probe_locked_cache_dma(logger: &mut ProbeLogger) {
     unsafe { cache::dc_flush_range(destination_ptr.cast(), destination.0.len() as u32) };
     cache::sync();
 
-    let mut restored_locked_cache = [0; 96];
+    let mut restored_locked_cache = [0; 15 * 32];
     if restore_locked_cache.is_some() {
-        // SAFETY: Read back the restored three lines in locked cache.
+        // SAFETY: Read back the restored 15 lines in locked cache.
         unsafe { read_locked(locked_base, 0, &mut restored_locked_cache) };
     }
     logger.record(
