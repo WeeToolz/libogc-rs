@@ -32,9 +32,10 @@ the applicable procedure.
   temporary files after confirming the saved result.
 - Before commit, inspect `git diff --check`, the full task diff, and the exact
   validation output. Stage only verified task files. Keep unverified work open.
-- Before claiming a re-review, identify the implementer from the task report or
-  commit record. A generic Git author does not prove reviewer independence.
-  Release the claim without approval when the implementer cannot be identified.
+- Before approving a re-review, establish that the reviewer and implementer
+  are different. Use the task handoff, review record, or commit attribution.
+  A generic Git author alone is insufficient. Keep the review open if the
+  available records do not establish independence.
 - Never approve or mark reviewed a change that you implemented. Make an
   independent review handoff in `config/static-review-scope.csv`.
 

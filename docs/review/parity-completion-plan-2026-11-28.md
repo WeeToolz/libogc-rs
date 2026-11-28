@@ -20,12 +20,13 @@ below are a checked snapshot, not completion criteria.
 1. **Finish the source-review sweep.** Complete the `ogc-fat` and `gc-wad`
    comparisons with their exact pinned references and required fixtures. If a
    reference or signing fixture is unavailable, record the exact gap and keep
-   the review incomplete. Do not start source fixes while a review claim is
-   active or the planned review sweep is incomplete.
-2. **Resolve the source-level blockers.** After the review sweep, fix only
-   confirmed mismatches in `lwbt-sys`, AESND, and `libdb-sys`. Add focused
-   regression checks and target evidence. Do not claim a fix is reviewed by its
-   implementer.
+   the review incomplete. Use the [review workflow](REVIEW-WORKFLOW.md) to
+   coordinate each review batch and its fixes.
+2. **Resolve the source-level blockers.** Fix confirmed mismatches in
+   `lwbt-sys`, AESND, and `libdb-sys` after their review batch is complete and
+   its findings are recorded. Missing fixtures in a separate review batch can
+   stay open while this work proceeds. Add focused regression checks and
+   target evidence. Assign each fix to an independent reviewer for approval.
 3. **Hand off fixed code for independent review.** Assign every
    `needs_re_review` row to an independent reviewer. Clear that state only
    after the reviewer records a complete-diff comparison and its result.
@@ -102,8 +103,7 @@ below are a checked snapshot, not completion criteria.
   inputs are missing. Eight host tests pass; the package remains incomplete.
 - `rust-anything` CLI and doctor run. The CLI is available, but no Codex MCP
   server is configured. No MCP setup change was needed for this work.
-- BlockFS source and tests were inspected, but the generic commit author and
-  missing implementer identity do not permit an independent approval. The
-  ledger claim was released. Repository guidance now requires identifying the
-  implementer before claiming a re-review.
+- The BlockFS ledger claim was released after the available records failed
+  to establish reviewer independence. The source and tests were inspected.
+  The review remains open for a reviewer who can establish independence.
 - Pushed the verified commits through `d63d3f65` to `origin/main`.
