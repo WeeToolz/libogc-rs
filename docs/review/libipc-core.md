@@ -873,7 +873,7 @@ independently reviewed.
 
 ## ES descriptor retention after rejected close — 2026-11-27
 
-`FileDescriptor::close_ref_with_status` distinguishes a request rejected
+`FileDescriptor::close_with_status` distinguishes a request rejected
 before an IOS reply from an IOS error reply. ES removes the `es:` registration
 before it waits for IPC, then restores the registration and keeps its
 descriptor only for a rejected submission. An IOS reply clears local state as
@@ -893,6 +893,11 @@ share a nonblocking lifecycle guard that returns `IPC_EQUEUEFULL` before a
 competing reload changes subsystem state.
 
 PowerPC test code compiles, host tests and strict Clippy pass, and the Dolphin
-probe DOL builds. Dolphin exits with `SIGABRT` for `--version`, so the runtime
-probe did not run. The target unit test binary cannot link with the installed
-host linker. Keep runtime concurrency and physical Wii checks open.
+probe DOL builds. The corrected Dolphin 2609a run passes 132/132 checks. It
+confirms a competing ES close returns `IPC_EQUEUEFULL`, ES remains usable after
+the replacement scope ends, and ES closes normally afterward. It also confirms
+`FileDescriptor::close_with_status` returns ownership after rejected
+submission and the caller closes the descriptor after the scope ends. The probe
+waits for its worker to stop IPC before it releases the replacement scope. See the
+[`ios-replacement-es-close` run record](../dolphin-runs/2026-11-27-ios-replacement-es-close/README.md).
+Physical Wii behavior and independent concurrency review remain open.

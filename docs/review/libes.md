@@ -335,7 +335,10 @@ reload sequence, so a competing call receives `IPC_EQUEUEFULL` before it can
 change ES or STM state.
 
 PowerPC test code compiles. `cargo xtask test-host` and strict Clippy pass.
-Runtime checks for concurrent close and reload remain open. Dolphin exits with
-`SIGABRT` for `--version`, so the built `ios_reload_probe` did not run. The
-target unit test binary did not link with the installed host linker. Physical
-Wii behavior remains open.
+The corrected Dolphin 2609a run passes 132/132 checks. A competing LWP calls
+`ogc_es_sys::close()` while the replacement scope is active. The call returns
+`IPC_EQUEUEFULL`; ES remains usable after the scope ends and closes normally
+afterward. The probe also verifies that its worker stops IPC before it releases the
+replacement scope. Physical Wii behavior and independent concurrency review
+remain open. See the
+[`ios-replacement-es-close` run record](../dolphin-runs/2026-11-27-ios-replacement-es-close/README.md).

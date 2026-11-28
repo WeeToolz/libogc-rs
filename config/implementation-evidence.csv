@@ -938,6 +938,7 @@ ogc-gcsd,src/wii_backend.rs,write_sectors,1536,hardware,hardware-probe,probes/og
 ogc-gcsd,src/wii_backend.rs,write_sectors_result,1451,hardware,hardware-probe,probes/ogc-system-probe/src/fat_sd_probe.rs,probe_gcsd_without_adapter,
 ogc-input,src/lib.rs,init,24,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/input_probe.rs,probe_ogc_input_public_wrappers,ogc_input::init
 ogc-ipc,src/lib.rs,close,305,ios,hardware-probe,probes/lwp-probe/src/main.rs,async_ipc_callback
+ogc-ipc,src/lib.rs,close_with_status,313,ios,hardware-probe,probes/ogc-system-probe/src/ios_reload_pending.rs,competing_scope_worker,descriptor.close_with_status,dolphin-partial
 ogc-ipc,src/lib.rs,new,215,ios,hardware-probe,probes/lwp-probe/src/main.rs,async_ipc_callback
 ogc-ipc,src/lib.rs,new,297,ios,hardware-probe,probes/lwp-probe/src/main.rs,async_ipc_callback
 ogc-ipc,src/ioctl_buffers.rs,empty,37,pure,host-test,crates/core/ogc-ipc/src/ioctl_buffers.rs,absent_and_empty_buffers_both_encode_null_and_zero

@@ -4,6 +4,9 @@ use core::ffi::c_void;
 use core::sync::atomic::{AtomicI32, AtomicU32, Ordering};
 use ogc_ipc as ipc;
 
+#[path = "ios_reload_scope.rs"]
+mod ios_reload_scope;
+
 const EVENT_HOOK: i32 = 0x1000;
 const RELEASE_HOOK: i32 = 0x3002;
 const IPC_EEXIST: i32 = -2;
@@ -20,6 +23,9 @@ static OLD_COUNT: AtomicU32 = AtomicU32::new(0);
 static OLD_RESULT: AtomicI32 = AtomicI32::new(UNSET);
 static NEW_COUNT: AtomicU32 = AtomicU32::new(0);
 static NEW_RESULT: AtomicI32 = AtomicI32::new(UNSET);
+static SCOPE_CLOSE_FD: AtomicI32 = AtomicI32::new(-1);
+static SCOPE_WORKER_DONE: core::sync::atomic::AtomicBool =
+    core::sync::atomic::AtomicBool::new(false);
 static FORMAT_COUNT: AtomicU32 = AtomicU32::new(0);
 static FORMAT_RESULT: AtomicI32 = AtomicI32::new(UNSET);
 static mut FORMAT_OUT: Buffer = Buffer([0xa5; 32]);
@@ -163,10 +169,26 @@ unsafe extern "C" fn competing_scope_worker(_: *mut c_void) -> *mut c_void {
     ) == ipc::IPC_EQUEUEFULL;
     let replacement_rejected = matches!(ipc::IosReplacement::begin(), Err(ipc::IPC_EQUEUEFULL));
     let es_close_rejected = ogc_es_sys::close() == ipc::IPC_EQUEUEFULL;
-    (usize::from(sync_rejected)
+    let descriptor_close_rejected = match SCOPE_CLOSE_FD.swap(-1, Ordering::AcqRel) {
+        raw if raw >= 0 => {
+            let descriptor = ipc::FileDescriptor::new(raw);
+            match descriptor.close_with_status() {
+                Err(ipc::FileCloseError::Submission(descriptor, error)) => {
+                    SCOPE_CLOSE_FD.store(descriptor.raw(), Ordering::Release);
+                    error == ipc::IPC_EQUEUEFULL
+                }
+                Ok(()) | Err(ipc::FileCloseError::Reply(_)) => false,
+            }
+        }
+        _ => false,
+    };
+    let result = usize::from(sync_rejected)
         | (usize::from(async_rejected) << 1)
         | (usize::from(replacement_rejected) << 2)
-        | (usize::from(es_close_rejected) << 3)) as *mut c_void
+        | (usize::from(es_close_rejected) << 3)
+        | (usize::from(descriptor_close_rejected) << 4);
+    SCOPE_WORKER_DONE.store(true, Ordering::Release);
+    result as *mut c_void
 }
 
 // Exercise the reservation gate without claiming that an IOS launch occurred.
@@ -179,10 +201,25 @@ fn verify_submission_scope(logger: &mut ProbeLogger) -> bool {
     if es_init != 0 {
         return false;
     }
+    let descriptor = match ipc::open_file(c"/dev/fs", ipc::IPC_OPEN_NONE) {
+        Ok(descriptor) => descriptor,
+        Err(error) => {
+            logger.note_i32("replacement scope descriptor open result", error);
+            logger.record("replacement scope opens descriptor for close test", false);
+            let _ = ogc_es_sys::close();
+            return false;
+        }
+    };
+    logger.record("replacement scope opens descriptor for close test", true);
+    let raw_descriptor = descriptor.raw();
+    // FileDescriptor has no Drop implementation; the worker now owns this raw
+    // handle until it returns the handle through SCOPE_CLOSE_FD.
+    SCOPE_CLOSE_FD.store(raw_descriptor, Ordering::Release);
     let before = measure_capacity(logger, "replacement scope initial request records");
     let scope = ipc::IosReplacement::begin();
     logger.record("replacement scope acquired", scope.is_ok());
     let Ok(scope) = scope else {
+        let _ = ipc::FileDescriptor::new(SCOPE_CLOSE_FD.swap(-1, Ordering::AcqRel)).close();
         let _ = ogc_es_sys::close();
         return false;
     };
@@ -203,6 +240,7 @@ fn verify_submission_scope(logger: &mut ProbeLogger) -> bool {
     let sync_ok = ipc::open_file(c"/dev/fs", ipc::IPC_OPEN_NONE).is_ok_and(|fd| fd.close().is_ok());
     logger.record("replacement scope permits owner synchronous IPC", sync_ok);
     let mut thread = ogc_lwp::sys::LWP_THREAD_NULL;
+    SCOPE_WORKER_DONE.store(false, Ordering::Release);
     // SAFETY: the worker takes no input pointer and uses a workspace stack.
     // Join it before releasing the replacement scope.
     let created = unsafe {
@@ -219,15 +257,45 @@ fn verify_submission_scope(logger: &mut ProbeLogger) -> bool {
     let joined = created == ogc_lwp::sys::LWP_SUCCESSFUL
         && unsafe { ogc_lwp::sys::join_thread(thread, &mut worker_result) }
             == ogc_lwp::sys::LWP_SUCCESSFUL;
-    let competing = joined && worker_result as usize == 15;
+    let worker_finished = if created != ogc_lwp::sys::LWP_SUCCESSFUL || joined {
+        true
+    } else {
+        let started = ogc_lwp::sys::now_ticks();
+        while !SCOPE_WORKER_DONE.load(Ordering::Acquire)
+            && ogc_lwp::sys::now_ticks().wrapping_sub(started) < TIMER_HZ * 5
+        {
+            ogc_lwp::sys::yield_thread();
+        }
+        SCOPE_WORKER_DONE.load(Ordering::Acquire)
+    };
+    let worker_quiescent = ios_reload_scope::worker_is_quiescent(joined, worker_finished);
     logger.record(
-        "replacement scope rejects competing thread sync async nested replacement and ES close",
+        "replacement scope worker stops IPC before scope release",
+        worker_quiescent,
+    );
+    if !worker_quiescent {
+        // Keep the gate active if a created worker may still submit IPC.
+        core::mem::forget(scope);
+        return false;
+    }
+    let competing = joined && worker_result as usize == 31;
+    logger.record(
+        "replacement scope rejects competing thread sync async nested replacement ES close and descriptor close",
         competing,
     );
     drop(scope);
     let recovered =
         ipc::open_file(c"/dev/fs", ipc::IPC_OPEN_NONE).is_ok_and(|fd| fd.close().is_ok());
     logger.record("replacement scope drop permits fresh request", recovered);
+    let retained_descriptor = SCOPE_CLOSE_FD.swap(-1, Ordering::AcqRel);
+    let descriptor_recovered = retained_descriptor >= 0
+        && ipc::FileDescriptor::new(retained_descriptor)
+            .close()
+            .is_ok();
+    logger.record(
+        "rejected descriptor close retains ownership for retry",
+        descriptor_recovered,
+    );
     let mut consumption_count = 0xa5a5_a5a5;
     // SAFETY: The output points to a writable u32. This read-only query checks
     // that a rejected ES close kept the descriptor usable.
@@ -411,6 +479,14 @@ fn run_once(
     );
     if probe_launch_failure {
         const INJECTED_LAUNCH_ERROR: i32 = -0x3f01;
+        let es_initialized = ogc_es_sys::init() == 0;
+        logger.record(
+            "pending reload initializes ES before injected launch failure",
+            es_initialized,
+        );
+        if !es_initialized {
+            return false;
+        }
         let injection_accepted = ogc_ios::sys::fail_next_launch_for_probe(INJECTED_LAUNCH_ERROR);
         logger.record(
             "pending reload accepts one-shot ES launch failure",

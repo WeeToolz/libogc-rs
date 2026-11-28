@@ -48,6 +48,9 @@ mod inventory;
 #[path = "../../crates/core/ogc-ios-sys/src/ios_logic.rs"]
 mod ios_reload_logic_tests;
 #[cfg(test)]
+#[path = "../../probes/ogc-system-probe/src/ios_reload_scope.rs"]
+mod ios_reload_scope_tests;
+#[cfg(test)]
 #[path = "../../crates/core/ogc-ipc/src/raw_contract.rs"]
 mod ipc_raw_contract_tests;
 #[cfg(test)]
