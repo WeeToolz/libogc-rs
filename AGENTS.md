@@ -11,6 +11,26 @@ the applicable procedure.
 
 # Real Implementation Policy
 
+## Parity evidence and task hygiene
+
+- Start each parity task with `git status` and the existing API, source-review,
+  and hardware ledgers. Do not use a remembered audit count as current data.
+- Before creating a probe expectation, check the pinned C behavior and the
+  exact fixture contents. Verify fixture size and hash against signed metadata
+  when the test depends on a NAND or title image.
+- Record the named behavior that ran, exact result, run identity, and evidence
+  limit. Keep compile, host, Dolphin, and physical Wii results distinct. A
+  successful process exit does not replace the probe's own result.
+- Check required fixture paths and environment variables before running the
+  full command. After fixing a missing prerequisite, rerun the full command.
+- Reuse the existing xtask, probe support, Dolphin runner, and hardware runner.
+  Keep durable results in their existing evidence folders. Delete task-owned
+  temporary files after confirming the saved result.
+- Before commit, inspect `git diff --check`, the full task diff, and the exact
+  validation output. Stage only verified task files. Keep unverified work open.
+- Never approve or mark reviewed a change that you implemented. Make an
+  independent review handoff in `config/static-review-scope.csv`.
+
 Do not add user-specific or machine-specific file paths to source code,
 tests, scripts, or build configuration. Read external paths from environment
 variables or command-line arguments. Build internal paths from the repository
