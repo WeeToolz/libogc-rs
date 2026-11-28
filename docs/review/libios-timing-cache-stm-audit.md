@@ -9,7 +9,7 @@ Scope: independent source audit of the remaining timing, cache, and STM question
 
 The launch-polling timing mismatch below is historical and is fixed in the current source. C's Wii timebase is `PPC_BUS_CLOCK / 4 = 60,750,000` ticks per second; `udelay(1000)` waits for 60,750 ticks. Rust reads the same PowerPC timebase and waits for that tick interval after the same unsuccessful version read and before each IPC readiness check (`crates/core/ogc-ios-sys/src/lib.rs:40-43,87-106,150-159`; C `gc/tuxedo/ppc/clock.h:5-13,85-88`, `tuxedo/tick.c:135-143`, and `libogc/ios.c:290-312`). Target-gated regression coverage checks the interval boundary and counter wraparound. This is a source and helper-test result; elapsed timing and the full reload remain unverified on physical Wii.
 
-The ACR restore order and the shared STM event-hook lifecycle also match the recorded fixes below. The 2026-11-27 source reconciliation below corrects the earlier cache note: launch polling reads the uncached alias in both C and Rust. Rust intentionally returns required STM initialization errors under the Real Implementation Policy, while pinned C can return success when STM setup fails. STM injected failure cleanup, real IOS replacement failures, the full-reload concurrency gap, and physical Wii behavior remain open.
+The ACR restore order and the shared STM event-hook lifecycle also match the recorded fixes below. The 2026-11-27 source reconciliation below corrects the earlier cache note: launch polling reads the uncached alias in both C and Rust. Rust intentionally returns required STM initialization errors under the Real Implementation Policy, while pinned C can return success when STM setup fails. STM injected failure cleanup, real IOS replacement failures, broader concurrency review, and physical Wii behavior remain open. The public reload guard and rejected-close ownership path are covered by the targeted Dolphin follow-up below and in `libipc-core.md`.
 
 - **Historical launch polling delay finding; fixed in current source.** C waits for the version word with `udelay(1000)` after each unsuccessful read (`../../C-sources/libogc/libogc/ios.c:290-291`). Its IPC readiness loop also calls `udelay(1000)` before each register check (`ios.c:307-312`). `udelay` measures elapsed time from `gettime()` until at least the requested microseconds have passed (`../../C-sources/libogc/libogc/timesupp.c:66-77`). The earlier Rust implementation used fixed `spin_loop` counts. Rust now waits for the same 60,750 timebase ticks per millisecond before each unsuccessful version poll and each IPC readiness check (`crates/core/ogc-ios-sys/src/lib.rs:40-43,100-106,150-170`). Target-gated helper tests cover interval boundaries and counter wraparound; elapsed timing on Wii remains unverified.
 ### Historical STM wrapper findings — shared lifecycle now used
@@ -218,8 +218,22 @@ The independent review confirmed that IOS startup and shutdown use the shared
 `ogc-stm` lifecycle and identified the earlier wrapper-omission findings as
 stale. It confirmed the intentional STM initialization error difference and
 found no request-retirement or deferred callback ownership mismatch. The review
-also found a cross-crate safety gap: `IosReplacement` rejects IPC calls during
-its launch window, but does not serialize the full `reload_ios` lifecycle or
-protect ES descriptor state mutations that happen before a rejected IPC call.
-See [`libipc-core.md`](libipc-core.md#independent-ipcioses-lifecycle-review--2026-11-27).
-The concurrent path remains unverified at runtime.
+also found a cross-crate safety gap: `IosReplacement` rejected IPC calls during
+its launch window, but did not serialize concurrent public reload calls or
+preserve ES descriptor ownership after a rejected close.
+
+### Targeted concurrency fix and Dolphin check — 2026-11-27
+
+The public `_ios_launch_new_ios` and `reload_ios` entry points now share a
+nonblocking lifecycle guard. `FileDescriptor::close_with_status` returns the
+descriptor when IPC rejects the submission, and `ogc-es-sys` restores its
+filesystem registration and keeps that descriptor. A 132-check Dolphin
+`ios_reload_probe` passed the competing-close case, confirmed ES remained
+usable, and closed ES after the replacement scope ended. See the
+[`ios-replacement-es-close` run record](../dolphin-runs/2026-11-27-ios-replacement-es-close/README.md)
+and the later source review in
+[`libipc-core.md`](libipc-core.md#close-ownership-and-ios-lifecycle-guard--2026-11-27).
+
+This covers the reported concurrent reload/close path. It does not replace a
+broader independent concurrency review, test actual IOS launch or `/dev/es`
+failure behavior, or verify physical Wii behavior.
