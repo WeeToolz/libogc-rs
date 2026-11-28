@@ -327,13 +327,70 @@ pub(super) fn run(logger: &mut ProbeLogger, version: i32) {
         }
     };
     logger.record("pending reload creates formatter heap", true);
+    let mut reloads_passed = true;
     for iteration in 1..=3 {
         logger.section("Outstanding application IPC across IOS replacement");
         logger.note_u32("pending reload iteration", iteration);
         if !run_once(logger, version, heap, iteration == 1, iteration == 3) {
+            reloads_passed = false;
             break;
         }
     }
+    if reloads_passed {
+        probe_reported_version_mismatch(logger, version);
+    }
+}
+
+fn probe_reported_version_mismatch(logger: &mut ProbeLogger, version: i32) {
+    logger.section("IOS reload version mismatch cleanup");
+    let reported_version = if version == 0xff {
+        version - 1
+    } else {
+        version + 1
+    };
+    let invalid_rejected = !ogc_ios::sys::set_next_version_for_probe(Some(2));
+    logger.record(
+        "version mismatch probe rejects an invalid version",
+        invalid_rejected,
+    );
+    let injection_accepted = ogc_ios::sys::set_next_version_for_probe(Some(reported_version));
+    let second_injection_rejected =
+        !ogc_ios::sys::set_next_version_for_probe(Some(reported_version));
+    logger.record(
+        "version mismatch probe accepts one valid different version",
+        injection_accepted && second_injection_rejected && reported_version != version,
+    );
+    if !injection_accepted {
+        return;
+    }
+
+    let result = ogc_ios::reload_ios(version);
+    let hook_cleared = ogc_ios::sys::set_next_version_for_probe(None);
+    logger.note_i32("version mismatch reload result", result);
+    logger.record(
+        "reload reports IOS version mismatch after handoff",
+        result == ogc_ios::IOS_EMISMATCH && hook_cleared,
+    );
+
+    let actual_version = ogc_ios::get_version();
+    logger.note_i32("version mismatch actual IOS version", actual_version);
+    logger.record(
+        "version mismatch observation does not change IOS version",
+        actual_version == version,
+    );
+
+    let filesystem_ready =
+        ipc::open_file(c"/dev/fs", ipc::IPC_OPEN_NONE).is_ok_and(|fd| fd.close().is_ok());
+    logger.record(
+        "IPC remains usable after version mismatch cleanup",
+        filesystem_ready,
+    );
+
+    let stm_closed = ogc_stm::close() == 0;
+    logger.record(
+        "IOS STM hook closes after version mismatch cleanup",
+        stm_closed,
+    );
 }
 
 fn run_once(

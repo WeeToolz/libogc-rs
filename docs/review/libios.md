@@ -2,7 +2,7 @@
 
 Scope: public declarations in `crates/core/ogc-ios/src/lib.rs` and `crates/core/ogc-ios-sys/src/lib.rs`, compared with `C-sources/libogc/gc/ogc/ios.h` and `C-sources/libogc/libogc/ios.c`. This review covers the exported API and the PowerPC implementation. The separate [timing, cache, and STM audit](libios-timing-cache-stm-audit.md) covers the IOS wrapper's use of STM and its current safety differences. It does not replace the IPC or IRQ reviews.
 
-Status: source review and Dolphin evidence cover IOS 58 reload, subsystem lifecycle APIs, IPC-ready polling, ticket-view alignment, and the shared STM lifecycle on success. The current IOS lifecycle probe passed 132 checks on 2026-11-28, including injected launch failure and failed fresh-handshake retry. The current STM probe passed 22 checks, including the closed-interface guards for reboot and shutdown APIs. Successful STM reboot, standby, and idle operations remain open. The eight physical cache and DMA contracts, physical Wii behavior, and an actual unexpected-version launch remain open. See the linked audit and probe reports for evidence and limits.
+Status: source review and Dolphin evidence cover IOS 58 reload, subsystem lifecycle APIs, IPC-ready polling, ticket-view alignment, and the shared STM lifecycle on success. The latest IOS lifecycle probe passed 138 checks on 2026-11-28, including injected launch failure, failed fresh-handshake retry, and mismatch cleanup after an actual Dolphin IOS handoff. It reported the mismatch through a probe hook; it did not test an IOS that actually launched at an unexpected version. The current STM probe passed 22 checks, including the closed-interface guards for reboot and shutdown APIs. Successful STM reboot, standby, and idle operations remain open. The eight physical cache and DMA contracts, physical Wii behavior, and an actual unexpected-version launch remain open. See the linked audit and probe reports for evidence and limits.
 
 ## Confirmed mismatches
 
@@ -29,12 +29,15 @@ Status: source review and Dolphin evidence cover IOS 58 reload, subsystem lifecy
 
 ## Current Dolphin verification — 2026-11-28 UTC
 
-The current [`ios_reload_probe`](../dolphin-runs/2026-11-28-ios-reload-current/README.md)
-passed 132 checks. It covered the public lifecycle path, an injected ES launch
-failure, old raw and formatted IPC requests, cancellation, cleanup, a failed
-fresh-handshake retry, and fresh IPC after recovery. The failure was injected
-at the launch boundary; this does not prove that IOS itself returned an ES
-launch error.
+The earlier [`ios_reload_probe`](../dolphin-runs/2026-11-28-ios-reload-current/README.md)
+passed 132 checks. The latest
+[`version mismatch run`](../dolphin-runs/2026-11-28-ios-reload-version-mismatch/README.md)
+passed 138 checks. It includes the earlier lifecycle checks plus a real
+Dolphin IOS handoff followed by a probe-reported version mismatch. The probe
+checks `IOS_EMISMATCH`, verifies the actual IOS version did not change, and
+confirms IPC and STM cleanup. Its version hook does not alter IOS memory. The
+existing ES launch failure is injected at the launch boundary; neither check
+proves that IOS itself returned an ES error or launched an unexpected version.
 
 The current [`stm_api_probe`](../dolphin-runs/2026-11-28-stm-api-closed-state/README.md)
 passed 22 checks. Its reboot, standby, and idle checks used a closed STM

@@ -52,6 +52,8 @@ static IOS_STM_CLOSE_RESULT: AtomicI32 = AtomicI32::new(0);
 static IOS_LIFECYCLE_ACTIVE: AtomicBool = AtomicBool::new(false);
 #[cfg(feature = "ios-reload-probe")]
 static IOS_NEXT_LAUNCH_RESULT_FOR_PROBE: AtomicI32 = AtomicI32::new(0);
+#[cfg(feature = "ios-reload-probe")]
+static IOS_NEXT_VERSION_FOR_PROBE: AtomicI32 = AtomicI32::new(0);
 
 #[cfg(target_arch = "powerpc")]
 const IOS_VERSION_WORD_ADDR: usize = 0x8000_3140;
@@ -65,6 +67,35 @@ pub fn fail_next_launch_for_probe(result: i32) -> bool {
         && IOS_NEXT_LAUNCH_RESULT_FOR_PROBE
             .compare_exchange(0, result, Ordering::AcqRel, Ordering::Acquire)
             .is_ok()
+}
+
+#[cfg(all(target_arch = "powerpc", feature = "ios-reload-probe"))]
+/// Set or clear the reported IOS version for the IOS reload probe.
+///
+/// This hook does not change IOS memory or the public `get_version` result.
+pub fn set_next_version_for_probe(version: Option<i32>) -> bool {
+    match version {
+        Some(version) if (3..=0xff).contains(&version) => IOS_NEXT_VERSION_FOR_PROBE
+            .compare_exchange(0, version, Ordering::AcqRel, Ordering::Acquire)
+            .is_ok(),
+        Some(_) => false,
+        None => {
+            IOS_NEXT_VERSION_FOR_PROBE.store(0, Ordering::Release);
+            true
+        }
+    }
+}
+
+#[cfg(target_arch = "powerpc")]
+fn version_after_launch() -> i32 {
+    #[cfg(feature = "ios-reload-probe")]
+    {
+        let reported = IOS_NEXT_VERSION_FOR_PROBE.swap(0, Ordering::AcqRel);
+        if reported != 0 {
+            return reported;
+        }
+    }
+    get_version()
 }
 
 #[cfg(target_arch = "powerpc")]
@@ -206,7 +237,7 @@ fn launch_ios_from_es(version: i32) -> i32 {
             irq::unmask(irq::IM_PI_ACR);
         },
         ogc_ipc::reinitialize,
-        get_version,
+        version_after_launch,
     );
     // SAFETY: launch succeeded, the uncached version word was cleared and
     // republished, and the mailbox was reinitialized. finish verifies a fresh

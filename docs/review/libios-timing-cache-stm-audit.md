@@ -207,9 +207,13 @@ Host tests run the shared helper called by production and confirm cleanup runs
 before matching and mismatching version results. The focused helper tests pass
 2/2. These tests cover result ordering; they do not simulate an actual IOS
 version mismatch. The PowerPC Dolphin probe build also compiles this helper.
-`cargo xtask clippy` passed with the repository MP3 fixtures. Dolphin
-`ios_reload_probe` passed on the normal IOS 58 path; it does not force an
-unexpected IOS version. Physical Wii and failed-handshake tests remain open.
+The 2026-11-28 [`version mismatch run`](../dolphin-runs/2026-11-28-ios-reload-version-mismatch/README.md)
+passed 138 checks. It performs a real Dolphin IOS handoff, then a probe-only
+hook reports a different version to the launch path. The probe confirms
+`IOS_EMISMATCH`, checks that actual IOS memory still reports the requested
+version, and verifies fresh IPC and STM cleanup. This exercises mismatch
+cleanup but does not cause IOS to launch an unexpected version. Physical Wii
+and actual launch-failure tests remain open.
 
 
 ## Independent IOS/IPC/ES lifecycle review — 2026-11-27
