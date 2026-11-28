@@ -11,9 +11,9 @@ use ogc_network_sys as network;
 
 use crate::{
     Bool, HostStatVfs, SMB_BAD_COMMAND, SMB_BAD_KEYLEN, SMB_BAD_LOGINDATA, SMB_BAD_PROTOCOL,
-    SMB_ERROR, SMB_MAXPATH, SMB_OF_CREATE, SMB_OF_OPEN, SMB_OF_TRUNCATE, SMB_OPEN_READING,
-    SMB_OPEN_READWRITE, SMB_OPEN_WRITING, SMB_SRCH_DIRECTORY, SMB_SUCCESS, SmbConn, SmbDirEntry,
-    SmbFile, ntlm,
+    SMB_DEFAULT_SEARCH_FLAGS, SMB_ERROR, SMB_MAXPATH, SMB_OF_CREATE, SMB_OF_OPEN, SMB_OF_TRUNCATE,
+    SMB_OPEN_READING, SMB_OPEN_READWRITE, SMB_OPEN_WRITING, SMB_SRCH_DIRECTORY, SMB_SUCCESS,
+    SmbConn, SmbDirEntry, SmbFile, ntlm,
 };
 use ogc_sysbase::{Devoptab, DirIter, Reent, Stat, StatVfs};
 
@@ -86,7 +86,7 @@ const EISCONN: i32 = 30;
 const EALREADY: i32 = 7;
 const EINPROGRESS: i32 = 26;
 
-static SMB_SEARCH_FLAGS: AtomicU16 = AtomicU16::new(0);
+static SMB_SEARCH_FLAGS: AtomicU16 = AtomicU16::new(SMB_DEFAULT_SEARCH_FLAGS);
 
 const MAX_OPEN_FILES: usize = 256;
 
@@ -2095,7 +2095,28 @@ pub(crate) fn close_connection(smbhndl: SmbConn) {
 
 #[cfg(all(test, target_arch = "powerpc"))]
 mod tests {
-    use super::{Mount, device_name_for_find_device, mount_name_exists, mount_record};
+    use super::{
+        Mount, SMB_SEARCH_FLAGS, device_name_for_find_device, mount_name_exists, mount_record,
+        smb_set_search_flags,
+    };
+    use crate::{SMB_DEFAULT_SEARCH_FLAGS, SMB_SRCH_ARCHIVE};
+
+    #[test]
+    fn directory_search_flags_match_c_defaults_and_setter() {
+        let c_default = SMB_DEFAULT_SEARCH_FLAGS;
+        assert_eq!(c_default, 17);
+        assert_eq!(
+            SMB_SEARCH_FLAGS.load(core::sync::atomic::Ordering::Acquire),
+            c_default
+        );
+
+        smb_set_search_flags(SMB_SRCH_ARCHIVE);
+        assert_eq!(
+            SMB_SEARCH_FLAGS.load(core::sync::atomic::Ordering::Acquire),
+            SMB_SRCH_ARCHIVE
+        );
+        smb_set_search_flags(c_default);
+    }
 
     #[test]
     fn find_device_name_adds_c_colon_suffix_without_truncation() {

@@ -75,7 +75,7 @@ impl Default for SmbDirEntry {
 }
 
 static SMB_INITED: AtomicBool = AtomicBool::new(false);
-static SMB_SEARCH_FLAGS: AtomicU16 = AtomicU16::new(0);
+static SMB_SEARCH_FLAGS: AtomicU16 = AtomicU16::new(SMB_DEFAULT_SEARCH_FLAGS);
 static SMB_NEXT_CONN: AtomicU32 = AtomicU32::new(1);
 static SMB_LAST_CONN: AtomicU32 = AtomicU32::new(0);
 static SMB_NEXT_FILE: AtomicU32 = AtomicU32::new(1);
@@ -1338,3 +1338,5 @@ static SMB_DOLPHIN_FIXTURE_PORT: AtomicU16 = AtomicU16::new(0);
 pub fn set_dolphin_fixture_port(port: u16) {
     SMB_DOLPHIN_FIXTURE_PORT.store(port, Ordering::Release);
 }
+
+const SMB_DEFAULT_SEARCH_FLAGS: u16 = SMB_SRCH_DIRECTORY | SMB_SRCH_READONLY;

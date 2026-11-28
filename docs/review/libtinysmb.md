@@ -9,6 +9,18 @@
 
 ## Confirmed mismatches
 
+### Default directory-search flags
+
+C initializes `smbFlags` to `SMB_SRCH_DIRECTORY | SMB_SRCH_READONLY`
+(`smb_devoptab.c:49`). `smbSetSearchFlags` replaces that value
+(`smb_devoptab.c:1545-1547`), and the device-directory callbacks pass it to
+`SMB_FindFirst` (`smb_devoptab.c:912,1007`). Rust initialized the PowerPC
+backend's `SMB_SEARCH_FLAGS` to zero, so directory iteration could use a
+different default before the application called the setter. The shared Rust
+default now equals the C value, and a target unit test checks the initial value
+and setter update. Target test execution and a real SMB directory listing
+remain unverified.
+
 ### `smbInit` does not establish a persistent default device in the PowerPC backend
 
 C `smbInit` delegates to `smbInitDevice("smb", ...)` (`smb_devoptab.c:1506-1509`). `smbInitDevice` connects, reserves one of ten `SMBEnv` slots, and calls `MountDevice` (`smb_devoptab.c:1487-1503`). `MountDevice` registers a devoptab with `AddDevice`, stores the connection and environment, and enables read-ahead (`smb_devoptab.c:1403-1452`).
