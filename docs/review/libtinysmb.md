@@ -7,7 +7,29 @@
 - Reviewed history: `8865664` (UTF-16 SMB directory name decoding), `565302c` (response framing and transfer bounds)
 - Validation: static source comparison only. No build or tests were run, as required for this review pass. No hardware verification was performed.
 
-## Confirmed mismatches
+## Initial review findings
+
+## Current-source reconciliation (2026-11-28)
+
+The initial findings below are historical and do not all describe the current
+source. `smb_init` now calls `smb_init_device` with the default `smb` name;
+that path retains the live connection and registers a Rust-owned devoptab
+through `ogc_sysbase::add_device` (`powerpc_backend.rs:916-950,1988-1994`).
+Device names now use the one-to-eight-byte C limit, and initialization checks
+both the Rust mount table and the shared device registry before it connects
+(`powerpc_backend.rs:194-224,1936-1979`). `smb_close` accepts one trailing
+colon, while `smb_check_connection` uses the prefix before the first colon
+(`powerpc_backend.rs:1997-2032`). Outgoing text uses the current UTF-8 scalar
+decoder and writes the corresponding low 16-bit unit, with target tests for
+ASCII, BMP, supplementary, invalid, and bounded input
+(`powerpc_backend.rs:1341-1370,1385-1444`).
+
+These source checks remove those four initial findings as current production
+code mismatches. Their target tests compiled on 2026-11-28 but did not run. A
+real SMB server, Wii hardware, and application-level devoptab behavior remain
+unverified. The default search flag mismatch below was fixed in commit
+`7afb6fea`; its target test also compiled but did not run. Keep the related
+inventory APIs open until their required exact runtime evidence is recorded.
 
 ### Default directory-search flags
 
