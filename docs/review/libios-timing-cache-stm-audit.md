@@ -241,3 +241,16 @@ and the later source review in
 This covers the reported concurrent reload/close path. It does not replace a
 broader independent concurrency review, test actual IOS launch or `/dev/es`
 failure behavior, or verify physical Wii behavior.
+
+## ACR handler restore return contract — 2026-11-28
+
+The ignored value from Rust `irq::request` during IOS reload is the previous
+handler, not a success or error code. Rust `irq::request` returns
+`k_irq_set`'s previous handler (`crates/core/ogc-irq/src/lib.rs` and
+`crates/core/ogc-irq-sys/src/lib.rs`). C `IRQ_Request` also returns the
+previous handler from `KIrqSet`, and `KIrqSet` swaps the slot and returns its
+old callback (`C-sources/libogc/gc/ogc/irq.h` and
+`C-sources/libogc/tuxedo/interrupt.c`). The C reload path ignores that return
+value too (`C-sources/libogc/libogc/ios.c`). Therefore Rust's explicit
+discard does not hide an IRQ registration error; this review found no mismatch
+to fix here.
