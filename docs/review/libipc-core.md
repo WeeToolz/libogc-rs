@@ -4,11 +4,18 @@ Status: the 2026-11-27 independent source review found no request-retirement or 
 
 ## Scope and source map
 
-Reviewed all Rust production source files in `ogc-ipc`, `ogc-sys`, and `ogc-sysbase`:
+Reviewed Rust production source in `ogc-ipc`, `ogc-sys`, and `ogc-sysbase`:
 
-- `crates/core/ogc-ipc/src/lib.rs` (lines 1–1978; tests at 1980–2053), `dma_buffer.rs` (1–40), and `poll_guard.rs` (1–68).
-- `crates/abi/ogc-sys/src/lib.rs` (1–1029).
-- `crates/core/ogc-sysbase/src/lib.rs` (1–633).
+- `crates/core/ogc-ipc/src/lib.rs`, including the raw C ABI, PowerPC variadic
+  formatter bridge, request engine, and formatter implementation; plus
+  `dma_buffer.rs`, `poll_guard.rs`, `ioctl_buffers.rs`, and
+  `async_completion.rs`.
+- `crates/abi/ogc-sys/src/lib.rs` and its startup and exception assembly.
+- `crates/core/ogc-sysbase/src/lib.rs`.
+
+This file contains historical reviews and handoffs. The current limitations
+and runtime evidence are recorded in the status at the top and the dated
+follow-ups near the end.
 
 The direct IPC C interface is `../../C-sources/libogc/gc/ogc/ipc.h` (lines 36–104) and its implementation is `../../C-sources/libogc/libogc/ipc.c` (lines 55–1327). The IOS version/reload interface is `../../C-sources/libogc/gc/ogc/ios.h` (lines 39–57), implemented by `../../C-sources/libogc/libogc/ios.c` (lines 44–406). For interrupt and startup primitives in `ogc-sys`, relevant public C declarations include `gc/ogc/irq.h` (lines 57–112); exception and runtime call sites are in `libogc/system.c` and the C startup sources. `ogc-sysbase` models newlib `_reent` and `devoptab_t` APIs, but the matching newlib implementation/header is not present in the supplied `C-sources/libogc` tree. The only in-tree evidence found for this interface is its use in `libogc/sys_report.c` (lines 61–112), `console.c` (lines 20, 485–486), and `ogc_sockets/soc_init.c` (lines 65–104).
 
@@ -38,29 +45,30 @@ limits.
 - C invokes the completion callback from its IPC reply interrupt handler (`ipc.c:327–407`). Rust queues callbacks to the LWP deferred worker (`crates/core/ogc-ipc/src/lib.rs:1386–1403, 1723–1753`). This changes callback execution context and timing. Rust documents this as a deliberate interrupt-safety choice; this review did not classify it as a defect.
 - Rust validates C strings against `IPC_MAXPATH_LEN` and copies open paths into aligned storage (`crates/core/ogc-ipc/src/lib.rs:47–55, 1756–1777, 1904–1910`). C checks null only for synchronous open and flushes at most `IPC_MAXPATH_LEN + 1` bytes (`ipc.c:844–867`); asynchronous C open does not check null (`ipc.c:869–887`). Rust's bounded path contract is a safety/API addition and is stricter for oversized inputs.
 - Rust stages partial or unaligned DMA buffers to protect neighboring cache data (`crates/core/ogc-ipc/src/dma_buffer.rs:1–7`, `lib.rs:444–504, 1780–1902`). C passes supplied buffers directly and flushes/invalidates their cache ranges (`ipc.c:327–383, 1051–1186, 1242–1327`). This is a Rust-only safety behavior.
-- Rust exposes typed wrappers (`IoctlBuffers`, `IoctlvEntry`, `HeapId`, `FileDescriptor`) and the `open_file`/`open_file_async` free functions (`crates/core/ogc-ipc/src/lib.rs:84–240, 1904–1978`). C exposes the raw `IOS_*` API, buffer accessors, and variadic `IOS_IoctlvFormat[Async]` (`ipc.h:69–104`). The Rust crate does not implement a variadic format parser; it now provides C ABI counterparts for the four IPC buffer get/set functions described in the handoff below.
+- Rust exposes typed wrappers (`IoctlBuffers`, `IoctlvEntry`, `HeapId`, `FileDescriptor`) and the `open_file`/`open_file_async` free functions. It also exports the C ABI variadic `IOS_IoctlvFormat[Async]` functions through PowerPC EABI assembly entry shims and a Rust parser (`crates/core/ogc-ipc/src/lib.rs:36–100, 2894–3355`). The parser covers the C `b`, `h`, `i`, `q`, `d`, `s`, and `:` grammar. Rust rejects null scalar/string pointers instead of reproducing C undefined behavior and cleans up allocations after rejected async submissions. Rust also exports the four IPC buffer get/set functions.
 - `ogc-sysbase` adds a no-std device-file helper, mounted-device registry, and stdin replacement helpers (`crates/core/ogc-sysbase/src/lib.rs:217–437, 440–563`). These helpers are not part of the IPC C API. The source set does not include the newlib `devoptab_t` definition or `AddDevice`/`FindDevice`/`RemoveDevice` implementation needed to verify structure offsets and registration semantics.
 - `ogc-sys` includes startup assembly, HBC argument capture, memory routines, error wrappers, and exception-vector installation (`crates/abi/ogc-sys/src/lib.rs:98–366, 389–475, 490–589, 593–911`). This crate has no direct single C header/implementation pair. Some behavior is Rust-runtime-specific. `Bool`, float aliases, status conversion helpers, HBC signature helpers, debug/test helpers, and configurable dispatch callbacks are Rust additions, not C ABI declarations.
 
 ## Areas checked
 
-- IPC public constants and `Ioctlv` layout: compared `ipc.h:36–67` to `ogc-ipc/src/lib.rs:21–40, 82–87`; values and pointer/length field order agree for 32-bit PowerPC.
-- IPC request layout, queueing, request submission, acknowledgement/reply handling: compared `ipc.c:72–115, 254–447, 686–719` to `ogc-ipc/src/lib.rs:600–720, 1200–1442, 1673–1753`.
-- Open, close, read, write, seek, ioctl, ioctlv, and reboot requests: compared `ipc.c:844–1187, 1242–1327` and declarations `ipc.h:82–104` to Rust `ogc-ipc/src/lib.rs:230–1100, 1756–1902`.
-- Heap behavior and buffer bounds: compared `ipc.c:721–803` to Rust `ogc-ipc/src/lib.rs:164–225, 1513–1671`.
-- Poll and interrupt guards: reviewed Rust `poll_guard.rs:1–24`, `ogc-ipc/src/lib.rs:1115–1138`, and the C interrupt sequence at `ipc.c:327–447`.
+- IPC public constants and `Ioctlv` layout: compared `ipc.h:36–67` with the Rust constants and `Ioctlv` definition; values and pointer/length field order agree for 32-bit PowerPC.
+- IPC request layout, queueing, submission, acknowledgement, and reply handling: compared `ipc.c:72–115, 254–447, 686–719` with the Rust request types, queue functions, send path, and reply handlers.
+- Open, close, read, write, seek, ioctl, ioctlv, and reboot requests: compared `ipc.c:844–1187, 1242–1327` and declarations `ipc.h:82–104` with the Rust C ABI entry points and `FileDescriptor` methods.
+- Heap behavior and buffer bounds: compared `ipc.c:721–803` with the Rust heap and buffer-bound implementations.
+- Variadic formatter parsing, request submission, completion copyback, and cleanup: compared `ipc.c:214–251, 448–684` and `ipc.h:82–104` with the PowerPC entry shims, parser, and completion handlers in `ogc-ipc`. The current Dolphin contract checks are listed in the formatter section below.
+- Poll and interrupt guards: compared Rust `poll_guard.rs` and the IPC request path with the C interrupt sequence at `ipc.c:327–447`.
 - IOS version and reload routines: source files were inventoried (`ios.h:39–57`, `ios.c:44–406`); no corresponding public functions are implemented by these three Rust crates.
 - `ogc-sysbase` public types, callbacks, and methods: inventoried all exported declarations at `crates/core/ogc-sysbase/src/lib.rs:16–159, 217–563`. Full ABI comparison is limited by the missing newlib header and implementation noted above.
 - `ogc-sys` public helpers and assembly: inventoried all public functions/types and exported symbols at `crates/abi/ogc-sys/src/lib.rs:17–48, 368–478, 592–911`. Direct C parity could not be established for the custom Rust startup and exception-vector implementation from this source set.
 
 ## Uncertain or unchecked
 
-- No hardware behavior was checked. In particular, IOS mailbox response ordering, DMA cache effects, callback timing under load, relaunch interactions, and exception-vector behavior remain unverified at runtime.
+- Dolphin runtime checks cover selected IOS file requests, vector requests, formatter contracts, IOS reload, and relaunch behavior; see the dated run records below. Physical Wii behavior remains unverified. In particular, cache and DMA effects, callback timing under physical IOS load, hardware relaunch behavior, and exception-vector behavior are not established by Dolphin.
 - The exact newlib ABI for `_reent`, `devoptab_t`, `DIR_ITER`, and filesystem callbacks is uncertain because the corresponding headers and implementation are external to this C source tree. Rust field/callback layouts at `ogc-sysbase/src/lib.rs:26–160` were inventoried, not proven against that external ABI.
 - No equivalent C implementation was found for the Rust custom IRQ/decrementer exception vector stubs, standalone `_start_rust` entry, or HBC command-line sheltering. These areas were inventoried at `ogc-sys/src/lib.rs:98–366, 490–589, 757–911`, but are not claimed as parity-checked.
-- The C variadic ioctlv format parser (`ipc.c:448–684`) and completion cleanup path (`ipc.c:214–251`) have no Rust equivalent and were not independently reimplemented or behavior-compared.
+- Eight formatter contracts still require physical Wii cache and DMA checks. The Dolphin run verifies the other 82 contracts. Actual IOS launch and `/dev/es` failure behavior, physical loader-bound behavior, and broader concurrency review remain open.
 - Rust `ogc-sys` helpers outside IPC/system ABI glue, including byte-copy routines and generic status conversion, were source-inventoried but not exhaustively compared with external compiler-runtime/newlib implementations. No claim is made about their full cross-platform parity.
-- Rust test modules were inventoried but not executed (`ogc-ipc/src/lib.rs:1980–2053`, `dma_buffer.rs:9–40`, `poll_guard.rs:26–68`, `ogc-sys/src/lib.rs:912–1029`). No compile, test, or static-analysis command was run, as requested.
+- As of 2026-11-28, `cargo xtask test-host`, strict `cargo xtask clippy`, and PowerPC `cargo check --tests` checks passed. The latest `runtime_probe` passed 901 checks, including all 82 formatter contracts marked `verified`. PowerPC target tests were compile-checked, not executed. The eight physical cache and DMA contracts and real Wii behavior remain open.
 
 ## 2026-10-02 IPC heap-model implementation
 
