@@ -100,6 +100,7 @@ enum EvidenceScope {
     IpcRebootHandoff,
     IosLifecycleDolphin,
     IosEsReset,
+    LwpFirstInitialization,
     StmClosedPowerGuard,
     EsBootImportArguments,
     LaunchRejection,
@@ -138,6 +139,7 @@ impl EvidenceScope {
             "ipc-reboot-handoff" => Self::IpcRebootHandoff,
             "ios-lifecycle-dolphin" => Self::IosLifecycleDolphin,
             "ios-es-reset" => Self::IosEsReset,
+            "lwp-first-initialization" => Self::LwpFirstInitialization,
             "stm-closed-power-guard" => Self::StmClosedPowerGuard,
             "es-boot-import-arguments" => Self::EsBootImportArguments,
             "launch-rejection" => Self::LaunchRejection,
@@ -218,6 +220,9 @@ impl EvidenceScope {
             Self::IosEsReset => {
                 "The public IOS reload path resets ES state and ES reopens on the new IOS in Dolphin. Physical Wii reload behavior remains unverified."
             }
+            Self::LwpFirstInitialization => {
+                "The startup initialization event and repeated public initialization pass in Dolphin. Physical scheduler and interrupt behavior remain unverified."
+            }
             Self::StmClosedPowerGuard => {
                 "Closed-interface rejection only in Dolphin. Successful STM reboot and shutdown requests, and physical Wii behavior, remain unverified."
             }
@@ -277,6 +282,7 @@ impl EvidenceScope {
             | Self::IpcRebootHandoff
             | Self::IosLifecycleDolphin
             | Self::IosEsReset
+            | Self::LwpFirstInitialization
             | Self::LaunchHandoff
             | Self::LaunchHandoffArgs => "dolphin-partial",
             Self::EsBootImportArguments => "unverified",
@@ -2582,6 +2588,9 @@ mod tests {
         let ios_es_reset = EvidenceScope::parse("ios-es-reset").unwrap();
         assert_eq!(ios_es_reset.classification("ios"), "dolphin-partial");
         assert!(ios_es_reset.limitation().contains("Physical Wii"));
+        let lwp_init = EvidenceScope::parse("lwp-first-initialization").unwrap();
+        assert_eq!(lwp_init.classification("compatibility-forwarder"), "dolphin-partial");
+        assert!(lwp_init.limitation().contains("Physical scheduler"));
         for (name, limitation) in [
             (
                 "dolphin-partial",

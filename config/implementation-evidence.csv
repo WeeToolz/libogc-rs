@@ -3282,7 +3282,7 @@ ogc-lwp,src/lib.rs,reschedule,379,compatibility-forwarder,hardware-probe,probes/
 ogc-lwp,src/lib.rs,set_priority,104,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_priority_order,thread.set_priority
 ogc-lwp-driver,src/runtime.rs,reschedule,2715,scheduler,hardware-probe,probes/lwp-probe/src/main.rs,rotation_worker,driver::reschedule
 ogc-lwp-sys,src/lib.rs,note_ipc_wake,366,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_ipc_wakeup,lwp::note_ipc_wake
-ogc-lwp-sys,src/lib.rs,initialize,32,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,run_ipc_wakeup,lwp::initialize,repeated-initialization
+ogc-lwp-sys,src/lib.rs,initialize,32,compatibility-forwarder,hardware-probe,probes/lwp-probe/src/main.rs,probe_lwp_startup_initialization,lwp::initialize,lwp-first-initialization
 ogc-network-sys,src/lib.rs,net_attach_active,685,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_attach_active,raw_network::net_attach_active
 ogc-network-sys,src/lib.rs,net_attach_active,1950,ios,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_attach_active,raw_network::net_attach_active
 ogc-network,src/lib.rs,attach_active,72,compatibility-forwarder,hardware-probe,probes/ogc-system-probe/src/runtime_probe.rs,probe_network_attach_active,net::attach_active

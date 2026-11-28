@@ -2439,6 +2439,14 @@ mod wii {
     }
 
     pub fn run() -> i32 {
+        // `SYS_Init` calls LWP initialize before main. Drain the diagnostic
+        // queue before this probe makes any call that can initialize LWP.
+        const EVENT_INIT: u16 = 1;
+        let mut startup_events = [lwp::DebugEvent::default(); 256];
+        let startup_event_count = lwp::debug_drain(&mut startup_events);
+        let startup_initialized = startup_events[..startup_event_count]
+            .iter()
+            .any(|event| event.event == EVENT_INIT);
         // Install the scheduler hook before sys_pre_main performs its first
         // synchronous IOS request. Early block/wake events therefore remain
         // inspectable even if initialization stalls.
@@ -2447,6 +2455,7 @@ mod wii {
         logger.section("MILESTONE 1 LWP PROBE");
         logger.note("persistent log: /tmp/ogc-system-probe.log (or mounted app log when enabled)");
         logger.note("debug hook is IRQ-safe only when it performs bounded atomic writes");
+        probe_lwp_startup_initialization(&mut logger, startup_initialized);
         logger.record(
             "system initialization kept floating point enabled",
             ogc_system::runtime_fp_disabled_stage() == 0,
@@ -2486,6 +2495,20 @@ mod wii {
             probe_support::service_power_shutdown();
             probe_support::wait_vsync();
         }
+    }
+
+    fn probe_lwp_startup_initialization(logger: &mut ProbeLogger, startup_event_seen: bool) {
+        logger.section("LWP STARTUP INITIALIZATION");
+        logger.record(
+            "LWP initialization event is present before probe calls",
+            startup_event_seen,
+        );
+        let current = lwp::get_self();
+        lwp::initialize();
+        logger.record(
+            "LWP public initialization preserves startup scheduler state",
+            current != lwp::LWP_THREAD_NULL && lwp::get_self() == current,
+        );
     }
 }
 
