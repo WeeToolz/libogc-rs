@@ -102,4 +102,8 @@ below are a checked snapshot, not completion criteria.
   inputs are missing. Eight host tests pass; the package remains incomplete.
 - `rust-anything` CLI and doctor run. The CLI is available, but no Codex MCP
   server is configured. No MCP setup change was needed for this work.
+- BlockFS source and tests were inspected, but the generic commit author and
+  missing implementer identity do not permit an independent approval. The
+  ledger claim was released. Repository guidance now requires identifying the
+  implementer before claiming a re-review.
 - Pushed the verified commits through `d63d3f65` to `origin/main`.
