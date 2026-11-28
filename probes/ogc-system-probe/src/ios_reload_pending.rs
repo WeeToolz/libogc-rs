@@ -162,19 +162,28 @@ unsafe extern "C" fn competing_scope_worker(_: *mut c_void) -> *mut c_void {
         core::ptr::null_mut(),
     ) == ipc::IPC_EQUEUEFULL;
     let replacement_rejected = matches!(ipc::IosReplacement::begin(), Err(ipc::IPC_EQUEUEFULL));
+    let es_close_rejected = ogc_es_sys::close() == ipc::IPC_EQUEUEFULL;
     (usize::from(sync_rejected)
         | (usize::from(async_rejected) << 1)
-        | (usize::from(replacement_rejected) << 2)) as *mut c_void
+        | (usize::from(replacement_rejected) << 2)
+        | (usize::from(es_close_rejected) << 3)) as *mut c_void
 }
 
 // Exercise the reservation gate without claiming that an IOS launch occurred.
 // Dropping the scope on this path must not cancel any accepted request.
 fn verify_submission_scope(logger: &mut ProbeLogger) -> bool {
     logger.section("IOS replacement submission scope");
+    let es_init = ogc_es_sys::init();
+    logger.note_i32("replacement scope ES initialization", es_init);
+    logger.record("replacement scope initializes ES", es_init == 0);
+    if es_init != 0 {
+        return false;
+    }
     let before = measure_capacity(logger, "replacement scope initial request records");
     let scope = ipc::IosReplacement::begin();
     logger.record("replacement scope acquired", scope.is_ok());
     let Ok(scope) = scope else {
+        let _ = ogc_es_sys::close();
         return false;
     };
     let nested = matches!(ipc::IosReplacement::begin(), Err(ipc::IPC_EQUEUEFULL));
@@ -210,22 +219,32 @@ fn verify_submission_scope(logger: &mut ProbeLogger) -> bool {
     let joined = created == ogc_lwp::sys::LWP_SUCCESSFUL
         && unsafe { ogc_lwp::sys::join_thread(thread, &mut worker_result) }
             == ogc_lwp::sys::LWP_SUCCESSFUL;
-    let competing = joined && worker_result as usize == 7;
+    let competing = joined && worker_result as usize == 15;
     logger.record(
-        "replacement scope rejects competing thread sync async and nested replacement",
+        "replacement scope rejects competing thread sync async nested replacement and ES close",
         competing,
     );
     drop(scope);
     let recovered =
         ipc::open_file(c"/dev/fs", ipc::IPC_OPEN_NONE).is_ok_and(|fd| fd.close().is_ok());
     logger.record("replacement scope drop permits fresh request", recovered);
+    let mut consumption_count = 0xa5a5_a5a5;
+    // SAFETY: The output points to a writable u32. This read-only query checks
+    // that a rejected ES close kept the descriptor usable.
+    let es_usable = unsafe {
+        ogc_es_sys::get_consumption_count(u64::MAX, &mut consumption_count) >= 0
+            && consumption_count == 0
+    };
+    logger.record("ES remains usable after rejected close", es_usable);
+    let es_closed = ogc_es_sys::close() == 0;
+    logger.record("ES closes after replacement scope ends", es_closed);
     let after = measure_capacity(logger, "replacement scope final request records");
     let clean = before == after && NEW_COUNT.load(Ordering::Acquire) == 0;
     logger.record(
         "replacement scope rejection releases resources without callback",
         clean,
     );
-    nested && rejected && sync_ok && competing && recovered && clean
+    nested && rejected && sync_ok && competing && recovered && es_usable && es_closed && clean
 }
 
 pub(super) fn run(logger: &mut ProbeLogger, version: i32) {
