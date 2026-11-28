@@ -49,6 +49,7 @@ static IOS_ES_INIT_RESULT: AtomicI32 = AtomicI32::new(0);
 static IOS_STM_INIT_RESULT: AtomicI32 = AtomicI32::new(0);
 static IOS_ES_CLOSE_RESULT: AtomicI32 = AtomicI32::new(0);
 static IOS_STM_CLOSE_RESULT: AtomicI32 = AtomicI32::new(0);
+static IOS_LIFECYCLE_ACTIVE: AtomicBool = AtomicBool::new(false);
 #[cfg(feature = "ios-reload-probe")]
 static IOS_NEXT_LAUNCH_RESULT_FOR_PROBE: AtomicI32 = AtomicI32::new(0);
 
@@ -369,7 +370,24 @@ pub fn _ios_load_startup_ios() -> i32 {
     0
 }
 
-pub fn _ios_launch_new_ios(version: i32) -> i32 {
+struct IosLifecycleGuard;
+
+impl IosLifecycleGuard {
+    fn acquire() -> Result<Self, i32> {
+        IOS_LIFECYCLE_ACTIVE
+            .compare_exchange(false, true, Ordering::AcqRel, Ordering::Acquire)
+            .map(|_| Self)
+            .map_err(|_| ogc_ipc::IPC_EQUEUEFULL)
+    }
+}
+
+impl Drop for IosLifecycleGuard {
+    fn drop(&mut self) {
+        IOS_LIFECYCLE_ACTIVE.store(false, Ordering::Release);
+    }
+}
+
+fn launch_new_ios_inner(version: i32) -> i32 {
     #[cfg(target_arch = "powerpc")]
     {
         launch_ios_from_es(version)
@@ -387,6 +405,14 @@ pub fn _ios_launch_new_ios(version: i32) -> i32 {
     }
 }
 
+pub fn _ios_launch_new_ios(version: i32) -> i32 {
+    let _guard = match IosLifecycleGuard::acquire() {
+        Ok(guard) => guard,
+        Err(error) => return error,
+    };
+    launch_new_ios_inner(version)
+}
+
 pub fn get_preferred_version() -> i32 {
     if cfg!(target_arch = "powerpc") {
         return preferred_version_powerpc();
@@ -395,7 +421,7 @@ pub fn get_preferred_version() -> i32 {
     IOS_PREFERRED_VERSION.load(Ordering::Acquire)
 }
 
-pub fn reload_ios(version: i32) -> i32 {
+fn reload_ios_inner(version: i32) -> i32 {
     #[cfg(target_arch = "powerpc")]
     {
         // BUG FIX: C lets each later failure replace an earlier reload error.
@@ -406,7 +432,7 @@ pub fn reload_ios(version: i32) -> i32 {
         let es_init = es::init();
         ret = update_error(ret, es_init);
         if es_init >= 0 {
-            let launch = _ios_launch_new_ios(version);
+            let launch = launch_new_ios_inner(version);
             if launch < 0 {
                 // C closes ES here but preserves the launch result if close fails.
                 let close = es::close();
@@ -429,7 +455,7 @@ pub fn reload_ios(version: i32) -> i32 {
         let es_init = IOS_ES_INIT_RESULT.load(Ordering::Acquire);
         ret = update_error(ret, es_init);
         if es_init >= 0 {
-            let launch = _ios_launch_new_ios(version);
+            let launch = launch_new_ios_inner(version);
             if launch < 0 {
                 ret = update_error(ret, launch);
             }
@@ -440,6 +466,14 @@ pub fn reload_ios(version: i32) -> i32 {
 
         ret
     }
+}
+
+pub fn reload_ios(version: i32) -> i32 {
+    let _guard = match IosLifecycleGuard::acquire() {
+        Ok(guard) => guard,
+        Err(error) => return error,
+    };
+    reload_ios_inner(version)
 }
 
 pub fn get_version() -> i32 {
@@ -540,6 +574,17 @@ mod tests {
         assert_eq!(get_version(), 60);
         assert_eq!(_ios_launch_new_ios(2), IOS_EBADVERSION);
         assert_eq!(_ios_shutdown_subsystems(), 0);
+    }
+
+    #[test]
+    fn lifecycle_guard_rejects_a_competing_owner_and_releases_on_drop() {
+        let _guard = IosLifecycleGuard::acquire().expect("first lifecycle owner");
+        assert!(matches!(
+            IosLifecycleGuard::acquire(),
+            Err(ogc_ipc::IPC_EQUEUEFULL)
+        ));
+        drop(_guard);
+        assert!(IosLifecycleGuard::acquire().is_ok());
     }
 
     #[test]

@@ -569,6 +569,11 @@ pub(super) fn deinit_fs() -> i32 {
     if result < 0 { result } else { 0 }
 }
 
+pub(super) fn is_registered() -> bool {
+    let path = unsafe { CStr::from_bytes_with_nul_unchecked(ES_DEVICE_PATH) };
+    sysbase::find_device(path) >= 0
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

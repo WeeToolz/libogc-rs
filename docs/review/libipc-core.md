@@ -881,3 +881,18 @@ C does. This fixes the reviewed state-loss path. It does not
 serialize the full `reload_ios` sequence or verify the concurrent path in
 Dolphin. PowerPC test code compiles, but the installed linker cannot link the
 target test binary; runtime concurrency and physical Wii evidence remain open.
+
+## Close ownership and IOS lifecycle guard — 2026-11-27
+
+`FileDescriptor::close_with_status` consumes the descriptor. A submission
+failure returns ownership to ES, while an IOS reply error leaves it consumed.
+ES records whether `es:` was registered before close and restores it only when
+this call removed it. Successful verification skips ES reinitialization when a
+rejected close left the descriptor active. The public launch and reload paths
+share a nonblocking lifecycle guard that returns `IPC_EQUEUEFULL` before a
+competing reload changes subsystem state.
+
+PowerPC test code compiles, host tests and strict Clippy pass, and the Dolphin
+probe DOL builds. Dolphin exits with `SIGABRT` for `--version`, so the runtime
+probe did not run. The target unit test binary cannot link with the installed
+host linker. Keep runtime concurrency and physical Wii checks open.

@@ -324,14 +324,18 @@ MEM2 protection register and may patch ES code, so its runtime check needs an
 environment with an explicit reset path. These APIs remain open.
 
 
-## IOS replacement gate and ES state — 2026-11-27
+## IOS replacement and ES close safety — 2026-11-27
 
-Independent source review found that ES per-call state locking does not
-coordinate `close_state` or `reopen_after_verify` with the IOS replacement
-gate. `close_state` removes the descriptor and filesystem registration before
-submitting `fd.close()` (`crates/core/ogc-es-sys/src/imp.rs:430`). If the
-replacement gate rejects that request, a concurrent reload may have removed
-the ES descriptor needed by the active title launch. Pinned C also lacks a
-whole-reload lock, so this is a safety gap rather than a C/Rust parity
-mismatch. Full details and the planned fix are tracked in
-[`libipc-core.md`](libipc-core.md#independent-ipcioses-lifecycle-review--2026-11-27).
+`FileDescriptor::close_with_status` consumes the handle and returns it only
+when IPC rejects the request before IOS replies. ES removes its filesystem
+registration before the request and restores it only when it existed before
+close. `reopen_after_verify` does not reopen ES while a rejected close left the
+descriptor active. A lifecycle guard now covers direct launch and the full
+reload sequence, so a competing call receives `IPC_EQUEUEFULL` before it can
+change ES or STM state.
+
+PowerPC test code compiles. `cargo xtask test-host` and strict Clippy pass.
+Runtime checks for concurrent close and reload remain open. Dolphin exits with
+`SIGABRT` for `--version`, so the built `ios_reload_probe` did not run. The
+target unit test binary did not link with the installed host linker. Physical
+Wii behavior remains open.

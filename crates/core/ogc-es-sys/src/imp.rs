@@ -213,29 +213,33 @@ fn current_heap(state: &EsState) -> Result<HeapId, i32> {
     state.heap.ok_or(ES_ENOTINIT)
 }
 
-fn close_state_with_restore<T>(
-    slot: &mut Option<T>,
+fn close_state_with_restore(
+    slot: &mut Option<FileDescriptor>,
+    registration_present: bool,
     remove_registration: impl FnOnce() -> i32,
-    close: impl FnOnce(&T) -> Result<(), ogc_ipc::FileCloseError>,
+    close: impl FnOnce(FileDescriptor) -> Result<(), ogc_ipc::FileCloseError>,
     restore_registration: impl FnOnce() -> i32,
 ) -> i32 {
-    let Some(value) = slot.as_ref() else {
+    let Some(value) = slot.take() else {
         return 0;
     };
-    let registration_rc = remove_registration();
+    let registration_rc = if registration_present {
+        remove_registration()
+    } else {
+        0
+    };
     match close(value) {
-        Ok(()) => {
-            slot.take();
-            registration_rc
-        }
-        Err(ogc_ipc::FileCloseError::Submission(rc)) => {
-            let restore_rc = restore_registration();
+        Ok(()) => registration_rc,
+        Err(ogc_ipc::FileCloseError::Submission(fd, rc)) => {
+            *slot = Some(fd);
+            let restore_rc = if registration_present {
+                restore_registration()
+            } else {
+                0
+            };
             if restore_rc < 0 { restore_rc } else { rc }
         }
-        Err(ogc_ipc::FileCloseError::Reply(rc)) => {
-            slot.take();
-            rc
-        }
+        Err(ogc_ipc::FileCloseError::Reply(rc)) => rc,
     }
 }
 
@@ -243,7 +247,9 @@ fn reopen_after_verify(state: &mut EsState) {
     // C closes and initializes ES after successful verification. Both secondary
     // results are discarded; the caller receives the original IOS result.
     let _ = close_state(state);
-    let _ = init_state(state);
+    if state.fd.is_none() {
+        let _ = init_state(state);
+    }
 }
 
 fn bytes_of<T>(value: &T) -> &[u8] {
@@ -458,8 +464,9 @@ fn close_state(state: &mut EsState) -> i32 {
     // close request, restore the registration and keep the descriptor.
     close_state_with_restore(
         &mut state.fd,
+        filesystem::is_registered(),
         filesystem::deinit_fs,
-        FileDescriptor::close_ref_with_status,
+        FileDescriptor::close_with_status,
         filesystem::init_fs,
     )
 }
@@ -2513,19 +2520,20 @@ mod tests {
 
     #[test]
     fn close_state_restores_registration_when_ipc_rejects_close() {
-        let mut slot = Some(7);
+        let mut slot = Some(FileDescriptor::new(7));
         let stage = core::cell::Cell::new(0);
         let result = close_state_with_restore(
             &mut slot,
+            true,
             || {
                 assert_eq!(stage.get(), 0);
                 stage.set(1);
                 0
             },
-            |_| {
+            |fd| {
                 assert_eq!(stage.get(), 1);
                 stage.set(2);
-                Err(ogc_ipc::FileCloseError::Submission(-8))
+                Err(ogc_ipc::FileCloseError::Submission(fd, -8))
             },
             || {
                 assert_eq!(stage.get(), 2);
@@ -2535,28 +2543,29 @@ mod tests {
         );
 
         assert_eq!(result, -8);
-        assert_eq!(slot, Some(7));
+        assert_eq!(slot.as_ref().map(FileDescriptor::raw), Some(7));
         assert_eq!(stage.get(), 3);
     }
 
     #[test]
     fn close_state_reports_registration_restore_failure() {
-        let mut slot = Some(7);
+        let mut slot = Some(FileDescriptor::new(7));
         let result = close_state_with_restore(
             &mut slot,
+            true,
             || 0,
-            |_| Err(ogc_ipc::FileCloseError::Submission(-8)),
+            |fd| Err(ogc_ipc::FileCloseError::Submission(fd, -8)),
             || -12,
         );
 
         assert_eq!(result, -12);
-        assert_eq!(slot, Some(7));
+        assert_eq!(slot.as_ref().map(FileDescriptor::raw), Some(7));
     }
 
     #[test]
     fn close_state_clears_descriptor_after_success() {
-        let mut slot = Some(7);
-        let result = close_state_with_restore(&mut slot, || -12, |_| Ok(()), || panic!());
+        let mut slot = Some(FileDescriptor::new(7));
+        let result = close_state_with_restore(&mut slot, true, || -12, |_| Ok(()), || panic!());
 
         assert_eq!(result, -12);
         assert_eq!(slot, None);
@@ -2564,10 +2573,11 @@ mod tests {
 
     #[test]
     fn close_state_clears_descriptor_after_ios_reply_error() {
-        let mut slot = Some(7);
+        let mut slot = Some(FileDescriptor::new(7));
         let mut restored = false;
         let result = close_state_with_restore(
             &mut slot,
+            true,
             || 0,
             |_| Err(ogc_ipc::FileCloseError::Reply(-6)),
             || {
