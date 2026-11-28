@@ -297,6 +297,11 @@ name = "bluetooth_probe"
 path = "src/bluetooth_probe/main.rs"
 
 [[bin]]
+name = "bt_dispatch_probe"
+path = "src/bt_dispatch_probe/main.rs"
+required-features = ["dolphin-automation"]
+
+[[bin]]
 name = "libmad_probe"
 path = "src/libmad_probe/main.rs"
 

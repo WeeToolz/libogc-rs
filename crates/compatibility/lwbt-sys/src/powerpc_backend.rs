@@ -6,7 +6,7 @@ use ogc_bt_sync::{
     BluetoothAddress, BtSyncHost, HIDP_DATA_RTYPE_OUTPUT, HIDP_TRANS_DATA, HciEvent, HciOpcode,
     HidL2capState, L2CAP_CFG_SUCCESS, L2CAP_CID_SIGNALING, L2CAP_HID_CTRL_LOCAL_CID,
     L2CAP_HID_INTR_LOCAL_CID, L2CAP_PSM_HID_CTRL, L2CAP_PSM_HID_INTR, L2capSignalPayload,
-    ScanEnable,
+    ScanEnable, TransferRequest,
 };
 use ogc_conf::{self as conf, ConfPadGuestDevice, ConfPadGuests};
 use ogc_lwp_driver::{TICKS_PER_SECOND, critical_enter, critical_exit, now_ticks, yield_thread};
@@ -76,8 +76,17 @@ static mut HOST: MaybeUninit<BtSyncHost> = MaybeUninit::uninit();
 static HOST_READY: AtomicBool = AtomicBool::new(false);
 static PAIR_MODE: AtomicU32 = AtomicU32::new(PAIR_MODE_NORMAL as u32);
 static ACL_DISPATCH_RUNNING: AtomicBool = AtomicBool::new(false);
-static CONNECTION_TASK: AtomicU32 = AtomicU32::new(CONNECTION_TASK_IDLE);
-static CONNECTION_TASK_INDEX: AtomicU32 = AtomicU32::new(0);
+static CONNECTION_TASKS: [AtomicU32; crate::PCB_SLOTS] =
+    [const { AtomicU32::new(CONNECTION_TASK_IDLE) }; crate::PCB_SLOTS];
+static CONNECTION_TASK_DONE: [AtomicBool; crate::PCB_SLOTS] =
+    [const { AtomicBool::new(false) }; crate::PCB_SLOTS];
+static CONNECTION_TASK_DONE_GENERATION: [AtomicU32; crate::PCB_SLOTS] =
+    [const { AtomicU32::new(0) }; crate::PCB_SLOTS];
+static CONNECTION_TASK_RESULT: [AtomicU32; crate::PCB_SLOTS] =
+    [const { AtomicU32::new(0) }; crate::PCB_SLOTS];
+static CONNECTION_TASK_GENERATION: [AtomicU32; crate::PCB_SLOTS] =
+    [const { AtomicU32::new(0) }; crate::PCB_SLOTS];
+static CONNECTION_WAKE_PENDING: AtomicBool = AtomicBool::new(false);
 static CONNECTION_WORKER_RUNNING: AtomicBool = AtomicBool::new(false);
 static mut CONNECTION_WORKER: u32 = ogc_lwp_driver::LWP_THREAD_NULL;
 static mut CONNECTION_WORKER_STACK: [u8; CONNECTION_WORKER_STACK_SIZE] =
@@ -171,6 +180,7 @@ impl PcbTransport {
 
 static mut PCB_TRANSPORTS: [PcbTransport; crate::PCB_SLOTS] =
     [const { PcbTransport::new() }; crate::PCB_SLOTS];
+static mut CONNECTION_TASK_STARTED: [u64; crate::PCB_SLOTS] = [0; crate::PCB_SLOTS];
 
 fn map_error<T>(result: ogc_bt_sync::Result<T>) -> Result<T, i32> {
     result.map_err(|_| ERR_IF)
@@ -259,6 +269,9 @@ pub(crate) fn init() -> i32 {
 pub(crate) fn shutdown() -> i32 {
     PAIR_MODE.store(PAIR_MODE_NORMAL as u32, Ordering::Release);
     if stop_connection_worker().is_err() {
+        return ERR_IF;
+    }
+    if stop_acl_dispatcher().is_err() {
         return ERR_IF;
     }
     for index in 0..crate::PCB_SLOTS {
@@ -420,13 +433,15 @@ fn transport_for(pcb: *mut crate::BtePcb) -> Option<&'static mut PcbTransport> {
     (index < crate::PCB_SLOTS).then(|| unsafe { &mut PCB_TRANSPORTS[index] })
 }
 
-pub(crate) fn free_transport(pcb: *mut crate::BtePcb) {
-    if let Some(index) = crate::pcb_index(pcb)
-        && index < crate::PCB_SLOTS
-    {
+pub(crate) fn free_transport(index: usize) {
+    if index < crate::PCB_SLOTS {
+        CONNECTION_TASKS[index].store(CONNECTION_TASK_IDLE, Ordering::Release);
+        CONNECTION_TASK_DONE[index].store(false, Ordering::Release);
+        let irq = critical_enter();
         unsafe {
             PCB_TRANSPORTS[index] = PcbTransport::new();
         }
+        critical_exit(irq);
     }
 }
 
@@ -439,7 +454,9 @@ fn start_connection_worker() -> Result<(), i32> {
     {
         return Err(ERR_IF);
     }
-    CONNECTION_TASK.store(CONNECTION_TASK_IDLE, Ordering::Release);
+    for task in &CONNECTION_TASKS {
+        task.store(CONNECTION_TASK_IDLE, Ordering::Release);
+    }
     CONNECTION_WORKER_RUNNING.store(true, Ordering::Release);
     let result = unsafe {
         ogc_lwp_driver::create_thread(
@@ -494,22 +511,73 @@ fn stop_connection_worker() -> Result<(), i32> {
             ogc_lwp_driver::LWP_SEM_NULL,
         );
     }
-    CONNECTION_TASK.store(CONNECTION_TASK_IDLE, Ordering::Release);
+    for task in &CONNECTION_TASKS {
+        task.store(CONNECTION_TASK_IDLE, Ordering::Release);
+    }
     Ok(())
 }
 
 fn reserve_connection_task(index: usize) -> Result<(), i32> {
-    if !CONNECTION_WORKER_RUNNING.load(Ordering::Acquire) {
+    if index >= crate::PCB_SLOTS || !CONNECTION_WORKER_RUNNING.load(Ordering::Acquire) {
         return Err(ERR_IF);
     }
-    try_reserve_connection_task(&CONNECTION_TASK)?;
-    CONNECTION_TASK_INDEX.store(index as u32, Ordering::Relaxed);
+    try_reserve_connection_slot(&CONNECTION_TASKS[index])?;
+    let Some(generation) = crate::pcb_generation(index) else {
+        CONNECTION_TASKS[index].store(CONNECTION_TASK_IDLE, Ordering::Release);
+        return Err(ERR_ARG);
+    };
+    CONNECTION_TASK_GENERATION[index].store(generation, Ordering::Release);
+    CONNECTION_TASK_DONE[index].store(false, Ordering::Release);
+    CONNECTION_TASK_RESULT[index].store(0, Ordering::Release);
     Ok(())
 }
 
-fn try_reserve_connection_task(task: &AtomicU32) -> Result<(), i32> {
-    // The controller event endpoint has one consumer. Reject overlapping
-    // setup requests until this backend has an event router for multiple PCBs.
+fn reserve_connection_task_for_peer(index: usize, address: BluetoothAddress) -> Result<(), i32> {
+    if index >= crate::PCB_SLOTS || !CONNECTION_WORKER_RUNNING.load(Ordering::Acquire) {
+        return Err(ERR_IF);
+    }
+    let irq = critical_enter();
+    let duplicate = (0..crate::PCB_SLOTS).any(|other| {
+        if other == index {
+            return false;
+        }
+        let transport = unsafe {
+            &*core::ptr::addr_of!(PCB_TRANSPORTS)
+                .cast::<PcbTransport>()
+                .add(other)
+        };
+        let task_active =
+            CONNECTION_TASKS[other].load(Ordering::Acquire) > CONNECTION_TASK_RESERVED;
+        transport.address == address && (transport.handle != 0 || task_active)
+    });
+    if duplicate {
+        critical_exit(irq);
+        return Err(ERR_CONN);
+    }
+    if let Err(error) = try_reserve_connection_slot(&CONNECTION_TASKS[index]) {
+        critical_exit(irq);
+        return Err(error);
+    }
+    CONNECTION_TASKS[index].store(CONNECTION_TASK_CONNECT, Ordering::Release);
+    let Some(generation) = crate::pcb_generation(index) else {
+        CONNECTION_TASKS[index].store(CONNECTION_TASK_IDLE, Ordering::Release);
+        critical_exit(irq);
+        return Err(ERR_ARG);
+    };
+    CONNECTION_TASK_GENERATION[index].store(generation, Ordering::Release);
+    CONNECTION_TASK_DONE[index].store(false, Ordering::Release);
+    CONNECTION_TASK_RESULT[index].store(0, Ordering::Release);
+    unsafe {
+        (*core::ptr::addr_of_mut!(PCB_TRANSPORTS)
+            .cast::<PcbTransport>()
+            .add(index))
+        .address = address;
+    }
+    critical_exit(irq);
+    Ok(())
+}
+
+fn try_reserve_connection_slot(task: &AtomicU32) -> Result<(), i32> {
     task.compare_exchange(
         CONNECTION_TASK_IDLE,
         CONNECTION_TASK_RESERVED,
@@ -520,85 +588,315 @@ fn try_reserve_connection_task(task: &AtomicU32) -> Result<(), i32> {
     .map_err(|_| ERR_CONN)
 }
 
-fn activate_connection_task(mode: u32) -> Result<(), i32> {
-    CONNECTION_TASK.store(mode, Ordering::Release);
+fn activate_connection_task(index: usize, mode: u32) -> Result<(), i32> {
+    if index >= crate::PCB_SLOTS {
+        return Err(ERR_ARG);
+    }
+    unsafe {
+        *core::ptr::addr_of_mut!(CONNECTION_TASK_STARTED)
+            .cast::<u64>()
+            .add(index) = now_ticks();
+    }
+    CONNECTION_TASKS[index].store(mode, Ordering::Release);
+    if wake_connection_worker().is_err() {
+        CONNECTION_TASKS[index].store(CONNECTION_TASK_IDLE, Ordering::Release);
+        Err(ERR_IF)
+    } else {
+        Ok(())
+    }
+}
+
+fn wake_connection_worker() -> Result<(), i32> {
+    if CONNECTION_WAKE_PENDING.swap(true, Ordering::AcqRel) {
+        return Ok(());
+    }
     let sem = unsafe { core::ptr::read(core::ptr::addr_of!(CONNECTION_WORKER_SEMAPHORE)) };
     if ogc_lwp_driver::semaphore_post(sem) == ogc_lwp_driver::LWP_SUCCESSFUL {
         Ok(())
     } else {
-        CONNECTION_TASK.store(CONNECTION_TASK_IDLE, Ordering::Release);
+        CONNECTION_WAKE_PENDING.store(false, Ordering::Release);
         Err(ERR_IF)
     }
 }
 
 unsafe extern "C" fn connection_worker_thread(_: *mut c_void) -> *mut c_void {
     let sem = unsafe { core::ptr::read(core::ptr::addr_of!(CONNECTION_WORKER_SEMAPHORE)) };
+    let mut event_read: Option<TransferRequest> = None;
+    let mut events = [0u8; ogc_bt_sync::MAX_EVENT_PACKET_BYTES];
     while CONNECTION_WORKER_RUNNING.load(Ordering::Acquire) {
-        if ogc_lwp_driver::semaphore_wait(sem) != ogc_lwp_driver::LWP_SUCCESSFUL {
-            let mode = CONNECTION_TASK.swap(CONNECTION_TASK_RESERVED, Ordering::AcqRel);
-            let index = CONNECTION_TASK_INDEX.load(Ordering::Acquire) as usize;
-            if matches!(
-                mode,
-                CONNECTION_TASK_CONNECT
-                    | CONNECTION_TASK_LISTEN
-                    | CONNECTION_TASK_CONNECT_STEP2
-                    | CONNECTION_TASK_LISTEN_STEP2
-            ) {
-                finish_connection_task(mode, index, Err(ERR_IF));
+        if !CONNECTION_TASKS
+            .iter()
+            .any(|task| task.load(Ordering::Acquire) > CONNECTION_TASK_RESERVED)
+        {
+            if ogc_lwp_driver::semaphore_wait(sem) != ogc_lwp_driver::LWP_SUCCESSFUL {
+                CONNECTION_WAKE_PENDING.store(false, Ordering::Release);
+                for (index, task) in CONNECTION_TASKS.iter().enumerate() {
+                    let mode = task.swap(CONNECTION_TASK_IDLE, Ordering::AcqRel);
+                    if mode > CONNECTION_TASK_RESERVED {
+                        finish_connection_task(
+                            mode,
+                            index,
+                            CONNECTION_TASK_GENERATION[index].load(Ordering::Acquire),
+                            Err(ERR_IF),
+                        );
+                    }
+                }
+                CONNECTION_WORKER_RUNNING.store(false, Ordering::Release);
+                break;
             }
-            CONNECTION_WORKER_RUNNING.store(false, Ordering::Release);
-            break;
+            CONNECTION_WAKE_PENDING.store(false, Ordering::Release);
         }
         if !CONNECTION_WORKER_RUNNING.load(Ordering::Acquire) {
             break;
         }
-        let mode = CONNECTION_TASK.swap(CONNECTION_TASK_RESERVED, Ordering::AcqRel);
-        let index = CONNECTION_TASK_INDEX.load(Ordering::Acquire) as usize;
-        if matches!(
-            mode,
-            CONNECTION_TASK_CONNECT
-                | CONNECTION_TASK_LISTEN
-                | CONNECTION_TASK_CONNECT_STEP2
-                | CONNECTION_TASK_LISTEN_STEP2
-        ) {
-            run_connection_task(mode, index);
-        } else {
-            CONNECTION_TASK.store(CONNECTION_TASK_IDLE, Ordering::Release);
+        let Some(host) = host() else {
+            fail_connection_tasks(ERR_IF);
+            continue;
+        };
+        if event_read.is_none() {
+            match host.read_event_async() {
+                Ok(request) => event_read = Some(request),
+                Err(_) => {
+                    fail_connection_tasks(ERR_IF);
+                    yield_thread();
+                    continue;
+                }
+            }
         }
+        if let Some(request) = event_read.as_ref()
+            && let Some(result) = request.copy_to(&mut events)
+        {
+            event_read.take();
+            match result {
+                Ok(used) if used > 0 => process_connection_event(host, &events[..used]),
+                Ok(_) => {}
+                Err(_) => fail_connection_tasks(ERR_IF),
+            }
+        }
+        complete_finished_connection_tasks();
+        timeout_connection_tasks();
+        yield_thread();
     }
+    event_read.take();
     CONNECTION_WORKER_RUNNING.store(false, Ordering::Release);
     core::ptr::null_mut()
 }
 
-// BUG FIX: the C async entry points return after request submission. This
-// worker owns the later HCI/L2CAP waits and reports their final result by callback.
-fn run_connection_task(mode: u32, index: usize) {
-    let Some(pcb) = crate::pcb_for_index(index) else {
-        CONNECTION_TASK.store(CONNECTION_TASK_IDLE, Ordering::Release);
-        return;
-    };
-    let transport = unsafe {
-        &mut *core::ptr::addr_of_mut!(PCB_TRANSPORTS)
-            .cast::<PcbTransport>()
-            .add(index)
-    };
-    let result = host().ok_or(ERR_IF).and_then(|host| match mode {
-        CONNECTION_TASK_CONNECT => wait_for_baseband_connection(host, transport, pcb, false)
-            .and_then(|_| configure_l2cap_channel(host, transport, true, false)),
-        CONNECTION_TASK_LISTEN => wait_for_baseband_connection(host, transport, pcb, true)
-            .and_then(|_| configure_l2cap_channel(host, transport, true, true)),
-        CONNECTION_TASK_CONNECT_STEP2 => configure_l2cap_channel(host, transport, false, false)
-            .and_then(|_| ensure_acl_dispatcher()),
-        CONNECTION_TASK_LISTEN_STEP2 => configure_l2cap_channel(host, transport, false, true)
-            .and_then(|_| ensure_acl_dispatcher()),
-        _ => Err(ERR_ARG),
-    });
-    finish_connection_task(mode, index, result);
+fn fail_connection_tasks(error: i32) {
+    for (index, task) in CONNECTION_TASKS.iter().enumerate() {
+        let mode = task.swap(CONNECTION_TASK_IDLE, Ordering::AcqRel);
+        if mode > CONNECTION_TASK_RESERVED {
+            finish_connection_task(
+                mode,
+                index,
+                CONNECTION_TASK_GENERATION[index].load(Ordering::Acquire),
+                Err(error),
+            );
+        }
+    }
 }
 
-fn finish_connection_task(mode: u32, index: usize, result: Result<(), i32>) {
+fn process_connection_event(host: &BtSyncHost, bytes: &[u8]) {
+    let Ok(event) = host.parse_event(bytes) else {
+        return;
+    };
+    match event {
+        HciEvent::ConnectionRequest {
+            address,
+            class_of_device,
+            link_type,
+        } => {
+            let Some(index) = find_active_setup_for_peer(address, &[CONNECTION_TASK_LISTEN]) else {
+                return;
+            };
+            let generation = CONNECTION_TASK_GENERATION[index].load(Ordering::Acquire);
+            if handle_connection_request(host, index, address, class_of_device, link_type).is_err()
+            {
+                finish_connection_task(CONNECTION_TASK_LISTEN, index, generation, Err(ERR_IF));
+            }
+        }
+        HciEvent::ConnectionComplete {
+            status,
+            address,
+            handle,
+            ..
+        } => {
+            let Some(index) = find_active_setup_for_peer(
+                address,
+                &[CONNECTION_TASK_CONNECT, CONNECTION_TASK_LISTEN],
+            ) else {
+                return;
+            };
+            let mode = CONNECTION_TASKS[index].load(Ordering::Acquire);
+            let generation = CONNECTION_TASK_GENERATION[index].load(Ordering::Acquire);
+            if status != 0 {
+                finish_connection_task(mode, index, generation, Err(ERR_CONN));
+                return;
+            }
+            if index < crate::PCB_SLOTS {
+                let irq = critical_enter();
+                let transport = unsafe {
+                    &mut *core::ptr::addr_of_mut!(PCB_TRANSPORTS)
+                        .cast::<PcbTransport>()
+                        .add(index)
+                };
+                transport.handle = handle;
+                transport.listening = false;
+                unsafe {
+                    *core::ptr::addr_of_mut!(CONNECTION_TASK_STARTED)
+                        .cast::<u64>()
+                        .add(index) = now_ticks();
+                }
+                critical_exit(irq);
+                if let Some(pcb) = crate::pcb_for_index(index) {
+                    unsafe { (*pcb).cmdq = handle as u32 };
+                }
+                if CONNECTION_TASKS[index].load(Ordering::Acquire) == CONNECTION_TASK_CONNECT {
+                    let request_result = transport_handle(index)
+                        .ok_or(ERR_ARG)
+                        .and_then(|handle| send_setup_connection_request(host, handle, true));
+                    if request_result.is_err() {
+                        finish_connection_task(
+                            CONNECTION_TASK_CONNECT,
+                            index,
+                            generation,
+                            Err(ERR_IF),
+                        );
+                    }
+                }
+            }
+        }
+        HciEvent::CommandStatus {
+            opcode: HciOpcode::CREATE_CONNECTION,
+            status,
+        } if status != 0 => {
+            if let Some(index) = (0..crate::PCB_SLOTS).find(|index| {
+                CONNECTION_TASKS[*index].load(Ordering::Acquire) == CONNECTION_TASK_CONNECT
+                    && setup_task_is_current(*index)
+                    && transport_handle(*index) == Some(0)
+            }) {
+                finish_connection_task(
+                    CONNECTION_TASK_CONNECT,
+                    index,
+                    CONNECTION_TASK_GENERATION[index].load(Ordering::Acquire),
+                    Err(ERR_CONN),
+                );
+            }
+        }
+        HciEvent::CommandComplete {
+            opcode: HciOpcode::WRITE_SCAN_ENABLE,
+            status,
+            ..
+        } if status != 0 => {
+            for (index, task) in CONNECTION_TASKS.iter().enumerate() {
+                if task.load(Ordering::Acquire) == CONNECTION_TASK_LISTEN
+                    && setup_task_is_current(index)
+                {
+                    finish_connection_task(
+                        CONNECTION_TASK_LISTEN,
+                        index,
+                        CONNECTION_TASK_GENERATION[index].load(Ordering::Acquire),
+                        Err(ERR_CONN),
+                    );
+                }
+            }
+        }
+        HciEvent::DisconnectionComplete { handle, reason, .. } => {
+            if let Some(index) = (0..crate::PCB_SLOTS).find(|index| {
+                CONNECTION_TASKS[*index].load(Ordering::Acquire) > CONNECTION_TASK_RESERVED
+                    && setup_task_is_current(*index)
+                    && transport_handle(*index) == Some(handle)
+            }) {
+                let generation = CONNECTION_TASK_GENERATION[index].load(Ordering::Acquire);
+                if let Some(pcb) = crate::pcb_for_index(index) {
+                    let mut address = unsafe { (*pcb).bdaddr };
+                    unsafe { crate::notify_disconnect(&mut address, reason) };
+                }
+                let mode = CONNECTION_TASKS[index].load(Ordering::Acquire);
+                finish_connection_task(mode, index, generation, Err(ERR_CONN));
+            }
+        }
+        other => handle_pairing_event(host, other),
+    }
+}
+
+fn find_active_setup_for_peer(peer: BluetoothAddress, accepted_modes: &[u32]) -> Option<usize> {
+    let modes: [u32; crate::PCB_SLOTS] = core::array::from_fn(|index| {
+        let mode = CONNECTION_TASKS[index].load(Ordering::Acquire);
+        if setup_task_is_current(index) {
+            mode
+        } else {
+            CONNECTION_TASK_IDLE
+        }
+    });
+    let mut addresses = [BluetoothAddress::new([0; 6]); crate::PCB_SLOTS];
+    let irq = critical_enter();
+    for (index, address) in addresses.iter_mut().enumerate() {
+        *address = unsafe {
+            (*core::ptr::addr_of!(PCB_TRANSPORTS)
+                .cast::<PcbTransport>()
+                .add(index))
+            .address
+        };
+    }
+    critical_exit(irq);
+    find_setup_for_peer(&modes, &addresses, peer, accepted_modes)
+}
+
+fn find_setup_for_peer(
+    modes: &[u32],
+    addresses: &[BluetoothAddress],
+    peer: BluetoothAddress,
+    accepted_modes: &[u32],
+) -> Option<usize> {
+    modes
+        .iter()
+        .zip(addresses)
+        .position(|(mode, address)| accepted_modes.contains(mode) && *address == peer)
+}
+
+fn mark_connection_task_done(index: usize, generation: u32, error: i32) {
+    if index >= crate::PCB_SLOTS
+        || CONNECTION_TASKS[index].load(Ordering::Acquire) <= CONNECTION_TASK_RESERVED
+        || CONNECTION_TASK_GENERATION[index].load(Ordering::Acquire) != generation
+        || !setup_task_is_current(index)
+    {
+        return;
+    }
+    CONNECTION_TASK_RESULT[index].store(error as u32, Ordering::Relaxed);
+    CONNECTION_TASK_DONE_GENERATION[index].store(generation, Ordering::Relaxed);
+    CONNECTION_TASK_DONE[index].store(true, Ordering::Release);
+    let _ = wake_connection_worker();
+}
+
+fn complete_finished_connection_tasks() {
+    for (index, done) in CONNECTION_TASK_DONE.iter().enumerate() {
+        if done.swap(false, Ordering::AcqRel) {
+            let mode = CONNECTION_TASKS[index].load(Ordering::Acquire);
+            let error = CONNECTION_TASK_RESULT[index].load(Ordering::Acquire) as i32;
+            let generation = CONNECTION_TASK_DONE_GENERATION[index].load(Ordering::Acquire);
+            if error == ERR_OK {
+                finish_connection_task(mode, index, generation, Ok(()));
+            } else {
+                finish_connection_task(mode, index, generation, Err(error));
+            }
+        }
+    }
+}
+
+fn finish_connection_task(mode: u32, index: usize, generation: u32, result: Result<(), i32>) {
+    if index >= crate::PCB_SLOTS {
+        return;
+    }
+    if CONNECTION_TASKS[index].load(Ordering::Acquire) != mode
+        || CONNECTION_TASK_GENERATION[index].load(Ordering::Acquire) != generation
+        || crate::pcb_generation(index) != Some(generation)
+    {
+        return;
+    }
+    CONNECTION_TASKS[index].store(CONNECTION_TASK_IDLE, Ordering::Release);
+    CONNECTION_TASK_DONE[index].store(false, Ordering::Release);
     let Some(pcb) = crate::pcb_for_index(index) else {
-        CONNECTION_TASK.store(CONNECTION_TASK_IDLE, Ordering::Release);
         return;
     };
     if matches!(mode, CONNECTION_TASK_CONNECT | CONNECTION_TASK_LISTEN) {
@@ -610,26 +908,118 @@ fn finish_connection_task(mode: u32, index: usize, result: Result<(), i32>) {
             };
         }
         if result.is_err() {
-            let transport = unsafe {
-                &mut *core::ptr::addr_of_mut!(PCB_TRANSPORTS)
+            let irq = critical_enter();
+            unsafe {
+                let transport = &mut *core::ptr::addr_of_mut!(PCB_TRANSPORTS)
                     .cast::<PcbTransport>()
-                    .add(index)
-            };
-            transport.handle = 0;
-            transport.listening = false;
+                    .add(index);
+                transport.handle = 0;
+                transport.listening = false;
+            }
+            critical_exit(irq);
         }
     }
     let callback = unsafe { (*pcb).conn_cfm };
     let error = result.err().unwrap_or(ERR_OK) as u8;
-    CONNECTION_TASK.store(CONNECTION_TASK_IDLE, Ordering::Release);
     if let Some(callback) = callback {
         unsafe { callback((*pcb).cbarg, pcb, error) };
     }
 }
 
+fn setup_task_is_current(index: usize) -> bool {
+    index < crate::PCB_SLOTS
+        && crate::pcb_generation(index)
+            == Some(CONNECTION_TASK_GENERATION[index].load(Ordering::Acquire))
+}
+
+fn transport_handle(index: usize) -> Option<u16> {
+    if index >= crate::PCB_SLOTS {
+        return None;
+    }
+    let irq = critical_enter();
+    let handle = unsafe {
+        (*core::ptr::addr_of!(PCB_TRANSPORTS)
+            .cast::<PcbTransport>()
+            .add(index))
+        .handle
+    };
+    critical_exit(irq);
+    Some(handle)
+}
+
+fn control_channel_ready(index: usize) -> bool {
+    if index >= crate::PCB_SLOTS {
+        return false;
+    }
+    let irq = critical_enter();
+    let transport = unsafe {
+        &*core::ptr::addr_of!(PCB_TRANSPORTS)
+            .cast::<PcbTransport>()
+            .add(index)
+    };
+    let ready = transport.handle != 0 && transport.l2cap.control.ready();
+    critical_exit(irq);
+    ready
+}
+
+fn send_setup_connection_request(host: &BtSyncHost, handle: u16, control: bool) -> Result<(), i32> {
+    let (psm, cid, signal) = if control {
+        (L2CAP_PSM_HID_CTRL, L2CAP_HID_CTRL_LOCAL_CID, 1)
+    } else {
+        (L2CAP_PSM_HID_INTR, L2CAP_HID_INTR_LOCAL_CID, 2)
+    };
+    let mut scratch = [0u8; 128];
+    host.send_l2cap_connection_request(&mut scratch, handle, signal, psm, cid)
+        .map(|_| ())
+        .map_err(|_| ERR_IF)
+}
+
+fn timeout_connection_tasks() {
+    let now = now_ticks();
+    for (index, task) in CONNECTION_TASKS.iter().enumerate() {
+        let mode = task.load(Ordering::Acquire);
+        if mode <= CONNECTION_TASK_RESERVED || !setup_task_is_current(index) {
+            continue;
+        }
+        let (started, handle) = {
+            let irq = critical_enter();
+            let started = unsafe {
+                *core::ptr::addr_of!(CONNECTION_TASK_STARTED)
+                    .cast::<u64>()
+                    .add(index)
+            };
+            let handle = unsafe {
+                (*core::ptr::addr_of!(PCB_TRANSPORTS)
+                    .cast::<PcbTransport>()
+                    .add(index))
+                .handle
+            };
+            critical_exit(irq);
+            (started, handle)
+        };
+        let limit =
+            if matches!(mode, CONNECTION_TASK_CONNECT | CONNECTION_TASK_LISTEN) && handle == 0 {
+                10
+            } else {
+                5
+            };
+        if now.wrapping_sub(started) >= TICKS_PER_SECOND * limit {
+            finish_connection_task(
+                mode,
+                index,
+                CONNECTION_TASK_GENERATION[index].load(Ordering::Acquire),
+                Err(ERR_IF),
+            );
+        }
+    }
+}
+
 #[cfg(test)]
 mod connection_worker_tests {
-    use super::{CONNECTION_TASK_IDLE, ERR_CONN, try_reserve_connection_task};
+    use super::{
+        BluetoothAddress, CONNECTION_TASK_CONNECT, CONNECTION_TASK_IDLE, CONNECTION_TASK_LISTEN,
+        ERR_CONN, find_setup_for_peer, try_reserve_connection_slot,
+    };
     use core::sync::atomic::AtomicU32;
     use core::sync::atomic::Ordering;
 
@@ -637,11 +1027,51 @@ mod connection_worker_tests {
     fn setup_task_slot_rejects_overlap_and_reopens_after_completion() {
         let task = AtomicU32::new(CONNECTION_TASK_IDLE);
 
-        assert_eq!(try_reserve_connection_task(&task), Ok(()));
-        assert_eq!(try_reserve_connection_task(&task), Err(ERR_CONN));
+        assert_eq!(try_reserve_connection_slot(&task), Ok(()));
+        assert_eq!(try_reserve_connection_slot(&task), Err(ERR_CONN));
 
         task.store(CONNECTION_TASK_IDLE, Ordering::Release);
-        assert_eq!(try_reserve_connection_task(&task), Ok(()));
+        assert_eq!(try_reserve_connection_slot(&task), Ok(()));
+    }
+
+    #[test]
+    fn setup_slots_accept_distinct_pcbs_at_the_same_time() {
+        let tasks = [
+            AtomicU32::new(CONNECTION_TASK_IDLE),
+            AtomicU32::new(CONNECTION_TASK_IDLE),
+        ];
+
+        assert_eq!(try_reserve_connection_slot(&tasks[0]), Ok(()));
+        assert_eq!(try_reserve_connection_slot(&tasks[1]), Ok(()));
+        assert_eq!(tasks[0].load(Ordering::Acquire), 1);
+        assert_eq!(tasks[1].load(Ordering::Acquire), 1);
+        assert_eq!(try_reserve_connection_slot(&tasks[0]), Err(ERR_CONN));
+    }
+
+    #[test]
+    fn connection_events_route_to_the_matching_peer_and_setup_kind() {
+        let peer_a = BluetoothAddress::new([1, 2, 3, 4, 5, 6]);
+        let peer_b = BluetoothAddress::new([6, 5, 4, 3, 2, 1]);
+        let modes = [CONNECTION_TASK_CONNECT, CONNECTION_TASK_LISTEN];
+        let peers = [peer_a, peer_b];
+
+        assert_eq!(
+            find_setup_for_peer(
+                &modes,
+                &peers,
+                peer_a,
+                &[CONNECTION_TASK_CONNECT, CONNECTION_TASK_LISTEN]
+            ),
+            Some(0)
+        );
+        assert_eq!(
+            find_setup_for_peer(&modes, &peers, peer_b, &[CONNECTION_TASK_LISTEN]),
+            Some(1)
+        );
+        assert_eq!(
+            find_setup_for_peer(&modes, &peers, peer_a, &[CONNECTION_TASK_LISTEN]),
+            None
+        );
     }
 }
 
@@ -676,20 +1106,60 @@ fn ensure_acl_dispatcher() -> Result<(), i32> {
 
 unsafe extern "C" fn acl_dispatch_thread(_: *mut c_void) -> *mut c_void {
     let mut packet = [0u8; 1024];
+    let mut request: Option<TransferRequest> = None;
     while ACL_DISPATCH_RUNNING.load(Ordering::Acquire) && HOST_READY.load(Ordering::Acquire) {
         let Some(host) = host() else {
             break;
         };
-        match host.read_acl(&mut packet) {
-            Ok(used) => dispatch_acl_packet(&packet[..used]),
-            Err(_) => yield_thread(),
+        if request.is_none() {
+            match host.read_acl_async() {
+                Ok(pending) => request = Some(pending),
+                Err(_) => {
+                    yield_thread();
+                    continue;
+                }
+            }
         }
+        if let Some(pending) = request.as_ref()
+            && let Some(result) = pending.copy_to(&mut packet)
+        {
+            request.take();
+            match result {
+                Ok(used) if used > 0 => dispatch_acl_packet(host, &packet[..used]),
+                Ok(_) => {}
+                Err(_) => yield_thread(),
+            }
+        }
+        yield_thread();
     }
+    request.take();
     ACL_DISPATCH_RUNNING.store(false, Ordering::Release);
     core::ptr::null_mut()
 }
 
-fn dispatch_acl_packet(packet: &[u8]) {
+fn stop_acl_dispatcher() -> Result<(), i32> {
+    let was_running = ACL_DISPATCH_RUNNING.swap(false, Ordering::AcqRel);
+    let thread = unsafe { core::ptr::read(core::ptr::addr_of!(ACL_DISPATCH_THREAD)) };
+    if thread == ogc_lwp_driver::LWP_THREAD_NULL {
+        return Ok(());
+    }
+    if was_running
+        && unsafe { ogc_lwp_driver::join_thread(thread, core::ptr::null_mut()) }
+            != ogc_lwp_driver::LWP_SUCCESSFUL
+    {
+        ACL_DISPATCH_RUNNING.store(true, Ordering::Release);
+        return Err(ERR_IF);
+    }
+    unsafe {
+        core::ptr::write(
+            core::ptr::addr_of_mut!(ACL_DISPATCH_THREAD),
+            ogc_lwp_driver::LWP_THREAD_NULL,
+        );
+    }
+    Ok(())
+}
+
+fn dispatch_acl_packet(host: &BtSyncHost, packet: &[u8]) {
     let Ok(acl) = ogc_bt_sync::parse_acl_packet(packet) else {
         return;
     };
@@ -699,12 +1169,16 @@ fn dispatch_acl_packet(packet: &[u8]) {
     let Ok(l2cap) = ogc_bt_sync::parse_l2cap_packet(acl.payload) else {
         return;
     };
-    let Some(index) = (0..crate::PCB_SLOTS).find(|index| unsafe {
-        let transport = core::ptr::addr_of!(PCB_TRANSPORTS)
+    let irq = critical_enter();
+    let index = (0..crate::PCB_SLOTS).find(|index| unsafe {
+        (*core::ptr::addr_of!(PCB_TRANSPORTS)
             .cast::<PcbTransport>()
-            .add(*index);
-        (*transport).handle == acl.handle
-    }) else {
+            .add(*index))
+        .handle
+            == acl.handle
+    });
+    let Some(index) = index else {
+        critical_exit(irq);
         return;
     };
     let transport = unsafe {
@@ -712,8 +1186,24 @@ fn dispatch_acl_packet(packet: &[u8]) {
             .cast::<PcbTransport>()
             .add(index)
     };
+    critical_exit(irq);
     if l2cap.channel_id == L2CAP_CID_SIGNALING {
+        let mode = CONNECTION_TASKS[index].load(Ordering::Acquire);
+        let generation = CONNECTION_TASK_GENERATION[index].load(Ordering::Acquire);
+        if mode > CONNECTION_TASK_RESERVED
+            && setup_task_is_current(index)
+            && let Err(error) = process_setup_l2cap_packet(host, index, l2cap.payload)
+        {
+            mark_connection_task_done(index, generation, error);
+            return;
+        }
         dispatch_l2cap_signaling(index, acl.handle, l2cap.payload);
+        if mode > CONNECTION_TASK_RESERVED
+            && setup_task_is_current(index)
+            && setup_channel_ready(index, mode)
+        {
+            mark_connection_task_done(index, generation, ERR_OK);
+        }
         return;
     }
     if !transport.l2cap.ready() {
@@ -741,6 +1231,130 @@ fn dispatch_acl_packet(packet: &[u8]) {
         }
         _ => {}
     }
+}
+
+fn process_setup_l2cap_packet(host: &BtSyncHost, index: usize, payload: &[u8]) -> Result<(), i32> {
+    let mode = CONNECTION_TASKS[index].load(Ordering::Acquire);
+    let generation = CONNECTION_TASK_GENERATION[index].load(Ordering::Acquire);
+    let (control, incoming) = match mode {
+        CONNECTION_TASK_CONNECT => (true, false),
+        CONNECTION_TASK_LISTEN => (true, true),
+        CONNECTION_TASK_CONNECT_STEP2 => (false, false),
+        CONNECTION_TASK_LISTEN_STEP2 => (false, true),
+        _ => return Ok(()),
+    };
+    let (psm, local_cid, signal_id, config_index) = if control {
+        (L2CAP_PSM_HID_CTRL, L2CAP_HID_CTRL_LOCAL_CID, 1u8, 0)
+    } else {
+        (L2CAP_PSM_HID_INTR, L2CAP_HID_INTR_LOCAL_CID, 2u8, 1)
+    };
+    let irq = critical_enter();
+    let Some(mut transport) = (index < crate::PCB_SLOTS).then(|| unsafe {
+        *core::ptr::addr_of!(PCB_TRANSPORTS)
+            .cast::<PcbTransport>()
+            .add(index)
+    }) else {
+        critical_exit(irq);
+        return Err(ERR_ARG);
+    };
+    critical_exit(irq);
+    let mut scratch = [0u8; 128];
+    let mut signals = payload;
+    while let Some(signal) =
+        ogc_bt_sync::parse_next_l2cap_signal(&mut signals).map_err(|_| ERR_IF)?
+    {
+        match ogc_bt_sync::parse_l2cap_signal_payload(signal).map_err(|_| ERR_IF)? {
+            L2capSignalPayload::ConnectionRequest {
+                psm: request_psm,
+                source_cid,
+            } if incoming && request_psm == psm => {
+                let len = ogc_bt_sync::build_l2cap_connection_response(
+                    &mut scratch,
+                    transport.handle,
+                    signal.identifier,
+                    local_cid,
+                    source_cid,
+                    0,
+                )
+                .map_err(|_| ERR_IF)?;
+                host.write_acl(&scratch[..len]).map_err(|_| ERR_IF)?;
+                let channel = if control {
+                    &mut transport.l2cap.control
+                } else {
+                    &mut transport.l2cap.interrupt
+                };
+                channel.remote_cid = source_cid;
+                channel.active = true;
+                channel.connected = true;
+            }
+            L2capSignalPayload::ConfigurationRequest { dest_cid, .. } if dest_cid == local_cid => {
+                host.send_l2cap_configuration_response(
+                    &mut scratch,
+                    transport.handle,
+                    signal.identifier,
+                    dest_cid,
+                    L2CAP_CFG_SUCCESS,
+                )
+                .map_err(|_| ERR_IF)?;
+                transport.l2cap.observe_signal(signal).map_err(|_| ERR_IF)?;
+            }
+            _ => transport.l2cap.observe_signal(signal).map_err(|_| ERR_IF)?,
+        }
+    }
+    let channel = if control {
+        transport.l2cap.control
+    } else {
+        transport.l2cap.interrupt
+    };
+    if channel.connected && !transport.config_sent[config_index] {
+        host.send_l2cap_configuration_request_with_mtu(
+            &mut scratch,
+            transport.handle,
+            signal_id.wrapping_add(2),
+            channel.remote_cid,
+            HID_L2CAP_MTU,
+        )
+        .map_err(|_| ERR_IF)?;
+        transport.config_sent[config_index] = true;
+    }
+    let irq = critical_enter();
+    if CONNECTION_TASKS[index].load(Ordering::Acquire) != mode
+        || CONNECTION_TASK_GENERATION[index].load(Ordering::Acquire) != generation
+        || crate::pcb_generation(index) != Some(generation)
+    {
+        critical_exit(irq);
+        return Ok(());
+    }
+    unsafe {
+        let current = &mut *core::ptr::addr_of_mut!(PCB_TRANSPORTS)
+            .cast::<PcbTransport>()
+            .add(index);
+        current.l2cap = transport.l2cap;
+        current.config_sent = transport.config_sent;
+    }
+    critical_exit(irq);
+    Ok(())
+}
+
+fn setup_channel_ready(index: usize, mode: u32) -> bool {
+    if index >= crate::PCB_SLOTS {
+        return false;
+    }
+    let irq = critical_enter();
+    let transport = unsafe {
+        &*core::ptr::addr_of!(PCB_TRANSPORTS)
+            .cast::<PcbTransport>()
+            .add(index)
+    };
+    let ready = match mode {
+        CONNECTION_TASK_CONNECT | CONNECTION_TASK_LISTEN => transport.l2cap.control.ready(),
+        CONNECTION_TASK_CONNECT_STEP2 | CONNECTION_TASK_LISTEN_STEP2 => {
+            transport.l2cap.interrupt.ready()
+        }
+        _ => false,
+    };
+    critical_exit(irq);
+    ready
 }
 
 fn dispatch_l2cap_signaling(index: usize, handle: u16, payload: &[u8]) {
@@ -895,7 +1509,32 @@ fn accept_disconnection_response(
 
 #[cfg(feature = "dolphin-automation")]
 pub(crate) fn dolphin_disconnect_response_order_probe() -> bool {
-    disconnect_response_order_matches(&mut PcbTransport::new())
+    disconnect_response_order_matches(&mut PcbTransport::new()) && connection_dispatch_rules_match()
+}
+
+#[cfg(feature = "dolphin-automation")]
+fn connection_dispatch_rules_match() -> bool {
+    let tasks = [
+        AtomicU32::new(CONNECTION_TASK_IDLE),
+        AtomicU32::new(CONNECTION_TASK_IDLE),
+    ];
+    if try_reserve_connection_slot(&tasks[0]).is_err()
+        || try_reserve_connection_slot(&tasks[1]).is_err()
+        || try_reserve_connection_slot(&tasks[0]) != Err(ERR_CONN)
+    {
+        return false;
+    }
+
+    let first_peer = BluetoothAddress::new([1, 2, 3, 4, 5, 6]);
+    let second_peer = BluetoothAddress::new([6, 5, 4, 3, 2, 1]);
+    let modes = [CONNECTION_TASK_CONNECT, CONNECTION_TASK_LISTEN];
+    let peers = [first_peer, second_peer];
+    let routing = find_setup_for_peer(&modes, &peers, second_peer, &[CONNECTION_TASK_LISTEN])
+        == Some(1)
+        && find_setup_for_peer(&modes, &peers, first_peer, &[CONNECTION_TASK_LISTEN]).is_none();
+
+    tasks[1].store(CONNECTION_TASK_IDLE, Ordering::Release);
+    routing && try_reserve_connection_slot(&tasks[1]).is_ok()
 }
 
 #[cfg(any(feature = "dolphin-automation", test))]
@@ -1522,7 +2161,7 @@ fn handle_pairing_event(host: &BtSyncHost, event: HciEvent<'_>) {
 
 fn handle_connection_request(
     host: &BtSyncHost,
-    transport: &mut PcbTransport,
+    index: usize,
     address: BluetoothAddress,
     class_of_device: [u8; 3],
     link_type: u8,
@@ -1539,7 +2178,14 @@ fn handle_connection_request(
         params[6] = 1;
         host.send_hci_command(HciOpcode::ACCEPT_CONNECTION_REQUEST, &params)
             .map_err(|_| ERR_IF)?;
-        transport.address = address;
+        let irq = critical_enter();
+        unsafe {
+            (*core::ptr::addr_of_mut!(PCB_TRANSPORTS)
+                .cast::<PcbTransport>()
+                .add(index))
+            .address = address;
+        }
+        critical_exit(irq);
     } else {
         let mut params = [0u8; 7];
         params[..6].copy_from_slice(&address.bytes);
@@ -1548,177 +2194,6 @@ fn handle_connection_request(
             .map_err(|_| ERR_IF)?;
     }
     Ok(())
-}
-
-fn configure_l2cap_channel(
-    host: &BtSyncHost,
-    transport: &mut PcbTransport,
-    control: bool,
-    incoming: bool,
-) -> Result<(), i32> {
-    let (psm, local_cid, signal_id, config_index) = if control {
-        (L2CAP_PSM_HID_CTRL, L2CAP_HID_CTRL_LOCAL_CID, 1, 0)
-    } else {
-        (L2CAP_PSM_HID_INTR, L2CAP_HID_INTR_LOCAL_CID, 2, 1)
-    };
-    let mut scratch = [0u8; 128];
-
-    if !incoming {
-        host.send_l2cap_connection_request(
-            &mut scratch,
-            transport.handle,
-            signal_id,
-            psm,
-            local_cid,
-        )
-        .map_err(|_| ERR_IF)?;
-    }
-
-    let start = now_ticks();
-    let mut packet = [0u8; 1024];
-    loop {
-        let channel = if control {
-            transport.l2cap.control
-        } else {
-            transport.l2cap.interrupt
-        };
-        if channel.ready() {
-            return Ok(());
-        }
-        if now_ticks().wrapping_sub(start) >= TICKS_PER_SECOND * 5 {
-            return Err(ERR_IF);
-        }
-
-        let used = host.read_acl(&mut packet).map_err(|_| ERR_IF)?;
-        let acl = ogc_bt_sync::parse_acl_packet(&packet[..used]).map_err(|_| ERR_IF)?;
-        if acl.handle != transport.handle || acl.packet_boundary == 0 {
-            yield_thread();
-            continue;
-        }
-        let l2cap = ogc_bt_sync::parse_l2cap_packet(acl.payload).map_err(|_| ERR_IF)?;
-        if l2cap.channel_id != L2CAP_CID_SIGNALING {
-            yield_thread();
-            continue;
-        }
-
-        let mut signals = l2cap.payload;
-        while let Some(signal) =
-            ogc_bt_sync::parse_next_l2cap_signal(&mut signals).map_err(|_| ERR_IF)?
-        {
-            match ogc_bt_sync::parse_l2cap_signal_payload(signal).map_err(|_| ERR_IF)? {
-                L2capSignalPayload::ConnectionRequest {
-                    psm: request_psm,
-                    source_cid,
-                } if incoming && request_psm == psm => {
-                    let len = ogc_bt_sync::build_l2cap_connection_response(
-                        &mut scratch,
-                        transport.handle,
-                        signal.identifier,
-                        local_cid,
-                        source_cid,
-                        0,
-                    )
-                    .map_err(|_| ERR_IF)?;
-                    host.write_acl(&scratch[..len]).map_err(|_| ERR_IF)?;
-                    let channel = if control {
-                        &mut transport.l2cap.control
-                    } else {
-                        &mut transport.l2cap.interrupt
-                    };
-                    channel.remote_cid = source_cid;
-                    channel.active = true;
-                    channel.connected = true;
-                }
-                L2capSignalPayload::ConfigurationRequest { dest_cid, .. }
-                    if dest_cid == local_cid =>
-                {
-                    host.send_l2cap_configuration_response(
-                        &mut scratch,
-                        transport.handle,
-                        signal.identifier,
-                        dest_cid,
-                        L2CAP_CFG_SUCCESS,
-                    )
-                    .map_err(|_| ERR_IF)?;
-                    transport.l2cap.observe_signal(signal).map_err(|_| ERR_IF)?;
-                }
-                _ => {
-                    transport.l2cap.observe_signal(signal).map_err(|_| ERR_IF)?;
-                }
-            }
-        }
-
-        let channel = if control {
-            transport.l2cap.control
-        } else {
-            transport.l2cap.interrupt
-        };
-        if channel.connected && !transport.config_sent[config_index] {
-            host.send_l2cap_configuration_request_with_mtu(
-                &mut scratch,
-                transport.handle,
-                signal_id.wrapping_add(2),
-                channel.remote_cid,
-                HID_L2CAP_MTU,
-            )
-            .map_err(|_| ERR_IF)?;
-            transport.config_sent[config_index] = true;
-        }
-        yield_thread();
-    }
-}
-
-fn wait_for_baseband_connection(
-    host: &BtSyncHost,
-    transport: &mut PcbTransport,
-    pcb: *mut crate::BtePcb,
-    incoming: bool,
-) -> Result<(), i32> {
-    let mut events = [0u8; ogc_bt_sync::MAX_EVENT_PACKET_BYTES];
-    let started = now_ticks();
-    loop {
-        if now_ticks().wrapping_sub(started) >= TICKS_PER_SECOND * 10 {
-            return Err(ERR_IF);
-        }
-        let used = host.read_event(&mut events).map_err(|_| ERR_IF)?;
-        let event = host.parse_event(&events[..used]).map_err(|_| ERR_IF)?;
-        match event {
-            HciEvent::ConnectionRequest {
-                address,
-                class_of_device,
-                link_type,
-            } if incoming => {
-                handle_connection_request(host, transport, address, class_of_device, link_type)?;
-            }
-            HciEvent::ConnectionComplete {
-                status,
-                address,
-                handle,
-                ..
-            } if address == transport.address => {
-                if status != 0 {
-                    return Err(ERR_CONN);
-                }
-                transport.handle = handle;
-                transport.listening = false;
-                unsafe { (*pcb).cmdq = handle as u32 };
-                return Ok(());
-            }
-            HciEvent::CommandStatus {
-                opcode: HciOpcode::CREATE_CONNECTION,
-                status,
-            } if !incoming && status != 0 => return Err(ERR_CONN),
-            HciEvent::DisconnectionComplete { handle, reason, .. }
-                if handle == transport.handle && handle != 0 =>
-            {
-                let mut bdaddr = unsafe { (*pcb).bdaddr };
-                unsafe { crate::notify_disconnect(&mut bdaddr, reason) };
-                return Err(ERR_CONN);
-            }
-            other => handle_pairing_event(host, other),
-        }
-        yield_thread();
-    }
 }
 
 pub(crate) unsafe fn connectasync(
@@ -1733,16 +2208,17 @@ pub(crate) unsafe fn connectasync(
         let Some(index) = crate::pcb_index(pcb) else {
             return ERR_ARG;
         };
-        let Some(transport) = transport_for(pcb) else {
-            return ERR_ARG;
-        };
         let Some(host) = host() else {
             return ERR_IF;
         };
         let address = *bdaddr;
-        if let Err(error) = reserve_connection_task(index) {
+        if let Err(error) = reserve_connection_task_for_peer(index, bd_address(&address)) {
             return error;
         }
+        let irq = critical_enter();
+        let transport = &mut *core::ptr::addr_of_mut!(PCB_TRANSPORTS)
+            .cast::<PcbTransport>()
+            .add(index);
         transport.address = bd_address(&address);
         transport.handle = 0;
         transport.listening = false;
@@ -1752,18 +2228,25 @@ pub(crate) unsafe fn connectasync(
         transport.disconnect_signal_id = 0;
         transport.disconnect_local_cid = 0;
         transport.disconnect_remote_cid = 0;
+        critical_exit(irq);
         (*pcb).bdaddr = address;
         (*pcb).state = crate::HIDP_STATE_CONNECTING;
         (*pcb).conn_cfm = conn_cfm;
+        if let Err(error) = ensure_acl_dispatcher() {
+            CONNECTION_TASKS[index].store(CONNECTION_TASK_IDLE, Ordering::Release);
+            (*pcb).state = crate::HIDP_STATE_READY;
+            return error;
+        }
         if host
             .create_connection(bd_address(&address), 0xcc18, 0, 0, 0, true)
             .is_err()
         {
-            CONNECTION_TASK.store(CONNECTION_TASK_IDLE, Ordering::Release);
+            CONNECTION_TASKS[index].store(CONNECTION_TASK_IDLE, Ordering::Release);
             (*pcb).state = crate::HIDP_STATE_READY;
             return ERR_IF;
         }
-        activate_connection_task(CONNECTION_TASK_CONNECT).map_or_else(|error| error, |_| ERR_OK)
+        activate_connection_task(index, CONNECTION_TASK_CONNECT)
+            .map_or_else(|error| error, |_| ERR_OK)
     }
 }
 
@@ -1775,17 +2258,31 @@ pub(crate) unsafe fn connectasync_step2(
         let Some(index) = crate::pcb_index(pcb) else {
             return ERR_ARG;
         };
-        let Some(transport) = transport_for(pcb) else {
-            return ERR_ARG;
-        };
-        if transport.handle == 0 || !transport.l2cap.control.ready() {
+        if !control_channel_ready(index) {
             return ERR_CONN;
         }
         if let Err(error) = reserve_connection_task(index) {
             return error;
         }
         (*pcb).conn_cfm = conn_cfm;
-        activate_connection_task(CONNECTION_TASK_CONNECT_STEP2)
+        if let Err(error) = ensure_acl_dispatcher() {
+            CONNECTION_TASKS[index].store(CONNECTION_TASK_IDLE, Ordering::Release);
+            return error;
+        }
+        let Some(host) = host() else {
+            CONNECTION_TASKS[index].store(CONNECTION_TASK_IDLE, Ordering::Release);
+            return ERR_IF;
+        };
+        CONNECTION_TASKS[index].store(CONNECTION_TASK_CONNECT_STEP2, Ordering::Release);
+        let Some(handle) = transport_handle(index) else {
+            CONNECTION_TASKS[index].store(CONNECTION_TASK_IDLE, Ordering::Release);
+            return ERR_ARG;
+        };
+        if send_setup_connection_request(host, handle, false).is_err() {
+            CONNECTION_TASKS[index].store(CONNECTION_TASK_IDLE, Ordering::Release);
+            return ERR_IF;
+        }
+        activate_connection_task(index, CONNECTION_TASK_CONNECT_STEP2)
             .map_or_else(|error| error, |_| ERR_OK)
     }
 }
@@ -1805,11 +2302,10 @@ pub(crate) unsafe fn disconnect(pcb: *mut crate::BtePcb) -> i32 {
     };
     let handle = unsafe { (*transport).handle };
     if handle == 0 {
-        if unsafe { (*transport).listening } {
-            let mut events = [0u8; ogc_bt_sync::MAX_EVENT_PACKET_BYTES];
-            if let Some(host) = host() {
-                let _ = host.set_scan_enable(ScanEnable::Off, &mut events);
-            }
+        if unsafe { (*transport).listening }
+            && let Some(host) = host()
+        {
+            let _ = host.send_hci_command(HciOpcode::WRITE_SCAN_ENABLE, &[ScanEnable::Off as u8]);
         }
         unsafe {
             (*transport).listening = false;
@@ -1846,21 +2342,17 @@ pub(crate) unsafe fn listenasync(
         let Some(index) = crate::pcb_index(pcb) else {
             return ERR_ARG;
         };
-        let Some(transport) = transport_for(pcb) else {
-            return ERR_ARG;
-        };
         let Some(host) = host() else {
             return ERR_IF;
         };
+        let address = *bdaddr;
         if let Err(error) = reserve_connection_task(index) {
             return error;
         }
-        let mut events = [0u8; ogc_bt_sync::MAX_EVENT_PACKET_BYTES];
-        if host.set_scan_enable(ScanEnable::Page, &mut events).is_err() {
-            CONNECTION_TASK.store(CONNECTION_TASK_IDLE, Ordering::Release);
-            return ERR_IF;
-        }
-        let address = *bdaddr;
+        let irq = critical_enter();
+        let transport = &mut *core::ptr::addr_of_mut!(PCB_TRANSPORTS)
+            .cast::<PcbTransport>()
+            .add(index);
         transport.address = bd_address(&address);
         transport.handle = 0;
         transport.listening = true;
@@ -1870,11 +2362,25 @@ pub(crate) unsafe fn listenasync(
         transport.disconnect_signal_id = 0;
         transport.disconnect_local_cid = 0;
         transport.disconnect_remote_cid = 0;
+        critical_exit(irq);
+        if host
+            .send_hci_command(HciOpcode::WRITE_SCAN_ENABLE, &[ScanEnable::Page as u8])
+            .is_err()
+        {
+            CONNECTION_TASKS[index].store(CONNECTION_TASK_IDLE, Ordering::Release);
+            return ERR_IF;
+        }
         (*pcb).bdaddr = address;
         (*pcb).state = crate::HIDP_STATE_CONNECTING;
         (*pcb).conn_cfm = conn_cfm;
 
-        activate_connection_task(CONNECTION_TASK_LISTEN).map_or_else(|error| error, |_| ERR_OK)
+        if let Err(error) = ensure_acl_dispatcher() {
+            CONNECTION_TASKS[index].store(CONNECTION_TASK_IDLE, Ordering::Release);
+            (*pcb).state = crate::HIDP_STATE_READY;
+            return error;
+        }
+        activate_connection_task(index, CONNECTION_TASK_LISTEN)
+            .map_or_else(|error| error, |_| ERR_OK)
     }
 }
 
@@ -1886,17 +2392,18 @@ pub(crate) unsafe fn listenasync_step2(
         let Some(index) = crate::pcb_index(pcb) else {
             return ERR_ARG;
         };
-        let Some(transport) = transport_for(pcb) else {
-            return ERR_ARG;
-        };
-        if transport.handle == 0 || !transport.l2cap.control.ready() {
+        if !control_channel_ready(index) {
             return ERR_CONN;
         }
         if let Err(error) = reserve_connection_task(index) {
             return error;
         }
         (*pcb).conn_cfm = conn_cfm;
-        activate_connection_task(CONNECTION_TASK_LISTEN_STEP2)
+        if let Err(error) = ensure_acl_dispatcher() {
+            CONNECTION_TASKS[index].store(CONNECTION_TASK_IDLE, Ordering::Release);
+            return error;
+        }
+        activate_connection_task(index, CONNECTION_TASK_LISTEN_STEP2)
             .map_or_else(|error| error, |_| ERR_OK)
     }
 }

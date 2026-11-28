@@ -229,6 +229,9 @@ static LINK_KEY_REQ_CB: AtomicPtr<c_void> = AtomicPtr::new(ptr::null_mut());
 static LINK_KEY_NOTIFY_CB: AtomicPtr<c_void> = AtomicPtr::new(ptr::null_mut());
 static STORED_LINK_KEY_VALID: AtomicBool = AtomicBool::new(false);
 static PCB_USED: [AtomicBool; PCB_SLOTS] = [const { AtomicBool::new(false) }; PCB_SLOTS];
+static PCB_ALLOCATING: [AtomicBool; PCB_SLOTS] = [const { AtomicBool::new(false) }; PCB_SLOTS];
+static PCB_RETIRED: [AtomicBool; PCB_SLOTS] = [const { AtomicBool::new(false) }; PCB_SLOTS];
+static PCB_GENERATION: [AtomicU32; PCB_SLOTS] = [const { AtomicU32::new(0) }; PCB_SLOTS];
 static mut PCB_STORE: [BtePcb; PCB_SLOTS] = [const {
     BtePcb {
         err: 0,
@@ -286,6 +289,11 @@ pub(crate) fn pcb_index(pcb: *mut BtePcb) -> Option<usize> {
 pub(crate) fn pcb_for_index(index: usize) -> Option<*mut BtePcb> {
     (index < PCB_SLOTS && PCB_USED[index].load(Ordering::Acquire))
         .then(|| unsafe { ptr::addr_of_mut!(PCB_STORE).cast::<BtePcb>().add(index) })
+}
+
+pub(crate) fn pcb_generation(index: usize) -> Option<u32> {
+    (index < PCB_SLOTS && PCB_USED[index].load(Ordering::Acquire))
+        .then(|| PCB_GENERATION[index].load(Ordering::Acquire))
 }
 
 pub(crate) unsafe fn deliver_data(pcb: *mut BtePcb, message: &[u8]) {
@@ -730,14 +738,31 @@ pub unsafe fn delete_stored_link_key(_bdaddr: *mut BdAddr) -> i32 {
 /// Raw pointer arguments and callbacks must be valid for the duration of the call.
 pub unsafe fn new() -> *mut BtePcb {
     for idx in 0..PCB_SLOTS {
-        if !PCB_USED[idx].swap(true, Ordering::AcqRel) {
+        if PCB_ALLOCATING[idx]
+            .compare_exchange(false, true, Ordering::AcqRel, Ordering::Acquire)
+            .is_ok()
+        {
+            if PCB_USED[idx].load(Ordering::Acquire) || PCB_RETIRED[idx].load(Ordering::Acquire) {
+                PCB_ALLOCATING[idx].store(false, Ordering::Release);
+                continue;
+            }
+            let generation = PCB_GENERATION[idx].load(Ordering::Acquire);
+            let Some(generation) = generation.checked_add(1) else {
+                PCB_RETIRED[idx].store(true, Ordering::Release);
+                PCB_ALLOCATING[idx].store(false, Ordering::Release);
+                continue;
+            };
             unsafe {
                 PCB_STORE[idx] = BtePcb::default();
                 #[cfg(not(target_arch = "powerpc"))]
                 {
                     PCB_STORE[idx].bdaddr = deterministic_bdaddr();
                 }
-                return ptr::addr_of_mut!(PCB_STORE[idx]);
+                let pcb = ptr::addr_of_mut!(PCB_STORE[idx]);
+                PCB_GENERATION[idx].store(generation, Ordering::Release);
+                PCB_USED[idx].store(true, Ordering::Release);
+                PCB_ALLOCATING[idx].store(false, Ordering::Release);
+                return pcb;
             }
         }
     }
@@ -748,11 +773,22 @@ pub unsafe fn new() -> *mut BtePcb {
 ///
 /// Raw pointer arguments and callbacks must be valid for the duration of the call.
 pub unsafe fn free(pcb: *mut BtePcb) {
-    #[cfg(target_arch = "powerpc")]
-    powerpc_backend::free_transport(pcb);
     if let Some(idx) = pcb_slot(pcb) {
+        while PCB_ALLOCATING[idx]
+            .compare_exchange(false, true, Ordering::AcqRel, Ordering::Acquire)
+            .is_err()
+        {
+            core::hint::spin_loop();
+        }
+        if !PCB_USED[idx].load(Ordering::Acquire) {
+            PCB_ALLOCATING[idx].store(false, Ordering::Release);
+            return;
+        }
         PCB_USED[idx].store(false, Ordering::Release);
+        #[cfg(target_arch = "powerpc")]
+        powerpc_backend::free_transport(idx);
         unsafe { PCB_STORE[idx] = BtePcb::default() };
+        PCB_ALLOCATING[idx].store(false, Ordering::Release);
     }
 }
 
@@ -1028,6 +1064,24 @@ mod tests {
         for pcb in allocated {
             unsafe { free(pcb) };
         }
+    }
+
+    #[test]
+    fn freed_pcb_generation_is_invalidated_before_slot_reuse() {
+        let _guard = TEST_LOCK
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner());
+        let pcb = unsafe { new() };
+        let index = pcb_index(pcb).expect("new PCB has a pool slot");
+        let generation = pcb_generation(index).expect("new PCB generation is live");
+
+        unsafe { free(pcb) };
+        assert_eq!(pcb_generation(index), None);
+
+        let replacement = unsafe { new() };
+        assert_eq!(pcb_index(replacement), Some(index));
+        assert_ne!(pcb_generation(index), Some(generation));
+        unsafe { free(replacement) };
     }
 
     unsafe extern "C" fn init_cb(result: i32, _userdata: *mut c_void) -> i32 {

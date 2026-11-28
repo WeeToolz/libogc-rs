@@ -473,6 +473,7 @@ const PROBE_BINARIES: &[&str] = &[
     "ipc_async_probe",
     "report_smoke_probe",
     "bluetooth_probe",
+    "bt_dispatch_probe",
     "libmad_probe",
     "libmad_rs_decode_probe",
     "mad_decode_probe",
@@ -691,9 +692,9 @@ mod probe_artifact_tests {
                 );
             }
             let expected_count = match mode {
-                Plain => 45,
-                MountedLog | Dolphin => 55,
-                AgentReport => 40,
+                Plain => 46,
+                MountedLog | Dolphin => 56,
+                AgentReport => 41,
             };
             assert_eq!(binaries.len(), expected_count, "output count in {mode:?}");
         }
@@ -704,6 +705,13 @@ mod probe_artifact_tests {
         assert!(super::PROBE_BINARIES.contains(&"bluetooth_probe"));
         let manifest = include_str!("../../probes/ogc-system-probe/Cargo.toml");
         assert!(manifest.contains("name = \"bluetooth_probe\""));
+    }
+
+    #[test]
+    fn bluetooth_dispatch_probe_is_in_the_dol_output_list() {
+        assert!(super::PROBE_BINARIES.contains(&"bt_dispatch_probe"));
+        let manifest = include_str!("../../probes/ogc-system-probe/Cargo.toml");
+        assert!(manifest.contains("name = \"bt_dispatch_probe\""));
     }
 
     #[test]

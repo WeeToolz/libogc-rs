@@ -139,6 +139,11 @@ const PROBES: &[ProbeSpec] = &[
         input_pipe: false,
     },
     ProbeSpec {
+        name: "bt_dispatch_probe",
+        timeout_seconds: 45,
+        input_pipe: false,
+    },
+    ProbeSpec {
         name: "sram_probe",
         timeout_seconds: 90,
         input_pipe: false,

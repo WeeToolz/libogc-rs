@@ -1497,6 +1497,18 @@ pub fn run_bluetooth_probe_bin() -> i32 {
     finish_probe()
 }
 
+#[cfg(all(target_arch = "powerpc", feature = "dolphin-automation"))]
+pub fn run_bt_dispatch_probe_bin() -> i32 {
+    configure_probe_app_dir("bt-dispatch-probe");
+    let mut logger = init_probe_logger();
+    logger.record(
+        "lwbt dispatcher reserves distinct setup slots and routes peer events",
+        lwbt_sys::dolphin_disconnect_response_order_probe(),
+    );
+    logger.summary();
+    finish_probe()
+}
+
 #[cfg(target_arch = "powerpc")]
 /// Runs the Bluetooth controller synchronization menu.
 pub fn run_bt_sync_menu_bin() -> i32 {
