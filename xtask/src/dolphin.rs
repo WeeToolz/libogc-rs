@@ -286,6 +286,13 @@ struct Options {
 }
 
 fn validate_format_selection(options: &Options, has_card: bool) -> Result<(), String> {
+    if std::env::var_os("LIBOGC_DOLPHIN_DEV_DOL").is_some()
+        && (options.probes.len() != 1
+            || options.probes[0] != "ogc_system_probe"
+            || std::env::var_os("LIBOGC_DOLPHIN_DEV_ELF").is_none())
+    {
+        return Err("the agent-report DOL requires exactly --probe ogc_system_probe and a matching LIBOGC_DOLPHIN_DEV_ELF".to_string());
+    }
     if options.probes.iter().any(|name| name == "ogc_system_probe")
         && (!options.no_build
             || std::env::var_os("LIBOGC_DOLPHIN_DEV_DOL").is_none()
@@ -3365,6 +3372,37 @@ mod tests {
             u32::from_be_bytes(gamecube_header[8..].try_into().unwrap()) as usize,
             gamecube_command.len()
         );
+    }
+
+    #[test]
+    fn agent_report_dol_requires_matching_system_probe_and_elf() {
+        let old_dol = std::env::var_os("LIBOGC_DOLPHIN_DEV_DOL");
+        let old_elf = std::env::var_os("LIBOGC_DOLPHIN_DEV_ELF");
+        unsafe {
+            std::env::set_var("LIBOGC_DOLPHIN_DEV_DOL", "agent.dol");
+            std::env::set_var("LIBOGC_DOLPHIN_DEV_ELF", "agent.elf");
+        }
+        let options = super::parse_options(&["--probe".into(), "ios_reload_probe".into()]).unwrap();
+        assert!(super::validate_format_selection(&options, false).is_err());
+        let options = super::parse_options(&[
+            "--no-build".into(),
+            "--probe".into(),
+            "ogc_system_probe".into(),
+        ])
+        .unwrap();
+        assert!(super::validate_format_selection(&options, false).is_ok());
+        unsafe {
+            if let Some(value) = old_dol {
+                std::env::set_var("LIBOGC_DOLPHIN_DEV_DOL", value);
+            } else {
+                std::env::remove_var("LIBOGC_DOLPHIN_DEV_DOL");
+            }
+            if let Some(value) = old_elf {
+                std::env::set_var("LIBOGC_DOLPHIN_DEV_ELF", value);
+            } else {
+                std::env::remove_var("LIBOGC_DOLPHIN_DEV_ELF");
+            }
+        }
     }
     use super::*;
 
