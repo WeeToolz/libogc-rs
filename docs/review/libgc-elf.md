@@ -97,3 +97,29 @@ I found no remaining mismatch in the reviewed legacy conversion scope. Ledger st
 `channel.rs::prepare_channel_dol` adds the native real-mode vector from HBC Reborn `wiipax/stub/realmode.S` at 0x80003400. It patches the two destination instructions with the validated DOL entry. The DOL entry field remains unchanged. This path validates section ranges, entry bounds, overlaps, the free text slot, and the BSS range. Existing ELF conversion profiles are unchanged.
 
 The assembly source and 320-byte binary are in `src/channel-entry.S` and `src/channel-entry.bin`. Rebuild with `powerpc-eabi-gcc -c -x assembler-with-cpp`, then `powerpc-eabi-objcopy -O binary -j .realmode`. Tests check independent instruction bytes, offsets, rejection paths, and payload preservation. Physical IOS entry behavior remains unverified. A Dolphin WAD boot can use the DOL entry directly; it does not prove the physical real-mode entry path.
+
+## Independent re-review — channel entry preparation — 2026-11-28
+
+Reviewer: `/root`. Implementer: `notOrrytrout`, commit `6f01e494`.
+The HBC Reborn reference is commit
+`90025e8fe503795f5246392e044e010527879cc6` at
+`../../C-sources/hbc-reborn/wiipax/stub/realmode.S` and
+`../../C-sources/hbc-reborn/wiipax/stub/channel.ld`.
+
+I compared the full channel preparation path in
+`crates/tools/gc-elf/src/channel.rs` with the reference vector. The vector
+starts at cached address `0x80003400`, sets the memory mappings and machine
+state, then transfers to the patched MEM1 entry. I assembled the pinned
+reference after replacing its linker-resolved entry with the documented test
+destination. The resulting 320-byte section matches the checked-in
+`channel-entry.bin` byte for byte (SHA-256
+`7113a21710d8db6dcf3409dd3477ba26a324a675d2129399cf5bbcdcbd3f8e1d`). The
+Rust function patches the two expected instructions, keeps the original DOL
+entry, uses an empty TEXT slot, and validates section ranges, entry placement,
+overlaps with the vector, and file bounds before publishing the output. I found
+no confirmed mismatch in this channel-entry scope.
+
+Validation: `cargo test -p gc-elf` passed all 11 unit tests;
+`cargo xtask wad-parity` passed; `cargo xtask review-status` passed before this
+result was recorded. No physical Wii run was made. This review does not prove
+IOS channel-entry behavior on hardware.

@@ -17,15 +17,15 @@ below are a checked snapshot, not completion criteria.
 
 ## Work order
 
-1. **Close source-level parity blockers.** Read each current review report and
-   compare the affected Rust code with the pinned C source. Fix only confirmed
-   mismatches. Start with the shared L2CAP dispatch blocker in `lwbt-sys`, then
-   review the AESND and `libdb-sys` blockers. Add focused regression checks and
-   target evidence. Do not claim a fix is reviewed by its implementer.
-2. **Finish incomplete source reviews.** Complete the `ogc-fat` and `gc-wad`
-   comparisons with the pinned reference and required fixtures. If a reference
-   or signing fixture is unavailable, record the exact gap and keep the review
-   incomplete.
+1. **Finish the source-review sweep.** Complete the `ogc-fat` and `gc-wad`
+   comparisons with their exact pinned references and required fixtures. If a
+   reference or signing fixture is unavailable, record the exact gap and keep
+   the review incomplete. Do not start source fixes while a review claim is
+   active or the planned review sweep is incomplete.
+2. **Resolve the source-level blockers.** After the review sweep, fix only
+   confirmed mismatches in `lwbt-sys`, AESND, and `libdb-sys`. Add focused
+   regression checks and target evidence. Do not claim a fix is reviewed by its
+   implementer.
 3. **Hand off fixed code for independent review.** Assign every
    `needs_re_review` row to an independent reviewer. Clear that state only
    after the reviewer records a complete-diff comparison and its result.
